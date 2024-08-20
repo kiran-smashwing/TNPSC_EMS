@@ -211,35 +211,42 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @foreach($treasuryOfficers as $officer)
                                 <tr>
-                                    <td>1</td>
+                                    <td>{{ $loop->iteration }}</td>
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="flex-shrink-0">
-                                                <img src="../assets/images/user/avatar-1.jpg" alt="user image" class="img-radius wid-40">
+                                                <img src="{{ $officer->image_url ?? asset('path/to/default-image.jpg') }}" alt="user image" class="img-radius wid-40">
                                             </div>
                                         </div>
                                     </td>
                                     <td>
                                         <div class="flex-grow-1 ms-3">
-                                            <h6 class="mb-0">Testing</h6>
+                                            <h6 class="mb-0">{{ $officer->name }}</h6>
                                         </div>
                                     </td>
-                                    <td>Vellore</td>
-                                    <td>example@gmail.com</td>
-                                    <td>+91-9094500072</td>
-                                    <td class="text-center"><i class="ti ti-circle-check text-success f-18"></i></td>
-
+                                    <td>{{ $officer->district }}</td>
+                                    <td>{{ $officer->email }}</td>
+                                    <td>{{ $officer->phone }}</td>
+                                    <td class="text-center">
+                                        @if($officer->email_verified)
+                                        <i class="ti ti-circle-check text-success f-18"></i>
+                                        @else
+                                        <i class="ti ti-alert-circle text-danger f-18"></i>
+                                        @endif
+                                    </td>
                                     <td>
-                                        <a href="#" class="avtar avtar-xs  btn-light-success"><i class="ti ti-eye f-20"></i></a>
-                                        <a href="{{ route('treasury_officers.edit') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
-                                        <!-- <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-trash f-20"></i></a> -->
-                                        <a href="#" class="avtar avtar-xs  btn-light-success" title="Change Status (Active or Inactive)">
+                                        <a href="{{ route('treasury_officers.show', $officer->id) }}" class="avtar avtar-xs btn-light-success"><i class="ti ti-eye f-20"></i></a>
+                                        <a href="{{ route('treasury_officers.edit', $officer->id) }}" class="avtar avtar-xs btn-light-success"><i class="ti ti-edit f-20"></i></a>
+                                        <a href="#" class="avtar avtar-xs btn-light-success" title="Change Status (Active or Inactive)">
                                             <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
                                         </a>
                                     </td>
                                 </tr>
+                                @endforeach
                             </tbody>
+                            
                         </table>
                     </div>
                 </div>

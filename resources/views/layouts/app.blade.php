@@ -37,14 +37,17 @@
     @stack('styles')
         <!-- [Page Specific CSS] end -->
           <script>
-    /*to prevent Firefox FOUC, this must be here*/
-    let FF_FOUC_FIX;
+        (function() {
+            var savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-pc-theme', savedTheme);
+        })();
   </script>
 </head>
 <!-- [Head] end -->
 <!-- [Body] Start -->
 
-<body data-pc-preset="{{ env('THEME_PRESET', 'preset-8') }}" data-pc-sidebar-caption="true" data-pc-layout="vertical" data-pc-direction="ltr" data-pc-theme_contrast="" data-pc-theme="light" data-app-url="{{ url('/') }}">
+<body data-pc-preset="{{ env('THEME_PRESET', 'preset-8') }}" data-pc-sidebar-caption="true" data-pc-layout="vertical"
+    data-pc-direction="ltr" data-pc-theme_contrast="" data-pc-theme=""  data-app-url="{{ url('/') }}">
 
     @yield('content')
     <script>

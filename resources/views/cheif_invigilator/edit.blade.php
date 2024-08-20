@@ -48,7 +48,7 @@
               <div class="col-lg-6">
                 <div class="card">
                   <div class="card-header">
-                    <h5>Cheif Invigilator Add</h5>
+                    <h5>Cheif Invigilator Edit</h5>
                   </div> 
                   <div class="card-body">
                     <div class="row">

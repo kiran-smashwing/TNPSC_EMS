@@ -52,6 +52,7 @@
 
     .dataTables_wrapper .dataTables_filter input {
         width: auto;
+        /* Adjust width as needed */
     }
 
     /* Responsive adjustments for small screens */
@@ -59,6 +60,14 @@
         .dataTables_wrapper .col-md-6 {
             flex: 0 0 100%;
             margin-bottom: 1rem;
+        }
+
+        [data-pc-direction="ltr"] .flex-wrap {
+            flex-wrap: nowrap !important;
+        }
+
+        div.dt-container div.dt-length label {
+            display: none;
         }
 
         .dataTables_wrapper .d-flex {
@@ -70,6 +79,7 @@
             flex-direction: column;
             align-items: flex-start;
         }
+
     }
 
     @media (max-width: 421px) {
@@ -83,19 +93,23 @@
         display: flex;
         flex-wrap: wrap;
         gap: 1rem;
+        /* Adds space between items */
         align-items: center;
     }
 
     /* Flexbox item for filters */
     .filter-item {
         flex: 1 1 200px;
+        /* Adjusts basis to a minimum width, grows and shrinks as needed */
     }
 
     /* Align button to the end */
     .btn-container {
         flex: 1 1 200px;
+        /* Ensures button is on the same row */
         display: flex;
         justify-content: flex-end;
+        /* Aligns the button to the right */
     }
 
     @media (max-width: 421px) {
@@ -105,49 +119,53 @@
     }
 </style>
 @endpush
-
 <!-- [ Pre-loader ] start -->
 <div class="page-loader">
     <div class="bar"></div>
 </div>
 <!-- [ Pre-loader ] End -->
-
 <!-- [ Sidebar Menu ] start -->
 @include('partials.sidebar')
 <!-- [ Sidebar Menu ] end -->
-
 <!-- [ Header Topbar ] start -->
 @include('partials.header')
-<!-- [ Header Topbar ] end -->
-
 <!-- [ Main Content ] start -->
-<div class="pc-container">
+<section class="pc-container">
     <div class="pc-content">
         <!-- [ breadcrumb ] start -->
         <div class="page-header">
             <div class="page-block">
                 <div class="row align-items-center">
+
                     <div class="col-md-12">
-                        <!-- Breadcrumb Title or other content can go here -->
+                        <!-- <div class="page-header-title">
+              <h2 class="mb-0"></h2>
+            </div> -->
                     </div>
                 </div>
             </div>
         </div>
         <!-- [ breadcrumb ] end -->
 
+
         <!-- [ Main Content ] start -->
         <div class="row">
-            <div class="col-sm-12">
+
+        </div>
+        <div class="row">
+            <!-- [ basic-table ] start -->
+            <div class="col-xl-12">
                 <div class="card">
                     <div class="card-header">
                         <div class="d-sm-flex align-items-center justify-content-between">
-                            <h5>Invigilator List</h5>
+                            <h5 class="mb-3 mb-sm-0">Invigilator list</h5>
                             <div>
-                                <a href="{{ route('invigilator.create') }}" class="btn btn-outline-success">Add Invigilator</a>
+                                <a href="{{route('invigilator.create')}}" class="btn btn-outline-success">Add Invigilator</a>
                             </div>
                         </div>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body table-border-style">
+                        <!-- Filter options -->
                         <form id="filterForm" class="mb-3">
                             <div class="filter-item">
                                 <select class="form-select" id="roleFilter" name="role">
@@ -177,8 +195,8 @@
                                 <button type="submit" class="btn btn-primary">Apply Filters</button>
                             </div>
                         </form>
-                        <!-- Filter Form End -->
-                        <!-- Data Table -->
+
+
                         <table id="testing" class="display table table-striped table-hover dt-responsive nowrap" width="100%">
                             <thead>
                                 <tr>
@@ -226,16 +244,20 @@
                 </div>
             </div>
         </div>
+        <!-- [ basic-table ] end -->
     </div>
+    <!-- [ Main Content ] end -->
+    </div>
+</section>
+<!-- [ Main Content ] end -->
+@include('partials.footer')
 
-    @include('partials.footer')
+@push('scripts')
+@include('partials.datatable-export-js')
+@endpush
 
-    @push('scripts')
-    @include('partials.datatable-export-js')
-    @endpush
-
-    @include('partials.theme')
+@include('partials.theme')
 
 
 
-    @endsection
+@endsection

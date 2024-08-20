@@ -197,8 +197,5 @@ class AuthController extends Controller
             : back()->withErrors(['email' => [__($status)]]);
     }
 
-    public function showchangePassword()
-    {
-        return view('auth.change_password');
-    }
+    
 }

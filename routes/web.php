@@ -16,6 +16,7 @@ use App\Http\Controllers\CI_AssistantsController;
 use App\Http\Controllers\District_CollectoratesController;
 use App\Http\Controllers\Designations_Controller;
 use App\Http\Controllers\Venues_Controller;
+use App\Http\Controllers\ChangePasswordController;
 use App\Http\Controllers\Department_OfficialsController;
 use App\Http\Controllers\MyAccountController;
 
@@ -34,7 +35,7 @@ Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->n
 // Protected routes (require user to be logged in) 
 Route::middleware(['auth'])->group(function () {
     // Dashboard route
-    Route::get('/change-password', [AuthController::class, 'showchangePassword'])->name('change-password');
+    Route::get('/change-password', [ChangePasswordController::class, 'showchangePassword'])->name('change-password');
     Route::get('/myaccount', [MyAccountController::class, 'index'])->name('myaccount');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 	Route::get('/centers', [CenterController::class, 'index'])->name('centers.index');

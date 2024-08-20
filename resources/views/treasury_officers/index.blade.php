@@ -226,20 +226,15 @@
                                             <h6 class="mb-0">{{ $officer->name }}</h6>
                                         </div>
                                     </td>
-                                    <td>{{ $officer->district }}</td>
-                                    <td>{{ $officer->email }}</td>
-                                    <td>{{ $officer->phone }}</td>
-                                    <td class="text-center">
-                                        @if($officer->email_verified)
-                                        <i class="ti ti-circle-check text-success f-18"></i>
-                                        @else
-                                        <i class="ti ti-alert-circle text-danger f-18"></i>
-                                        @endif
-                                    </td>
+                                    <td>Vellore</td>
+                                    <td>example@gmail.com</td>
+                                    <td>+91-9094500072</td>
+                                    <td class="text-success">Active</td>
                                     <td>
-                                        <a href="{{ route('treasury_officers.show', $officer->id) }}" class="avtar avtar-xs btn-light-success"><i class="ti ti-eye f-20"></i></a>
-                                        <a href="{{ route('treasury_officers.edit', $officer->id) }}" class="avtar avtar-xs btn-light-success"><i class="ti ti-edit f-20"></i></a>
-                                        <a href="#" class="avtar avtar-xs btn-light-success" title="Change Status (Active or Inactive)">
+                                        <a href="#" class="avtar avtar-xs  btn-light-success"><i class="ti ti-eye f-20"></i></a>
+                                        <a href="{{ route('treasury_officers.edit') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
+                                        <!-- <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-trash f-20"></i></a> -->
+                                        <a href="#" class="avtar avtar-xs  btn-light-success" title="Change Status (Active or Inactive)">
                                             <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
                                         </a>
                                     </td>

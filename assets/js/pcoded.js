@@ -218,6 +218,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Function to set the layout based on data stored in localStorage
 function setLayout() {
+
+
   var layout = localStorage.getItem('layout'); // Retrieve layout data from localStorage
 
   // Pass the layout value to main_layout_change function
@@ -233,7 +235,7 @@ function setLayout() {
     } else if (layout === 'color-header') {
       // Change logo color for color-header layout
       if (document.querySelector('.pc-sidebar .m-header .logo-lg')) {
-        document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', '../assets/images/logo-white.png');
+        document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', `${baseUrl}/storage/assets/images/logo-white.png`);
       }
     } else if (layout === 'compact') {
       script.src = '../assets/js/layout-compact.js'; // Load script for compact layout
@@ -365,7 +367,7 @@ for (var t = 0; t < tc.length; t++) {
 // Change authentication logo
 var tc = document.querySelectorAll('.auth-main.v2 .img-brand');
 for (var t = 0; t < tc.length; t++) {
-  tc[t].setAttribute('src', '../assets/images/logo-white.png');
+  tc[t].setAttribute('src', `${baseUrl}/storage/assets/images/logo-white.png`);
 }
 
 // =======================================================
@@ -530,6 +532,8 @@ function layout_rtl_change(value) {
 
 // Function to handle layout change (dark/light) and update related elements
 function layout_change(layout) {
+  // Save the layout preference in local storage
+  localStorage.setItem('theme', layout);
   // Set layout attribute and update related elements (e.g., logos)
   var control = document.querySelector('.pct-offcanvas');
   document.getElementsByTagName('body')[0].setAttribute('data-pc-theme', layout);
@@ -541,17 +545,17 @@ function layout_change(layout) {
   if (layout == 'dark') {
     dark_flag = true;
     if (document.querySelector('.pc-sidebar .m-header .logo-lg')) {
-      document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', '../assets/images/logo-white.png');
+      document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', `${baseUrl}/storage/assets/images/logo-white.png`);
     }
 
     if (document.querySelector('.navbar-brand .logo-lg')) {
-      document.querySelector('.navbar-brand .logo-lg').setAttribute('src', '../assets/images/logo-white.png');
+      document.querySelector('.navbar-brand .logo-lg').setAttribute('src', `${baseUrl}/storage/assets/images/logo-white.png`);
     }
     if (document.querySelector('.auth-main.v1 .auth-sidefooter')) {
-      document.querySelector('.auth-main.v1 .auth-sidefooter img').setAttribute('src', '../assets/images/logo-white.png');
+      document.querySelector('.auth-main.v1 .auth-sidefooter img').setAttribute('src', `${baseUrl}/storage/assets/images/logo-white.png`);
     }
     if (document.querySelector('.footer-top .footer-logo')) {
-      document.querySelector('.footer-top .footer-logo').setAttribute('src', '../assets/images/logo-white.png');
+      document.querySelector('.footer-top .footer-logo').setAttribute('src', `${baseUrl}/storage/assets/images/logo-white.png`);
     }
     var control = document.querySelector('.theme-layout .btn.active');
     if (control) {
@@ -561,16 +565,16 @@ function layout_change(layout) {
   } else {
     dark_flag = false;
     if (document.querySelector('.pc-sidebar .m-header .logo-lg')) {
-      document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', '../assets/images/logo-dark.png');
+      document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', `${baseUrl}/storage/assets/images/logo-dark.png`);
     }
     if (document.querySelector('.navbar-brand .logo-lg')) {
-      document.querySelector('.navbar-brand .logo-lg').setAttribute('src', '../assets/images/logo-dark.png');
+      document.querySelector('.navbar-brand .logo-lg').setAttribute('src', `${baseUrl}/storage/assets/images/logo-dark.png`);
     }
     if (document.querySelector('.auth-main.v1 .auth-sidefooter')) {
-      document.querySelector('.auth-main.v1 .auth-sidefooter img').setAttribute('src', '../assets/images/logo-dark.png');
+      document.querySelector('.auth-main.v1 .auth-sidefooter img').setAttribute('src', `${baseUrl}/storage/assets/images/logo-dark.png`);
     }
     if (document.querySelector('.footer-top .footer-logo')) {
-      document.querySelector('.footer-top .footer-logo').setAttribute('src', '../assets/images/logo-dark.png');
+      document.querySelector('.footer-top .footer-logo').setAttribute('src', `${baseUrl}/storage/assets/images/logo-dark.png`);
     }
     var control = document.querySelector('.theme-layout .btn.active');
     if (control) {

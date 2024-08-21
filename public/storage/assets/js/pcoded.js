@@ -506,6 +506,7 @@ function main_layout_change(value) {
 // Function to handle layout direction change (LTR/RTL)
 function layout_rtl_change(value) {
   // Set attribute based on value and update button state accordingly
+  
   var control = document.querySelector('#layoutmodertl');
   if (value == 'true') {
     rtl_flag = true;
@@ -517,6 +518,7 @@ function layout_rtl_change(value) {
       document.querySelector('.theme-direction .btn.active').classList.remove('active');
       document.querySelector(".theme-direction .btn[data-value='true']").classList.add('active');
     }
+    
   } else {
     rtl_flag = false;
     document.getElementsByTagName('body')[0].setAttribute('data-pc-direction', 'ltr');
@@ -534,6 +536,8 @@ function layout_rtl_change(value) {
 function layout_change(layout) {
   // Save the layout preference in local storage
   localStorage.setItem('theme', layout);
+  document.documentElement.setAttribute('data-pc-theme', layout);
+
   // Set layout attribute and update related elements (e.g., logos)
   var control = document.querySelector('.pct-offcanvas');
   document.getElementsByTagName('body')[0].setAttribute('data-pc-theme', layout);
@@ -583,7 +587,6 @@ function layout_change(layout) {
     }
     
   }
-
 }
 
 // Function to toggle box container class based on value (true/false)

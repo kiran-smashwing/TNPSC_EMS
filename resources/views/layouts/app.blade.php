@@ -40,6 +40,7 @@
         (function() {
             var savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-pc-theme', savedTheme);
+            layout_change(savedTheme);
         })();
     </script>
 </head>
@@ -63,6 +64,10 @@
     <script src="{{ asset('storage/assets/js/pcoded.js') }}"></script>
     <script src="{{ asset('storage/assets/js/plugins/feather.min.js') }}"></script>
 
+    <script>
+                    var savedTheme = localStorage.getItem('theme') || 'light';
+        layout_change(savedTheme);
+      </script>
 
     <script>
         change_box_container('false');

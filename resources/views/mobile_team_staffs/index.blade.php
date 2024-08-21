@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Van Duty Staffs')
+@section('title', 'Mobile Team Staffs')
 
 @section('content')
 @push('styles')
@@ -158,9 +158,9 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="d-sm-flex align-items-center justify-content-between">
-                            <h5 class="mb-3 mb-sm-0">Van Duty Staffs list</h5>
+                            <h5 class="mb-3 mb-sm-0">Mobile Team Staffs list</h5>
                             <div>
-                                <a href="{{route('van_duty.create')}}" class="btn btn-outline-success">Add Van Duty Staffs</a>
+                                <a href="{{route('van_duty.create')}}" class="btn btn-outline-success">Add Mobile Team Staffs</a>
                             </div>
                         </div>
                     </div>

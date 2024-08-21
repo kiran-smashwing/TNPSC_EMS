@@ -29,46 +29,50 @@
                           <div class="card">
                             <div class="card-body position-relative">
                               <div class="position-absolute end-0 top-0 p-3">
-                                <span class="badge bg-primary">Pro</span>
+                                <span class="badge bg-primary">Email</span>
                               </div>
                               <div class="text-center mt-3">
                                 <div class="chat-avtar d-inline-flex mx-auto">
                                   <img class="rounded-circle img-fluid wid-70" src="../assets/images/user/avatar-5.jpg" alt="User image" />
                                 </div>
-                                <h5 class="mb-0">Anshan H.</h5>
+                                <h5 class="mb-0">Chennai</h5>
                                 <p class="text-muted text-sm">Project Manager</p>
                                 <hr class="my-3 border border-secondary-subtle" />
                                 <div class="row g-3">
                                   <div class="col-4">
                                     <h5 class="mb-0">86</h5>
-                                    <small class="text-muted">Post</small>
+                                    <small class="text-muted">Centers</small>
                                   </div>
                                   <div class="col-4 border border-top-0 border-bottom-0">
                                     <h5 class="mb-0">40</h5>
-                                    <small class="text-muted">Project</small>
+                                    <small class="text-muted">Venues</small>
                                   </div>
                                   <div class="col-4">
-                                    <h5 class="mb-0">4.5K</h5>
-                                    <small class="text-muted">Members</small>
+                                    <h5 class="mb-0">45</h5>
+                                    <small class="text-muted">Count</small>
                                   </div>
                                 </div>
                                 <hr class="my-3 border border-secondary-subtle" />
                                 <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                   <i class="ti ti-mail me-2"></i>
-                                  <p class="mb-0">anshan@gmail.com</p>
+                                  <p class="mb-0">ceochn@***.in</p>
                                 </div>
                                 <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                   <i class="ti ti-phone me-2"></i>
-                                  <p class="mb-0">(+1-876) 8654 239 581</p>
+                                  <p class="mb-0">(+91) 9434***1212</p>
                                 </div>
-                                <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
+                                {{-- <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
+                                  <i class="ti ti-phone me-2"></i>
+                                  <p class="mb-0">(+91) O4448***762</p>
+                                </div> --}}
+                                <div class="d-inline-flex align-items-center w-100 mb-3">
                                   <i class="ti ti-map-pin me-2"></i>
-                                  <p class="mb-0">New York</p>
+                                  <p class="mb-0">Tamil Nadu Public Service Commission, TNPSC Road, Broadway, Chennai-600003.</p>
                                 </div>
                                 <div class="d-inline-flex align-items-center justify-content-start w-100">
                                   <i class="ti ti-link me-2"></i>
                                   <a href="#" class="link-primary">
-                                    <p class="mb-0">https://anshan.dh.url</p>
+                                    <p class="mb-0">https://chennai.nic.in/</p>
                                   </a>
                                 </div>
                               </div>

@@ -4,186 +4,165 @@
 
 @section('content')
 
-<!-- [ Pre-loader ] start -->
-<div class="page-loader">
-  <div class="bar"></div>
-</div>
-<!-- [ Pre-loader ] End -->
-
-<!-- [ Sidebar Menu ] start -->
-@include('partials.sidebar')
-<!-- [ Sidebar Menu ] end -->
-
-<!-- [ Header Topbar ] start -->
-@include('partials.header')
-<!-- [ Header Topbar ] end -->
-
-<div class="pc-container">
-  <div class="pc-content">
-    <!-- [ breadcrumb ] start -->
-    <!-- <div class="page-header">
-      <div class="page-block">
-        <div class="row align-items-center">
-          <div class="col-md-12">
-            <div class="page-header-title">
-              <h2 class="mb-0">District Collectorates Add</h2>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div> -->
-    <!-- [ breadcrumb ] end -->
-
-    <!-- [ Main Content ] start -->
-    <div class="row">
-      <div class="col-sm-12">
-        <!-- <div class="card">
-          <div class="card-body py-0">
-             Your content here 
-          </div> -->
-        </div>
-        <div class="tab-content">
-          <div>
-            <div class="row">
-              <div class="col-lg-6">
-                <div class="card">
-                  <div class="card-header">
-                    <h5>District Collectorates Edit</h5>
-                  </div> 
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col-sm-12 text-center mb-3">
-                        <div class="user-upload wid-75">
-                          <img src="../assets/images/user/avatar-4.jpg" alt="img" class="img-fluid">
-                          <label for="uplfile" class="img-avtar-upload">
-                            <i class="ti ti-camera f-24 mb-1"></i>
-                            <span>Upload</span>
-                          </label>
-                          <input type="file" id="uplfile" class="d-none">
-                        </div>
-                      </div>
-                      <div class="col-sm-6">
-                        <div class="mb-3">
-                          <label class="form-label">District Name</label>
-                          <input type="text" class="form-control" value="Anshan">
-                        </div>
-                      </div>
-                      <div class="col-sm-6">
-                        <div class="mb-3">
-                          <label class="form-label">District Code</label>
-                          <input type="text" class="form-control" value="104">
-                        </div>
-                      </div>
-                      <div class="col-sm-6">
-                        <div class="mb-3">
-                          <label class="form-label">E-mail</label>
-                          <input type="text" class="form-control" value="Testing@gmail.com">
-                        </div>
-                      </div>
-                      <div class="col-sm-6">
-                        <div class="mb-3">
-                          <label class="form-label">Phone number</label>
-                          <input type="text" class="form-control" value="+91 9094500072">
-                        </div>
-                      </div>
-                      <div class="col-sm-6">
-                        <div class="mb-3">
-                          <label class="form-label">Alternate number</label>
-                          <input type="text" class="form-control" value="+91 95675497832">
-                        </div>
-                      </div>
-                      <div class="col-sm-6">
-                        <div class="mb-3">
-                          <label class="form-label">Password</label>
-                          <input type="text" class="form-control" value="***********">
-                        </div>
-                      </div>
-                      <div class="col-sm-6">
-                        <div class="mb-3">
-                          <label class="form-label">Confirm password</label>
-                          <input type="text" class="form-control" value="*********">
-                        </div>
-                      </div>
-                      <!-- <div class="col-sm-12">
-                        <div class="mb-3">
-                          <label class="form-label">Bio</label>
-                          <textarea class="form-control">
-Hello, I’m Anshan Handgun Creative Graphic Designer & User Experience Designer based in Website, I create digital Products a more Beautiful and usable place. Morbid accusant ipsum. Nam nec tellus at.
-                          </textarea>
-                        </div>
-                      </div> -->
-                      <!-- <div class="col-sm-12">
-                        <div class="mb-3">
-                          <label class="form-label">Experience</label>
-                          <select class="form-control">
-                            <option>Startup</option>
-                            <option>2 year</option>
-                            <option>3 year</option>
-                            <option selected="selected">4 year</option>
-                            <option>5 year</option>
-                          </select>
-                        </div>
-                      </div> -->
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-6">
-                <div class="card">
-                  <!-- <div class="card-header">
-                    <h5>Contact Information</h5>
-                  </div> -->
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col-sm-12">
-                        <div class="mb-3">
-                          <label class="form-label">Website</label>
-                          <input type="text" class="form-control" value="https://demo.com">
-                        </div>
-                      </div>
-                    <div class="col-sm-12">
-                        <div class="mb-3">
-                          <label class="form-label">Address</label>
-                          <textarea class="form-control">3379 Monroe Avenue, Vellore, TamilNude</textarea>
-                        </div>
-                      </div>
-                      <div class="col-sm-6">
-                        <div class="mb-3">
-                          <label class="form-label">longitude</label>
-                          <input type="text" class="form-control" value="12.55768495">
-                        </div>
-                      </div>
-                      <div class="col-sm-6">
-                        <div class="mb-3">
-                          <label class="form-label">latitude<span class="text-danger">*</span></label>
-                          <input type="text" class="form-control" value="13.96748394">
-                        </div>
-                      </div>
-                      
-                     
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-12 text-end btn-page">
-                <div class="btn btn-outline-secondary">Cancel</div>
-                <div class="btn btn-primary">Update</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- [ Pre-loader ] start -->
+    <div class="page-loader">
+        <div class="bar"></div>
     </div>
-    <!-- [ Main Content ] end -->
-  </div>
-</div>
+    <!-- [ Pre-loader ] End -->
 
-@include('partials.footer')
+    <!-- [ Sidebar Menu ] start -->
+    @include('partials.sidebar')
+    <!-- [ Sidebar Menu ] end -->
 
-@push('scripts')
-@include('partials.datatable-export-js')
-@endpush
+    <!-- [ Header Topbar ] start -->
+    @include('partials.header')
+    <!-- [ Header Topbar ] end -->
 
-@include('partials.theme')
+    <div class="pc-container">
+        <div class="pc-content">
+            <!-- [ Main Content ] start -->
+            <div class="row">
+                <div class="tab-content">
+                    <div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>District Collectorate - <span class="text-primary">Edit</span></h5>
+                                    </div>
+                                    <div class="card-body">
+                                        {{-- <form action="{{ route('collectorates.store') }}" method="POST" enctype="multipart/form-data"> --}}
+                                        @csrf
+                                        <div class="row">
+                                            <div class="col-sm-12 text-center mb-3">
+                                                <div class="user-upload wid-75">
+                                                    <img src="../assets/images/user/avatar-4.jpg" alt="img"
+                                                        class="img-fluid">
+                                                    <label for="image" class="img-avtar-upload">
+                                                        <i class="ti ti-camera f-24 mb-1"></i>
+                                                        <span>Upload</span>
+                                                    </label>
+                                                    <input type="file" id="image" name="image" class="d-none">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Name <span
+                                                      class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" id="district_name"
+                                                        name="district_name" placeholder="Chennai" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label ">Code<span
+                                                      class="text-danger">*</span></label>
+                                                    <input type="number"  class="form-control no-arrows" id="district_code"
+                                                        name="district_code" placeholder="1010" required>
+                                                </div>
+                                            </div>
+                                           
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Email<span
+                                                      class="text-danger">*</span></label>
+                                                    <input type="email" class="form-control" id="mail" name="mail"
+                                                    placeholder="ceochn@***.in" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label" for="phone">Phone<span
+                                                      class="text-danger">*</span></label>
+                                                    <input type="tel" class="form-control" id="phone" name="phone"
+                                                    placeholder="9434***1212" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label" for="alternate_phone">Alternate Phone</label>
+                                                    <input type="tel" class="form-control" id="alternate_phone"
+                                                        name="alternate_phone"  placeholder="O4448***762/9434***1212">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label"for="password">Password<span
+                                                      class="text-danger">*</span></label>
+                                                    <input type="password" class="form-control" id="password"
+                                                        name="password" required  placeholder="******">
+                                                </div>
+                                            </div>
+                                            {{-- <div class="col-sm-6">
+                                              <div class="mb-3">
+                                                  <label class="form-label" for="status">Status</label>
+                                                  <select class="form-control" id="status" name="status" required>
+                                                    <option value="Active">Active</option>
+                                                    <option value="Inactive">Inactive</option>
+                                                  </select>
+                                              </div>
+                                          </div> --}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Website<span
+                                                      class="text-danger">*</span></label>
+                                                    <input  type="url" class="form-control" id="website" name="website" placeholder="https://tnpscems.tn.gov.in">
+                                                </div>
+                                            </div>
+                                              <div class="col-sm-12">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Address<span
+                                                      class="text-danger">*</span></label>
+                                                    <textarea class="form-control" id="address" name="address" required placeholder="Tamil Nadu Public Service Commission, TNPSC Road, Broadway, Chennai-600003."></textarea>
+                                                </div>
+                                            </div> 
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label" for="longitude">longitude<span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="number" step="any" class="form-control" id="longitude"
+                                                        name="longitude" placeholder="11.2312312312312">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label"  for="latitude" >latitude<span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="number" step="any" class="form-control"
+                                                        id="latitude" name="latitude" placeholder="11.2312312312312">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 text-end btn-page">
+                                <div class="btn btn-outline-secondary">Cancel</div>
+                                <div class="btn btn-primary">Update</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- [ Main Content ] end -->
+    </div>
+    </div>
+
+    @include('partials.footer')
+
+    @push('scripts')
+        @include('partials.datatable-export-js')
+    @endpush
+
+    @include('partials.theme')
 
 @endsection

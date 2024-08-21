@@ -70,6 +70,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/chief-invigilator', [ChiefInvigilatorsController::class, 'index'])->name('chief-invigilator');
     Route::get('/chief-invigilator/add', [ChiefInvigilatorsController::class, 'create'])->name('chief-invigilator.create');
     Route::get('/chief-invigilator/edit', [ChiefInvigilatorsController::class, 'edit'])->name('chief-invigilator.edit');
+    Route::get('/chief-invigilator/show', [ChiefInvigilatorsController::class, 'show'])->name('chief-invigilator.show');
     // Invigilator routes
     Route::get('/invigilator', [InvigilatorsController::class, 'index'])->name('invigilator');
     Route::get('/invigilator/add', [InvigilatorsController::class, 'create'])->name('invigilator.create');

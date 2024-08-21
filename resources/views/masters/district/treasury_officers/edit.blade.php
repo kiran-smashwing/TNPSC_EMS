@@ -2,6 +2,10 @@
 
 @section('title', 'Treasury Officers')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('storage/assets/css/plugins/croppr.min.css')}}" />
+@endpush
+
 @section('content')
 
 <!-- [ Pre-loader ] start -->
@@ -20,27 +24,14 @@
 
 <div class="pc-container">
   <div class="pc-content">
-    <!-- [ breadcrumb ] start -->
-    <!-- <div class="page-header">
-      <div class="page-block">
-        <div class="row align-items-center">
-          <div class="col-md-12">
-            <div class="page-header-title">
-              <h2 class="mb-0">District Collectorates Add</h2>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div> -->
-    <!-- [ breadcrumb ] end -->
+   <!-- Modal start-->
+   @include('modals.cropper')
+   <!-- Modal start-->
 
     <!-- [ Main Content ] start -->
     <div class="row">
       <div class="col-sm-12">
-        <!-- <div class="card">
-          <div class="card-body py-0">
-             Your content here 
-          </div> -->
+        
         </div>
         <div class="tab-content">
           <div>
@@ -167,6 +158,16 @@
 
 @include('partials.footer')
 
+@push('scripts')
+<script src="{{ asset('storage/assets/js/plugins/croppr.min.js')}}"></script>
+<script src="{{ asset('storage/assets/js/pages/page-croper.js')}}"></script>
+<script>
+    document.getElementById('triggerModal').addEventListener('click', function() {
+        var modal = new bootstrap.Modal(document.getElementById('cropperModal'));
+        modal.show();
+    });
+</script>
+@endpush
 
 @include('partials.theme')
 

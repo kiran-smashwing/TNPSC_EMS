@@ -49,16 +49,16 @@
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
                                             <div class="col-4">
-                                                <h5 class="mb-0">5</h5>
-                                                <small class="text-muted">Exam</small>
+                                                <h5 class="mb-0">86</h5>
+                                                <small class="text-muted">Centers</small>
                                             </div>
                                             <div class="col-4 border border-top-0 border-bottom-0">
-                                                <h5 class="mb-0">3</h5>
-                                                <small class="text-muted">CI</small>
+                                                <h5 class="mb-0">40</h5>
+                                                <small class="text-muted">Venues</small>
                                             </div>
                                             <div class="col-4">
-                                                <h5 class="mb-0">100</h5>
-                                                <small class="text-muted">Count</small>
+                                                <h5 class="mb-0">45</h5>
+                                                <small class="text-muted">Members</small>
                                             </div>
                                         </div>
                                         <hr class="my-3 border border-secondary-subtle" />
@@ -95,7 +95,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-8 col-xxl-9">
+                        {{-- <div class="col-lg-8 col-xxl-9">
                             <div class="card">
                                 <div class="card-header">
                                     <h5>Details</h5>
@@ -134,65 +134,21 @@
                                                     <p class="mb-1 text-muted">Distance from Treasury</p>
                                                     <p class="mb-0">1.2km</p>
                                                 </div>
-                                                {{-- <div class="col-md-6">
+                                                 <div class="col-md-6">
                                                     <p class="mb-1 text-muted">Zip Code</p>
                                                     <p class="mb-0">956 754</p>
-                                                </div> --}}
+                                                </div> 
                                             </div>
                                         </li>
-                                        {{-- <li class="list-group-item px-0 pb-0">
+                                         <li class="list-group-item px-0 pb-0">
                                             <p class="mb-1 text-muted">Address</p>
                                             <p class="mb-0">Street 110-B Kalians Bag, Dewan, M.P. New York</p>
-                                        </li> --}}
+                                        </li> 
                                     </ul>
                                 </div>
                             </div>
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5>Bank Account Details</h5>
-                                </div>
-                                <div class="card-body">
-                                    <ul class="list-group list-group-flush">
-                                        <li class="list-group-item px-0 pt-0">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <p class="mb-1 text-muted">Bank Name</p>
-                                                    <p class="mb-0">State Bank Of India</p>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <p class="mb-1 text-muted">Account Name</p>
-                                                    <p class="mb-0">Gov Hr Sec School</p>
-                                                </div>
-                                            </div>
-                                        </li>
-                                        <li class="list-group-item px-0">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <p class="mb-1 text-muted">Number</p>
-                                                    <p class="mb-0">2312312312312</p>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <p class="mb-1 text-muted">Branch Name</p>
-                                                    <p class="mb-0">chennai</p>
-                                                </div>
-                                            </div>
-                                        </li>
-                                        <li class="list-group-item px-0 pb-0">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <p class="mb-1 text-muted">Type</p>
-                                                    <p class="mb-0">current</p>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <p class="mb-1 text-muted">IFSC Code</p>
-                                                    <p class="mb-0">SBI000123</p>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+                           
+                        </div> --}}
 
                     </div>
                 </div>

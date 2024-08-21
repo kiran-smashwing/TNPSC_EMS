@@ -115,7 +115,7 @@
                                                 <div class="mb-3">
                                                     <label class="form-label">Website<span
                                                       class="text-danger">*</span></label>
-                                                    <input  type="url" class="form-control" id="website" name="website" placeholder="https://tnpscems.tn.gov.in">
+                                                    <input  type="url" class="form-control" id="website" name="website" placeholder="https://chennai.nic.in/">
                                                 </div>
                                             </div>
                                               <div class="col-sm-12">

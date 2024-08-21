@@ -24,7 +24,6 @@
             <div class="row">
                
                 <div class="tab-content">
-                    <div>
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="card">
@@ -59,7 +58,7 @@
                                                     <label class="form-label ">Code<span
                                                       class="text-danger">*</span></label>
                                                     <input type="number"  class="form-control no-arrows" id="district_code"
-                                                        name="district_code" placeholder="1010" required>
+                                                        name="district_code" placeholder="01" required>
                                                 </div>
                                             </div>
                                            
@@ -115,7 +114,7 @@
                                                 <div class="mb-3">
                                                     <label class="form-label">Website<span
                                                       class="text-danger">*</span></label>
-                                                    <input  type="url" class="form-control" id="website" name="website" placeholder="https://tnpscems.tn.gov.in">
+                                                    <input  type="url" class="form-control" id="website" name="website" placeholder="https://chennai.nic.in/">
                                                 </div>
                                             </div>
                                               <div class="col-sm-12">
@@ -155,12 +154,10 @@
                                 <div class="btn btn-primary">Create</div>
                             </div>
                         </div>
-                    </div>
                 </div>
             </div>
         </div>
         <!-- [ Main Content ] end -->
-    </div>
     </div>
 
     @include('partials.footer')

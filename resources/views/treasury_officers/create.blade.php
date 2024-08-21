@@ -48,7 +48,7 @@
               <div class="col-lg-6">
                 <div class="card">
                   <div class="card-header">
-                    <h5>Treasury Officers Add</h5>
+                    <h5>Treasury Officer - <span class="text-primary">Add</span></h5>
                   </div> 
                   <div class="card-body">
                     <div class="row">
@@ -64,83 +64,56 @@
                       </div>
                       <div class="col-sm-6">
                         <div class="mb-3">
-                          <label class="form-label">Name</label>
-                          <input type="text" class="form-control" value="Anshan">
+                            <label class="form-label" for="district_id">District <span class="text-danger">*</span></label>
+                            <select class="form-control" id="district_id" name="district_id" required>
+                                <option>Select District</option>
+                                <option value="1010">Chennai</option>
+                            </select>
                         </div>
+                    </div>
+                    <div class="col-sm-6">
+                      <div class="mb-3">
+                          <label class="form-label">Name <span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" id="name"
+                              name="name" placeholder="Nanmaran" required>
                       </div>
-                      <div class="col-sm-6">
-                        <div class="mb-3">
-                          <label class="form-label">Employee ID</label>
-                          <input type="text" class="form-control" value="12205940">
-                        </div>
+                  </div>
+                    <div class="col-sm-6">
+                      <div class="mb-3">
+                          <label class="form-label" for="employee_id">Employee ID <span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" id="employee_id"
+                              name="employee_id" placeholder="EMP1234" required>
                       </div>
-                      <!-- <div class="col-sm-6">
-                        <div class="mb-3">
-                          <label class="form-label">Role</label>
-                          <input type="text" class="form-control" value="Testing@gmail.com">
-                        </div>
-                      </div> -->
-                      <div class="col-sm-6">
-                        <div class="mb-3">
-                          <label class="form-label">Role</label>
-                          <select class="form-control">
-                            <option>CI</option>
-                            <option>ID</option>
-                            <option>CEN</option>
-                            <!-- <option selected="selected">4 year</option>
-                            <option>5 year</option> -->
-                          </select>
-                        </div>
-                      </div>
-                      <div class="col-sm-6">
-                        <div class="mb-3">
-                          <label class="form-label">District Name</label>
-                          <input type="text" class="form-control" value="Vellore">
-                        </div>
-                      </div>
-                      <!-- <div class="col-sm-6">
-                        <div class="mb-3">
-                          <label class="form-label">E-mail</label>
-                          <input type="text" class="form-control" value="+91 95675497832">
-                        </div>
-                      </div>
-                      <div class="col-sm-6">
-                        <div class="mb-3">
-                          <label class="form-label">Password</label>
-                          <input type="text" class="form-control" value="***********">
-                        </div>
-                      </div>
-                      <div class="col-sm-6">
-                        <div class="mb-3">
-                          <label class="form-label">Confirm password</label>
-                          <input type="text" class="form-control" value="*********">
-                        </div>
-                      </div> -->
-                      <!-- <div class="col-sm-12">
-                        <div class="mb-3">
-                          <label class="form-label">Bio</label>
-                          <textarea class="form-control">
-Hello, I’m Anshan Handgun Creative Graphic Designer & User Experience Designer based in Website, I create digital Products a more Beautiful and usable place. Morbid accusant ipsum. Nam nec tellus at.
-                          </textarea>
-                        </div>
-                      </div> -->
-                      <!-- <div class="col-sm-12">
-                        <div class="mb-3">
-                          <label class="form-label">Experience</label>
-                          <select class="form-control">
-                            <option>Startup</option>
-                            <option>2 year</option>
-                            <option>3 year</option>
-                            <option selected="selected">4 year</option>
-                            <option>5 year</option>
-                          </select>
-                        </div>
-                      </div> -->
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="mb-3">
+                        <label class="form-label">Email<span
+                          class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="mail" name="mail"
+                        placeholder="ceochn@***.in" required>
+                    </div>
+                </div>
+                  <div class="col-sm-6">
+                    <div class="mb-3">
+                        <label class="form-label" for="phone">Phone<span
+                          class="text-danger">*</span></label>
+                        <input type="tel" class="form-control" id="phone" name="phone"
+                        placeholder="9434***1212" required>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="mb-3">
+                      <label class="form-label"for="password">Password<span
+                        class="text-danger">*</span></label>
+                      <input type="password" class="form-control" id="password"
+                          name="password" required  placeholder="******">
+                  </div>
+              </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="col-lg-6">
+              {{-- <div class="col-lg-6">
                 <div class="card">
                   <!-- <div class="card-header">
                     <h5>Contact Information</h5>
@@ -159,12 +132,7 @@ Hello, I’m Anshan Handgun Creative Graphic Designer & User Experience Designer
                           <textarea class="form-control">3379 Monroe Avenue, Vellore, TamilNude</textarea>
                         </div>
                       </div> -->
-                      <div class="col-sm-6">
-                        <div class="mb-3">
-                          <label class="form-label">Password</label>
-                          <input type="text" class="form-control" value="***********">
-                        </div>
-                      </div>
+                     
                       <div class="col-sm-6">
                         <div class="mb-3">
                           <label class="form-label">Confrim password<span class="text-danger">*</span></label>
@@ -176,7 +144,7 @@ Hello, I’m Anshan Handgun Creative Graphic Designer & User Experience Designer
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> --}}
               <div class="col-12 text-end btn-page">
                 <div class="btn btn-outline-secondary">Cancel</div>
                 <div class="btn btn-primary">Update</div>

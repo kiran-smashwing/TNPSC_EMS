@@ -54,7 +54,7 @@ class CollectorateController extends Controller
 
     public function show(Collectorate $collectorate)
     {
-        return view('collectorates.show', compact('collectorate'));
+        return view('district_collectrote.show', compact('collectorate'));
     }
 
     public function edit(Collectorate $collectorate)

@@ -6,7 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DesignationController;
 use App\Http\Controllers\CenterController;
 use App\Http\Controllers\Treasury_OfficersController;
-use App\Http\Controllers\Van_duty_staffsController;
+use App\Http\Controllers\MobileTeamStaffsController;
 use App\Http\Controllers\Escort_staffsController;
 use App\Http\Controllers\Incpection_officersController;
 use App\Http\Controllers\Cheif_invigilatorsController;
@@ -19,6 +19,7 @@ use App\Http\Controllers\Venues_Controller;
 use App\Http\Controllers\ChangePasswordController;
 use App\Http\Controllers\Department_OfficialsController;
 use App\Http\Controllers\MyAccountController;
+use App\Http\Controllers\CollectorateController;
 
 // Public routes
 Route::get('/', function () {
@@ -46,9 +47,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/treasury', [Treasury_OfficersController::class, 'index'])->name('treasury');
     Route::get('/add-treasury_officers', [Treasury_OfficersController::class, 'create'])->name('treasury_officers.create');
     Route::get('/edit-treasury_officers', [Treasury_OfficersController::class, 'edit'])->name('treasury_officers.edit');
-    Route::get('/van_duty', [Van_duty_staffsController::class, 'index'])->name('van_duty');
-    Route::get('/add-van_duty', [Van_duty_staffsController::class, 'create'])->name('van_duty.create');
-    Route::get('/edit-van_duty', [Van_duty_staffsController::class, 'edit'])->name('van_duty.edit');
+    Route::get('/van_duty', [MobileTeamStaffsController::class, 'index'])->name('van_duty');
+    Route::get('/add-van_duty', [MobileTeamStaffsController::class, 'create'])->name('van_duty.create');
+    Route::get('/edit-van_duty', [MobileTeamStaffsController::class, 'edit'])->name('van_duty.edit');
     Route::get('/escort_staff', [Escort_staffsController::class, 'index'])->name('escort_staff');
     Route::get('/add-escort_staffs', [Escort_staffsController::class, 'create'])->name('escort_staffs.create');
     Route::get('/edit-escort_staffs', [Escort_staffsController::class, 'edit'])->name('escort_staffs.edit');
@@ -68,6 +69,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/district_collectorates', [District_CollectoratesController::class, 'index'])->name('district_collectorates');
     Route::get('/add-district_collectorates', [District_CollectoratesController::class, 'create'])->name('district_collectorates.create');
     Route::get('/edit-district_collectorates', [District_CollectoratesController::class, 'edit'])->name('district_collectorates.edit');
+    Route::get('/show-collectorate', [CollectorateController::class, 'show'])->name('collectorate.show');
     Route::get('/designations', [Designations_Controller::class, 'index'])->name('designations');
     Route::get('/venue', [Venues_Controller::class, 'index'])->name('venue');
     Route::get('/add-venue', [Venues_Controller::class, 'create'])->name('venue.create');

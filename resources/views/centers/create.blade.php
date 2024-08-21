@@ -46,7 +46,7 @@
                                         </div>
                                         <div class="col-sm-6">
                                             <div class="mb-3">
-                                                <label class="form-label" for="district_id">District</label>
+                                                <label class="form-label" for="district_id">District<span class="text-danger">*</span></label>
                                                 <select class="form-control" id="district_id" name="district_id" required>
                                                     <option>Select District</option>
                                                     <option value="1010">Chennai</option>

@@ -147,7 +147,8 @@
                                             </div>
                                             <div class="col-sm-6  d-inline-flex justify-content-center">
                                             <a href="#" class="btn btn-success d-inline-flex  justify-content-center"><i class="ti ti-current-location me-1"></i>Get Location Coordinates</a>
-                                            </div> <div class="col-sm-6 d-inline-flex justify-content-center">
+                                            </div>
+                                             <div class="col-sm-6 d-inline-flex justify-content-center">
                                             <a href="https://www.google.com/maps" target="_blank" class="btn btn-info d-inline-flex  justify-content-center"><i class="ti ti-map-2 me-1"></i>Get Coordinates on G-Map</a>
                                         </div>
                                         </div>

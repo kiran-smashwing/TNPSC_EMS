@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Designation')
+@section('title', 'Role')
 
 @section('content')
 @push('styles')
@@ -158,9 +158,9 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="d-sm-flex align-items-center justify-content-between">
-                            <h5 class="mb-3 mb-sm-0">Designation list</h5>
+                            <h5 class="mb-3 mb-sm-0">Role list</h5>
                             <div>
-                                <a href="{{route('role.create')}}" class="btn btn-outline-success">Add Designation</a>
+                                <a href="{{route('role.create')}}" class="btn btn-outline-success">Add Role</a>
                             </div>
                         </div>
                     </div>
@@ -234,7 +234,7 @@
             <td class="text-success">Active</td> -->
                                     <td>
                                         <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-eye f-20"></i></a>
-                                        <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-edit f-20"></i></a>
+                                        <a href="{{route('role.edit')}}" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-edit f-20"></i></a>
                                         <!-- <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-trash f-20"></i></a> -->
                                     </td>
                                 </tr>

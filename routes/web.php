@@ -74,6 +74,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/show-collectorate', [CollectorateController::class, 'show'])->name('collectorate.show');
     Route::get('/role', [RoleController::class, 'index'])->name('role.index');
     Route::get('/role/create', [RoleController::class, 'create'])->name('role.create');
+    Route::get('/role/edit', [RoleController::class, 'edit'])->name('role.edit');
     Route::get('/venue', [VenuesController::class, 'index'])->name('venue');
     Route::get('/add-venue', [VenuesController::class, 'create'])->name('venue.create');
     Route::get('/edit-venue', [VenuesController::class, 'edit'])->name('venue.edit');

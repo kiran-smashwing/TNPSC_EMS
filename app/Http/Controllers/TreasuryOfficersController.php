@@ -105,5 +105,9 @@ class TreasuryOfficersController extends Controller
         $treasuryOfficer->delete();
         return redirect()->route('treasury-officers.index')->with('success', 'Treasury Officer deleted successfully.');
     }
-    
+    public function show()
+    {
+        return view('masters.district.treasury_officers.show');
+    }
+
 }

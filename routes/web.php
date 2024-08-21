@@ -53,6 +53,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/add-escort_staffs', [Escort_staffsController::class, 'create'])->name('escort_staffs.create');
     Route::get('/edit-escort_staffs', [Escort_staffsController::class, 'edit'])->name('escort_staffs.edit');
     Route::get('/incpection', [Incpection_officersController::class, 'index'])->name('incpection');
+    Route::get('/incpection/create', [Incpection_officersController::class, 'create'])->name('incpection_officers.create');
+    Route::get('/incpection/edit', [Incpection_officersController::class, 'edit'])->name('incpection_officers.edit');
     Route::get('/cheif_invigilator', [Cheif_invigilatorsController::class, 'index'])->name('cheif_invigilator');
     Route::get('/add-cheif_invigilator', [Cheif_invigilatorsController::class, 'create'])->name('cheif_invigilator.create');
     Route::get('/edit-cheif_invigilator', [Cheif_invigilatorsController::class, 'edit'])->name('cheif_invigilator.edit');

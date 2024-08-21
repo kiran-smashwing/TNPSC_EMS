@@ -17,4 +17,16 @@ class Incpection_officersController extends Controller
     {
         return view('incpection_officers.index');
     }
+
+    public function create()
+    {
+        
+        return view('incpection_officers.create');
+    }
+
+    public function edit()
+    {
+        
+        return view('incpection_officers.edit');
+    }
 }

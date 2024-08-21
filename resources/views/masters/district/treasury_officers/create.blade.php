@@ -54,7 +54,7 @@
                     <div class="row">
                       <div class="col-sm-6 text-center mb-3">
                         <div class="user-upload wid-75">
-                          <img src="../assets/images/user/avatar-4.jpg" alt="img" class="img-fluid">
+                          <img src="{{ asset('storage//assets/images/user/avatar-4.jpg')}}" alt="img" class="img-fluid">
                           <label for="uplfile" class="img-avtar-upload">
                             <i class="ti ti-camera f-24 mb-1"></i>
                             <span>Upload</span>

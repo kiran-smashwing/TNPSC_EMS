@@ -47,10 +47,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/center/edit', [CenterController::class, 'edit'])->name('center.edit');
     Route::post('/center/add', [CenterController::class, 'store'])->name('center.store');
     Route::put('/center/update/{center}', [CenterController::class, 'update'])->name('center.update');
+    Route::get('/center/show', [CenterController::class, 'show'])->name('center.show');
     // Treasury routes
     Route::get('/treasury-officer', [TreasuryOfficersController::class, 'index'])->name('treasury-officer');
     Route::get('/treasury-officer/add', [TreasuryOfficersController::class, 'create'])->name('treasury-officer.create');
     Route::get('/treasury-officer/edit', [TreasuryOfficersController::class, 'edit'])->name('treasury-officer.edit');
+    Route::get('/treasury-officer/show', [TreasuryOfficersController::class, 'show'])->name('treasury-officer.show');
     // Mobile Team Staffs routes
     Route::get('/mobile-team', [MobileTeamStaffsController::class, 'index'])->name('mobile-team');
     Route::get('/mobile-team/add', [MobileTeamStaffsController::class, 'create'])->name('mobile-team.create');

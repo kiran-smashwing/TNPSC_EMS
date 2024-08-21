@@ -83,6 +83,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/edit-department', [Department_OfficialsController::class, 'edit'])->name('department.edit');
     Route::get('/exam-service', [ExamServiceController::class, 'index'])->name('exam-service.index');
     Route::get('/exam-service/create', [ExamServiceController::class, 'create'])->name('exam-service.create');
+    Route::get('/exam-service/edit', [ExamServiceController::class, 'edit'])->name('exam-service.edit');
     // Add other protected routes here
 });
 

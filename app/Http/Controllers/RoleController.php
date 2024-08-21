@@ -11,12 +11,12 @@ class RoleController extends Controller
     public function index()
     {
         $designations = Designation::all();
-        return view('roles.index', compact('designations'));
+        return view('masters.department.roles.index', compact('designations'));
     }
 
     public function create()
     {
-        return view('roles.create');
+        return view('masters.department.roles.create');
     }
 
     public function store(Request $request)
@@ -37,7 +37,7 @@ class RoleController extends Controller
 
     public function edit(Designation $designation)
     {
-        return view('roles.edit', compact('designation'));
+        return view('masters.department.roles.edit', compact('designation'));
     }
 
     public function update(Request $request, Designation $designation)

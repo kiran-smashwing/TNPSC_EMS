@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Role')
+@section('title', 'Mobile Team Staffs')
 
 @section('content')
 @push('styles')
@@ -158,15 +158,15 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="d-sm-flex align-items-center justify-content-between">
-                            <h5 class="mb-3 mb-sm-0">Role list</h5>
+                            <h5 class="mb-3 mb-sm-0">Mobile Team Staffs list</h5>
                             <div>
-                                <a href="{{route('role.create')}}" class="btn btn-outline-success">Add Role</a>
+                                <a href="{{route('mobile-team.create')}}" class="btn btn-outline-success">Add Mobile Team Staffs</a>
                             </div>
                         </div>
                     </div>
                     <div class="card-body table-border-style">
                         <!-- Filter options -->
-                        <!-- <form id="filterForm" class="mb-3">
+                        <form id="filterForm" class="mb-3">
                             <div class="filter-item">
                                 <select class="form-select" id="roleFilter" name="role">
                                     <option value="">Select Role</option>
@@ -194,48 +194,48 @@
                             <div class="btn-container">
                                 <button type="submit" class="btn btn-primary">Apply Filters</button>
                             </div>
-                        </form> -->
+                        </form>
 
 
                         <table id="testing" class="display table table-striped table-hover dt-responsive nowrap" width="100%">
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Department</th>
-                                    <th>Role</th>
-                                    <!-- <th>Venue name</th>
-            <th>E-mail</th>
-            <th>Phone</th>
-            <th>Status</th> -->
+                                    <th>Image</th>
+                                    <th>Name</th>
+                                    <th>District</th>
+                                    <th>E-mail</th>
+                                    <th>Phone</th>
+                                    <!-- <th>Status</th> -->
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td>1</td>
-                                    <td>District Collectorates Officer
-                                        <!-- <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <img src="../assets/images/user/avatar-1.jpg" alt="user image" class="img-radius wid-40">
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="mb-0">Airi Satou</h6>
-                    </div> 
-                </div> -->
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                                <img src="../assets/images/user/avatar-1.jpg" alt="user image" class="img-radius wid-40">
+                                            </div>
+                                        </div>
                                     </td>
                                     <td>
                                         <div class="flex-grow-1 ms-3">
-                                            <h6 class="mb-0">CI</h6>
+                                            <h6 class="mb-0">Suriya</h6>
                                         </div>
                                     </td>
-                                    <!-- <td>Testing</td>
-            <td>Testing@gmail.com</td>
-            <td>+91-9094500072</td>
-            <td class="text-success">Active</td> -->
+                                    <td>Vellore</td>
+                                    <td>example@gmail.com</td>
+                                    <td>+91-9094500072</td>
+                                    <!-- <td class="text-success">Active</td> -->
                                     <td>
-                                        <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-eye f-20"></i></a>
-                                        <a href="{{route('role.edit')}}" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-edit f-20"></i></a>
+                                        <a href="#" class="avtar avtar-xs  btn-light-success"><i class="ti ti-eye f-20"></i></a>
+                                        <a href="{{ route('mobile-team.edit') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
                                         <!-- <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-trash f-20"></i></a> -->
+                                        <a href="#" class="avtar avtar-xs  btn-light-success" title="Change Status (Active or Inactive)">
+                      <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
+                    </a>
                                     </td>
                                 </tr>
                             </tbody>

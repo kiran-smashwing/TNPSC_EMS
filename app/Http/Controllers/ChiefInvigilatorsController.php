@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class Invigilators_Controller extends Controller
+class ChiefInvigilatorsController extends Controller
 {
     public function __construct()
     {
@@ -15,18 +14,18 @@ class Invigilators_Controller extends Controller
 
     public function index()
     {
-        return view('invigilator.index');
+        return view('masters.venues.chief_invigilator.index');
     }
 
     public function create()
     {
         
-        return view('invigilator.create');
+        return view('masters.venues.chief_invigilator.create');
     }
 
     public function edit()
     {
         
-        return view('invigilator.edit');
+        return view('masters.venues.chief_invigilator.edit');
     }
 }

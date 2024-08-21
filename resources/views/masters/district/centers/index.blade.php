@@ -160,7 +160,7 @@
             <div class="d-sm-flex align-items-center justify-content-between">
               <h5 class="mb-3 mb-sm-0">Centers list</h5>
               <div>
-                <a href="{{route('centers.create')}}" class="btn btn-outline-success">Add Center</a>
+                <a href="{{route('center.create')}}" class="btn btn-outline-success">Add Center</a>
               </div>
             </div>
           </div>
@@ -237,7 +237,7 @@
                     <a href="#" class="avtar avtar-xs  btn-light-success" title="View">
                       <i class="ti ti-eye f-20"></i>
                     </a>
-                    <a href="{{ route('centers.edit', $center) }}" href="#" class="avtar avtar-xs  btn-light-success" title="Edit">
+                    <a href="{{ route('center.edit', $center) }}" href="#" class="avtar avtar-xs  btn-light-success" title="Edit">
                       <i class="ti ti-pencil f-20"></i>
                     </a>
                     <a href="#" class="avtar avtar-xs  btn-light-success" title="Change Status (Active or Inactive)">

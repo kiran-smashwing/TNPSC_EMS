@@ -15,18 +15,18 @@ class VenuesController extends Controller
 
     public function index()
     {
-        return view('venue.index');
+        return view('masters.venues.venue.index');
     }
 
     public function create()
     {
         
-        return view('venue.create');
+        return view('masters.venues.venue.create');
     }
 
     public function edit()
     {
         
-        return view('venue.edit');
+        return view('masters.venues.venue.edit');
     }
 }

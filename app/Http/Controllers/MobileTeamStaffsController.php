@@ -15,18 +15,18 @@ class MobileTeamStaffsController extends Controller
 
     public function index()
     {
-        return view('mobile_team_staffs.index');
+        return view('masters.district.mobile_team_staffs.index');
     }
 
     public function create()
     {
         
-        return view('mobile_team_staffs.create');
+        return view('masters.district.mobile_team_staffs.create');
     }
 
     public function edit()
     {
         
-        return view('mobile_team_staffs.edit');
+        return view('masters.district.mobile_team_staffs.edit');
     }
 }

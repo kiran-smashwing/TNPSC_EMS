@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class Escort_staffsController extends Controller
+class ScribeController extends Controller
 {
     public function __construct()
     {
@@ -15,18 +15,17 @@ class Escort_staffsController extends Controller
 
     public function index()
     {
-        return view('escort_staffs.index');
+        return view('masters.venues.scribe.index');
     }
-
     public function create()
     {
         
-        return view('escort_staffs.create');
+        return view('masters.venues.scribe.create');
     }
 
     public function edit()
     {
         
-        return view('escort_staffs.edit');
+        return view('masters.venues.scribe.edit');
     }
 }

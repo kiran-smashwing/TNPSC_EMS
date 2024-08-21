@@ -12,17 +12,17 @@ class ExamServiceController extends Controller
     public function index()
     {
     // Return the view with the centers data
-    return view('exam_service.index');
+    return view('masters.department.exam_service.index');
     }
 
     public function create()
     {
-        return view('exam_service.create');
+        return view('masters.department.exam_service.create');
     }
 
     public function edit()
     {
-        return view('exam_service.edit');
+        return view('masters.department.exam_service.edit');
     }
 
 }

@@ -95,7 +95,7 @@ Route::middleware(['auth'])->group(function () {
     // Department
     Route::get('/department', [DepartmentOfficialsController::class, 'index'])->name('department');
     Route::get('/department/add', [DepartmentOfficialsController::class, 'create'])->name('department.create');
-    Route::get('/department/add', [DepartmentOfficialsController::class, 'edit'])->name('department.edit');
+    Route::get('/department/edit', [DepartmentOfficialsController::class, 'edit'])->name('department.edit');
     // Examination Services
     Route::get('/exam-service', [ExamServiceController::class, 'index'])->name('exam-service');
     Route::get('/exam-service/add', [ExamServiceController::class, 'create'])->name('exam-service.create');

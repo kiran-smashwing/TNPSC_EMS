@@ -20,4 +20,9 @@ class ExamServiceController extends Controller
         return view('exam_service.create');
     }
 
+    public function edit()
+    {
+        return view('exam_service.edit');
+    }
+
 }

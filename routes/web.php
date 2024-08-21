@@ -86,6 +86,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/exam-service/create', [ExamServiceController::class, 'create'])->name('exam-service.create');
     Route::get('/ci-checklist', [CIChecklistController::class, 'index'])->name('ci-checklist.index');
     Route::get('/ci-checklist/create', [CIChecklistController::class, 'create'])->name('ci-checklist.create');
+    Route::get('/exam-service/edit', [ExamServiceController::class, 'edit'])->name('exam-service.edit');
     // Add other protected routes here
 });
 

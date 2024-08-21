@@ -214,7 +214,7 @@
                                             <h6 class="mb-0">GROUP I SERVICES EXAMINATION</h6>
                                         </div>
                                     </td>
-                                    <td>+91-9094500072</td>
+                                    <td>001</td>
                                     <td>
                                         <a href="#" class="avtar avtar-xs  btn-light-success"><i class="ti ti-eye f-20"></i></a>
                                         <a href="{{ route('exam-service.edit') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>

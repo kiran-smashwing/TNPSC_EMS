@@ -168,7 +168,7 @@
                         </li>
                         <li class="pc-item"><a class="pc-link" href="">CI Self Declaration List</a>
                         </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('role.index') }}">Designations </a>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('role.index') }}">Role</a>
                         </li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('department') }}">Department Officials</a>
                         </li>

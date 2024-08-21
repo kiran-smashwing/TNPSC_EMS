@@ -37,7 +37,7 @@ class RoleController extends Controller
 
     public function edit(Designation $designation)
     {
-        return view('designations.edit', compact('designation'));
+        return view('roles.edit', compact('designation'));
     }
 
     public function update(Request $request, Designation $designation)

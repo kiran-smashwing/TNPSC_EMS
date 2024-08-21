@@ -78,7 +78,7 @@
                               </div>
                             </div>
                           </div>
-                          <div class="card">
+                          {{-- <div class="card">
                             <div class="card-header">
                               <h5>Skills</h5>
                             </div>
@@ -186,10 +186,10 @@
                                 </div>
                               </div>
                             </div>
-                          </div>
+                          </div> --}}
                         </div>
                         <div class="col-lg-8 col-xxl-9">
-                          <div class="card">
+                          {{-- <div class="card">
                             <div class="card-header">
                               <h5>About me</h5>
                             </div>
@@ -199,7 +199,7 @@
                                 Products a more Beautiful and usable place. Morbid accusant ipsum. Nam nec tellus at.</p
                               >
                             </div>
-                          </div>
+                          </div> --}}
                           <div class="card">
                             <div class="card-header">
                               <h5>Personal Details</h5>
@@ -249,7 +249,7 @@
                               </ul>
                             </div>
                           </div>
-                          <div class="card">
+                          {{-- <div class="card">
                             <div class="card-header">
                               <h5>Education</h5>
                             </div>
@@ -293,8 +293,8 @@
                                 </li>
                               </ul>
                             </div>
-                          </div>
-                          <div class="card">
+                          </div> --}}
+                          {{-- <div class="card">
                             <div class="card-header">
                               <h5>Employment</h5>
                             </div>
@@ -341,7 +341,7 @@
                                 </li>
                               </ul>
                             </div>
-                          </div>
+                          </div> --}}
                         </div>
                       </div>
                 </div>

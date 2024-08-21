@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\DesignationController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\CenterController;
 use App\Http\Controllers\Treasury_OfficersController;
 use App\Http\Controllers\MobileTeamStaffsController;
@@ -14,7 +14,6 @@ use App\Http\Controllers\Invigilators_Controller;
 use App\Http\Controllers\Scribe_Controller;
 use App\Http\Controllers\CI_AssistantsController;
 use App\Http\Controllers\District_CollectoratesController;
-use App\Http\Controllers\Designations_Controller;
 use App\Http\Controllers\VenuesController;
 use App\Http\Controllers\ChangePasswordController;
 use App\Http\Controllers\Department_OfficialsController;
@@ -72,14 +71,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/add-district_collectorates', [District_CollectoratesController::class, 'create'])->name('district_collectorates.create');
     Route::get('/edit-district_collectorates', [District_CollectoratesController::class, 'edit'])->name('district_collectorates.edit');
     Route::get('/show-collectorate', [CollectorateController::class, 'show'])->name('collectorate.show');
-    Route::get('/designations', [Designations_Controller::class, 'index'])->name('designations');
+    Route::get('/role', [RoleController::class, 'index'])->name('role.index');
+    Route::get('/role/create', [RoleController::class, 'create'])->name('role.create');
     Route::get('/venue', [VenuesController::class, 'index'])->name('venue');
     Route::get('/add-venue', [VenuesController::class, 'create'])->name('venue.create');
     Route::get('/edit-venue', [VenuesController::class, 'edit'])->name('venue.edit');
     Route::get('/department', [Department_OfficialsController::class, 'index'])->name('department');
     Route::get('/add-department', [Department_OfficialsController::class, 'create'])->name('department.create');
     Route::get('/edit-department', [Department_OfficialsController::class, 'edit'])->name('department.edit');
-    Route::resource('/designation', DesignationController::class);
     // Add other protected routes here
 });
 

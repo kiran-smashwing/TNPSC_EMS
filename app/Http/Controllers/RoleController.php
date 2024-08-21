@@ -6,17 +6,17 @@ use App\Models\Designation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class DesignationController extends Controller
+class RoleController extends Controller
 {
     public function index()
     {
         $designations = Designation::all();
-        return view('masters.designation.index', compact('designations'));
+        return view('roles.index', compact('designations'));
     }
 
     public function create()
     {
-        return view('designations.create');
+        return view('roles.create');
     }
 
     public function store(Request $request)

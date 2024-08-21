@@ -158,17 +158,17 @@
                         </li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('ci_assistants') }}">CI Assistants </a>
                         </li> --}}
-                        <li class="pc-item"><a class="pc-link" href="{{ route('designations') }}">Examination Service</a>
+                        <li class="pc-item"><a class="pc-link" href="">Examination Service</a>
                         </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('designations') }}">Subjects</a>
+                        <li class="pc-item"><a class="pc-link" href="">Subjects</a>
                         </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('designations') }}">CI Preliminary Checklist</a>
+                        <li class="pc-item"><a class="pc-link" href="">CI Preliminary Checklist</a>
                         </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('designations') }}">CI Session Checklist</a>
+                        <li class="pc-item"><a class="pc-link" href="">CI Session Checklist</a>
                         </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('designations') }}">CI Self Declaration List</a>
+                        <li class="pc-item"><a class="pc-link" href="">CI Self Declaration List</a>
                         </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('designations') }}">Designations </a>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('role.index') }}">Designations </a>
                         </li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('department') }}">Department Officials</a>
                         </li>

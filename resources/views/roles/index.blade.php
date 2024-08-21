@@ -160,7 +160,7 @@
                         <div class="d-sm-flex align-items-center justify-content-between">
                             <h5 class="mb-3 mb-sm-0">Designation list</h5>
                             <div>
-                                <a href="#" class="btn btn-outline-success">Add Designation</a>
+                                <a href="{{route('role.create')}}" class="btn btn-outline-success">Add Designation</a>
                             </div>
                         </div>
                     </div>

@@ -160,7 +160,7 @@
                         <div class="d-sm-flex align-items-center justify-content-between">
                             <h5 class="mb-3 mb-sm-0">Inspection officers list</h5>
                             <div>
-                                <a href="#" class="btn btn-outline-success">Add Inspection officers</a>
+                                <a href="{{route('incpection_officers.create')}}" class="btn btn-outline-success">Add Inspection officers</a>
                             </div>
                         </div>
                     </div>
@@ -231,7 +231,7 @@
                                     <!-- <td class="text-success">Active</td> -->
                                     <td>
                                         <a href="#" class="avtar avtar-xs  btn-light-success"><i class="ti ti-eye f-20"></i></a>
-                                        <a href="#" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
+                                        <a href="{{route('incpection_officers.edit')}}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
                                         <!-- <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-trash f-20"></i></a> -->
                                         <a href="#" class="avtar avtar-xs  btn-light-success" title="Change Status (Active or Inactive)">
                                             <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->

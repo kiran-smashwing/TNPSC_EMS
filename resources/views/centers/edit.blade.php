@@ -33,7 +33,7 @@
                                     {{-- <form action="{{ route('collectorates.store') }}" method="POST" enctype="multipart/form-data"> --}}
                                     @csrf
                                     <div class="row">
-                                        <div class="col-sm-12 text-center mb-3">
+                                        <div class="col-sm-6 text-center mb-3">
                                             <div class="user-upload wid-75">
                                                 <img src="{{ asset('storage/assets/images/user/center.png') }}"
                                                     alt="img" class="img-fluid">
@@ -66,7 +66,14 @@
                                                 <input type="number" class="form-control no-arrows" id="district_code"
                                                     name="district_code" placeholder="0102" required>
                                             </div>
-                                        </div>            
+                                        </div>   
+                                        <div class="col-sm-6">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="designation">Designation <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" id="designation"
+                                                    name="designation" placeholder="Thasildar" required>
+                                            </div>
+                                        </div>         
                                     </div>
                                 </div>
                             </div>

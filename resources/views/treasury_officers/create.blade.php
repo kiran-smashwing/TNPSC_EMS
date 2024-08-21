@@ -52,7 +52,7 @@
                   </div> 
                   <div class="card-body">
                     <div class="row">
-                      <div class="col-sm-12 text-center mb-3">
+                      <div class="col-sm-6 text-center mb-3">
                         <div class="user-upload wid-75">
                           <img src="../assets/images/user/avatar-4.jpg" alt="img" class="img-fluid">
                           <label for="uplfile" class="img-avtar-upload">
@@ -85,6 +85,13 @@
                               name="employee_id" placeholder="EMP1234" required>
                       </div>
                   </div>
+                  <div class="col-sm-6">
+                    <div class="mb-3">
+                        <label class="form-label" for="designation">Designation <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="designation"
+                            name="designation" placeholder="Thasildar" required>
+                    </div>
+                </div>
                   <div class="col-sm-6">
                     <div class="mb-3">
                         <label class="form-label">Email<span
@@ -147,7 +154,7 @@
               </div> --}}
               <div class="col-12 text-end btn-page">
                 <div class="btn btn-outline-secondary">Cancel</div>
-                <div class="btn btn-primary">Update</div>
+                <div class="btn btn-primary">Create</div>
               </div>
             </div>
           </div>
@@ -159,10 +166,6 @@
 </div>
 
 @include('partials.footer')
-
-@push('scripts')
-@include('partials.datatable-export-js')
-@endpush
 
 @include('partials.theme')
 

@@ -52,7 +52,7 @@
                   </div> 
                   <div class="card-body">
                     <div class="row">
-                      <div class="col-sm-12 text-center mb-3">
+                      <div class="col-sm-6 text-center mb-3">
                         <div class="user-upload wid-75">
                           <img src="../assets/images/user/avatar-4.jpg" alt="img" class="img-fluid">
                           <label for="uplfile" class="img-avtar-upload">

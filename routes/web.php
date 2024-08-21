@@ -94,6 +94,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/venue', [VenuesController::class, 'index'])->name('venue');
     Route::get('/venue/add', [VenuesController::class, 'create'])->name('venue.create');
     Route::get('/venue/edit', [VenuesController::class, 'edit'])->name('venue.edit');
+    Route::get('/venue/show', [VenuesController::class, 'show'])->name('venue.show');
     // Department
     Route::get('/department', [DepartmentOfficialsController::class, 'index'])->name('department');
     Route::get('/department/add', [DepartmentOfficialsController::class, 'create'])->name('department.create');

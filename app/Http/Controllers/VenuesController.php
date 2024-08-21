@@ -29,4 +29,9 @@ class VenuesController extends Controller
         
         return view('masters.venues.venue.edit');
     }
+    public function show()
+    {
+        
+        return view('masters.venues.venue.show');
+    }
 }

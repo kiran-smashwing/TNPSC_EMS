@@ -162,12 +162,15 @@
                         </li>
                         <li class="pc-item"><a class="pc-link" href="">Subjects</a>
                         </li>
+                        <li class="pc-item"><a class="pc-link" href="{{route('ci-checklist.index')}}">CI Checklist</a>
+                        </li>
+                        {{--                         
                         <li class="pc-item"><a class="pc-link" href="">CI Preliminary Checklist</a>
                         </li>
                         <li class="pc-item"><a class="pc-link" href="">CI Session Checklist</a>
                         </li>
                         <li class="pc-item"><a class="pc-link" href="">CI Self Declaration List</a>
-                        </li>
+                        </li> --}}
                         <li class="pc-item"><a class="pc-link" href="{{ route('role.index') }}">Role</a>
                         </li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('department') }}">Department Officials</a>

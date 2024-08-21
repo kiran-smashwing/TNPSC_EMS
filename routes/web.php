@@ -16,6 +16,7 @@ use App\Http\Controllers\CI_AssistantsController;
 use App\Http\Controllers\District_CollectoratesController;
 use App\Http\Controllers\VenuesController;
 use App\Http\Controllers\ChangePasswordController;
+use App\Http\Controllers\CIChecklistController;
 use App\Http\Controllers\Department_OfficialsController;
 use App\Http\Controllers\MyAccountController;
 use App\Http\Controllers\CollectorateController;
@@ -83,6 +84,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/edit-department', [Department_OfficialsController::class, 'edit'])->name('department.edit');
     Route::get('/exam-service', [ExamServiceController::class, 'index'])->name('exam-service.index');
     Route::get('/exam-service/create', [ExamServiceController::class, 'create'])->name('exam-service.create');
+    Route::get('/ci-checklist', [CIChecklistController::class, 'index'])->name('ci-checklist.index');
+    Route::get('/ci-checklist/create', [CIChecklistController::class, 'create'])->name('ci-checklist.create');
     // Add other protected routes here
 });
 

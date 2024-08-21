@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-class ExamServiceController extends Controller
+
+class CIChecklistController extends Controller
 {
     public function __construct()
     {
@@ -11,13 +12,17 @@ class ExamServiceController extends Controller
     }
     public function index()
     {
-    // Return the view with the centers data
-    return view('exam_service.index');
+    return view('ci_checklist.index');
     }
 
     public function create()
     {
-        return view('exam_service.create');
+        return view('ci_checklist.create');
+    }
+
+    public function edit()
+    {
+        return view('ci_checklist.edit');
     }
 
 }

@@ -22,9 +22,7 @@
         <div class="pc-content">
             <!-- [ Main Content ] start -->
             <div class="row">
-                <div class="col-sm-12">
-
-                </div>
+               
                 <div class="tab-content">
                     <div>
                         <div class="row">
@@ -39,7 +37,7 @@
                                         <div class="row">
                                             <div class="col-sm-12 text-center mb-3">
                                                 <div class="user-upload wid-75">
-                                                    <img src="../assets/images/user/avatar-4.jpg" alt="img"
+                                                    <img src="{{ asset('storage/assets/images/user/collectorate.png') }}" alt="img"
                                                         class="img-fluid">
                                                     <label for="image" class="img-avtar-upload">
                                                         <i class="ti ti-camera f-24 mb-1"></i>
@@ -135,7 +133,7 @@
                                                         name="longitude" placeholder="11.2312312312312">
                                                 </div>
                                             </div>
-                                            <div class="col-sm-6">
+                                            <div class="col-sm-6 ">
                                                 <div class="mb-3">
                                                     <label class="form-label"  for="latitude" >latitude<span
                                                             class="text-danger">*</span></label>
@@ -143,6 +141,11 @@
                                                         id="latitude" name="latitude" placeholder="11.2312312312312">
                                                 </div>
                                             </div>
+                                            <div class="col-sm-6  d-inline-flex justify-content-center">
+                                            <a href="#" class="btn btn-success d-inline-flex  justify-content-center"><i class="ti ti-current-location me-1"></i>Get Location Coordinates</a>
+                                            </div> <div class="col-sm-6 d-inline-flex justify-content-center">
+                                            <a href="https://www.google.com/maps" target="_blank" class="btn btn-info d-inline-flex  justify-content-center"><i class="ti ti-map-2 me-1"></i>Get Coordinates on G-Map</a>
+                                        </div>
                                         </div>
                                     </div>
                                 </div>

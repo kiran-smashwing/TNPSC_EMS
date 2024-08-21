@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Treasury Officers')
+@section('title', 'Role')
 
 @section('content')
     @push('styles')
@@ -158,16 +158,15 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="d-sm-flex align-items-center justify-content-between">
-                                <h5 class="mb-3 mb-sm-0">Treasury Officers list</h5>
+                                <h5 class="mb-3 mb-sm-0">Role list</h5>
                                 <div>
-                                    <a href="{{ route('treasury_officers.create') }}" class="btn btn-outline-success">Add
-                                        Treasury Officers</a>
+                                    <a href="{{ route('role.create') }}" class="btn btn-outline-success">Add Role</a>
                                 </div>
                             </div>
                         </div>
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
-                            <form id="filterForm" class="mb-3">
+                            <!-- <form id="filterForm" class="mb-3">
                                 <div class="filter-item">
                                     <select class="form-select" id="roleFilter" name="role">
                                         <option value="">Select Role</option>
@@ -195,7 +194,7 @@
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                                 </div>
-                            </form>
+                            </form> -->
 
 
                             <table id="testing" class="display table table-striped table-hover dt-responsive nowrap"
@@ -203,57 +202,46 @@
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Image</th>
-                                        <th>Name</th>
-                                        <th>District</th>
-                                        <th>E-mail</th>
-                                        <th>Phone</th>
-                                        <th>E-mail status</th>
+                                        <th>Department</th>
+                                        <th>Role</th>
+                                        <!-- <th>Venue name</th>
+                <th>E-mail</th>
+                <th>Phone</th>
+                <th>Status</th> -->
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($treasuryOfficers as $officer)
-                                        <tr>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="flex-shrink-0">
-                                                        <img src="{{ $officer->image_url ?? asset('path/to/default-image.jpg') }}"
-                                                            alt="user image" class="img-radius wid-40">
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class="flex-grow-1 ms-3">
-                                                    <h6 class="mb-0">{{ $officer->name }}</h6>
-                                                </div>
-                                            </td>
-                                            <td>{{ $officer->district }}</td>
-                                            <td>{{ $officer->email }}</td>
-                                            <td>{{ $officer->phone }}</td>
-                                            <td class="text-center">
-                                                @if ($officer->email_verified)
-                                                    <i class="ti ti-circle-check text-success f-18"></i>
-                                                @else
-                                                    <i class="ti ti-alert-circle text-danger f-18"></i>
-                                                @endif
-                                            </td>
-                                            <a href="#" class="avtar avtar-xs  btn-light-success"><i
+                                    <tr>
+                                        <td>1</td>
+                                        <td>District Collectorates Officer
+                                            <!-- <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <img src="../assets/images/user/avatar-1.jpg" alt="user image" class="img-radius wid-40">
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0">Airi Satou</h6>
+                        </div>
+                    </div> -->
+                                        </td>
+                                        <td>
+                                            <div class="flex-grow-1 ms-3">
+                                                <h6 class="mb-0">CI</h6>
+                                            </div>
+                                        </td>
+                                        <!-- <td>Testing</td>
+                <td>Testing@gmail.com</td>
+                <td>+91-9094500072</td>
+                <td class="text-success">Active</td> -->
+                                        <td>
+                                            <a href="#" class="avtar avtar-xs btn-link-secondary"><i
                                                     class="ti ti-eye f-20"></i></a>
-                                            <a href="{{ route('treasury_officers.edit') }}"
-                                                class="avtar avtar-xs  btn-light-success"><i
+                                            <a href="{{ route('role.edit') }}" class="avtar avtar-xs btn-link-secondary"><i
                                                     class="ti ti-edit f-20"></i></a>
                                             <!-- <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-trash f-20"></i></a> -->
-                                            <a href="#" class="avtar avtar-xs  btn-light-success"
-                                                title="Change Status (Active or Inactive)">
-                                                <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
-                                            </a>
-                                            </td>
-                                        </tr>
-                                    @endforeach
+                                        </td>
+                                    </tr>
                                 </tbody>
-
                             </table>
                         </div>
                     </div>

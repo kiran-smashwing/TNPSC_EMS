@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Mobile Team Staffs')
+@section('title', 'Chief Invigilator')
 
 @section('content')
 @push('styles')
@@ -158,9 +158,9 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="d-sm-flex align-items-center justify-content-between">
-                            <h5 class="mb-3 mb-sm-0">Mobile Team Staffs list</h5>
+                            <h5 class="mb-3 mb-sm-0">Chief Invigilator list</h5>
                             <div>
-                                <a href="{{route('van_duty.create')}}" class="btn btn-outline-success">Add Mobile Team Staffs</a>
+                                <a href="{{route('chief-invigilator.create')}}" class="btn btn-outline-success">Add Chief Invigilator</a>
                             </div>
                         </div>
                     </div>
@@ -203,10 +203,10 @@
                                     <th>#</th>
                                     <th>Image</th>
                                     <th>Name</th>
-                                    <th>District</th>
+                                    <th>Venue Name</th>
                                     <th>E-mail</th>
                                     <th>Phone</th>
-                                    <!-- <th>Status</th> -->
+                                    <th>E-mail Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -222,20 +222,20 @@
                                     </td>
                                     <td>
                                         <div class="flex-grow-1 ms-3">
-                                            <h6 class="mb-0">Suriya</h6>
+                                            <h6 class="mb-0">Testing</h6>
                                         </div>
                                     </td>
-                                    <td>Vellore</td>
+                                    <td>Tesitng</td>
                                     <td>example@gmail.com</td>
                                     <td>+91-9094500072</td>
-                                    <!-- <td class="text-success">Active</td> -->
+                                    <td class="text-center"><i class="ti ti-circle-check text-success f-18"></i></td>
                                     <td>
                                         <a href="#" class="avtar avtar-xs  btn-light-success"><i class="ti ti-eye f-20"></i></a>
-                                        <a href="{{ route('van_duty.edit') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
-                                        <!-- <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-trash f-20"></i></a> -->
+                                        <a href="{{ route('chief-invigilator.edit') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
                                         <a href="#" class="avtar avtar-xs  btn-light-success" title="Change Status (Active or Inactive)">
-                      <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
-                    </a>
+                                            <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
+                                        </a>
+                                        <!-- <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-trash f-20"></i></a> -->
                                     </td>
                                 </tr>
                             </tbody>

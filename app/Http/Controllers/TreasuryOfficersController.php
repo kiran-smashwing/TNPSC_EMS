@@ -8,7 +8,7 @@ use App\Models\Collectorate;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class Treasury_OfficersController extends Controller
+class TreasuryOfficersController extends Controller
 {
     public function __construct()
     {
@@ -32,7 +32,7 @@ class Treasury_OfficersController extends Controller
         $query->where('center_code', $request->centerCode);
     }
         $treasuryOfficers = TreasuryOfficer::all();
-        return view('treasury_officers.index', compact('treasuryOfficers'));
+        return view('masters.district.treasury_officers.index', compact('treasuryOfficers'));
     }
 
    
@@ -40,7 +40,7 @@ class Treasury_OfficersController extends Controller
     public function create()
     {
         $districts = Collectorate::all();
-        return view('treasury_officers.create', compact('districts'));
+        return view('masters.district.treasury_officers.create', compact('districts'));
     }
     public function store(Request $request)
     {
@@ -74,7 +74,7 @@ class Treasury_OfficersController extends Controller
     public function edit()
     {
         $districts = Collectorate::all();
-        return view('treasury_officers.edit', compact('treasuryOfficer', 'districts'));
+        return view('masters.district.treasury_officers.edit', compact('treasuryOfficer', 'districts'));
     }
     public function update(Request $request, TreasuryOfficer $treasuryOfficer)
     {

@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class Department_OfficialsController extends Controller
+class DepartmentOfficialsController extends Controller
 {
     public function __construct()
     {
@@ -15,18 +14,18 @@ class Department_OfficialsController extends Controller
 
     public function index()
     {
-        return view('department_officials.index');
+        return view('masters.department.officials.index');
     }
 
     public function create()
     {
         
-        return view('department_officials.create');
+        return view('masters.department.officials.create');
     }
 
     public function edit()
     {
         
-        return view('department_officials.edit');
+        return view('masters.department.officials.edit');
     }
 }

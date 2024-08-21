@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'District Collectorate')
+@section('title', 'Add CI Assistants')
 
 @section('content')
 @push('styles')
@@ -158,9 +158,9 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="d-sm-flex align-items-center justify-content-between">
-                            <h5 class="mb-3 mb-sm-0">District Collectorate list</h5>
+                            <h5 class="mb-3 mb-sm-0">CI Assistants list</h5>
                             <div>
-                                <a href="{{route('district_collectorates.create')}}" class="btn btn-outline-success">Add District Collectorate</a>
+                                <a href="{{route('ci-assistant.create')}}" class="btn btn-outline-success">Add CI Assistants</a>
                             </div>
                         </div>
                     </div>
@@ -203,10 +203,10 @@
                                     <th>#</th>
                                     <th>Image</th>
                                     <th>Name</th>
-                                    <th>District Code</th>
+                                    <th>Venue Name</th>
                                     <th>E-mail</th>
                                     <th>Phone</th>
-                                    <th>E-mail status</th>
+                                    <!-- <th>status</th> -->
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -222,16 +222,16 @@
                                     </td>
                                     <td>
                                         <div class="flex-grow-1 ms-3">
-                                            <h6 class="mb-0">District Collectorate Name</h6>
+                                            <h6 class="mb-0">Testing</h6>
                                         </div>
                                     </td>
-                                    <td>10010</td>
+                                    <td>Tesitng</td>
                                     <td>example@gmail.com</td>
                                     <td>+91-9094500072</td>
-                                    <td class="text-center"><i class="ti ti-circle-check text-success f-18"></i></td>
+                                    <!-- <td class="text-success">Active</td> -->
                                     <td>
-                                        <a href="{{route('collectorate.show')}}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-eye f-20"></i></a>
-                                        <a href="{{ route('district_collectorates.edit') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
+                                        <a href="#" class="avtar avtar-xs  btn-light-success"><i class="ti ti-eye f-20"></i></a>
+                                        <a href="{{ route('ci-assistant.edit') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
                                         <a href="#" class="avtar avtar-xs  btn-light-success" title="Change Status (Active or Inactive)">
                                             <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
                                         </a>

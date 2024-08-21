@@ -12,17 +12,17 @@ class CIChecklistController extends Controller
     }
     public function index()
     {
-    return view('ci_checklist.index');
+    return view('masters.department.ci_checklist.index');
     }
 
     public function create()
     {
-        return view('ci_checklist.create');
+        return view('masters.department.ci_checklist.create');
     }
 
     public function edit()
     {
-        return view('ci_checklist.edit');
+        return view('masters.department.ci_checklist.edit');
     }
 
 }

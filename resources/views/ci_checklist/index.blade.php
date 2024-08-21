@@ -160,7 +160,7 @@
                     </div>
                     <div class="card-body table-border-style">
                         <!-- Filter options -->
-                        <form id="filterForm" class="mb-3">
+                        {{-- <form id="filterForm" class="mb-3">
                             <div class="filter-item">
                                 <select class="form-select" id="roleFilter" name="role">
                                     <option value="">Select Role</option>
@@ -188,44 +188,27 @@
                             <div class="btn-container">
                                 <button type="submit" class="btn btn-primary">Apply Filters</button>
                             </div>
-                        </form>
+                        </form> --}}
 
 
                         <table id="testing" class="display table table-striped table-hover dt-responsive nowrap" width="100%">
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Image</th>
-                                    <th>Name</th>
-                                    <th>Venue Name</th>
-                                    <th>E-mail</th>
-                                    <th>Phone</th>
-                                    <!-- <th>status</th> -->
+                                    <th>Type</th>
+                                    <th>Description</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td>1</td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0">
-                                                <img src="../assets/images/user/avatar-1.jpg" alt="user image" class="img-radius wid-40">
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-grow-1 ms-3">
-                                            <h6 class="mb-0">Testing</h6>
-                                        </div>
-                                    </td>
-                                    <td>Tesitng</td>
-                                    <td>example@gmail.com</td>
-                                    <td>+91-9094500072</td>
+                                    <td>Preliminary</td>
+                                    <td>Whether Registartion Number are alloted in W shape as per the room sketch</td>
                                     <!-- <td class="text-success">Active</td> -->
                                     <td>
                                         <a href="#" class="avtar avtar-xs  btn-light-success"><i class="ti ti-eye f-20"></i></a>
-                                        <a href="{{ route('ci_assistants.edit') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
+                                        <a href="{{ route('ci-checklist.edit') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
                                         <a href="#" class="avtar avtar-xs  btn-light-success" title="Change Status (Active or Inactive)">
                                             <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
                                         </a>

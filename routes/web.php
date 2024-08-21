@@ -57,6 +57,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/mobile-team', [MobileTeamStaffsController::class, 'index'])->name('mobile-team');
     Route::get('/mobile-team/add', [MobileTeamStaffsController::class, 'create'])->name('mobile-team.create');
     Route::get('/mobile-team/edit', [MobileTeamStaffsController::class, 'edit'])->name('mobile-team.edit');
+    Route::get('/mobile-team/show', [MobileTeamStaffsController::class, 'show'])->name('mobile-team.show');
     // Escort Staffs routes
     Route::get('/escort-staff', [EscortStaffsController::class, 'index'])->name('escort-staff');
     Route::get('/escort-staff/add', [EscortStaffsController::class, 'create'])->name('escort-staff.create');

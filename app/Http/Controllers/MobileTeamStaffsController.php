@@ -29,4 +29,9 @@ class MobileTeamStaffsController extends Controller
         
         return view('masters.district.mobile_team_staffs.edit');
     }
+    public function show()
+    {
+        
+        return view('masters.district.mobile_team_staffs.show');
+    }
 }

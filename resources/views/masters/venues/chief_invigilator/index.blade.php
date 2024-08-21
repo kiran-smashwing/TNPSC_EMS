@@ -230,7 +230,7 @@
                                     <td>+91-9094500072</td>
                                     <td class="text-center"><i class="ti ti-circle-check text-success f-18"></i></td>
                                     <td>
-                                        <a href="#" class="avtar avtar-xs  btn-light-success"><i class="ti ti-eye f-20"></i></a>
+                                        <a href="{{ route('chief-invigilator.show') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-eye f-20"></i></a>
                                         <a href="{{ route('chief-invigilator.edit') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
                                         <a href="#" class="avtar avtar-xs  btn-light-success" title="Change Status (Active or Inactive)">
                                             <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->

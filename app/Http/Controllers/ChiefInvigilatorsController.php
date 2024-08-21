@@ -28,4 +28,9 @@ class ChiefInvigilatorsController extends Controller
         
         return view('masters.venues.chief_invigilator.edit');
     }
+    public function show()
+    {
+        
+        return view('masters.venues.chief_invigilator.show');
+    }
 }

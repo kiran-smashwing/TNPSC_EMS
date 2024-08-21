@@ -74,14 +74,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/invigilator', [InvigilatorsController::class, 'index'])->name('invigilator');
     Route::get('/invigilator/add', [InvigilatorsController::class, 'create'])->name('invigilator.create');
     Route::get('/invigilator/edit', [InvigilatorsController::class, 'edit'])->name('invigilator.edit');
+    Route::get('/invigilator/show', [InvigilatorsController::class, 'show'])->name('invigilator.show');
     // Scribe
     Route::get('/scribe', [ScribeController::class, 'index'])->name('scribe');
     Route::get('/scribe/add', [ScribeController::class, 'create'])->name('scribe.create');
     Route::get('/scribe/edit', [ScribeController::class, 'edit'])->name('scribe.edit');
+    Route::get('/scribe/show', [ScribeController::class, 'show'])->name('scribe.show');
     // CI Assistants
     Route::get('/ci-assistant', [CIAssistantsController::class, 'index'])->name('ci-assistant');
     Route::get('/ci-assistant/add', [CIAssistantsController::class, 'create'])->name('ci-assistant.create');
     Route::get('/ci-assistant/edit', [CIAssistantsController::class, 'edit'])->name('ci-assistant.edit');
+    Route::get('/ci-assistant/show', [CIAssistantsController::class, 'show'])->name('ci-assistant.show');
     // Collectrate
     Route::get('/collectorate', [CollectorateController::class, 'index'])->name('collectorate');
     Route::get('/collectorate/add', [CollectorateController::class, 'create'])->name('collectorate.create');
@@ -100,6 +103,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/department', [DepartmentOfficialsController::class, 'index'])->name('department');
     Route::get('/department/add', [DepartmentOfficialsController::class, 'create'])->name('department.create');
     Route::get('/department/edit', [DepartmentOfficialsController::class, 'edit'])->name('department.edit');
+    Route::get('/department/show', [DepartmentOfficialsController::class, 'show'])->name('department.show');
     // Examination Services
     Route::get('/exam-service', [ExamServiceController::class, 'index'])->name('exam-service');
     Route::get('/exam-service/add', [ExamServiceController::class, 'create'])->name('exam-service.create');

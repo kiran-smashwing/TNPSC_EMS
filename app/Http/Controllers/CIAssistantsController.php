@@ -28,4 +28,9 @@ class CIAssistantsController extends Controller
         
         return view('masters.venues.ci_assistants.edit');
     }
+    public function show()
+    {
+        
+        return view('masters.venues.ci_assistants.show');
+    }
 }

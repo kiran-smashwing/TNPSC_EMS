@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'View Chief Invigilator')
+@section('title', 'View Department Officials')
 
 @section('content')
 
@@ -41,43 +41,39 @@
                                 <div class="chat-avtar d-inline-flex mx-auto">
                                   <img class="rounded-circle img-fluid wid-70" src="{{ asset('storage/assets/images/user/avatar-4.jpg') }}" alt="User image" />
                                 </div>
-                                <h5 class="mb-0">Malarvizhi</h5>
-                                <p class="text-muted text-sm">Professor</p>
+                                <h5 class="mb-0">Nanmaran</h5>
+                                <p class="text-muted text-sm">Thasildar</p>
                                 <hr class="my-3 border border-secondary-subtle" />
                                 <div class="row g-3">
                                   <div class="col-4">
-                                    <h5 class="mb-0">4</h5>
+                                    <h5 class="mb-0">8</h5>
                                     <small class="text-muted">Exams</small>
                                   </div>
                                   <div class="col-4 border border-top-0 border-bottom-0">
-                                    <h5 class="mb-0">4</h5>
-                                    <small class="text-muted">Invigilator</small>
+                                    <h5 class="mb-0">40</h5>
+                                    <small class="text-muted">Venues</small>
                                   </div>
                                   <div class="col-4">
-                                    <h5 class="mb-0">10</h5>
+                                    <h5 class="mb-0">45</h5>
                                     <small class="text-muted">Members</small>
                                   </div>
                                 </div>
                                 <hr class="my-3 border border-secondary-subtle" />
                                 <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
-                                    <i class="ti ti-map-pin me-2"></i>
-                                    <p class="mb-0">Alandur - Chennai</p>
+                                    <i class="ti ti-man me-2"></i>
+                                    <p class="mb-0">APD - role</p>
                                   </div>
                                 <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                   <i class="ti ti-mail me-2"></i>
-                                  <p class="mb-0">malarvizhi@***.in</p>
+                                  <p class="mb-0">ceochn@***.in</p>
                                 </div>
                                 <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                   <i class="ti ti-phone me-2"></i>
                                   <p class="mb-0">(+91) 9434***1212</p>
                                 </div>
                                 <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
-                                    <i class="ti ti-phone-plus me-2"></i>
-                                    <p class="mb-0">04434***1212</p>
-                                  </div>
-                                <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
-                                    <i class="ti ti-building me-2"></i>
-                                    <p class="mb-0">Gov Hr Sec School</p>
+                                    <i class="ti ti-barcode me-2"></i>
+                                    <p class="mb-0">EMP1234</p>
                                   </div>
                               </div>
                             </div>

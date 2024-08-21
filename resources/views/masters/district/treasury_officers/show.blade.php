@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'View District Collectorates')
+@section('title', 'View Treasury Officers')
 
 @section('content')
 

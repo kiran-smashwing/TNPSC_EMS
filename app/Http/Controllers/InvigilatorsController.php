@@ -28,4 +28,10 @@ class InvigilatorsController extends Controller
         
         return view('masters.venues.invigilator.edit');
     }
+
+    public function show()
+    {
+        
+        return view('masters.venues.invigilator.show');
+    }
 }

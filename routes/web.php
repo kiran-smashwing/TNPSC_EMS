@@ -19,6 +19,7 @@ use App\Http\Controllers\ChangePasswordController;
 use App\Http\Controllers\Department_OfficialsController;
 use App\Http\Controllers\MyAccountController;
 use App\Http\Controllers\CollectorateController;
+use App\Http\Controllers\ExamServiceController;
 
 // Public routes
 Route::get('/', function () {
@@ -79,6 +80,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/department', [Department_OfficialsController::class, 'index'])->name('department');
     Route::get('/add-department', [Department_OfficialsController::class, 'create'])->name('department.create');
     Route::get('/edit-department', [Department_OfficialsController::class, 'edit'])->name('department.edit');
+    Route::get('/exam-service', [ExamServiceController::class, 'index'])->name('exam-service.index');
+    Route::get('/exam-service/create', [ExamServiceController::class, 'create'])->name('exam-service.create');
     // Add other protected routes here
 });
 

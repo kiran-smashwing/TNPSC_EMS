@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'View Chief Invigilator')
+@section('title', 'View CI Assistants')
 
 @section('content')
 
@@ -42,7 +42,7 @@
                                   <img class="rounded-circle img-fluid wid-70" src="{{ asset('storage/assets/images/user/avatar-4.jpg') }}" alt="User image" />
                                 </div>
                                 <h5 class="mb-0">Malarvizhi</h5>
-                                <p class="text-muted text-sm">Professor</p>
+                                <p class="text-muted text-sm">Asst Professor</p>
                                 <hr class="my-3 border border-secondary-subtle" />
                                 <div class="row g-3">
                                   <div class="col-4">

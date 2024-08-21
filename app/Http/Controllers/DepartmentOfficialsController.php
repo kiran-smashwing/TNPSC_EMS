@@ -28,4 +28,10 @@ class DepartmentOfficialsController extends Controller
         
         return view('masters.department.officials.edit');
     }
+
+    public function show()
+    {
+        
+        return view('masters.department.officials.show');
+    }
 }

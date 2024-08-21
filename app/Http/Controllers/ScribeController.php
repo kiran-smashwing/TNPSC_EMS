@@ -28,4 +28,10 @@ class ScribeController extends Controller
         
         return view('masters.venues.scribe.edit');
     }
+
+    public function show()
+    {
+        
+        return view('masters.venues.scribe.show');
+    }
 }

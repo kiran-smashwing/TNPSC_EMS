@@ -44,7 +44,7 @@ Route::middleware(['auth'])->group(function () {
     // Center routes
     Route::get('/center', [CenterController::class, 'index'])->name('center');
     Route::get('/center/add', [CenterController::class, 'create'])->name('center.create');
-    Route::get('/center/edit/{center}', [CenterController::class, 'edit'])->name('center.edit');
+    Route::get('/center/edit', [CenterController::class, 'edit'])->name('center.edit');
     Route::post('/center/add', [CenterController::class, 'store'])->name('center.store');
     Route::put('/center/update/{center}', [CenterController::class, 'update'])->name('center.update');
     // Treasury routes

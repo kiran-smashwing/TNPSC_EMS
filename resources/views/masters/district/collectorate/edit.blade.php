@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
 @section('title', 'District Collectorates')
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('storage/assets/css/plugins/croppr.min.css')}}" />
+@endpush
 
 @section('content')
 
@@ -20,6 +23,9 @@
 
     <div class="pc-container">
         <div class="pc-content">
+            <!-- Modal start-->
+            @include('modals.cropper')
+            <!-- Modal start-->
             <!-- [ Main Content ] start -->
             <div class="row">
                
@@ -35,15 +41,15 @@
                                         {{-- <form action="{{ route('collectorates.store') }}" method="POST" enctype="multipart/form-data"> --}}
                                         @csrf
                                         <div class="row">
-                                            <div class="col-sm-12 text-center mb-3">
-                                                <div class="user-upload wid-75">
-                                                    <img src="{{ asset('storage/assets/images/user/collectorate.png') }}" alt="img"
-                                                        class="img-fluid">
+                                            <div class="col-sm-6 text-center mb-3">
+                                                <div class="user-upload wid-75" id="triggerModal">
+                                                    <img src="{{ asset('storage/assets/images/user/collectorate.png') }}"
+                                                        alt="img" class="img-fluid">
                                                     <label for="image" class="img-avtar-upload">
                                                         <i class="ti ti-camera f-24 mb-1"></i>
                                                         <span>Upload</span>
                                                     </label>
-                                                    <input type="file" id="image" name="image" class="d-none">
+                                                    {{-- <input type="file" id="image" name="image" class="d-none"> --}}
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
@@ -166,7 +172,14 @@
     @include('partials.footer')
 
     @push('scripts')
-        @include('partials.datatable-export-js')
+    <script src="{{ asset('storage/assets/js/plugins/croppr.min.js')}}"></script>
+    <script src="{{ asset('storage/assets/js/pages/page-croper.js')}}"></script>
+    <script>
+        document.getElementById('triggerModal').addEventListener('click', function() {
+            var modal = new bootstrap.Modal(document.getElementById('cropperModal'));
+            modal.show();
+        });
+    </script>
     @endpush
 
     @include('partials.theme')

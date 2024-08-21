@@ -93,6 +93,8 @@
                         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                     </a>
                     <ul class="pc-submenu">
+                        <li class="pc-item"><a class="pc-link" href="{{ route('district_collectorates') }}">District Collectorate</a>
+                        </li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('centers.index') }}">Centers</a></li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('treasury') }}">Treasury Officers</a></li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('van_duty') }}">Mobile Team Staffs</a></li>
@@ -102,7 +104,7 @@
                     </ul>
                 </li>
                 <li class="pc-item pc-hasmenu">
-                    <a href="#!" class="pc-link">
+                    <a class="pc-link">
                         <span class="pc-micon">
                             <svg class="pc-icon">
                                 <use xlink:href="#custom-data"></use>
@@ -112,6 +114,8 @@
                         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                     </a>
                     <ul class="pc-submenu">
+                        <li class="pc-item"><a class="pc-link" href="{{ route('venue') }}">Venues</a>
+                        </li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('cheif_invigilator') }}">Cheif Invigilators </a>
                         </li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('invigilator') }}">Invigilators </a>

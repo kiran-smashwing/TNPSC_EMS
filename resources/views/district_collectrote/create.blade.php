@@ -61,7 +61,6 @@
                                                         name="district_code" placeholder="01" required>
                                                 </div>
                                             </div>
-                                           
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Email<span

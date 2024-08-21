@@ -27,10 +27,12 @@
                                 {{-- <h6 class="f-w-500 mb-0 me-2">Role:</h6> --}}
                                 <select class="form-select" aria-label="Select Role">
                                     <option selected disabled>Select Role</option>
-                                    <option value="1">Admin</option>
-                                    <option value="2">Venue</option>
-                                    <option value="3">Collectrate</option>
-                                    <option value="4">Chief Invigilator</option>
+                                    <option value="1">Headquarters Officers</option>
+                                    <option value="2">District Collectorates</option>
+                                    <option value="3">Sub-Treasury</option>
+                                    <option value="4">Mobile Team</option>
+                                    <option value="5">Venues </option>
+                                    <option value="6">Cheif Invigilators </option>
                                 </select>
                             </div>
 

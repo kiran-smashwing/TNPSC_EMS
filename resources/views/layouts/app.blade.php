@@ -63,10 +63,6 @@
     <script src="{{ asset('storage/assets/js/pcoded.js') }}"></script>
     <script src="{{ asset('storage/assets/js/plugins/feather.min.js') }}"></script>
 
-    {{-- <script>
-        const savedTheme = localStorage.getItem('theme') || 'light'; // Default to 'light' if no preference is stored
-        layout_change(savedTheme);
-    </script> --}}
 
     <script>
         change_box_container('false');

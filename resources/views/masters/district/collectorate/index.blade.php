@@ -232,11 +232,26 @@
                                     <td>
                                         <a href="{{route('collectorate.show')}}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-eye f-20"></i></a>
                                         <a href="{{ route('collectorate.edit') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
-                                        <a href="#" class="avtar avtar-xs  btn-light-success" title="Change Status (Active or Inactive)">
+                                        <a href="#" class="avtar avtar-xs  btn-light-success" title="Change Status (Active or Inactive)" onclick="toggleIcon(this)">
                                             <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
                                         </a>
                                         <!-- <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-trash f-20"></i></a> -->
                                     </td>
+                                    <script>
+                                        function toggleIcon(element) {
+                                            // Get the icon element inside the anchor tag
+                                            const icon = element.querySelector('i');
+                                    
+                                            // Check the current class and toggle it
+                                            if (icon.classList.contains('ti-toggle-left')) {
+                                                icon.classList.remove('ti-toggle-left');
+                                                icon.classList.add('ti-toggle-right');
+                                            } else {
+                                                icon.classList.remove('ti-toggle-right');
+                                                icon.classList.add('ti-toggle-left');
+                                            }
+                                        }
+                                    </script>
                                 </tr>
                             </tbody>
                         </table>

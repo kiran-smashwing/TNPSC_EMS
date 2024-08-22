@@ -19,6 +19,8 @@
     <link rel="icon" href="{{ asset('storage/assets/images/favicon.svg') }}" type="image/x-icon" />
     <!-- [Font] Family -->
     <link rel="stylesheet" href="{{ asset('storage/assets/fonts/inter/inter.css') }}" id="main-font-link" />
+
+    <link href="{{ asset('storage/assets/css/plugins/animate.min.css') }}" rel="stylesheet" type="text/css">
     <!-- [Phosphor Icons] https://phosphoricons.com/ -->
     <link rel="stylesheet" href="{{ asset('storage/assets/fonts/phosphor/duotone/style.css') }}" />
     <!-- [Tabler Icons] https://tablericons.com -->
@@ -32,7 +34,10 @@
     <!-- [Template CSS Files] -->
     <link rel="stylesheet" href="{{ asset('storage/assets/css/style.css') }}" id="main-style-link" />
     <link rel="stylesheet" href="{{ asset('storage/assets/css/style-preset.css') }}" />
-    <link rel="stylesheet" href="{{ asset('storage/assets/fonts/material.css') }}">
+    {{-- <link rel="stylesheet" href="{{ asset('storage/assets/fonts/material.css') }}"> --}}
+    <script src="{{ asset('storage/assets/js/tech-stack.js') }}"></script>
+  <link rel="stylesheet" href="{{ asset('storage/assets/css/style-preset.css') }}">
+  <link rel="stylesheet" href="{{ asset('storage/assets/css/uikit.css') }}">
     <!-- [Page Specific CSS] end -->
     @stack('styles')
     <!-- [Page Specific CSS] end -->

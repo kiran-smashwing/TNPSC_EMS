@@ -230,7 +230,7 @@
                                         <td>
                                             <a href="{{ route('current-exam.task') }}" class="avtar avtar-xs  btn-light-success"><i
                                                     class="ti ti-eye f-20"></i></a>
-                                            <a href="{{ route('exam-service.edit') }}"
+                                            <a href="{{ route('current-exam.edit') }}"
                                                 class="avtar avtar-xs  btn-light-success"><i
                                                     class="ti ti-edit f-20"></i></a>
                                             <!-- <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-trash f-20"></i></a> -->

@@ -29,13 +29,7 @@
                         <div class="card">
                             <div class="card-body position-relative">
                                 <div class="position-absolute end-0 top-0 p-3">
-                                    <span class="d-flex align-items-center">
-                                        <!-- Email Address -->
-                                        {{-- <span class="me-2">E-mail</span> --}}
-                                        <!-- Verified Icon -->
-                                        {{-- <i class="ph-duotone ph-circle-wavy-check text-success"></i> --}}
-                                        <!-- Bootstrap Icon -->
-                                    </span>
+                                    <span class="d-flex align-items-center"></span>
                                 </div>
 
                                 <div class="text-center mt-3">

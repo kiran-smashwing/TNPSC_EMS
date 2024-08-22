@@ -2,9 +2,9 @@
 @section('title', ' Dashboard')
 @push('styles')
     <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/monokai-sublime.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="../assets/css/plugins/quill.core.css" />
-    <link rel="stylesheet" href="../assets/css/plugins/quill.snow.css" />
-    <link rel="stylesheet" href="../assets/css/plugins/prism-coy.css" />
+    <link rel="stylesheet" href="{{ asset('storage/assets/css/plugins/quill.core.css') }}" />
+    <link rel="stylesheet" href="{{ asset('storage/assets/css/plugins/quill.snow.css') }}" />
+    <link rel="stylesheet" href="{{ asset('storage/assets/css/plugins/prism-coy.css') }}" />
     <style>/* Add a higher specificity to prevent the styles from applying inside the inner card */
  .list-unstyled-item{
   margin-bottom: 0px !important;
@@ -57,7 +57,7 @@
                                             <div class="d-sm-inline-block d-flex align-items-center">
                                               <img
                                                 class="media-object wid-60 img-radius"
-                                                src="../assets/images/user/avatar-1.jpg"
+                                                src="{{ asset('storage/assets/images/user/avatar-1.jpg') }}" 
                                                 alt="Generic placeholder image "
                                               />
                                               <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
@@ -126,7 +126,7 @@
                                             <div class="d-sm-inline-block d-flex align-items-center">
                                               <img
                                                 class="media-object wid-60 img-radius"
-                                                src="../assets/images/user/avatar-1.jpg"
+                                               src="{{ asset('storage/assets/images/user/avatar-6.jpg') }}" 
                                                 alt="Generic placeholder image "
                                               />
                                               <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
@@ -195,7 +195,7 @@
                                             <div class="d-sm-inline-block d-flex align-items-center">
                                               <img
                                                 class="media-object wid-60 img-radius"
-                                                src="../assets/images/user/avatar-1.jpg"
+                                                src="{{ asset('storage/assets/images/user/avatar-9.jpg') }}" 
                                                 alt="Generic placeholder image "
                                               />
                                               <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
@@ -264,7 +264,7 @@
                                             <div class="d-sm-inline-block d-flex align-items-center">
                                               <img
                                                 class="media-object wid-60 img-radius"
-                                                src="../assets/images/user/avatar-1.jpg"
+                                                src="{{ asset('storage/assets/images/user/avatar-7.jpg') }}" 
                                                 alt="Generic placeholder image "
                                               />
                                               <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
@@ -333,7 +333,7 @@
                                             <div class="d-sm-inline-block d-flex align-items-center">
                                               <img
                                                 class="media-object wid-60 img-radius"
-                                                src="../assets/images/user/avatar-1.jpg"
+                                                src="{{ asset('storage/assets/images/user/avatar-2.jpg') }}" 
                                                 alt="Generic placeholder image "
                                               />
                                               <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
@@ -407,8 +407,8 @@
     @include('partials.footer')
 
     @push('scripts')
-        <script src="../assets/js/plugins/prism.js"></script>
-        <script src="../assets/js/plugins/quill.min.js"></script>
+        <script src="{{ asset('storage/assets/js/plugins/prism.js')}}"></script>
+        <script src="{{ asset('storage/assets/js/plugins/quill.min.js')}}"></script>
     @endpush
 
     @include('partials.theme')

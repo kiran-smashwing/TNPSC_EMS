@@ -104,32 +104,77 @@
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
-                                                <div class="mb-3">
+                                                <div class="mb-3 ">
                                                     <label class="form-label" for="notif_date">Notification Date                                                        <span
-                                                      class="text-danger">*</span></label>
-                                                      <input type="text" class="form-control" value="05/20/2017" id="pc-datepicker-3" />
-                                                      <span class="input-group-text">
-                                                        <i class="feather icon-calendar"></i>
-                                                      </span>
+                                                        class="text-danger">*</span></label>
+                                                    <div class="input-group date">
+                                                        <input type="text" name="notif_date"  class="form-control" value="05/20/2017" id="notif_date" />
+                                                        <span class="input-group-text">
+                                                          <i class="feather icon-calendar"></i>
+                                                        </span>
+                                                      </div>
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
-                                                <div class="input-group date">
-                                                    <input type="text" class="form-control" value="05/20/2017" id="pc-datepicker-3" />
-                                                    <span class="input-group-text">
-                                                      <i class="feather icon-calendar"></i>
-                                                    </span>
-                                                  </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label" for="exam_name">Exam Name                                                       <span
+                                                      class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" id="exam_name"
+                                                        name="exam_name"  required placeholder="Combined Civil Services Examination - II">
+                                                </div>
                                             </div>
-                                            {{-- <div class="col-sm-6">
-                                              <div class="mb-3">
-                                                  <label class="form-label" for="status">Status</label>
-                                                  <select class="form-control" id="status" name="status" required>
-                                                    <option value="Active">Active</option>
-                                                    <option value="Inactive">Inactive</option>
-                                                  </select>
-                                              </div>
-                                          </div> --}}
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label" for="exam_name_tamil">Exam Name in Tamil                                                      <span
+                                                      class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" id="exam_name_tamil"
+                                                        name="exam_name_tamil"  required placeholder="ஒருங்கிணைந்த சிவில் சர்வீசஸ் தேர்வு - II (குரூப் II மற்றும் IIA சேவைகள்)">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label" for="post_name">Post Name                                                     <span
+                                                      class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" id="post_name"
+                                                        name="post_name"  required placeholder="Group II and IIA Services">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="mb-3 ">
+                                                    <label class="form-label" for="last_date_apply">Last Date For Apply                                                       <span
+                                                        class="text-danger">*</span></label>
+                                                    <div class="input-group date">
+                                                        <input type="text" name="last_date_apply"  class="form-control" value="05/20/2017" id="last_date_apply" />
+                                                        <span class="input-group-text">
+                                                          <i class="feather icon-calendar"></i>
+                                                        </span>
+                                                      </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="mb-3 ">
+                                                    <label class="form-label" for="exam_start_date">Exam Start Date                                                       <span
+                                                        class="text-danger">*</span></label>
+                                                    <div class="input-group date">
+                                                        <input type="text" name="exam_start_date"  class="form-control" value="05/20/2017" id="exam_start_date" />
+                                                        <span class="input-group-text">
+                                                          <i class="feather icon-calendar"></i>
+                                                        </span>
+                                                      </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="mb-3 ">
+                                                    <label class="form-label" for="date_of_exam">Date of Exam                                                       <span
+                                                        class="text-danger">*</span></label>
+                                                    <div class="input-group date">
+                                                        <input type="text" name="date_of_exam"  class="form-control" value="05/20/2017" id="date_of_exam" />
+                                                        <span class="input-group-text">
+                                                          <i class="feather icon-calendar"></i>
+                                                        </span>
+                                                      </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -195,10 +240,29 @@
       <script src="{{ asset('storage/assets/js/plugins/datepicker-full.min.js')}}"></script>
       <script>
        (function () {
-        const d_week = new Datepicker(document.querySelector('#pc-datepicker-3'), {
+        const d_week = new Datepicker(document.querySelector('#notif_date'), {
           buttonClass: 'btn',
           todayBtn: true,
-          clearBtn: true
+          clearBtn: true,
+           format: 'dd-mm-yyyy'
+        });
+        const d_week1 = new Datepicker(document.querySelector('#last_date_apply'), {
+          buttonClass: 'btn',
+          todayBtn: true,
+          clearBtn: true,
+           format: 'dd-mm-yyyy'
+        });
+        const d_week2 = new Datepicker(document.querySelector('#exam_start_date'), {
+          buttonClass: 'btn',
+          todayBtn: true,
+          clearBtn: true,
+           format: 'dd-mm-yyyy'
+        });
+        const d_week3 = new Datepicker(document.querySelector('#date_of_exam'), {
+          buttonClass: 'btn',
+          todayBtn: true,
+          clearBtn: true,
+           format: 'dd-mm-yyyy'
         });
       })();
         </script>

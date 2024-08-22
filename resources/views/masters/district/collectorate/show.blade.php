@@ -82,7 +82,7 @@
                                   </a>
                                 </div>
                                 <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
-                                  <a href="#" class="btn btn-success d-inline-flex  justify-content-center"><i class="ti ti-current-location me-1"></i>Get Location</a>
+                                  <a href="#" class="btn btn-success d-inline-flex  justify-content-center"><i class="ti ti-map-2 me-1"></i>View Location</a>
                                   </div>
                               </div>
                             </div>

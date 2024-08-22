@@ -44,7 +44,7 @@
                                 <h5 class="mb-0">Nanmaran</h5>
                                 <p class="text-muted text-sm">Thasildar</p>
                                 <hr class="my-3 border border-secondary-subtle" />
-                                <div class="row g-3">
+                                {{-- <div class="row g-3">
                                   <div class="col-4">
                                     <h5 class="mb-0">8</h5>
                                     <small class="text-muted">Exams</small>
@@ -57,7 +57,7 @@
                                     <h5 class="mb-0">45</h5>
                                     <small class="text-muted">Members</small>
                                   </div>
-                                </div>
+                                </div> --}}
                                 <hr class="my-3 border border-secondary-subtle" />
                                 <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                     <i class="ti ti-map-pin me-2"></i>

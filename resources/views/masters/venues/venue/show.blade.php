@@ -89,7 +89,7 @@
                                         <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
                                             <a href="#"
                                                 class="btn btn-success d-inline-flex  justify-content-center"><i
-                                                    class="ti ti-current-location me-1"></i>Get Location</a>
+                                                    class="ti ti-map-2 me-1"></i>View Location</a>
                                         </div>
                                     </div>
                                 </div>
@@ -101,95 +101,98 @@
                                     <h5>Details</h5>
                                 </div>
                                 <div class="card-body">
-                                    <ul class="list-group list-group-flush">
-                                        <li class="list-group-item px-0 pt-0">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <p class="mb-1 text-muted">Venue Code Provider</p>
-                                                    <p class="mb-0">Madras University</p>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <p class="mb-1 text-muted">Category</p>
-                                                    <p class="mb-0">Government</p>
-                                                </div>
-
-                                            </div>
-                                        </li>
-                                        <li class="list-group-item px-0">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <p class="mb-1 text-muted">Type</p>
-                                                    <p class="mb-0">School</p>
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <p class="mb-1 text-muted">Distance from Railway</p>
-                                                    <p class="mb-0">8.2km</p>
+                                    <div class="row align-items-center mb-3">
+                                        <div class="col-sm-6 mb-2 mb-sm-0">
+                                            <p class="mb-0">Venue Code Provider : Madras University</p>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1 me-3">
+                                                    <p class="align-items-center text-muted"></p>
                                                 </div>
                                             </div>
-                                        </li>
-                                        <li class="list-group-item px-0">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <p class="mb-1 text-muted">Distance from Treasury</p>
-                                                    <p class="mb-0">1.2km</p>
-                                                </div>
-                                                {{-- <div class="col-md-6">
-                                                    <p class="mb-1 text-muted">Zip Code</p>
-                                                    <p class="mb-0">956 754</p>
-                                                </div> --}}
-                                            </div>
-                                        </li>
-                                        {{-- <li class="list-group-item px-0 pb-0">
-                                            <p class="mb-1 text-muted">Address</p>
-                                            <p class="mb-0">Street 110-B Kalians Bag, Dewan, M.P. New York</p>
-                                        </li> --}}
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5>Bank Account Details</h5>
-                                </div>
-                                <div class="card-body">
-                                    <ul class="list-group list-group-flush">
-                                        <li class="list-group-item px-0 pt-0">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <p class="mb-1 text-muted">Bank Name</p>
-                                                    <p class="mb-0">State Bank Of India</p>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <p class="mb-1 text-muted">Account Name</p>
-                                                    <p class="mb-0">Gov Hr Sec School</p>
+                                        </div>
+                                    </div>
+                                    <div class="row align-items-center mb-3">
+                                        <div class="col-sm-6 mb-2 mb-sm-0">
+                                            <p class="mb-0">Category</p>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1 me-3">
+                                                    <p class="align-items-center text-muted">Government</p>
                                                 </div>
                                             </div>
-                                        </li>
-                                        <li class="list-group-item px-0">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <p class="mb-1 text-muted">Number</p>
-                                                    <p class="mb-0">2312312312312</p>
+                                        </div>
+                                    </div>
+                                    <div class="row align-items-center mb-3">
+                                        <div class="col-sm-6 mb-2 mb-sm-0">
+                                            <p class="mb-0">Wordpress</p>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1 me-3">
+                                                    <div class="progress progress-primary" style="height: 6px">
+                                                        <div class="progress-bar" style="width: 90%"></div>
+                                                    </div>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <p class="mb-1 text-muted">Branch Name</p>
-                                                    <p class="mb-0">chennai</p>
-                                                </div>
-                                            </div>
-                                        </li>
-                                        <li class="list-group-item px-0 pb-0">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <p class="mb-1 text-muted">Type</p>
-                                                    <p class="mb-0">current</p>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <p class="mb-1 text-muted">IFSC Code</p>
-                                                    <p class="mb-0">SBI000123</p>
+                                                <div class="flex-shrink-0">
+                                                    <p class="mb-0 text-muted">90%</p>
                                                 </div>
                                             </div>
-                                        </li>
-                                    </ul>
+                                        </div>
+                                    </div>
+                                    <div class="row align-items-center mb-3">
+                                        <div class="col-sm-6 mb-2 mb-sm-0">
+                                            <p class="mb-0">HTML</p>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1 me-3">
+                                                    <div class="progress progress-primary" style="height: 6px">
+                                                        <div class="progress-bar" style="width: 30%"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-shrink-0">
+                                                    <p class="mb-0 text-muted">30%</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row align-items-center mb-3">
+                                        <div class="col-sm-6 mb-2 mb-sm-0">
+                                            <p class="mb-0">Graphic Design</p>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1 me-3">
+                                                    <div class="progress progress-primary" style="height: 6px">
+                                                        <div class="progress-bar" style="width: 95%"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-shrink-0">
+                                                    <p class="mb-0 text-muted">95%</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row align-items-center">
+                                        <div class="col-sm-6 mb-2 mb-sm-0">
+                                            <p class="mb-0">Code Style</p>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1 me-3">
+                                                    <div class="progress progress-primary" style="height: 6px">
+                                                        <div class="progress-bar" style="width: 75%"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-shrink-0">
+                                                    <p class="mb-0 text-muted">75%</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

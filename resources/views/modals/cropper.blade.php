@@ -1,7 +1,6 @@
-<div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel"
-aria-hidden="true">
+<div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel" aria-hidden="true">
 <div class="modal-dialog modal-lg">
-    <div class="modal-content" style="width:850px">
+    <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title" id="cropperModalLabel">Image Cropper</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"

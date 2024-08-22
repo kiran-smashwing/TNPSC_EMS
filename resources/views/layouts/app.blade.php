@@ -19,6 +19,8 @@
     <link rel="icon" href="{{ asset('storage/assets/images/favicon.svg') }}" type="image/x-icon" />
     <!-- [Font] Family -->
     <link rel="stylesheet" href="{{ asset('storage/assets/fonts/inter/inter.css') }}" id="main-font-link" />
+
+    <link href="{{ asset('storage/assets/css/plugins/animate.min.css') }}" rel="stylesheet" type="text/css">
     <!-- [Phosphor Icons] https://phosphoricons.com/ -->
     <link rel="stylesheet" href="{{ asset('storage/assets/fonts/phosphor/duotone/style.css') }}" />
     <!-- [Tabler Icons] https://tablericons.com -->

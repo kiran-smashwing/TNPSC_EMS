@@ -195,7 +195,7 @@
                     </a>
                 </li>
                 <li class="pc-item">
-                    <a href="../widget/w_chart.html" class="pc-link">
+                    <a href="{{route('completed-exam')}}" class="pc-link">
                         <span class="pc-micon">
                             <svg class="pc-icon">
                                 <use xlink:href="#custom-presentation-chart"></use>

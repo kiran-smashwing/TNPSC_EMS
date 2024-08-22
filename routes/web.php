@@ -21,6 +21,7 @@ use App\Http\Controllers\MyAccountController;
 use App\Http\Controllers\CollectorateController;
 use App\Http\Controllers\ExamServiceController;
 use App\Http\Controllers\CurrentExamController;
+use App\Http\Controllers\CompletedExamController;
 
 // Public routes
 Route::get('/', function () {
@@ -119,6 +120,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/current-exam/add', [CurrentExamController::class, 'create'])->name('current-exam.create');
     Route::get('/current-exam/task', [CurrentExamController::class, 'task'])->name('current-exam.task');
     Route::get('/current-exam/edit', [CurrentExamController::class, 'edit'])->name('current-exam.edit');
+    //Current Exam
+    Route::get('/completed-exam', [CompletedExamController::class, 'index'])->name('completed-exam');
+    Route::get('/completed-exam/task', [CompletedExamController::class, 'task'])->name('completed-exam.task');
+    Route::get('/completed-exam/edit', [CompletedExamController::class, 'edit'])->name('completed-exam.edit');
     // Add other protected routes here
 });
 

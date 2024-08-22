@@ -82,53 +82,40 @@
                         <div class="col-lg-8 col-xxl-9">
                           <div class="card">
                             <div class="card-header">
-                              <h5>Personal Details</h5>
+                                <h5>Demo Videos</h5>
                             </div>
-                            <div class="card-body">
-                              <ul class="list-group list-group-flush">
-                                <li class="list-group-item px-0 pt-0">
-                                  <div class="row">
-                                    <div class="col-md-6">
-                                      <p class="mb-1 text-muted">Full Name</p>
-                                      <p class="mb-0">Anshan Handgun</p>
+                            <div class="card-body pc-component">
+                                <div id="carouselExampleFade" class="carousel slide carousel-fade" data-bs-ride="carousel">
+                                    <div class="carousel-inner">
+                                        <div class="carousel-item active">
+                                            <video class="img-fluid d-block w-100" controls>
+                                                <source src="../assets/videos/video-1.mp4" type="video/mp4">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        </div>
+                                        {{-- <div class="carousel-item">
+                                            <video class="img-fluid d-block w-100" controls>
+                                                <source src="../assets/videos/video-2.mp4" type="video/mp4">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        </div> --}}
+                                        {{-- <div class="carousel-item">
+                                            <video class="img-fluid d-block w-100" controls>
+                                                <source src="../assets/videos/video-3.mp4" type="video/mp4">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        </div> --}}
                                     </div>
-                                    <div class="col-md-6">
-                                      <p class="mb-1 text-muted">Father Name</p>
-                                      <p class="mb-0">Mr. Deepen Handgun</p>
-                                    </div>
-                                  </div>
-                                </li>
-                                <li class="list-group-item px-0">
-                                  <div class="row">
-                                    <div class="col-md-6">
-                                      <p class="mb-1 text-muted">Phone</p>
-                                      <p class="mb-0">(+1-876) 8654 239 581</p>
-                                    </div>
-                                    <div class="col-md-6">
-                                      <p class="mb-1 text-muted">Country</p>
-                                      <p class="mb-0">New York</p>
-                                    </div>
-                                  </div>
-                                </li>
-                                <li class="list-group-item px-0">
-                                  <div class="row">
-                                    <div class="col-md-6">
-                                      <p class="mb-1 text-muted">Email</p>
-                                      <p class="mb-0">anshan.dh81@gmail.com</p>
-                                    </div>
-                                    <div class="col-md-6">
-                                      <p class="mb-1 text-muted">Zip Code</p>
-                                      <p class="mb-0">956 754</p>
-                                    </div>
-                                  </div>
-                                </li>
-                                <li class="list-group-item px-0 pb-0">
-                                  <p class="mb-1 text-muted">Address</p>
-                                  <p class="mb-0">Street 110-B Kalians Bag, Dewan, M.P. New York</p>
-                                </li>
-                              </ul>
+                                    {{-- <a class="carousel-control-prev" href="#carouselExampleFade" role="button" data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Previous</span>
+                                    </a> --}}
+                                    {{-- <a class="carousel-control-next" href="#carouselExampleFade" role="button" data-bs-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Next</span>
+                                    </a> --}}
+                                </div>
                             </div>
-                          </div>
                         </div>
                       </div>
                 </div>

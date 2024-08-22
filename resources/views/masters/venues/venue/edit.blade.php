@@ -219,21 +219,13 @@
                                                         id="latitude" name="latitude" placeholder="11.2312312312312">
                                                 </div>
                                             </div>
-<<<<<<< HEAD
-                                            <div class="col-sm-6  d-inline-flex justify-content-center">
-=======
                                             <div class="col-sm-6  d-inline-flex justify-content-center mb-3">
->>>>>>> 900d9f4a8ed1094ec7549e22993a2c9fc89b37ca
                                                 <a href="#"
                                                     class="btn btn-success d-inline-flex  justify-content-center"><i
                                                         class="ti ti-current-location me-1"></i>Get Location
                                                     Coordinates</a>
                                             </div>
-<<<<<<< HEAD
-                                            <div class="col-sm-6 d-inline-flex justify-content-center">
-=======
                                             <div class="col-sm-6 d-inline-flex justify-content-center mb-3">
->>>>>>> 900d9f4a8ed1094ec7549e22993a2c9fc89b37ca
                                                 <a href="https://www.google.com/maps" target="_blank"
                                                     class="btn btn-info d-inline-flex  justify-content-center"><i
                                                         class="ti ti-map-2 me-1"></i>Get Coordinates on G-Map</a>

@@ -234,9 +234,9 @@
                   <td>{{ $center->district->name ?? 'N/A' }}</td>
                   <td>{{ $center->status }}</td>
                   <td>
-                    <a href="#" class="avtar avtar-xs  btn-light-success" title="View">
+                    {{-- <a href="#" class="avtar avtar-xs  btn-light-success" title="View">
                       <i class="ti ti-eye f-20"></i>
-                    </a>
+                    </a> --}}
                     <a href="{{ route('center.edit', $center) }}" href="#" class="avtar avtar-xs  btn-light-success" title="Edit">
                       <i class="ti ti-pencil f-20"></i>
                     </a>

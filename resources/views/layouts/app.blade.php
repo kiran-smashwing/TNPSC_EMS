@@ -32,7 +32,6 @@
     <!-- [Template CSS Files] -->
     <link rel="stylesheet" href="{{ asset('storage/assets/css/style.css') }}" id="main-style-link" />
     <link rel="stylesheet" href="{{ asset('storage/assets/css/style-preset.css') }}" />
-    <link rel="stylesheet" href="{{ asset('storage/assets/fonts/material.css') }}">
     <!-- [Page Specific CSS] end -->
     @stack('styles')
     <!-- [Page Specific CSS] end -->

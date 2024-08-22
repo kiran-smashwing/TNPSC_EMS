@@ -217,7 +217,7 @@
                                     <td>001</td>
                                     <td>
                                         <a href="#" class="avtar avtar-xs  btn-light-success"><i class="ti ti-eye f-20"></i></a>
-                                        <a href="{{ route('exam-service.edit') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
+                                        <a href="{{ route('current-exam.edit') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
                                         <!-- <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-trash f-20"></i></a> -->
                                         <a href="#" class="avtar avtar-xs  btn-light-success" title="Change Status (Active or Inactive)">
                                             <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->

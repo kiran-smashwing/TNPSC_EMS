@@ -24,4 +24,8 @@ class CurrentExamController extends Controller
     {
         return view('current_exam.task');
     }
+    public function edit()
+    {
+        return view('current_exam.edit');
+    }
 }

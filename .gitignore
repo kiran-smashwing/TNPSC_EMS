@@ -51,3 +51,4 @@ storage/framework/sessions
 storage/framework/views
 storage/dotenv-editor
 public/temp
+desktop.ini

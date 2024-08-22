@@ -22400,12 +22400,12 @@ pre[class*=language-] > code {
   z-index: 2;
   border-radius: 50%;
 }
-.task-card .task-list li {
+.task-card .task-list .task-list-item {
   margin-bottom: 30px;
   padding-left: 30px;
   position: relative;
 }
-.task-card .task-list li .task-icon {
+.task-card .task-list .task-list-item .task-icon {
   position: absolute;
   left: 3px;
   top: 1px;

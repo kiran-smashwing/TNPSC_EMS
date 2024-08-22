@@ -20,6 +20,7 @@ use App\Http\Controllers\DepartmentOfficialsController;
 use App\Http\Controllers\MyAccountController;
 use App\Http\Controllers\CollectorateController;
 use App\Http\Controllers\ExamServiceController;
+use App\Http\Controllers\CurrentExamController;
 
 // Public routes
 Route::get('/', function () {
@@ -113,7 +114,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/ci-checklist', [CIChecklistController::class, 'index'])->name('ci-checklist');
     Route::get('/ci-checklist/add', [CIChecklistController::class, 'create'])->name('ci-checklist.create');
     Route::get('/ci-checklist/edit', [CIChecklistController::class, 'edit'])->name('ci-checklist.edit');
-
+    //Current Exam
+    Route::get('/current-exam', [CurrentExamController::class, 'index'])->name('current-exam');
+    Route::get('/current-exam/add', [CurrentExamController::class, 'create'])->name('current-exam.create');
+    Route::get('/current-exam/task', [CurrentExamController::class, 'task'])->name('current-exam.task');
     // Add other protected routes here
 });
 

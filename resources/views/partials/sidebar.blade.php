@@ -185,13 +185,13 @@
                     </svg>
                 </li>
                 <li class="pc-item">
-                    <a href="../widget/w_data.html" class="pc-link">
+                    <a href="{{route('current-exam')}}" class="pc-link">
                         <span class="pc-micon">
                             <svg class="pc-icon">
                                 <use xlink:href="#custom-text-align-justify-center"></use>
                             </svg>
                         </span>
-                        <span class="pc-mtext">Future Exams</span>
+                        <span class="pc-mtext">Current Exams</span>
                     </a>
                 </li>
                 <li class="pc-item">

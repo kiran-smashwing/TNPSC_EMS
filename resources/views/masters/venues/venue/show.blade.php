@@ -108,7 +108,7 @@
                                                 src="{{ asset('storage/assets/images/user/venue.png') }}"
                                                 alt="User image" />
                                         </div>
-                                        <h5 class="mb-0">0102 - Gov Hr Sec School</h5>
+                                        <h5 class="mb-0">448966 - Gov Hr Sec School</h5>
                                         <p class="text-muted text-sm">Alandur-Chennai</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
@@ -166,6 +166,30 @@
                                     <h5>Details</h5>
                                 </div>
                                 <div class="card-body">
+                                    <div class="row align-items-center mb-3">
+                                        <div class="col-sm-6 mb-2 mb-sm-0">
+                                            <p class="mb-0">Center Code</p>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1 me-3">
+                                                    <p class="mb-0 text-muted">0102</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row align-items-center mb-3">
+                                        <div class="col-sm-6 mb-2 mb-sm-0">
+                                            <p class="mb-0">Center Name</p>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1 me-3">
+                                                    <p class="mb-0 text-muted">Alandur</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="row align-items-center mb-3">
                                         <div class="col-sm-6 mb-2 mb-sm-0">
                                             <p class="mb-0">Venue Code Provider</p>

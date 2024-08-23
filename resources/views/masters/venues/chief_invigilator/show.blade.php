@@ -108,7 +108,7 @@
                                                 src="{{ asset('storage/assets/images/user/venue.png') }}"
                                                 alt="User image" />
                                         </div>
-                                        <h5 class="mb-0">0102 - Gov Hr Sec School</h5>
+                                        <h5 class="mb-0">448966 - Gov Hr Sec School</h5>
                                         <p class="text-muted text-sm">Alandur-Chennai</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">

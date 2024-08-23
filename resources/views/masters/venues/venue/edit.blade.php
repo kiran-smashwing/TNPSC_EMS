@@ -89,7 +89,7 @@
                                                     <label class="form-label ">Venue Code<span
                                                             class="text-danger">*</span></label>
                                                     <input type="number" class="form-control no-arrows" id="venue_code"
-                                                        name="venue_code" placeholder="0102" required>
+                                                        name="venue_code" placeholder="448966" required>
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">

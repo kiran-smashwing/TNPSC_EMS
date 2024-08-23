@@ -93,13 +93,7 @@
                       <div class="card">
                           <div class="card-body position-relative">
                               <div class="position-absolute end-0 top-0 p-3">
-                                  <span class="d-flex align-items-center">
-                                      <!-- Email Address -->
-                                      {{-- <span class="me-2">E-mail</span> --}}
-                                      <!-- Verified Icon -->
-                                      {{-- <i class="ph-duotone ph-circle-wavy-check text-success"></i> --}}
-                                      <!-- Bootstrap Icon -->
-                                  </span>
+                                  <span class="d-flex align-items-center"></span>
                               </div>
 
                               <div class="text-center mt-3">
@@ -108,8 +102,8 @@
                                           src="{{ asset('storage/assets/images/user/venue.png') }}"
                                           alt="User image" />
                                   </div>
-                                  <h5 class="mb-0">0102 - Gov Hr Sec School</h5>
-                                  <p class="text-muted text-sm">Alandur-Chennai</p>
+                                  <h5 class="mb-0">448966 - Gov Hr Sec School</h5>
+                                  <p class="text-muted text-sm">Venues</p>
                                   <hr class="my-3 border border-secondary-subtle" />
                                   <div class="row g-3">
                                       <div class="col-4">
@@ -231,27 +225,7 @@
                                                 Your browser does not support the video tag.
                                             </video>
                                         </div>
-                                        {{-- <div class="carousel-item">
-                                            <video class="img-fluid d-block w-100" controls>
-                                                <source src="../assets/videos/video-2.mp4" type="video/mp4">
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        </div> --}}
-                                        {{-- <div class="carousel-item">
-                                            <video class="img-fluid d-block w-100" controls>
-                                                <source src="../assets/videos/video-3.mp4" type="video/mp4">
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        </div> --}}
                                     </div>
-                                    {{-- <a class="carousel-control-prev" href="#carouselExampleFade" role="button" data-bs-slide="prev">
-                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                        <span class="sr-only">Previous</span>
-                                    </a> --}}
-                                    {{-- <a class="carousel-control-next" href="#carouselExampleFade" role="button" data-bs-slide="next">
-                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                        <span class="sr-only">Next</span>
-                                    </a> --}}
                                 </div>
                             </div>
                         </div>

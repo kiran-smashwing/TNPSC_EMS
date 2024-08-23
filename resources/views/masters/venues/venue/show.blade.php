@@ -166,18 +166,6 @@
                                     <h5>Details</h5>
                                 </div>
                                 <div class="card-body">
-                                    {{-- <div class="row align-items-center mb-3">
-                                        <div class="col-sm-6 mb-2 mb-sm-0">
-                                            <p class="mb-0">Center Code</p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <div class="d-flex align-items-center">
-                                                <div class="flex-grow-1 me-3">
-                                                    <p class="mb-0 text-muted"></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div> --}}
                                     <div class="row align-items-center mb-3">
                                         <div class="col-sm-6 mb-2 mb-sm-0">
                                             <p class="mb-0">Center Name</p>

@@ -299,7 +299,7 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
+                                                        <a href="{{ route('current-exam.venues') }}" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-check-circle mx-1"></i>Select
                                                             Venues</a>
                                                         <a href="#" data-pc-animate="blur" data-bs-toggle="modal"
@@ -432,7 +432,7 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="helpdesk-ticket-details.html"
+                                                        <a href="{{ route('current-exam.addhall') }}"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-check-circle mx-1"></i>Confirm </a>
                                                         <a href="#" class="me-3 btn btn-sm btn-light-danger"><i

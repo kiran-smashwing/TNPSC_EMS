@@ -36,4 +36,13 @@ class CurrentExamController extends Controller
     {
         return view('current_exam.venue-consent');
     }
+
+    public function venues()
+    {
+        return view('current_exam.selectvenues');
+    }
+    public function add_hall()
+    {
+        return view('current_exam.addhall');
+    }
 }

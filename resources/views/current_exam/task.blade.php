@@ -99,10 +99,10 @@
 
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="helpdesk-ticket-details.html"
-                                                            class="me-2 btn btn-sm btn-light-primary"><i
+                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View Exam</a>
-                                                        <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
+                                                        <a href="{{ route('current-exam.edit') }}"
+                                                            class="me-3 btn btn-sm btn-light-warning"><i
                                                                 class="feather icon-edit mx-1"></i>Edit Exam</a>
                                                     </div>
                                                 </div>
@@ -166,7 +166,9 @@
                                                             data-pc-animate="just-me" data-bs-toggle="modal"
                                                             data-bs-target="#animateModal"><i
                                                                 class="feather icon-upload mx-1 "></i>Upload </a>
-                                                        <a href="#" class="me-3 btn btn-sm btn-light-info"><i
+                                                        <a href="#" class="me-3 btn btn-sm btn-light-info"
+                                                            data-pc-animate="just-me" data-bs-toggle="modal"
+                                                            data-bs-target="#animateModal"><i
                                                                 class="feather icon-edit mx-1"></i>Edit </a>
                                                         <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
                                                                 class="feather icon-download mx-1"></i>Download </a>
@@ -229,7 +231,7 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="helpdesk-ticket-details.html"
+                                                        <a href="{{route('completed-exam.incCandidate')}}"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-chevrons-up mx-1"></i>Increase
                                                             Count</a>
@@ -972,7 +974,7 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                            
+
                                                                 {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
@@ -1031,7 +1033,7 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                             
+
                                                                 {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
@@ -1070,7 +1072,8 @@
                                                     </div>
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-edit mx-1"></i>Update Exam Activites</a>
+                                                                class="feather icon-edit mx-1"></i>Update Exam
+                                                            Activites</a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1090,7 +1093,7 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                             
+
                                                                 {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
@@ -1100,7 +1103,8 @@
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Invigilator Attendence / Allotment<small
+                                                        <div class="h5 font-weight-bold">Invigilator Attendence /
+                                                            Allotment<small
                                                                 class="badge bg-light-secondary ms-2">allotted</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
@@ -1151,7 +1155,7 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                             
+
                                                                 {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
@@ -1212,7 +1216,7 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                             
+
                                                                 {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
@@ -1273,7 +1277,7 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                             
+
                                                                 {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
@@ -1334,7 +1338,7 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                             
+
                                                                 {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
@@ -1395,7 +1399,7 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                             
+
                                                                 {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
@@ -1456,7 +1460,7 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                             
+
                                                                 {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
@@ -1517,7 +1521,7 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                             
+
                                                                 {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
@@ -1578,7 +1582,7 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                             
+
                                                                 {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
@@ -1639,7 +1643,7 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                             
+
                                                                 {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
@@ -1649,7 +1653,7 @@
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Remarks of Candidiate                                                            <small
+                                                        <div class="h5 font-weight-bold">Remarks of Candidiate <small
                                                                 class="badge bg-light-secondary ms-2">remarked</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
@@ -1702,7 +1706,7 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                             
+
                                                                 {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
@@ -1712,7 +1716,8 @@
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Counting / Packaging Videography <small
+                                                        <div class="h5 font-weight-bold">Counting / Packaging Videography
+                                                            <small
                                                                 class="badge bg-light-secondary ms-2">videographed</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
@@ -1763,7 +1768,7 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                             
+
                                                                 {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
@@ -1773,7 +1778,8 @@
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Exam Rooms / Seat Arrangment Videography <small
+                                                        <div class="h5 font-weight-bold">Exam Rooms / Seat Arrangment
+                                                            Videography <small
                                                                 class="badge bg-light-secondary ms-2">videographed</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
@@ -1824,7 +1830,7 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                             
+
                                                                 {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
@@ -1885,7 +1891,7 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                             
+
                                                                 {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
@@ -1946,7 +1952,7 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                             
+
                                                                 {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
@@ -2007,7 +2013,7 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                             
+
                                                                 {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
@@ -2079,7 +2085,8 @@
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive Materials From Cheif Invigilator<small
+                                                        <div class="h5 font-weight-bold">Receive Materials From Cheif
+                                                            Invigilator<small
                                                                 class="badge bg-light-secondary ms-2">received</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
@@ -2143,7 +2150,8 @@
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive Materials From Cheif Invigilator<small
+                                                        <div class="h5 font-weight-bold">Receive Materials From Cheif
+                                                            Invigilator<small
                                                                 class="badge bg-light-secondary ms-2">received</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
@@ -2207,7 +2215,8 @@
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive Exam Materials From VDS<small
+                                                        <div class="h5 font-weight-bold">Receive Exam Materials From
+                                                            VDS<small
                                                                 class="badge bg-light-secondary ms-2">Received</small>
                                                         </div>
                                                         <div class="help-sm-hidden">

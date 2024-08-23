@@ -32,8 +32,10 @@ buttons: [
       extend: 'print',
       className: 'btn btn-light-primary mb-1 btn-sm'
     }
-  ]      });</script>
+  ]      });
+</script>
 
+<<<<<<< HEAD
 <script> $('#testing').DataTable({
         responsive: true,
       dom: '<"container-fluid"<"row"<"col-md-4" B><"col-sm-12 col-md-8 d-flex justify-content-between align-items-center" l f>>>rtip',
@@ -65,4 +67,6 @@ buttons: [
     responsive: true
   });</script>
   
+=======
+>>>>>>> 0a1b509858325b93ad3ec7b90a6fd2ac2b7100b3
       

@@ -55,4 +55,14 @@ buttons: [
       className: 'btn btn-light-primary mb-1 btn-sm'
     }
   ]      });</script>
+  <script>$('#datatbale').DataTable({
+    responsive: true
+  });</script>
+  <script>$('#datatbales').DataTable({
+    responsive: true
+  });</script>
+  <script>$('#datatbaless').DataTable({
+    responsive: true
+  });</script>
+  
       

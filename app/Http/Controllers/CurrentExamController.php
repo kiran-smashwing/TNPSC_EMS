@@ -28,4 +28,9 @@ class CurrentExamController extends Controller
     {
         return view('current_exam.edit');
     }
+
+    public function venues()
+    {
+        return view('current_exam.selectvenues');
+    }
 }

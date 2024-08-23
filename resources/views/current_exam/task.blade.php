@@ -296,7 +296,7 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
+                                                        <a href="{{ route('current-exam.venues') }}" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-check-circle mx-1"></i>Select
                                                             Venues</a>
                                                         <a href="#" class="me-3 btn btn-sm btn-light-warning"><i

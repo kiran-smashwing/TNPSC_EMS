@@ -109,7 +109,7 @@
                                           alt="User image" />
                                   </div>
                                   <h5 class="mb-0">448966 - Gov Hr Sec School</h5>
-                                  <p class="text-muted text-sm">Alandur-Chennai</p>
+                                  <p class="text-muted text-sm">Venues</p>
                                   <hr class="my-3 border border-secondary-subtle" />
                                   <div class="row g-3">
                                       <div class="col-4">

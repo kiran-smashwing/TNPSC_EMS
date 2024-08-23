@@ -231,7 +231,7 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="{{route('completed-exam.incCandidate')}}"
+                                                        <a href="#"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-chevrons-up mx-1"></i>Increase
                                                             Count</a>

@@ -121,6 +121,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/current-exam/task', [CurrentExamController::class, 'task'])->name('current-exam.task');
     Route::get('/current-exam/edit', [CurrentExamController::class, 'edit'])->name('current-exam.edit');
     Route::get('/current-exam/venues', [CurrentExamController::class, 'venues'])->name('current-exam.venues');
+    Route::get('/current-exam/add-hall', [CurrentExamController::class, 'add_hall'])->name('current-exam.addhall');
     //Current Exam
     Route::get('/completed-exam', [CompletedExamController::class, 'index'])->name('completed-exam');
     Route::get('/completed-exam/task', [CompletedExamController::class, 'task'])->name('completed-exam.task');

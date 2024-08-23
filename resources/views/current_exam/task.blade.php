@@ -231,11 +231,12 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="{{route('completed-exam.incCandidate')}}"
+                                                        <a  target="_blank" href="{{route('current-exam.incCandidate')}}"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-chevrons-up mx-1"></i>Increase
                                                             Count</a>
-                                                        <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
+                                                        <a href="#" data-pc-animate="blur" data-bs-toggle="modal"
+                                                            data-bs-target="#sendCenterMailModel"  class="me-3 btn btn-sm btn-light-warning"><i
                                                                 class="feather icon-navigation mx-1"></i>Send
                                                             Intimation</a>
                                                     </div>
@@ -301,7 +302,8 @@
                                                         <a href="#" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-check-circle mx-1"></i>Select
                                                             Venues</a>
-                                                        <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
+                                                        <a href="#" data-pc-animate="blur" data-bs-toggle="modal"
+                                                        data-bs-target="#sendConsentMailModel" class="me-3 btn btn-sm btn-light-warning"><i
                                                                 class="feather icon-navigation mx-1"></i>Send
                                                             Intimation</a>
                                                     </div>
@@ -365,9 +367,9 @@
                                                         <a href="helpdesk-ticket-details.html"
                                                             class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" class="me-3 btn btn-sm btn-light-info"><i
+                                                        <a href="{{route('current-exam.venueConsent')}}" class="me-3 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-check-circle mx-1"></i>Add Hall</a>
-                                                        <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
+                                                        <a href="{{route('current-exam.venueConsent')}}" class="me-3 btn btn-sm btn-light-warning"><i
                                                                 class="feather icon-edit mx-1"></i>Edit Hall</a>
                                                     </div>
                                                 </div>
@@ -2331,8 +2333,10 @@
                         </div>
                     </div>
                 </div>
+                @include('modals.apd-upload-excel')
+                @include('modals.send-center-mail')
+                @include('modals.send-consent-mail')
             </div>
-            @include('modals.apd-upload-excel')
             <!-- [ Main Content ] end -->
         </div>
     </div>
@@ -2343,31 +2347,41 @@
         <script src="{{ asset('storage/assets/js/plugins/quill.min.js') }}"></script>
         <!-- [Page Specific JS] start -->
         <script>
-            var animateModal = document.getElementById('animateModal');
-            animateModal.addEventListener('show.bs.modal', function(event) {
-                var button = event.relatedTarget;
-                var recipient = button.getAttribute('data-pc-animate');
-                var modalTitle = animateModal.querySelector('.modal-title');
-                // modalTitle.textContent = 'Animate Modal : ' + recipient;
-                animateModal.classList.add('anim-' + recipient);
+            // Listen for the 'show.bs.modal' event on any modal
+            document.addEventListener('show.bs.modal', function(event) {
+                var modal = event.target; // Get the modal being triggered
+                var button = event.relatedTarget; // Button that triggered the modal
+                var recipient = button.getAttribute('data-pc-animate'); // Get data attribute for animation type
+        
+                // Update the modal title and apply animation class
+                var modalTitle = modal.querySelector('.modal-title');
+                // modalTitle.textContent = 'Animate Modal: ' + recipient;
+                modal.classList.add('anim-' + recipient);
+        
+                // Optionally, apply animation to the body for specific cases
                 if (recipient == 'let-me-in' || recipient == 'make-way' || recipient == 'slip-from-top') {
                     document.body.classList.add('anim-' + recipient);
                 }
             });
-            animateModal.addEventListener('hidden.bs.modal', function(event) {
-                removeClassByPrefix(animateModal, 'anim-');
+        
+            // Listen for the 'hidden.bs.modal' event on any modal
+            document.addEventListener('hidden.bs.modal', function(event) {
+                var modal = event.target; // Get the modal being hidden
+                removeClassByPrefix(modal, 'anim-');
                 removeClassByPrefix(document.body, 'anim-');
             });
-
+        
+            // Helper function to remove classes by prefix
             function removeClassByPrefix(node, prefix) {
-                for (let i = 0; i < node.classList.length; i++) {
-                    let value = node.classList[i];
-                    if (value.startsWith(prefix)) {
-                        node.classList.remove(value);
-                    }
-                }
+                var classesToRemove = Array.from(node.classList).filter(function(c) {
+                    return c.startsWith(prefix);
+                });
+                classesToRemove.forEach(function(c) {
+                    node.classList.remove(c);
+                });
             }
         </script>
+        
         <!-- [Page Specific JS] end -->
     @endpush
 

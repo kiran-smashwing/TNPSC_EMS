@@ -28,4 +28,12 @@ class CurrentExamController extends Controller
     {
         return view('current_exam.edit');
     }
+    public function increaseCandidate()
+    {
+        return view('current_exam.increase-candidate');
+    }
+    public function venueConsent()
+    {
+        return view('current_exam.venue-consent');
+    }
 }

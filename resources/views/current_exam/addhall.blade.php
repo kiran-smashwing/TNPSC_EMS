@@ -137,7 +137,7 @@
                 <div class="col-sm-12">
                     <div class="card">
                         <div class="card-header">
-                            <h5>Exam Process - Centre</h5>
+                            <h5>Venues List</h5>
                         </div>
                         <div class="card-body">
                             <table id="datatbale" class="display table table-striped table-hover dt-responsive nowrap" style="width: 100%">
@@ -147,9 +147,10 @@
                                         <th>Center Name</th>
                                         <th>Taluk Name</th>
                                         <th>Venue Name</th>
+                                        <th>Phone</th>
                                         <th>Address</th>
-                                        <th>Venue Email</th>
-                                        <th>Candidate Count</th>
+                                        <th>Email</th>
+                                        <th>Mobile</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>
@@ -157,11 +158,12 @@
                                     <tr>
                                         <td>1</td>
                                         <td>CHENNAI</td>
-                                        <td>AYANAVARAM</td>
-                                        <td>W. P. A. SOUNDARAPANDIAN HR. SEC. SCHOOL</td>
-                                        <td>66 & 76, N.M.K.STREET,</td>
-                                        <td>wpas_hrsec@yahoo.com</td>
-                                        <td>200</td>
+                                        <td>MYLAPORE</td>
+                                        <td>WESLEY HIGHER SECONDARY SCHOOL</td>
+                                        <td>04428589010</td>
+                                        <td>NEW NO.10, OLD NO.33, WESTCOTT ROAD,</td>
+                                        <td>wesleyhss200@gmail.com</td>
+                                        <td>9444547225</td>
                                         <td><button type="button" class="btn btn-primary btn-sm">Accepted</button></td>
                                     </tr>
                                 </tbody>
@@ -172,27 +174,26 @@
                 <div class="col-sm-12">
                     <div class="card">
                         <div class="card-header">
+                            <h5>Chief Invigilator's Details</h5>
                         </div>
                         <div class="card-body">
                             <table id="datatbales" class="display table table-striped table-hover dt-responsive nowrap" style="width: 100%">
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Center/Taluk Code</th>
-                                        <th>Center/Taluk Name</th>
-                                        <th>Date</th>
-                                        <th>Candidate/Tentative Count</th>
-                                        <th>No of Insitution(s) Selected</th>
+                                        <th>CI Name</th>
+                                        <th>CI Designation</th>
+                                        <th>CI Mobile No</th>
+                                        <th>Candidate Count</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
                                         <td>1</td>
-                                        <td>0101</td>
-                                        <td>Chennai</td>
-                                        <td>15/08/2024</td>
-                                        <td>500</td>
-                                        <td>0</td>
+                                        <td>Mr. Karan</td>
+                                        <td>DEV-OPS</td>
+                                        <td>9348928492</td>
+                                        <td>300</td>
                                     </tr>
                                 </tbody>
                             </table>

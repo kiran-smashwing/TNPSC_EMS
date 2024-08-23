@@ -197,7 +197,7 @@
                         </form>
 
 
-                        <table id="testing" class="display table table-striped table-hover dt-responsive nowrap" width="100%">
+                        <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap" width="100%">
                             <thead>
                                 <tr>
                                     <th>#</th>

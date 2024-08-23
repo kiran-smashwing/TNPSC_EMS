@@ -196,7 +196,7 @@
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                                 </div>
                             </form>
-                            <table id="testing" class="display table table-striped table-hover dt-responsive nowrap"
+                            <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
                                 width="100%">
                                 <thead>
                                     <tr>

@@ -26379,7 +26379,7 @@ select[data-multiselectsplitter-secondselect-selector].dataTable-input {
   }
 }
 .chat-wrapper .chat-user_list .scroll-block {
-  height: calc(100vh - 520px);
+  height: calc(100vh - 310px);
 }
 .chat-wrapper .chat-content {
   flex: 1 1 auto;
@@ -26471,7 +26471,7 @@ select[data-multiselectsplitter-secondselect-selector].dataTable-input {
 }
 
 .chat-message.scroll-block {
-  height: calc(100vh - 390px);
+  height: calc(100vh - 245px);
 }
 .chat-message .msg-content {
   padding: 12px 16px;

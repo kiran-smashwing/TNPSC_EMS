@@ -27,7 +27,7 @@
                 position: relative;
             }
 
-           
+
 
         }
     </style>
@@ -173,67 +173,116 @@
                         <div class="col-lg-12">
                             <div class="card mt-4 shadow-sm">
                                 <div class="card-header bg-primary">
-                                    <h5 class="mb-0 text-white"><i class="feather icon-check-circle me-2"></i>Examination Venue Consent Form</h5>
+                                    <h5 class="mb-0 text-white"><i class="feather icon-check-circle me-2"></i>Examination
+                                        Venue Consent Form</h5>
                                 </div>
                                 <div class="card-body">
                                     <form action="" method="POST">
                                         @csrf
                                         <div class="mb-4">
                                             <h6 class="text-muted">Dear Venue Administrator,</h6>
-                                            <p>We kindly request your consent to utilize your esteemed venue for our upcoming examination. The examination details are provided above. Your cooperation is crucial for the successful conduct of this event.</p>
+                                            <p>We kindly request your consent to utilize your esteemed venue for our
+                                                upcoming examination. The examination details are provided above. Your
+                                                cooperation is crucial for the successful conduct of this event.</p>
                                         </div>
-                        
+
                                         <div class="mb-4">
                                             <label class="form-label fw-bold">Please indicate your decision:</label>
                                             <div class="d-flex flex-column flex-md-row gap-3">
                                                 <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="consent" id="consent_accept" value="accept" required>
+                                                    <input class="form-check-input" type="radio" name="consent"
+                                                        id="consent_accept" value="accept" required>
                                                     <label class="form-check-label" for="consent_accept">
-                                                        <span class="badge bg-success me-2"><i class="feather icon-check"></i></span>I agree to host the examination
+                                                        <span class="badge bg-success me-2"><i
+                                                                class="feather icon-check"></i></span>I agree to host the
+                                                        examination
                                                     </label>
                                                 </div>
                                                 <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="consent" id="consent_decline" value="decline" required>
+                                                    <input class="form-check-input" type="radio" name="consent"
+                                                        id="consent_decline" value="decline" required>
                                                     <label class="form-check-label" for="consent_decline">
-                                                        <span class="badge bg-danger me-2"><i class="feather icon-x"></i></span>I am unable to host the examination
+                                                        <span class="badge bg-danger me-2"><i
+                                                                class="feather icon-x"></i></span>I am unable to host the
+                                                        examination
                                                     </label>
                                                 </div>
                                             </div>
                                         </div>
-                        
+
                                         <!-- Additional fields to show when "accept" is selected -->
                                         <div id="additionalFields" class="d-none">
                                             <!-- Input for total number of candidates -->
-                                            <div class="mb-4 row align-items-center">
-                                                <label for="totalCandidates" class="col-form-label col-sm-6 col-md-4 fw-bold">Total Number of Candidates that can be Accommodated:</label>
-                                                <div class="col-sm-6 col-md-8">
-                                                    <input type="number" class="form-control" id="totalCandidates" name="totalCandidates" placeholder="Enter the number of candidates">
+                                            <div class="mb-4 row ">
+                                                <label for="totalCandidates" class="form-label fw-bold">Total no of
+                                                    Halls:</label>
+                                                <div class="col-sm-3 col-md-3">
+                                                    <select class="form-select" name="allocationCount">
+                                                        <option value="">No of Halls</option>
+                                                        <option value="200">1 - 200</option>
+                                                        <option selected value="400">2 - 400</option>
+                                                        <option value="600">3 - 600</option>
+                                                        <option value="600">4 - 800</option>
+                                                        <option value="600">5 - 1000</option>
+                                                        <!-- Add more options as needed -->
+                                                    </select>
+
                                                 </div>
                                             </div>
-                                            
-                        
+
+
                                             <!-- Table for CI dropdown and candidates allocation -->
                                             <div class="mb-4">
-                                                <label class="form-label fw-bold">Chief Invigilator and Candidate Allocation:</label>
+                                                <label class="form-label fw-bold">Chief Invigilator and Candidate
+                                                    Allocation:</label>
                                                 <table class="table table-bordered" id="responsiveTable">
                                                     <thead>
                                                         <tr>
                                                             <th>Chief Invigilator (CI)</th>
-                                                            <th>Number of Candidates Allocated</th>
+                                                            <th>Designation</th>
+                                                            <th>E-mail</th>
+                                                            <th>Phone Number</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         <tr>
                                                             <td>
                                                                 <select class="form-select" name="ciName">
-                                                                    <option value="">Select Chief Invigilator</option>
+                                                                    <option value="">Select Chief Invigilator
+                                                                    </option>
                                                                     <option value="ci1">CI 1</option>
                                                                     <option value="ci2">CI 2</option>
                                                                     <option value="ci3">CI 3</option>
                                                                 </select>
                                                             </td>
                                                             <td>
-                                                                <input type="number" class="form-control" name="candidatesAllocated" placeholder="Enter the number of candidates">
+                                                                Professor
+                                                            </td>
+                                                            <td>
+                                                                Jhondoe@gmail.com
+                                                            </td>
+                                                            <td>
+                                                                9123456780
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <select class="form-select" name="ciName">
+                                                                    <option value="">Select Chief Invigilator
+                                                                    </option>
+                                                                    <option value="ci1">CI 1</option>
+                                                                    <option value="ci2">CI 2</option>
+                                                                    <option value="ci3">CI 3</option>
+                                                                </select>
+                                                            </td>
+                                                            <td>
+                                                                Professor
+                                                            </td>
+                                                            <td>
+                                                                Jhondoe@gmail.com
+                                                            </td>
+                                                            <td>
+                                                                9123456780
                                                             </td>
                                                         </tr>
                                                         <!-- You can add more rows as needed -->
@@ -241,12 +290,6 @@
                                                 </table>
                                             </div>
                                         </div>
-                        
-                                        <div class="mb-3">
-                                            <label for="comments" class="form-label">Additional Comments (optional):</label>
-                                            <textarea class="form-control" id="comments" name="comments" rows="3" placeholder="Please provide any additional information or requirements..."></textarea>
-                                        </div>
-                        
                                         <div class="d-flex justify-content-end mt-4">
                                             <button type="submit" class="btn btn-primary px-4 d-flex align-items-center">
                                                 <i class="feather icon-send me-2"></i>Submit Consent
@@ -286,7 +329,7 @@
                 const consentAcceptRadio = document.getElementById('consent_accept');
                 const consentDeclineRadio = document.getElementById('consent_decline');
                 const additionalFields = document.getElementById('additionalFields');
-        
+
                 // Function to show/hide additional fields
                 function toggleAdditionalFields() {
                     if (consentAcceptRadio.checked) {
@@ -295,11 +338,11 @@
                         additionalFields.classList.add('d-none');
                     }
                 }
-        
+
                 // Attach event listeners to the radio buttons
                 consentAcceptRadio.addEventListener('change', toggleAdditionalFields);
                 consentDeclineRadio.addEventListener('change', toggleAdditionalFields);
-        
+
                 // Initial check on page load
                 toggleAdditionalFields();
             });

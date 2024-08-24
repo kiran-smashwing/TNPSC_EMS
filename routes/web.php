@@ -121,9 +121,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/current-exam/task', [CurrentExamController::class, 'task'])->name('current-exam.task');
     Route::get('/current-exam/edit', [CurrentExamController::class, 'edit'])->name('current-exam.edit');
     Route::get('/current-exam/increaseCandidate', [CurrentExamController::class, 'increaseCandidate'])->name('current-exam.incCandidate');
+    Route::get('/current-exam/intimateCollectorate', [CurrentExamController::class, 'sendMailtoCollectorate'])->name('current-exam.intimateCollectorate');
     Route::get('/current-exam/venueConsent', [CurrentExamController::class, 'venueConsent'])->name('current-exam.venueConsent');
-    Route::get('/current-exam/venues', [CurrentExamController::class, 'venues'])->name('current-exam.venues');
-    Route::get('/current-exam/add-hall', [CurrentExamController::class, 'add_hall'])->name('current-exam.addhall');
+    Route::get('/current-exam/intimateVenue', [CurrentExamController::class, 'selectSendMailtoVenue'])->name('current-exam.intimateVenue');
+    Route::get('/current-exam/confirmVenues', [CurrentExamController::class, 'confirmVenues'])->name('current-exam.confirmVenues');
     //Current Exam
     Route::get('/completed-exam', [CompletedExamController::class, 'index'])->name('completed-exam');
     Route::get('/completed-exam/task', [CompletedExamController::class, 'task'])->name('completed-exam.task');

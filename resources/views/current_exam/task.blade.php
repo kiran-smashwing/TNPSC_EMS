@@ -161,12 +161,12 @@
 
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="helpdesk-ticket-details.html"
+                                                        <a href="#"
                                                             class="me-2 btn btn-sm btn-light-primary "
                                                             data-pc-animate="just-me" data-bs-toggle="modal"
                                                             data-bs-target="#animateModal"><i
                                                                 class="feather icon-upload mx-1 "></i>Upload </a>
-                                                        <a href="#" class="me-3 btn btn-sm btn-light-info"
+                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"
                                                             data-pc-animate="just-me" data-bs-toggle="modal"
                                                             data-bs-target="#animateModal"><i
                                                                 class="feather icon-edit mx-1"></i>Edit </a>
@@ -229,14 +229,16 @@
                                                             -Section Officer</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
-                                                        <a  target="_blank" href="{{route('current-exam.incCandidate')}}"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
+                                                    
+                                                        <a  href="#"    data-pc-animate="just-me" data-bs-toggle="modal"
+                                                            data-bs-target="#increaseCandiadteModal"
+                                                            class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-chevrons-up mx-1"></i>Increase
                                                             Count</a>
-                                                        <a href="#" data-pc-animate="blur" data-bs-toggle="modal"
-                                                            data-bs-target="#sendCenterMailModel"  class="me-3 btn btn-sm btn-light-warning"><i
+                                                            <a href="#" class="me-2 btn btn-sm btn-light-info"><i
+                                                                class="feather icon-download mx-1"></i>Download CSV</a>
+                                                        <a href="{{route('current-exam.intimateCollectorate')}}" 
+                                                           class="me-3 btn btn-sm btn-light-warning"><i
                                                                 class="feather icon-navigation mx-1"></i>Send
                                                             Intimation</a>
                                                     </div>
@@ -299,7 +301,7 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="{{ route('current-exam.venues') }}" class="me-2 btn btn-sm btn-light-info"><i
+                                                        <a target="_blank" href="{{ route('current-exam.intimateVenue') }}" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-check-circle mx-1"></i>Select
                                                             Venues</a>
                                                         <a href="#" data-pc-animate="blur" data-bs-toggle="modal"
@@ -367,7 +369,7 @@
                                                         <a href="helpdesk-ticket-details.html"
                                                             class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="{{route('current-exam.venueConsent')}}" class="me-3 btn btn-sm btn-light-info"><i
+                                                        <a href="{{route('current-exam.venueConsent')}}" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-check-circle mx-1"></i>Add Hall</a>
                                                         <a href="{{route('current-exam.venueConsent')}}" class="me-3 btn btn-sm btn-light-warning"><i
                                                                 class="feather icon-edit mx-1"></i>Edit Hall</a>
@@ -432,7 +434,7 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="{{ route('current-exam.addhall') }}"
+                                                        <a href="{{ route('current-exam.confirmVenues') }}"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-check-circle mx-1"></i>Confirm </a>
                                                         <a href="#" class="me-3 btn btn-sm btn-light-danger"><i
@@ -500,7 +502,7 @@
                                                             data-pc-animate="just-me" data-bs-toggle="modal"
                                                             data-bs-target="#animateModal"><i
                                                                 class="feather icon-upload mx-1 "></i>Upload </a>
-                                                        <a href="#" class="me-3 btn btn-sm btn-light-info"><i
+                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-edit mx-1"></i>Edit </a>
                                                         <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
                                                                 class="feather icon-download mx-1"></i>Download </a>
@@ -567,7 +569,7 @@
                                                             data-pc-animate="just-me" data-bs-toggle="modal"
                                                             data-bs-target="#animateModal"><i
                                                                 class="feather icon-eye mx-1 "></i>View </a>
-                                                        <a href="#" class="me-3 btn btn-sm btn-light-info"><i
+                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-info mx-1"></i>Verify</a>
                                                         <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
                                                                 class="feather icon-edit mx-1"></i>Edit </a>
@@ -2251,7 +2253,7 @@
                                                             data-pc-animate="just-me" data-bs-toggle="modal"
                                                             data-bs-target="#animateModal"><i
                                                                 class="feather icon-eye mx-1 "></i>View </a>
-                                                        <a href="#" class="me-3 btn btn-sm btn-light-info"><i
+                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-info mx-1"></i>Verify</a>
                                                         <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
                                                                 class="feather icon-edit mx-1"></i>Edit </a>
@@ -2334,8 +2336,8 @@
                     </div>
                 </div>
                 @include('modals.apd-upload-excel')
-                @include('modals.send-center-mail')
                 @include('modals.send-consent-mail')
+                @include('modals.id-increase-candidate')
             </div>
             <!-- [ Main Content ] end -->
         </div>

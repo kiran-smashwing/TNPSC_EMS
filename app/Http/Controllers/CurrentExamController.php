@@ -23,6 +23,15 @@ class CurrentExamController extends Controller
     public function task()
     {
         return view('current_exam.task');
+    
+    }
+    public function ciTask()
+    {
+        return view('current_exam.ci-task');
+    }
+    public function examActivityTask()
+    {
+        return view('current_exam.exam-activities-task');
     }
     public function edit()
     {
@@ -48,5 +57,9 @@ class CurrentExamController extends Controller
     public function confirmVenues()
     {
         return view('current_exam.confirm-venues');
+    }
+    public function ciReceiveMaterials()
+    {
+        return view('current_exam.ci-receive-materials');
     }
 }

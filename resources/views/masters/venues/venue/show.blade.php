@@ -31,7 +31,7 @@
                                     <div class="position-absolute end-0 top-0 p-3">
                                         <span class="d-flex align-items-center"></span>
                                     </div>
-    
+
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
                                             <img class="rounded-circle img-fluid wid-70"
@@ -159,7 +159,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="col-lg-8 col-xxl-5">
                             <div class="card">
                                 <div class="card-header">
@@ -313,33 +313,34 @@
                                 </div>
                             </div>
                         </div>
-                       <div class="col-lg-8 col-xxl-12">
+                        <div class="col-lg-8 col-xxl-12">
                             <div class="card">
-                              <div class="card-header">
-                                  <h5>Demo Videos</h5>
-                              </div>
-                              <div class="card-body pc-component">
-                                  <div id="carouselExampleFade" class="carousel slide carousel-fade" data-bs-ride="carousel">
-                                      <div class="carousel-inner">
-                                          <div class="carousel-item active">
-                                              <video class="img-fluid d-block w-100" controls>
-                                                  <source src="../assets/videos/video-1.mp4" type="video/mp4">
-                                                  Your browser does not support the video tag.
-                                              </video>
-                                          </div>
-                                      </div>
-                                  </div>
-                              </div>
-                          </div>
+                                <div class="card-header">
+                                    <h5>Demo Videos</h5>
+                                </div>
+                                <div class="card-body pc-component">
+                                    <div id="carouselExampleFade" class="carousel slide carousel-fade"
+                                        data-bs-ride="carousel">
+                                        <div class="carousel-inner">
+                                            <div class="carousel-item active">
+                                                <video class="img-fluid d-block w-100" controls>
+                                                    <source src="../assets/videos/video-1.mp4" type="video/mp4">
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+            <!-- [ Main Content ] end -->
         </div>
-        <!-- [ Main Content ] end -->
     </div>
+        @include('partials.footer')
 
-    @include('partials.footer')
+        @include('partials.theme')
 
-    @include('partials.theme')
-
-@endsection
+    @endsection

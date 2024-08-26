@@ -199,6 +199,7 @@
             </div>
             <!-- [ Main Content ] end -->
         </div>
+    </div>
 
         @include('partials.footer')
 

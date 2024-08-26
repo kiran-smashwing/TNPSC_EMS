@@ -63,7 +63,7 @@ class AuthController extends Controller
             $request->session()->regenerate();
             if ($remember) {
                 // If "Remember Me" is checked, set a long-lived session
-                $rememberDuration = 60 * 2; //120 minutes
+                $rememberDuration = 60 * 24; //1 days
                 config(['session.lifetime' => $rememberDuration]);
                 session()->put('auth.password_confirmed_at', time());
                 session()->put('ip_address', $request->ip());
@@ -197,8 +197,5 @@ class AuthController extends Controller
             : back()->withErrors(['email' => [__($status)]]);
     }
 
-    public function showchangePassword()
-    {
-        return view('auth.change_password');
-    }
+    
 }

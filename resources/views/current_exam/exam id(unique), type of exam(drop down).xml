@@ -1,0 +1,19 @@
+exam id(unique), type of exam(drop down), exam model(drop down), exam tiers(drop down), Exam Service(drop down), 
+ notification no(unique), notification date, exam name, post name, exam name tamil, last date for apply, exam start date,
+ exam start date, 
+date_of_exam
+
+notification
+ -date 1 FN/AN
+ -date 2 FN/AN
+ -date 3 FN/AN
+
+
+CI
+ -date 1 -Material recevie ,Prelimianry Checklist,Utility Input
+ -date 1 -FN
+ -date 1 -AN
+
+
+
+

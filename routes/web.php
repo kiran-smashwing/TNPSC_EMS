@@ -3,21 +3,25 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\DesignationController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\CenterController;
-use App\Http\Controllers\Treasury_OfficersController;
-use App\Http\Controllers\Van_duty_staffsController;
-use App\Http\Controllers\Escort_staffsController;
-use App\Http\Controllers\Incpection_officersController;
-use App\Http\Controllers\Cheif_invigilatorsController;
-use App\Http\Controllers\Invigilators_Controller;
-use App\Http\Controllers\Scribe_Controller;
-use App\Http\Controllers\CI_AssistantsController;
-use App\Http\Controllers\District_CollectoratesController;
-use App\Http\Controllers\Designations_Controller;
-use App\Http\Controllers\Venues_Controller;
-use App\Http\Controllers\Department_OfficialsController;
+use App\Http\Controllers\TreasuryOfficersController;
+use App\Http\Controllers\MobileTeamStaffsController;
+use App\Http\Controllers\EscortStaffsController;
+use App\Http\Controllers\InspectionOfficersController;
+use App\Http\Controllers\ChiefInvigilatorsController;
+use App\Http\Controllers\InvigilatorsController;
+use App\Http\Controllers\ScribeController;
+use App\Http\Controllers\CIAssistantsController;
+use App\Http\Controllers\VenuesController;
+use App\Http\Controllers\ChangePasswordController;
+use App\Http\Controllers\CIChecklistController;
+use App\Http\Controllers\DepartmentOfficialsController;
 use App\Http\Controllers\MyAccountController;
+use App\Http\Controllers\CollectorateController;
+use App\Http\Controllers\ExamServiceController;
+use App\Http\Controllers\CurrentExamController;
+use App\Http\Controllers\CompletedExamController;
 
 // Public routes
 Route::get('/', function () {
@@ -33,48 +37,101 @@ Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->n
 
 // Protected routes (require user to be logged in) 
 Route::middleware(['auth'])->group(function () {
-    // Dashboard route
-    Route::get('/change-password', [AuthController::class, 'showchangePassword'])->name('change-password');
-    Route::get('/myaccount', [MyAccountController::class, 'index'])->name('myaccount');
+    // Dashboard routes
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-	Route::get('/centers', [CenterController::class, 'index'])->name('centers.index');
-    Route::get('/add-center', [CenterController::class, 'create'])->name('centers.create');
-    Route::get('/edit-center/{center}', [CenterController::class, 'edit'])->name('centers.edit');
-    Route::post('/add-center', [CenterController::class, 'store'])->name('centers.store');
-    Route::put('/update-center/{center}', [CenterController::class, 'update'])->name('centers.update');
-    Route::get('/treasury', [Treasury_OfficersController::class, 'index'])->name('treasury');
-    Route::get('/add-treasury_officers', [Treasury_OfficersController::class, 'create'])->name('treasury_officers.create');
-    Route::get('/edit-treasury_officers', [Treasury_OfficersController::class, 'edit'])->name('treasury_officers.edit');
-    Route::get('/van_duty', [Van_duty_staffsController::class, 'index'])->name('van_duty');
-    Route::get('/add-van_duty', [Van_duty_staffsController::class, 'create'])->name('van_duty.create');
-    Route::get('/edit-van_duty', [Van_duty_staffsController::class, 'edit'])->name('van_duty.edit');
-    Route::get('/escort_staff', [Escort_staffsController::class, 'index'])->name('escort_staff');
-    Route::get('/add-escort_staffs', [Escort_staffsController::class, 'create'])->name('escort_staffs.create');
-    Route::get('/edit-escort_staffs', [Escort_staffsController::class, 'edit'])->name('escort_staffs.edit');
-    Route::get('/incpection', [Incpection_officersController::class, 'index'])->name('incpection');
-    Route::get('/cheif_invigilator', [Cheif_invigilatorsController::class, 'index'])->name('cheif_invigilator');
-    Route::get('/add-cheif_invigilator', [Cheif_invigilatorsController::class, 'create'])->name('cheif_invigilator.create');
-    Route::get('/edit-cheif_invigilator', [Cheif_invigilatorsController::class, 'edit'])->name('cheif_invigilator.edit');
-    Route::get('/invigilator', [Invigilators_Controller::class, 'index'])->name('invigilator');
-    Route::get('/add-invigilator', [Invigilators_Controller::class, 'create'])->name('invigilator.create');
-    Route::get('/edit-invigilator', [Invigilators_Controller::class, 'edit'])->name('invigilator.edit');
-    Route::get('/scribe', [Scribe_Controller::class, 'index'])->name('scribe');
-    Route::get('/add-scribe', [Scribe_Controller::class, 'create'])->name('scribe.create');
-    Route::get('/edit-scribe', [Scribe_Controller::class, 'edit'])->name('scribe.edit');
-    Route::get('/ci_assistants', [CI_AssistantsController::class, 'index'])->name('ci_assistants');
-    Route::get('/add-ci_assistants', [CI_AssistantsController::class, 'create'])->name('ci_assistants.create');
-    Route::get('/edit-ci_assistants', [CI_AssistantsController::class, 'edit'])->name('ci_assistants.edit');
-    Route::get('/district_collectorates', [District_CollectoratesController::class, 'index'])->name('district_collectorates');
-    Route::get('/add-district_collectorates', [District_CollectoratesController::class, 'create'])->name('district_collectorates.create');
-    Route::get('/edit-district_collectorates', [District_CollectoratesController::class, 'edit'])->name('district_collectorates.edit');
-    Route::get('/designations', [Designations_Controller::class, 'index'])->name('designations');
-    Route::get('/venue', [Venues_Controller::class, 'index'])->name('venue');
-    Route::get('/add-venue', [Venues_Controller::class, 'create'])->name('venue.create');
-    Route::get('/edit-venue', [Venues_Controller::class, 'edit'])->name('venue.edit');
-    Route::get('/department', [Department_OfficialsController::class, 'index'])->name('department');
-    Route::get('/add-department', [Department_OfficialsController::class, 'create'])->name('department.create');
-    Route::get('/edit-department', [Department_OfficialsController::class, 'edit'])->name('department.edit');
-    Route::resource('/designation', DesignationController::class);
+    // MyAccount routes 
+    Route::get('/myaccount', [MyAccountController::class, 'index'])->name('myaccount');
+    // Change Password routes
+    Route::get('/change-password', [ChangePasswordController::class, 'showchangePassword'])->name('change-password');
+    // Center routes
+    Route::get('/center', [CenterController::class, 'index'])->name('center');
+    Route::get('/center/add', [CenterController::class, 'create'])->name('center.create');
+    Route::get('/center/edit', [CenterController::class, 'edit'])->name('center.edit');
+    Route::post('/center/add', [CenterController::class, 'store'])->name('center.store');
+    Route::put('/center/update/{center}', [CenterController::class, 'update'])->name('center.update');
+    Route::get('/center/show', [CenterController::class, 'show'])->name('center.show');
+    // Treasury routes
+    Route::get('/treasury-officer', [TreasuryOfficersController::class, 'index'])->name('treasury-officer');
+    Route::get('/treasury-officer/add', [TreasuryOfficersController::class, 'create'])->name('treasury-officer.create');
+    Route::get('/treasury-officer/edit', [TreasuryOfficersController::class, 'edit'])->name('treasury-officer.edit');
+    Route::get('/treasury-officer/show', [TreasuryOfficersController::class, 'show'])->name('treasury-officer.show');
+    // Mobile Team Staffs routes
+    Route::get('/mobile-team', [MobileTeamStaffsController::class, 'index'])->name('mobile-team');
+    Route::get('/mobile-team/add', [MobileTeamStaffsController::class, 'create'])->name('mobile-team.create');
+    Route::get('/mobile-team/edit', [MobileTeamStaffsController::class, 'edit'])->name('mobile-team.edit');
+    Route::get('/mobile-team/show', [MobileTeamStaffsController::class, 'show'])->name('mobile-team.show');
+    // Escort Staffs routes
+    Route::get('/escort-staff', [EscortStaffsController::class, 'index'])->name('escort-staff');
+    Route::get('/escort-staff/add', [EscortStaffsController::class, 'create'])->name('escort-staff.create');
+    Route::get('/escort-staff/edit', [EscortStaffsController::class, 'edit'])->name('escort-staff.edit');
+    // Inspection Officers routes
+    Route::get('/inspection-officer', [InspectionOfficersController::class, 'index'])->name('inspection-officer');
+    Route::get('/inspection-officer/add', [InspectionOfficersController::class, 'create'])->name('inspection-officer.create');
+    Route::get('/inspection-officer/edit', [InspectionOfficersController::class, 'edit'])->name('inspection-officer.edit');
+    // Cheif Invigilator routes
+    Route::get('/chief-invigilator', [ChiefInvigilatorsController::class, 'index'])->name('chief-invigilator');
+    Route::get('/chief-invigilator/add', [ChiefInvigilatorsController::class, 'create'])->name('chief-invigilator.create');
+    Route::get('/chief-invigilator/edit', [ChiefInvigilatorsController::class, 'edit'])->name('chief-invigilator.edit');
+    Route::get('/chief-invigilator/show', [ChiefInvigilatorsController::class, 'show'])->name('chief-invigilator.show');
+    // Invigilator routes
+    Route::get('/invigilator', [InvigilatorsController::class, 'index'])->name('invigilator');
+    Route::get('/invigilator/add', [InvigilatorsController::class, 'create'])->name('invigilator.create');
+    Route::get('/invigilator/edit', [InvigilatorsController::class, 'edit'])->name('invigilator.edit');
+    Route::get('/invigilator/show', [InvigilatorsController::class, 'show'])->name('invigilator.show');
+    // Scribe
+    Route::get('/scribe', [ScribeController::class, 'index'])->name('scribe');
+    Route::get('/scribe/add', [ScribeController::class, 'create'])->name('scribe.create');
+    Route::get('/scribe/edit', [ScribeController::class, 'edit'])->name('scribe.edit');
+    Route::get('/scribe/show', [ScribeController::class, 'show'])->name('scribe.show');
+    // CI Assistants
+    Route::get('/ci-assistant', [CIAssistantsController::class, 'index'])->name('ci-assistant');
+    Route::get('/ci-assistant/add', [CIAssistantsController::class, 'create'])->name('ci-assistant.create');
+    Route::get('/ci-assistant/edit', [CIAssistantsController::class, 'edit'])->name('ci-assistant.edit');
+    Route::get('/ci-assistant/show', [CIAssistantsController::class, 'show'])->name('ci-assistant.show');
+    // Collectrate
+    Route::get('/collectorate', [CollectorateController::class, 'index'])->name('collectorate');
+    Route::get('/collectorate/add', [CollectorateController::class, 'create'])->name('collectorate.create');
+    Route::get('/collectorate/edit', [CollectorateController::class, 'edit'])->name('collectorate.edit');
+    Route::get('/collectorate/show', [CollectorateController::class, 'show'])->name('collectorate.show');
+    // Role
+    Route::get('/role', [RoleController::class, 'index'])->name('role');
+    Route::get('/role/add', [RoleController::class, 'create'])->name('role.create');
+    Route::get('/role/edit', [RoleController::class, 'edit'])->name('role.edit');
+    // Venue
+    Route::get('/venue', [VenuesController::class, 'index'])->name('venue');
+    Route::get('/venue/add', [VenuesController::class, 'create'])->name('venue.create');
+    Route::get('/venue/edit', [VenuesController::class, 'edit'])->name('venue.edit');
+    Route::get('/venue/show', [VenuesController::class, 'show'])->name('venue.show');
+    // Department
+    Route::get('/department', [DepartmentOfficialsController::class, 'index'])->name('department');
+    Route::get('/department/add', [DepartmentOfficialsController::class, 'create'])->name('department.create');
+    Route::get('/department/edit', [DepartmentOfficialsController::class, 'edit'])->name('department.edit');
+    Route::get('/department/show', [DepartmentOfficialsController::class, 'show'])->name('department.show');
+    // Examination Services
+    Route::get('/exam-service', [ExamServiceController::class, 'index'])->name('exam-service');
+    Route::get('/exam-service/add', [ExamServiceController::class, 'create'])->name('exam-service.create');
+    Route::get('/exam-service/edit', [ExamServiceController::class, 'edit'])->name('exam-service.edit');
+    // CI CheckList
+    Route::get('/ci-checklist', [CIChecklistController::class, 'index'])->name('ci-checklist');
+    Route::get('/ci-checklist/add', [CIChecklistController::class, 'create'])->name('ci-checklist.create');
+    Route::get('/ci-checklist/edit', [CIChecklistController::class, 'edit'])->name('ci-checklist.edit');
+    //Current Exam
+    Route::get('/current-exam', [CurrentExamController::class, 'index'])->name('current-exam');
+    Route::get('/current-exam/add', [CurrentExamController::class, 'create'])->name('current-exam.create');
+    Route::get('/current-exam/task', [CurrentExamController::class, 'task'])->name('current-exam.task');
+    Route::get('/current-exam/ciTask', [CurrentExamController::class, 'ciTask'])->name('current-exam.citask');
+    Route::get('/current-exam/examActivityTask', [CurrentExamController::class, 'examActivityTask'])->name('current-exam.examActivityTask');
+    Route::get('/current-exam/edit', [CurrentExamController::class, 'edit'])->name('current-exam.edit');
+    Route::get('/current-exam/increaseCandidate', [CurrentExamController::class, 'increaseCandidate'])->name('current-exam.incCandidate');
+    Route::get('/current-exam/intimateCollectorate', [CurrentExamController::class, 'sendMailtoCollectorate'])->name('current-exam.intimateCollectorate');
+    Route::get('/current-exam/venueConsent', [CurrentExamController::class, 'venueConsent'])->name('current-exam.venueConsent');
+    Route::get('/current-exam/intimateVenue', [CurrentExamController::class, 'selectSendMailtoVenue'])->name('current-exam.intimateVenue');
+    Route::get('/current-exam/confirmVenues', [CurrentExamController::class, 'confirmVenues'])->name('current-exam.confirmVenues');
+    Route::get('/current-exam/ciReceiveMaterials', [CurrentExamController::class, 'ciReceiveMaterials'])->name('current-exam.ciReceiveMaterials');
+    //Current Exam
+    Route::get('/completed-exam', [CompletedExamController::class, 'index'])->name('completed-exam');
+    Route::get('/completed-exam/task', [CompletedExamController::class, 'task'])->name('completed-exam.task');
+    Route::get('/completed-exam/edit', [CompletedExamController::class, 'edit'])->name('completed-exam.edit');
     // Add other protected routes here
 });
 

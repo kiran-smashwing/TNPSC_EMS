@@ -11,13 +11,20 @@ class CollectorateController extends Controller
 {
     public function index()
     {
-        $collectorates = Collectorate::paginate(10);
-        return view('collectorates.index', compact('collectorates'));
+        return view('masters.district.collectorate.index');
     }
 
     public function create()
     {
-        return view('collectorates.create');
+        return view('masters.district.collectorate.create');
+    }
+    public function edit()
+    {
+        return view('masters.district.collectorate.edit');
+    }
+    public function show()
+    {
+        return view('masters.district.collectorate.show');
     }
 
     public function store(Request $request)
@@ -52,15 +59,15 @@ class CollectorateController extends Controller
         return redirect()->route('collectorates.index')->with('success', 'Collectorate created successfully.');
     }
 
-    public function show(Collectorate $collectorate)
-    {
-        return view('collectorates.show', compact('collectorate'));
-    }
+    // public function show(Collectorate $collectorate)
+    // {
+    //     return view('masters.district.collectorate.show', compact('collectorate'));
+    // }
 
-    public function edit(Collectorate $collectorate)
-    {
-        return view('collectorates.edit', compact('collectorate'));
-    }
+    // public function edit(Collectorate $collectorate)
+    // {
+    //     return view('masters.district.collectorate.edit', compact('collectorate'));
+    // }
 
     public function update(Request $request, Collectorate $collectorate)
     {

@@ -20,13 +20,13 @@ class CenterController extends Controller
     $centers = Center::with('district')->paginate(10);
 
     // Return the view with the centers data
-    return view('centers.index', compact('centers'));
+    return view('masters.district.centers.index', compact('centers'));
     }
 
     public function create()
     {
         $districts = Collectorate::all();
-        return view('centers.create', compact('districts'));
+        return view('masters.district.centers.create', compact('districts'));
     }
 
     public function store(Request $request)
@@ -54,13 +54,13 @@ class CenterController extends Controller
 
     public function show(Center $center)
     {
-        return view('centers.show', compact('center'));
+        return view('masters.district.centers.show', compact('center'));
     }
 
     public function edit(Center $center)
     {
         $districts = Collectorate::all();
-        return view('centers.edit', compact('center', 'districts'));
+        return view('masters.district.centers.edit', compact('center', 'districts'));
     }
 
     public function update(Request $request, Center $center)

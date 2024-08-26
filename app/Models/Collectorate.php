@@ -45,4 +45,5 @@ class Collectorate extends Model
     {
         return $this->hasMany(Center::class, 'district_id');
     }
+    
 }

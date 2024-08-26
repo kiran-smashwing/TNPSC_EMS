@@ -22,7 +22,7 @@
                             <div class="mt-3">
                                 <div class="row g-2">
                                     <div class="col-md-12">
-                                        <textarea id="inspectionStaffDepartment1" class="form-control" placeholder="Enter Department" rows="4"></textarea>
+                                        <textarea id="inspectionStaffDepartment1" class="form-control" placeholder="Enter Remarks" rows="4"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -36,7 +36,7 @@
                             <div class="mt-3">
                                 <div class="row g-2">
                                     <div class="col-md-12">
-                                        <textarea id="inspectionStaffDepartment2" class="form-control" placeholder="Enter Department" rows="4"></textarea>
+                                        <textarea id="inspectionStaffDepartment2" class="form-control" placeholder="Enter Remarks" rows="4"></textarea>
                                     </div>
                                 </div>
                             </div>

@@ -528,8 +528,10 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-plus mx-1"></i>Add</a>
+                                                                <a href="#"  data-pc-animate="just-me"  data-bs-toggle="modal" data-bs-target="#qpaperdistributiontime"  class="me-2 btn btn-sm btn-light-info"><i
+                                                                    class="feather icon-plus mx-1"></i>Add</a>
+                                                        {{-- <a href="#" class="me-2 btn btn-sm btn-light-info"><i
+                                                                class="feather icon-plus mx-1"></i>Add</a> --}}
                                                     </div>
                                                 </div>
                                             </div>
@@ -714,15 +716,17 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-info mx-1"></i>Verify</a>
+                                                                <a href="#"  data-pc-animate="just-me"  data-bs-toggle="modal" data-bs-target="#countingpackagingvideography"  class="me-2 btn btn-sm btn-light-info"><i
+                                                                    class="feather icon-info mx-1"></i>verify</a>
+                                                        {{-- <a href="#" class="me-2 btn btn-sm btn-light-info"><i
+                                                                class="feather icon-info mx-1"></i>Verify</a> --}}
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </li>
-                                <li class="task-list-item">
+                                {{-- <li class="task-list-item">
                                     <i class="task-icon bg-danger"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
@@ -736,9 +740,9 @@
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
 
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
+                                                                 <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
+                                                                        3</a></li> 
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -751,10 +755,10 @@
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
+                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/admin/p1.jpg" alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
+                                                                </li> -
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
@@ -764,9 +768,9 @@
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
                                                                     28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
+                                                                <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                </li> 
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -783,7 +787,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </li>
+                                </li> --}}
                                 <li class="task-list-item">
                                     <i class="task-icon bg-danger"></i>
                                     <div class="card ticket-card open-ticket">
@@ -957,8 +961,8 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-plus mx-1"></i>Add</a>
+                                                        <a href="#"  data-pc-animate="just-me"  data-bs-toggle="modal" data-bs-target="#consolidatecertificate"  class="me-2 btn btn-sm btn-light-primary"><i
+                                                            class="feather icon-info mx-1"></i>verify</a>
                                                         <a href="#" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-download mx-1"></i>Download</a>
                                                     </div>
@@ -1309,7 +1313,10 @@
                 @include('modals.qpbox-opentime')
                 @include('modals.additional-candidate')
                 @include('modals.additional-candidate-view')
-                @include('modals.qp-ans-replacement')
+                @include('modals.qpaper-distribution-time')
+                @include('modals.counting-packaging-videography')
+                @include('modals.consolidate-certificate')
+                {{-- @include('modals.qp-ans-replacement') --}}
             </div>
             <!-- [ Main Content ] end -->
         </div>

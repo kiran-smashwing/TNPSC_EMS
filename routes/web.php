@@ -121,6 +121,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/current-exam/task', [CurrentExamController::class, 'task'])->name('current-exam.task');
     Route::get('/current-exam/ciTask', [CurrentExamController::class, 'ciTask'])->name('current-exam.citask');
     Route::get('/current-exam/examActivityTask', [CurrentExamController::class, 'examActivityTask'])->name('current-exam.examActivityTask');
+    Route::get('/current-exam/districtTask', [CurrentExamController::class, 'districtCollectrateTask'])->name('current-exam.districtTask');
     Route::get('/current-exam/edit', [CurrentExamController::class, 'edit'])->name('current-exam.edit');
     Route::get('/current-exam/increaseCandidate', [CurrentExamController::class, 'increaseCandidate'])->name('current-exam.incCandidate');
     Route::get('/current-exam/intimateCollectorate', [CurrentExamController::class, 'sendMailtoCollectorate'])->name('current-exam.intimateCollectorate');

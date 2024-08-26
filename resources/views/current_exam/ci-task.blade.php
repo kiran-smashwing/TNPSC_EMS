@@ -104,8 +104,10 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a target="_blank" href="{{route('current-exam.ciReceiveMaterials')}}" class="me-2 btn btn-sm btn-light-primary"><i
-                                                            class="feather icon-aperture mx-1"></i>Scan</a>
+                                                        <a target="_blank"
+                                                            href="{{ route('current-exam.ciReceiveMaterials') }}"
+                                                            class="me-2 btn btn-sm btn-light-primary"><i
+                                                                class="feather icon-aperture mx-1"></i>Scan</a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -163,8 +165,11 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#"  data-bs-toggle="modal" data-bs-target="#preliminaryCheckListModel" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-info mx-1" ></i>Verify</a>
+                                                        <a href="#" data-bs-toggle="modal"
+                                                            data-bs-target="#preliminaryCheckListModel"
+                                                            data-pc-animate="just-me"
+                                                            class="me-2 btn btn-sm btn-light-primary"><i
+                                                                class="feather icon-info mx-1"></i>Verify</a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -222,7 +227,8 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="{{route('current-exam.examActivityTask')}}" class="me-2 btn btn-sm btn-light-primary"><i
+                                                        <a href="{{ route('current-exam.examActivityTask') }}"
+                                                            class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-edit mx-1"></i>Update Exam
                                                             Activites</a>
                                                     </div>
@@ -231,7 +237,7 @@
                                         </div>
                                     </div>
                                 </li>
-                               
+
                                 <li class="task-list-item">
                                     <i class="task-icon bg-danger"></i>
                                     <div class="card ticket-card open-ticket">
@@ -320,25 +326,25 @@
                 var modal = event.target; // Get the modal being triggered
                 var button = event.relatedTarget; // Button that triggered the modal
                 var recipient = button.getAttribute('data-pc-animate'); // Get data attribute for animation type
-        
+
                 // Update the modal title and apply animation class
                 var modalTitle = modal.querySelector('.modal-title');
                 // modalTitle.textContent = 'Animate Modal: ' + recipient;
                 modal.classList.add('anim-' + recipient);
-        
+
                 // Optionally, apply animation to the body for specific cases
                 if (recipient == 'let-me-in' || recipient == 'make-way' || recipient == 'slip-from-top') {
                     document.body.classList.add('anim-' + recipient);
                 }
             });
-        
+
             // Listen for the 'hidden.bs.modal' event on any modal
             document.addEventListener('hidden.bs.modal', function(event) {
                 var modal = event.target; // Get the modal being hidden
                 removeClassByPrefix(modal, 'anim-');
                 removeClassByPrefix(document.body, 'anim-');
             });
-        
+
             // Helper function to remove classes by prefix
             function removeClassByPrefix(node, prefix) {
                 var classesToRemove = Array.from(node.classList).filter(function(c) {
@@ -349,7 +355,7 @@
                 });
             }
         </script>
-        
+
         <!-- [Page Specific JS] end -->
     @endpush
 

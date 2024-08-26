@@ -587,9 +587,9 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
+                                                        <a href="#" data-pc-animate="just-me"  data-bs-toggle="modal" data-bs-target="#viewReplacementModal" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" data-pc-animate="just-me"  data-bs-toggle="modal" data-bs-target="#paperReplacementModalLabel" class="me-2 btn btn-sm btn-light-info"><i
+                                                        <a href="#" data-pc-animate="just-me"  data-bs-toggle="modal" data-bs-target="#paperReplacementModal" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-plus mx-1"></i>Add</a>
                                                     </div>
                                                 </div>
@@ -648,9 +648,9 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
+                                                        <a href="#" data-pc-animate="just-me"  data-bs-toggle="modal" data-bs-target="#candidateRemarksViewModal" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
+                                                        <a href="#" data-pc-animate="just-me"  data-bs-toggle="modal" data-bs-target="#candidateRemarksModal" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-plus mx-1"></i>Add</a>
                                                         <a href="#" class="me-2 btn btn-sm btn-light-warning"><i
                                                                 class="feather icon-edit mx-1"></i>Edit</a>
@@ -835,9 +835,9 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
+                                                        <a href="#"  data-pc-animate="just-me"  data-bs-toggle="modal" data-bs-target="#omrRemarksViewModal" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
+                                                        <a href="#" data-pc-animate="just-me"  data-bs-toggle="modal" data-bs-target="#omrRemarksInputModal" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-plus mx-1"></i>Add</a>
                                                     </div>
                                                 </div>
@@ -896,9 +896,9 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
+                                                        <a href="#"  class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
+                                                        <a href="#"  data-pc-animate="just-me"  data-bs-toggle="modal" data-bs-target="#bundlePackingModal" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-aperture mx-1"></i>Scan</a>
                                                     </div>
                                                 </div>
@@ -1018,8 +1018,8 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-plus mx-1"></i>Add</a>
+                                                        <a href="#"  data-pc-animate="just-me"  data-bs-toggle="modal" data-bs-target="#utilizationCertificateModal" class="me-2 btn btn-sm btn-light-primary"><i
+                                                                class="feather icon-info mx-1"></i>Verify</a>
                                                         <a href="#" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-download mx-1"></i>Download</a>
                                                     </div>
@@ -1310,6 +1310,13 @@
                 @include('modals.additional-candidate')
                 @include('modals.additional-candidate-view')
                 @include('modals.qp-ans-replacement')
+                @include('modals.qp-ans-replacement-view')
+                @include('modals.candidate-remarks')
+                @include('modals.candidate-remarks-view')
+                @include('modals.omr-remarks')
+                @include('modals.omr-remarks-view')
+                @include('modals.bundle-packing')
+                @include('modals.utilization-certificate')
             </div>
             <!-- [ Main Content ] end -->
         </div>

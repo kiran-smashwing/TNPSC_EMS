@@ -29,6 +29,11 @@ class CurrentExamController extends Controller
     {
         return view('current_exam.ci-task');
     }
+
+    public function districtCollectrateTask()
+    {
+        return view('current_exam.district-task');
+    }
     public function examActivityTask()
     {
         return view('current_exam.exam-activities-task');

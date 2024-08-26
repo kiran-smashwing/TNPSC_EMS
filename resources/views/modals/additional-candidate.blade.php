@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-primary">
-                <h5 class="modal-title text-white" id="additionalCandidateModalLabel">
+                <h5 class="modal-title text-primary" id="additionalCandidateModalLabel">
                     <i class="feather icon-user-plus me-2"></i>Add Additional Candidates
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>

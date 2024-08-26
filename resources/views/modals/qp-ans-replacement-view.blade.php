@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-info">
-                <h5 class="modal-title text-white" id="viewReplacementModalLabel">
+                <h5 class="modal-title text-primary" id="viewReplacementModalLabel">
                     <i class="feather icon-eye me-2"></i>View Replacement Details
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>

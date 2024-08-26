@@ -4,7 +4,7 @@
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-primary">
-                <h5 class="modal-title text-white" id="additionalCandidateViewModalLabel">
+                <h5 class="modal-title text-primary" id="additionalCandidateViewModalLabel">
                     <i class="feather icon-user-plus me-2"></i>List of Added Candidates
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"

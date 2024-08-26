@@ -4,7 +4,7 @@
         <div class="modal-content">
             <div class="modal-header bg-warning">
                 <h5 class="modal-title" id="bundlePackingModalLabel">
-                    <i class="feather icon-edit me-2"></i>Candidate Remarks
+                    <i class="feather icon-inbox me-2"></i>Bundle Packing
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>

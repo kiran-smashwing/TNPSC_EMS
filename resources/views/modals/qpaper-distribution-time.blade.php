@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-success">
-                <h5 class="modal-title text-white" id="qpaperdistributiontimeLabel">
+                <h5 class="modal-title text-primary" id="qpaperdistributiontimeLabel">
                     <i class="feather icon-box me-2"></i>Q-paper distribution time
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>

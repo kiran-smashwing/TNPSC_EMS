@@ -4,7 +4,7 @@
         <div class="modal-content">
             <div class="modal-header ">
                 <h5 class="modal-title text-primary" id="countingpackagingvideographyModelLabel">
-                    <i class="feather icon-map-pin me-2"></i>Counting / Packaging Videography 
+                    <i class="feather icon-video me-2"></i>Counting / Packaging Videography 
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                     aria-label="Close"></button>

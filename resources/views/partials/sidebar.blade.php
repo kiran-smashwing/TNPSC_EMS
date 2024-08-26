@@ -205,6 +205,16 @@
                     </a>
                 </li>
                 <li class="pc-item">
+                    <a href="{{route('current-exam.districtTask')}}" class="pc-link">
+                        <span class="pc-micon">
+                            <svg class="pc-icon">
+                                <use xlink:href="#custom-text-align-justify-center"></use>
+                            </svg>
+                        </span>
+                        <span class="pc-mtext">District - Current Exams</span>
+                    </a>
+                </li>
+                <li class="pc-item">
                     <a href="{{route('completed-exam')}}" class="pc-link">
                         <span class="pc-micon">
                             <svg class="pc-icon">

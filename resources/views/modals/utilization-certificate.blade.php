@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-primary">
-                <h5 class="modal-title text-white" id="utilizationCertificateModalLabel">
+                <h5 class="modal-title text-primary" id="utilizationCertificateModalLabel">
                     <i class="feather icon-file-text me-2"></i>Utilization Certificate Entry
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>

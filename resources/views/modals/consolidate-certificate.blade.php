@@ -4,7 +4,7 @@
         <div class="modal-content">
             <div class="modal-header ">
                 <h5 class="modal-title text-primary" id="consolidatecertificateModelLabel">
-                    <i class="feather icon-map-pin me-2"></i>Consolidate Certificate
+                    <i class="feather icon-file-text me-2"></i>Consolidate Certificate
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                     aria-label="Close"></button>

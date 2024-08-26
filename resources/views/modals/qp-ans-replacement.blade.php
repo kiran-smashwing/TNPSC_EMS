@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-warning">
-                <h5 class="modal-title" id="paperReplacementModalLabel">
+                <h5 class="modal-title text-primary" id="paperReplacementModalLabel">
                     <i class="feather icon-repeat me-2"></i>Replacement of Question/Answer Paper
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

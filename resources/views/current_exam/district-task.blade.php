@@ -620,7 +620,7 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a target="_blank" href="{{route('current-exam.ciReceiveMaterials')}}" class="me-2 btn btn-sm btn-light-primary"><i
+                                                        <a target="_blank" href="{{route('current-exam.mobTeam-ci')}}" class="me-2 btn btn-sm btn-light-primary"><i
                                                             class="feather icon-aperture mx-1"></i>Scan</a>
                                                     </div>
                                                 </div>

@@ -67,4 +67,12 @@ class CurrentExamController extends Controller
     {
         return view('current_exam.ci-receive-materials');
     }
+    public function mobileTeamReceiveMaterialsFromTreasury()
+    {
+        return view('current_exam.treasury-to-mobileTeam-materials');
+    }
+    public function ciReceiveMaterialsFromMobileTeam()
+    {
+        return view('current_exam.mobileTeam-to-CI-materials');
+    }
 }

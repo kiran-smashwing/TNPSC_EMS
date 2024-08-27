@@ -23,19 +23,13 @@
                         <input type="time" class="form-control" id="selectTime">
                     </div>
 
-                    <!-- QR Code Preview (Static) -->
-                    <div class="text-center my-4">
-                        <p class="fw-bold">Generated QR Code:</p>
-                        <div id="qrCodePreview" style="border: 1px dashed #ced4da; padding: 20px;">
-                            <img src="https://via.placeholder.com/150" alt="QR Code Placeholder">
-                        </div>
-                    </div>
+                  
                 </form>
             </div>
             <div class="modal-footer d-flex justify-content-end">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-success">
-                    <i class="feather icon-download me-2"></i>Download QR Code
+                    <i class="feather icon-save me-2"></i>Save
                 </button>
             </div>
         </div>

@@ -162,7 +162,7 @@
                                                     </div>
                                                     <div class="mt-2">
                                                         <a href="#"
-                                                            class="me-2 btn btn-sm btn-light-primary "
+                                                            class="me-2 btn btn-sm btn-light-primary m-2"
                                                             data-pc-animate="just-me" data-bs-toggle="modal"
                                                             data-bs-target="#animateModal"><i
                                                                 class="feather icon-upload mx-1 "></i>Upload </a>
@@ -232,13 +232,13 @@
                                                     
                                                         <a  href="#"    data-pc-animate="just-me" data-bs-toggle="modal"
                                                             data-bs-target="#increaseCandiadteModal"
-                                                            class="me-2 btn btn-sm btn-light-primary"><i
+                                                            class="me-2 btn btn-sm btn-light-primary m-2"><i
                                                                 class="feather icon-chevrons-up mx-1"></i>Increase
                                                             Count</a>
-                                                            <a href="#" class="me-2 btn btn-sm btn-light-info"><i
+                                                            <a href="#" class="me-2 btn btn-sm btn-light-info m-2"><i
                                                                 class="feather icon-download mx-1"></i>Download CSV</a>
                                                         <a href="{{route('current-exam.intimateCollectorate')}}" 
-                                                           class="me-3 btn btn-sm btn-light-warning"><i
+                                                           class="me-3 btn btn-sm btn-light-warning m-2"><i
                                                                 class="feather icon-navigation mx-1"></i>Send
                                                             Intimation</a>
                                                     </div>
@@ -299,7 +299,7 @@
                                                             District Collectorate</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
+                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary m-2"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
                                                         <a target="_blank" href="{{ route('current-exam.intimateVenue') }}" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-check-circle mx-1"></i>Select
@@ -367,7 +367,7 @@
                                                     </div>
                                                     <div class="mt-2">
                                                         <a href="helpdesk-ticket-details.html"
-                                                            class="me-2 btn btn-sm btn-light-primary"><i
+                                                            class="me-2 btn btn-sm btn-light-primary m-2"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
                                                         <a href="{{route('current-exam.venueConsent')}}" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-check-circle mx-1"></i>Add Hall</a>
@@ -432,7 +432,7 @@
                                                             -Section Officer</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a target="_blank" href="{{ route('current-exam.confirmVenues') }}" class="me-2 btn btn-sm btn-light-primary"><i
+                                                        <a target="_blank" href="{{ route('current-exam.confirmVenues') }}" class="me-2 btn btn-sm btn-light-primary m-2"><i
                                                                 class="feather icon-eye mx-1"></i>Review Venues</a>
                                                         <a href=""
                                                             class="me-2 btn btn-sm btn-light-info"><i
@@ -497,7 +497,7 @@
                                                     </div>
                                                     <div class="mt-2">
                                                         <a href="helpdesk-ticket-details.html"
-                                                            class="me-2 btn btn-sm btn-light-primary "
+                                                            class="me-2 btn btn-sm btn-light-primary m-2"
                                                             data-pc-animate="just-me" data-bs-toggle="modal"
                                                             data-bs-target="#apdFinalizeCandidate"><i
                                                                 class="feather icon-upload mx-1 "></i>Upload </a>
@@ -630,7 +630,7 @@
                                                             District Collectorate</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
+                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary m-2"><i
                                                                 class="feather icon-grid mx-1"></i>Generate</a>
                                                         <a href="helpdesk-ticket-details.html"
                                                             class="me-2 btn btn-sm btn-light-info"><i

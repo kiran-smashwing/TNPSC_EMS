@@ -75,4 +75,8 @@ class CurrentExamController extends Controller
     {
         return view('current_exam.mobileTeam-to-CI-materials');
     }
+    public function bundlePackaging()
+    {
+        return view('current_exam.bundle-packaging');
+    }
 }

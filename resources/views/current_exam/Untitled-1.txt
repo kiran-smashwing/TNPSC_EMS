@@ -1,0 +1,44 @@
+Center Code | Hall Number |          Date|   Session |no of QP Box | no of OMR Packet |Route No  | Trunk Box No | Small OTL  | Charted Vehicle Route No | Big OTL | GPS Lock No
+1010        | 001         |     23-8-2024|     FN    |  4          |  1               |    
+
+
+
+
+-->Date - session
+QP Box number / Timestamp 
+1
+2
+3
+4
+
+OMR Packet / Timestamp
+1
+2
+3
+
+-->Date - session
+QP Box number / Timestamp 
+1
+2
+3
+4
+
+OMR Packet / Timestamp
+1
+2
+3
+
+
+
+
+
+
+
+
+
+treasury to mobile team 
+mobile team to CI
+CI to MObile team
+MObile team to treasury
+
+

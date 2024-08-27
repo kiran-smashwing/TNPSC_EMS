@@ -33,8 +33,9 @@
             <!-- [ Main Content ] start -->
             <div class="row text-center mb-4">
                 <div class="">
-                <a target="_blank" href="http://localhost/ems/public/current-exam/ciReceiveMaterials"
-                    class="me-2 btn btn-light-primary"><i class="feather icon-aperture mx-1"></i>Scan OR Code</a></div>
+                    <a href="{{ route('qr-code-reader') }}" class="me-2 btn btn-light-primary"><i
+                            class="feather icon-aperture mx-1"></i>Scan OR Code</a>
+                </div>
             </div>
             <div class="row justify-content-center">
                 <!-- [ basic-table ] start -->
@@ -164,120 +165,54 @@
 
     @push('scripts')
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-        <script src="{{ asset('storage/assets/js/plugins/dataTables.min.js') }}"></script>
-        <script src="{{ asset('storage/assets/js/plugins/dataTables.bootstrap5.min.js') }}"></script>
-        <script src="{{ asset('storage/assets/js/plugins/buttons.colVis.min.js') }}"></script>
-        <script src="{{ asset('storage/assets/js/plugins/buttons.print.min.js') }}"></script>
-        <script src="{{ asset('storage/assets/js/plugins/pdfmake.min.js') }}"></script>
-        <script src="{{ asset('storage/assets/js/plugins/jszip.min.js') }}"></script>
-        <script src="{{ asset('storage/assets/js/plugins/dataTables.buttons.min.js') }}"></script>
-        <script src="{{ asset('storage/assets/js/plugins/vfs_fonts.js') }}"></script>
-        <script src="{{ asset('storage/assets/js/plugins/buttons.html5.min.js') }}"></script>
-        <script src="{{ asset('storage/assets/js/plugins/buttons.bootstrap5.min.js') }}"></script>
-        <script src="{{ asset('storage/assets/js/plugins/dataTables.responsive.min.js') }}"></script>
-        <script src="{{ asset('storage/assets/js/plugins/responsive.bootstrap5.min.js') }}"></script>
+        <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js')}}"></script>
+
+
         <script>
-            // jQuery to toggle the visibility of the percentage input
-            $('#customswitchv2-3').on('change', function() {
-                if ($(this).is(':checked')) {
-                    $('#percentageInput').show(); // Show the input when checked
-                } else {
-                    $('#percentageInput').hide(); // Hide the input when unchecked
+            document.addEventListener('DOMContentLoaded', function() {
+                const qrCodeResult = localStorage.getItem('qrCodeResult');
+                if (qrCodeResult) {
+                    const result = JSON.parse(qrCodeResult);
+                    showAlert(result.type, result.message);
+                    localStorage.removeItem('qrCodeResult'); // Clear the result after showing
                 }
             });
-        </script>
-        <script>
-            var table = $('#res-config').DataTable({
-                deferRender: true,
-                scrollY: 200,
-                scrollCollapse: true,
-                scroller: true
-            });
-            // Make the "Actions" column editable
-            $('#res-config').on('click', 'td.editable', function() {
-                var currentCell = table.cell(this);
-                var currentValue = currentCell.data();
-                var rowId = $(this).closest('tr').data('row-id');
-
-                var input = $('<input type="text">')
-                    .val(currentValue)
-                    .on('blur', function() {
-                        var newValue = $(this).val();
-                        saveChanges(rowId, newValue, currentCell);
-                    })
-                    .on('keypress', function(e) {
-                        if (e.which === 13) { // Enter key
-                            var newValue = $(this).val();
-                            saveChanges(rowId, newValue, currentCell);
-                        }
-                    });
-
-                $(this).html(input);
-                input.focus();
-            });
-
-            function saveChanges(rowId, newValue, cell) {
-                // Here you would typically send an AJAX request to save the changes
-                // For demonstration, we'll just update the cell and log the change
-                cell.data(newValue).draw();
-                console.log('Row ID:', rowId, 'New Value:', newValue);
-
-                // Example AJAX call (uncomment and modify as needed):
-                /*
-                $.ajax({
-                    url: '#',
-                    method: 'POST',
-                    data: {
-                        rowId: rowId,
-                        newValue: newValue,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        console.log('Update successful', response);
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Update failed', error);
-                        // Optionally revert the cell to its original value
+        
+            function showAlert(type, message) {
+                // Map the type to SweetAlert2's icon options
+                let iconType;
+                switch(type) {
+                    case 'success':
+                        iconType = 'success';
+                        break;
+                    case 'error':
+                        iconType = 'error';
+                        break;
+                    case 'info':
+                        iconType = 'info';
+                        break;
+                    case 'warning':
+                        iconType = 'warning';
+                        break;
+                    default:
+                        iconType = 'info'; // Default to 'info' if type is unknown
+                }
+        
+                // Use SweetAlert2 to display the alert
+                Swal.fire({
+                    icon: iconType,
+                    title: type.charAt(0).toUpperCase() + type.slice(1),
+                    text: message,
+                    timer: 5000, // Hide after 5 seconds
+                    didOpen: () => {
+                        setTimeout(() => {
+                            Swal.close(); // Automatically close alert after 5 seconds
+                        }, 5000);
                     }
                 });
-                */
             }
         </script>
-        <script>
-            // Listen for the 'show.bs.modal' event on any modal
-            document.addEventListener('show.bs.modal', function(event) {
-                var modal = event.target; // Get the modal being triggered
-                var button = event.relatedTarget; // Button that triggered the modal
-                var recipient = button.getAttribute('data-pc-animate'); // Get data attribute for animation type
-
-                // Update the modal title and apply animation class
-                var modalTitle = modal.querySelector('.modal-title');
-                modalTitle.textContent = 'Animate Modal: ' + recipient;
-                modal.classList.add('anim-' + recipient);
-
-                // Optionally, apply animation to the body for specific cases
-                if (recipient == 'let-me-in' || recipient == 'make-way' || recipient == 'slip-from-top') {
-                    document.body.classList.add('anim-' + recipient);
-                }
-            });
-
-            // Listen for the 'hidden.bs.modal' event on any modal
-            document.addEventListener('hidden.bs.modal', function(event) {
-                var modal = event.target; // Get the modal being hidden
-                removeClassByPrefix(modal, 'anim-');
-                removeClassByPrefix(document.body, 'anim-');
-            });
-
-            // Helper function to remove classes by prefix
-            function removeClassByPrefix(node, prefix) {
-                var classesToRemove = Array.from(node.classList).filter(function(c) {
-                    return c.startsWith(prefix);
-                });
-                classesToRemove.forEach(function(c) {
-                    node.classList.remove(c);
-                });
-            }
-        </script>
+        
     @endpush
 
     @include('partials.theme')

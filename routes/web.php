@@ -34,6 +34,10 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('forgot-password');
+Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail'])->name('send-reset-link-email');
+Route::get('password/reset/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
+Route::post('password/reset', [AuthController::class, 'resetPassword'])->name('password.update');
+Route::get('password/check-email', [AuthController::class, 'showCheckEmail'])->name('password.check-email');
 
 
 // Protected routes (require user to be logged in) 
@@ -140,8 +144,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/completed-exam/task', [CompletedExamController::class, 'task'])->name('completed-exam.task');
     Route::get('/completed-exam/edit', [CompletedExamController::class, 'edit'])->name('completed-exam.edit');
     //Qr Code Reader
-    Route::get('/qr-code-reader', [QrCodeController::class, 'index']);
-    Route::post('/process-qr-code', [QrCodeController::class, 'process']);
+    Route::get('/qr-code-reader', [QrCodeController::class, 'index'])->name('qr-code-reader');
+    Route::post('/process-qr-code', [QrCodeController::class, 'process'])->name('process-qr-code');
     // Add other protected routes here
 });
 

@@ -79,4 +79,12 @@ class CurrentExamController extends Controller
     {
         return view('current_exam.bundle-packaging');
     }
+    public function bundlePackagingverfiy()
+    {
+        return view('current_exam.bundle-CI-to-mobile-team');
+    }
+    public function vdstotreasuryofficer()
+    {
+        return view('current_exam.vds-to-treasury-officer');
+    }
 }

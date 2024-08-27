@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -24,7 +25,7 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-   public function login(Request $request)
+    public function login(Request $request)
     {
         $validated = $request->validate([
             '_token' => 'required|string',
@@ -134,27 +135,35 @@ class AuthController extends Controller
         return view('auth.forgot-password');
     }
 
+
     public function sendResetLinkEmail(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
         ]);
 
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        try {
+            $status = Password::sendResetLink(
+                $request->only('email')
+            );
 
-        if ($status === Password::RESET_LINK_SENT) {
-            return redirect()->route('password.check-email')->with('email', $request->email);
+            Log::info('Password reset attempt', ['email' => $request->email, 'status' => $status]);
+
+            if ($status === Password::RESET_LINK_SENT) {
+                return redirect()->route('password.check-email')->with('email', $request->email);
+            }
+
+            return back()->withErrors(['email' => __($status)]);
+        } catch (\Exception $e) {
+            Log::error('Error sending password reset email', ['email' => $request->email, 'error' => $e->getMessage()]);
+            return back()->withErrors(['email' => 'An error occurred while sending the password reset email. Please try again later.']);
         }
-
-        return back()->withErrors(['email' => __($status)]);
     }
 
     public function showCheckEmail()
     {
         if (!session('email')) {
-            return redirect()->route('password.request');
+            return redirect()->route('login');
         }
 
         return view('auth.check-email', ['email' => session('email')]);
@@ -172,16 +181,22 @@ class AuthController extends Controller
             'password' => [
                 'required',
                 'confirmed',
-                'min:8',
-                'regex:/[a-zA-Z]/',
-                'regex:/[0-9]/',
-                'regex:/[@$!%*?&#]/'
+                'password' => [
+                    'required',
+                    'confirmed',
+                    'min:8',
+                    'regex:/[a-zA-Z]/',
+                    'regex:/[0-9]/',
+                    'regex:/[@$!%*?&#]/'
+                ],
             ],
         ]);
 
+        Log::info('Validation passed');
+
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user, $password) {
+            function (User $user, string $password) {
                 $user->forceFill([
                     'password' => Hash::make($password)
                 ])->setRememberToken(Str::random(60));
@@ -189,13 +204,29 @@ class AuthController extends Controller
                 $user->save();
 
                 event(new PasswordReset($user));
+                Log::info('Password reset for user', ['user_id' => $user->id]);
             }
         );
 
-        return $status === Password::PASSWORD_RESET
-            ? redirect()->route('login')->with('status', __($status))
-            : back()->withErrors(['email' => [__($status)]]);
+        Log::info('Password reset status', ['status' => $status]);
+
+        if ($status === Password::PASSWORD_RESET) {
+            AuditLogger::log('Password Reset', User::class, Auth::id());
+            return redirect()->route('login')->with('status', __('Your password has been reset successfully.'));
+        }
+        // Check the status and handle errors
+        if ($status === Password::INVALID_TOKEN) {
+            // Handle invalid token case
+            return back()->withErrors(['password' => __('This password reset link is invalid.')]);
+        } elseif ($status === Password::INVALID_USER) {
+            // Handle invalid email case
+            return back()->withErrors(['password' => __('We cannot find a user with that email address.')]);
+        } elseif ($status === Password::PASSWORD_RESET) {
+            // Handle password reset case
+            return back()->withErrors(['password' => __('Your password has already been reset. Please try again.')]);
+        }
+
+        return back()->withErrors(['password' => [__($status)]]);
     }
 
-    
 }

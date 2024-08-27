@@ -10,8 +10,16 @@
             </div>
             <div class="modal-body">
                 <div class="text-center">
-                    <div class="col-lg-12"><input type="time" class="form-control" name=" time" id="time" required=""> 
+                    <!-- Scanning Status Section -->
+                    <div id="scanStatus">
+                        <p class="fw-bold">Set the current time:</p>
+                        <!-- Show Timestamp Immediately -->
+                        <p id="scanTime" class="text-muted" style="font-size: 1.1rem;">Current time: <span id="timeDisplays">Not Set</span></p>
                     </div>
+                    <!-- Set Time Button -->
+                    <button type="button" class="btn btn-lg btn-primary my-3" id="setTimeButton" onclick="setCurrentTimes()">
+                        <i class="feather icon-clock me-2"></i>Set Current Time
+                    </button>
                 </div>
             </div>
             <div class="modal-footer d-flex justify-content-between">
@@ -27,9 +35,9 @@
 @push('scripts')
 <!-- JavaScript for Setting the Current Time and Saving Details -->
 <script>
-    function setCurrentTime() {
+    function setCurrentTimes() {
         const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        document.getElementById('timeDisplay').textContent = currentTime;
+        document.getElementById('timeDisplays').textContent = currentTime;
     }
 
     function saveScanDetails() {

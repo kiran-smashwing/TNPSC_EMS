@@ -71,15 +71,23 @@
 
             navigator.mediaDevices.getUserMedia({
                     video: {
-                        facingMode: "environment"
-                    }
+                        facingMode: "environment" // Use "user" for the front camera
+                    },
+                    audio: false // You can include audio constraints if needed
                 })
                 .then(function(stream) {
+                    // Handle the stream (e.g., display it in a video element)
                     videoStream = stream;
                     video.srcObject = stream;
                     video.setAttribute('playsinline', true);
                     video.play();
                     requestAnimationFrame(tick);
+                })
+                .catch(function(error) {
+                    console.error("Error accessing the camera:", error);
+                    output.classList.remove('alert-info');
+                    output.classList.add('alert-danger');
+                    output.innerText = "Error accessing the camera. Please check your browser settings and permissions.";
                 });
 
             scanAgainBtn.addEventListener('click', function() {

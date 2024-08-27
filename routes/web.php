@@ -22,6 +22,7 @@ use App\Http\Controllers\CollectorateController;
 use App\Http\Controllers\ExamServiceController;
 use App\Http\Controllers\CurrentExamController;
 use App\Http\Controllers\CompletedExamController;
+use App\Http\Controllers\QrCodeController;
 
 // Public routes
 Route::get('/', function () {
@@ -130,11 +131,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/current-exam/confirmVenues', [CurrentExamController::class, 'confirmVenues'])->name('current-exam.confirmVenues');
     Route::get('/current-exam/ciReceiveMaterials', [CurrentExamController::class, 'ciReceiveMaterials'])->name('current-exam.ciReceiveMaterials');
     Route::get('/current-exam/treasury-mobTeam', [CurrentExamController::class, 'mobileTeamReceiveMaterialsFromTreasury'])->name('current-exam.treasury-mobTeam');
+    Route::get('/current-exam/mobTeam-ci', [CurrentExamController::class, 'ciReceiveMaterialsFromMobileTeam'])->name('current-exam.mobTeam-ci');
     Route::get('/current-exam/bundlePackaging', [CurrentExamController::class, 'bundlePackaging'])->name('current-exam.bundlePackaging');
     //Current Exam
     Route::get('/completed-exam', [CompletedExamController::class, 'index'])->name('completed-exam');
     Route::get('/completed-exam/task', [CompletedExamController::class, 'task'])->name('completed-exam.task');
     Route::get('/completed-exam/edit', [CompletedExamController::class, 'edit'])->name('completed-exam.edit');
+    //Qr Code Reader
+    Route::get('/qr-code-reader', [QrCodeController::class, 'index']);
+    Route::post('/process-qr-code', [QrCodeController::class, 'process']);
     // Add other protected routes here
 });
 

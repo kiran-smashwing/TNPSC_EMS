@@ -902,7 +902,7 @@
                                                     <div class="mt-2">
                                                         <a href="#"  class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#"  data-pc-animate="just-me"  data-bs-toggle="modal" data-bs-target="#bundlePackingModal" class="me-2 btn btn-sm btn-light-info"><i
+                                                        <a href="{{route('current-exam.bundlePackaging')}}" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-aperture mx-1"></i>Scan</a>
                                                     </div>
                                                 </div>
@@ -998,7 +998,6 @@
                 @include('modals.candidate-remarks-view')
                 @include('modals.omr-remarks')
                 @include('modals.omr-remarks-view')
-                @include('modals.bundle-packing')
                 @include('modals.utilization-certificate')
             </div>
             <!-- [ Main Content ] end -->

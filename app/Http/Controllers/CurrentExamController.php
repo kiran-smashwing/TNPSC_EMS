@@ -67,4 +67,8 @@ class CurrentExamController extends Controller
     {
         return view('current_exam.ci-receive-materials');
     }
+    public function bundlePackaging()
+    {
+        return view('current_exam.bundle-packaging');
+    }
 }

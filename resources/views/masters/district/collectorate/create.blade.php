@@ -41,7 +41,7 @@
                                         @csrf
                                         <div class="row">
                                             <div class="col-sm-6 text-center mb-3">
-                                                <div class="user-upload wid-75" id="triggerModal">
+                                                <div class="user-upload wid-75"  data-pc-animate="just-me" data-bs-toggle="modal" data-bs-target="#cropperModal">
                                                     <img src="{{ asset('storage/assets/images/user/collectorate.png') }}"
                                                         alt="img" class="img-fluid">
                                                     <label for="image" class="img-avtar-upload">
@@ -170,13 +170,42 @@
 
     <script src="{{ asset('storage/assets/js/plugins/croppr.min.js')}}"></script>
     <script src="{{ asset('storage/assets/js/pages/page-croper.js')}}"></script>
+ 
     <script>
-        document.getElementById('triggerModal').addEventListener('click', function() {
-            var modal = new bootstrap.Modal(document.getElementById('cropperModal'));
-            modal.show();
-        });
-    </script>
+        // Listen for the 'show.bs.modal' event on any modal
+        document.addEventListener('show.bs.modal', function(event) {
+            var modal = event.target; // Get the modal being triggered
+            var button = event.relatedTarget; // Button that triggered the modal
+            var recipient = button.getAttribute('data-pc-animate'); // Get data attribute for animation type
 
+            // Update the modal title and apply animation class
+            var modalTitle = modal.querySelector('.modal-title');
+            // modalTitle.textContent = 'Animate Modal: ' + recipient;
+            modal.classList.add('anim-' + recipient);
+
+            // Optionally, apply animation to the body for specific cases
+            if (recipient == 'let-me-in' || recipient == 'make-way' || recipient == 'slip-from-top') {
+                document.body.classList.add('anim-' + recipient);
+            }
+        });
+
+        // Listen for the 'hidden.bs.modal' event on any modal
+        document.addEventListener('hidden.bs.modal', function(event) {
+            var modal = event.target; // Get the modal being hidden
+            removeClassByPrefix(modal, 'anim-');
+            removeClassByPrefix(document.body, 'anim-');
+        });
+
+        // Helper function to remove classes by prefix
+        function removeClassByPrefix(node, prefix) {
+            var classesToRemove = Array.from(node.classList).filter(function(c) {
+                return c.startsWith(prefix);
+            });
+            classesToRemove.forEach(function(c) {
+                node.classList.remove(c);
+            });
+        }
+    </script>
     @include('partials.theme')
 
 @endsection

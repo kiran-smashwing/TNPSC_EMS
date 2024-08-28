@@ -1,5 +1,5 @@
 <!-- Invigilator Attendance and Allotment Modal -->
-<div class="modal fade modal-animate anim-blur" id="invigilatorSelectModal" tabindex="-1"
+<div class="modal fade modal-animate anim-blur" data-bs-backdrop="static" id="invigilatorSelectModal" tabindex="-1"
     aria-labelledby="invigilatorSelectModalLabel" aria-hidden="true">
     <div class="modal-dialog ">
         <div class="modal-content">

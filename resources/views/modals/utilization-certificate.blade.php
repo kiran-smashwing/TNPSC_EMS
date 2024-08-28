@@ -1,5 +1,5 @@
 <!-- Utilization Certificate Input Modal -->
-<div class="modal fade modal-animate" id="utilizationCertificateModal" tabindex="-1" aria-labelledby="utilizationCertificateModalLabel" aria-hidden="true">
+<div class="modal fade modal-animate" data-bs-backdrop="static" id="utilizationCertificateModal" tabindex="-1" aria-labelledby="utilizationCertificateModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-primary">

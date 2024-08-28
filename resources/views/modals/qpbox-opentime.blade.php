@@ -1,5 +1,5 @@
 <!-- Question Paper Box Scan Modal -->
-<div class="modal fade modal-animate anim-blur" id="qpboxOpenTimeModal" tabindex="-1" aria-labelledby="qpboxOpenTimeModalLabel" aria-hidden="true">
+<div class="modal fade modal-animate anim-blur" data-bs-backdrop="static" id="qpboxOpenTimeModal" tabindex="-1" aria-labelledby="qpboxOpenTimeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-success">

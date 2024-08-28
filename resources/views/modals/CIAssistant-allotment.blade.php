@@ -1,5 +1,5 @@
 <!-- CI Assistant Attendance and Allotment Modal -->
-<div class="modal fade modal-animate anim-blur" id="ciAssistantAllotmentModal" tabindex="-1"
+<div class="modal fade modal-animate anim-blur" data-bs-backdrop="static" id="ciAssistantAllotmentModal" tabindex="-1"
     aria-labelledby="ciAssistantAllotmentModelLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">

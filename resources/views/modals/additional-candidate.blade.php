@@ -1,5 +1,5 @@
 <!-- Additional Candidate Modal -->
-<div class="modal fade modal-animate anim-blur" id="additionalCandidateModal" tabindex="-1" aria-labelledby="additionalCandidateModalLabel" aria-hidden="true">
+<div class="modal fade modal-animate anim-blur" data-bs-backdrop="static" id="additionalCandidateModal" tabindex="-1" aria-labelledby="additionalCandidateModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-primary">

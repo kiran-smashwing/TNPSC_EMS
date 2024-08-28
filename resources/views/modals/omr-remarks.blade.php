@@ -1,5 +1,5 @@
 <!-- OMR Remarks Input Modal -->
-<div class="modal fade modal-animate" id="omrRemarksInputModal" tabindex="-1" aria-labelledby="omrRemarksInputModalLabel" aria-hidden="true">
+<div class="modal fade modal-animate" data-bs-backdrop="static" id="omrRemarksInputModal" tabindex="-1" aria-labelledby="omrRemarksInputModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-warning">

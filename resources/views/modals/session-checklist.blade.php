@@ -1,4 +1,4 @@
-<div class="modal fade modal-animate anim-blur" id="sessionCheckListModel" tabindex="-1"
+<div class="modal fade modal-animate anim-blur" data-bs-backdrop="static" id="sessionCheckListModel" tabindex="-1"
     aria-labelledby="sessionCheckListModelLabel" aria-hidden="true">
     <div class="modal-dialog  ">
         <div class="modal-content">

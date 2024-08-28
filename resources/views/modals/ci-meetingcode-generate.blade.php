@@ -1,5 +1,5 @@
 <!-- Date and Time Selection with QR Code Generation Modal -->
-<div class="modal fade modal-animate" id="ciMeetingCodeGenerateModal" tabindex="-1" aria-labelledby="ciMeetingCodeGenerateModalLabel" aria-hidden="true">
+<div class="modal fade modal-animate" data-bs-backdrop="static" id="ciMeetingCodeGenerateModal" tabindex="-1" aria-labelledby="ciMeetingCodeGenerateModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-primary">

@@ -1,5 +1,5 @@
 <!-- Replacement of Question/Answer Paper Modal -->
-<div class="modal fade modal-animate" id="paperReplacementModal" tabindex="-1" aria-labelledby="paperReplacementModalLabel" aria-hidden="true">
+<div class="modal fade modal-animate" data-bs-backdrop="static" id="paperReplacementModal" tabindex="-1" aria-labelledby="paperReplacementModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-warning">

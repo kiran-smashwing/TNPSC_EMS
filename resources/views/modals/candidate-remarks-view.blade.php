@@ -1,5 +1,5 @@
 <!-- Candidate Remarks View Modal -->
-<div class="modal fade modal-animate" id="candidateRemarksViewModal" tabindex="-1" aria-labelledby="candidateRemarksViewModalLabel" aria-hidden="true">
+<div class="modal fade modal-animate" data-bs-backdrop="static" id="candidateRemarksViewModal" tabindex="-1" aria-labelledby="candidateRemarksViewModalLabel" aria-hidden="true">
     <div class="modal-dialog ">
         <div class="modal-content">
             <div class="modal-header bg-info">

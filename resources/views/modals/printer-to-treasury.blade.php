@@ -1,5 +1,5 @@
 <!-- View Multiple Replacement Details Modal -->
-<div class="modal fade modal-animate" id="printerToTreasuryModal" tabindex="-1" aria-labelledby="printerToTreasuryModalLabel" aria-hidden="true">
+<div class="modal fade modal-animate" data-bs-backdrop="static" id="printerToTreasuryModal" tabindex="-1" aria-labelledby="printerToTreasuryModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-info">

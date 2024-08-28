@@ -217,7 +217,7 @@
                         type: 'success',
                         message: 'QR Code processed successfully: ' + data.data
                     }));
-                    window.location.href = document.referrer; // Redirect to the previous page
+                     window.history.back(); // Redirect to the previous page
                 })
                 .catch((error) => {
                     console.error('Error:', error);
@@ -225,7 +225,7 @@
                         type: 'danger',
                         message: 'Error processing QR Code'
                     }));
-                    window.location.href = document.referrer; // Redirect to the previous page
+                     window.history.back(); // Redirect to the previous page
                 });
 
         }

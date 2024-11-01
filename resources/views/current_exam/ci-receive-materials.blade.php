@@ -164,7 +164,6 @@
     @include('partials.footer')
 
     @push('scripts')
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js')}}"></script>
 
 

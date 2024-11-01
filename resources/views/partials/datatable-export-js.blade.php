@@ -1,4 +1,3 @@
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
    <script src="{{ asset('storage/assets/js/plugins/dataTables.min.js') }}"></script>
 <script src="{{ asset('storage/assets/js/plugins/dataTables.bootstrap5.min.js') }}"></script>
 <script src="{{ asset('storage/assets/js/plugins/buttons.colVis.min.js') }}"></script>

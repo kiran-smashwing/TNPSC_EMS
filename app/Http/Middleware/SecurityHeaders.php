@@ -40,7 +40,7 @@ class SecurityHeaders
         // Content Security Policy (CSP)
         // $response->headers->set('Content-Security-Policy', "default-src 'self'; img-src 'self' data: https://*; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*; style-src 'self' 'unsafe-inline' https://*;");
         // $response->headers->set('Content-Security-Policy',"default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data:;object-src 'none';base-uri 'self';form-action 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com");
-        $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), fullscreen=(), payment=()');
+        $response->headers->set('Permissions-Policy', 'camera=self, microphone=(), geolocation=self, fullscreen=self');
         $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
         $response->headers->set('Expect-CT', 'max-age=86400, enforce');
         $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');

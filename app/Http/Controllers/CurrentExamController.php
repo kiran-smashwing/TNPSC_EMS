@@ -29,6 +29,11 @@ class CurrentExamController extends Controller
     {
         return view('current_exam.ci-task');
     }
+
+    public function districtCollectrateTask()
+    {
+        return view('current_exam.district-task');
+    }
     public function examActivityTask()
     {
         return view('current_exam.exam-activities-task');
@@ -61,5 +66,25 @@ class CurrentExamController extends Controller
     public function ciReceiveMaterials()
     {
         return view('current_exam.ci-receive-materials');
+    }
+    public function mobileTeamReceiveMaterialsFromTreasury()
+    {
+        return view('current_exam.treasury-to-mobileTeam-materials');
+    }
+    public function ciReceiveMaterialsFromMobileTeam()
+    {
+        return view('current_exam.mobileTeam-to-CI-materials');
+    }
+    public function bundlePackaging()
+    {
+        return view('current_exam.bundle-packaging');
+    }
+    public function bundlePackagingverfiy()
+    {
+        return view('current_exam.bundle-CI-to-mobile-team');
+    }
+    public function vdstotreasuryofficer()
+    {
+        return view('current_exam.vds-to-treasury-officer');
     }
 }

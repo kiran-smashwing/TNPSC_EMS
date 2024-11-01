@@ -9,7 +9,7 @@
     <!-- [ Pre-loader ] End -->
 
     <div class="auth-main">
-        <div class="auth-wrapper">
+        <div class="auth-wrapper v1">
             <div class="auth-form" style="background: #266936 ">
                 <div class="card my-5">
                     <div class="card-body">
@@ -21,30 +21,16 @@
                         </div>
                         <div class="saprator my-3">
                         </div>
-                        <div class="d-flex justify-content-between align-items-end mb-4">
-                            <h3 class="mb-0"><b>Forgot Password</b></h3>
-                            <a href="{{ route('login') }}" class="link-primary">Back to Login</a>
+                        <div class="mb-4">
+                            <h3 class="mb-2"><b>Hi, Check Your Mail</b></h3>
+                            <p class="text-muted">We have sent a password recover instructions to your email.</p>
                         </div>
-                        <form method="POST" action="{{ route('send-reset-link-email') }}">
-                            @csrf
-                            <div class="mb-3">
-                                <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" id="floatingInput" placeholder="Email Address" value="{{ old('email') }}" />
-                                @error('email')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <p class="mt-4 text-sm text-muted">Do not forget to check SPAM box.</p>
-                            <div class="d-grid mt-3">
-                                <button type="submit" class="btn btn-primary">Send Password Reset Email</button>
-                            </div>
-                        </form>
+                        <div class="d-grid mt-3">
+                            <a href="{{ route('login') }}" type="button" class="btn btn-primary">Login</a>
+                        </div>
+                       
                     </div>
                 </div>
-            </div>
-             <div class=" auth-footer mt-2 mb-2" style="backgroud:#fff">
-                <p class="m-0 w-100 text-center">Copyright © {{ date('Y') }} <a
-                        href="https://www.tnpsc.gov.in/">TNPSC</a>. Developed By <a href="https://www.smashwing.com/">Smashwing Technologies Pvt Ltd.</a> All rights reserved.
-                </p>
             </div>
         </div>
     </div>
@@ -59,4 +45,4 @@
 
     @include('partials.theme')
 
-    @endsection
+@endsection

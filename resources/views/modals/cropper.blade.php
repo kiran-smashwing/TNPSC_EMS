@@ -1,4 +1,4 @@
-<div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel" aria-hidden="true">
+<div class="modal fade modal-animate" id="cropperModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="cropperModalLabel" aria-hidden="true">
 <div class="modal-dialog modal-lg">
     <div class="modal-content">
         <div class="modal-header">
@@ -11,8 +11,8 @@
                 <!-- Image cropper plugin start -->
 
                 <div class="container">
-                    <div class="row">
-                        <div class="col-md-7 mb-3 mb-md-0">
+                    <div class="row justify-content-center">
+                        <div class="col-md-8 mb-3 mb-md-0">
                             <div class="cropper">
                                 <img src="{{ asset('storage/assets/images/light-box/l1.jpg')}}" alt="image"
                                     id="croppr" />
@@ -26,7 +26,7 @@
 
 
                         </div>
-                        <div class="col-md-5">
+                        {{-- <div class="col-md-5">
                             <div class="rounded bg-light px-4 py-3 mb-3">
                                 <h5>Selection value</h5>
                                 <div class="row">
@@ -46,14 +46,7 @@
                                 <div class="col">
                                     <h6>Aspect Ratio</h6>
                                 </div>
-                                <div class="col-auto">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox"
-                                            value="" id="cb-ratio" />
-                                        <label class="form-check-label" for="cb-ratio"> Enable
-                                        </label>
-                                    </div>
-                                </div>
+                                
                             </div>
                             <div class="input-group mb-3">
                                 <span class="input-group-text">A</span>
@@ -65,12 +58,6 @@
                                     <h6>Maximum size</h6>
                                 </div>
                                 <div class="col-auto">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox"
-                                            value="" id="max-checkbox" />
-                                        <label class="form-check-label" for="max-checkbox">
-                                            Enable </label>
-                                    </div>
                                 </div>
                             </div>
                             <div class="row g-1 g-sm-3 mb-4">
@@ -78,7 +65,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text">W</span>
                                         <input type="text" class="form-control"
-                                            id="max-input-width" value="150"
+                                            id="max-input-width" value="300"
                                             disabled="disabled" />
                                     </div>
                                 </div>
@@ -86,7 +73,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text">H</span>
                                         <input type="text" class="form-control"
-                                            id="max-input-height" value="150"
+                                            id="max-input-height" value="300"
                                             disabled="disabled" />
                                     </div>
                                 </div>
@@ -104,12 +91,7 @@
                                     <h6>Minimum size</h6>
                                 </div>
                                 <div class="col-auto">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox"
-                                            value="" id="min-checkbox" />
-                                        <label class="form-check-label" for="min-checkbox">
-                                            Enable </label>
-                                    </div>
+                                    
                                 </div>
                             </div>
                             <div class="row g-1 g-sm-3">
@@ -137,7 +119,7 @@
                                     </select>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
 

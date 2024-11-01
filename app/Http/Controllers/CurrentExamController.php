@@ -29,7 +29,26 @@ class CurrentExamController extends Controller
     {
         return view('current_exam.ci-task');
     }
-
+    public function ciMeeting()
+    {
+        return view('current_exam.ci-meeting');
+    }
+    public function routeView()
+    {
+        return view('current_exam.route.route-view');
+    }
+    public function routeCreate()
+    {
+        return view('current_exam.route.route-create');
+    }
+    public function routeEdit()
+    {
+        return view('current_exam.route.route-edit');
+    }
+    public function updateMaterialScanDetails()
+    {
+        return view('current_exam.material-scan-details');
+    }
     public function districtCollectrateTask()
     {
         return view('current_exam.district-task');
@@ -82,6 +101,10 @@ class CurrentExamController extends Controller
     public function bundlePackagingverfiy()
     {
         return view('current_exam.bundle-CI-to-mobile-team');
+    }
+    public function vandutyBundlePackagingverfiy()
+    {
+        return view('current_exam.bundle-CI-to-van-duty');
     }
     public function vdstotreasuryofficer()
     {

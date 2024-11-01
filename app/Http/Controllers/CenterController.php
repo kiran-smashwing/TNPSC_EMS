@@ -30,27 +30,28 @@ class CenterController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'image' => 'nullable|image|max:2048',
-            'center_name' => 'required|unique:center,center_name|max:100',
-            'center_code' => 'required|unique:center,center_code|max:20',
-            'district_id' => 'required|exists:collectorate,id',
-            'status' => 'required|in:Active,Inactive',
-        ]);
+{
+    $validated = $request->validate([
+        'image' => 'nullable|image|max:2048',
+        'center_name' => 'required|unique:centers,center_name|max:100', // Updated table name
+        'center_code' => 'required|unique:centers,center_code|max:20', // Updated table name
+        'district_id' => 'required|exists:collectorate,id',
+        'status' => 'required|in:Active,Inactive',
+    ]);
 
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('center_images', 'public');
-            $validated['image'] = $imagePath;
-        }
-
-        $validated['created_by'] = auth()->user()->name;
-        $validated['updated_by'] = auth()->user()->name;
-
-        Center::create($validated);
-
-        return redirect()->route('centers.index')->with('success', 'Center created successfully.');
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('center_images', 'public');
+        $validated['image'] = $imagePath;
     }
+
+    $validated['created_by'] = auth()->user()->name;
+    $validated['updated_by'] = auth()->user()->name;
+
+    Center::create($validated);
+
+    return redirect()->route('centers.index')->with('success', 'Center created successfully.');
+}
+
 
     public function show(Center $center)
     {
@@ -67,12 +68,12 @@ class CenterController extends Controller
     {
         $validated = $request->validate([
             'image' => 'nullable|image|max:2048',
-            'center_name' => 'required|unique:center,center_name,' . $center->id . '|max:100',
-            'center_code' => 'required|unique:center,center_code,' . $center->id . '|max:20',
+            'center_name' => 'required|unique:centers,center_name,' . $center->id . '|max:100', // Updated table name
+            'center_code' => 'required|unique:centers,center_code,' . $center->id . '|max:20', // Updated table name
             'district_id' => 'required|exists:collectorate,id',
             'status' => 'required|in:Active,Inactive',
         ]);
-
+    
         if ($request->hasFile('image')) {
             if ($center->image) {
                 Storage::disk('public')->delete($center->image);
@@ -80,14 +81,14 @@ class CenterController extends Controller
             $imagePath = $request->file('image')->store('center_images', 'public');
             $validated['image'] = $imagePath;
         }
-
+    
         $validated['updated_by'] = auth()->user()->name;
-
+    
         $center->update($validated);
-
+    
         return redirect()->route('centers.index')->with('success', 'Center updated successfully.');
     }
-
+    
     public function destroy(Center $center)
     {
         if ($center->image) {

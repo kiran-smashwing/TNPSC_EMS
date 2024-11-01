@@ -18,7 +18,7 @@ use App\Http\Controllers\ChangePasswordController;
 use App\Http\Controllers\CIChecklistController;
 use App\Http\Controllers\DepartmentOfficialsController;
 use App\Http\Controllers\MyAccountController;
-use App\Http\Controllers\CollectorateController;
+use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\ExamServiceController;
 use App\Http\Controllers\CurrentExamController;
 use App\Http\Controllers\CompletedExamController;
@@ -94,10 +94,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/ci-assistant/edit', [CIAssistantsController::class, 'edit'])->name('ci-assistant.edit');
     Route::get('/ci-assistant/show', [CIAssistantsController::class, 'show'])->name('ci-assistant.show');
     // Collectrate
-    Route::get('/collectorate', [CollectorateController::class, 'index'])->name('collectorate');
-    Route::get('/collectorate/add', [CollectorateController::class, 'create'])->name('collectorate.create');
-    Route::get('/collectorate/edit', [CollectorateController::class, 'edit'])->name('collectorate.edit');
-    Route::get('/collectorate/show', [CollectorateController::class, 'show'])->name('collectorate.show');
+    // Route::get('/collectorate', [DistrictController::class, 'index'])->name('collectorate');
+    // Route::get('/collectorate/add', [DistrictController::class, 'create'])->name('collectorate.create');
+    // Route::get('/collectorate/edit', [DistrictController::class, 'edit'])->name('collectorate.edit');
+    // Route::get('/collectorate/show', [DistrictController::class, 'show'])->name('collectorate.show');
     // Role
     Route::get('/role', [RoleController::class, 'index'])->name('role');
     Route::get('/role/add', [RoleController::class, 'create'])->name('role.create');
@@ -125,6 +125,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/current-exam/add', [CurrentExamController::class, 'create'])->name('current-exam.create');
     Route::get('/current-exam/task', [CurrentExamController::class, 'task'])->name('current-exam.task');
     Route::get('/current-exam/ciTask', [CurrentExamController::class, 'ciTask'])->name('current-exam.citask');
+    Route::get('/current-exam/ciMeeting', [CurrentExamController::class, 'ciMeeting'])->name('current-exam.ciMeeting');
     Route::get('/current-exam/examActivityTask', [CurrentExamController::class, 'examActivityTask'])->name('current-exam.examActivityTask');
     Route::get('/current-exam/districtTask', [CurrentExamController::class, 'districtCollectrateTask'])->name('current-exam.districtTask');
     Route::get('/current-exam/edit', [CurrentExamController::class, 'edit'])->name('current-exam.edit');
@@ -138,7 +139,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/current-exam/mobTeam-ci', [CurrentExamController::class, 'ciReceiveMaterialsFromMobileTeam'])->name('current-exam.mobTeam-ci');
     Route::get('/current-exam/bundlePackaging', [CurrentExamController::class, 'bundlePackaging'])->name('current-exam.bundlePackaging');
     Route::get('/current-exam/bundlePackagingverfiy', [CurrentExamController::class, 'bundlePackagingverfiy'])->name('current-exam.bundlePackagingverfiy');
+    Route::get('/current-exam/vandutyBundlePackagingverfiy', [CurrentExamController::class, 'vandutyBundlePackagingverfiy'])->name('current-exam.vandutyBundlePackagingverfiy');
     Route::get('/current-exam/vdstotreasuryofficer', [CurrentExamController::class, 'vdstotreasuryofficer'])->name('current-exam.vdstotreasuryofficer');
+    Route::get('/current-exam/routeView', [CurrentExamController::class, 'routeView'])->name('current-exam.routeView');
+    Route::get('/current-exam/routeCreate', [CurrentExamController::class, 'routeCreate'])->name('current-exam.routeCreate');
+    Route::get('/current-exam/routeEdit', [CurrentExamController::class, 'routeEdit'])->name('current-exam.routeEdit');
+    Route::get('/current-exam/updateMaterialScanDetails', [CurrentExamController::class, 'updateMaterialScanDetails'])->name('current-exam.updateMaterialScanDetails');
     //Current Exam
     Route::get('/completed-exam', [CompletedExamController::class, 'index'])->name('completed-exam');
     Route::get('/completed-exam/task', [CompletedExamController::class, 'task'])->name('completed-exam.task');
@@ -147,6 +153,23 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/qr-code-reader', [QrCodeController::class, 'index'])->name('qr-code-reader');
     Route::post('/process-qr-code', [QrCodeController::class, 'process'])->name('process-qr-code');
     // Add other protected routes here
+});
+
+//District Route::prefix('district')->group(function () {
+Route::prefix('district')->group(function () {
+    Route::get('login', [DistrictController::class, 'showLoginForm'])->name('district.login');
+    Route::post('login', [DistrictController::class, 'login'])->name('district.login.submit');
+    Route::post('logout', [DistrictController::class, 'logout'])->name('district.logout');
+
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/', [DistrictController::class, 'index'])->name('district.index');
+        Route::get('/create', [DistrictController::class, 'create'])->name('district.create');
+        Route::post('/', [DistrictController::class, 'store'])->name('district.store');
+        Route::get('/{id}/edit', [DistrictController::class, 'edit'])->name('district.edit');
+        Route::put('/{id}', [DistrictController::class, 'update'])->name('district.update');
+        Route::get('/{id}', [DistrictController::class, 'show'])->name('district.show');
+        Route::delete('/{id}', [DistrictController::class, 'destroy'])->name('district.destroy');
+    });
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

@@ -158,23 +158,18 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="d-sm-flex align-items-center justify-content-between">
-                            <h5 class="mb-3 mb-sm-0">District Collectorate list</h5>
-                            <div>
-                                <a href="{{route('district.create')}}" class="btn btn-outline-success">Add District Collectorate</a>
-                            </div>
+                            <h5 class="mb-3 mb-sm-0">Cheif Invigilators to Van Duty</h5>
+                            <ul class="list-inline ms-auto  mb-0">
+                           
+                                <li class="list-inline-item"><a href="#" class="badge bg-dark f-14">Received 50 / 100</a></li>
+                                <li class="list-inline-item"> <a href="{{route('collectorate.create')}}" class="btn btn-outline-success">Scan Now</a></li>
+                            </ul>
+                           
                         </div>
                     </div>
                     <div class="card-body table-border-style">
                         <!-- Filter options -->
                         <form id="filterForm" class="mb-3">
-                            <div class="filter-item">
-                                <select class="form-select" id="roleFilter" name="role">
-                                    <option value="">Select Role</option>
-                                    <option value="AD">AD</option>
-                                    <option value="Manager">Manager</option>
-                                    <option value="Staff">Staff</option>
-                                </select>
-                            </div>
                             <div class="filter-item">
                                 <select class="form-select" id="districtFilter" name="district">
                                     <option value="">Select District</option>
@@ -195,66 +190,75 @@
                                 <button type="submit" class="btn btn-primary">Apply Filters</button>
                             </div>
                         </form>
-
-
+                       
                         <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap" width="100%">
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Image</th>
-                                    <th>Name</th>
-                                    <th>District Code</th>
-                                    <th>E-mail</th>
-                                    <th>Phone</th>
-                                    <th>E-mail status</th>
-                                    <th>Action</th>
+                                    <th>Center Code</th>
+                                    <th>Hall Code</th>
+                                    <th>Session</th>
+                                    <th>Bundle</th>
+                                    <th>Timestamp</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($districts as $key => $district)
                                 <tr>
-                                    <td>{{ $key + 1 }}</td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0">
-                                                @if($district->district_image)
-                                                    <img src="{{ asset('storage/' . $district->district_image) }}" alt="district image" class="img-radius wid-40">
-                                                @else
-                                                    <img src="{{ asset('storage/assets/images/user/collectorate.png') }}" alt="default image" class="img-radius wid-40">
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-grow-1 ms-3">
-                                            <h6 class="mb-0">{{ $district->district_name }}</h6>
-                                        </div>
-                                    </td>
-                                    <td>{{ $district->district_code }}</td>
-                                    <td>{{ $district->district_email }}</td>
-                                    <td>{{ $district->district_phone }}</td>
-                                    <td class="text-center">
-                                        <i class="ti ti-circle-check text-success f-18"></i>
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('district.show', $district->district_id) }}" class="avtar avtar-xs btn-light-success">
-                                            <i class="ti ti-eye f-20"></i>
-                                        </a>
-                                        <a href="{{ route('district.edit', $district->district_id) }}" class="avtar avtar-xs btn-light-success">
-                                            <i class="ti ti-edit f-20"></i>
-                                        </a>
-                                        <a href="#" class="avtar avtar-xs btn-light-success toggle-status" 
-                                           data-district-id="{{ $district->district_id }}" 
-                                           title="Change Status (Active or Inactive)">
-                                            <i class="ti ti-toggle-left f-20"></i>
-                                        </a>
-                                    </td>
+                                    <td>1</td>
+                                    <td>0101</td>
+                                    <td>101</td>
+                                    <td>FN</td>
+                                    <td>Cover A1</td>
+                                    <td>2021-09-01 10:00:00</td>
                                 </tr>
-                                @empty
                                 <tr>
-                                    <td colspan="8" class="text-center">No districts found</td>
+                                    <td>2</td>
+                                    <td>0101</td>
+                                    <td>101</td>
+                                    <td>AN</td>
+                                    <td>Cover A2</td>
+                                    <td>2021-09-01 14:00:00</td>
                                 </tr>
-                                @endforelse
+                                <tr>
+                                    <td>3</td>
+                                    <td>0101</td>
+                                    <td>102</td>
+                                    <td>FN</td>
+                                    <td>Cover A</td>
+                                    <td>2021-09d-01 10:00:00</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>0101</td>
+                                    <td>102</td>
+                                    <td>AN</td>
+                                    <td>Cover B1</td>
+                                    <td>2021-09-01 14:00:00</td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>0102</td>
+                                    <td>201</td>
+                                    <td>FN</td>
+                                    <td>Cover B2</td>
+                                    <td>2021-09-01 10:00:00</td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td>0102</td>
+                                    <td>201</td>
+                                    <td>AN</td>
+                                    <td>Cover B4</td>
+                                    <td>2021-09-01 14:00:00</td>
+                                </tr>
+                                <tr>
+                                    <td>7</td>
+                                    <td>0102</td>
+                                    <td>202</td>
+                                    <td>FN</td>
+                                    <td>Cover B5</td>
+                                    <td>2021-09-01 10:00:00</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>

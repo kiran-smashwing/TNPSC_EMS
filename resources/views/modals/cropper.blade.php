@@ -14,17 +14,12 @@
                     <div class="row justify-content-center">
                         <div class="col-md-8 mb-3 mb-md-0">
                             <div class="cropper">
-                                <img src="{{ asset('storage/assets/images/light-box/l1.jpg')}}" alt="image"
-                                    id="croppr" />
+                                <img src="{{ asset('storage/assets/images/light-box/l1.jpg') }}" alt="image" id="croppr" />
                             </div>
                             <div class="input-group mb-3">
-                                <label class="input-group-text" for="imageUpload">Upload
-                                    Image</label>
-                                <input type="file" class="form-control" id="imageUpload"
-                                    accept="image/*">
+                                <label class="input-group-text" for="imageUpload">Upload Image</label>
+                                <input type="file" class="form-control" id="imageUpload" accept="image/*">
                             </div>
-
-
                         </div>
                         {{-- <div class="col-md-5">
                             <div class="rounded bg-light px-4 py-3 mb-3">

@@ -93,7 +93,7 @@
                         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                     </a>
                     <ul class="pc-submenu">
-                        <li class="pc-item"><a class="pc-link" href="{{ route('collectorate') }}">District Collectorate</a>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('district.index') }}">District Collectorate</a>
                         </li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('center') }}">Centers</a></li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('treasury-officer') }}">Treasury Officers</a></li>
@@ -202,6 +202,16 @@
                             </svg>
                         </span>
                         <span class="pc-mtext">CI - Current Exams</span>
+                    </a>
+                </li>
+                <li class="pc-item">
+                    <a href="{{route('current-exam.ciMeeting')}}" class="pc-link">
+                        <span class="pc-micon">
+                            <svg class="pc-icon">
+                                <use xlink:href="#custom-text-align-justify-center"></use>
+                            </svg>
+                        </span>
+                        <span class="pc-mtext">CI - Meeting</span>
                     </a>
                 </li>
                 <li class="pc-item">

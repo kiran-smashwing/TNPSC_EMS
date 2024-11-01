@@ -316,8 +316,8 @@
                                                 <div class="col-sm-auto mb-3 mb-sm-0">
                                                     <div class="d-sm-inline-block d-flex align-items-center">
                                                         <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
+                                                        src="{{ asset('storage/assets/images/user/avatar-7.jpg') }}"
+                                                        alt="Generic placeholder image " />
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
@@ -333,7 +333,7 @@
                                                 <div class="col">
                                                     <div class="popup-trigger">
                                                         <div class="h5 font-weight-bold">Attendence - CI Meeting<small
-                                                                class="badge bg-light-secondary ms-2">attended</small>
+                                                                class="badge bg-light-secondary ms-2">reports</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
@@ -345,7 +345,7 @@
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
+                                                                    <b>CI's</b>
                                                                 </li>
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
@@ -357,14 +357,14 @@
                                                         </div>
                                                         <div class="h5 mt-3"><i
                                                                 class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
+                                                            District Collectorate</div>
                                                     </div>
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-aperture mx-1"></i>Scan</a>
+                                                                class="feather icon-users mx-1"></i>Attendence Report</a>
                                                         <a href="helpdesk-ticket-details.html"
                                                             class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-list mx-1"></i>Adequacy Check</a>
+                                                                class="feather icon-list mx-1"></i>Adequacy Report</a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -423,11 +423,12 @@
                                                             District Collectorate</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>view</a>
-                                                        <a href="helpdesk-ticket-details.html"
+                                                        
+                                                        <a  href="{{route('current-exam.routeView')}}"  class="me-2 btn btn-sm btn-light-primary"><i
+                                                                class="feather icon-map mx-1"></i>Routes</a>
+                                                        {{-- <a  href="#"   data-bs-target="#routeCreationModal" data-pc-animate="just-me" data-bs-toggle="modal" 
                                                             class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-map mx-1"></i>Create Route</a>
+                                                                class="feather icon-map mx-1"></i>Create Route</a> --}}
 
                                                     </div>
                                                 </div>
@@ -1997,6 +1998,7 @@
                 </div>
                 @include('modals.printer-to-treasury')
                 @include('modals.ci-meetingcode-generate')
+                @include('modals.route-creation')
             </div>
             <!-- [ Main Content ] end -->
         </div>
@@ -2044,6 +2046,8 @@
         </script>
         
         <!-- [Page Specific JS] end -->
+
+@include('partials.datatable-export-js')
     @endpush
 
     @include('partials.theme')

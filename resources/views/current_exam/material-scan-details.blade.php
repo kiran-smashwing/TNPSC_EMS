@@ -158,9 +158,11 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="d-sm-flex align-items-center justify-content-between">
-                            <h5 class="mb-3 mb-sm-0">District Collectorate list</h5>
+                            <h5 class="mb-3 mb-sm-0">Update Material Scan Details</h5>
                             <div>
-                                <a href="{{route('district.create')}}" class="btn btn-outline-success">Add District Collectorate</a>
+                                <a href="#" class="btn btn-outline-success">
+                                    <i class="ti ti-upload f-20"></i> Upload Excel Sheet
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -200,61 +202,57 @@
                         <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap" width="100%">
                             <thead>
                                 <tr>
-                                    <th>#</th>
-                                    <th>Image</th>
-                                    <th>Name</th>
-                                    <th>District Code</th>
-                                    <th>E-mail</th>
-                                    <th>Phone</th>
-                                    <th>E-mail status</th>
-                                    <th>Action</th>
+                                    <th>Hall no</th>
+                                    <th>Center</th>
+                                    <th>District</th>
+                                    <th>Venue</th>
+                                    <th>D1</th>
+                                    <th>D2</th>
+                                    <th>A1</th>
+                                    <th>A2</th>
+                                    <th>A</th>
+                                    <th>B1</th>
+                                    <th>B2</th>
+                                    <th>B3</th>
+                                    <th>B4</th>
+                                    <th>B5</th>
+                                    <th>B</th>
+                                    <th>BUNDLE I</th>
+                                    <th>BUNDLE II</th>
+                                    <th>C</th>
+                                    <th>TRUNK BOX</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($districts as $key => $district)
                                 <tr>
-                                    <td>{{ $key + 1 }}</td>
+                                    <td>001</td>
+                                    <td>Govt High School</td>
+                                    <td>Vellore</td>
+                                    <td>VIT College</td>
+                                    <td>Data D1</td>
+                                    <td>Data D2</td>
+                                    <td>Data A1</td>
+                                    <td>Data A2</td>
+                                    <td>Data A</td>
+                                    <td>Data B1</td>
+                                    <td>Data B2</td>
+                                    <td>Data B3</td>
+                                    <td>Data B4</td>
+                                    <td>Data B5</td>
+                                    <td>Data B</td>
+                                    <td>Data BUNDLE I</td>
+                                    <td>Data BUNDLE II</td>
+                                    <td>Data C</td>
+                                    <td>Data TRUNK BOX</td>
                                     <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0">
-                                                @if($district->district_image)
-                                                    <img src="{{ asset('storage/' . $district->district_image) }}" alt="district image" class="img-radius wid-40">
-                                                @else
-                                                    <img src="{{ asset('storage/assets/images/user/collectorate.png') }}" alt="default image" class="img-radius wid-40">
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-grow-1 ms-3">
-                                            <h6 class="mb-0">{{ $district->district_name }}</h6>
-                                        </div>
-                                    </td>
-                                    <td>{{ $district->district_code }}</td>
-                                    <td>{{ $district->district_email }}</td>
-                                    <td>{{ $district->district_phone }}</td>
-                                    <td class="text-center">
-                                        <i class="ti ti-circle-check text-success f-18"></i>
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('district.show', $district->district_id) }}" class="avtar avtar-xs btn-light-success">
-                                            <i class="ti ti-eye f-20"></i>
-                                        </a>
-                                        <a href="{{ route('district.edit', $district->district_id) }}" class="avtar avtar-xs btn-light-success">
-                                            <i class="ti ti-edit f-20"></i>
-                                        </a>
-                                        <a href="#" class="avtar avtar-xs btn-light-success toggle-status" 
-                                           data-district-id="{{ $district->district_id }}" 
-                                           title="Change Status (Active or Inactive)">
-                                            <i class="ti ti-toggle-left f-20"></i>
+                                        <a href="{{route('collectorate.show')}}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-eye f-20"></i></a>
+                                        <a href="{{ route('collectorate.edit') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
+                                        <a href="#" class="avtar avtar-xs  btn-light-success" title="Change Status (Active or Inactive)" onclick="toggleIcon(this)">
+                                            <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
                                         </a>
                                     </td>
                                 </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="8" class="text-center">No districts found</td>
-                                </tr>
-                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -274,7 +272,5 @@
 @endpush
 
 @include('partials.theme')
-
-
 
 @endsection

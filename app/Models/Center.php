@@ -9,7 +9,7 @@ class Center extends Model
 {
     use HasFactory;
 
-    protected $table = 'center';
+    protected $table = 'centers';
     protected $primaryKey = 'id';
 
     protected $fillable = [

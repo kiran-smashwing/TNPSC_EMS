@@ -158,9 +158,9 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="d-sm-flex align-items-center justify-content-between">
-                            <h5 class="mb-3 mb-sm-0">District Collectorate list</h5>
+                            <h5 class="mb-3 mb-sm-0">Route View</h5>
                             <div>
-                                <a href="{{route('district.create')}}" class="btn btn-outline-success">Add District Collectorate</a>
+                                <a href="{{route('current-exam.routeCreate')}}" class="btn btn-outline-success">Add Route</a>
                             </div>
                         </div>
                     </div>
@@ -200,61 +200,55 @@
                         <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap" width="100%">
                             <thead>
                                 <tr>
-                                    <th>#</th>
-                                    <th>Image</th>
-                                    <th>Name</th>
-                                    <th>District Code</th>
-                                    <th>E-mail</th>
-                                    <th>Phone</th>
-                                    <th>E-mail status</th>
-                                    <th>Action</th>
+                                    <th>route no</th>
+                                    <th>Halls</th>
+                                    <th>Driver name</th>
+                                    <th>Driver licenese no</th>
+                                    <th>Driver mobile no</th>
+                                    <th>Vehicle no</th>
+                                    <th>Mobile team staff</th>
+                                    <th>Mobile team mobile no</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($districts as $key => $district)
                                 <tr>
-                                    <td>{{ $key + 1 }}</td>
+                                    <td>001</td>
                                     <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0">
-                                                @if($district->district_image)
-                                                    <img src="{{ asset('storage/' . $district->district_image) }}" alt="district image" class="img-radius wid-40">
-                                                @else
-                                                    <img src="{{ asset('storage/assets/images/user/collectorate.png') }}" alt="default image" class="img-radius wid-40">
-                                                @endif
-                                            </div>
-                                        </div>
+                                     Govt High School - 001 (Vellore), VIT College - 002 (Vellore), Girls High School - 003 (Vellore)
                                     </td>
                                     <td>
-                                        <div class="flex-grow-1 ms-3">
-                                            <h6 class="mb-0">{{ $district->district_name }}</h6>
-                                        </div>
+                                      Rajan
                                     </td>
-                                    <td>{{ $district->district_code }}</td>
-                                    <td>{{ $district->district_email }}</td>
-                                    <td>{{ $district->district_phone }}</td>
-                                    <td class="text-center">
-                                        <i class="ti ti-circle-check text-success f-18"></i>
-                                    </td>
+                                    <td>100100101</td>
+                                    <td>9094500072</td>
+                                    <td>TN01AS2345</td>
+                                    <td>Arun - Designation</td>
+                                    <td>9094500072</td>
                                     <td>
-                                        <a href="{{ route('district.show', $district->district_id) }}" class="avtar avtar-xs btn-light-success">
-                                            <i class="ti ti-eye f-20"></i>
+                                        <a href="#" class="avtar avtar-xs  btn-light-success"><i class="ti ti-eye f-20"></i></a>
+                                        <a href="{{ route('current-exam.routeEdit') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
+                                        <a href="#" class="avtar avtar-xs  btn-light-success" title="Change Status (Active or Inactive)" onclick="toggleIcon(this)">
+                                            <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
                                         </a>
-                                        <a href="{{ route('district.edit', $district->district_id) }}" class="avtar avtar-xs btn-light-success">
-                                            <i class="ti ti-edit f-20"></i>
-                                        </a>
-                                        <a href="#" class="avtar avtar-xs btn-light-success toggle-status" 
-                                           data-district-id="{{ $district->district_id }}" 
-                                           title="Change Status (Active or Inactive)">
-                                            <i class="ti ti-toggle-left f-20"></i>
-                                        </a>
+                                        <!-- <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-trash f-20"></i></a> -->
                                     </td>
+                                    <script>
+                                        function toggleIcon(element) {
+                                            // Get the icon element inside the anchor tag
+                                            const icon = element.querySelector('i');
+                                    
+                                            // Check the current class and toggle it
+                                            if (icon.classList.contains('ti-toggle-left')) {
+                                                icon.classList.remove('ti-toggle-left');
+                                                icon.classList.add('ti-toggle-right');
+                                            } else {
+                                                icon.classList.remove('ti-toggle-right');
+                                                icon.classList.add('ti-toggle-left');
+                                            }
+                                        }
+                                    </script>
                                 </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="8" class="text-center">No districts found</td>
-                                </tr>
-                                @endforelse
                             </tbody>
                         </table>
                     </div>

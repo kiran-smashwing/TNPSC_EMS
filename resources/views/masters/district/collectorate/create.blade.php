@@ -69,15 +69,10 @@
                                         @csrf
                                         <div class="row">
                                             <div class="col-sm-6 text-center mb-3">
-                                                <div class="user-upload wid-75" data-pc-animate="just-me"
-                                                    data-bs-toggle="modal" data-bs-target="#cropperModal">
-                                                    <img src="{{ asset('storage/assets/images/user/collectorate.png') }}"
-                                                        alt="img" class="img-fluid">
-                                                    <label for="image" class="img-avtar-upload">
-                                                        <i class="ti ti-camera f-24 mb-1"></i>
-                                                        <span>Upload</span>
-                                                    </label>
-                                                    {{-- <input type="file" id="image" name="image" class="d-none"> --}}
+                                                <div class="user-upload wid-75" data-pc-animate="just-me" data-bs-toggle="modal" data-bs-target="#cropperModal">
+                                                    <img src="{{ asset('storage/assets/images/user/collectorate.png') }}" id="previewImage" alt="Cropped Preview" style="max-width: 100%; height: auto; object-fit: cover;">
+                                                    <input type="hidden" name="cropped_image" id="cropped_image">
+                                                    <label for="imageUpload" class="img-avtar-upload"></label>
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
@@ -202,12 +197,12 @@
     </div>
 
     @include('partials.footer')
-
+    @push('scripts')
     <script src="{{ asset('storage/assets/js/plugins/croppr.min.js') }}"></script>
     <script src="{{ asset('storage/assets/js/pages/page-croper.js') }}"></script>
 
     <script>
-       document.querySelector('.btn-success').addEventListener('click', function(e) {
+        document.querySelector('.btn-success').addEventListener('click', function(e) {
             e.preventDefault();
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(position => {
@@ -217,7 +212,8 @@
             }
         });
     </script>
-
+   
+    @endpush
     @include('partials.theme')
 
 @endsection

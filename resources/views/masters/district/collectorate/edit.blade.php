@@ -32,6 +32,33 @@
                             @csrf
                             @method('PUT')
                             <div class="row">
+                                @if (session('success'))
+                                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                        {{ session('success') }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                            aria-label="Close"></button>
+                                    </div>
+                                @endif
+
+                                @if (session('error'))
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        {{ session('error') }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                            aria-label="Close"></button>
+                                    </div>
+                                @endif
+
+                                @if ($errors->any())
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        <ul class="mb-0">
+                                            @foreach ($errors->all() as $error)
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                            aria-label="Close"></button>
+                                    </div>
+                                @endif
                                 <div class="col-lg-6">
                                     <div class="card">
                                         <div class="card-header">
@@ -40,15 +67,15 @@
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="col-sm-6 text-center mb-3">
-                                                    <div class="user-upload wid-75" id="triggerModal">
+                                                    <div class="user-upload wid-75" data-pc-animate="just-me"
+                                                        data-bs-toggle="modal" data-bs-target="#cropperModal">
                                                         <img src="{{ $district->district_image
                                                             ? asset('storage/' . $district->district_image)
                                                             : asset('storage/assets/images/user/collectorate.png') }}"
-                                                            alt="img" class="img-fluid">
-                                                        <label for="image" class="img-avtar-upload">
-                                                            <i class="ti ti-camera f-24 mb-1"></i>
-                                                            <span>Upload</span>
-                                                        </label>
+                                                            id="previewImage" alt="Cropped Preview"
+                                                            style="max-width: 100%; height: auto; object-fit: cover;">
+                                                        <input type="hidden" name="cropped_image" id="cropped_image">
+                                                        <label for="imageUpload" class="img-avtar-upload"></label>
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-6">

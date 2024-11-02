@@ -6,14 +6,19 @@ use App\Models\District;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Services\AuditLogger;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
+use App\Services\ImageCompressService;
 
 class DistrictController extends Controller
 {
-    public function __construct()
+    protected $imageService;
+    public function __construct(ImageCompressService $imageService)
     {
+
         $this->middleware('auth')->except(['login', 'showLoginForm']);
+        $this->imageService = $imageService;
+
     }
 
     public function showLoginForm()
@@ -73,19 +78,44 @@ class DistrictController extends Controller
             'address' => 'required|string',
             'longitude' => 'required|numeric',
             'latitude' => 'required|numeric',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'cropped_image' => 'nullable|string'
         ]);
 
         try {
-            // Handle image upload if present
-            if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('districts', 'public');
+            if (!empty($validated['cropped_image'])) {
+                // Remove the data URL prefix if present
+                $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
+                $imageData = base64_decode($imageData);
+
+                if ($imageData === false) {
+                    throw new \Exception('Base64 decode failed.');
+                }
+
+                // Create a unique image name
+                $imageName = 'district_' . time() . '.png';
+                $imagePath = 'images/districts/' . $imageName;
+
+                // Store the image
+                $stored = Storage::disk('public')->put($imagePath, $imageData);
+
+                if (!$stored) {
+                    throw new \Exception('Failed to save image to storage.');
+                }
+
+
+                // Compress the image if it exceeds 200 KB
+                $fullImagePath = storage_path('app/public/' . $imagePath);
+                if (filesize($fullImagePath) > 200 * 1024) {
+                    // Use the ImageService to save and compress the image
+                    $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200);  // 200 KB max size
+                }
+
                 $validated['image'] = $imagePath;
+
             }
 
             // Hash password
             $validated['district_password'] = Hash::make($validated['password']);
-
             // Map the fields to match your database columns
             $district = District::create([
                 'district_name' => $validated['district_name'],
@@ -114,6 +144,35 @@ class DistrictController extends Controller
         }
     }
 
+    private function compressImage($filePath, $maxSizeKB)
+    {
+        $imageInfo = getimagesize($filePath);
+        if ($imageInfo === false) {
+            throw new \Exception('Unable to get image information for file: ' . $filePath);
+        }
+
+        $mimeType = $imageInfo['mime'];
+        switch ($mimeType) {
+            case 'image/jpeg':
+                $img = imagecreatefromjpeg($filePath);
+                break;
+            case 'image/png':
+                $img = imagecreatefrompng($filePath);
+                break;
+            case 'image/gif':
+                $img = imagecreatefromgif($filePath);
+                break;
+            default:
+                throw new \Exception('Unsupported image format: ' . $mimeType);
+        }
+
+        $quality = 90;
+        do {
+            imagejpeg($img, $filePath, $quality);
+            $quality -= 40;
+        } while (filesize($filePath) > $maxSizeKB * 1024 && $quality >= 10);
+        imagedestroy($img);
+    }
     public function edit($id)
     {
         $district = District::findOrFail($id);
@@ -135,26 +194,48 @@ class DistrictController extends Controller
             'address' => 'required|string',
             'longitude' => 'required|numeric',
             'latitude' => 'required|numeric',
+            'cropped_image' => 'nullable|string' // Base64 encoded string
         ]);
 
         try {
-            // Handle image if updated
-            if ($request->hasFile('image')) {
-                // Delete old image if exists
-                if ($district->district_image) {
+            $newImagePath = null;
+
+            // Process the image if provided
+            if (!empty($validated['cropped_image'])) {
+                $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
+                $imageData = base64_decode($imageData);
+
+                if ($imageData === false) {
+                    throw new \Exception('Base64 decode failed.');
+                }
+
+                // Create a unique filename
+                $imageName = 'district_' . time() . '.jpg';
+                $imagePath = 'images/districts/' . $imageName;
+
+                // Save the image in public storage
+                Storage::disk('public')->put($imagePath, $imageData);
+
+                // Compress if image exceeds 200 KB
+                $fullImagePath = storage_path('app/public/' . $imagePath);
+                if (filesize($fullImagePath) > 200 * 1024) {
+                    $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200);
+                }
+                //  Delete the old image if it exists
+                if ($district->district_image && Storage::disk('public')->exists($district->district_image)) {
                     Storage::disk('public')->delete($district->district_image);
                 }
-                $validated['district_image'] = $request->file('image')->store('districts', 'public');
-            }
 
+                // Set new image path to be saved in the database
+                $newImagePath = $imagePath;
+            }
             // Only update password if provided
             if ($request->filled('password')) {
                 $validated['district_password'] = Hash::make($validated['password']);
             }
-            // Get the old values before updating
-            $oldValues = $district->getOriginal();
-            // Map validated data to district columns
-            $district->update([
+
+            // Prepare data for update, including the new image path if it exists
+            $updateData = [
                 'district_name' => $validated['district_name'],
                 'district_code' => $validated['district_code'],
                 'district_email' => $validated['mail'],
@@ -164,13 +245,20 @@ class DistrictController extends Controller
                 'district_address' => $validated['address'],
                 'district_longitude' => $validated['longitude'],
                 'district_latitude' => $validated['latitude'],
-                'district_password' => $validated['district_password'] ?? $district->district_password,
-                'district_image' => $validated['district_image'] ?? $district->district_image,
-            ]);
-            // Get the changed values
-            $changedValues = $district->getChanges();
+                'district_password' => $validated['district_password'] ?? $district->district_password
+            ];
 
-            // Filter old values to only include fields that have changed
+            // Add new image path to update data if present
+            if ($newImagePath) {
+                $updateData['district_image'] = $newImagePath;
+            }
+
+            // Get old values and update the district
+            $oldValues = $district->getOriginal();
+            $district->update($updateData);
+
+            // Get changed values for logging
+            $changedValues = $district->getChanges();
             $oldValues = array_intersect_key($oldValues, $changedValues);
 
             // Log district update with old and new values
@@ -184,6 +272,7 @@ class DistrictController extends Controller
                 ->with('error', 'Error updating district: ' . $e->getMessage());
         }
     }
+
 
     public function show($id)
     {
@@ -220,5 +309,40 @@ class DistrictController extends Controller
         $request->session()->forget('district_id');
 
         return redirect()->route('district.login');
+    }
+    // In app/Http/Controllers/DistrictController.php:
+    public function toggleStatus($id)
+    {
+        try {
+            $district = District::findOrFail($id);
+
+            // Get current status before update
+            $oldStatus = $district->district_status;
+
+            // Toggle the status
+            $district->district_status = !$district->district_status;
+            $district->save();
+
+            // Log the status change
+            AuditLogger::log(
+                'District Status Changed',
+                District::class,
+                $district->district_id,
+                ['status' => $oldStatus],
+                ['status' => $district->district_status]
+            );
+
+            return response()->json([
+                'success' => true,
+                'status' => $district->district_status,
+                'message' => 'District status updated successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update district status',
+                'details' => $e->getMessage(),  // Optional
+            ], 500);
+        }
     }
 }

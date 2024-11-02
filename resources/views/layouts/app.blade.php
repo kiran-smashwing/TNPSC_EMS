@@ -50,8 +50,10 @@
 <!-- [Body] Start -->
 
 <body data-pc-preset="{{ env('THEME_PRESET', 'preset-8') }}" data-pc-sidebar-caption="true" data-pc-layout="vertical"
-    data-pc-direction="ltr" data-pc-theme_contrast="" data-pc-theme=""  data-app-url="{{ url('/') }}">
-
+    data-pc-direction="ltr" data-pc-theme_contrast="" data-pc-theme="" data-app-url="{{ url('/') }}">
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;">
+        <!-- Toasts will be dynamically inserted here -->
+    </div>
     @yield('content')
     <script>
         // Get the base URL from the data attribute
@@ -67,9 +69,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
     <script>
-                    var savedTheme = localStorage.getItem('theme') || 'light';
+        var savedTheme = localStorage.getItem('theme') || 'light';
         layout_change(savedTheme);
-      </script>
+    </script>
 
     <script>
         change_box_container('false');
@@ -94,7 +96,65 @@
     <!-- [Page Specific JS] start -->
     @stack('scripts')
     <!-- [Page Specific JS] end -->
+    <script>
+        // Toast notification helper function
+        function showNotification(title, message, type = 'success') {
+            // Create unique ID for the toast
+            const toastId = 'toast-' + Date.now();
 
+            // Get style classes based on type
+            let headerClass = 'bg-light';
+            let icon = '../assets/images/favicon.svg';
+
+            switch (type) {
+                case 'success':
+                    headerClass = 'bg-success text-white';
+                    break;
+                case 'error':
+                    headerClass = 'bg-danger text-white';
+                    break;
+                case 'warning':
+                    headerClass = 'bg-warning';
+                    break;
+                case 'info':
+                    headerClass = 'bg-info text-white';
+                    break;
+            }
+
+            // Create toast HTML
+            const toastHtml = `
+        <div class="bg-body p-2 mb-2">
+            <div class="toast fade show" role="alert" aria-live="assertive" aria-atomic="true" id="${toastId}">
+                <div class="toast-header ${headerClass}">
+                    <img src="${icon}" class="img-fluid m-r-5" alt="icon" style="width: 17px">
+                    <strong class="me-auto">${title}</strong>
+                    <small>Just now</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    ${message}
+                </div>
+            </div>
+        </div>
+    `;
+
+            // Add toast to container
+            const container = document.getElementById('toast-container');
+            container.insertAdjacentHTML('beforeend', toastHtml);
+
+            // Initialize the Bootstrap toast
+            const toastElement = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastElement, {
+                delay: 3000,
+                animation: true
+            });
+
+            // Remove toast element after it's hidden
+            toastElement.addEventListener('hidden.bs.toast', function() {
+                this.parentElement.remove();
+            });
+        }
+    </script>
     <!-- [Body] end -->
 </body>
 

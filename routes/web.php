@@ -168,6 +168,7 @@ Route::prefix('district')->group(function () {
         Route::get('/{id}/edit', [DistrictController::class, 'edit'])->name('district.edit');
         Route::put('/{id}', [DistrictController::class, 'update'])->name('district.update');
         Route::get('/{id}', [DistrictController::class, 'show'])->name('district.show');
+        Route::post('/{id}/toggle-status', [DistrictController::class, 'toggleStatus'])->name('districts.toggle-status');
         Route::delete('/{id}', [DistrictController::class, 'destroy'])->name('district.destroy');
     });
 });

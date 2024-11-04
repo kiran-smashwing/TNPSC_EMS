@@ -10,24 +10,29 @@ class Center extends Model
     use HasFactory;
 
     protected $table = 'centers';
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'center_id';
 
     protected $fillable = [
         'image',
         'center_name',
         'center_code',
-        'district_id',
+        'center_district_id',
         'status',
-        'created_by',
+        'center_createdat',
+        'center_image',
         'updated_by',
     ];
 
     protected $casts = [
         'status' => 'string',
     ];
+    public function getUpdatedAtColumn()
+    {
+        return null;
+    }
 
     public function district()
     {
-        return $this->belongsTo(Collectorate::class, 'district_id', 'id');
+        return $this->belongsTo(District::class, 'center_district_id', 'district_id');
     }
 }

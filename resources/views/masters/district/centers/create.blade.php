@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', ' Add Centers')
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('storage/assets/css/plugins/croppr.min.css')}}" />
+    <link rel="stylesheet" href="{{ asset('storage/assets/css/plugins/croppr.min.css') }}" />
 @endpush
 @section('content')
 
@@ -21,9 +21,16 @@
 
     <div class="pc-container">
         <div class="pc-content">
-                  <!-- Modal start-->
-             @include('modals.cropper')
-                  <!-- Modal start-->
+            <!-- Display Validation Errors -->
+            <!-- Success Message -->
+            @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+            <!-- Modal start-->
+            @include('modals.cropper')
+            <!-- Modal start-->
             <!-- [ Main Content ] start -->
             <div class="row">
                 <div class="tab-content">
@@ -35,47 +42,47 @@
                                 </div>
                                 <div class="card-body">
                                     <form action="{{ route('center.store') }}" method="POST" enctype="multipart/form-data">
-                                    @csrf
-                                    <div class="row">
-                                        <div class="col-sm-6 text-center mb-3">
-                                            <div class="user-upload wid-75" id="triggerModal">
-                                                <img src="{{ asset('storage/assets/images/user/center.png') }}"
-                                                    alt="img" class="img-fluid">
-                                                <label for="image" class="img-avtar-upload">
-                                                    <i class="ti ti-camera f-24 mb-1"></i>
-                                                    <span>Upload</span>
-                                                </label>
-                                                {{-- <input type="file" id="image" name="image" class="d-none"> --}}
+                                        @csrf
+                                        <div class="row">
+                                            <div class="col-sm-6 text-center mb-3">
+                                                <div class="user-upload wid-75" data-pc-animate="just-me" data-bs-toggle="modal" data-bs-target="#cropperModal">
+                                                    <img src="{{ asset('storage/assets/images/user/center.png') }}" id="previewImage" alt="Cropped Preview" style="max-width: 100%; height: auto; object-fit: cover;">
+                                                    <input type="hidden" name="cropped_image" id="cropped_image">
+                                                    <label for="imageUpload" class="img-avtar-upload"></label>
+                                                </div>
                                             </div>
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label" for="district_id">District<span
+                                                            class="text-danger">*</span></label>
+                                                    <select class="form-control" id="district_id" name="district_id"
+                                                        required>
+                                                        <option>Select District</option>
+                                                        @foreach ($districts as $district)
+                                                            <option value="{{ $district->district_id }}">{{ $district->district_name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Name <span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" id="center_name"
+                                                        name="center_name" placeholder="Alandur" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label ">Code<span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="number" class="form-control no-arrows" id="district_code"
+                                                        name="district_code" placeholder="0102" required>
+                                                </div>
+                                            </div>
+
                                         </div>
-                                        <div class="col-sm-6">
-                                            <div class="mb-3">
-                                                <label class="form-label" for="district_id">District<span class="text-danger">*</span></label>
-                                                <select class="form-control" id="district_id" name="district_id" required>
-                                                    <option>Select District</option>
-                                                    @foreach ($districts as $district)
-                                                        <option value="{{ $district->district_id }}">{{ $district->district_name}}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="col-sm-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Name <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="center_name"
-                                                    name="center_name" placeholder="Alandur" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <div class="mb-3">
-                                                <label class="form-label ">Code<span class="text-danger">*</span></label>
-                                                <input type="number" class="form-control no-arrows" id="district_code"
-                                                    name="district_code" placeholder="0102" required>
-                                            </div>
-                                        </div>  
-                                       
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -92,10 +99,10 @@
 
     <!-- [ Main Content ] end -->
     @include('partials.footer')
-    
+
     @push('scripts')
-        <script src="{{ asset('storage/assets/js/plugins/croppr.min.js')}}"></script>
-        <script src="{{ asset('storage/assets/js/pages/page-croper.js')}}"></script>
+        <script src="{{ asset('storage/assets/js/plugins/croppr.min.js') }}"></script>
+        <script src="{{ asset('storage/assets/js/pages/page-croper.js') }}"></script>
         <script>
             document.getElementById('triggerModal').addEventListener('click', function() {
                 var modal = new bootstrap.Modal(document.getElementById('cropperModal'));

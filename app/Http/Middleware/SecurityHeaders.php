@@ -20,11 +20,24 @@ class SecurityHeaders
         $input = $request->all();
         $patterns = [
             '/<script\b[^>]*>(.*?)<\/script>/is',
-            '/(union\s+select|select\s+from|insert\s+into|update\s+set|delete\s+from|drop\s+table|create\s+table|alter\s+table|rename\s+table|truncate\s+table|load\s+data|call\s+procedure|declare\s+|exec\s+|execute\s+)/i',
-            '/(\b(and|or)\b\s*?[\w\W]*?=|--|#|\/\*|\*\/|;)/i'
+            '/\b(union\s+select|select\s+from|insert\s+into|update\s+\w+\s+set|delete\s+from|drop\s+table|create\s+table|alter\s+table|rename\s+table|truncate\s+table|load\s+data|call\s+\w+|declare\s+\w+|exec\s+\w+|execute\s+\w+)\b/i',
+            '/(\b(and|or)\b\s+[^\s]+?\s*?=|--|#|\/\*|\*\/|;)/i'
         ];
-
+        /**
+         * Check if the given string is a base64 image.
+         *
+         * @param string $value
+         * @return bool
+         */
+        function isBase64Image($value)
+        {
+            return preg_match('/^data:image\/(png|jpeg|jpg);base64,/', $value);
+        }
         foreach ($input as $value) {
+            // Check if the value is a base64 image
+            if (isBase64Image($value)) {
+                continue; // Skip pattern matching for base64 image inputs
+            }
             foreach ($patterns as $pattern) {
                 if (preg_match($pattern, $value)) {
                     abort(403, 'Forbidden');
@@ -46,4 +59,5 @@ class SecurityHeaders
         $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
         return $response;
     }
+
 }

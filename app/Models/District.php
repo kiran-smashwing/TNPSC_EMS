@@ -8,7 +8,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class District extends Model
 {
     use HasFactory;
-
+    protected $casts = [
+        'district_status' => 'boolean',
+        'district_email_status' => 'boolean',
+    ];
     protected $table = 'district';
     protected $primaryKey = 'district_id';
     public $timestamps = false;
@@ -24,6 +27,9 @@ class District extends Model
         'district_address',
         'district_longitude',
         'district_latitude',
+        'district_image',
+        'district_status',
+        'district_email_status',
     ];
 
     protected $hidden = [

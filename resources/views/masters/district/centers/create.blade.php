@@ -34,7 +34,7 @@
                                     <h5>Center - <span class="text-primary">Add</span></h5>
                                 </div>
                                 <div class="card-body">
-                                    {{-- <form action="{{ route('collectorates.store') }}" method="POST" enctype="multipart/form-data"> --}}
+                                    <form action="{{ route('center.store') }}" method="POST" enctype="multipart/form-data">
                                     @csrf
                                     <div class="row">
                                         <div class="col-sm-6 text-center mb-3">
@@ -53,10 +53,13 @@
                                                 <label class="form-label" for="district_id">District<span class="text-danger">*</span></label>
                                                 <select class="form-control" id="district_id" name="district_id" required>
                                                     <option>Select District</option>
-                                                    <option value="1010">Chennai</option>
+                                                    @foreach ($districts as $district)
+                                                        <option value="{{ $district->district_id }}">{{ $district->district_name}}</option>
+                                                    @endforeach
                                                 </select>
                                             </div>
                                         </div>
+                                        
                                         <div class="col-sm-6">
                                             <div class="mb-3">
                                                 <label class="form-label">Name <span class="text-danger">*</span></label>
@@ -71,69 +74,14 @@
                                                     name="district_code" placeholder="0102" required>
                                             </div>
                                         </div>  
-                                        {{-- <div class="col-sm-6">
-                                            <div class="mb-3">
-                                                <label class="form-label" for="designation">Designation <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="designation"
-                                                    name="designation" placeholder="Thasildar" required>
-                                            </div>
-                                        </div>           --}}
+                                       
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        {{-- <div class="col-lg-6">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-sm-12">
-                                            <div class="mb-3">
-                                                <label class="form-label">Website<span class="text-danger">*</span></label>
-                                                <input type="url" class="form-control" id="website" name="website"
-                                                    placeholder="https://chennai.nic.in/">
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-12">
-                                            <div class="mb-3">
-                                                <label class="form-label">Address<span
-                                                        class="text-danger">*</span></label>
-                                                <textarea class="form-control" id="address" name="address" required
-                                                    placeholder="Tamil Nadu Public Service Commission, TNPSC Road, Broadway, Chennai-600003."></textarea>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <div class="mb-3">
-                                                <label class="form-label" for="longitude">longitude<span
-                                                        class="text-danger">*</span></label>
-                                                <input type="number" step="any" class="form-control" id="longitude"
-                                                    name="longitude" placeholder="11.2312312312312">
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6 ">
-                                            <div class="mb-3">
-                                                <label class="form-label" for="latitude">latitude<span
-                                                        class="text-danger">*</span></label>
-                                                <input type="number" step="any" class="form-control" id="latitude"
-                                                    name="latitude" placeholder="11.2312312312312">
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6  d-inline-flex justify-content-center">
-                                            <a href="#"
-                                                class="btn btn-success d-inline-flex  justify-content-center"><i
-                                                    class="ti ti-current-location me-1"></i>Get Location Coordinates</a>
-                                        </div>
-                                        <div class="col-sm-6 d-inline-flex justify-content-center">
-                                            <a href="https://www.google.com/maps" target="_blank"
-                                                class="btn btn-info d-inline-flex  justify-content-center"><i
-                                                    class="ti ti-map-2 me-1"></i>Get Coordinates on G-Map</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> --}}
                         <div class="col-12 text-end btn-page">
-                            <div class="btn btn-outline-secondary">Cancel</div>
-                            <div class="btn btn-primary">Create</div>
+                            <a href="{{ route('center') }}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Create</button>
                         </div>
                     </div>
                 </div>

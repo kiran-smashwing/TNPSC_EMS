@@ -30,6 +30,8 @@ class District extends Authenticatable
         'district_image',
         'district_status',
         'district_email_status',
+        'district_createdat',
+        'remember_token',
     ];
 
 

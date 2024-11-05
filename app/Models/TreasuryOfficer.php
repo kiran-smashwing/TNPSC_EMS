@@ -27,9 +27,14 @@ class TreasuryOfficer extends Authenticatable
         'tre_off_employeeid',
         'tre_off_password',
         'tre_off_createdat',
-        'tre_off_image'
+        'tre_off_image',
+        'tre_off_status',
+        'tre_off_email_status',
+        'remember_token',
     ];
-
+    protected $hidden = [
+        'tre_off_password','remember_token'
+    ];
     protected static function boot()
     {
         parent::boot();

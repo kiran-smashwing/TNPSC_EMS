@@ -1,0 +1,23 @@
+Hq                  |  CI QP Box Received  |   Pending  | CI OMR Box Received |   Pending  |  QP Box Opened  |   Attendance  |   Absent   |  QP Distributed  | QP/OMR Replacemnt |  Bundle Packed   |    Remarks  |           
+
+ >District          |           10         |      1     |          10         |      1     |      7/10       |       95      |     5      |    1- Pending    |         3         |    1- Pending    |     None    |
+
+    >Center         |           5          |      0     |          5          |      0     |       4/5       |       55      |     5      |    1- Pending    |         1         |    1- Pending    |     None    |
+
+        >venue      |           3          |      0     |          3          |      0     |       2/3       |       30      |     5      |    1- Pending    |         1         |    1- Pending    |     None    |
+            >halls  |           2          |      0     |          2          |      0     |       1/2       |       20      |     3      |    1- Pending    |         1         |    1- Pending    |     None    |
+            >halls  |           1          |      0     |          1          |      0     |       1/1       |       10      |     2      |       Done       |         0         |       Done       |     None    |
+
+        >venue      |           2          |      0     |          2          |      0     |       2/2       |       25      |     0      |       Done       |         0         |       Done       |     None    |
+            >halls  |           1          |      0     |          1          |      0     |       1/1       |       15      |     0      |       Done       |         0         |       Done       |     None    |
+            >halls  |           1          |      0     |          1          |      0     |       0/1       |       10      |     0      |       Done       |         0         |       Done       |     None    |
+
+    >Center         |           5          |      0     |          5          |      0     |       3/5       |       40      |     0      |       Done       |         2         |       Done       |     None    |
+
+        >venue      |           3          |      0     |          3          |      0     |       3/3       |       15      |     0      |       Done       |         1         |       Done       |     None    |
+            >halls  |           2          |      0     |          2          |      0     |       2/2       |       10      |     0      |       Done       |         0         |       Done       |     None    |
+            >halls  |           1          |      0     |          1          |      0     |       1/1       |       15      |     0      |       Done       |         1         |       Done       |     None    |
+
+        >venue      |           1          |      1     |          1          |      1     |       0/2       |       20      |     0      |       Done       |         1         |       Done       |     None    |
+            >halls  |           1          |      0     |          1          |      0     |       0/1       |       10      |     0      |       Done       |         1         |       Done       |     None    |
+            >halls  |           0          |      1     |          0          |      1     |       0/1       |       10      |     0      |       Done       |         0         |       Done       |     None    |

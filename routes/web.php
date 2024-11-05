@@ -51,15 +51,17 @@ Route::middleware(['auth.multi'])->group(function () {
     // Center routes
     Route::get('/center', [CenterController::class, 'index'])->name('center');
     Route::get('/center/add', [CenterController::class, 'create'])->name('center.create');
-    Route::get('/center/edit', [CenterController::class, 'edit'])->name('center.edit');
+    Route::get('/edit/{id}', [CenterController::class, 'edit'])->name('center.edit');
     Route::post('/center/add', [CenterController::class, 'store'])->name('center.store');
-    Route::put('/center/update/{center}', [CenterController::class, 'update'])->name('center.update');
+    Route::put('/center/{center_id}', [CenterController::class, 'update'])->name('center.update');
     Route::get('/center/show', [CenterController::class, 'show'])->name('center.show');
     // Mobile Team Staffs routes
     Route::get('/mobile-team', [MobileTeamStaffsController::class, 'index'])->name('mobile-team');
     Route::get('/mobile-team/add', [MobileTeamStaffsController::class, 'create'])->name('mobile-team.create');
-    Route::get('/mobile-team/edit', [MobileTeamStaffsController::class, 'edit'])->name('mobile-team.edit');
-    Route::get('/mobile-team/show', [MobileTeamStaffsController::class, 'show'])->name('mobile-team.show');
+    Route::post('mobile-team', [MobileTeamStaffsController::class, 'store'])->name('mobile-team.store');
+    Route::get('/mobile-team/edit/{id}', [MobileTeamStaffsController::class, 'edit'])->name('mobile-team.edit');
+    Route::put('/mobile-team/{mobile_id}', [MobileTeamStaffsController::class, 'update'])->name('mobile-team.update');
+    Route::get('/mobile-team/{id}', [MobileTeamStaffsController::class, 'show'])->name('mobile-team.show');
     // Escort Staffs routes
     Route::get('/escort-staff', [EscortStaffsController::class, 'index'])->name('escort-staff');
     Route::get('/escort-staff/add', [EscortStaffsController::class, 'create'])->name('escort-staff.create');

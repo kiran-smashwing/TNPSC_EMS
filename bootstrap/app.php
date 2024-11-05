@@ -17,9 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
         $middleware->append(\App\Http\Middleware\CheckSession::class);
         $middleware->append(\App\Http\Middleware\SanitizeInput::class);
-        
+        // Add the multi-auth middleware
+        $middleware->alias([
+            'auth.multi' => \App\Http\Middleware\MultiAuthMiddleware::class
+        ]);
     })
- 
+
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (NotFoundHttpException $exception, Request $request) {
             if ($exception->getStatusCode() == 404) {

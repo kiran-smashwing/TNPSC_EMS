@@ -17,7 +17,7 @@
                         </div>
                         <div class="flex-grow-1 ms-3 me-2">
                             {{-- <h6 class="mb-0">Jonh Smith</h6> --}}
-                            <h6 class="mb-0">{{ Auth::user()->name }}</h6>
+                            <h6 class="mb-0">{{ current_user()->display_name}}</h6>
 
                             <small>Administrator</small>
                         </div>
@@ -96,7 +96,7 @@
                         <li class="pc-item"><a class="pc-link" href="{{ route('district.index') }}">District Collectorate</a>
                         </li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('center') }}">Centers</a></li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('treasury-officer') }}">Treasury Officers</a></li>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('treasury-officers.index') }}">Treasury Officers</a></li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('mobile-team') }}">Mobile Team Staffs</a></li>
                         {{-- <li class="pc-item"><a class="pc-link" href="{{ route('escort_staff') }}">Escort Staffs</a></li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('incpection') }}">Inspection Officers</a> --}}

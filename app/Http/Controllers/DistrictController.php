@@ -6,7 +6,6 @@ use App\Models\District;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Services\AuditLogger;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use App\Services\ImageCompressService;
 
@@ -16,44 +15,12 @@ class DistrictController extends Controller
     public function __construct(ImageCompressService $imageService)
     {
 
-        $this->middleware('auth')->except(['login', 'showLoginForm']);
+        $this->middleware('auth:district');
         $this->imageService = $imageService;
 
     }
 
-    public function showLoginForm()
-    {
-        return view('district.login');
-    }
-
-    public function login(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'district_email' => 'required|email',
-            'district_password' => 'required|string',
-        ]);
-
-        if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
-        }
-
-        $district = District::where('district_email', $request->district_email)->first();
-
-        if (!$district || !Hash::check($request->district_password, $district->district_password)) {
-            return back()->withErrors([
-                'district_email' => 'Invalid credentials',
-            ])->withInput();
-        }
-
-        // Log successful login
-        AuditLogger::log('District Login', District::class, $district->district_id);
-
-        // Store district data in session
-        session(['district_id' => $district->district_id]);
-
-        return redirect()->route('district.dashboard');
-    }
-
+   
     public function index()
     {
         $districts = District::all();
@@ -144,35 +111,36 @@ class DistrictController extends Controller
         }
     }
 
-    private function compressImage($filePath, $maxSizeKB)
-    {
-        $imageInfo = getimagesize($filePath);
-        if ($imageInfo === false) {
-            throw new \Exception('Unable to get image information for file: ' . $filePath);
-        }
+    // private function compressImage($filePath, $maxSizeKB)
+    // {
+    //     $imageInfo = getimagesize($filePath);
+    //     if ($imageInfo === false) {
+    //         throw new \Exception('Unable to get image information for file: ' . $filePath);
+    //     }
 
-        $mimeType = $imageInfo['mime'];
-        switch ($mimeType) {
-            case 'image/jpeg':
-                $img = imagecreatefromjpeg($filePath);
-                break;
-            case 'image/png':
-                $img = imagecreatefrompng($filePath);
-                break;
-            case 'image/gif':
-                $img = imagecreatefromgif($filePath);
-                break;
-            default:
-                throw new \Exception('Unsupported image format: ' . $mimeType);
-        }
+    //     $mimeType = $imageInfo['mime'];
+    //     switch ($mimeType) {
+    //         case 'image/jpeg':
+    //             $img = imagecreatefromjpeg($filePath);
+    //             break;
+    //         case 'image/png':
+    //             $img = imagecreatefrompng($filePath);
+    //             break;
+    //         case 'image/gif':
+    //             $img = imagecreatefromgif($filePath);
+    //             break;
+    //         default:
+    //             throw new \Exception('Unsupported image format: ' . $mimeType);
+    //     }
 
-        $quality = 90;
-        do {
-            imagejpeg($img, $filePath, $quality);
-            $quality -= 40;
-        } while (filesize($filePath) > $maxSizeKB * 1024 && $quality >= 10);
-        imagedestroy($img);
-    }
+    //     $quality = 90;
+    //     do {
+    //         imagejpeg($img, $filePath, $quality);
+    //         $quality -= 40;
+    //     } while (filesize($filePath) > $maxSizeKB * 1024 && $quality >= 10);
+    //     imagedestroy($img);
+    // }
+    
     public function edit($id)
     {
         $district = District::findOrFail($id);

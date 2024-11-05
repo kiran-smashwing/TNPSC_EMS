@@ -153,6 +153,33 @@
 
             </div>
             <div class="row">
+            @if (session('success'))
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                {{ session('success') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                        @endif
+
+                        @if (session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                {{ session('error') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                        @endif
+
+                        @if ($errors->any())
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <ul class="mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                        @endif
                 <!-- [ basic-table ] start -->
                 <div class="col-xl-12">
                     <div class="card">
@@ -160,7 +187,7 @@
                             <div class="d-sm-flex align-items-center justify-content-between">
                                 <h5 class="mb-3 mb-sm-0">Treasury Officers list</h5>
                                 <div>
-                                    <a href="{{ route('treasury-officer.create') }}" class="btn btn-outline-success">Add
+                                    <a href="{{ route('treasury-officers.create') }}" class="btn btn-outline-success">Add
                                         Treasury Officers</a>
                                 </div>
                             </div>
@@ -219,41 +246,49 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-shrink-0">
-                                                        <img src="{{ $officer->image_url ?? asset('path/to/default-image.jpg') }}"
-                                                            alt="user image" class="img-radius wid-40">
+                                                        @if ($officer->tre_off_image)
+                                                            <img src="{{ asset('storage/' . $officer->tre_off_image) }}"
+                                                                alt="treasury image" class="img-radius wid-40">
+                                                        @else
+                                                            <img src="{{ asset('storage/assets/images/user/avatar-4.jpg') }}"
+                                                                alt="default image" class="img-radius wid-40">
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </td>
                                             <td>
                                                 <div class="flex-grow-1 ms-3">
-                                                    <h6 class="mb-0">{{ $officer->name }}</h6>
+                                                    <h6 class="mb-0">{{ $officer->tre_off_name }}</h6>
                                                 </div>
                                             </td>
-                                            <td>{{ $officer->district }}</td>
-                                            <td>{{ $officer->email }}</td>
-                                            <td>{{ $officer->phone }}</td>
+                                            <td>{{ $officer->tre_off_district_id }}</td>
+                                            <td>{{ $officer->tre_off_email }}</td>
+                                            <td>{{ $officer->tre_off_phone }}</td>
                                             <td class="text-center">
-                                                @if ($officer->email_verified)
+                                                @if ($officer->tre_off_email_status)
                                                     <i class="ti ti-circle-check text-success f-18"></i>
                                                 @else
                                                     <i class="ti ti-alert-circle text-danger f-18"></i>
                                                 @endif
                                             </td>
-                                            <a href="#" class="avtar avtar-xs  btn-light-success"><i
-                                                    class="ti ti-eye f-20"></i></a>
-                                            <a href="{{ route('treasury-officer.edit') }}"
-                                                class="avtar avtar-xs  btn-light-success"><i
-                                                    class="ti ti-edit f-20"></i></a>
-                                            <!-- <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-trash f-20"></i></a> -->
-                                            <a href="#" class="avtar avtar-xs  btn-light-success"
-                                                title="Change Status (Active or Inactive)">
-                                                <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
-                                            </a>
+                                            <td class="text-center">
+                                                <a href="{{ route('treasury-officers.show', $officer->tre_off_id) }}" 
+                                                   class="avtar avtar-xs btn-light-success" title="View">
+                                                    <i class="ti ti-eye f-20"></i>
+                                                </a>
+                                                <a href="{{ route('treasury-officers.edit', $officer->tre_off_id) }}" 
+                                                   class="avtar avtar-xs btn-light-success" title="Edit">
+                                                    <i class="ti ti-edit f-20"></i>
+                                                </a>
+                                                <a href="#" 
+                                                   class="avtar avtar-xs btn-light-success" title="Change Status (Active or Inactive)">
+                                                    <i class="ti ti-toggle-left f-20"></i>
+                                                </a>
                                             </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
-
+                                
                             </table>
                         </div>
                     </div>

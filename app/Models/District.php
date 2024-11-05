@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class District extends Model
+class District extends Authenticatable
 {
     use HasFactory;
     protected $casts = [
@@ -32,9 +32,6 @@ class District extends Model
         'district_email_status',
     ];
 
-    protected $hidden = [
-        'district_password',
-    ];
 
     // Add timestamp for createdat
     protected static function boot()
@@ -43,5 +40,14 @@ class District extends Model
         static::creating(function ($model) {
             $model->district_createdat = now();
         });
+    }
+    public function getDisplayNameAttribute()
+    {
+        return $this->district_name; // or whatever field you use for the name
+    }
+
+    public function getAuthPassword()
+    {
+        return $this->district_password;
     }
 }

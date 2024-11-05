@@ -118,26 +118,23 @@ class AuthController extends Controller
             }
     
             // Log the audit with the correct ID
-            AuditLogger::log('User Logged In', get_class($user), $userId);
-    
-            // Debug information
-            \Log::info('Login successful', [
-                'role' => $role,
-                'user_id' => $userId,
-                'session_id' => session()->getId(),
-                'auth_check' => Auth::guard($role)->check()
-            ]);
-    
+            AuditLogger::log(
+                'User Login', 
+                get_class($user), 
+                $user->getKey(),
+                null,
+                [
+                    'email' => $email,
+                    'role' => $role,
+                    'ip' => request()->ip()
+                ]
+            );
+
             return redirect()->intended('/dashboard');
         }
     
         RateLimiter::hit($throttleKey);
         
-        // Debug information on failure
-        \Log::warning('Login failed', [
-            'role' => $role,
-            'email' => $email
-        ]);
     
         return back()->withErrors([
             'email' => __('auth.failed'),

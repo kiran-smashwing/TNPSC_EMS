@@ -5,7 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\CenterController;
-use App\Http\Controllers\TreasuryOfficersController;
+use App\Http\Controllers\TreasuryOfficerController;
 use App\Http\Controllers\MobileTeamStaffsController;
 use App\Http\Controllers\EscortStaffsController;
 use App\Http\Controllers\InspectionOfficersController;
@@ -41,7 +41,7 @@ Route::get('password/check-email', [AuthController::class, 'showCheckEmail'])->n
 
 
 // Protected routes (require user to be logged in) 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth.multi'])->group(function () {
     // Dashboard routes
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     // MyAccount routes 
@@ -55,11 +55,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/center/add', [CenterController::class, 'store'])->name('center.store');
     Route::put('/center/{center_id}', [CenterController::class, 'update'])->name('center.update');
     Route::get('/center/show', [CenterController::class, 'show'])->name('center.show');
-    // Treasury routes
-    Route::get('/treasury-officer', [TreasuryOfficersController::class, 'index'])->name('treasury-officer');
-    Route::get('/treasury-officer/add', [TreasuryOfficersController::class, 'create'])->name('treasury-officer.create');
-    Route::get('/treasury-officer/edit', [TreasuryOfficersController::class, 'edit'])->name('treasury-officer.edit');
-    Route::get('/treasury-officer/show', [TreasuryOfficersController::class, 'show'])->name('treasury-officer.show');
     // Mobile Team Staffs routes
     Route::get('/mobile-team', [MobileTeamStaffsController::class, 'index'])->name('mobile-team');
     Route::get('/mobile-team/add', [MobileTeamStaffsController::class, 'create'])->name('mobile-team.create');
@@ -95,11 +90,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/ci-assistant/add', [CIAssistantsController::class, 'create'])->name('ci-assistant.create');
     Route::get('/ci-assistant/edit', [CIAssistantsController::class, 'edit'])->name('ci-assistant.edit');
     Route::get('/ci-assistant/show', [CIAssistantsController::class, 'show'])->name('ci-assistant.show');
-    // Collectrate
-    // Route::get('/collectorate', [DistrictController::class, 'index'])->name('collectorate');
-    // Route::get('/collectorate/add', [DistrictController::class, 'create'])->name('collectorate.create');
-    // Route::get('/collectorate/edit', [DistrictController::class, 'edit'])->name('collectorate.edit');
-    // Route::get('/collectorate/show', [DistrictController::class, 'show'])->name('collectorate.show');
+
     // Role
     Route::get('/role', [RoleController::class, 'index'])->name('role');
     Route::get('/role/add', [RoleController::class, 'create'])->name('role.create');
@@ -160,11 +151,7 @@ Route::middleware(['auth'])->group(function () {
 
 //District Route::prefix('district')->group(function () {
 Route::prefix('district')->group(function () {
-    Route::get('login', [DistrictController::class, 'showLoginForm'])->name('district.login');
-    Route::post('login', [DistrictController::class, 'login'])->name('district.login.submit');
-    Route::post('logout', [DistrictController::class, 'logout'])->name('district.logout');
-
-    Route::middleware(['auth'])->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
         Route::get('/', [DistrictController::class, 'index'])->name('district.index');
         Route::get('/create', [DistrictController::class, 'create'])->name('district.create');
         Route::post('/', [DistrictController::class, 'store'])->name('district.store');
@@ -173,6 +160,20 @@ Route::prefix('district')->group(function () {
         Route::get('/{id}', [DistrictController::class, 'show'])->name('district.show');
         Route::post('/{id}/toggle-status', [DistrictController::class, 'toggleStatus'])->name('districts.toggle-status');
         Route::delete('/{id}', [DistrictController::class, 'destroy'])->name('district.destroy');
+    });
+});
+//treasury-officers Route::prefix('treasury-officers')->group(function () {
+Route::prefix('treasury-officers')->group(function () {
+
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/', [TreasuryOfficerController::class, 'index'])->name('treasury-officers.index');
+        Route::get('/create', [TreasuryOfficerController::class, 'create'])->name('treasury-officers.create');
+        Route::post('/', [TreasuryOfficerController::class, 'store'])->name('treasury-officers.store');
+        Route::get('/{id}/edit', [TreasuryOfficerController::class, 'edit'])->name('treasury-officers.edit');
+        Route::put('/{id}', [TreasuryOfficerController::class, 'update'])->name('treasury-officers.update');
+        Route::get('/{id}', [TreasuryOfficerController::class, 'show'])->name('treasury-officers.show');
+        Route::post('/{id}/toggle-status', [TreasuryOfficerController::class, 'toggleStatus'])->name('treasury-officers.toggle-status');
+        Route::delete('/{id}', [TreasuryOfficerController::class, 'destroy'])->name('treasury-officers.destroy');
     });
 });
 

@@ -2,38 +2,53 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class TreasuryOfficer extends Model
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
+class TreasuryOfficer extends Authenticatable
 {
     use HasFactory;
 
+    protected $casts = [
+        'tre_off_status' => 'boolean',
+        'tre_off_email_status' => 'boolean',
+    ];
     protected $table = 'treasury_officer';
+    protected $primaryKey = 'tre_off_id';
+    public $timestamps = false;
 
     protected $fillable = [
-        'image',
-        'name',
-        'employee_id',
-        'role',
-        'district_name',
-        'mail',
-        'phone',
-        'mail_verify_status',
-        'password',
-        'status',
-        'created_by',
-        'updated_by',
+        'tre_off_district_id',
+        'tre_off_name',
+        'tre_off_designation',
+        'tre_off_phone',
+        'tre_off_email',
+        'tre_off_employeeid',
+        'tre_off_password',
+        'tre_off_createdat',
+        'tre_off_image',
+        'tre_off_status',
+        'tre_off_email_status',
+        'remember_token',
     ];
-
-    protected $casts = [
-        'mail_verify_status' => 'boolean',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+    protected $hidden = [
+        'tre_off_password','remember_token'
     ];
-
-    public function collectorate()
+    protected static function boot()
     {
-        return $this->belongsTo(Collectorate::class, 'district_name', 'district_name');
+        parent::boot();
+        static::creating(function ($model) {
+            $model->tre_off_createdat = now();
+        });
+    }
+
+    public function getAuthPassword()
+    {
+        return $this->tre_off_password;
+    }
+    public function getDisplayNameAttribute()
+    {
+        return $this->tre_off_name; // or whatever field you use for the name
     }
 }

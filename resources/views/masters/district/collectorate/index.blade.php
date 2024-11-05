@@ -270,7 +270,11 @@
                                             <td>{{ $district->district_email }}</td>
                                             <td>{{ $district->district_phone }}</td>
                                             <td class="text-center">
-                                                <i class="ti ti-circle-check text-success f-18"></i>
+                                                @if ($district->district_email_status)
+                                                    <i class="ti ti-circle-check text-success f-18"></i>
+                                                @else
+                                                    <i class="ti ti-alert-circle text-danger f-18"></i>
+                                                @endif
                                             </td>
                                             <td>
                                                 <a href="{{ route('district.show', $district->district_id) }}"

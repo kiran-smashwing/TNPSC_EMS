@@ -6,12 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Audit extends Model
 {
-    // Specify the table associated with the model if not using the default convention
     protected $table = 'audits';
-
-    // Define which attributes are mass assignable
+    
     protected $fillable = [
         'user_id',
+        'role',
         'event',
         'auditable_type',
         'auditable_id',
@@ -19,15 +18,18 @@ class Audit extends Model
         'new_values',
         'url',
         'ip_address',
-        'user_agent',
+        'user_agent'
     ];
 
-    // attributes that should be cast to a specific data type
     protected $casts = [
+        'user_id' => 'integer',
+        'auditable_id' => 'integer',
         'old_values' => 'array',
         'new_values' => 'array',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
-
+    
     public function auditable()
     {
         return $this->morphTo();

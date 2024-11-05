@@ -20,10 +20,11 @@ return new class extends Migration
             $table->text('district_address')->nullable();
             $table->string('district_longitude')->nullable();
             $table->string('district_latitude')->nullable();
-            $table->timestamp('district_createdat')->useCurrent();
             $table->string('district_image')->nullable();
             $table->boolean('district_status')->default(true);
             $table->boolean('district_email_status')->default(false);
+            $table->string('remember_token')->nullable();
+            $table->timestamp('district_createdat')->useCurrent();
         });
     }
 

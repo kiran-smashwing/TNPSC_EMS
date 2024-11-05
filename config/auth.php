@@ -13,11 +13,10 @@ return [
     |
     */
 
-    'defaults' => [
-        'guard' => env('AUTH_GUARD', 'web'),
-        'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
-    ],
-
+  'defaults' => [
+    'guard' => env('AUTH_GUARD', 'web'),
+    'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
+],
     /*
     |--------------------------------------------------------------------------
     | Authentication Guards
@@ -40,7 +39,20 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+       'district' => [
+            'driver' => 'session',
+            'provider' => 'districts',
+        ],
+        'mobile_team_staffs' => [
+            'driver' => 'session',
+            'provider' => 'mobile_team_staffs',
+        ],
+        'treasury' => [
+            'driver' => 'session',
+            'provider' => 'treasury_officers',
+        ],
     ],
+
 
     /*
     |--------------------------------------------------------------------------
@@ -63,6 +75,18 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\User::class),
+        ],
+        'districts' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\District::class,
+        ],
+        'mobile_team_staffs' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\MobileTeamStaffs::class,
+        ],
+        'treasury_officers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\TreasuryOfficer::class,
         ],
 
         // 'users' => [

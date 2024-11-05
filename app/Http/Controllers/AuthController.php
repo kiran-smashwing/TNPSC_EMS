@@ -12,6 +12,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Log;
+use App\Models\District;
+use App\Models\TreasuryOfficer;
 
 class AuthController extends Controller
 {
@@ -29,53 +31,111 @@ class AuthController extends Controller
     {
         $validated = $request->validate([
             '_token' => 'required|string',
+            'role' => 'required|string',
             'email' => 'required|string|email|max:255',
             'password' => 'required|string',
             'remember' => 'sometimes|string',
         ]);
-
+    
         $email = $validated['email'];
         $password = $validated['password'];
         $remember = isset($validated['remember']) && $validated['remember'] === 'on';
-
-        $throttleKey = Str::lower($request->input('email')) . '|' . $request->ip();
-
-        // Check if email exists in the database
-        if (!User::where('email', $email)->exists()) {
-            return back()->withErrors([
-                'email' => 'The email address you entered is not registered with us.',
-            ])->withInput($request->only('email'));
-        }
-
+        $role = $validated['role'];
+    
+        $throttleKey = strtolower($role) . '|' . $email;
+        
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
-
             return back()->withErrors([
                 'email' => __('auth.throttle', [
                     'seconds' => $seconds,
                     'minutes' => ceil($seconds / 60),
                 ]),
-            ])->withInput($request->only('email'))
-                ->with('seconds', $seconds); // Pass seconds to the view
+            ])->withInput($request->only('email'));
         }
-
-        if (Auth::attempt(['email' => $email, 'password' => $password], $remember)) {
+    
+        // Log out of all guards first
+        Auth::guard('district')->logout();
+        Auth::guard('treasury')->logout();
+        Auth::guard('mobile_team_staffs')->logout();
+        
+        // Clear all existing sessions
+        $request->session()->flush();
+        $request->session()->regenerate();
+    
+        $success = false;
+        $user = null;
+        $userId = null;
+    
+        switch ($role) {
+            case 'district':
+                $success = Auth::guard('district')->attempt([
+                    'district_email' => $email,
+                    'password' => $password
+                ], $remember);
+                if ($success) {
+                    $user = Auth::guard('district')->user();
+                    $userId = $user->district_id; // Using district_id instead of id
+                }
+                break;
+    
+            case 'treasury':
+                $success = Auth::guard('treasury')->attempt([
+                    'tre_off_email' => $email,
+                    'password' => $password
+                ], $remember);
+                if ($success) {
+                    $user = Auth::guard('treasury')->user();
+                    $userId = $user->tre_off_id; // Adjust this based on your treasury table's ID column
+                }
+                break;
+    
+            case 'mobile_team_staffs':
+                $success = Auth::guard('mobile_team_staffs')->attempt([
+                    'mobile_team_email' => $email,
+                    'password' => $password
+                ], $remember);
+                if ($success) {
+                    $user = Auth::guard('mobile_team_staffs')->user();
+                    $userId = $user->mobile_team_id; // Adjust this based on your mobile team table's ID column
+                }
+                break;
+        }
+    
+        if ($success && $user) {
             RateLimiter::clear($throttleKey);
-            $request->session()->regenerate();
+    
+            // Store essential session data with the correct ID
+            session([
+                'auth_role' => $role,
+                'auth_id' => $userId,
+            ]);
+    
             if ($remember) {
-                // If "Remember Me" is checked, set a long-lived session
-                $rememberDuration = 60 * 24; //1 days
-                config(['session.lifetime' => $rememberDuration]);
                 session()->put('auth.password_confirmed_at', time());
                 session()->put('ip_address', $request->ip());
                 session()->put('user_agent', $request->userAgent());
             }
-            AuditLogger::log('User Logged In', User::class, Auth::id());
-            return redirect()->intended('dashboard');
+    
+            // Log the audit with the correct ID
+            AuditLogger::log(
+                'User Login', 
+                get_class($user), 
+                $user->getKey(),
+                null,
+                [
+                    'email' => $email,
+                    'role' => $role,
+                    'ip' => request()->ip()
+                ]
+            );
+
+            return redirect()->intended('/dashboard');
         }
-
+    
         RateLimiter::hit($throttleKey);
-
+        
+    
         return back()->withErrors([
             'email' => __('auth.failed'),
         ])->withInput($request->only('email'));
@@ -119,16 +179,46 @@ class AuthController extends Controller
 
         return redirect('/dashboard');
     }
+    private function getRoleFromGuard()
+    {
+        $guards = config('auth.guards');
+        foreach ($guards as $guard => $config) {
+            if (Auth::guard($guard)->check()) {
+                return $guard;
+            }
+        }
+        throw new \Exception('Unable to determine role from guard.');
+    }
 
+    private function getModelByRole($role)
+    {
+        switch ($role) {
+            case 'district':
+                return District::class;
+            case 'venue':
+                return District::class;
+            case 'treasury':
+                return TreasuryOfficer::class;
+            // Add other cases as needed
+            default:
+                throw new \Exception('Invalid role');
+        }
+    }
     public function logout(Request $request)
     {
-        AuditLogger::log('User Logged Out', User::class, Auth::id());
-        Auth::guard('web')->logout();
+        $role = $this->getRoleFromGuard();
+        $model = $this->getModelByRole($role);
+        // print_r($role);
+        // dd($model);
+
+        AuditLogger::log('User Logged Out', $model, Auth::id());
+        Auth::guard($role)->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect('/');
     }
+
 
     public function showForgotPassword()
     {

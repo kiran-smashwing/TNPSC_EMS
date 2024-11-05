@@ -229,7 +229,7 @@
                                         <th>District</th>
                                         <th>E-mail</th>
                                         <th>Phone</th>
-                                        <!-- <th>Status</th> -->
+                                        <th>Status</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -252,8 +252,11 @@
                                             <td>{{ $team->district ? $team->district->district_name : 'N/A' }}</td> <!-- Displaying district name -->
                                             <td>{{ $team->mobile_email }}</td>
                                             <td>{{ $team->mobile_phone }}</td>
+                                            <td></td>
                                             <td>
-                                                <a href="{{ route('mobile-team.show', $team->mobile_id) }}" class="avtar avtar-xs btn-light-success"><i class="ti ti-eye f-20"></i></a>
+                                                <a href="{{ route('mobile-team.show', ['id' => $team->mobile_id]) }}" class="avtar avtar-xs btn-light-success">
+                                                    <i class="ti ti-eye f-20"></i>
+                                                </a>
                                                 <a href="{{ route('mobile-team.edit', $team->mobile_id) }}" class="avtar avtar-xs btn-light-success"><i class="ti ti-edit f-20"></i></a>
                                                 <a href="#" class="avtar avtar-xs btn-light-success" title="Change Status (Active or Inactive)">
                                                     <i class="ti ti-toggle-left f-20"></i>

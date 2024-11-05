@@ -65,8 +65,7 @@
                                         <h5>Mobile Team - <span class="text-primary">Edit</span></h5>
                                     </div>
                                     <div class="card-body">
-                                        <form action="{{ route('mobile-team.update', $mobileTeamStaff->mobile_id) }}"
-                                            method="POST">
+                                        <form action="{{ route('mobile-team.update', $mobileTeamStaff->mobile_id) }}"  method="POST" enctype="multipart/form-data">
                                             @csrf
                                             @method('PUT')
                                             <div class="row">
@@ -156,7 +155,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                          </form>
+                                         
                                     </div>
                                 </div>
                             </div>
@@ -165,6 +164,7 @@
                               <a href="{{ route('mobile-team') }}" class="btn btn-outline-secondary">Cancel</a>
                               <button type="submit" class="btn btn-primary">Update</button>
                             </div>
+                        </form>
                         </div>
                     </div>
                 </div>

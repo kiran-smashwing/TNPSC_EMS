@@ -11,6 +11,7 @@ class MobileTeamStaffs extends Model
 
     protected $table = 'mobile_team'; // Specify the table name
     protected $primaryKey = 'mobile_id'; // Primary key for the table
+    public $incrementing = false;
 
     protected $fillable = [
         'mobile_district_id',

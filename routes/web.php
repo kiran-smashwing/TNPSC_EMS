@@ -65,8 +65,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/mobile-team/add', [MobileTeamStaffsController::class, 'create'])->name('mobile-team.create');
     Route::post('mobile-team', [MobileTeamStaffsController::class, 'store'])->name('mobile-team.store');
     Route::get('/mobile-team/edit/{id}', [MobileTeamStaffsController::class, 'edit'])->name('mobile-team.edit');
-    Route::put('/mobile-team/{id}', [MobileTeamStaffsController::class, 'update'])->name('mobile-team.update');
-    Route::get('/mobile-team/show', [MobileTeamStaffsController::class, 'show'])->name('mobile-team.show');
+    Route::put('/mobile-team/{mobile_id}', [MobileTeamStaffsController::class, 'update'])->name('mobile-team.update');
+    Route::get('/mobile-team/{id}', [MobileTeamStaffsController::class, 'show'])->name('mobile-team.show');
     // Escort Staffs routes
     Route::get('/escort-staff', [EscortStaffsController::class, 'index'])->name('escort-staff');
     Route::get('/escort-staff/add', [EscortStaffsController::class, 'create'])->name('escort-staff.create');

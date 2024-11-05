@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'View District Collectorates')
+@section('title', 'View Mobile Team')
 
 @section('content')
 
@@ -22,7 +22,6 @@
         <div class="pc-content">
             <!-- [ Main Content ] start -->
             <div class="row">
-
                 <div class="tab-content">
                     <div class="row">
                         <div class="col-lg-4 col-xxl-3">
@@ -35,158 +34,36 @@
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
                                             <img class="rounded-circle img-fluid wid-70"
-                                                src="{{ asset('storage/assets/images/user/collectorate.png') }}"
+                                                src="{{ asset('storage/' . ($team->mobile_image ?? 'assets/images/user/default.png')) }}"
                                                 alt="User image" />
                                         </div>
-                                        <h5 class="mb-0">01 - Chennai</h5>
-                                        <p class="text-muted text-sm">District Collectorate</p>
-                                        <hr class="my-3 border border-secondary-subtle" />
-                                        <div class="row g-3">
-                                            <div class="col-4">
-                                                <h5 class="mb-0">86</h5>
-                                                <small class="text-muted">Centers</small>
-                                            </div>
-                                            <div class="col-4 border border-top-0 border-bottom-0">
-                                                <h5 class="mb-0">40</h5>
-                                                <small class="text-muted">Venues</small>
-                                            </div>
-                                            <div class="col-4">
-                                                <h5 class="mb-0">45</h5>
-                                                <small class="text-muted">Members</small>
-                                            </div>
-                                        </div>
+                                        <h5 class="mb-0">{{ $team->mobile_name }}</h5>
+                                        <p class="text-muted text-sm">{{ $team->mobile_designation }}</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">ceochn@***.in</p>
+                                            <p class="mb-0">{{ $team->mobile_email }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">(+91) 9434***1212</p>
+                                            <p class="mb-0">{{ $team->mobile_phone }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
-                                            <i class="ti ti-phone-plus me-2"></i>
-                                            <p class="mb-0">04434***1212</p>
-                                        </div>
-                                        <div
-                                            class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">Tamil Nadu Public Service Commission, TNPSC Road, Broadway,
-                                                Chennai-600003.</p>
-                                        </div>
-                                        <div class="d-inline-flex align-items-center justify-content-start w-100">
-                                            <i class="ti ti-link me-2"></i>
-                                            <a href="#" class="link-primary">
-                                                <p class="mb-0">https://chennai.nic.in/</p>
-                                            </a>
+                                            <p class="mb-0">{{ $team->address }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
                                             <a href="#"
-                                                class="btn btn-success d-inline-flex  justify-content-center"><i
-                                                    class="ti ti-map-2 me-1"></i>View Location</a>
+                                                class="btn btn-success d-inline-flex justify-content-center">
+                                                <i class="ti ti-map-2 me-1"></i>View Location
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-4 col-xxl-3">
-                            <div class="card">
-                                <div class="card-body position-relative">
-                                    <div class="position-absolute end-0 top-0 p-3">
-                                        <span class="d-flex align-items-center">
-                                            <!-- Email Address -->
-                                            <span class="me-2">E-mail</span>
-                                            <!-- Verified Icon -->
-                                            <i class="ph-duotone ph-circle-wavy-check text-success"></i>
-                                            <!-- Bootstrap Icon -->
-                                        </span>
-                                    </div>
 
-                                    <div class="text-center mt-3">
-                                        <div class="chat-avtar d-inline-flex mx-auto">
-                                            <img class="rounded-circle img-fluid wid-70"
-                                                src="{{ asset('storage/assets/images/user/avatar-4.jpg') }}"
-                                                alt="User image" />
-                                        </div>
-                                        <h5 class="mb-0">Nanmaran</h5>
-                                        <p class="text-muted text-sm">Thasildar</p>
-                                        <hr class="my-3 border border-secondary-subtle" />
-                                        {{-- <div class="row g-3">
-                                  <div class="col-4">
-                                    <h5 class="mb-0">8</h5>
-                                    <small class="text-muted">Exams</small>
-                                  </div>
-                                  <div class="col-4 border border-top-0 border-bottom-0">
-                                    <h5 class="mb-0">40</h5>
-                                    <small class="text-muted">Venues</small>
-                                  </div>
-                                  <div class="col-4">
-                                    <h5 class="mb-0">45</h5>
-                                    <small class="text-muted">Members</small>
-                                  </div>
-                                </div> --}}
-                                        <hr class="my-3 border border-secondary-subtle" />
-                                        <div
-                                            class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
-                                            <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">01 - Chennai</p>
-                                        </div>
-                                        <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
-                                            <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">ceochn@***.in</p>
-                                        </div>
-                                        <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
-                                            <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">(+91) 9434***1212</p>
-                                        </div>
-                                        <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
-                                            <i class="ti ti-barcode me-2"></i>
-                                            <p class="mb-0">EMP1234</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-8 col-xxl-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5>Demo Videos</h5>
-                                </div>
-                                <div class="card-body pc-component">
-                                    <div id="carouselExampleFade" class="carousel slide carousel-fade"
-                                        data-bs-ride="carousel">
-                                        <div class="carousel-inner">
-                                            <div class="carousel-item active">
-                                                <video class="img-fluid d-block w-100" controls>
-                                                    <source src="../assets/videos/video-1.mp4" type="video/mp4">
-                                                    Your browser does not support the video tag.
-                                                </video>
-                                            </div>
-                                            {{-- <div class="carousel-item">
-                                            <video class="img-fluid d-block w-100" controls>
-                                                <source src="../assets/videos/video-2.mp4" type="video/mp4">
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        </div> --}}
-                                            {{-- <div class="carousel-item">
-                                            <video class="img-fluid d-block w-100" controls>
-                                                <source src="../assets/videos/video-3.mp4" type="video/mp4">
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        </div> --}}
-                                        </div>
-                                        {{-- <a class="carousel-control-prev" href="#carouselExampleFade" role="button" data-bs-slide="prev">
-                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                        <span class="sr-only">Previous</span>
-                                    </a> --}}
-                                        {{-- <a class="carousel-control-next" href="#carouselExampleFade" role="button" data-bs-slide="next">
-                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                        <span class="sr-only">Next</span>
-                                    </a> --}}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Additional team details or sections -->
                     </div>
                 </div>
             </div>
@@ -194,8 +71,7 @@
         </div>
     </div>
 
-        @include('partials.footer')
+    @include('partials.footer')
+    @include('partials.theme')
 
-        @include('partials.theme')
-
-    @endsection
+@endsection

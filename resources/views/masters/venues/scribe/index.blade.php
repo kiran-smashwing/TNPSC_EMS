@@ -206,38 +206,43 @@
                                     <th>Venue Name</th>
                                     <th>E-mail</th>
                                     <th>Phone</th>
-                                    <!-- <th>status</th> -->
+                                    <th>status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0">
-                                                <img src="../assets/images/user/avatar-1.jpg" alt="user image" class="img-radius wid-40">
+                                @foreach ($scribes as $scribe)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-shrink-0">
+                                                    <img src="{{ $scribe->scribe_image ? asset('storage/' . $scribe->scribe_image) : asset('assets/images/user/avatar-1.jpg') }}" alt="user image" class="img-radius wid-40">
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-grow-1 ms-3">
-                                            <h6 class="mb-0">Testing</h6>
-                                        </div>
-                                    </td>
-                                    <td>Tesitng</td>
-                                    <td>example@gmail.com</td>
-                                    <td>+91-9094500072</td>
-                                    <!-- <td class="text-success">Active</td> -->
-                                    <td>
-                                        <a href="{{ route('scribe.show') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-eye f-20"></i></a>
-                                        <a href="{{ route('scribe.edit') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
-                                        <a href="#" class="avtar avtar-xs  btn-light-success" title="Change Status (Active or Inactive)">
-                                            <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
-                                        </a>
-                                        <!-- <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-trash f-20"></i></a> -->
-                                    </td>
-                                </tr>
+                                        </td>
+                                        <td>
+                                            <div class="flex-grow-1 ms-3">
+                                                <h6 class="mb-0">{{ $scribe->scribe_name }}</h6>
+                                            </div>
+                                        </td>
+                                        <td>{{ $scribe->district->district_name }}</td>
+                                        <td>{{ $scribe->scribe_email }}</td>
+                                        <td>{{ $scribe->scribe_phone }}</td>
+                                        <td></td>
+                                        <td>
+                                            <a href="{{ route('scribe.show', $scribe->scribe_id) }}" class="avtar avtar-xs btn-light-success">
+                                                <i class="ti ti-eye f-20"></i>
+                                            </a>
+                                            <a href="{{ route('scribes.edit', $scribe->scribe_id) }}" class="avtar avtar-xs btn-light-success">
+                                                <i class="ti ti-edit f-20"></i>
+                                            </a>
+                                            <a href="#" class="avtar avtar-xs btn-light-success" title="Change Status (Active or Inactive)">
+                                                <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>

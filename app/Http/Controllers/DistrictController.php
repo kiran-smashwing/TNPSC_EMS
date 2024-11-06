@@ -111,35 +111,6 @@ class DistrictController extends Controller
         }
     }
 
-    // private function compressImage($filePath, $maxSizeKB)
-    // {
-    //     $imageInfo = getimagesize($filePath);
-    //     if ($imageInfo === false) {
-    //         throw new \Exception('Unable to get image information for file: ' . $filePath);
-    //     }
-
-    //     $mimeType = $imageInfo['mime'];
-    //     switch ($mimeType) {
-    //         case 'image/jpeg':
-    //             $img = imagecreatefromjpeg($filePath);
-    //             break;
-    //         case 'image/png':
-    //             $img = imagecreatefrompng($filePath);
-    //             break;
-    //         case 'image/gif':
-    //             $img = imagecreatefromgif($filePath);
-    //             break;
-    //         default:
-    //             throw new \Exception('Unsupported image format: ' . $mimeType);
-    //     }
-
-    //     $quality = 90;
-    //     do {
-    //         imagejpeg($img, $filePath, $quality);
-    //         $quality -= 40;
-    //     } while (filesize($filePath) > $maxSizeKB * 1024 && $quality >= 10);
-    //     imagedestroy($img);
-    // }
     
     public function edit($id)
     {

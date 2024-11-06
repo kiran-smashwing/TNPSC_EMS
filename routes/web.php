@@ -78,12 +78,16 @@ Route::middleware(['auth.multi'])->group(function () {
     // Invigilator routes
     Route::get('/invigilator', [InvigilatorsController::class, 'index'])->name('invigilator');
     Route::get('/invigilator/add', [InvigilatorsController::class, 'create'])->name('invigilator.create');
-    Route::get('/invigilator/edit', [InvigilatorsController::class, 'edit'])->name('invigilator.edit');
-    Route::get('/invigilator/show', [InvigilatorsController::class, 'show'])->name('invigilator.show');
+    Route::post('invigilator/store', [InvigilatorsController::class, 'store'])->name('invigilator.store');
+    Route::get('/invigilator/{id}/edit', [InvigilatorsController::class, 'edit'])->name('invigilator.edit');
+    Route::put('/invigilator/{id}', [InvigilatorsController::class, 'update'])->name('invigilator.update');
+    Route::get('invigilators/{id}', [InvigilatorsController::class, 'show'])->name('invigilator.show');
     // Scribe
     Route::get('/scribe', [ScribeController::class, 'index'])->name('scribe');
     Route::get('/scribe/add', [ScribeController::class, 'create'])->name('scribe.create');
-    Route::get('/scribe/edit', [ScribeController::class, 'edit'])->name('scribe.edit');
+    Route::post('/scribe', [ScribeController::class, 'store'])->name('scribes.store');
+    Route::get('{id}/edit', [ScribeController::class, 'edit'])->name('scribes.edit'); // Edit form route
+    Route::put('/scribe/{id}', [ScribeController::class, 'update'])->name('scribe.update');
     Route::get('/scribe/show', [ScribeController::class, 'show'])->name('scribe.show');
     // CI Assistants
     Route::get('/ci-assistant', [CIAssistantsController::class, 'index'])->name('ci-assistant');
@@ -99,8 +103,9 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/venue', [VenuesController::class, 'index'])->name('venue');
     Route::get('/venue/add', [VenuesController::class, 'create'])->name('venue.create');
     Route::post('/venues', [VenuesController::class, 'store'])->name('venues.store');
-    Route::get('/venue/edit', [VenuesController::class, 'edit'])->name('venue.edit');
-    Route::get('/venue/show', [VenuesController::class, 'show'])->name('venue.show');
+    Route::get('venues/{id}/edit', [VenuesController::class, 'edit'])->name('venue.edit');
+    Route::put('/venue/{id}', [VenuesController::class, 'update'])->name('venue.update');
+    Route::get('/venue/{id}', [VenuesController::class, 'show'])->name('venue.show');
     // Department
     Route::get('/department', [DepartmentOfficialsController::class, 'index'])->name('department');
     Route::get('/department/add', [DepartmentOfficialsController::class, 'create'])->name('department.create');

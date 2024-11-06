@@ -36,6 +36,9 @@
                 </div>
                 <div class="tab-content">
                     <div>
+                        <form action="{{ route('venue.update', $venue->venue_id) }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
                         <div class="row">
                             @if (session('success'))
                                 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -71,76 +74,93 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
+                                            
                                             <div class="col-sm-12 text-center mb-3">
-                                                <div class="user-upload wid-75" id="triggerModal">
-                                                    <img src="{{ asset('storage/assets/images/user/venue.png') }}"
-                                                        alt="img" class="img-fluid">
-                                                    <label for="image" class="img-avtar-upload">
-                                                        <i class="ti ti-camera f-24 mb-1"></i>
-                                                        <span>Upload</span>
-                                                    </label>
-                                                    {{-- <input type="file" id="image" name="image" class="d-none"> --}}
+                                                <div class="user-upload wid-75" data-pc-animate="just-me"
+                                                    data-bs-toggle="modal" data-bs-target="#cropperModal">
+                                                    <img src="{{ $venue->venue_image
+                                                        ? asset('storage/' . $venue->venue_image)
+                                                        : asset('storage/assets/images/user/collectorate.png') }}"
+                                                        id="previewImage" alt="Cropped Preview"
+                                                        style="max-width: 100%; height: auto; object-fit: cover;">
+                                                    <input type="hidden" name="cropped_image" id="cropped_image">
+                                                    <label for="imageUpload" class="img-avtar-upload"></label>
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label" for="district_id">District<span
+                                                    <label class="form-label" for="district_id">District <span
                                                             class="text-danger">*</span></label>
-                                                    <select class="form-control" id="district_id" name="district_id"
-                                                        required>
+                                                    <select class="form-control" id="district_id" name="district_id" required>
                                                         <option>Select District</option>
-                                                        <option value="1010">Chennai</option>
+                                                        @foreach ($districts as $district)
+                                                            <option value="{{ $district->district_id }}"
+                                                                {{ $district->district_id == $venue->venue_district_id ? 'selected' : '' }}>
+                                                                {{ $district->district_name }}
+                                                            </option>
+                                                        @endforeach
                                                     </select>
+                                                    @error('district_id')
+                                                        <div class="text-danger">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label" for="center_id">Center<span
+                                                    <label class="form-label" for="center_id">Center <span
                                                             class="text-danger">*</span></label>
                                                     <select class="form-control" id="center_id" name="center_id" required>
-                                                        <option>Select Center</option>
-                                                        <option value="1010">Alandur</option>
+                                                        <option>Select Centers</option>
+                                                        @foreach ($centers as $center)
+                                                            <option value="{{ $center->center_id }}"
+                                                                {{ $center->center_id == $venue->venue_center_id ? 'selected' : '' }}>
+                                                                {{ $center->center_name }}
+                                                            </option>
+                                                        @endforeach
                                                     </select>
+                                                    @error('center_id')
+                                                        <div class="text-danger">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
                                             </div>
                                             <div class="col-sm-12">
                                                 <div class="mb-3">
-                                                    <label class="form-label " for="name">Venue Name<span
-                                                            class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control" id="name"
-                                                        name="name" placeholder="Gov Hr Sec School" required>
+                                                    <label class="form-label" for="name">Venue Name<span class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" id="venue_name" name="venue_name" 
+                                                           value="{{ old('name', $venue->venue_name) }}" 
+                                                           placeholder="Gov Hr Sec School" required>
                                                 </div>
                                             </div>
+                                            
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label ">Venue Code<span
                                                             class="text-danger">*</span></label>
                                                     <input type="number" class="form-control no-arrows" id="venue_code"
-                                                        name="venue_code" placeholder="448966" required>
+                                                        name="venue_code" value="{{ old('name', $venue->venue_code) }}" placeholder="448966" required>
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label" for="venue_code_provider">Venue Code
-                                                        Provider<span class="text-danger">*</span></label>
-                                                    <select class="form-control" id="venue_code_provider"
-                                                        name="venue_code_provider" required>
+                                                    <label class="form-label" for="venue_code_provider">Venue Code Provider<span class="text-danger">*</span></label>
+                                                    <select class="form-control" id="venue_code_provider" name="venue_code_provider" required>
                                                         <option>Select Venue Code Provider</option>
-                                                        <option value="UDISE">UDISE</option>
-                                                        <option value="1">Anna University</option>
-                                                        <option value="2">Thriuvalluvar University</option>
-                                                        <option value="2">Madras University</option>
-                                                        <option value="2">Madurai Kamraj University</option>
-                                                        <option value="2">Manonmaniam Sundaranar University</option>
-                                                        <option value="2">Others</option>
+                                                        <option value="UDISE" {{ old('venue_code_provider', $venue->venue_codeprovider) == 'UDISE' ? 'selected' : '' }}>UDISE</option>
+                                                        <option value="1" {{ old('venue_code_provider', $venue->venue_codeprovider) == '1' ? 'selected' : '' }}>Anna University</option>
+                                                        <option value="2" {{ old('venue_code_provider', $venue->venue_codeprovider) == '2' ? 'selected' : '' }}>Thriuvalluvar University</option>
+                                                        <option value="3" {{ old('venue_code_provider', $venue->venue_codeprovider) == '3' ? 'selected' : '' }}>Madras University</option>
+                                                        <option value="4" {{ old('venue_code_provider', $venue->venue_codeprovider) == '4' ? 'selected' : '' }}>Madurai Kamraj University</option>
+                                                        <option value="5" {{ old('venue_code_provider', $venue->venue_codeprovider) == '5' ? 'selected' : '' }}>Manonmaniam Sundaranar University</option>
+                                                        <option value="6" {{ old('venue_code_provider', $venue->venue_codeprovider) == '6' ? 'selected' : '' }}>Others</option>
                                                     </select>
                                                 </div>
                                             </div>
+                                            
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Email<span
                                                             class="text-danger">*</span></label>
-                                                    <input type="email" class="form-control" id="mail" name="mail"
+                                                    <input type="email" class="form-control" id="venue_email" value="{{ old('name', $venue->venue_email) }}" name="venue_email"
                                                         placeholder="ceochn@***.in" required>
                                                 </div>
                                             </div>
@@ -148,53 +168,57 @@
                                                 <div class="mb-3">
                                                     <label class="form-label" for="phone">Phone<span
                                                             class="text-danger">*</span></label>
-                                                    <input type="tel" class="form-control" id="phone" name="phone"
+                                                    <input type="tel" class="form-control" id="venue_phone" value="{{ old('name', $venue->venue_phone) }}" name="venue_phone"
                                                         placeholder="9434***1212" required>
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="alternate_phone">Alternate Phone</label>
-                                                    <input type="tel" class="form-control" id="alternate_phone"
-                                                        name="alternate_phone" placeholder="O4448***762/9434***1212">
+                                                    <input type="tel" class="form-control" value="{{ old('name', $venue->venue_alternative_phone) }}" id="venue_alternative_phone"
+                                                        name="venue_alternative_phone" placeholder="O4448***762/9434***1212">
                                                 </div>
                                             </div>
 
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label" for="type">Type<span
-                                                            class="text-danger">*</span></label>
-                                                    <select class="form-control" id="type" name="type" required>
-                                                        <option>School</option>
-                                                        <option>College</option>
-                                                        <option>Other</option>
+                                                    <label class="form-label" for="venue_type">Type<span class="text-danger">*</span></label>
+                                                    <select class="form-control" id="venue_type" name="venue_type" required>
+                                                        <option value="School" {{ old('venue_type', $venue->venue_type) == 'School' ? 'selected' : '' }}>School</option>
+                                                        <option value="College" {{ old('venue_type', $venue->venue_type) == 'College' ? 'selected' : '' }}>College</option>
+                                                        <option value="Other" {{ old('venue_type', $venue->venue_type) == 'Other' ? 'selected' : '' }}>Other</option>
                                                     </select>
                                                 </div>
                                             </div>
+                                            
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label" for="category">Category<span
-                                                            class="text-danger">*</span></label>
-                                                    <select class="form-control" id="category" name="category" required>
-                                                        <option>Government</option>
-                                                        <option>Private</option>
-                                                        <option>Aided</option>
+                                                    <label class="form-label" for="venue_category">Category<span class="text-danger">*</span></label>
+                                                    <select class="form-control" id="venue_category" name="venue_category" required>
+                                                        <option value="Government" {{ old('venue_category', $venue->venue_category) == 'Government' ? 'selected' : '' }}>Government</option>
+                                                        <option value="Private" {{ old('venue_category', $venue->venue_category) == 'Private' ? 'selected' : '' }}>Private</option>
+                                                        <option value="Aided" {{ old('venue_category', $venue->venue_category) == 'Aided' ? 'selected' : '' }}>Aided</option>
                                                     </select>
                                                 </div>
                                             </div>
+                                            
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Website</label>
-                                                    <input type="url" class="form-control" id="website"
-                                                        name="website" placeholder="https://chennai.nic.in/">
+                                                    <input type="url" class="form-control" id="venue_website"
+                                                        name="venue_website" value="{{ old('name', $venue->venue_website) }}" placeholder="https://chennai.nic.in/">
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label"for="password">Password<span
-                                                            class="text-danger">*</span></label>
-                                                    <input type="password" class="form-control" id="password"
-                                                        name="password" required placeholder="******">
+                                                    <label class="form-label">Password <small>(leave blank to keep
+                                                            current)</small></label>
+                                                    <input type="password"
+                                                        class="form-control @error('venue_password') is-invalid @enderror"
+                                                        id="venue_password" name="venue_password">
+                                                    @error('password')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
                                             </div>
                                         </div>
@@ -208,26 +232,26 @@
 
                                             <div class="col-sm-12">
                                                 <div class="mb-3">
-                                                    <label class="form-label">Address<span
-                                                            class="text-danger">*</span></label>
-                                                    <textarea class="form-control" id="address" name="address" required
-                                                        placeholder="Tamil Nadu Public Service Commission, TNPSC Road, Broadway, Chennai-600003."></textarea>
+                                                    <label class="form-label" for="venue_address">Address<span class="text-danger">*</span></label>
+                                                    <textarea class="form-control" id="venue_address" name="venue_address" required
+                                                        placeholder="Tamil Nadu Public Service Commission, TNPSC Road, Broadway, Chennai-600003.">{{ old('venue_address', $venue->venue_address) }}</textarea>
                                                 </div>
                                             </div>
+                                            
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="dt_railway">Distance from Railway<span
                                                             class="text-danger">*</span></label>
                                                     <input type="text" step="any" class="form-control"
-                                                        id="dt_railway" name="dt_railway" placeholder="8.2km">
+                                                        id="venue_distance_railway" value="{{ old('venue_distance_railway', $venue->venue_distance_railway) }}" name="venue_distance_railway" placeholder="8.2km">
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label" for="dt_treasury">Distance from
+                                                    <label class="form-label" for="venue_treasury_office">Distance from
                                                         Treasury<span class="text-danger">*</span></label>
-                                                    <input type="text" step="any" class="form-control"
-                                                        id="dt_treasury" name="dt_treasury" placeholder="1.2km">
+                                                    <input type="text" step="any" class="form-control" value="{{ old('venue_treasury_office', $venue->venue_treasury_office) }}" 
+                                                        id="venue_treasury_office" name="venue_treasury_office" placeholder="1.2km">
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
@@ -235,7 +259,7 @@
                                                     <label class="form-label" for="longitude">longitude<span
                                                             class="text-danger">*</span></label>
                                                     <input type="number" step="any" class="form-control"
-                                                        id="longitude" name="longitude" placeholder="11.2312312312312">
+                                                        id="longitude" value="{{ old('venue_longitude', $venue->venue_longitude) }}" name="venue_longitude" placeholder="11.2312312312312">
                                                 </div>
                                             </div>
                                             <div class="col-sm-6 ">
@@ -243,7 +267,7 @@
                                                     <label class="form-label" for="latitude">latitude<span
                                                             class="text-danger">*</span></label>
                                                     <input type="number" step="any" class="form-control"
-                                                        id="latitude" name="latitude" placeholder="11.2312312312312">
+                                                        id="latitude" name="venue_latitude" value="{{ old('venue_latitude', $venue->venue_latitude) }}"  placeholder="11.2312312312312">
                                                 </div>
                                             </div>
                                             <div class="col-sm-6  d-inline-flex justify-content-center mb-3">
@@ -268,17 +292,17 @@
                                         <div class="row">
                                             <div class="col-sm-6 ">
                                                 <div class="mb-3">
-                                                    <label class="form-label" for="bank_ac_name">Bank Name</label>
+                                                    <label class="form-label" for="venue_bank_name">Bank Name</label>
                                                     <input type="text" step="any" class="form-control"
-                                                        id="bank_ac_name" name="bank_ac_name"
+                                                        id="venue_bank_name" value="{{ old('venue_bank_name', $venue->venue_bank_name) }}"  name="venue_bank_name"
                                                         placeholder="State Bank Of India">
                                                 </div>
                                             </div>
                                             <div class="col-sm-6 ">
                                                 <div class="mb-3">
-                                                    <label class="form-label" for="bank_ac_name">Account Name</label>
+                                                    <label class="form-label" for="venue_account_name">Account Name</label>
                                                     <input type="text" step="any" class="form-control"
-                                                        id="bank_ac_name" name="bank_ac_name"
+                                                        id="venue_account_name" value="{{ old('venue_account_name', $venue->venue_account_name) }}"  name="venue_account_name"
                                                         placeholder="Gov Hr Sec School">
                                                 </div>
                                             </div>
@@ -287,31 +311,31 @@
                                                     <label class="form-label" for="bank_ac_number">
                                                         Number</label>
                                                     <input type="text" step="any" class="form-control"
-                                                        id="bank_ac_number" name="bank_ac_number"
+                                                        id="venue_account_number" value="{{ old('venue_account_number', $venue->venue_account_number) }}"  name="venue_account_number"
                                                         placeholder="2312312312312">
                                                 </div>
                                             </div>
                                             <div class="col-sm-6 ">
                                                 <div class="mb-3">
-                                                    <label class="form-label" for="bank_ac_branch"> Branch
+                                                    <label class="form-label" for="venue_branch_name"> Branch
                                                         Name</label>
                                                     <input type="text" step="any" class="form-control"
-                                                        id="bank_ac_branch" name="bank_ac_branch" placeholder="chennai">
+                                                        id="venue_branch_name" name="venue_branch_name" value="{{ old('venue_branch_name', $venue->venue_branch_name) }}"  placeholder="chennai">
                                                 </div>
                                             </div>
                                             <div class="col-sm-6 ">
                                                 <div class="mb-3">
-                                                    <label class="form-label" for="bank_ac_type"> Type</label>
+                                                    <label class="form-label" for="venue_account_type"> Type</label>
                                                     <input type="text" step="any" class="form-control"
-                                                        id="bank_ac_type" name="bank_ac_type" placeholder="current">
+                                                        id="venue_account_type" name="venue_account_type" value="{{ old('venue_account_type', $venue->venue_account_type) }}"  placeholder="current">
                                                 </div>
                                             </div>
                                             <div class="col-sm-6 ">
                                                 <div class="mb-3">
-                                                    <label class="form-label" for="bank_ac_ifsc"> IFSC
+                                                    <label class="form-label" for="venue_ifsc"> IFSC
                                                         Code</label>
                                                     <input type="text" step="any" class="form-control"
-                                                        id="bank_ac_ifsc" name="bank_ac_ifsc" placeholder="SBI000123">
+                                                        id="venue_ifsc" value="{{ old('venue_ifsc', $venue->venue_ifsc) }}"  name="venue_ifsc" placeholder="SBI000123">
                                                 </div>
                                             </div>
                                         </div>
@@ -319,10 +343,11 @@
                                 </div>
                             </div>
                             <div class="col-12 text-end btn-page">
-                                <div class="btn btn-outline-secondary">Cancel</div>
-                                <div class="btn btn-primary">Update</div>
+                                <a href="{{ route('scribe') }}" class="btn btn-outline-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary">Update</button>
                             </div>
-                        </div>
+                         </div>
+                    </form>
                     </div>
                 </div>
             </div>
@@ -339,6 +364,17 @@
         document.getElementById('triggerModal').addEventListener('click', function() {
             var modal = new bootstrap.Modal(document.getElementById('cropperModal'));
             modal.show();
+        });
+    </script>
+     <script>
+        document.querySelector('.btn-success').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    document.getElementById('latitude').value = position.coords.latitude;
+                    document.getElementById('longitude').value = position.coords.longitude;
+                });
+            }
         });
     </script>
 

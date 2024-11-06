@@ -14,7 +14,7 @@ class CenterController extends Controller
     public function __construct(ImageCompressService $imageService)
     {
         //apply the auth middleware to the entire controller
-        $this->middleware('auth');
+        $this->middleware('auth.multi');
         $this->imageService = $imageService;
     }
     public function index()

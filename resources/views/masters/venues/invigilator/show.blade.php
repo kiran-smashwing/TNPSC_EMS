@@ -35,10 +35,12 @@
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
                                             <img class="rounded-circle img-fluid wid-70"
-                                                src="{{ asset('storage/assets/images/user/collectorate.png') }}"
-                                                alt="User image" />
+                                            src="{{ $district->district_image
+                                                ? asset('storage/' . $district->district_image)
+                                                : asset('storage/assets/images/user/collectorate.png') }}"
+                                            alt="District image" />
                                         </div>
-                                        <h5 class="mb-0">01 - Chennai</h5>
+                                        <h5 class="mb-0">{{ $district->district_code }} - {{ $district->district_name }}</h5>
                                         <p class="text-muted text-sm">District Collectorate</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
@@ -58,26 +60,25 @@
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">ceochn@***.in</p>
+                                            <p class="mb-0">{{ $district->district_email }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">(+91) 9434***1212</p>
+                                            <p class="mb-0">{{ $district->district_phone }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone-plus me-2"></i>
-                                            <p class="mb-0">04434***1212</p>
+                                            <p class="mb-0">{{ $district->district_alternate_phone }}</p>
                                         </div>
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">Tamil Nadu Public Service Commission, TNPSC Road, Broadway,
-                                                Chennai-600003.</p>
+                                            <p class="mb-0">{{ $district->district_address }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100">
                                             <i class="ti ti-link me-2"></i>
                                             <a href="#" class="link-primary">
-                                                <p class="mb-0">https://chennai.nic.in/</p>
+                                                <p class="mb-0">{{ $district->district_website }}</p>
                                             </a>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
@@ -99,10 +100,12 @@
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
                                             <img class="rounded-circle img-fluid wid-70"
-                                                src="{{ asset('storage/assets/images/user/venue.png') }}"
-                                                alt="User image" />
+                                                src="{{ $venue->venue_image
+                                                    ? asset('storage/' . $venue->venue_image)
+                                                    : asset('storage/assets/images/user/collectorate.png') }}"
+                                                alt="Venue image" />
                                         </div>
-                                        <h5 class="mb-0">448966 - Gov Hr Sec School</h5>
+                                        <h5 class="mb-0">{{ $venue->venue_code }} - {{ $venue->venue_name }}</h5>
                                         <p class="text-muted text-sm">Venues</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
@@ -122,26 +125,25 @@
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">ceochn@***.in</p>
+                                            <p class="mb-0">{{ $venue->venue_email }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">(+91) 9434***1212</p>
+                                            <p class="mb-0">{{ $venue->venue_phone }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone-plus me-2"></i>
-                                            <p class="mb-0">04434***1212</p>
+                                            <p class="mb-0">{{ $venue->venue_alternative_phone }}</p>
                                         </div>
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">Tamil Nadu Public Service Commission, TNPSC Road, Broadway,
-                                                Chennai-600003.</p>
+                                            <p class="mb-0">{{ $venue->venue_address }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100">
                                             <i class="ti ti-link me-2"></i>
                                             <a href="#" class="link-primary">
-                                                <p class="mb-0">https://chennai.nic.in/</p>
+                                                <p class="mb-0">{{ $venue->venue_website }}</p>
                                             </a>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
@@ -169,10 +171,12 @@
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
                                             <img class="rounded-circle img-fluid wid-70"
-                                                src="{{ asset('storage/assets/images/user/avatar-4.jpg') }}"
-                                                alt="User image" />
+                                                src="{{ $invigilator->invigilator_image
+                                                    ? asset('storage/' . $invigilator->invigilator_image)
+                                                    : asset('storage/assets/images/user/collectorate.png') }}"
+                                                alt="Venue image" />
                                         </div>
-                                        <h5 class="mb-0">Malarvizhi</h5>
+                                        <h5 class="mb-0">{{ $invigilator->invigilator_name }}</h5>
                                         <p class="text-muted text-sm">Asst Professor</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
@@ -193,19 +197,19 @@
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">Alandur - Chennai</p>
+                                            <p class="mb-0">{{ $center->center_code }} - {{ $center->center_name }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">malarvizhi@***.in</p>
+                                            <p class="mb-0">{{ $invigilator->invigilator_email }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">(+91) 9434***1212</p>
+                                            <p class="mb-0">{{ $invigilator->invigilator_phone }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-building me-2"></i>
-                                            <p class="mb-0">Gov Hr Sec School</p>
+                                            <p class="mb-0">{{ $venue->venue_name}}</p>
                                         </div>
                                     </div>
                                 </div>

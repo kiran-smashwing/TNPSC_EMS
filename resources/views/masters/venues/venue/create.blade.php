@@ -180,28 +180,27 @@
 
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="type">Type<span
-                                                                class="text-danger">*</span></label>
-                                                        <select class="form-control" id="venue_type" name="venue_type"
-                                                            required>
-                                                            <option>School</option>
-                                                            <option>College</option>
-                                                            <option>Other</option>
+                                                        <label class="form-label" for="venue_type">Type<span class="text-danger">*</span></label>
+                                                        <select class="form-control" id="venue_type" name="venue_type" required>
+                                                            <option value="">Select Type</option>
+                                                            <option value="School">School</option>
+                                                            <option value="College">College</option>
+                                                            <option value="Other">Other</option>
                                                         </select>
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="category">Category<span
-                                                                class="text-danger">*</span></label>
-                                                        <select class="form-control" id="venue_category"
-                                                            name="venue_category" required>
-                                                            <option>Government</option>
-                                                            <option>Private</option>
-                                                            <option>Aided</option>
+                                                        <label class="form-label" for="venue_category">Category<span class="text-danger">*</span></label>
+                                                        <select class="form-control" id="venue_category" name="venue_category" required>
+                                                            <option value="">Select Category</option>
+                                                            <option value="Government">Government</option>
+                                                            <option value="Private">Private</option>
+                                                            <option value="Aided">Aided</option>
                                                         </select>
                                                     </div>
                                                 </div>
+                                                
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
                                                         <label class="form-label">Website</label>

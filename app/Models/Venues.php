@@ -39,6 +39,7 @@ class Venues extends Model
         'venue_account_type',
         'venue_ifsc',
         'venue_createdat',
+        'venue_image',
     ];
 
     protected $casts = [

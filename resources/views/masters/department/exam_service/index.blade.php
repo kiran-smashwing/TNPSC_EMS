@@ -165,38 +165,6 @@
                         </div>
                     </div>
                     <div class="card-body table-border-style">
-                        <!-- Filter options -->
-                        {{-- <form id="filterForm" class="mb-3">
-                            <div class="filter-item">
-                                <select class="form-select" id="roleFilter" name="role">
-                                    <option value="">Select Role</option>
-                                    <option value="AD">AD</option>
-                                    <option value="Manager">Manager</option>
-                                    <option value="Staff">Staff</option>
-                                </select>
-                            </div>
-                            <div class="filter-item">
-                                <select class="form-select" id="districtFilter" name="district">
-                                    <option value="">Select District</option>
-                                    <option value="Vellore">Vellore</option>
-                                    <option value="Chennai">Chennai</option>
-                                    <option value="Coimbatore">Coimbatore</option>
-                                </select>
-                            </div>
-                            <div class="filter-item">
-                                <select class="form-select" id="centerCodeFilter" name="centerCode">
-                                    <option value="">Select Center Code</option>
-                                    <option value="00101">00101</option>
-                                    <option value="00102">00102</option>
-                                    <option value="00103">00103</option>
-                                </select>
-                            </div>
-                            <div class="btn-container">
-                                <button type="submit" class="btn btn-primary">Apply Filters</button>
-                            </div>
-                        </form> --}}
-
-
                         <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap" width="100%">
                             <thead>
                                 <tr>
@@ -207,23 +175,26 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>
-                                        <div class="flex-grow-1 ms-3">
-                                            <h6 class="mb-0">GROUP I SERVICES EXAMINATION</h6>
-                                        </div>
-                                    </td>
-                                    <td>001</td>
-                                    <td>
-                                        <a href="#" class="avtar avtar-xs  btn-light-success"><i class="ti ti-eye f-20"></i></a>
-                                        <a href="{{ route('exam-service.edit') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
-                                        <!-- <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-trash f-20"></i></a> -->
-                                        <a href="#" class="avtar avtar-xs  btn-light-success" title="Change Status (Active or Inactive)">
-                                            <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
-                                        </a>
-                                    </td>
-                                </tr>
+                                @foreach($examServices as $examService)
+                                    <tr>
+                                        <td>{{ $examService->examservice_id }}</td>
+                                        <td>
+                                            <div class="flex-grow-1 ms-3">
+                                                <h6 class="mb-0">{{ $examService->examservice_name }}</h6>
+                                            </div>
+                                        </td>
+                                        <td>{{ $examService->examservice_code }}</td>
+                                        <td>
+                                            <a href="{{ route('examservice.edit', $examService->examservice_id) }}" class="avtar avtar-xs btn-light-success">
+                                                <i class="ti ti-edit f-20"></i>
+                                            </a>
+                                            <!-- Change Status Button -->
+                                            <a href="#" class="avtar avtar-xs btn-light-success" title="Change Status (Active or Inactive)">
+                                                <i class="ti ti-toggle-left f-20"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>

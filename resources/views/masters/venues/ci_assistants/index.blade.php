@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Add CI Assistants')
+@section('title', 'CI Assistants')
 
 @section('content')
 @push('styles')
@@ -211,34 +211,42 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0">
-                                                <img src="../assets/images/user/avatar-1.jpg" alt="user image" class="img-radius wid-40">
+                                @foreach ($ciAssistants as $index => $assistant)
+                                    <tr>
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-shrink-0">
+                                                    <img src="{{ $assistant->cia_image ? asset('storage/' . $assistant->cia_image) : asset('assets/images/user/default-avatar.jpg') }}" 
+                                                         alt="user image" class="img-radius wid-40">
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="flex-grow-1 ms-3">
-                                            <h6 class="mb-0">Testing</h6>
-                                        </div>
-                                    </td>
-                                    <td>Tesitng</td>
-                                    <td>example@gmail.com</td>
-                                    <td>+91-9094500072</td>
-                                    <!-- <td class="text-success">Active</td> -->
-                                    <td>
-                                        <a href="{{ route('ci-assistant.show') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-eye f-20"></i></a>
-                                        <a href="{{ route('ci-assistant.edit') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
-                                        <a href="#" class="avtar avtar-xs  btn-light-success" title="Change Status (Active or Inactive)">
-                                            <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
-                                        </a>
-                                        <!-- <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-trash f-20"></i></a> -->
-                                    </td>
-                                </tr>
+                                        </td>
+                                        <td>
+                                            <div class="flex-grow-1 ms-3">
+                                                <h6 class="mb-0">{{ $assistant->cia_name }}</h6>
+                                            </div>
+                                        </td>
+                                        <td>{{ $assistant->venue->venue_name ?? 'N/A' }}</td>
+                                        <td>{{ $assistant->cia_email }}</td>
+                                        <td>{{ $assistant->cia_phone }}</td>
+                                        <td>
+                                            <a href="{{ route('ci-assistant.show', $assistant->cia_id) }}" class="avtar avtar-xs btn-light-success">
+                                                <i class="ti ti-eye f-20"></i>
+                                            </a>
+                                            <a href="{{ route('ci-assistant.edit', $assistant->cia_id) }}" class="avtar avtar-xs btn-light-success">
+                                                <i class="ti ti-edit f-20"></i>
+                                            </a>
+                                            <a href="#" class="avtar avtar-xs btn-light-success" title="Change Status (Active or Inactive)">
+                                                <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
+                                            </a>
+                                            <!-- Uncomment below to add delete option -->
+                                            <!-- <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-trash f-20"></i></a> -->
+                                        </td>
+                                    </tr>
+                                @endforeach
                             </tbody>
+                            
                         </table>
                     </div>
                 </div>

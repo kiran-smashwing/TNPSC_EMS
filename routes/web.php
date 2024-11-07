@@ -88,12 +88,14 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::post('/scribe', [ScribeController::class, 'store'])->name('scribes.store');
     Route::get('{id}/edit', [ScribeController::class, 'edit'])->name('scribes.edit'); // Edit form route
     Route::put('/scribe/{id}', [ScribeController::class, 'update'])->name('scribe.update');
-    Route::get('/scribe/show', [ScribeController::class, 'show'])->name('scribe.show');
+    Route::get('/scribe/{id}', [ScribeController::class, 'show'])->name('scribe.show');
     // CI Assistants
     Route::get('/ci-assistant', [CIAssistantsController::class, 'index'])->name('ci-assistant');
     Route::get('/ci-assistant/add', [CIAssistantsController::class, 'create'])->name('ci-assistant.create');
-    Route::get('/ci-assistant/edit', [CIAssistantsController::class, 'edit'])->name('ci-assistant.edit');
-    Route::get('/ci-assistant/show', [CIAssistantsController::class, 'show'])->name('ci-assistant.show');
+    Route::post('/cheif-invigilator-assistant/store', [CIAssistantsController::class, 'store'])->name('ci-assistant.store');
+    Route::get('/ci-assistant/edit/{id}', [CIAssistantsController::class, 'edit'])->name('ci-assistant.edit');
+    Route::put('/ci-assistant/{id}', [CIAssistantsController::class, 'update'])->name('ci-assistant.update');
+    Route::get('/ci-assistant/{id}', [CIAssistantsController::class, 'show'])->name('ci-assistant.show');
 
     // Role
     Route::get('/role', [RoleController::class, 'index'])->name('role');
@@ -114,11 +116,15 @@ Route::middleware(['auth.multi'])->group(function () {
     // Examination Services
     Route::get('/exam-service', [ExamServiceController::class, 'index'])->name('exam-service');
     Route::get('/exam-service/add', [ExamServiceController::class, 'create'])->name('exam-service.create');
-    Route::get('/exam-service/edit', [ExamServiceController::class, 'edit'])->name('exam-service.edit');
+    Route::post('/exam-service/store', [ExamServiceController::class, 'store'])->name('examservice.store');
+    Route::get('/exam-service/{id}/edit', [ExamServiceController::class, 'edit'])->name('examservice.edit');
+    Route::put('/exam-service/{id}', [ExamServiceController::class, 'update'])->name('examservice.update');
     // CI CheckList
     Route::get('/ci-checklist', [CIChecklistController::class, 'index'])->name('ci-checklist');
     Route::get('/ci-checklist/add', [CIChecklistController::class, 'create'])->name('ci-checklist.create');
-    Route::get('/ci-checklist/edit', [CIChecklistController::class, 'edit'])->name('ci-checklist.edit');
+    Route::post('/ci-checklist/store', [CiChecklistController::class, 'store'])->name('ci-checklist.store');
+    Route::get('ci-checklist/edit/{id}', [CiChecklistController::class, 'edit'])->name('ci-checklist.edit');
+    Route::put('ci-checklist/update/{id}', [CiChecklistController::class, 'update'])->name('ci-checklist.update');
     //Current Exam
     Route::get('/current-exam', [CurrentExamController::class, 'index'])->name('current-exam');
     Route::get('/current-exam/add', [CurrentExamController::class, 'create'])->name('current-exam.create');

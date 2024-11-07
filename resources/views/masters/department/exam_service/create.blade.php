@@ -31,12 +31,38 @@
         <div class="tab-content">
           <div>
               <div class="row">
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
                   <div class="col-lg-6">
                       <div class="card">
                           <div class="card-header">
                               <h5>Exam Service - <span class="text-primary">Add</span></h5>
                           </div>
                           <div class="card-body">
+                            <form action="{{ route('examservice.store') }}" method="POST" enctype="multipart/form-data">
+                                @csrf
                               <div class="row">
                                  
                                  
@@ -63,9 +89,10 @@
                       </div>
                   </div>
                   <div class="col-12 text-end btn-page">
-                      <div class="btn btn-outline-secondary">Cancel</div>
-                      <div class="btn btn-primary">Create</div>
+                    <a href="{{ route('exam-service') }}" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Create</button>
                   </div>
+                </form>
               </div>
           </div>
       </div>

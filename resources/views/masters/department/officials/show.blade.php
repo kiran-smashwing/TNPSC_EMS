@@ -44,8 +44,8 @@
                                                 src="{{ asset('storage/assets/images/user/avatar-4.jpg') }}"
                                                 alt="User image" />
                                         </div>
-                                        <h5 class="mb-0">Nanmaran</h5>
-                                        <p class="text-muted text-sm">Thasildar</p>
+                                        <h5 class="mb-0">{{ $official->dept_off_name }}</h5>
+                                        <p class="text-muted text-sm">{{ $official->dept_off_designation }}</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
                                             <div class="col-4">
@@ -65,19 +65,19 @@
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-man me-2"></i>
-                                            <p class="mb-0">APD - role</p>
+                                            <p class="mb-0">{{ $roles->role_department }} - {{ $roles->role_name }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">ceochn@***.in</p>
+                                            <p class="mb-0">{{ $official->dept_off_email }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">(+91) 9434***1212</p>
+                                            <p class="mb-0">{{ $official->dept_off_phone }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-barcode me-2"></i>
-                                            <p class="mb-0">EMP1234</p>
+                                            <p class="mb-0">{{ $official->dept_off_emp_id }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -98,27 +98,9 @@
                                                     Your browser does not support the video tag.
                                                 </video>
                                             </div>
-                                            {{-- <div class="carousel-item">
-                                            <video class="img-fluid d-block w-100" controls>
-                                                <source src="../assets/videos/video-2.mp4" type="video/mp4">
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        </div> --}}
-                                            {{-- <div class="carousel-item">
-                                            <video class="img-fluid d-block w-100" controls>
-                                                <source src="../assets/videos/video-3.mp4" type="video/mp4">
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        </div> --}}
+                                          
                                         </div>
-                                        {{-- <a class="carousel-control-prev" href="#carouselExampleFade" role="button" data-bs-slide="prev">
-                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                        <span class="sr-only">Previous</span>
-                                    </a> --}}
-                                        {{-- <a class="carousel-control-next" href="#carouselExampleFade" role="button" data-bs-slide="next">
-                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                        <span class="sr-only">Next</span>
-                                    </a> --}}
+                                     
                                     </div>
                                 </div>
                             </div>

@@ -1,8 +1,8 @@
-<?php 
+<?php
 
 namespace App\Http\Controllers;
 
-use App\Models\Designation;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -10,8 +10,8 @@ class RoleController extends Controller
 {
     public function index()
     {
-        $designations = Designation::all();
-        return view('masters.department.roles.index', compact('designations'));
+        $roles = Role::all(); // Retrieve all roles from the database
+        return view('masters.department.roles.index', compact('roles'));
     }
 
     public function create()
@@ -22,39 +22,55 @@ class RoleController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'status' => 'required|boolean',
+            'role_name' => 'required|string|max:255',
+            'role_department' => 'required|string|max:255',
         ]);
 
-        Designation::create([
-            'name' => $request->name,
-            'status' => $request->status,
-            'created_by' => Auth::id(),
+        Role::create([
+            'role_name' => $request->role_name,
+            'role_department' => $request->role_department,
+            'role_createdat' => now(),
         ]);
 
-        return redirect()->route('designations.index')->with('success', 'Designation created successfully.');
+        return redirect()->route('role')->with('success', 'Role created successfully.');
     }
 
-    public function edit(Designation $designation)
+
+    public function edit($id)
     {
-        return view('masters.department.roles.edit', compact('designation'));
+        $role = Role::findOrFail($id);
+        return view('masters.department.roles.edit', compact('role'));
     }
 
-    public function update(Request $request, Designation $designation)
+    public function update(Request $request, $id)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'status' => 'required|boolean',
-        ]);
+        try {
+            // Find the role by ID (this will automatically return 404 if the role is not found)
+            $role = Role::findOrFail($id);
 
-        $designation->update([
-            'name' => $request->name,
-            'status' => $request->status,
-            'modified_by' => Auth::id(),
-        ]);
+            // Validate the incoming request data
+            $request->validate([
+                'role_department' => 'required|string|max:255',
+                'role_name' => 'required|string|max:255',
+            ]);
 
-        return redirect()->route('designations.index')->with('success', 'Designation updated successfully.');
+            // Update the role with new data
+            $role->update([
+                'role_department' => $request->role_department,
+                'role_name' => $request->role_name,
+            ]);
+
+            // Redirect with success message
+            return redirect()->route('role')->with('success', 'Role updated successfully.');
+        } catch (\Exception $e) {
+            // Send the error message to the session and show it in the view
+            return redirect()->back()->with('error', 'There was an issue updating the role: ' . $e->getMessage());
+        }
     }
+
+
+
+
 
     public function destroy(Designation $designation)
     {

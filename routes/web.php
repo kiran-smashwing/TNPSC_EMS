@@ -100,7 +100,10 @@ Route::middleware(['auth.multi'])->group(function () {
     // Role
     Route::get('/role', [RoleController::class, 'index'])->name('role');
     Route::get('/role/add', [RoleController::class, 'create'])->name('role.create');
-    Route::get('/role/edit', [RoleController::class, 'edit'])->name('role.edit');
+    Route::post('/roles', [RoleController::class, 'store'])->name('role.store');
+    Route::get('/roles/{id}/edit', [RoleController::class, 'edit'])->name('roles.edit');
+    Route::put('/roles/{id}', [RoleController::class, 'update'])->name('roles.update');
+    Route::get('/role/show', [RoleController::class, 'edit'])->name('roles.show');
     // Venue
     Route::get('/venue', [VenuesController::class, 'index'])->name('venue');
     Route::get('/venue/add', [VenuesController::class, 'create'])->name('venue.create');
@@ -111,8 +114,10 @@ Route::middleware(['auth.multi'])->group(function () {
     // Department
     Route::get('/department', [DepartmentOfficialsController::class, 'index'])->name('department');
     Route::get('/department/add', [DepartmentOfficialsController::class, 'create'])->name('department.create');
-    Route::get('/department/edit', [DepartmentOfficialsController::class, 'edit'])->name('department.edit');
-    Route::get('/department/show', [DepartmentOfficialsController::class, 'show'])->name('department.show');
+    Route::post('/department-officials/store', [DepartmentOfficialsController::class, 'store'])->name('department-officials.store');
+    Route::get('/department-officials/{id}/edit', [DepartmentOfficialsController::class, 'edit'])->name('department.edit');
+    Route::put('department/officials/{id}', [DepartmentOfficialsController::class, 'update'])->name('department.officials.update');
+    Route::get('/department/officials/show/{id}', [DepartmentOfficialsController::class, 'show'])->name('department.show');
     // Examination Services
     Route::get('/exam-service', [ExamServiceController::class, 'index'])->name('exam-service');
     Route::get('/exam-service/add', [ExamServiceController::class, 'create'])->name('exam-service.create');

@@ -30,40 +30,47 @@
                                     <h5>Role - <span class="text-primary">Add</span></h5>
                                 </div>
                                 <div class="card-body">
-                                    {{-- <form action="{{ route('collectorates.store') }}" method="POST" enctype="multipart/form-data"> --}}
+                                    <form action="{{ route('role.store') }}" method="POST" enctype="multipart/form-data">
                                     @csrf
                                     <div class="row">
 
-                                        <div class="col-sm-6">
+                                        <div class="col-sm-12">
                                             <div class="mb-3">
-                                                <label class="form-label" for="department">Department<span class="text-danger">*</span></label>
-                                                <select class="form-control" id="department" name="department" required>
+                                                <label class="form-label" for="role_department">Department<span
+                                                        class="text-danger">*</span></label>
+                                                <select class="form-control" id="role_department" name="role_department"
+                                                    required>
                                                     <option>Select Department</option>
-                                                    <option value="1">RND</option>
-                                                    <option value="1">ID</option>
+                                                    <option value="APD">Application Processing Department - APD</option>
+                                                    <option value="ID">Infrastructure Department - ID</option>
+                                                    <option value="RND">Rules Notification Department - RND</option>
+                                                    <option value="RD">Evaluation Department - ED</option>
+                                                    <option value="QD">Confidential Department - QD</option>
+                                                    <option value="VMD">Vehicles Machineries Department - VMD</option>
+                                                    <option value="VSD">Verification Stationary Department - VSD</option>
+                                                    <option value="MCD">Monitoring Coordination Department - MCD</option>
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-sm-6">
+                                        <div class="col-sm-12">
                                             <div class="mb-3">
-                                                <label class="form-label" for="role">Role<span class="text-danger">*</span></label>
-                                                <select class="form-control" id="role" name="role" required>
-                                                    <option>Select Role</option>
-                                                    <option value="1">Section Officer</option>
-                                                    <option value="1">Asst Section Officer</option>
-                                                </select>
+                                                <label class="form-label" for="role_name">Role<span
+                                                        class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" id="role_name" name="role_name"
+                                                    placeholder="Enter role" required>
                                             </div>
                                         </div>
-                                   
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-12 text-end btn-page">
-                            <div class="btn btn-outline-secondary">Cancel</div>
-                            <div class="btn btn-primary">Create</div>
+                            <a href="{{ route('role') }}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Create</button>
+
                         </div>
                     </div>
+                </form>
                 </div>
             </div>
         </div>

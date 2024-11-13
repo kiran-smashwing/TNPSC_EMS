@@ -153,6 +153,30 @@
 
             </div>
             <div class="row">
+                @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
                 <!-- [ basic-table ] start -->
                 <div class="col-xl-12">
                     <div class="card">
@@ -165,38 +189,6 @@
                             </div>
                         </div>
                         <div class="card-body table-border-style">
-                            <!-- Filter options -->
-                            <!-- <form id="filterForm" class="mb-3">
-                                <div class="filter-item">
-                                    <select class="form-select" id="roleFilter" name="role">
-                                        <option value="">Select Role</option>
-                                        <option value="AD">AD</option>
-                                        <option value="Manager">Manager</option>
-                                        <option value="Staff">Staff</option>
-                                    </select>
-                                </div>
-                                <div class="filter-item">
-                                    <select class="form-select" id="districtFilter" name="district">
-                                        <option value="">Select District</option>
-                                        <option value="Vellore">Vellore</option>
-                                        <option value="Chennai">Chennai</option>
-                                        <option value="Coimbatore">Coimbatore</option>
-                                    </select>
-                                </div>
-                                <div class="filter-item">
-                                    <select class="form-select" id="centerCodeFilter" name="centerCode">
-                                        <option value="">Select Center Code</option>
-                                        <option value="00101">00101</option>
-                                        <option value="00102">00102</option>
-                                        <option value="00103">00103</option>
-                                    </select>
-                                </div>
-                                <div class="btn-container">
-                                    <button type="submit" class="btn btn-primary">Apply Filters</button>
-                                </div>
-                            </form> -->
-
-
                             <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
                                 width="100%">
                                 <thead>
@@ -204,43 +196,39 @@
                                         <th>#</th>
                                         <th>Department</th>
                                         <th>Role</th>
-                                        <!-- <th>Venue name</th>
-                <th>E-mail</th>
-                <th>Phone</th>
-                <th>Status</th> -->
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>District Collectorates Officer
-                                            <!-- <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <img src="../assets/images/user/avatar-1.jpg" alt="user image" class="img-radius wid-40">
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="mb-0">Airi Satou</h6>
-                        </div>
-                    </div> -->
-                                        </td>
-                                        <td>
-                                            <div class="flex-grow-1 ms-3">
-                                                <h6 class="mb-0">CI</h6>
-                                            </div>
-                                        </td>
-                                        <!-- <td>Testing</td>
-                <td>Testing@gmail.com</td>
-                <td>+91-9094500072</td>
-                <td class="text-success">Active</td> -->
-                                        <td>
-                                            <a href="#" class="avtar avtar-xs btn-link-secondary"><i
-                                                    class="ti ti-eye f-20"></i></a>
-                                            <a href="{{ route('role.edit') }}" class="avtar avtar-xs btn-link-secondary"><i
-                                                    class="ti ti-edit f-20"></i></a>
-                                            <!-- <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-trash f-20"></i></a> -->
-                                        </td>
-                                    </tr>
+                                    @foreach($roles as $role)
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $role->role_department }}</td>
+                                            <td>
+                                                <div class="flex-grow-1 ms-3">
+                                                    <h6 class="mb-0">{{ $role->role_name}}</h6>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <!-- View Button -->
+                                                <a href="{{ route('roles.show', $role->role_id) }}" class="avtar avtar-xs btn-light-success">
+                                                    <i class="ti ti-eye f-20"></i>
+                                                </a>
+                                                <!-- Edit Button -->
+                                                <a href="{{ route('roles.edit', $role->role_id) }}" class="avtar avtar-xs btn-light-success">
+                                                    <i class="ti ti-edit f-20"></i>
+                                                </a>
+                                                <!-- Delete Button -->
+                                                {{-- <form action="{{ route('roles.destroy', $role->role_id) }}" method="POST" style="display:inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="avtar avtar-xs btn-link-secondary">
+                                                        <i class="ti ti-trash f-20"></i>
+                                                    </button>
+                                                </form> --}}
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>

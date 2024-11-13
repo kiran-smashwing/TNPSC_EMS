@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                  <h2 class="mb-0"></h2>
-                </div> -->
+                      <h2 class="mb-0"></h2>
+                    </div> -->
                         </div>
                     </div>
                 </div>
@@ -153,33 +153,30 @@
 
             </div>
             <div class="row">
-            @if (session('success'))
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                {{ session('success') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                    aria-label="Close"></button>
-                            </div>
-                        @endif
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
 
-                        @if (session('error'))
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                {{ session('error') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                    aria-label="Close"></button>
-                            </div>
-                        @endif
+                @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
 
-                        @if ($errors->any())
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <ul class="mb-0">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                    aria-label="Close"></button>
-                            </div>
-                        @endif
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
                 <!-- [ basic-table ] start -->
                 <div class="col-xl-12">
                     <div class="card">
@@ -272,23 +269,23 @@
                                                 @endif
                                             </td>
                                             <td class="text-center">
-                                                <a href="{{ route('treasury-officers.show', $officer->tre_off_id) }}" 
-                                                   class="avtar avtar-xs btn-light-success" title="View">
+                                                <a href="{{ route('treasury-officers.show', $officer->tre_off_id) }}"
+                                                    class="avtar avtar-xs btn-light-success" title="View">
                                                     <i class="ti ti-eye f-20"></i>
                                                 </a>
-                                                <a href="{{ route('treasury-officers.edit', $officer->tre_off_id) }}" 
-                                                   class="avtar avtar-xs btn-light-success" title="Edit">
+                                                <a href="{{ route('treasury-officers.edit', $officer->tre_off_id) }}"
+                                                    class="avtar avtar-xs btn-light-success" title="Edit">
                                                     <i class="ti ti-edit f-20"></i>
                                                 </a>
-                                                <a href="#" 
-                                                   class="avtar avtar-xs btn-light-success" title="Change Status (Active or Inactive)">
+                                                <a href="#" class="avtar avtar-xs btn-light-success"
+                                                    title="Change Status (Active or Inactive)">
                                                     <i class="ti ti-toggle-left f-20"></i>
                                                 </a>
                                             </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
-                                
+
                             </table>
                         </div>
                     </div>

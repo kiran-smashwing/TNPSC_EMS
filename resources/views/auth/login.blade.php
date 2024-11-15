@@ -35,6 +35,7 @@
                                     <option selected disabled>Select Role</option>
                                     <option value="headquarters" {{ old('role') == 'headquarters' ? 'selected' : '' }}>Headquarters Officers</option>
                                     <option value="district" {{ old('role') == 'district' ? 'selected' : '' }}>District Collectorates</option>
+                                    <option value="center" {{ old('role') == 'center' ? 'selected' : '' }}>Centers</option>
                                     <option value="treasury" {{ old('role') == 'treasury' ? 'selected' : '' }}>Sub-Treasury</option>
                                     <option value="mobileteam" {{ old('role') == 'mobileteam' ? 'selected' : '' }}>Mobile Team</option>
                                     <option value="venue" {{ old('role') == 'venue' ? 'selected' : '' }}>Venues</option>

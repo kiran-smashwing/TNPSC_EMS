@@ -14,6 +14,7 @@ use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Log;
 use App\Models\District;
 use App\Models\TreasuryOfficer;
+use App\Models\Center;
 
 class AuthController extends Controller
 {
@@ -76,6 +77,16 @@ class AuthController extends Controller
                 if ($success) {
                     $user = Auth::guard('district')->user();
                     $userId = $user->district_id; // Using district_id instead of id
+                }
+                break;
+            case 'center':
+                $success = Auth::guard('center')->attempt([
+                    'center_email' => $email,
+                    'password' => $password
+                ], $remember);
+                if ($success) {
+                    $user = Auth::guard('center')->user();
+                    $userId = $user->center_id; // Adjust this based on your center table's ID column
                 }
                 break;
     
@@ -195,6 +206,8 @@ class AuthController extends Controller
         switch ($role) {
             case 'district':
                 return District::class;
+            case 'center':
+                return Center::class;
             case 'venue':
                 return District::class;
             case 'treasury':

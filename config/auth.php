@@ -43,6 +43,10 @@ return [
             'driver' => 'session',
             'provider' => 'districts',
         ],
+        'center' => [
+            'driver' => 'session',
+            'provider' => 'centers',
+        ],
         'mobile_team_staffs' => [
             'driver' => 'session',
             'provider' => 'mobile_team_staffs',
@@ -79,6 +83,10 @@ return [
         'districts' => [
             'driver' => 'eloquent',
             'model' => App\Models\District::class,
+        ],
+        'centers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Center::class,
         ],
         'mobile_team_staffs' => [
             'driver' => 'eloquent',

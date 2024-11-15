@@ -6,7 +6,7 @@ use App\Models\TreasuryOfficer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Services\AuditLogger;
-use Illuminate\Support\Facades\Validator;
+use App\Models\District;
 use Illuminate\Support\Facades\Storage;
 use App\Services\ImageCompressService;
 
@@ -22,31 +22,32 @@ class TreasuryOfficerController extends Controller
 
     public function index()
     {
-        $treasuryOfficers = TreasuryOfficer::all();
+        $treasuryOfficers = TreasuryOfficer::with('district')->get();
         return view('masters.district.treasury_Officers.index', compact('treasuryOfficers'));
     }
 
     public function create()
     {
-        return view('masters.district.treasury_Officers.create');
+        $districts = District::all(); // Fetch all districts
+        return view('masters.district.treasury_Officers.create', compact('districts'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'tre_off_district_id' => 'required|string|max:50',
-            'tre_off_name' => 'required|string|max:255',
-            'tre_off_designation' => 'required|string|max:255',
-            'tre_off_phone' => 'required|string',
-            'tre_off_email' => 'required|email|unique:treasury_officer,tre_off_email',
-            'tre_off_employeeid' => 'required|string|unique:treasury_officer,tre_off_employeeid',
-            'tre_off_password' => 'required|string|min:6',
+            'district' => 'required|string|max:50',
+            'name' => 'required|string|max:255',
+            'designation' => 'required|string|max:255',
+            'phone' => 'required|string|max:15',
+            'email' => 'required|email|unique:treasury_officer,tre_off_email',
+            'employeeid' => 'required|string|unique:treasury_officer,tre_off_employeeid',
+            'password' => 'required|string|min:6',
             'cropped_image' => 'nullable|string'
 
         ]);
 
         try {
-            
+
             if (!empty($validated['cropped_image'])) {
                 // Remove the data URL prefix if present
                 $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
@@ -79,17 +80,17 @@ class TreasuryOfficerController extends Controller
 
             }
             // Hash the password
-            $validated['tre_off_password'] = Hash::make($validated['tre_off_password']);
+            $validated['password'] = Hash::make($validated['password']);
 
             // Create the treasury officer record
             $treasuryOfficer = TreasuryOfficer::create([
-                'tre_off_district_id' => $validated['tre_off_district_id'],
-                'tre_off_name' => $validated['tre_off_name'],
-                'tre_off_designation' => $validated['tre_off_designation'],
-                'tre_off_phone' => $validated['tre_off_phone'],
-                'tre_off_email' => $validated['tre_off_email'],
-                'tre_off_employeeid' => $validated['tre_off_employeeid'],
-                'tre_off_password' => $validated['tre_off_password'],
+                'tre_off_district_id' => $validated['district'],
+                'tre_off_name' => $validated['name'],
+                'tre_off_designation' => $validated['designation'],
+                'tre_off_phone' => $validated['phone'],
+                'tre_off_email' => $validated['email'],
+                'tre_off_employeeid' => $validated['employeeid'],
+                'tre_off_password' => $validated['password'],
                 'tre_off_image' => $validated['image'] ?? null
             ]);
 
@@ -106,7 +107,8 @@ class TreasuryOfficerController extends Controller
     public function edit($id)
     {
         $treasuryOfficer = TreasuryOfficer::findOrFail($id);
-        return view('masters.district.treasury_Officers.edit', compact('treasuryOfficer'));
+        $districts = District::all(); // Fetch all districts
+        return view('masters.district.treasury_Officers.edit', compact('treasuryOfficer', 'districts'));
     }
 
     public function update(Request $request, $id)
@@ -114,29 +116,78 @@ class TreasuryOfficerController extends Controller
         $treasuryOfficer = TreasuryOfficer::findOrFail($id);
 
         $validated = $request->validate([
-            'tre_off_district_id' => 'required|string|max:50',
-            'tre_off_name' => 'required|string|max:255',
-            'tre_off_designation' => 'required|string|max:255',
-            'tre_off_phone' => 'required|string',
-            'tre_off_email' => 'required|email|unique:treasury_officer,tre_off_email,' . $id . ',tre_off_id',
-            'tre_off_employeeid' => 'required|string|unique:treasury_officer,tre_off_employeeid,' . $id . ',tre_off_id',
-            'tre_off_password' => 'nullable|string|min:6',
+            'district' => 'required|string|max:50',
+            'name' => 'required|string|max:255',
+            'designation' => 'required|string|max:255',
+            'phone' => 'required|string|max:15',
+            'email' => 'required|email|unique:treasury_officer,tre_off_email,' . $id . ',tre_off_id',
+            'employeeid' => 'required|string|unique:treasury_officer,tre_off_employeeid,' . $id . ',tre_off_id',
+            'password' => 'nullable|string|min:6',
+            'cropped_image' => 'nullable|string'
         ]);
 
         try {
-            // Only update password if provided
-            if ($request->filled('tre_off_password')) {
-                $validated['tre_off_password'] = Hash::make($validated['tre_off_password']);
+            $newImagePath = null;
+
+            // Process the image if provided
+            if (!empty($validated['cropped_image'])) {
+                $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
+                $imageData = base64_decode($imageData);
+
+                if ($imageData === false) {
+                    throw new \Exception('Base64 decode failed.');
+                }
+
+                // Create a unique filename
+                $imageName = $validated['name'] . time() . '.png';
+                $imagePath = 'images/treasury/' . $imageName;
+
+                // Save the image in public storage
+                Storage::disk('public')->put($imagePath, $imageData);
+
+                // Compress if image exceeds 200 KB
+                $fullImagePath = storage_path('app/public/' . $imagePath);
+                if (filesize($fullImagePath) > 200 * 1024) {
+                    $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200);
+                }
+                //  Delete the old image if it exists
+                if ($treasuryOfficer->tre_off_image && Storage::disk('public')->exists($treasuryOfficer->tre_off_image)) {
+                    Storage::disk('public')->delete($treasuryOfficer->tre_off_image);
+                }
+
+                // Set new image path to be saved in the database
+                $newImagePath = $imagePath;
             }
 
+            // Only update password if provided
+            if ($request->filled('password')) {
+                $validated['password'] = Hash::make($validated['password']);
+            }
+            // Prepare data for update, including the new image path if it exists
+            $updateData = [
+                'tre_off_district_id' => $validated['district'],
+                'tre_off_name' => $validated['name'],
+                'tre_off_designation' => $validated['designation'],
+                'tre_off_phone' => $validated['phone'],
+                'tre_off_email' => $validated['email'],
+                'tre_off_employeeid' => $validated['employeeid'],
+                'tre_off_password' => $validated['password'] ?? $treasuryOfficer->tre_off_password
+            ];
+
+            // Add new image path to update data if present
+            if ($newImagePath) {
+                $updateData['tre_off_image'] = $newImagePath;
+            }
             // Store old values for logging
             $oldValues = $treasuryOfficer->getOriginal();
-            $treasuryOfficer->update($validated);
-
+            $treasuryOfficer->update($updateData);
+            // Get changed values for logging
+            $changedValues = $treasuryOfficer->getChanges();
+            $oldValues = array_intersect_key($oldValues, $changedValues);
             // Log the update
-            AuditLogger::log('Treasury Officer Updated', TreasuryOfficer::class, $treasuryOfficer->tre_off_id, $oldValues, $treasuryOfficer->getChanges());
+            AuditLogger::log('Treasury Officer Updated', TreasuryOfficer::class, $treasuryOfficer->tre_off_id, $oldValues, $changedValues);
 
-            return redirect()->route('treasury_officer.index')->with('success', 'Treasury Officer updated successfully');
+            return redirect()->route('treasury-officers.index')->with('success', 'Treasury Officer updated successfully');
 
         } catch (\Exception $e) {
             return back()->withInput()->with('error', 'Error updating treasury officer: ' . $e->getMessage());
@@ -145,7 +196,7 @@ class TreasuryOfficerController extends Controller
 
     public function show($id)
     {
-        $treasuryOfficer = TreasuryOfficer::findOrFail($id);
+        $treasuryOfficer = TreasuryOfficer::with(relations: 'district')->findOrFail($id);
 
         // Log view action
         AuditLogger::log('Treasury Officer Viewed', TreasuryOfficer::class, $treasuryOfficer->tre_off_id);

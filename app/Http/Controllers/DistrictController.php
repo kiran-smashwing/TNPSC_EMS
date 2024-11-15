@@ -20,7 +20,7 @@ class DistrictController extends Controller
 
     }
 
-   
+
     public function index()
     {
         $districts = District::all();
@@ -111,7 +111,7 @@ class DistrictController extends Controller
         }
     }
 
-    
+
     public function edit($id)
     {
         $district = District::findOrFail($id);
@@ -149,7 +149,7 @@ class DistrictController extends Controller
                 }
 
                 // Create a unique filename
-                $imageName = 'district_' . time() . '.jpg';
+                $imageName = 'district_' . time() . '.png';
                 $imagePath = 'images/districts/' . $imageName;
 
                 // Save the image in public storage

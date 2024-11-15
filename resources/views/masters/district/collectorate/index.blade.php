@@ -290,7 +290,7 @@
                                                     data-district-id="{{ $district->district_id }}"
                                                     title="Change Status (Active or Inactive)">
                                                     <i
-                                                        class="ti ti-toggle-{{ $district->status ? 'right' : 'left' }} f-20"></i>
+                                                        class="ti ti-toggle-{{ $district->district_status ? 'right' : 'left' }} f-20"></i>
                                                 </a>
                                             </td>
                                         </tr>

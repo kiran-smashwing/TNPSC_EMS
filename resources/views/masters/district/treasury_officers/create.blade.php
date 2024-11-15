@@ -86,15 +86,17 @@
 
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="tre_off_district_id">District <span
+                                                        <label class="form-label" for="district">District <span
                                                                 class="text-danger">*</span></label>
-                                                        <select class="form-control" id="tre_off_district_id"
-                                                            name="tre_off_district_id" required>
-                                                            <option>Select District</option>
-                                                            <option value="1010">Chennai</option>
-                                                            <!-- Add other district options here -->
+                                                        <select class="form-control" id="district"
+                                                            name="district" required>
+                                                            <option value="">Select District</option>
+                                                            @foreach ($districts as $district)
+                                                                <option value="{{ $district->district_id }}">
+                                                                    {{ $district->district_name }}</option>
+                                                            @endforeach
                                                         </select>
-                                                        @error('tre_off_district_id')
+                                                        @error('district')
                                                             <span class="text-danger">{{ $message }}</span>
                                                         @enderror
                                                     </div>
@@ -104,9 +106,9 @@
                                                     <div class="mb-3">
                                                         <label class="form-label">Name <span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control" id="tre_off_name"
-                                                            name="tre_off_name" placeholder="Nanmaran" required>
-                                                        @error('tre_off_name')
+                                                        <input type="text" class="form-control" id="name"
+                                                            name="name" placeholder="Nanmaran" required>
+                                                        @error('name')
                                                             <span class="text-danger">{{ $message }}</span>
                                                         @enderror
                                                     </div>
@@ -114,11 +116,11 @@
 
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="tre_off_employeeid">Employee ID <span
+                                                        <label class="form-label" for="employeeid">Employee ID <span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control" id="tre_off_employeeid"
-                                                            name="tre_off_employeeid" placeholder="EMP1234" required>
-                                                        @error('tre_off_employeeid')
+                                                        <input type="text" class="form-control" id="employeeid"
+                                                            name="employeeid" placeholder="EMP1234" required>
+                                                        @error('employeeid')
                                                             <span class="text-danger">{{ $message }}</span>
                                                         @enderror
                                                     </div>
@@ -126,11 +128,11 @@
 
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="tre_off_designation">Designation
+                                                        <label class="form-label" for="designation">Designation
                                                             <span class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control" id="tre_off_designation"
-                                                            name="tre_off_designation" placeholder="Thasildar" required>
-                                                        @error('tre_off_designation')
+                                                        <input type="text" class="form-control" id="designation"
+                                                            name="designation" placeholder="Thasildar" required>
+                                                        @error('designation')
                                                             <span class="text-danger">{{ $message }}</span>
                                                         @enderror
                                                     </div>
@@ -140,9 +142,9 @@
                                                     <div class="mb-3">
                                                         <label class="form-label">Email<span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="email" class="form-control" id="tre_off_email"
-                                                            name="tre_off_email" placeholder="ceochn@***.in" required>
-                                                        @error('tre_off_email')
+                                                        <input type="email" class="form-control" id="email"
+                                                            name="email" placeholder="ceochn@***.in" required>
+                                                        @error('email')
                                                             <span class="text-danger">{{ $message }}</span>
                                                         @enderror
                                                     </div>
@@ -150,11 +152,11 @@
 
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="tre_off_phone">Phone<span
+                                                        <label class="form-label" for="phone">Phone<span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="tel" class="form-control" id="tre_off_phone"
-                                                            name="tre_off_phone" placeholder="9434***1212" required>
-                                                        @error('tre_off_phone')
+                                                        <input type="tel" class="form-control" id="phone"
+                                                            name="phone" placeholder="9434***1212" required>
+                                                        @error('phone')
                                                             <span class="text-danger">{{ $message }}</span>
                                                         @enderror
                                                     </div>
@@ -162,11 +164,11 @@
 
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="tre_off_password">Password<span
+                                                        <label class="form-label" for="password">Password<span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="password" class="form-control" id="tre_off_password"
-                                                            name="tre_off_password" required placeholder="******">
-                                                        @error('tre_off_password')
+                                                        <input type="password" class="form-control" id="password"
+                                                            name="password" required placeholder="******">
+                                                        @error('password')
                                                             <span class="text-danger">{{ $message }}</span>
                                                         @enderror
                                                     </div>

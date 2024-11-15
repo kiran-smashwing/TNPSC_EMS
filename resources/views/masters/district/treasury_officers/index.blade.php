@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                      <h2 class="mb-0"></h2>
-                    </div> -->
+                          <h2 class="mb-0"></h2>
+                        </div> -->
                         </div>
                     </div>
                 </div>
@@ -258,7 +258,7 @@
                                                     <h6 class="mb-0">{{ $officer->tre_off_name }}</h6>
                                                 </div>
                                             </td>
-                                            <td>{{ $officer->tre_off_district_id }}</td>
+                                            <td>{{ $officer->district?->district_name ?? 'N/A' }}</td>
                                             <td>{{ $officer->tre_off_email }}</td>
                                             <td>{{ $officer->tre_off_phone }}</td>
                                             <td class="text-center">
@@ -277,9 +277,12 @@
                                                     class="avtar avtar-xs btn-light-success" title="Edit">
                                                     <i class="ti ti-edit f-20"></i>
                                                 </a>
-                                                <a href="#" class="avtar avtar-xs btn-light-success"
+                                                <a href="#"
+                                                    class="avtar avtar-xs status-toggle {{ $officer->tre_off_status ? 'btn-light-success' : 'btn-light-danger' }}"
+                                                    data-officer-id="{{ $officer->tre_off_id }}"
                                                     title="Change Status (Active or Inactive)">
-                                                    <i class="ti ti-toggle-left f-20"></i>
+                                                    <i
+                                                        class="ti ti-toggle-{{ $officer->tre_off_status ? 'right' : 'left' }} f-20"></i>
                                                 </a>
                                             </td>
                                         </tr>
@@ -301,6 +304,74 @@
 
     @push('scripts')
         @include('partials.datatable-export-js')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+            const toggleButtons = document.querySelectorAll('.status-toggle');
+
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                // Disable the button during processing
+                this.classList.add('disabled');
+
+                const officerId = this.dataset.officerId;
+
+                fetch(`{{ url('/') }}/treasury-officers/${officerId}/toggle-status`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                    if (data.success) {
+                        // Toggle classes
+                        this.classList.toggle('btn-light-success');
+                        this.classList.toggle('btn-light-danger');
+
+                        // Toggle icon
+                        const icon = this.querySelector('i');
+                        if (icon.classList.contains('ti-toggle-right')) {
+                        icon.classList.remove('ti-toggle-right');
+                        icon.classList.add('ti-toggle-left');
+                        } else {
+                        icon.classList.remove('ti-toggle-left');
+                        icon.classList.add('ti-toggle-right');
+                        }
+                        // Show success notification
+                        showNotification(
+                        'Status Updated',
+                        data.message || 'Treasury officer status updated successfully',
+                        'success'
+                        );
+                    } else {
+                        // Show error notification
+                        showNotification(
+                        'Update Failed',
+                        data.message || 'Failed to update status',
+                        'error'
+                        );
+                    }
+                    })
+                    .catch(error => {
+                    console.error('Error:', error);
+                    showNotification(
+                        'Error',
+                        'An error occurred while updating status',
+                        'error'
+                    );
+                    })
+                    .finally(() => {
+                    // Re-enable the button
+                    this.classList.remove('disabled');
+                    });
+                });
+            });
+            });
+        </script>
     @endpush
 
     @include('partials.theme')

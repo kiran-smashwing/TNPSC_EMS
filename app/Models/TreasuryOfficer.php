@@ -33,7 +33,8 @@ class TreasuryOfficer extends Authenticatable
         'remember_token',
     ];
     protected $hidden = [
-        'tre_off_password','remember_token'
+        'tre_off_password',
+        'remember_token'
     ];
     protected static function boot()
     {
@@ -51,4 +52,9 @@ class TreasuryOfficer extends Authenticatable
     {
         return $this->tre_off_name; // or whatever field you use for the name
     }
+    public function district()
+    {
+        return $this->belongsTo(District::class, 'tre_off_district_id', 'district_id');
+    }
+    
 }

@@ -52,4 +52,9 @@ class District extends Authenticatable
     {
         return $this->district_password;
     }
+    public function treasuryOfficers()
+    {
+        return $this->hasMany(TreasuryOfficer::class, 'tre_off_district_id', 'district_id');
+    }
+
 }

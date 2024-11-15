@@ -39,9 +39,11 @@
 
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
-                                            <img alt="User image"
-                                                src="{{ asset('storage/assets/images/user/collectorate.png') }}"
-                                                class="rounded-circle img-fluid wid-70">
+                                            <img alt="User image" src="{{ $district->district_image
+                                            ? asset('storage/' . $district->district_image)
+                                            : asset('storage/assets/images/user/collectorate.png') }}"
+                                            id="previewImage" alt="Cropped Preview"
+                                            class="rounded-circle img-fluid wid-70">
                                         </div>
                                         <h5 class="mb-0">{{ $district->district_name }} - {{ $district->district_code }}
                                         </h5>
@@ -145,16 +147,5 @@
     @include('partials.footer')
 
     @include('partials.theme')
-    @push('scripts')
-        <script>
-            function openMap(lat, long) {
-                if (lat && long) {
-                    var url = "https://www.google.com/maps/@?api=1&map_action=map&center=" + lat + "," + long + "&zoom=14";
-                    window.open(url, '_blank');
-                } else {
-                    alert('No location available');
-                }
-            }
-        </script>
-    @endpush
+   
 @endsection

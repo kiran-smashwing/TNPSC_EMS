@@ -40,12 +40,14 @@
 
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
-                                            <img class="rounded-circle img-fluid wid-70"
-                                                src="{{ asset('storage/assets/images/user/collectorate.png') }}"
-                                                alt="User image" />
+                                            <img alt="User image" src="{{ $treasuryOfficer->district->district_image
+                                            ? asset('storage/' . $treasuryOfficer->district->district_image)
+                                            : asset('storage/assets/images/user/collectorate.png') }}"
+                                            id="previewImage" alt="Cropped Preview"
+                                            class="rounded-circle img-fluid wid-70">
                                         </div>
-                                        <h5 class="mb-0">01 - Chennai</h5>
-                                        <p class="text-muted text-sm">District Collectorate</p>
+                                        <h5 class="mb-0">{{ $treasuryOfficer->district->district_name }} - {{ $treasuryOfficer->district->district_code }}</h5>
+                                            <p class="text-muted text-sm">District Collectorate</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
                                             <div class="col-4">
@@ -61,35 +63,35 @@
                                                 <small class="text-muted">Members</small>
                                             </div>
                                         </div>
-                                        <hr class="my-3 border border-secondary-subtle" />
+                                        <hr class="my-3 border border-secondary-subtle">
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">ceochn@***.in</p>
+                                            <p class="mb-0">{{ $treasuryOfficer->district->district_email }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">(+91) 9434***1212</p>
+                                            <p class="mb-0">{{ $treasuryOfficer->district->district_phone }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone-plus me-2"></i>
-                                            <p class="mb-0">04434***1212</p>
+                                            <p class="mb-0">{{ $treasuryOfficer->district->district_alternate_phone }}</p>
                                         </div>
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">Tamil Nadu Public Service Commission, TNPSC Road, Broadway,
-                                                Chennai-600003.</p>
+                                            <p class="mb-0">{{ $treasuryOfficer->district->district_address }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100">
                                             <i class="ti ti-link me-2"></i>
-                                            <a href="#" class="link-primary">
-                                                <p class="mb-0">https://chennai.nic.in/</p>
+                                            <a class="link-primary" href="#">
+                                                <p class="mb-0">{{ $treasuryOfficer->district->district_website }}</p>
                                             </a>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
-                                            <a href="#"
-                                                class="btn btn-success d-inline-flex  justify-content-center"><i
-                                                    class="ti ti-map-2 me-1"></i>View Location</a>
+                                            <a class="btn btn-success d-inline-flex  justify-content-center" href="#"
+                                                onclick="openMap({{ $treasuryOfficer->district->district_latitude }}, {{ $treasuryOfficer->district->district_longitude }})">
+                                                <i class="ti ti-map-2 me-1"></i>View Location
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -110,12 +112,15 @@
 
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
-                                            <img class="rounded-circle img-fluid wid-70"
-                                                src="{{ asset('storage/assets/images/user/avatar-4.jpg') }}"
-                                                alt="User image" />
+                                            <img alt="User image" src="{{ $treasuryOfficer->tre_off_image
+                                            ? asset('storage/' . $treasuryOfficer->tre_off_image)
+                                            : asset('storage/assets/images/user/avatar-4.jpg') }}"
+                                            id="previewImage" alt="Cropped Preview"
+                                            class="rounded-circle img-fluid wid-70">
+                                           
                                         </div>
-                                        <h5 class="mb-0">Nanmaran</h5>
-                                        <p class="text-muted text-sm">Thasildar</p>
+                                        <h5 class="mb-0">{{$treasuryOfficer->tre_off_name}}</h5>
+                                        <p class="text-muted text-sm">{{$treasuryOfficer->tre_off_designation}}</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         {{-- <div class="row g-3">
                                   <div class="col-4">
@@ -135,19 +140,19 @@
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">01 - Chennai</p>
+                                            <p class="mb-0">{{ $treasuryOfficer->district->district_code }}- {{ $treasuryOfficer->district->district_name }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">ceochn@***.in</p>
+                                            <p class="mb-0">{{$treasuryOfficer->tre_off_email}}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">(+91) 9434***1212</p>
+                                            <p class="mb-0">{{$treasuryOfficer->tre_off_phone}}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-barcode me-2"></i>
-                                            <p class="mb-0">EMP1234</p>
+                                            <p class="mb-0">{{$treasuryOfficer->tre_off_employeeid}}</p>
                                         </div>
                                     </div>
                                 </div>

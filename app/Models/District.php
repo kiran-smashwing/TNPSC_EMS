@@ -56,5 +56,9 @@ class District extends Authenticatable
     {
         return $this->hasMany(TreasuryOfficer::class, 'tre_off_district_id', 'district_id');
     }
+    public function centers()
+    {
+        return $this->hasMany(Center::class, 'center_district_id', 'district_id');
+    }
 
 }

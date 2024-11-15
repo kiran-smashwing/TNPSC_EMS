@@ -181,7 +181,7 @@
                             <div class="d-sm-flex align-items-center justify-content-between">
                                 <h5 class="mb-3 mb-sm-0">Centers list</h5>
                                 <div>
-                                    <a href="{{ route('center.create') }}" class="btn btn-outline-success">Add Center</a>
+                                    <a href="{{ route('centers.create') }}" class="btn btn-outline-success">Add Center</a>
                                 </div>
                             </div>
                         </div>
@@ -227,14 +227,16 @@
                                         <th>Name</th>
                                         <th>Code</th>
                                         <th>District</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
+                                        <th>E-mail</th>
+                                        <th>Phone</th>
+                                        <th>E-mail status</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($centers as $center)
+                                    @forelse($centers as $key => $center)
                                         <tr>
-                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $key + 1 }}</td>
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-shrink-0">
@@ -242,44 +244,58 @@
                                                             <img src="{{ asset('storage/' . $center->center_image) }}"
                                                                 alt="district image" class="img-radius wid-40">
                                                         @else
-                                                            <img src="{{ asset('storage/assets/images/user/center.png') }}"
+                                                            <img src="{{ asset('storage/assets/images/user/collectorate.png') }}"
                                                                 alt="default image" class="img-radius wid-40">
                                                         @endif
                                                     </div>
                                                 </div>
-
+                                            </td>
+                                            <td>
+                                                <div class="flex-grow-1 ms-3">
+                                                    <h6 class="mb-0">{{ $center->center_name }}</h6>
+                                                </div>
+                                            </td>
+                                            <td>{{ $center->center_code }}</td>
+                                            <td>{{ $center->district->district_name }}</td>
+                                            <td>{{ $center->center_email }}</td>
+                                            <td>{{ $center->center_phone }}</td>
+                                            <td class="text-center">
+                                                @if ($center->center_email_status)
+                                                    <i class="ti ti-circle-check text-success f-18"></i>
+                                                @else
+                                                    <i class="ti ti-alert-circle text-danger f-18"></i>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <a href="{{ route('centers.show', $center->center_id) }}"
+                                                    class="avtar avtar-xs btn-light-success">
+                                                    <i class="ti ti-eye f-20"></i>
+                                                </a>
+                                                <a href="{{ route('centers.edit', $center->center_id) }}"
+                                                    class="avtar avtar-xs btn-light-success">
+                                                    <i class="ti ti-edit f-20"></i>
+                                                </a>
+                                                <a href="#"
+                                                    class="avtar avtar-xs status-toggle {{ $center->center_status ? 'btn-light-success' : 'btn-light-danger' }}"
+                                                    data-center-id="{{ $center->center_id }}"
+                                                    title="Change Status (Active or Inactive)">
+                                                    <i
+                                                        class="ti ti-toggle-{{ $center->center_status ? 'right' : 'left' }} f-20"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="8" class="text-center">No centers found</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
                         </div>
-                        </td>
-                        <td>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">{{ $center->center_name }}</h6>
-                            </div>
-                        </td>
-                        <td>{{ $center->center_code }}</td>
-                        <td>{{ $center->district->district_name ?? 'N/A' }}</td>
-                        <td>{{ $center->status }}</td>
-                        <td>
-                            {{-- <a href="#" class="avtar avtar-xs  btn-light-success" title="View">
-                      <i class="ti ti-eye f-20"></i>
-                    </a> --}}
-                            <a href="{{ route('center.edit', $center->center_id) }}"
-                                class="avtar avtar-xs  btn-light-success" title="Edit">
-                                <i class="ti ti-pencil f-20"></i>
-                            </a>
-                            <a href="#" class="avtar avtar-xs  btn-light-success"
-                                title="Change Status (Active or Inactive)">
-                                <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
-                            </a>
-                        </td>
-                        </tr>
-                        @endforeach
-                        </tbody>
-                        </table>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- [ basic-table ] end -->
+            <!-- [ basic-table ] end -->
         </div>
         <!-- [ Main Content ] end -->
         </div>
@@ -289,10 +305,75 @@
 
     @push('scripts')
         @include('partials.datatable-export-js')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const toggleButtons = document.querySelectorAll('.status-toggle');
+
+                toggleButtons.forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+
+                        // Disable the button during processing
+                        this.classList.add('disabled');
+
+                        const centerId = this.dataset.centerId;
+
+                        fetch(`{{ url('/') }}/centers/${centerId}/toggle-status`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json'
+                                },
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Toggle classes
+                                    this.classList.toggle('btn-light-success');
+                                    this.classList.toggle('btn-light-danger');
+
+                                    // Toggle icon
+                                    const icon = this.querySelector('i');
+                                    if (icon.classList.contains('ti-toggle-right')) {
+                                        icon.classList.remove('ti-toggle-right');
+                                        icon.classList.add('ti-toggle-left');
+                                    } else {
+                                        icon.classList.remove('ti-toggle-left');
+                                        icon.classList.add('ti-toggle-right');
+                                    }
+                                    // Show success notification
+                                    showNotification(
+                                        'Status Updated',
+                                        data.message || 'Center status updated successfully',
+                                        'success'
+                                    );
+                                } else {
+                                    // Show error notification
+                                    showNotification(
+                                        'Update Failed',
+                                        data.message || 'Failed to update status',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                showNotification(
+                                    'Error',
+                                    'An error occurred while updating status',
+                                    'error'
+                                );
+                            })
+                            .finally(() => {
+                                // Re-enable the button
+                                this.classList.remove('disabled');
+                            });
+                    });
+                });
+            });
+        </script>
     @endpush
-
     @include('partials.theme')
-
-
 
 @endsection

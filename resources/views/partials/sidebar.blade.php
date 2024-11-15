@@ -95,7 +95,7 @@
                     <ul class="pc-submenu">
                         <li class="pc-item"><a class="pc-link" href="{{ route('district.index') }}">District Collectorate</a>
                         </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('center') }}">Centers</a></li>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('centers.index') }}">Centers</a></li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('treasury-officers.index') }}">Treasury Officers</a></li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('mobile-team') }}">Mobile Team Staffs</a></li>
                         {{-- <li class="pc-item"><a class="pc-link" href="{{ route('escort_staff') }}">Escort Staffs</a></li>

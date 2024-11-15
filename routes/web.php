@@ -48,13 +48,7 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/myaccount', [MyAccountController::class, 'index'])->name('myaccount');
     // Change Password routes
     Route::get('/change-password', [ChangePasswordController::class, 'showchangePassword'])->name('change-password');
-    // Center routes
-    Route::get('/center', [CenterController::class, 'index'])->name('center');
-    Route::get('/center/add', [CenterController::class, 'create'])->name('center.create');
-    Route::get('/edit/{id}', [CenterController::class, 'edit'])->name('center.edit');
-    Route::post('/center/add', [CenterController::class, 'store'])->name('center.store');
-    Route::put('/center/{center_id}', [CenterController::class, 'update'])->name('center.update');
-    Route::get('/center/show', [CenterController::class, 'show'])->name('center.show');
+  
     // Mobile Team Staffs routes
     Route::get('/mobile-team', [MobileTeamStaffsController::class, 'index'])->name('mobile-team');
     Route::get('/mobile-team/add', [MobileTeamStaffsController::class, 'create'])->name('mobile-team.create');
@@ -192,5 +186,17 @@ Route::prefix('treasury-officers')->group(function () {
         Route::delete('/{id}', [TreasuryOfficerController::class, 'destroy'])->name('treasury-officers.destroy');
     });
 });
-
+//centers Route::prefix('centers')->group(function () {
+Route::prefix('centers')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/', [CenterController::class, 'index'])->name('centers.index');
+        Route::get('/create', [CenterController::class, 'create'])->name('centers.create');
+        Route::post('/', [CenterController::class, 'store'])->name('centers.store');
+        Route::get('/{id}/edit', [CenterController::class, 'edit'])->name('centers.edit');
+        Route::put('/{id}', [CenterController::class, 'update'])->name('centers.update');
+        Route::get('/{id}', [CenterController::class, 'show'])->name('centers.show');
+        Route::post('/{id}/toggle-status', [CenterController::class, 'toggleStatus'])->name('centers.toggle-status');
+        Route::delete('/{id}', [CenterController::class, 'destroy'])->name('centers.destroy');
+    });
+});
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

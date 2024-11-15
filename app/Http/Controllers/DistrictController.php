@@ -37,9 +37,9 @@ class DistrictController extends Controller
         $validated = $request->validate([
             'district_name' => 'required|string|max:255',
             'district_code' => 'required|numeric|unique:district',
-            'mail' => 'required|email',
-            'phone' => 'required|string',
-            'alternate_phone' => 'nullable|string',
+            'mail' => 'required|email|unique:district,district_email',
+            'phone' => 'required|string|max:15',
+            'alternate_phone' => 'nullable|string|max:15',
             'password' => 'required|string|min:6',
             'website' => 'required|url',
             'address' => 'required|string',
@@ -59,7 +59,7 @@ class DistrictController extends Controller
                 }
 
                 // Create a unique image name
-                $imageName = 'district_' . time() . '.png';
+                $imageName = $validated['district_code'] . time() . '.png';
                 $imagePath = 'images/districts/' . $imageName;
 
                 // Store the image
@@ -125,9 +125,9 @@ class DistrictController extends Controller
         $validated = $request->validate([
             'district_name' => 'required|string|max:255',
             'district_code' => 'required|numeric|unique:district,district_code,' . $id . ',district_id',
-            'mail' => 'required|email',
-            'phone' => 'required|string',
-            'alternate_phone' => 'nullable|string',
+            'mail' => 'required|email|unique:district,district_email,' . $id . ',district_id',
+            'phone' => 'required|string|max:15',
+            'alternate_phone' => 'nullable|string|max:15',
             'password' => 'nullable|string|min:6',
             'website' => 'required|url',
             'address' => 'required|string',
@@ -149,7 +149,7 @@ class DistrictController extends Controller
                 }
 
                 // Create a unique filename
-                $imageName = 'district_' . time() . '.png';
+                $imageName = $validated['district_code'] . time() . '.png';
                 $imagePath = 'images/districts/' . $imageName;
 
                 // Save the image in public storage
@@ -236,20 +236,6 @@ class DistrictController extends Controller
             ->with('success', 'District deleted successfully');
     }
 
-    public function logout(Request $request)
-    {
-        $district_id = session('district_id');
-
-        // Log logout
-        if ($district_id) {
-            AuditLogger::log('District Logout', District::class, $district_id);
-        }
-
-        $request->session()->forget('district_id');
-
-        return redirect()->route('district.login');
-    }
-    // In app/Http/Controllers/DistrictController.php:
     public function toggleStatus($id)
     {
         try {

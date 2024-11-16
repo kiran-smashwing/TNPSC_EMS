@@ -209,8 +209,14 @@ class CenterController extends Controller
         }
     }
 
-    public function show(Center $center)
+   
+    public function show($id)
     {
+        $center = Center::with(relations: 'district')->findOrFail($id);
+
+        // Log view action
+        AuditLogger::log('Center Viewed', Center::class, $center->center_id);
+
         return view('masters.district.centers.show', compact('center'));
     }
 

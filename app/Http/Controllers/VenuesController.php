@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers;
+
 use App\Models\Venues;
 use App\Models\Center;
 use App\Models\District;
@@ -10,6 +12,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use App\Services\ImageCompressService;
+
 class VenuesController extends Controller
 {
     protected $imageService;
@@ -233,6 +236,42 @@ class VenuesController extends Controller
         $venue = Venues::with(['district', 'center'])->findOrFail($id);
         return view('masters.venues.venue.edit', compact('venue', 'districts', 'centers'));
     }
+    public function toggleVenueStatus($id)
+{
+    try {
+        // Find the venue by its ID
+        $venue = Venues::findOrFail($id);
+
+        // Get current status before update
+        $oldStatus = $venue->venue_status;
+
+        // Toggle the status
+        $venue->venue_status = !$venue->venue_status;
+        $venue->save();
+
+        // Log the status change (if logging is needed)
+        AuditLogger::log(
+            'Venue Status Changed',
+            Venues::class, // Use the Venue model
+            $venue->id,   // ID of the venue
+            ['status' => $oldStatus],
+            ['status' => $venue->venue_status]
+        );
+
+        return response()->json([
+            'success' => true,
+            'status' => $venue->venue_status,
+            'message' => 'Venue status updated successfully',
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to update Venue status',
+            'details' => $e->getMessage(),  // Optional, useful for debugging
+        ], 500);
+    }
+}
+
     public function show($id)
     {
         // Fetch the venue first based on the ID

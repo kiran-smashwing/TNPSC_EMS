@@ -55,6 +55,10 @@ return [
             'driver' => 'session',
             'provider' => 'treasury_officers',
         ],
+        'venue' => [
+            'driver' => 'session',
+            'provider' => 'venue',
+        ],
     ],
 
 
@@ -95,6 +99,10 @@ return [
         'treasury_officers' => [
             'driver' => 'eloquent',
             'model' => App\Models\TreasuryOfficer::class,
+        ],
+        'venue' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Venues::class,
         ],
 
         // 'users' => [

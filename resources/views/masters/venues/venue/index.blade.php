@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                  <h2 class="mb-0"></h2>
-                </div> -->
+                              <h2 class="mb-0"></h2>
+                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -154,6 +154,30 @@
             </div>
             <div class="row">
                 <!-- [ basic-table ] start -->
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-header">
@@ -221,17 +245,29 @@
                                             </td>
                                             <td>{{ $venue->venue_name }}</td>
                                             <td>{{ $venue->district->district_name ?? 'N/A' }}</td>
-                                            <td>{{ $venue->center->center_name ?? 'N/A' }}</td>
+                                            {{-- <td>{{ $venue->center->center_name ?? 'N/A' }}</td> --}}
                                             <td>{{ $venue->venue_email }}</td>
                                             <td>{{ $venue->venue_phone }}</td>
+                                            <td class="text-center">
+                                                @if ($venue->venue_email_status)
+                                                    <i class="ti ti-circle-check text-success f-18"></i>
+                                                @else
+                                                    <i class="ti ti-alert-circle text-danger f-18"></i>
+                                                @endif
+                                            </td>
                                             <td>
                                                 <a href="{{ route('venue.show', $venue->venue_id) }}"
                                                     class="btn btn-light-success"><i class="ti ti-eye"></i></a>
                                                 <a href="{{ route('venue.edit', $venue->venue_id) }}"
                                                     class="btn btn-light-success"><i class="ti ti-edit"></i></a>
-                                                <a href="#" class="btn btn-light-success" title="Change Status">
-                                                    <i class="ti ti-toggle-left"></i>
+                                                <a href="#"
+                                                    class="avtar avtar-xs status-toggle {{ $venue->venue_status ? 'btn-light-success' : 'btn-light-danger' }}"
+                                                    data-venue-id="{{ $venue->venue_id }}"
+                                                    title="Change Status (Active or Inactive)">
+                                                    <i
+                                                        class="ti ti-toggle-{{ $venue->venue_status ? 'right' : 'left' }} f-20"></i>
                                                 </a>
+
                                             </td>
                                         </tr>
                                     @endforeach
@@ -247,6 +283,78 @@
         </div>
     </section>
     <!-- [ Main Content ] end -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleButtons = document.querySelectorAll('.status-toggle');
+
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Disable the button during processing
+                    this.classList.add('disabled');
+
+                    // Get the venue ID from the data attribute
+                    const venueId = this.dataset.venueId;
+
+                    // Send the request to toggle the venue status
+                    fetch(`{{ url('/') }}/venue/${venueId}/toggle-status`, { // Adjust the URL for venues
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Toggle button classes to reflect the new status
+                                this.classList.toggle('btn-light-success');
+                                this.classList.toggle('btn-light-danger');
+
+                                // Toggle icon
+                                const icon = this.querySelector('i');
+                                if (icon.classList.contains('ti-toggle-right')) {
+                                    icon.classList.remove('ti-toggle-right');
+                                    icon.classList.add('ti-toggle-left');
+                                } else {
+                                    icon.classList.remove('ti-toggle-left');
+                                    icon.classList.add('ti-toggle-right');
+                                }
+
+                                // Show success notification
+                                showNotification(
+                                    'Status Updated',
+                                    data.message || 'Venue status updated successfully',
+                                    'success'
+                                );
+                            } else {
+                                // Show error notification
+                                showNotification(
+                                    'Update Failed',
+                                    data.message || 'Failed to update status',
+                                    'error'
+                                );
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showNotification(
+                                'Error',
+                                'An error occurred while updating status',
+                                'error'
+                            );
+                        })
+                        .finally(() => {
+                            // Re-enable the button
+                            this.classList.remove('disabled');
+                        });
+                });
+            });
+        });
+    </script>
+
     @include('partials.footer')
 
     @push('scripts')

@@ -20,7 +20,7 @@ class InvigilatorsController extends Controller
     public function __construct(ImageCompressService $imageService)
     {
         //apply the auth middleware to the entire controller
-        $this->middleware('auth:district');
+        $this->middleware('auth.multi');
         $this->imageService = $imageService;
     }
 
@@ -215,6 +215,33 @@ class InvigilatorsController extends Controller
         }
     }
 
+    public function toggleInvigilatorStatus($id)
+    {
+        try {
+            // Find the invigilator by ID
+            $invigilator = Invigilator::findOrFail($id);
+
+            // Get the current status before updating
+            $oldStatus = $invigilator->invigilator_status;
+
+            // Toggle the status
+            $invigilator->invigilator_status = !$invigilator->invigilator_status;
+            $invigilator->save();
+
+            return response()->json([
+                'success' => true,
+                'status' => $invigilator->invigilator_status,
+                'message' => 'Invigilator status updated successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update invigilator status',
+                'details' => $e->getMessage(), // Optional for debugging
+            ], 500);
+        }
+    }
+
 
     public function show($id)
     {
@@ -223,6 +250,6 @@ class InvigilatorsController extends Controller
         $venue = Venues::findOrFail($invigilator->invigilator_venue_id);
         $center = Center::findOrFail($invigilator->invigilator_center_id);
 
-        return view('masters.venues.invigilator.show', compact('invigilator', 'district', 'venue','center'));
+        return view('masters.venues.invigilator.show', compact('invigilator', 'district', 'venue', 'center'));
     }
 }

@@ -75,6 +75,7 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::post('invigilator/store', [InvigilatorsController::class, 'store'])->name('invigilator.store');
     Route::get('/invigilator/{id}/edit', [InvigilatorsController::class, 'edit'])->name('invigilator.edit');
     Route::put('/invigilator/{id}', [InvigilatorsController::class, 'update'])->name('invigilator.update');
+    Route::post('/invigilator/{id}/toggle-status', [InvigilatorsController::class, 'toggleInvigilatorStatus'])->name('invigilator.toggleStatus');
     Route::get('invigilators/{id}', [InvigilatorsController::class, 'show'])->name('invigilator.show');
     // Scribe
     Route::get('/scribe', [ScribeController::class, 'index'])->name('scribe');
@@ -104,6 +105,7 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::post('/venues', [VenuesController::class, 'store'])->name('venues.store');
     Route::get('venues/{id}/edit', [VenuesController::class, 'edit'])->name('venue.edit');
     Route::put('/venue/{id}', [VenuesController::class, 'update'])->name('venue.update');
+    Route::post('/venue/{id}/toggle-status', [VenuesController::class, 'toggleVenueStatus'])->name('venue.toggleStatus');
     Route::get('/venue/{id}', [VenuesController::class, 'show'])->name('venue.show');
     // Department
     Route::get('/department', [DepartmentOfficialsController::class, 'index'])->name('department');

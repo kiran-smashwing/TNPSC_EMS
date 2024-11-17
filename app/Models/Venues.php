@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Venues extends Model
+class Venues extends Authenticatable
 {
     use HasFactory;
 
@@ -40,11 +40,17 @@ class Venues extends Model
         'venue_ifsc',
         'venue_createdat',
         'venue_image',
+        'venue_status',
     ];
 
     protected $casts = [
         'venue_createdat' => 'datetime',
     ];
+
+    public function getAuthPassword()
+    {
+        return $this->venue_password;
+    }
 
     // Define the relationship with District (if applicable)
     public function district()

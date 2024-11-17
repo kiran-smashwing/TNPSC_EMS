@@ -37,14 +37,14 @@ class AuthController extends Controller
             'password' => 'required|string',
             'remember' => 'sometimes|string',
         ]);
-    
+
         $email = $validated['email'];
         $password = $validated['password'];
         $remember = isset($validated['remember']) && $validated['remember'] === 'on';
         $role = $validated['role'];
-    
+
         $throttleKey = strtolower($role) . '|' . $email;
-        
+
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
             return back()->withErrors([
@@ -54,20 +54,20 @@ class AuthController extends Controller
                 ]),
             ])->withInput($request->only('email'));
         }
-    
+
         // Log out of all guards first
         Auth::guard('district')->logout();
         Auth::guard('treasury')->logout();
         Auth::guard('mobile_team_staffs')->logout();
-        
+
         // Clear all existing sessions
         $request->session()->flush();
         $request->session()->regenerate();
-    
+
         $success = false;
         $user = null;
         $userId = null;
-    
+
         switch ($role) {
             case 'district':
                 $success = Auth::guard('district')->attempt([
@@ -89,7 +89,7 @@ class AuthController extends Controller
                     $userId = $user->center_id; // Adjust this based on your center table's ID column
                 }
                 break;
-    
+
             case 'treasury':
                 $success = Auth::guard('treasury')->attempt([
                     'tre_off_email' => $email,
@@ -100,7 +100,7 @@ class AuthController extends Controller
                     $userId = $user->tre_off_id; // Adjust this based on your treasury table's ID column
                 }
                 break;
-    
+
             case 'mobile_team_staffs':
                 $success = Auth::guard('mobile_team_staffs')->attempt([
                     'mobile_team_email' => $email,
@@ -111,27 +111,37 @@ class AuthController extends Controller
                     $userId = $user->mobile_team_id; // Adjust this based on your mobile team table's ID column
                 }
                 break;
+                case 'venue':
+                    $success = Auth::guard('venue')->attempt([
+                        'venue_email' => $email,
+                        'password' => $password
+                    ], $remember);
+                    if ($success) {
+                        $user = Auth::guard('venue')->user();
+                        $userId = $user->venue_id; // Adjust this based on your treasury table's ID column
+                    }
+                    break;
         }
-    
+
         if ($success && $user) {
             RateLimiter::clear($throttleKey);
-    
+
             // Store essential session data with the correct ID
             session([
                 'auth_role' => $role,
                 'auth_id' => $userId,
             ]);
-    
+
             if ($remember) {
                 session()->put('auth.password_confirmed_at', time());
                 session()->put('ip_address', $request->ip());
                 session()->put('user_agent', $request->userAgent());
             }
-    
+
             // Log the audit with the correct ID
             AuditLogger::log(
-                'User Login', 
-                get_class($user), 
+                'User Login',
+                get_class($user),
                 $user->getKey(),
                 null,
                 [
@@ -143,10 +153,10 @@ class AuthController extends Controller
 
             return redirect()->intended('/dashboard');
         }
-    
+
         RateLimiter::hit($throttleKey);
-        
-    
+
+
         return back()->withErrors([
             'email' => __('auth.failed'),
         ])->withInput($request->only('email'));
@@ -212,7 +222,7 @@ class AuthController extends Controller
                 return District::class;
             case 'treasury':
                 return TreasuryOfficer::class;
-            // Add other cases as needed
+                // Add other cases as needed
             default:
                 throw new \Exception('Invalid role');
         }
@@ -331,5 +341,4 @@ class AuthController extends Controller
 
         return back()->withErrors(['password' => [__($status)]]);
     }
-
 }

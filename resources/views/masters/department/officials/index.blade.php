@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                  <h2 class="mb-0"></h2>
-                </div> -->
+                          <h2 class="mb-0"></h2>
+                        </div> -->
                         </div>
                     </div>
                 </div>
@@ -242,7 +242,7 @@
                                             <td>{{ $official->dept_off_phone }}</td>
                                             <td class="text-center">
                                                 <!-- Display active/inactive status icon -->
-                                                @if ($official->status == 'active')
+                                                @if ($official->dept_off_email_status == 'active')
                                                     <i class="ti ti-circle-check text-success f-18"></i>
                                                 @else
                                                     <i class="ti ti-circle-x text-danger f-18"></i>
@@ -256,11 +256,14 @@
                                                 <a href="{{ route('department.edit', $official->dept_off_id) }}"
                                                     class="avtar avtar-xs btn-light-success"><i
                                                         class="ti ti-edit f-20"></i></a>
-                                                <a href="#" class="avtar avtar-xs btn-light-success"
+                                                <a href="#"
+                                                    class="avtar avtar-xs status-toggle {{ $official->dept_off_status ? 'btn-light-success' : 'btn-light-danger' }}"
+                                                    data-department-official-id="{{ $official->dept_off_id }}"
                                                     title="Change Status (Active or Inactive)">
                                                     <i
-                                                        class="ti {{'active' ? 'ti-toggle-right' : 'ti-toggle-left' }} f-20"></i>
+                                                        class="ti ti-toggle-{{ $official->dept_off_status ? 'right' : 'left' }} f-20"></i>
                                                 </a>
+
                                             </td>
                                         </tr>
                                     @endforeach
@@ -276,6 +279,79 @@
         <!-- [ Main Content ] end -->
         </div>
     </section>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleButtons = document.querySelectorAll('.status-toggle');
+
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Disable the button during processing
+                    this.classList.add('disabled');
+
+                    // Get the department official ID from the data attribute
+                    const departmentOfficialId = this.dataset.departmentOfficialId;
+
+                    // Send the request to toggle the status
+                    fetch(`{{ url('/') }}/department-official/${departmentOfficialId}/toggle-status`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Toggle button classes
+                                this.classList.toggle('btn-light-success');
+                                this.classList.toggle('btn-light-danger');
+
+                                // Toggle icon
+                                const icon = this.querySelector('i');
+                                if (icon.classList.contains('ti-toggle-right')) {
+                                    icon.classList.remove('ti-toggle-right');
+                                    icon.classList.add('ti-toggle-left');
+                                } else {
+                                    icon.classList.remove('ti-toggle-left');
+                                    icon.classList.add('ti-toggle-right');
+                                }
+
+                                // Show success notification
+                                showNotification(
+                                    'Status Updated',
+                                    data.message ||
+                                    'Department Official status updated successfully',
+                                    'success'
+                                );
+                            } else {
+                                // Show error notification
+                                showNotification(
+                                    'Update Failed',
+                                    data.message || 'Failed to update status',
+                                    'error'
+                                );
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showNotification(
+                                'Error',
+                                'An error occurred while updating status',
+                                'error'
+                            );
+                        })
+                        .finally(() => {
+                            // Re-enable the button
+                            this.classList.remove('disabled');
+                        });
+                });
+            });
+        });
+    </script>
+
     <!-- [ Main Content ] end -->
     @include('partials.footer')
 

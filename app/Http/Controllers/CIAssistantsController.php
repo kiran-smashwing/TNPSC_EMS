@@ -192,18 +192,45 @@ class CIAssistantsController extends Controller
         }
     }
 
+    public function toggleStatus($id)
+    {
+        try {
+            // Find the CI Assistant by ID
+            $ciAssistant = CheifInvigilatorAssistant::findOrFail($id);
+
+            // Get the current status before updating
+            $oldStatus = $ciAssistant->cia_status;
+
+            // Toggle the status
+            $ciAssistant->cia_status = !$ciAssistant->cia_status;
+            $ciAssistant->save();
+
+            return response()->json([
+                'success' => true,
+                'status' => $ciAssistant->cia_status,
+                'message' => 'CI Assistant status updated successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update CI Assistant status',
+                'details' => $e->getMessage(), // Optional for debugging
+            ], 500);
+        }
+    }
+
+
     public function show($id)
     {
         // Retrieve the CI Assistant record by ID, or fail if not found
         $ciAssistant = CheifInvigilatorAssistant::findOrFail($id);
-    
+
         // Fetch related District, Venue, and Center records based on the CI Assistant's foreign keys
         $district = District::findOrFail($ciAssistant->cia_district_id);
         $venue = Venues::findOrFail($ciAssistant->cia_venue_id);
         $center = Center::findOrFail($ciAssistant->cia_center_id);
-    
+
         // Return the view with the CI Assistant and related data
         return view('masters.venues.ci_assistants.show', compact('ciAssistant', 'district', 'venue', 'center'));
     }
-    
 }

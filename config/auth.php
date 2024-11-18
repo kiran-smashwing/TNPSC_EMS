@@ -63,6 +63,10 @@ return [
             'driver' => 'session',
             'provider' => 'headquarters',
         ],
+        'ci' => [
+            'driver' => 'session',
+            'provider' => 'ci',
+        ],
     ],
 
 
@@ -111,6 +115,10 @@ return [
         'headquarters' => [
             'driver' => 'eloquent',
             'model' => App\Models\DepartmentOfficial::class,
+        ],
+        'ci' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\ChiefInvigilator::class,
         ],
 
         // 'users' => [

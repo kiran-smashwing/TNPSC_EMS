@@ -58,14 +58,15 @@
                                     aria-label="Close"></button>
                             </div>
                         @endif
+                        <form action="{{ route('district.store') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
                         <div class="col-lg-6">
                             <div class="card">
                                 <div class="card-header">
                                     <h5>District Collectorate - <span class="text-primary">Add</span></h5>
                                 </div>
                                 <div class="card-body">
-                                    <form action="{{ route('district.store') }}" method="POST" enctype="multipart/form-data">
-                                        @csrf
+                                   
                                         <div class="row">
                                             <div class="col-sm-6 text-center mb-3">
                                                 <div class="user-upload wid-75" data-pc-animate="just-me" data-bs-toggle="modal" data-bs-target="#cropperModal">
@@ -186,6 +187,7 @@
                             <a href="{{ route('district.index') }}" class="btn btn-outline-secondary">Cancel</a>
                             <button type="submit" class="btn btn-primary">Create</button>
                         </div>
+                    </form>
                     </div>
                 </div>
             </div>

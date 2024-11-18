@@ -49,13 +49,7 @@ Route::middleware(['auth.multi'])->group(function () {
     // Change Password routes
     Route::get('/change-password', [ChangePasswordController::class, 'showchangePassword'])->name('change-password');
   
-    // Mobile Team Staffs routes
-    Route::get('/mobile-team', [MobileTeamStaffsController::class, 'index'])->name('mobile-team');
-    Route::get('/mobile-team/add', [MobileTeamStaffsController::class, 'create'])->name('mobile-team.create');
-    Route::post('mobile-team', [MobileTeamStaffsController::class, 'store'])->name('mobile-team.store');
-    Route::get('/mobile-team/edit/{id}', [MobileTeamStaffsController::class, 'edit'])->name('mobile-team.edit');
-    Route::put('/mobile-team/{mobile_id}', [MobileTeamStaffsController::class, 'update'])->name('mobile-team.update');
-    Route::get('/mobile-team/{id}', [MobileTeamStaffsController::class, 'show'])->name('mobile-team.show');
+ 
     // Escort Staffs routes
     Route::get('/escort-staff', [EscortStaffsController::class, 'index'])->name('escort-staff');
     Route::get('/escort-staff/add', [EscortStaffsController::class, 'create'])->name('escort-staff.create');
@@ -197,6 +191,19 @@ Route::prefix('centers')->group(function () {
         Route::get('/{id}', [CenterController::class, 'show'])->name('centers.show');
         Route::post('/{id}/toggle-status', [CenterController::class, 'toggleStatus'])->name('centers.toggle-status');
         Route::delete('/{id}', [CenterController::class, 'destroy'])->name('centers.destroy');
+    });
+});
+//mobile-team-staffs Route::prefix('mobile-team-staffs')->group(function () {
+Route::prefix('mobile-team-staffs')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/', [MobileTeamStaffsController::class, 'index'])->name('mobile-team-staffs.index');
+        Route::get('/create', [MobileTeamStaffsController::class, 'create'])->name('mobile-team-staffs.create');
+        Route::post('/', [MobileTeamStaffsController::class, 'store'])->name('mobile-team-staffs.store');
+        Route::get('/{id}/edit', [MobileTeamStaffsController::class, 'edit'])->name('mobile-team-staffs.edit');
+        Route::put('/{id}', [MobileTeamStaffsController::class, 'update'])->name('mobile-team-staffs.update');
+        Route::get('/{id}', [MobileTeamStaffsController::class, 'show'])->name('mobile-team-staffs.show');
+        Route::post('/{id}/toggle-status', [MobileTeamStaffsController::class, 'toggleStatus'])->name('mobile-team-staffs.toggle-status');
+        Route::delete('/{id}', [MobileTeamStaffsController::class, 'destroy'])->name('mobile-team-staffs.destroy');
     });
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

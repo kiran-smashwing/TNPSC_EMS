@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\District;
 use App\Models\TreasuryOfficer;
 use App\Models\Center;
+use App\Models\MobileTeamStaffs;
 
 class AuthController extends Controller
 {
@@ -103,12 +104,12 @@ class AuthController extends Controller
     
             case 'mobile_team_staffs':
                 $success = Auth::guard('mobile_team_staffs')->attempt([
-                    'mobile_team_email' => $email,
+                    'mobile_email' => $email,
                     'password' => $password
                 ], $remember);
                 if ($success) {
                     $user = Auth::guard('mobile_team_staffs')->user();
-                    $userId = $user->mobile_team_id; // Adjust this based on your mobile team table's ID column
+                    $userId = $user->mobile_id; // Adjust this based on your mobile team table's ID column
                 }
                 break;
         }
@@ -212,6 +213,8 @@ class AuthController extends Controller
                 return District::class;
             case 'treasury':
                 return TreasuryOfficer::class;
+            case 'mobile_team_staffs':
+                return MobileTeamStaffs::class;
             // Add other cases as needed
             default:
                 throw new \Exception('Invalid role');
@@ -221,8 +224,6 @@ class AuthController extends Controller
     {
         $role = $this->getRoleFromGuard();
         $model = $this->getModelByRole($role);
-        // print_r($role);
-        // dd($model);
 
         AuditLogger::log('User Logged Out', $model, Auth::id());
         Auth::guard($role)->logout();

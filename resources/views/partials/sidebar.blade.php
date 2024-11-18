@@ -97,7 +97,7 @@
                         </li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('centers.index') }}">Centers</a></li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('treasury-officers.index') }}">Treasury Officers</a></li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('mobile-team') }}">Mobile Team Staffs</a></li>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('mobile-team-staffs.index') }}">Mobile Team Staffs</a></li>
                         {{-- <li class="pc-item"><a class="pc-link" href="{{ route('escort_staff') }}">Escort Staffs</a></li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('incpection') }}">Inspection Officers</a> --}}
                         </li>

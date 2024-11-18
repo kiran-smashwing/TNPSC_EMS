@@ -31,43 +31,45 @@
 
                 <div class="tab-content">
                     <div>
-                        <div class="row">
-                            @if (session('success'))
-                                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                    {{ session('success') }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                        aria-label="Close"></button>
-                                </div>
-                            @endif
-
-                            @if (session('error'))
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                    {{ session('error') }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                        aria-label="Close"></button>
-                                </div>
-                            @endif
-
-                            @if ($errors->any())
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                    <ul class="mb-0">
-                                        @foreach ($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                        aria-label="Close"></button>
-                                </div>
-                            @endif
-                            <div class="col-lg-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5>Mobile Team - <span class="text-primary">Edit</span></h5>
+                        <form action="{{ route('mobile-team-staffs.update', $mobileTeamStaff->mobile_id) }}" method="POST"
+                            enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
+                            <div class="row">
+                                @if (session('success'))
+                                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                        {{ session('success') }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                            aria-label="Close"></button>
                                     </div>
-                                    <div class="card-body">
-                                        <form action="{{ route('mobile-team.update', $mobileTeamStaff->mobile_id) }}"  method="POST" enctype="multipart/form-data">
-                                            @csrf
-                                            @method('PUT')
+                                @endif
+
+                                @if (session('error'))
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        {{ session('error') }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                            aria-label="Close"></button>
+                                    </div>
+                                @endif
+
+                                @if ($errors->any())
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        <ul class="mb-0">
+                                            @foreach ($errors->all() as $error)
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                            aria-label="Close"></button>
+                                    </div>
+                                @endif
+                                <div class="col-lg-6">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5>Mobile Team - <span class="text-primary">Edit</span></h5>
+                                        </div>
+                                        <div class="card-body">
+
                                             <div class="row">
                                                 <div class="col-sm-6 text-center mb-3">
                                                     <div class="user-upload wid-75" data-pc-animate="just-me"
@@ -83,10 +85,10 @@
                                                 </div>
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="district_id">District <span
+                                                        <label class="form-label" for="district">District <span
                                                                 class="text-danger">*</span></label>
-                                                        <select class="form-control" id="district_id" name="district_id"
-                                                            required>
+                                                        <select class="form-control @error('district') is-invalid @enderror"
+                                                            id="district" name="district" required>
                                                             <option>Select District</option>
                                                             @foreach ($districts as $district)
                                                                 <option value="{{ $district->district_id }}"
@@ -95,8 +97,8 @@
                                                                 </option>
                                                             @endforeach
                                                         </select>
-                                                        @error('district_id')
-                                                            <div class="text-danger">{{ $message }}</div>
+                                                        @error('district')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
                                                     </div>
                                                 </div>
@@ -104,45 +106,65 @@
                                                     <div class="mb-3">
                                                         <label class="form-label">Name <span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control" id="name"
-                                                            name="name" value="{{ $mobileTeamStaff->mobile_name }}"
-                                                            required>
+                                                        <input type="text"
+                                                            class="form-control @error('name') is-invalid @enderror"
+                                                            id="name" name="name"
+                                                            value="{{ $mobileTeamStaff->mobile_name }}" required>
+                                                        @error('name')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
                                                         <label class="form-label" for="employee_id">Employee ID <span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control" id="employee_id"
-                                                            name="employee_id"
+                                                        <input type="text"
+                                                            class="form-control @error('employee_id') is-invalid @enderror"
+                                                            id="employee_id" name="employee_id"
                                                             value="{{ $mobileTeamStaff->mobile_employeeid }}" required>
+                                                        @error('employee_id')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
                                                         <label class="form-label" for="designation">Designation <span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control" id="designation"
-                                                            name="designation"
+                                                        <input type="text"
+                                                            class="form-control @error('designation') is-invalid @enderror"
+                                                            id="designation" name="designation"
                                                             value="{{ $mobileTeamStaff->mobile_designation }}" required>
+                                                        @error('designation')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
                                                         <label class="form-label">Email<span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="email" class="form-control" id="mail"
-                                                            name="mail" value="{{ $mobileTeamStaff->mobile_email }}"
-                                                            required>
+                                                        <input type="email"
+                                                            class="form-control @error('mail') is-invalid @enderror"
+                                                            id="mail" name="mail"
+                                                            value="{{ $mobileTeamStaff->mobile_email }}" required>
+                                                        @error('mail')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
                                                         <label class="form-label" for="phone">Phone<span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="tel" class="form-control" id="phone"
-                                                            name="phone" value="{{ $mobileTeamStaff->mobile_phone }}"
-                                                            required>
+                                                        <input type="tel"
+                                                            class="form-control @error('phone') is-invalid @enderror"
+                                                            id="phone" name="phone"
+                                                            value="{{ $mobileTeamStaff->mobile_phone }}" required>
+                                                        @error('phone')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-6">
@@ -150,27 +172,31 @@
                                                         <label class="form-label" for="password">Password <small>(Leave
                                                                 blank
                                                                 to keep current)</small></label>
-                                                        <input type="password" class="form-control" id="password"
-                                                            name="password" placeholder="******">
+                                                        <input type="password"
+                                                            class="form-control @error('password') is-invalid @enderror"
+                                                            id="password" name="password" placeholder="******">
+                                                        @error('password')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
                                             </div>
-                                         
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-12 text-end btn-page">
-                              <a href="{{ route('mobile-team') }}" class="btn btn-outline-secondary">Cancel</a>
-                              <button type="submit" class="btn btn-primary">Update</button>
-                            </div>
                         </form>
-                        </div>
                     </div>
                 </div>
             </div>
+
+            <div class="col-12 text-end btn-page">
+                <a href="{{ route('mobile-team-staffs.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Update</button>
+            </div>
         </div>
-        <!-- [ Main Content ] end -->
+        </form>
+    </div>
+    </div>
+    </div>
+    </div>
+    <!-- [ Main Content ] end -->
     </div>
 
 

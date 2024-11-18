@@ -29,7 +29,7 @@ class MultiAuthMiddleware
             'district' => $user->district_id,
             'treasury' => $user->tre_off_id,
             'center' => $user->center_id,
-            'mobile_team_staffs' => $user->mobile_team_id,
+            'mobile_team_staffs' => $user->mobile_id,
             default => null
         };
 

@@ -121,7 +121,7 @@ class VenuesController extends Controller
             ]);
             // Log venue creation with new values
             AuditLogger::log('Venue Created', Venues::class, $venue->venue_id, null, $venue->toArray());
-            return redirect()->route('venue')
+            return redirect()->route('venues.index')
                 ->with('success', 'Venue created successfully');
         } catch (\Exception $e) {
             return back()->withInput()
@@ -234,7 +234,7 @@ class VenuesController extends Controller
             // Log venue update with old and new values
             AuditLogger::log('Venue Updated', Venues::class, $venue->venue_id, $oldValues, $changedValues);
             // Redirect back with success message
-            return redirect()->route('venue')
+            return redirect()->route('venues.index')
                 ->with('success', 'Venue updated successfully');
         } catch (\Exception $e) {
             // Handle any errors
@@ -249,7 +249,7 @@ class VenuesController extends Controller
         $venue = Venues::with(['district', 'center'])->findOrFail($id);
         return view('masters.venues.venue.edit', compact('venue', 'districts', 'centers'));
     }
-    public function toggleVenueStatus($id)
+    public function toggleStatus($id)
     {
         try {
             // Find the venue by its ID

@@ -114,7 +114,7 @@
                         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                     </a>
                     <ul class="pc-submenu">
-                        <li class="pc-item"><a class="pc-link" href="{{ route('venue') }}">Venues</a>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('venues.index') }}">Venues</a>
                         </li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('chief-invigilator') }}">Cheif Invigilators </a>
                         </li>
@@ -149,7 +149,7 @@
                         <li class="pc-item"><a class="pc-link" href="{{ route('escort_staff') }}">Escort Staffs</a></li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('incpection') }}">Inspection
                                 Officers</a></li> 
-                        <li class="pc-item"><a class="pc-link" href="{{ route('venue') }}">Venues</a></li>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('venues.index') }}">Venues</a></li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('cheif_invigilator') }}">Cheif Invigilators </a>
                         </li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('invigilator') }}">Invigilators </a>

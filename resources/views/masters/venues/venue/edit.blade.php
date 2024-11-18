@@ -36,7 +36,7 @@
                 </div>
                 <div class="tab-content">
                     <div>
-                        <form action="{{ route('venue.update', $venue->venue_id) }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('venues.update', $venue->venue_id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                         <div class="row">

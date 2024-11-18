@@ -93,14 +93,7 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/roles/{id}/edit', [RoleController::class, 'edit'])->name('roles.edit');
     Route::put('/roles/{id}', [RoleController::class, 'update'])->name('roles.update');
     Route::get('/role/show', [RoleController::class, 'edit'])->name('roles.show');
-    // Venue
-    Route::get('/venue', [VenuesController::class, 'index'])->name('venue');
-    Route::get('/venue/add', [VenuesController::class, 'create'])->name('venue.create');
-    Route::post('/venues', [VenuesController::class, 'store'])->name('venues.store');
-    Route::get('venues/{id}/edit', [VenuesController::class, 'edit'])->name('venue.edit');
-    Route::put('/venue/{id}', [VenuesController::class, 'update'])->name('venue.update');
-    Route::post('/venue/{id}/toggle-status', [VenuesController::class, 'toggleVenueStatus'])->name('venue.toggleStatus');
-    Route::get('/venue/{id}', [VenuesController::class, 'show'])->name('venue.show');
+ 
     // Department
     Route::get('/department', [DepartmentOfficialsController::class, 'index'])->name('department');
     Route::get('/department/add', [DepartmentOfficialsController::class, 'create'])->name('department.create');
@@ -206,6 +199,19 @@ Route::prefix('mobile-team-staffs')->group(function () {
         Route::get('/{id}', [MobileTeamStaffsController::class, 'show'])->name('mobile-team-staffs.show');
         Route::post('/{id}/toggle-status', [MobileTeamStaffsController::class, 'toggleStatus'])->name('mobile-team-staffs.toggle-status');
         Route::delete('/{id}', [MobileTeamStaffsController::class, 'destroy'])->name('mobile-team-staffs.destroy');
+    });
+});
+//venues Route::prefix('venues')->group(function () {
+Route::prefix('venues')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/', [VenuesController::class, 'index'])->name('venues.index');
+        Route::get('/create', [VenuesController::class, 'create'])->name('venues.create');
+        Route::post('/', [VenuesController::class, 'store'])->name('venues.store');
+        Route::get('/{id}/edit', [VenuesController::class, 'edit'])->name('venues.edit');
+        Route::put('/{id}', [VenuesController::class, 'update'])->name('venues.update');
+        Route::get('/{id}', [VenuesController::class, 'show'])->name('venues.show');
+        Route::post('/{id}/toggle-status', [VenuesController::class, 'toggleStatus'])->name('venues.toggle-status');
+        Route::delete('/{id}', [VenuesController::class, 'destroy'])->name('venues.destroy');
     });
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

@@ -160,7 +160,7 @@
                             <div class="d-sm-flex align-items-center justify-content-between">
                                 <h5 class="mb-3 mb-sm-0">Invigilator list</h5>
                                 <div>
-                                    <a href="{{ route('invigilator.create') }}" class="btn btn-outline-success">Add
+                                    <a href="{{ route('invigilators.create') }}" class="btn btn-outline-success">Add
                                         Invigilator</a>
                                 </div>
                             </div>
@@ -208,7 +208,6 @@
                                         <th>Venue Name</th>
                                         <th>E-mail</th>
                                         <th>Phone</th>
-                                        <th>Email-Status</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -219,28 +218,28 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-shrink-0">
-                                                        <img src="{{ asset('storage/' . $invigilator->invigilator_image) }}"
-                                                            alt="user image" class="img-radius wid-40">
+                                                        @if ( $invigilator->invigilator_image)
+                                                            <img src="{{ asset('storage/' .  $invigilator->invigilator_image) }}"
+                                                                alt="district image" class="img-radius wid-40">
+                                                        @else
+                                                            <img src="{{ asset('storage/assets/images/user/avatar-4.jpg') }}"
+                                                                alt="default image" class="img-radius wid-40">
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </td>
+                                          
                                             <td>{{ $invigilator->invigilator_name }}</td>
                                             <td>{{ $invigilator->invigilator_designation }}</td>
                                             <td>{{ $invigilator->invigilator_email }}</td>
                                             <td>{{ $invigilator->invigilator_phone }}</td>
-                                            <td class="text-center">
-                                                @if ($invigilator->invigilator_email_status)
-                                                    <i class="ti ti-circle-check text-success f-18"></i>
-                                                @else
-                                                    <i class="ti ti-alert-circle text-danger f-18"></i>
-                                                @endif
-                                            </td>
+                                          
                                             <td>
-                                                <a href="{{ route('invigilator.show', ['id' => $invigilator->invigilator_id]) }}"
+                                                <a href="{{ route('invigilators.show', ['id' => $invigilator->invigilator_id]) }}"
                                                     class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-eye f-20"></i>
                                                 </a>
-                                                <a href="{{ route('invigilator.edit', ['id' => $invigilator->invigilator_id]) }}"
+                                                <a href="{{ route('invigilators.edit', ['id' => $invigilator->invigilator_id]) }}"
                                                     class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-edit f-20"></i>
                                                 </a>
@@ -282,7 +281,7 @@
                     const invigilatorId = this.dataset.invigilatorId;
     
                     // Send the request to toggle the invigilator status
-                    fetch(`{{ url('/') }}/invigilator/${invigilatorId}/toggle-status`, {
+                    fetch(`{{ url('/') }}/invigilators/${invigilatorId}/toggle-status`, {
                             method: 'POST',
                             headers: {
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}',

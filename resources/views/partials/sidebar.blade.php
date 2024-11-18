@@ -118,7 +118,7 @@
                         </li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('chief-invigilator') }}">Cheif Invigilators </a>
                         </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('invigilator') }}">Invigilators </a>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('invigilators.index') }}">Invigilators </a>
                         </li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('scribe') }}">Scribe </a>
                         </li>
@@ -152,7 +152,7 @@
                         <li class="pc-item"><a class="pc-link" href="{{ route('venues.index') }}">Venues</a></li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('cheif_invigilator') }}">Cheif Invigilators </a>
                         </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('invigilator') }}">Invigilators </a>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('invigilators.index') }}">Invigilators </a>
                         </li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('scribe') }}">Scribe </a>
                         </li>

@@ -63,14 +63,7 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/chief-invigilator/add', [ChiefInvigilatorsController::class, 'create'])->name('chief-invigilator.create');
     Route::get('/chief-invigilator/edit', [ChiefInvigilatorsController::class, 'edit'])->name('chief-invigilator.edit');
     Route::get('/chief-invigilator/show', [ChiefInvigilatorsController::class, 'show'])->name('chief-invigilator.show');
-    // Invigilator routes
-    Route::get('/invigilator', [InvigilatorsController::class, 'index'])->name('invigilator');
-    Route::get('/invigilator/add', [InvigilatorsController::class, 'create'])->name('invigilator.create');
-    Route::post('invigilator/store', [InvigilatorsController::class, 'store'])->name('invigilator.store');
-    Route::get('/invigilator/{id}/edit', [InvigilatorsController::class, 'edit'])->name('invigilator.edit');
-    Route::put('/invigilator/{id}', [InvigilatorsController::class, 'update'])->name('invigilator.update');
-    Route::post('/invigilator/{id}/toggle-status', [InvigilatorsController::class, 'toggleInvigilatorStatus'])->name('invigilator.toggleStatus');
-    Route::get('invigilators/{id}', [InvigilatorsController::class, 'show'])->name('invigilator.show');
+    
     // Scribe
     Route::get('/scribe', [ScribeController::class, 'index'])->name('scribe');
     Route::get('/scribe/add', [ScribeController::class, 'create'])->name('scribe.create');
@@ -212,6 +205,19 @@ Route::prefix('venues')->group(function () {
         Route::get('/{id}', [VenuesController::class, 'show'])->name('venues.show');
         Route::post('/{id}/toggle-status', [VenuesController::class, 'toggleStatus'])->name('venues.toggle-status');
         Route::delete('/{id}', [VenuesController::class, 'destroy'])->name('venues.destroy');
+    });
+});
+//invigilators Route::prefix('invigilators')->group(function () {
+Route::prefix('invigilators')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/', [InvigilatorsController::class, 'index'])->name('invigilators.index');
+        Route::get('/create', [InvigilatorsController::class, 'create'])->name('invigilators.create');
+        Route::post('/', [InvigilatorsController::class, 'store'])->name('invigilators.store');
+        Route::get('/{id}/edit', [InvigilatorsController::class, 'edit'])->name('invigilators.edit');
+        Route::put('/{id}', [InvigilatorsController::class, 'update'])->name('invigilators.update');
+        Route::get('/{id}', [InvigilatorsController::class, 'show'])->name('invigilators.show');
+        Route::post('/{id}/toggle-status', [InvigilatorsController::class, 'toggleStatus'])->name('invigilators.toggle-status');
+        Route::delete('/{id}', [InvigilatorsController::class, 'destroy'])->name('invigilators.destroy');
     });
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

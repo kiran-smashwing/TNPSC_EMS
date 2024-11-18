@@ -64,13 +64,6 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/chief-invigilator/edit', [ChiefInvigilatorsController::class, 'edit'])->name('chief-invigilator.edit');
     Route::get('/chief-invigilator/show', [ChiefInvigilatorsController::class, 'show'])->name('chief-invigilator.show');
     
-    // Scribe
-    Route::get('/scribe', [ScribeController::class, 'index'])->name('scribe');
-    Route::get('/scribe/add', [ScribeController::class, 'create'])->name('scribe.create');
-    Route::post('/scribe', [ScribeController::class, 'store'])->name('scribes.store');
-    Route::get('{id}/edit', [ScribeController::class, 'edit'])->name('scribes.edit'); // Edit form route
-    Route::put('/scribe/{id}', [ScribeController::class, 'update'])->name('scribe.update');
-    Route::get('/scribe/{id}', [ScribeController::class, 'show'])->name('scribe.show');
     // CI Assistants
     Route::get('/ci-assistant', [CIAssistantsController::class, 'index'])->name('ci-assistant');
     Route::get('/ci-assistant/add', [CIAssistantsController::class, 'create'])->name('ci-assistant.create');
@@ -218,6 +211,19 @@ Route::prefix('invigilators')->group(function () {
         Route::get('/{id}', [InvigilatorsController::class, 'show'])->name('invigilators.show');
         Route::post('/{id}/toggle-status', [InvigilatorsController::class, 'toggleStatus'])->name('invigilators.toggle-status');
         Route::delete('/{id}', [InvigilatorsController::class, 'destroy'])->name('invigilators.destroy');
+    });
+});
+//scribes Route::prefix('scribes')->group(function () {
+Route::prefix('scribes')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/', [ScribeController::class, 'index'])->name('scribes.index');
+        Route::get('/create', [ScribeController::class, 'create'])->name('scribes.create');
+        Route::post('/', [ScribeController::class, 'store'])->name('scribes.store');
+        Route::get('/{id}/edit', [ScribeController::class, 'edit'])->name('scribes.edit');
+        Route::put('/{id}', [ScribeController::class, 'update'])->name('scribes.update');
+        Route::get('/{id}', [ScribeController::class, 'show'])->name('scribes.show');
+        Route::post('/{id}/toggle-status', [ScribeController::class, 'toggleStatus'])->name('scribes.toggle-status');
+        Route::delete('/{id}', [ScribeController::class, 'destroy'])->name('scribes.destroy');
     });
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

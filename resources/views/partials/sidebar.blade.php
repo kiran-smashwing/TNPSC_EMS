@@ -120,7 +120,7 @@
                         </li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('invigilators.index') }}">Invigilators </a>
                         </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('scribe') }}">Scribe </a>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('scribes.index') }}">Scribe </a>
                         </li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('ci-assistant') }}">CI Assistants </a>
                         </li>
@@ -154,7 +154,7 @@
                         </li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('invigilators.index') }}">Invigilators </a>
                         </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('scribe') }}">Scribe </a>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('scribes.index') }}">Scribe </a>
                         </li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('ci_assistants') }}">CI Assistants </a>
                         </li> --}}

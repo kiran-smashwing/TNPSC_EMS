@@ -8,12 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class Scribe extends Model
 {
     use HasFactory;
+    protected $casts = [
+        'scribe_status' => 'boolean',
+    ];
 
     // Set the correct table name
     protected $table = 'scribe';  // Ensure this matches the table name in your database
 
     // Set the primary key for the model
     protected $primaryKey = 'scribe_id';
+    public $timestamps = false;
 
     // Allow mass assignment for the specified fields
     protected $fillable = [
@@ -25,19 +29,18 @@ class Scribe extends Model
         'scribe_phone',
         'scribe_designation',
         'scribe_image',  // image field
+        'scribe_status',
+        'scribe_createdat',
     ];
 
-    // Cast attributes to appropriate data types
-    protected $casts = [
-        'scribe_createdat' => 'datetime', // Ensure that the timestamp is handled correctly
-    ];
-
-    // Disable automatic handling of 'updated_at' column
-    public function getUpdatedAtColumn()
+    protected static function boot()
     {
-        return null;  // If you don't want an 'updated_at' column
+        parent::boot();
+        static::creating(function ($model) {
+            $model->scribe_createdat = now();
+        });
     }
-
+   
     // Define relationships with other models
     public function district()
     {

@@ -7,7 +7,6 @@ use App\Models\Center;
 use App\Models\District;
 use App\Models\Venues;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use App\Services\AuditLogger;
 use Illuminate\Support\Facades\Storage;
 use App\Services\ImageCompressService;
@@ -41,16 +40,24 @@ class ScribeController extends Controller
     }
     public function store(Request $request)
     {
+        $messages = [
+            'district.required' => 'Please select a district',
+            'district.integer' => 'Please select a valid district',
+            'center.required' => 'Please select a center',
+            'center.integer' => 'Please select a valid center',
+            'venue.required' => 'Please select a venue',
+            'venue.integer' => 'Please select a valid venue',
+        ];
         $validated = $request->validate([
-            'district_id'   => 'required|string|max:50',
-            'center_id'     => 'required|string|max:50',
-            'venue_id'      => 'required|string|max:50',
-            'name'           => 'required|string|max:255',
-            'email'          => 'required|email|max:255',
-            'phone'          => 'required|string|max:15',
-            'designation'    => 'required|string|max:255',
-            'cropped_image'  => 'nullable|string'  // For image (if needed)
-        ]);
+            'district' => 'required|integer', // Assuming you have a relation to district
+            'center' => 'required|integer',
+            'venue' => 'required|integer',
+            'name' => 'required|string|max:255',
+            'mail' => 'required|email|max:255|unique:scribe,scribe_email',
+            'phone' => 'required|string|max:15',
+            'designation' => 'required|string|max:255',
+            'cropped_image' => 'nullable|string', // Base64 image input
+        ], $messages);
 
         try {
             // If cropped_image exists, process it
@@ -64,7 +71,7 @@ class ScribeController extends Controller
                 }
 
                 // Create a unique image name
-                $imageName = 'scribe_' . time() . '.png';
+                $imageName = $validated['name'] . time() . '.png';
                 $imagePath = 'images/scribes/' . $imageName;
 
                 // Store the image
@@ -86,11 +93,11 @@ class ScribeController extends Controller
 
             // Create a new Scribe record
             $scribe = Scribe::create([
-                'scribe_district_id'   => $validated['district_id'],
-                'scribe_center_id'     => $validated['center_id'],
-                'scribe_venue_id'      => $validated['venue_id'],
+                'scribe_district_id'   => $validated['district'],
+                'scribe_center_id'     => $validated['center'],
+                'scribe_venue_id'      => $validated['venue'],
                 'scribe_name'          => $validated['name'],
-                'scribe_email'         => $validated['email'],
+                'scribe_email'         => $validated['mail'],
                 'scribe_phone'         => $validated['phone'],
                 'scribe_designation'   => $validated['designation'],
                 'scribe_image'         => $validated['image'] ?? null  // Save image if available
@@ -100,7 +107,7 @@ class ScribeController extends Controller
             AuditLogger::log('Scribe Created', Scribe::class, $scribe->scribe_id, null, $scribe->toArray());
 
             // Redirect to the scribe list or wherever necessary
-            return redirect()->route('scribe')->with('success', 'Scribe created successfully.');
+            return redirect()->route('scribes.index')->with('success', 'Scribe created successfully.');
         } catch (\Exception $e) {
             // If there's an error, return back with an error message
             return back()->withInput()->with('error', 'Error creating scribe: ' . $e->getMessage());
@@ -126,18 +133,25 @@ class ScribeController extends Controller
     {
         // Find the scribe record by ID
         $scribe = Scribe::findOrFail($id);
-
-        // Validation rules for the scribe data
+        $messages = [
+            'district.required' => 'Please select a district',
+            'district.integer' => 'Please select a valid district',
+            'center.required' => 'Please select a center',
+            'center.integer' => 'Please select a valid center',
+            'venue.required' => 'Please select a venue',
+            'venue.integer' => 'Please select a valid venue',
+        ];
         $validated = $request->validate([
+            'district' => 'required|integer',
+            'center' => 'required|integer',
+            'venue' => 'required|integer',
             'name' => 'required|string|max:255',
-            'mail' => 'required|email|unique:scribe,scribe_email,' . $id . ',scribe_id',
-            'phone' => 'required|string',
-            'designation' => 'nullable|string',
-            'district_id' => 'required|exists:district,district_id',
-            'center_id' => 'required|exists:centers,center_id',
-            'venue_id' => 'required|exists:venue,venue_id',
-            'cropped_image' => 'nullable|string', // Base64 encoded image string
-        ]);
+            'mail' => 'required|email|max:255|unique:scribe,scribe_email,' . $id . ',scribe_id',
+            'phone' => 'required|string|max:15',
+            'designation' => 'required|string|max:255',
+            'cropped_image' => 'nullable|string' // Base64 image input
+        ], $messages);
+    
 
         try {
             $newImagePath = null;
@@ -152,7 +166,7 @@ class ScribeController extends Controller
                 }
 
                 // Create a unique filename for the image
-                $imageName = 'scribe_' . time() . '.jpg';
+                $imageName = $validated['name'] . time() . '.png';
                 $imagePath = 'images/scribes/' . $imageName;
 
                 // Save the image in public storage
@@ -180,9 +194,9 @@ class ScribeController extends Controller
                 'scribe_email' => $validated['mail'],
                 'scribe_phone' => $validated['phone'],
                 'scribe_designation' => $validated['designation'],
-                'scribe_district_id' => $validated['district_id'],
-                'scribe_center_id' => $validated['center_id'],
-                'scribe_venue_id' => $validated['venue_id'],
+                'scribe_district_id' => $validated['district'],
+                'scribe_center_id' => $validated['center'],
+                'scribe_venue_id' => $validated['venue'],
             ];
 
             // Add the new image path if it's provided
@@ -195,16 +209,13 @@ class ScribeController extends Controller
             AuditLogger::log('Scribe Created', Scribe::class, $scribe->scribe_id, null, $scribe->toArray());
 
             // Redirect to the scribe show page (adjust route as necessary)
-            return redirect()->route('scribe', $scribe->scribe_id)
+            return redirect()->route('scribes.index', $scribe->scribe_id)
                 ->with('success', 'Scribe updated successfully');
         } catch (\Exception $e) {
             return back()->withInput()
                 ->with('error', 'Error updating scribe: ' . $e->getMessage());
         }
     }
-
-
-
 
     public function show($id)
     {
@@ -218,5 +229,40 @@ class ScribeController extends Controller
 
         // Return the view with the Scribe and related data
         return view('masters.venues.scribe.show', compact('scribe', 'district', 'venue', 'center'));
+    }
+
+    public function toggleStatus($id)
+    {
+        try {
+            $scribe = Scribe::findOrFail($id);
+
+            // Get current status before update
+            $oldStatus = $scribe->scribe_status;
+
+            // Toggle the status
+            $scribe->scribe_status = !$scribe->scribe_status;
+            $scribe->save();
+
+            // Log the status change
+            AuditLogger::log(
+                'Scribe Status Changed',
+                Scribe::class,
+                $scribe->scribe_id,
+                ['status' => $oldStatus],
+                ['status' => $scribe->scribe_status]
+            );
+
+            return response()->json([
+                'success' => true,
+                'status' => $scribe->scribe_status,
+                'message' => 'Scribe status updated successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update scribe status',
+                'details' => $e->getMessage(),  // Optional
+            ], 500);
+        }
     }
 }

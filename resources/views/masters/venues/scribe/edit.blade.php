@@ -37,7 +37,7 @@
                 </div>
                 <div class="tab-content">
                     <div>
-                        <form action="{{ route('scribe.update', $scribe->scribe_id) }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('scribes.update', $scribe->scribe_id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                         <div class="row">
@@ -80,7 +80,7 @@
                                                     data-bs-toggle="modal" data-bs-target="#cropperModal">
                                                     <img src="{{ $scribe->scribe_image
                                                         ? asset('storage/' . $scribe->scribe_image)
-                                                        : asset('storage/assets/images/user/collectorate.png') }}"
+                                                        : asset('storage/assets/images/user/avatar-4.jpg') }}"
                                                         id="previewImage" alt="Cropped Preview"
                                                         style="max-width: 100%; height: auto; object-fit: cover;">
                                                     <input type="hidden" name="cropped_image" id="cropped_image">
@@ -89,83 +89,97 @@
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label" for="district_id">District<span
-                                                            class="text-danger">*</span></label>
-                                                    <select class="form-control" id="district_id" name="district_id"
-                                                        required>
+                                                    <label class="form-label" for="district">District<span class="text-danger">*</span></label>
+                                                    <select class="form-control @error('district') is-invalid @enderror" id="district" name="district" required>
                                                         <option value="">Select District</option>
                                                         @foreach ($districts as $district)
-                                                            <option value="{{ $district->district_id }}"
-                                                                {{ old('district_id', $scribe->scribe_district_id) == $district->district_id ? 'selected' : '' }}>
+                                                            <option value="{{ $district->district_id }}" {{ $scribe->scribe_district_id == $district->district_id ? 'selected' : '' }}>
                                                                 {{ $district->district_name }}
                                                             </option>
                                                         @endforeach
                                                     </select>
+                                                    @error('district')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
                                             </div>
-
+                                            
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label" for="center_id">Center<span
-                                                            class="text-danger">*</span></label>
-                                                    <select class="form-control" id="center_id" name="center_id" required>
+                                                    <label class="form-label" for="center">Center<span class="text-danger">*</span></label>
+                                                    <select class="form-control @error('center') is-invalid @enderror" id="center" name="center" required>
                                                         <option value="">Select Center</option>
                                                         @foreach ($centers as $center)
-                                                            <option value="{{ $center->center_id }}"
-                                                                {{ old('center_id', $scribe->scribe_center_id) == $center->center_id ? 'selected' : '' }}>
+                                                            <option value="{{ $center->center_id }}" {{ $scribe->scribe_center_id == $center->center_id ? 'selected' : '' }}>
                                                                 {{ $center->center_name }}
                                                             </option>
                                                         @endforeach
                                                     </select>
+                                                    @error('center')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
                                             </div>
-
+                                            
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label" for="venue_id">Venue<span
-                                                            class="text-danger">*</span></label>
-                                                    <select class="form-control" id="venue_id" name="venue_id" required>
+                                                    <label class="form-label" for="venue">Venue<span class="text-danger">*</span></label>
+                                                    <select class="form-control @error('venue') is-invalid @enderror" id="venue" name="venue" required>
                                                         <option value="">Select Venue</option>
                                                         @foreach ($venues as $venue)
-                                                            <option value="{{ $venue->venue_id }}"
-                                                                {{ old('venue_id', $scribe->scribe_venue_id) == $venue->venue_id ? 'selected' : '' }}>
+                                                            <option value="{{ $venue->venue_id }}" {{ $scribe->scribe_venue_id == $venue->venue_id ? 'selected' : '' }}>
                                                                 {{ $venue->venue_name }}
                                                             </option>
                                                         @endforeach
                                                     </select>
+                                                    @error('venue')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
                                             </div>
-
+                                            
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="name">Name <span
                                                             class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control" id="name" value="{{ old('name', $scribe->scribe_name) }}" name="name"
+                                                    <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" value="{{ old('name', $scribe->scribe_name) }}" name="name"
                                                         placeholder="Malarvizhi" required>
+                                                    @error('name')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Email<span
                                                             class="text-danger">*</span></label>
-                                                    <input type="email" class="form-control" id="mail" value="{{ old('mail', $scribe->scribe_email) }}" name="mail"
+                                                    <input type="email" class="form-control @error('mail') is-invalid @enderror" id="mail" value="{{ old('mail', $scribe->scribe_email) }}" name="mail"
                                                         placeholder="malarvizhi@***.in" required>
+                                                    @error('mail')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="phone">Phone<span
                                                             class="text-danger">*</span></label>
-                                                    <input type="tel" class="form-control" id="phone"
-                                                        name="phone" value="{{ old('phone', $scribe->scribe_phone) }}" placeholder="9434***1212" required>
+                                                    <input type="tel" class="form-control @error('phone') is-invalid @enderror" id="phone" value="{{ old('phone', $scribe->scribe_phone) }}" name="phone"
+                                                        placeholder="9434***1212" required>
+                                                    @error('phone')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="designation">Designation <span
                                                             class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control" id="designation"
+                                                    <input type="text" class="form-control @error('designation') is-invalid @enderror" id="designation"
                                                         name="designation" value="{{ old('designation', $scribe->scribe_designation) }}" placeholder="Asst Professor" required>
+                                                    @error('designation')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
                                             </div>
                                         </div>
@@ -173,7 +187,7 @@
                                 </div>
                             </div>
                             <div class="col-12 text-end btn-page">
-                                <a href="{{ route('scribe') }}" class="btn btn-outline-secondary">Cancel</a>
+                                <a href="{{ route('scribes.index') }}" class="btn btn-outline-secondary">Cancel</a>
                                 <button type="submit" class="btn btn-primary">Update</button>
                             </div>
                         </div>

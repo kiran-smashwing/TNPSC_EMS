@@ -266,82 +266,83 @@
         </div>
     </section>
     <!-- [ Main Content ] end -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const toggleButtons = document.querySelectorAll('.status-toggle');
-    
-            toggleButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-    
-                    // Disable the button during processing
-                    this.classList.add('disabled');
-    
-                    // Get the invigilator ID from the data attribute
-                    const invigilatorId = this.dataset.invigilatorId;
-    
-                    // Send the request to toggle the invigilator status
-                    fetch(`{{ url('/') }}/invigilators/${invigilatorId}/toggle-status`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json'
-                            },
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Toggle button classes
-                                this.classList.toggle('btn-light-success');
-                                this.classList.toggle('btn-light-danger');
-    
-                                // Toggle icon
-                                const icon = this.querySelector('i');
-                                if (icon.classList.contains('ti-toggle-right')) {
-                                    icon.classList.remove('ti-toggle-right');
-                                    icon.classList.add('ti-toggle-left');
-                                } else {
-                                    icon.classList.remove('ti-toggle-left');
-                                    icon.classList.add('ti-toggle-right');
-                                }
-    
-                                // Show success notification
-                                showNotification(
-                                    'Status Updated',
-                                    data.message || 'Invigilator status updated successfully',
-                                    'success'
-                                );
-                            } else {
-                                // Show error notification
-                                showNotification(
-                                    'Update Failed',
-                                    data.message || 'Failed to update status',
-                                    'error'
-                                );
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            showNotification(
-                                'Error',
-                                'An error occurred while updating status',
-                                'error'
-                            );
-                        })
-                        .finally(() => {
-                            // Re-enable the button
-                            this.classList.remove('disabled');
-                        });
-                });
-            });
-        });
-    </script>
+   
     
     @include('partials.footer')
 
     @push('scripts')
         @include('partials.datatable-export-js')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const toggleButtons = document.querySelectorAll('.status-toggle');
+        
+                toggleButtons.forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+        
+                        // Disable the button during processing
+                        this.classList.add('disabled');
+        
+                        // Get the invigilator ID from the data attribute
+                        const invigilatorId = this.dataset.invigilatorId;
+        
+                        // Send the request to toggle the invigilator status
+                        fetch(`{{ url('/') }}/invigilators/${invigilatorId}/toggle-status`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json'
+                                },
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Toggle button classes
+                                    this.classList.toggle('btn-light-success');
+                                    this.classList.toggle('btn-light-danger');
+        
+                                    // Toggle icon
+                                    const icon = this.querySelector('i');
+                                    if (icon.classList.contains('ti-toggle-right')) {
+                                        icon.classList.remove('ti-toggle-right');
+                                        icon.classList.add('ti-toggle-left');
+                                    } else {
+                                        icon.classList.remove('ti-toggle-left');
+                                        icon.classList.add('ti-toggle-right');
+                                    }
+        
+                                    // Show success notification
+                                    showNotification(
+                                        'Status Updated',
+                                        data.message || 'Invigilator status updated successfully',
+                                        'success'
+                                    );
+                                } else {
+                                    // Show error notification
+                                    showNotification(
+                                        'Update Failed',
+                                        data.message || 'Failed to update status',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                showNotification(
+                                    'Error',
+                                    'An error occurred while updating status',
+                                    'error'
+                                );
+                            })
+                            .finally(() => {
+                                // Re-enable the button
+                                this.classList.remove('disabled');
+                            });
+                    });
+                });
+            });
+        </script>
     @endpush
 
     @include('partials.theme')

@@ -160,7 +160,7 @@
                         <div class="d-sm-flex align-items-center justify-content-between">
                             <h5 class="mb-3 mb-sm-0">Scribe list</h5>
                             <div>
-                                <a href="{{route('scribe.create')}}" class="btn btn-outline-success">Add Scribe</a>
+                                <a href="{{route('scribes.create')}}" class="btn btn-outline-success">Add Scribe</a>
                             </div>
                         </div>
                     </div>
@@ -206,7 +206,6 @@
                                     <th>Venue Name</th>
                                     <th>E-mail</th>
                                     <th>Phone</th>
-                                    <th>status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -217,10 +216,17 @@
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <div class="flex-shrink-0">
-                                                    <img src="{{ $scribe->scribe_image ? asset('storage/' . $scribe->scribe_image) : asset('assets/images/user/avatar-1.jpg') }}" alt="user image" class="img-radius wid-40">
+                                                    @if ($scribe->scribe_image )
+                                                        <img src="{{ asset('storage/' . $scribe->scribe_image ) }}"
+                                                            alt="district image" class="img-radius wid-40">
+                                                    @else
+                                                        <img src="{{ asset('storage/assets/images/user/avatar-4.jpg') }}"
+                                                            alt="default image" class="img-radius wid-40">
+                                                    @endif
                                                 </div>
                                             </div>
                                         </td>
+                                        
                                         <td>
                                             <div class="flex-grow-1 ms-3">
                                                 <h6 class="mb-0">{{ $scribe->scribe_name }}</h6>
@@ -229,17 +235,21 @@
                                         <td>{{ $scribe->district->district_name }}</td>
                                         <td>{{ $scribe->scribe_email }}</td>
                                         <td>{{ $scribe->scribe_phone }}</td>
-                                        <td></td>
                                         <td>
-                                            <a href="{{ route('scribe.show', $scribe->scribe_id) }}" class="avtar avtar-xs btn-light-success">
+                                            <a href="{{ route('scribes.show', $scribe->scribe_id) }}" class="avtar avtar-xs btn-light-success">
                                                 <i class="ti ti-eye f-20"></i>
                                             </a>
                                             <a href="{{ route('scribes.edit', $scribe->scribe_id) }}" class="avtar avtar-xs btn-light-success">
                                                 <i class="ti ti-edit f-20"></i>
                                             </a>
-                                            <a href="#" class="avtar avtar-xs btn-light-success" title="Change Status (Active or Inactive)">
-                                                <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
-                                            </a>
+                                            <a href="#"
+                                            class="avtar avtar-xs status-toggle {{ $scribe->scribe_status ? 'btn-light-success' : 'btn-light-danger' }}"
+                                            data-scribe-id="{{ $scribe->scribe_id }}"
+                                            title="Change Status (Active or Inactive)">
+                                            <i
+                                                class="ti ti-toggle-{{ $scribe->scribe_status ? 'right' : 'left' }} f-20"></i>
+                                        </a>
+
                                         </td>
                                     </tr>
                                 @endforeach
@@ -259,6 +269,77 @@
 
 @push('scripts')
 @include('partials.datatable-export-js')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleButtons = document.querySelectorAll('.status-toggle');
+
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                // Disable the button during processing
+                this.classList.add('disabled');
+
+                // Get the invigilator ID from the data attribute
+                const scribeId = this.dataset.scribeId;
+
+                // Send the request to toggle the invigilator status
+                fetch(`{{ url('/') }}/scribes/${scribeId}/toggle-status`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Toggle button classes
+                            this.classList.toggle('btn-light-success');
+                            this.classList.toggle('btn-light-danger');
+
+                            // Toggle icon
+                            const icon = this.querySelector('i');
+                            if (icon.classList.contains('ti-toggle-right')) {
+                                icon.classList.remove('ti-toggle-right');
+                                icon.classList.add('ti-toggle-left');
+                            } else {
+                                icon.classList.remove('ti-toggle-left');
+                                icon.classList.add('ti-toggle-right');
+                            }
+
+                            // Show success notification
+                            showNotification(
+                                'Status Updated',
+                                data.message || 'Scribe status updated successfully',
+                                'success'
+                            );
+                        } else {
+                            // Show error notification
+                            showNotification(
+                                'Update Failed',
+                                data.message || 'Failed to update status',
+                                'error'
+                            );
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showNotification(
+                            'Error',
+                            'An error occurred while updating status',
+                            'error'
+                        );
+                    })
+                    .finally(() => {
+                        // Re-enable the button
+                        this.classList.remove('disabled');
+                    });
+            });
+        });
+    });
+</script>
 @endpush
 
 @include('partials.theme')

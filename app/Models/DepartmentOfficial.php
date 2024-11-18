@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class DepartmentOfficial extends Model
+class DepartmentOfficial extends Authenticatable
 {
     use HasFactory, Notifiable;
 
@@ -36,6 +36,11 @@ class DepartmentOfficial extends Model
     public function getUpdatedAtColumn()
     {
         return null; // If you don't want to track updates (like in the `Center` model)
+    }
+
+    public function getAuthPassword()
+    {
+        return $this->dept_off_password;
     }
 
      // You can add other relationships like 'role' if you have a related model for roles

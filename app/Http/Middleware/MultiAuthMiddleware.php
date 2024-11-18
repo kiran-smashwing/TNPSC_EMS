@@ -31,6 +31,8 @@ class MultiAuthMiddleware
             'center' => $user->center_id,
             'mobile_team_staffs' => $user->mobile_team_id,
             'venue' => $user->venue_id,
+            'headquarters' => $user->dept_off_id,
+            'ci' => $user->ci_id,
             default => null
         };
 

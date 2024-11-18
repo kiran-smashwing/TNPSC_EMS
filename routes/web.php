@@ -67,7 +67,9 @@ Route::middleware(['auth.multi'])->group(function () {
     // Cheif Invigilator routes
     Route::get('/chief-invigilator', [ChiefInvigilatorsController::class, 'index'])->name('chief-invigilator');
     Route::get('/chief-invigilator/add', [ChiefInvigilatorsController::class, 'create'])->name('chief-invigilator.create');
-    Route::get('/chief-invigilator/edit', [ChiefInvigilatorsController::class, 'edit'])->name('chief-invigilator.edit');
+    Route::post('/chief-invigilator/store', [ChiefInvigilatorsController::class, 'store'])->name('chief-invigilator.store');
+    Route::get('/chief-invigilator/{id}/edit', [ChiefInvigilatorsController::class, 'edit'])->name('chief-invigilator.edit');
+    Route::put('/chief-invigilator/{id}', [ChiefInvigilatorsController::class, 'update'])->name('chief-invigilator.update');
     Route::get('/chief-invigilator/show', [ChiefInvigilatorsController::class, 'show'])->name('chief-invigilator.show');
     // Invigilator routes
     Route::get('/invigilator', [InvigilatorsController::class, 'index'])->name('invigilator');
@@ -84,6 +86,7 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('{id}/edit', [ScribeController::class, 'edit'])->name('scribes.edit'); // Edit form route
     Route::put('/scribe/{id}', [ScribeController::class, 'update'])->name('scribe.update');
     Route::get('/scribe/{id}', [ScribeController::class, 'show'])->name('scribe.show');
+    Route::post('/scribe/{id}/toggle-status', [ScribeController::class, 'toggleStatus'])->name('scribe.toggleStatus');
     // CI Assistants
     Route::get('/ci-assistant', [CIAssistantsController::class, 'index'])->name('ci-assistant');
     Route::get('/ci-assistant/add', [CIAssistantsController::class, 'create'])->name('ci-assistant.create');
@@ -91,6 +94,7 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/ci-assistant/edit/{id}', [CIAssistantsController::class, 'edit'])->name('ci-assistant.edit');
     Route::put('/ci-assistant/{id}', [CIAssistantsController::class, 'update'])->name('ci-assistant.update');
     Route::get('/ci-assistant/{id}', [CIAssistantsController::class, 'show'])->name('ci-assistant.show');
+    Route::post('/ci-assistant/{id}/toggle-status', [CIAssistantsController::class, 'toggleStatus'])->name('ciAssistant.toggleStatus');
 
     // Role
     Route::get('/role', [RoleController::class, 'index'])->name('role');
@@ -114,6 +118,7 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/department-officials/{id}/edit', [DepartmentOfficialsController::class, 'edit'])->name('department.edit');
     Route::put('department/officials/{id}', [DepartmentOfficialsController::class, 'update'])->name('department.officials.update');
     Route::get('/department/officials/show/{id}', [DepartmentOfficialsController::class, 'show'])->name('department.show');
+    Route::post('/department-official/{id}/toggle-status', [DepartmentOfficialsController::class, 'toggleStatus'])->name('departmentOfficial.toggleStatus');
     // Examination Services
     Route::get('/exam-service', [ExamServiceController::class, 'index'])->name('exam-service');
     Route::get('/exam-service/add', [ExamServiceController::class, 'create'])->name('exam-service.create');

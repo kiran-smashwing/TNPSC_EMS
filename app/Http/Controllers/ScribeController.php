@@ -203,6 +203,32 @@ class ScribeController extends Controller
         }
     }
 
+    public function toggleStatus($id)
+    {
+        try {
+            // Find the scribe by ID
+            $scribe = Scribe::findOrFail($id);
+
+            // Get the current status before updating
+            $oldStatus = $scribe->scribe_status;
+
+            // Toggle the status
+            $scribe->scribe_status = !$scribe->scribe_status;
+            $scribe->save();
+
+            return response()->json([
+                'success' => true,
+                'status' => $scribe->scribe_status,
+                'message' => 'Scribe status updated successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update scribe status',
+                'details' => $e->getMessage(), // Optional for debugging
+            ], 500);
+        }
+    }
 
 
 

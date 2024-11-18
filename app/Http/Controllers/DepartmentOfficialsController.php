@@ -176,6 +176,34 @@ class DepartmentOfficialsController extends Controller
         }
     }
 
+    public function toggleStatus($id)
+    {
+        try {
+            // Find the department official by ID
+            $departmentOfficial = DepartmentOfficial::findOrFail($id);
+
+            // Get the current status before updating
+            $oldStatus = $departmentOfficial->dept_off_status;
+
+            // Toggle the status
+            $departmentOfficial->dept_off_status = !$departmentOfficial->dept_off_status;
+            $departmentOfficial->save();
+
+            return response()->json([
+                'success' => true,
+                'status' => $departmentOfficial->dept_off_status,
+                'message' => 'Department Official status updated successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update status',
+                'details' => $e->getMessage(), // Optional for debugging
+            ], 500);
+        }
+    }
+
+
 
     public function show($id)
     {
@@ -184,6 +212,6 @@ class DepartmentOfficialsController extends Controller
         $roles = Role::findOrFail($official->dept_off_role);
 
         // Pass the department official data to the view
-        return view('masters.department.officials.show', compact('official','roles'));
+        return view('masters.department.officials.show', compact('official', 'roles'));
     }
 }

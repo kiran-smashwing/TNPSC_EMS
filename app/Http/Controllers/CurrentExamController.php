@@ -9,7 +9,7 @@ class CurrentExamController extends Controller
     public function __construct()
     {
         //apply the auth middleware to the entire controller
-        $this->middleware('auth');
+        $this->middleware('auth.multi');
     }
 
     public function index()

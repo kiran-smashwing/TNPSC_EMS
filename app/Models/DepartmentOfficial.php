@@ -22,6 +22,7 @@ class DepartmentOfficial extends Authenticatable
         'dept_off_email',
         'dept_off_password',
         'dept_off_image',
+        'dept_off_status',
     ];
 
     protected $hidden = [

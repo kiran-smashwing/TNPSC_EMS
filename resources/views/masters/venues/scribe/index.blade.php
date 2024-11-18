@@ -234,7 +234,6 @@
                                         <td>{{ $scribe->district->district_name }}</td>
                                         <td>{{ $scribe->scribe_email }}</td>
                                         <td>{{ $scribe->scribe_phone }}</td>
-                                        <td></td>
                                         <td>
                                             <a href="{{ route('scribes.show', $scribe->scribe_id) }}" class="avtar avtar-xs btn-light-success">
                                                 <i class="ti ti-eye f-20"></i>

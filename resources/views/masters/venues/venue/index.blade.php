@@ -240,9 +240,19 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>
-                                                <img src="{{ asset('storage/' . $venue->venue_image) }}" alt="Venue Image"
-                                                    class="img-radius wid-40">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0">
+                                                        @if ($venue->venue_image)
+                                                            <img src="{{ asset('storage/' . $venue->venue_image) }}"
+                                                                alt="district image" class="img-radius wid-40">
+                                                        @else
+                                                            <img src="{{ asset('storage/assets/images/user/venue.png') }}"
+                                                                alt="default image" class="img-radius wid-40">
+                                                        @endif
+                                                    </div>
+                                                </div>
                                             </td>
+                                           
                                             <td>{{ $venue->venue_name }}</td>
                                             <td>{{ $venue->district->district_name ?? 'N/A' }}</td>
                                             {{-- <td>{{ $venue->center->center_name ?? 'N/A' }}</td> --}}
@@ -256,10 +266,15 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <a href="{{ route('venue.show', $venue->venue_id) }}"
-                                                    class="btn btn-light-success"><i class="ti ti-eye"></i></a>
-                                                <a href="{{ route('venue.edit', $venue->venue_id) }}"
-                                                    class="btn btn-light-success"><i class="ti ti-edit"></i></a>
+                                                <a href="{{  route('venue.show', $venue->venue_id) }}"
+                                                    class="avtar avtar-xs btn-light-success">
+                                                    <i class="ti ti-eye f-20"></i>
+                                                </a>
+                                                <a href="{{route('venue.edit', $venue->venue_id) }}"
+                                                    class="avtar avtar-xs btn-light-success">
+                                                    <i class="ti ti-edit f-20"></i>
+                                                </a>
+                                               
                                                 <a href="#"
                                                     class="avtar avtar-xs status-toggle {{ $venue->venue_status ? 'btn-light-success' : 'btn-light-danger' }}"
                                                     data-venue-id="{{ $venue->venue_id }}"

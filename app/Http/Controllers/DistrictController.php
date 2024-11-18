@@ -15,7 +15,7 @@ class DistrictController extends Controller
     public function __construct(ImageCompressService $imageService)
     {
 
-        $this->middleware('auth:district');
+        $this->middleware('auth.multi');
         $this->imageService = $imageService;
 
     }

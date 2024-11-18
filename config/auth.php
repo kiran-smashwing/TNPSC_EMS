@@ -59,6 +59,10 @@ return [
             'driver' => 'session',
             'provider' => 'venue',
         ],
+        'headquarters' => [
+            'driver' => 'session',
+            'provider' => 'headquarters',
+        ],
     ],
 
 
@@ -103,6 +107,10 @@ return [
         'venue' => [
             'driver' => 'eloquent',
             'model' => App\Models\Venues::class,
+        ],
+        'headquarters' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\DepartmentOfficial::class,
         ],
 
         // 'users' => [

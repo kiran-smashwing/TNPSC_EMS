@@ -121,6 +121,16 @@ class AuthController extends Controller
                         $userId = $user->venue_id; // Adjust this based on your treasury table's ID column
                     }
                     break;
+                case 'headquarters':
+                    $success = Auth::guard('headquarters')->attempt([
+                        'dept_off_email' => $email,
+                        'password' => $password
+                    ], $remember);
+                    if ($success) {
+                        $user = Auth::guard('headquarters')->user();
+                        $userId = $user->venue_id; // Adjust this based on your treasury table's ID column
+                    }
+                    break;
         }
 
         if ($success && $user) {

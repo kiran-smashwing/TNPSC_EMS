@@ -11,8 +11,11 @@ class Venues extends Authenticatable
 
     protected $table = 'venue'; // Specify the table name
     protected $primaryKey = 'venue_id'; // Primary key for the table
-    public $incrementing = false; // Assuming 'venue_id' is not auto-incrementing, change to true if it is
     public $timestamps = false; // Disable Laravel's timestamps (created_at, updated_at)
+    protected $casts = [
+        'venue_status' => 'boolean',
+        'venue_email_status' => 'boolean',
+    ];
 
     protected $fillable = [
         'venue_district_id',
@@ -41,12 +44,23 @@ class Venues extends Authenticatable
         'venue_createdat',
         'venue_image',
         'venue_status',
+        'venue_email_status',
+        'remember_token',
     ];
 
-    protected $casts = [
-        'venue_createdat' => 'datetime',
-    ];
+    // Add timestamp for createdat
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            $model->venue_createdat = now();
+        });
+    }
 
+    public function getDisplayNameAttribute()
+    {
+        return $this->venue_name; // or whatever field you use for the name
+    }
     public function getAuthPassword()
     {
         return $this->venue_password;

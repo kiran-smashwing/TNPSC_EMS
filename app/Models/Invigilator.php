@@ -8,12 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class Invigilator extends Model
 {
     use HasFactory;
-
+    protected $casts = [
+        'invigilator_status' => 'boolean',
+    ];
     // Set the correct table name
     protected $table = 'invigilator';  // Ensure this matches the table name in your database
 
     // Set the primary key for the model
     protected $primaryKey = 'invigilator_id';
+    public $timestamps = false;  // Disable Laravel's default timestamp fields
 
     // Allow mass assignment for the specified fields
     protected $fillable = [
@@ -25,17 +28,16 @@ class Invigilator extends Model
         'invigilator_phone',
         'invigilator_designation',
         'invigilator_image',  // image field
+        'invigilator_status',
+        'invigilator_createdat',
     ];
 
-    // Cast attributes to appropriate data types
-    protected $casts = [
-        'invigilator_createdat' => 'datetime', // Make sure the timestamp is handled as a datetime
-    ];
-
-    // Disable automatic handling of 'updated_at' column
-    public function getUpdatedAtColumn()
+    protected static function boot()
     {
-        return null;  // If you don't want an 'updated_at' column
+        parent::boot();
+        static::creating(function ($model) {
+            $model->invigilator_createdat = now();
+        });
     }
 
     // Define relationships with other models

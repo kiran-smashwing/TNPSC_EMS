@@ -32,11 +32,14 @@
                                     </div>
 
                                     <div class="text-center mt-3">
-                                        <div class="chat-avtar d-inline-flex mx-auto">
-                                            <img class="rounded-circle img-fluid wid-70"
-                                                src="{{ asset('storage/' . ($team->mobile_image ?? 'assets/images/user/default.png')) }}"
-                                                alt="User image" />
-                                        </div>
+                                            <div class="chat-avtar d-inline-flex mx-auto">
+                                                <img alt="User image" src="{{ $team->mobile_image
+                                                ? asset('storage/' . $team->mobile_image)
+                                                : asset('storage/assets/images/user/avatar-4.jpg') }}"
+                                                id="previewImage" alt="Cropped Preview"
+                                                class="rounded-circle img-fluid wid-70">
+                                            </div>
+                                      
                                         <h5 class="mb-0">{{ $team->mobile_name }}</h5>
                                         <p class="text-muted text-sm">{{ $team->mobile_designation }}</p>
                                         <hr class="my-3 border border-secondary-subtle" />
@@ -49,15 +52,19 @@
                                             <p class="mb-0">{{ $team->mobile_phone }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
-                                            <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">{{ $team->address }}</p>
+                                            <i class="ti ti-barcode me-2"></i>
+                                            <p class="mb-0">{{$team->mobile_employeeid}}</p>
                                         </div>
-                                        <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
-                                            <a href="#"
-                                                class="btn btn-success d-inline-flex justify-content-center">
+                                        <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
+                                            <i class="ti ti-map-pin me-2"></i>
+                                            <p class="mb-0">{{ $team->district->district_name }}</p>
+                                        </div>
+                                        {{-- <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
+                                            <a class="btn btn-success d-inline-flex  justify-content-center" href="#"
+                                                onclick="openMap({{ $team->mobile_latitude }}, {{ $team->mobile_longitude }})">
                                                 <i class="ti ti-map-2 me-1"></i>View Location
                                             </a>
-                                        </div>
+                                        </div> --}}
                                     </div>
                                 </div>
                             </div>

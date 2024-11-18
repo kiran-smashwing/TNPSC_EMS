@@ -8,7 +8,6 @@ use App\Models\District;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Services\AuditLogger;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use App\Services\ImageCompressService;
@@ -36,32 +35,38 @@ class VenuesController extends Controller
     }
     public function store(Request $request)
     {
+        $messages = [
+            'district.required' => 'Please select a district',
+            'district.integer' => 'Please select a valid district',
+            'center.required' => 'Please select a center',
+            'center.integer' => 'Please select a valid center',
+        ];
         $validated = $request->validate([
-            'district_id' => 'required|exists:district,district_id',
-            'center_id' => 'required|exists:centers,center_id',
+            'district' => 'required|integer',
+            'center' => 'required|integer',
             'venue_name' => 'required|string',
-            'venue_code' => 'required|string',
+            'venue_code' => 'required|string|unique:venue,venue_code',
             'venue_code_provider' => 'required|string', // Adjust max length as needed
-            'venue_type' => 'required|string',
-            'venue_category' => 'required|string',
-            'venue_distance_railway' => 'required|string', // Can use numeric if it's a number
-            'venue_treasury_office' => 'required|string', // Can use numeric if it's a number
-            'venue_email' => 'nullable|email',
-            'venue_phone' => 'required|string|max:20',
-            'venue_alternative_phone' => 'nullable|string|max:20',
-            'venue_website' => 'nullable|url',
-            'venue_address' => 'required|string',
-            'venue_password' => 'required|string|min:6',
-            'venue_longitude' => 'required|numeric',
-            'venue_latitude' => 'required|numeric',
+            'type' => 'required|string',
+            'category' => 'required|string',
+            'distance_from_railway' => 'required|string', 
+            'distance_from_treasury' => 'required|string', 
+            'email' => 'required|email|unique:venue,venue_email',
+            'phone' => 'required|string|max:20',
+            'alternative_phone' => 'nullable|string|max:20',
+            'website' => 'nullable|url',
+            'address' => 'required|string',
+            'password' => 'required|string|min:6',
+            'longitude' => 'required|numeric',
+            'latitude' => 'required|numeric',
+            'bank_name' => 'required|string|max:255',
+            'account_name' => 'required|string|max:255',
+            'account_number' => 'required|string|max:50',
+            'branch_name' => 'required|string|max:255',
+            'account_type' => 'required|string|max:50',
+            'ifsc' => 'required|string|max:11',
             'cropped_image' => 'nullable|string',
-            'venue_bank_name' => 'required|string|max:255',
-            'venue_account_name' => 'required|string|max:255',
-            'venue_account_number' => 'required|string|max:50',
-            'venue_branch_name' => 'required|string|max:255',
-            'venue_account_type' => 'required|string|max:50',
-            'venue_ifsc' => 'required|string|max:11',
-        ]);
+        ], $messages);
         try {
             if (!empty($validated['cropped_image'])) {
                 // Remove the data URL prefix if present
@@ -71,7 +76,7 @@ class VenuesController extends Controller
                     throw new \Exception('Base64 decode failed.');
                 }
                 // Create a unique image name
-                $imageName = 'venue_' . time() . '.png';
+                $imageName = $validated['venue_code'] . time() . '.png';
                 $imagePath = 'images/venue/' . $imageName;
                 // Store the image
                 $stored = Storage::disk('public')->put($imagePath, $imageData);
@@ -86,37 +91,37 @@ class VenuesController extends Controller
                 }
                 $validated['venue_image'] = $imagePath;
             }
-            $validated['venue_password'] = Hash::make($validated['venue_password']);
+            $validated['venue_password'] = Hash::make($validated['password']);
             // Create the venue with bank details
             $venue = Venues::create([
-                'venue_district_id' => $validated['district_id'],
-                'venue_center_id' => $validated['center_id'],
+                'venue_district_id' => $validated['district'],
+                'venue_center_id' => $validated['center'],
                 'venue_name' => $validated['venue_name'],
                 'venue_code' => $validated['venue_code'],
                 'venue_codeprovider' => $validated['venue_code_provider'],
-                'venue_type' => $validated['venue_type'],
-                'venue_category' => $validated['venue_category'],
-                'venue_distance_railway' => $validated['venue_distance_railway'],
-                'venue_treasury_office' => $validated['venue_treasury_office'],
-                'venue_email' => $validated['venue_email'],
-                'venue_phone' => $validated['venue_phone'],
-                'venue_alternative_phone' => $validated['venue_alternative_phone'],
-                'venue_website' => $validated['venue_website'],
-                'venue_address' => $validated['venue_address'],
-                'venue_longitude' => $validated['venue_longitude'],
-                'venue_latitude' => $validated['venue_latitude'],
+                'venue_type' => $validated['type'],
+                'venue_category' => $validated['category'],
+                'venue_distance_railway' => $validated['distance_from_railway'],
+                'venue_treasury_office' => $validated['distance_from_treasury'],
+                'venue_email' => $validated['email'],
+                'venue_phone' => $validated['phone'],
+                'venue_alternative_phone' => $validated['alternative_phone'],
+                'venue_website' => $validated['website'],
+                'venue_address' => $validated['address'],
+                'venue_longitude' => $validated['longitude'],
+                'venue_latitude' => $validated['latitude'],
                 'venue_password' => $validated['venue_password'],
                 'venue_image' => $validated['venue_image'] ?? null,
-                'venue_bank_name' => $validated['venue_bank_name'],
-                'venue_account_name' => $validated['venue_account_name'],
-                'venue_account_number' => $validated['venue_account_number'],
-                'venue_branch_name' => $validated['venue_branch_name'],
-                'venue_account_type' => $validated['venue_account_type'],
-                'venue_ifsc' => $validated['venue_ifsc'],
+                'venue_bank_name' => $validated['bank_name'],
+                'venue_account_name' => $validated['account_name'],
+                'venue_account_number' => $validated['account_number'],
+                'venue_branch_name' => $validated['branch_name'],
+                'venue_account_type' => $validated['account_type'],
+                'venue_ifsc' => $validated['ifsc'],
             ]);
             // Log venue creation with new values
             AuditLogger::log('Venue Created', Venues::class, $venue->venue_id, null, $venue->toArray());
-            return redirect()->route('venue')
+            return redirect()->route('venues.index')
                 ->with('success', 'Venue created successfully');
         } catch (\Exception $e) {
             return back()->withInput()
@@ -127,32 +132,40 @@ class VenuesController extends Controller
     {
         $venue = Venues::findOrFail($id);
         // Validate the incoming request
+        $messages = [
+            'district.required' => 'Please select a district',
+            'district.integer' => 'Please select a valid district',
+            'center.required' => 'Please select a center',
+            'center.integer' => 'Please select a valid center',
+            'venue_type.required' => 'Please select a venue type',
+            'venue_category.required' => 'Please select a venue category',
+        ];
         $validated = $request->validate([
-            'district_id' => 'required|exists:district,district_id',
-            'center_id' => 'required|exists:centers,center_id',
+            'district' => 'required|integer',
+            'center' => 'required|integer',
             'venue_name' => 'required|string',
-            'venue_code' => 'required|string',
+            'venue_code' => 'required|string|unique:venue,venue_code,'  . $id . ',venue_id',
             'venue_code_provider' => 'required|string', // Adjust max length as needed
-            'venue_type' => 'required|string',
-            'venue_category' => 'required|string',
-            'venue_distance_railway' => 'required|string', // Can use numeric if it's a number
-            'venue_treasury_office' => 'required|string', // Can use numeric if it's a number
-            'venue_email' => 'nullable|email',
-            'venue_phone' => 'required|string|max:20',
-            'venue_alternative_phone' => 'nullable|string|max:20',
-            'venue_website' => 'nullable|url',
-            'venue_address' => 'required|string',
-            // 'venue_password' => 'required|string|min:6',
-            'venue_longitude' => 'required|numeric',
-            'venue_latitude' => 'required|numeric',
+            'type' => 'required|string',
+            'category' => 'required|string',
+            'distance_from_railway' => 'required|string', 
+            'distance_from_treasury' => 'required|string', 
+            'email' => 'required|email|unique:venue,venue_email,'. $id . ',venue_id',
+            'phone' => 'required|string|max:20',
+            'alternative_phone' => 'nullable|string|max:20',
+            'website' => 'nullable|url',
+            'address' => 'required|string',
+            'password' => 'nullable|string|min:6',
+            'longitude' => 'required|numeric',
+            'latitude' => 'required|numeric',
             'cropped_image' => 'nullable|string',
-            'venue_bank_name' => 'required|string|max:255',
-            'venue_account_name' => 'required|string|max:255',
-            'venue_account_number' => 'required|string|max:50',
-            'venue_branch_name' => 'required|string|max:255',
-            'venue_account_type' => 'required|string|max:50',
-            'venue_ifsc' => 'required|string|max:11',
-        ]);
+            'bank_name' => 'required|string|max:255',
+            'account_name' => 'required|string|max:255',
+            'account_number' => 'required|string|max:50',
+            'branch_name' => 'required|string|max:255',
+            'account_type' => 'required|string|max:50',
+            'ifsc' => 'required|string|max:11',
+        ], $messages);
         try {
             $newImagePath = null;
             // Process the image if provided
@@ -163,7 +176,7 @@ class VenuesController extends Controller
                     throw new \Exception('Base64 decode failed.');
                 }
                 // Create a unique filename
-                $imageName = 'venue_' . time() . '.jpg';
+                $imageName = $validated['venue_code']  . time() . '.png';
                 $imagePath = 'images/venues/' . $imageName;
                 // Save the image in public storage
                 Storage::disk('public')->put($imagePath, $imageData);
@@ -180,33 +193,33 @@ class VenuesController extends Controller
                 $newImagePath = $imagePath;
             }
             if ($request->filled('password')) {
-                $validated['venue_password'] = Hash::make($validated['venue_password']);
+                $validated['venue_password'] = Hash::make($validated['password']);
             }
             // Prepare data for update, including the new image path if it exists
             $updateData = [
-                'venue_district_id' => $validated['district_id'],
-                'venue_center_id' => $validated['center_id'],
+                'venue_district_id' => $validated['district'],
+                'venue_center_id' => $validated['center'],
                 'venue_name' => $validated['venue_name'],
                 'venue_code' => $validated['venue_code'],
                 'venue_codeprovider' => $validated['venue_code_provider'],
-                'venue_type' => $validated['venue_type'],
-                'venue_category' => $validated['venue_category'],
-                'venue_distance_railway' => $validated['venue_distance_railway'],
-                'venue_treasury_office' => $validated['venue_treasury_office'],
-                'venue_email' => $validated['venue_email'],
-                'venue_phone' => $validated['venue_phone'],
-                'venue_alternative_phone' => $validated['venue_alternative_phone'],
-                'venue_website' => $validated['venue_website'],
-                'venue_address' => $validated['venue_address'],
-                'venue_longitude' => $validated['venue_longitude'],
-                'venue_latitude' => $validated['venue_latitude'],
+                'venue_type' => $validated['type'],
+                'venue_category' => $validated['category'],
+                'venue_distance_railway' => $validated['distance_from_railway'],
+                'venue_treasury_office' => $validated['distance_from_treasury'],
+                'venue_email' => $validated['email'],
+                'venue_phone' => $validated['phone'],
+                'venue_alternative_phone' => $validated['alternative_phone'],
+                'venue_website' => $validated['website'],
+                'venue_address' => $validated['address'],
+                'venue_longitude' => $validated['longitude'],
+                'venue_latitude' => $validated['latitude'],
                 'venue_password' => $validated['venue_password'] ?? $venue->venue_password,
-                'venue_bank_name' => $validated['venue_bank_name'],
-                'venue_account_name' => $validated['venue_account_name'],
-                'venue_account_number' => $validated['venue_account_number'],
-                'venue_branch_name' => $validated['venue_branch_name'],
-                'venue_account_type' => $validated['venue_account_type'],
-                'venue_ifsc' => $validated['venue_ifsc'],
+                'venue_bank_name' => $validated['bank_name'],
+                'venue_account_name' => $validated['account_name'],
+                'venue_account_number' => $validated['account_number'],
+                'venue_branch_name' => $validated['branch_name'],
+                'venue_account_type' => $validated['account_type'],
+                'venue_ifsc' => $validated['ifsc'],
             ];
             // Add new image path to update data if present
             if ($newImagePath) {
@@ -219,9 +232,9 @@ class VenuesController extends Controller
             $changedValues = $venue->getChanges();
             $oldValues = array_intersect_key($oldValues, $changedValues);
             // Log venue update with old and new values
-            AuditLogger::log('Venue Updated', Venues::class, $venue->id, $oldValues, $changedValues);
+            AuditLogger::log('Venue Updated', Venues::class, $venue->venue_id, $oldValues, $changedValues);
             // Redirect back with success message
-            return redirect()->route('venue')
+            return redirect()->route('venues.index')
                 ->with('success', 'Venue updated successfully');
         } catch (\Exception $e) {
             // Handle any errors
@@ -236,41 +249,41 @@ class VenuesController extends Controller
         $venue = Venues::with(['district', 'center'])->findOrFail($id);
         return view('masters.venues.venue.edit', compact('venue', 'districts', 'centers'));
     }
-    public function toggleVenueStatus($id)
-{
-    try {
-        // Find the venue by its ID
-        $venue = Venues::findOrFail($id);
+    public function toggleStatus($id)
+    {
+        try {
+            // Find the venue by its ID
+            $venue = Venues::findOrFail($id);
 
-        // Get current status before update
-        $oldStatus = $venue->venue_status;
+            // Get current status before update
+            $oldStatus = $venue->venue_status;
 
-        // Toggle the status
-        $venue->venue_status = !$venue->venue_status;
-        $venue->save();
+            // Toggle the status
+            $venue->venue_status = !$venue->venue_status;
+            $venue->save();
 
-        // Log the status change (if logging is needed)
-        AuditLogger::log(
-            'Venue Status Changed',
-            Venues::class, // Use the Venue model
-            $venue->id,   // ID of the venue
-            ['status' => $oldStatus],
-            ['status' => $venue->venue_status]
-        );
+            // Log the status change (if logging is needed)
+            AuditLogger::log(
+                'Venue Status Changed',
+                Venues::class, // Use the Venue model
+                $venue->id,   // ID of the venue
+                ['status' => $oldStatus],
+                ['status' => $venue->venue_status]
+            );
 
-        return response()->json([
-            'success' => true,
-            'status' => $venue->venue_status,
-            'message' => 'Venue status updated successfully',
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to update Venue status',
-            'details' => $e->getMessage(),  // Optional, useful for debugging
-        ], 500);
+            return response()->json([
+                'success' => true,
+                'status' => $venue->venue_status,
+                'message' => 'Venue status updated successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update Venue status',
+                'details' => $e->getMessage(),  // Optional, useful for debugging
+            ], 500);
+        }
     }
-}
 
     public function show($id)
     {

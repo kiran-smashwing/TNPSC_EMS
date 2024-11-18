@@ -6,7 +6,6 @@ use App\Models\MobileTeamStaffs;
 use App\Models\District;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use App\Services\ImageCompressService;
 use App\Services\AuditLogger;
@@ -17,7 +16,7 @@ class MobileTeamStaffsController extends Controller
     public function __construct(ImageCompressService $imageService)
     {
         //apply the auth middleware to the entire controller
-        $this->middleware('auth');
+        $this->middleware(middleware: 'auth.multi');
         $this->imageService = $imageService;
     }
 
@@ -35,17 +34,21 @@ class MobileTeamStaffsController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
+        // Validate the incoming request
+        $messages = [
+            'district.required' => 'Please select a district',
+            'district.integer' => 'Please select a valid district',
+        ];
         $validated = $request->validate([
-            'district_id' => 'required|string|max:50',
+            'district' => 'required|integer',
             'name' => 'required|string|max:255',
             'employee_id' => 'required|string|max:255|unique:mobile_team,mobile_employeeid',
             'designation' => 'required|string|max:255',
-            'phone' => 'required|string|max:255',
+            'phone' => 'required|string|max:15',
             'mail' => 'required|email|unique:mobile_team,mobile_email',
             'password' => 'required|string|min:6',
             'cropped_image' => 'nullable|string'
-        ]);
+        ], $messages);
 
         try {
             if (!empty($validated['cropped_image'])) {
@@ -58,7 +61,7 @@ class MobileTeamStaffsController extends Controller
                 }
 
                 // Create a unique image name
-                $imageName = 'mobile_team_' . time() . '.png';
+                $imageName = $validated['name'] . time() . '.png';
                 $imagePath = 'images/mobile_team/' . $imageName;
 
                 // Store the image
@@ -84,7 +87,7 @@ class MobileTeamStaffsController extends Controller
 
             // Create a new Mobile Team member
             $mobileTeamStaff = MobileTeamStaffs::create([
-                'mobile_district_id' => $validated['district_id'],
+                'mobile_district_id' => $validated['district'],
                 'mobile_name' => $validated['name'],
                 'mobile_designation' => $validated['designation'],
                 'mobile_phone' => $validated['phone'],
@@ -94,9 +97,9 @@ class MobileTeamStaffsController extends Controller
                 'mobile_image' => $validated['image'] ?? null,
 
             ]);
-            AuditLogger::log('Mobile Team Staff Created', MobileTeamStaffs::class, $mobileTeamStaff->id, null, $mobileTeamStaff->toArray());
+            AuditLogger::log('Mobile Team Staff Created', MobileTeamStaffs::class, $mobileTeamStaff->mobile_id, null, $mobileTeamStaff->toArray());
 
-            return redirect()->route('mobile-team')
+            return redirect()->route('mobile-team-staffs.index')
                 ->with('success', 'Mobile team member created successfully');
         } catch (\Exception $e) {
             return back()->withInput()
@@ -116,18 +119,21 @@ class MobileTeamStaffsController extends Controller
     {
         // Find the mobile team staff member by ID
         $staffMember = MobileTeamStaffs::findOrFail($id);
-
+        $messages = [
+            'district.required' => 'Please select a district',
+            'district.integer' => 'Please select a valid district',
+        ];
         // Validate the request data
         $validated = $request->validate([
-            'district_id' => 'required|exists:district,district_id',
+            'district' => 'required|integer',
             'name' => 'required|string|max:255',
-            'employee_id' => 'required|string|max:255',
+            'employee_id' => 'required|string|max:255|unique:mobile_team,mobile_employeeid,' . $id . ',mobile_id',
             'designation' => 'required|string|max:255',
-            'mail' => 'required|email|max:255',
+            'mail' => 'required|email|unique:mobile_team,mobile_email,' . $id . ',mobile_id',
             'phone' => 'required|string|max:15',
             'password' => 'nullable|string|min:6',
             'cropped_image' => 'nullable|string' // Base64 encoded string
-        ]);
+        ], $messages);
 
         try {
             $newImagePath = null;
@@ -142,7 +148,7 @@ class MobileTeamStaffsController extends Controller
                 }
 
                 // Create a unique filename
-                $imageName = 'mobile_team_staff_' . time() . '.jpg';
+                $imageName = $validated['name'] . time() . '.png';
                 $imagePath = 'images/mobile_team_staffs/' . $imageName;
 
                 // Save the image in public storage
@@ -156,8 +162,8 @@ class MobileTeamStaffsController extends Controller
                 }
 
                 // Delete the old image if it exists
-                if ($staffMember->image && Storage::disk('public')->exists($staffMember->image)) {
-                    Storage::disk('public')->delete($staffMember->image);
+                if ($staffMember->mobile_image && Storage::disk('public')->exists($staffMember->mobile_image)) {
+                    Storage::disk('public')->delete($staffMember->mobile_image);
                 }
 
                 // Set new image path to be saved in the database
@@ -171,7 +177,7 @@ class MobileTeamStaffsController extends Controller
 
             // Prepare data for update, including the new image path if it exists
             $updateData = [
-                'mobile_district_id' => $validated['district_id'],
+                'mobile_district_id' => $validated['district'],
                 'mobile_name' => $validated['name'],
                 'mobile_employeeid' => $validated['employee_id'],
                 'mobile_designation' => $validated['designation'],
@@ -194,9 +200,9 @@ class MobileTeamStaffsController extends Controller
             $oldValues = array_intersect_key($oldValues, $changedValues);
 
             // Log staff member update with old and new values (assuming you have a logging mechanism)
-            AuditLogger::log('Mobile Team Staff Updated', MobileTeamStaffs::class, $staffMember->id, $oldValues, $changedValues);
+            AuditLogger::log('Mobile Team Staff Updated', MobileTeamStaffs::class, $staffMember->mobile_id, $oldValues, $changedValues);
 
-            return redirect()->route('mobile-team')
+            return redirect()->route('mobile-team-staffs.index')
                 ->with('success', 'Mobile team staff updated successfully.');
         } catch (\Exception $e) {
             return back()->withInput()
@@ -205,7 +211,42 @@ class MobileTeamStaffsController extends Controller
     }
     public function show($id)
     {
-        $team = MobileTeamStaffs::findOrFail($id); // Ensure MobileTeam is the correct model
-    return view('masters.district.mobile_team_staffs.show', compact('team'));
+
+        $team = MobileTeamStaffs::with('district')->findOrFail($id);// Ensure MobileTeam is the correct model
+        return view('masters.district.mobile_team_staffs.show', compact('team'));
+    }
+    public function toggleStatus($id)
+    {
+        try {
+            $staffMember = MobileTeamStaffs::findOrFail($id);
+
+            // Get current status before update
+            $oldStatus = $staffMember->mobile_status;
+
+            // Toggle the status
+            $staffMember->mobile_status = !$staffMember->mobile_status;
+            $staffMember->save();
+
+            // Log the status change
+            AuditLogger::log(
+                'Mobile Staff Status Changed',
+                District::class,
+                $staffMember->mobile_id,
+                ['status' => $oldStatus],
+                ['status' => $staffMember->mobile_status]
+            );
+
+            return response()->json([
+                'success' => true,
+                'status' => $staffMember->mobile_status,
+                'message' => 'Mobile Staff status updated successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update mobile staff status',
+                'details' => $e->getMessage(),  // Optional
+            ], 500);
+        }
     }
 }

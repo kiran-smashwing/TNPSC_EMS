@@ -184,7 +184,7 @@
                             <div class="d-sm-flex align-items-center justify-content-between">
                                 <h5 class="mb-3 mb-sm-0">Venues list</h5>
                                 <div>
-                                    <a href="{{ route('venue.create') }}" class="btn btn-outline-success">Add Venues</a>
+                                    <a href="{{ route('venues.create') }}" class="btn btn-outline-success">Add Venues</a>
                                 </div>
                             </div>
                         </div>
@@ -240,9 +240,19 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>
-                                                <img src="{{ asset('storage/' . $venue->venue_image) }}" alt="Venue Image"
-                                                    class="img-radius wid-40">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0">
+                                                        @if ($venue->venue_image)
+                                                            <img src="{{ asset('storage/' . $venue->venue_image) }}"
+                                                                alt="district image" class="img-radius wid-40">
+                                                        @else
+                                                            <img src="{{ asset('storage/assets/images/user/venue.png') }}"
+                                                                alt="default image" class="img-radius wid-40">
+                                                        @endif
+                                                    </div>
+                                                </div>
                                             </td>
+                                           
                                             <td>{{ $venue->venue_name }}</td>
                                             <td>{{ $venue->district->district_name ?? 'N/A' }}</td>
                                             {{-- <td>{{ $venue->center->center_name ?? 'N/A' }}</td> --}}
@@ -256,10 +266,15 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <a href="{{ route('venue.show', $venue->venue_id) }}"
-                                                    class="btn btn-light-success"><i class="ti ti-eye"></i></a>
-                                                <a href="{{ route('venue.edit', $venue->venue_id) }}"
-                                                    class="btn btn-light-success"><i class="ti ti-edit"></i></a>
+                                                <a href="{{  route('venues.show', $venue->venue_id) }}"
+                                                    class="avtar avtar-xs btn-light-success">
+                                                    <i class="ti ti-eye f-20"></i>
+                                                </a>
+                                                <a href="{{route('venues.edit', $venue->venue_id) }}"
+                                                    class="avtar avtar-xs btn-light-success">
+                                                    <i class="ti ti-edit f-20"></i>
+                                                </a>
+                                               
                                                 <a href="#"
                                                     class="avtar avtar-xs status-toggle {{ $venue->venue_status ? 'btn-light-success' : 'btn-light-danger' }}"
                                                     data-venue-id="{{ $venue->venue_id }}"
@@ -283,82 +298,83 @@
         </div>
     </section>
     <!-- [ Main Content ] end -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const toggleButtons = document.querySelectorAll('.status-toggle');
-
-            toggleButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-
-                    // Disable the button during processing
-                    this.classList.add('disabled');
-
-                    // Get the venue ID from the data attribute
-                    const venueId = this.dataset.venueId;
-
-                    // Send the request to toggle the venue status
-                    fetch(`{{ url('/') }}/venue/${venueId}/toggle-status`, { // Adjust the URL for venues
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json'
-                            },
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Toggle button classes to reflect the new status
-                                this.classList.toggle('btn-light-success');
-                                this.classList.toggle('btn-light-danger');
-
-                                // Toggle icon
-                                const icon = this.querySelector('i');
-                                if (icon.classList.contains('ti-toggle-right')) {
-                                    icon.classList.remove('ti-toggle-right');
-                                    icon.classList.add('ti-toggle-left');
-                                } else {
-                                    icon.classList.remove('ti-toggle-left');
-                                    icon.classList.add('ti-toggle-right');
-                                }
-
-                                // Show success notification
-                                showNotification(
-                                    'Status Updated',
-                                    data.message || 'Venue status updated successfully',
-                                    'success'
-                                );
-                            } else {
-                                // Show error notification
-                                showNotification(
-                                    'Update Failed',
-                                    data.message || 'Failed to update status',
-                                    'error'
-                                );
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            showNotification(
-                                'Error',
-                                'An error occurred while updating status',
-                                'error'
-                            );
-                        })
-                        .finally(() => {
-                            // Re-enable the button
-                            this.classList.remove('disabled');
-                        });
-                });
-            });
-        });
-    </script>
+   
 
     @include('partials.footer')
 
     @push('scripts')
         @include('partials.datatable-export-js')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const toggleButtons = document.querySelectorAll('.status-toggle');
+    
+                toggleButtons.forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+    
+                        // Disable the button during processing
+                        this.classList.add('disabled');
+    
+                        // Get the venue ID from the data attribute
+                        const venueId = this.dataset.venueId;
+    
+                        // Send the request to toggle the venue status
+                        fetch(`{{ url('/') }}/venues/${venueId}/toggle-status`, { // Adjust the URL for venues
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json'
+                                },
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Toggle button classes to reflect the new status
+                                    this.classList.toggle('btn-light-success');
+                                    this.classList.toggle('btn-light-danger');
+    
+                                    // Toggle icon
+                                    const icon = this.querySelector('i');
+                                    if (icon.classList.contains('ti-toggle-right')) {
+                                        icon.classList.remove('ti-toggle-right');
+                                        icon.classList.add('ti-toggle-left');
+                                    } else {
+                                        icon.classList.remove('ti-toggle-left');
+                                        icon.classList.add('ti-toggle-right');
+                                    }
+    
+                                    // Show success notification
+                                    showNotification(
+                                        'Status Updated',
+                                        data.message || 'Venue status updated successfully',
+                                        'success'
+                                    );
+                                } else {
+                                    // Show error notification
+                                    showNotification(
+                                        'Update Failed',
+                                        data.message || 'Failed to update status',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                showNotification(
+                                    'Error',
+                                    'An error occurred while updating status',
+                                    'error'
+                                );
+                            })
+                            .finally(() => {
+                                // Re-enable the button
+                                this.classList.remove('disabled');
+                            });
+                    });
+                });
+            });
+        </script>
     @endpush
 
     @include('partials.theme')

@@ -60,5 +60,9 @@ class District extends Authenticatable
     {
         return $this->hasMany(Center::class, 'center_district_id', 'district_id');
     }
+    public function mobileTeamStaffs()
+    {
+        return $this->hasMany(MobileTeamStaffs::class, 'mobile_district_id', 'district_id');
+    }
 
 }

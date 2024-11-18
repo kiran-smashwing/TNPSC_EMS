@@ -173,11 +173,11 @@
                                             <img class="rounded-circle img-fluid wid-70"
                                                 src="{{ $invigilator->invigilator_image
                                                     ? asset('storage/' . $invigilator->invigilator_image)
-                                                    : asset('storage/assets/images/user/collectorate.png') }}"
+                                                    : asset('storage/assets/images/user/avatar-4.jpg') }}"
                                                 alt="Venue image" />
                                         </div>
                                         <h5 class="mb-0">{{ $invigilator->invigilator_name }}</h5>
-                                        <p class="text-muted text-sm">Asst Professor</p>
+                                        <p class="text-muted text-sm">{{ $invigilator->invigilator_designation }}</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
                                             <div class="col-4">

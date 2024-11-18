@@ -49,13 +49,7 @@ Route::middleware(['auth.multi'])->group(function () {
     // Change Password routes
     Route::get('/change-password', [ChangePasswordController::class, 'showchangePassword'])->name('change-password');
   
-    // Mobile Team Staffs routes
-    Route::get('/mobile-team', [MobileTeamStaffsController::class, 'index'])->name('mobile-team');
-    Route::get('/mobile-team/add', [MobileTeamStaffsController::class, 'create'])->name('mobile-team.create');
-    Route::post('mobile-team', [MobileTeamStaffsController::class, 'store'])->name('mobile-team.store');
-    Route::get('/mobile-team/edit/{id}', [MobileTeamStaffsController::class, 'edit'])->name('mobile-team.edit');
-    Route::put('/mobile-team/{mobile_id}', [MobileTeamStaffsController::class, 'update'])->name('mobile-team.update');
-    Route::get('/mobile-team/{id}', [MobileTeamStaffsController::class, 'show'])->name('mobile-team.show');
+ 
     // Escort Staffs routes
     Route::get('/escort-staff', [EscortStaffsController::class, 'index'])->name('escort-staff');
     Route::get('/escort-staff/add', [EscortStaffsController::class, 'create'])->name('escort-staff.create');
@@ -71,14 +65,7 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/chief-invigilator/{id}/edit', [ChiefInvigilatorsController::class, 'edit'])->name('chief-invigilator.edit');
     Route::put('/chief-invigilator/{id}', [ChiefInvigilatorsController::class, 'update'])->name('chief-invigilator.update');
     Route::get('/chief-invigilator/show', [ChiefInvigilatorsController::class, 'show'])->name('chief-invigilator.show');
-    // Invigilator routes
-    Route::get('/invigilator', [InvigilatorsController::class, 'index'])->name('invigilator');
-    Route::get('/invigilator/add', [InvigilatorsController::class, 'create'])->name('invigilator.create');
-    Route::post('invigilator/store', [InvigilatorsController::class, 'store'])->name('invigilator.store');
-    Route::get('/invigilator/{id}/edit', [InvigilatorsController::class, 'edit'])->name('invigilator.edit');
-    Route::put('/invigilator/{id}', [InvigilatorsController::class, 'update'])->name('invigilator.update');
-    Route::post('/invigilator/{id}/toggle-status', [InvigilatorsController::class, 'toggleInvigilatorStatus'])->name('invigilator.toggleStatus');
-    Route::get('invigilators/{id}', [InvigilatorsController::class, 'show'])->name('invigilator.show');
+    
     // Scribe
     Route::get('/scribe', [ScribeController::class, 'index'])->name('scribe');
     Route::get('/scribe/add', [ScribeController::class, 'create'])->name('scribe.create');
@@ -103,14 +90,7 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/roles/{id}/edit', [RoleController::class, 'edit'])->name('roles.edit');
     Route::put('/roles/{id}', [RoleController::class, 'update'])->name('roles.update');
     Route::get('/role/show', [RoleController::class, 'edit'])->name('roles.show');
-    // Venue
-    Route::get('/venue', [VenuesController::class, 'index'])->name('venue');
-    Route::get('/venue/add', [VenuesController::class, 'create'])->name('venue.create');
-    Route::post('/venues', [VenuesController::class, 'store'])->name('venues.store');
-    Route::get('venues/{id}/edit', [VenuesController::class, 'edit'])->name('venue.edit');
-    Route::put('/venue/{id}', [VenuesController::class, 'update'])->name('venue.update');
-    Route::post('/venue/{id}/toggle-status', [VenuesController::class, 'toggleVenueStatus'])->name('venue.toggleStatus');
-    Route::get('/venue/{id}', [VenuesController::class, 'show'])->name('venue.show');
+ 
     // Department
     Route::get('/department', [DepartmentOfficialsController::class, 'index'])->name('department');
     Route::get('/department/add', [DepartmentOfficialsController::class, 'create'])->name('department.create');
@@ -204,6 +184,45 @@ Route::prefix('centers')->group(function () {
         Route::get('/{id}', [CenterController::class, 'show'])->name('centers.show');
         Route::post('/{id}/toggle-status', [CenterController::class, 'toggleStatus'])->name('centers.toggle-status');
         Route::delete('/{id}', [CenterController::class, 'destroy'])->name('centers.destroy');
+    });
+});
+//mobile-team-staffs Route::prefix('mobile-team-staffs')->group(function () {
+Route::prefix('mobile-team-staffs')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/', [MobileTeamStaffsController::class, 'index'])->name('mobile-team-staffs.index');
+        Route::get('/create', [MobileTeamStaffsController::class, 'create'])->name('mobile-team-staffs.create');
+        Route::post('/', [MobileTeamStaffsController::class, 'store'])->name('mobile-team-staffs.store');
+        Route::get('/{id}/edit', [MobileTeamStaffsController::class, 'edit'])->name('mobile-team-staffs.edit');
+        Route::put('/{id}', [MobileTeamStaffsController::class, 'update'])->name('mobile-team-staffs.update');
+        Route::get('/{id}', [MobileTeamStaffsController::class, 'show'])->name('mobile-team-staffs.show');
+        Route::post('/{id}/toggle-status', [MobileTeamStaffsController::class, 'toggleStatus'])->name('mobile-team-staffs.toggle-status');
+        Route::delete('/{id}', [MobileTeamStaffsController::class, 'destroy'])->name('mobile-team-staffs.destroy');
+    });
+});
+//venues Route::prefix('venues')->group(function () {
+Route::prefix('venues')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/', [VenuesController::class, 'index'])->name('venues.index');
+        Route::get('/create', [VenuesController::class, 'create'])->name('venues.create');
+        Route::post('/', [VenuesController::class, 'store'])->name('venues.store');
+        Route::get('/{id}/edit', [VenuesController::class, 'edit'])->name('venues.edit');
+        Route::put('/{id}', [VenuesController::class, 'update'])->name('venues.update');
+        Route::get('/{id}', [VenuesController::class, 'show'])->name('venues.show');
+        Route::post('/{id}/toggle-status', [VenuesController::class, 'toggleStatus'])->name('venues.toggle-status');
+        Route::delete('/{id}', [VenuesController::class, 'destroy'])->name('venues.destroy');
+    });
+});
+//invigilators Route::prefix('invigilators')->group(function () {
+Route::prefix('invigilators')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/', [InvigilatorsController::class, 'index'])->name('invigilators.index');
+        Route::get('/create', [InvigilatorsController::class, 'create'])->name('invigilators.create');
+        Route::post('/', [InvigilatorsController::class, 'store'])->name('invigilators.store');
+        Route::get('/{id}/edit', [InvigilatorsController::class, 'edit'])->name('invigilators.edit');
+        Route::put('/{id}', [InvigilatorsController::class, 'update'])->name('invigilators.update');
+        Route::get('/{id}', [InvigilatorsController::class, 'show'])->name('invigilators.show');
+        Route::post('/{id}/toggle-status', [InvigilatorsController::class, 'toggleStatus'])->name('invigilators.toggle-status');
+        Route::delete('/{id}', [InvigilatorsController::class, 'destroy'])->name('invigilators.destroy');
     });
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

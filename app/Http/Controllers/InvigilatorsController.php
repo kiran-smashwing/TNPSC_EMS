@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Hash;
 use App\Services\AuditLogger;
 use Illuminate\Support\Facades\Storage;
 use App\Services\ImageCompressService;
-
 use App\Http\Controllers\Controller;
 
 class InvigilatorsController extends Controller
@@ -44,16 +43,24 @@ class InvigilatorsController extends Controller
     public function store(Request $request)
     {
         // Validate incoming request data
+        $messages = [
+            'district.required' => 'Please select a district',
+            'district.integer' => 'Please select a valid district',
+            'center.required' => 'Please select a center',
+            'center.integer' => 'Please select a valid center',
+            'venue.required' => 'Please select a venue',
+            'venue.integer' => 'Please select a valid venue',
+        ];
         $validated = $request->validate([
-            'district_id' => 'required|integer', // Assuming you have a relation to district
-            'center_id' => 'required|integer',
-            'venue_id' => 'required|integer',
+            'district' => 'required|integer', // Assuming you have a relation to district
+            'center' => 'required|integer',
+            'venue' => 'required|integer',
             'name' => 'required|string|max:255',
-            'mail' => 'required|email|max:255',
+            'mail' => 'required|email|max:255|unique:invigilator,invigilator_email',
             'phone' => 'required|string|max:15',
             'designation' => 'required|string|max:255',
             'cropped_image' => 'nullable|string', // Base64 image input
-        ]);
+        ], $messages);
 
         try {
             // Process the cropped image if it's provided
@@ -67,7 +74,7 @@ class InvigilatorsController extends Controller
                 }
 
                 // Create a unique image name
-                $imageName = 'invigilator_' . time() . '.png';
+                $imageName = $validated['name'] . time() . '.png';
                 $imagePath = 'images/invigilators/' . $imageName;
 
                 // Store the image in the public storage
@@ -89,9 +96,9 @@ class InvigilatorsController extends Controller
 
             // Create the invigilator with validated data
             $invigilator = Invigilator::create([
-                'invigilator_district_id' => $validated['district_id'],
-                'invigilator_center_id' => $validated['center_id'],
-                'invigilator_venue_id' => $validated['venue_id'],
+                'invigilator_district_id' => $validated['district'],
+                'invigilator_center_id' => $validated['center'],
+                'invigilator_venue_id' => $validated['venue'],
                 'invigilator_name' => $validated['name'],
                 'invigilator_email' => $validated['mail'],
                 'invigilator_phone' => $validated['phone'],
@@ -103,7 +110,7 @@ class InvigilatorsController extends Controller
             AuditLogger::log('Invigilator Created', Invigilator::class, $invigilator->invigilator_id, null, $invigilator->toArray());
 
             // Redirect with success message
-            return redirect()->route('invigilator')
+            return redirect()->route('invigilators.index')
                 ->with('success', 'Invigilator created successfully');
         } catch (\Exception $e) {
             // Handle exceptions and return error message
@@ -127,17 +134,25 @@ class InvigilatorsController extends Controller
     public function update(Request $request, $id)
     {
         $invigilator = Invigilator::findOrFail($id);
-
+        // Validate incoming request data
+        $messages = [
+            'district.required' => 'Please select a district',
+            'district.integer' => 'Please select a valid district',
+            'center.required' => 'Please select a center',
+            'center.integer' => 'Please select a valid center',
+            'venue.required' => 'Please select a venue',
+            'venue.integer' => 'Please select a valid venue',
+        ];
         $validated = $request->validate([
-            'district_id' => 'required|integer',
-            'center_id' => 'required|integer',
-            'venue_id' => 'required|integer',
+            'district' => 'required|integer',
+            'center' => 'required|integer',
+            'venue' => 'required|integer',
             'name' => 'required|string|max:255',
-            'mail' => 'required|email|max:255',
+            'mail' => 'required|email|max:255|unique:invigilator,invigilator_email,' . $id . ',invigilator_id',
             'phone' => 'required|string|max:15',
             'designation' => 'required|string|max:255',
             'cropped_image' => 'nullable|string' // Base64 image input
-        ]);
+        ], $messages);
 
         try {
             $newImagePath = null;
@@ -152,7 +167,7 @@ class InvigilatorsController extends Controller
                 }
 
                 // Create a unique filename
-                $imageName = 'invigilator_' . time() . '.jpg';
+                $imageName = $validated['name'] . time() . '.png';
                 $imagePath = 'images/invigilators/' . $imageName;
 
                 // Save the image in public storage
@@ -173,16 +188,12 @@ class InvigilatorsController extends Controller
                 $newImagePath = $imagePath;
             }
 
-            // Only update password if provided
-            if ($request->filled('password')) {
-                $validated['invigilator_password'] = Hash::make($validated['password']);
-            }
 
             // Prepare data for update, including new image path if it exists
             $updateData = [
-                'invigilator_district_id' => $validated['district_id'],
-                'invigilator_center_id' => $validated['center_id'],
-                'invigilator_venue_id' => $validated['venue_id'],
+                'invigilator_district_id' => $validated['district'],
+                'invigilator_center_id' => $validated['center'],
+                'invigilator_venue_id' => $validated['venue'],
                 'invigilator_name' => $validated['name'],
                 'invigilator_email' => $validated['mail'],
                 'invigilator_phone' => $validated['phone'],
@@ -207,7 +218,7 @@ class InvigilatorsController extends Controller
             // Log invigilator update with old and new values
             AuditLogger::log('Invigilator Updated', Invigilator::class, $invigilator->invigilator_id, $oldValues, $changedValues);
 
-            return redirect()->route('invigilator')
+            return redirect()->route('invigilators.index')
                 ->with('success', 'Invigilator updated successfully');
         } catch (\Exception $e) {
             return back()->withInput()
@@ -215,18 +226,26 @@ class InvigilatorsController extends Controller
         }
     }
 
-    public function toggleInvigilatorStatus($id)
+    public function toggleStatus($id)
     {
         try {
-            // Find the invigilator by ID
             $invigilator = Invigilator::findOrFail($id);
 
-            // Get the current status before updating
+            // Get current status before update
             $oldStatus = $invigilator->invigilator_status;
 
             // Toggle the status
             $invigilator->invigilator_status = !$invigilator->invigilator_status;
             $invigilator->save();
+
+            // Log the status change
+            AuditLogger::log(
+                'Invigilator Status Changed',
+                Invigilator::class,
+                $invigilator->invigilator_id,
+                ['status' => $oldStatus],
+                ['status' => $invigilator->invigilator_status]
+            );
 
             return response()->json([
                 'success' => true,
@@ -237,10 +256,11 @@ class InvigilatorsController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update invigilator status',
-                'details' => $e->getMessage(), // Optional for debugging
+                'details' => $e->getMessage(),  // Optional
             ], 500);
         }
     }
+   
 
 
     public function show($id)

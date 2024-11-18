@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                  <h2 class="mb-0"></h2>
-                </div> -->
+                          <h2 class="mb-0"></h2>
+                        </div> -->
                         </div>
                     </div>
                 </div>
@@ -181,7 +181,7 @@
                             <div class="d-sm-flex align-items-center justify-content-between">
                                 <h5 class="mb-3 mb-sm-0">Mobile Team Staffs list</h5>
                                 <div>
-                                    <a href="{{ route('mobile-team.create') }}" class="btn btn-outline-success">Add Mobile
+                                    <a href="{{ route('mobile-team-staffs.create') }}" class="btn btn-outline-success">Add Mobile
                                         Team Staffs</a>
                                 </div>
                             </div>
@@ -229,7 +229,7 @@
                                         <th>District</th>
                                         <th>E-mail</th>
                                         <th>Phone</th>
-                                        <th>Status</th>
+                                        <th>E-mail Status</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -240,26 +240,47 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-shrink-0">
-                                                        <img src="{{ $team->mobile_image ? asset('storage/' . $team->mobile_image) : asset('assets/images/user/default-avatar.jpg') }}" alt="user image" class="img-radius wid-40">
+                                                        @if ($team->mobile_image)
+                                                            <img src="{{ asset('storage/' . $team->mobile_image) }}"
+                                                                alt="mombile team image" class="img-radius wid-40">
+                                                        @else
+                                                            <img src="{{ asset('storage/assets/images/user/avatar-4.jpg') }}"
+                                                                alt="default image" class="img-radius wid-40">
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </td>
+
                                             <td>
                                                 <div class="flex-grow-1 ms-3">
                                                     <h6 class="mb-0">{{ $team->mobile_name }}</h6>
                                                 </div>
                                             </td>
-                                            <td>{{ $team->district ? $team->district->district_name : 'N/A' }}</td> <!-- Displaying district name -->
+                                            <td>{{ $team->district ? $team->district->district_name : 'N/A' }}</td>
+                                            <!-- Displaying district name -->
                                             <td>{{ $team->mobile_email }}</td>
                                             <td>{{ $team->mobile_phone }}</td>
-                                            <td></td>
+                                            <td class="text-center">
+                                                @if ($team->mobile_email_status)
+                                                    <i class="ti ti-circle-check text-success f-18"></i>
+                                                @else
+                                                    <i class="ti ti-alert-circle text-danger f-18"></i>
+                                                @endif
+                                            </td>
                                             <td>
-                                                <a href="{{ route('mobile-team.show', ['id' => $team->mobile_id]) }}" class="avtar avtar-xs btn-light-success">
+                                                <a href="{{ route('mobile-team-staffs.show', ['id' => $team->mobile_id]) }}"
+                                                    class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-eye f-20"></i>
                                                 </a>
-                                                <a href="{{ route('mobile-team.edit', $team->mobile_id) }}" class="avtar avtar-xs btn-light-success"><i class="ti ti-edit f-20"></i></a>
-                                                <a href="#" class="avtar avtar-xs btn-light-success" title="Change Status (Active or Inactive)">
-                                                    <i class="ti ti-toggle-left f-20"></i>
+                                                <a href="{{ route('mobile-team-staffs.edit', $team->mobile_id) }}"
+                                                    class="avtar avtar-xs btn-light-success"><i
+                                                        class="ti ti-edit f-20"></i></a>
+                                                <a href="#"
+                                                    class="avtar avtar-xs status-toggle {{ $team->mobile_status ? 'btn-light-success' : 'btn-light-danger' }}"
+                                                    data-mobile-id="{{ $team->mobile_id }}"
+                                                    title="Change Status (Active or Inactive)">
+                                                    <i
+                                                        class="ti ti-toggle-{{ $team->mobile_status ? 'right' : 'left' }} f-20"></i>
                                                 </a>
                                             </td>
                                         </tr>
@@ -280,6 +301,74 @@
 
     @push('scripts')
         @include('partials.datatable-export-js')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const toggleButtons = document.querySelectorAll('.status-toggle');
+
+                toggleButtons.forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+
+                        // Disable the button during processing
+                        this.classList.add('disabled');
+
+                        const mobileId = this.dataset.mobileId;
+
+                        fetch(`{{ url('/') }}/mobile-team-staffs/${mobileId}/toggle-status`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json'
+                                },
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Toggle classes
+                                    this.classList.toggle('btn-light-success');
+                                    this.classList.toggle('btn-light-danger');
+
+                                    // Toggle icon
+                                    const icon = this.querySelector('i');
+                                    if (icon.classList.contains('ti-toggle-right')) {
+                                        icon.classList.remove('ti-toggle-right');
+                                        icon.classList.add('ti-toggle-left');
+                                    } else {
+                                        icon.classList.remove('ti-toggle-left');
+                                        icon.classList.add('ti-toggle-right');
+                                    }
+                                    // Show success notification
+                                    showNotification(
+                                        'Status Updated',
+                                        data.message || 'District status updated successfully',
+                                        'success'
+                                    );
+                                } else {
+                                    // Show error notification
+                                    showNotification(
+                                        'Update Failed',
+                                        data.message || 'Failed to update status',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                showNotification(
+                                    'Error',
+                                    'An error occurred while updating status',
+                                    'error'
+                                );
+                            })
+                            .finally(() => {
+                                // Re-enable the button
+                                this.classList.remove('disabled');
+                            });
+                    });
+                });
+            });
+        </script>
     @endpush
 
     @include('partials.theme')

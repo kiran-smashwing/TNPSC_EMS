@@ -37,7 +37,7 @@
                                     <option value="district" {{ old('role') == 'district' ? 'selected' : '' }}>District Collectorates</option>
                                     <option value="center" {{ old('role') == 'center' ? 'selected' : '' }}>Centers</option>
                                     <option value="treasury" {{ old('role') == 'treasury' ? 'selected' : '' }}>Sub-Treasury</option>
-                                    <option value="mobileteam" {{ old('role') == 'mobileteam' ? 'selected' : '' }}>Mobile Team</option>
+                                    <option value="mobile_team_staffs" {{ old('role') == 'mobile_team_staffs' ? 'selected' : '' }}>Mobile Team</option>
                                     <option value="venue" {{ old('role') == 'venue' ? 'selected' : '' }}>Venues</option>
                                     <option value="ci" {{ old('role') == 'ci' ? 'selected' : '' }}>Chief Invigilators</option>
                                 </select>

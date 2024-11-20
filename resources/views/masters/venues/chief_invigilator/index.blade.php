@@ -149,8 +149,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                      <h2 class="mb-0"></h2>
-                                    </div> -->
+                                              <h2 class="mb-0"></h2>
+                                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -241,12 +241,12 @@
                                         <th>Name</th>
                                         <th>E-mail</th>
                                         <th>Phone</th>
-                                        <th>E-mail Status</th>                                     
+                                        <th>E-mail Status</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($chiefInvigilator as $key => $chiefInvigilator)
+                                    @foreach ($chiefInvigilator as $key => $chiefInvigilator)
                                         <tr>
                                             <td>{{ $key + 1 }}</td>
                                             <td>
@@ -256,8 +256,8 @@
                                                             <img src="{{ asset('storage/' . $chiefInvigilator->ci_image) }}"
                                                                 alt="district image" class="img-radius wid-40">
                                                         @else
-                                                        <img src="{{ asset('storage/assets/images/user/avatar-4.jpg') }}"
-                                                        alt="default image" class="img-radius wid-40">
+                                                            <img src="{{ asset('storage/assets/images/user/avatar-4.jpg') }}"
+                                                                alt="default image" class="img-radius wid-40">
                                                         @endif
                                                     </div>
                                                 </div>
@@ -294,11 +294,7 @@
                                                 </a>
                                             </td>
                                         </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="7" class="text-center">No chief invigilators found</td>
-                                        </tr>
-                                    @endforelse
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -316,7 +312,6 @@
 
     @push('scripts')
         @include('partials.datatable-export-js')
-  
     @endpush
 
     @include('partials.theme')
@@ -358,7 +353,8 @@
                                 // Show success notification
                                 showNotification(
                                     'Status Updated',
-                                    data.message || 'Chief Invigilators status updated successfully',
+                                    data.message ||
+                                    'Chief Invigilators status updated successfully',
                                     'success'
                                 );
                             } else {

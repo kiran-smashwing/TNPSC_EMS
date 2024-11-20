@@ -35,12 +35,13 @@
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
                                             <img class="rounded-circle img-fluid wid-70"
-                                            src="{{ $district->district_image
-                                                ? asset('storage/' . $district->district_image)
-                                                : asset('storage/assets/images/user/collectorate.png') }}"
-                                            alt="District image" />
+                                                src="{{ $ciAssistant->district->district_image
+                                                    ? asset('storage/' . $ciAssistant->district->district_image)
+                                                    : asset('storage/assets/images/user/collectorate.png') }}"
+                                                alt="District image" />
                                         </div>
-                                        <h5 class="mb-0">{{ $district->district_code }} - {{ $district->district_name }}</h5>
+                                        <h5 class="mb-0">{{ $ciAssistant->district->district_code }} -
+                                            {{ $ciAssistant->district->district_name }}</h5>
                                         <p class="text-muted text-sm">District Collectorate</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
@@ -60,29 +61,29 @@
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">{{ $district->district_email }}</p>
+                                            <p class="mb-0">{{ $ciAssistant->district->district_email }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">{{ $district->district_phone }}</p>
+                                            <p class="mb-0">{{ $ciAssistant->district->district_phone }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone-plus me-2"></i>
-                                            <p class="mb-0">{{ $district->district_alternate_phone }}</p>
+                                            <p class="mb-0">{{ $ciAssistant->district->district_alternate_phone }}</p>
                                         </div>
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">{{ $district->district_address }}</p>
+                                            <p class="mb-0">{{ $ciAssistant->district->district_address }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100">
                                             <i class="ti ti-link me-2"></i>
                                             <a href="#" class="link-primary">
-                                                <p class="mb-0">{{ $district->district_website }}</p>
+                                                <p class="mb-0">{{ $ciAssistant->district->district_website }}</p>
                                             </a>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
-                                            <a href="#"
+                                            <a href="#" onclick="openMap({{ $ciAssistant->district->district_latitude }}, {{ $ciAssistant->district->district_longitude }})"
                                                 class="btn btn-success d-inline-flex  justify-content-center"><i
                                                     class="ti ti-map-2 me-1"></i>View Location</a>
                                         </div>
@@ -100,12 +101,13 @@
                                     <div class="text-center mt-4">
                                         <div class="chat-avtar d-inline-flex mx-auto">
                                             <img class="rounded-circle img-fluid wid-70"
-                                            src="{{ $venue->venue_image
-                                                ? asset('storage/' . $venue->venue_image)
-                                                : asset('storage/assets/images/user/collectorate.png') }}"
-                                            alt="Venue image" />
+                                                src="{{ $ciAssistant->venue->venue_image
+                                                    ? asset('storage/' . $ciAssistant->venue->venue_image)
+                                                    : asset('storage/assets/images/user/collectorate.png') }}"
+                                                alt="Venue image" />
                                         </div>
-                                        <h5 class="mb-0">{{ $venue->venue_code }} - {{ $venue->venue_name }}</h5>
+                                        <h5 class="mb-0">{{ $ciAssistant->venue->venue_code }} -
+                                            {{ $ciAssistant->venue->venue_name }}</h5>
                                         <p class="text-muted text-sm">Venues</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
@@ -125,23 +127,23 @@
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">{{ $venue->venue_email }}</p>
+                                            <p class="mb-0">{{ $ciAssistant->venue->venue_email }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">{{ $venue->venue_phone }}</p>
+                                            <p class="mb-0">{{ $ciAssistant->venue->venue_phone }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone-plus me-2"></i>
-                                            <p class="mb-0">{{ $venue->venue_alternative_phone }}</p>
+                                            <p class="mb-0">{{ $ciAssistant->venue->venue_alternative_phone }}</p>
                                         </div>
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">{{ $venue->venue_address }}</p>
+                                            <p class="mb-0">{{ $ciAssistant->venue->venue_address }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
-                                            <a href="#"
+                                            <a href="#" onclick="openMap({{ $ciAssistant->venue->venue_latitude }}, {{ $ciAssistant->venue->venue_longitude }})"
                                                 class="btn btn-success d-inline-flex  justify-content-center"><i
                                                     class="ti ti-map-2 me-1"></i>View Location</a>
                                         </div>
@@ -162,14 +164,16 @@
                                         </span>
                                     </div>
 
-                                    <div class="text-center mt-4">
+                                    <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
                                             <img class="rounded-circle img-fluid wid-70"
-                                                src="{{ asset('storage/assets/images/user/avatar-4.jpg') }}"
-                                                alt="User image" />
+                                                src="{{ $ciAssistant->cia_image
+                                                    ? asset('storage/' . $ciAssistant->cia_image)
+                                                    : asset('storage/assets/images/user/avatar-4.jpg') }}"
+                                                alt="Venue image" />
                                         </div>
-                                        <h5 class="mb-0">Malarvizhi</h5>
-                                        <p class="text-muted text-sm">Asst Professor</p>
+                                        <h5 class="mb-0">{{ $ciAssistant->cia_name }}</h5>
+                                        <p class="text-muted text-sm">{{ $ciAssistant->cia_designation }}</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
                                             <div class="col-4">
@@ -189,23 +193,19 @@
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">Alandur - Chennai</p>
+                                            <p class="mb-0">{{$ciAssistant->center->center_code }} - {{$ciAssistant->center->center_name }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">malarvizhi@***.in</p>
+                                            <p class="mb-0">{{ $ciAssistant->cia_email }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">(+91) 9434***1212</p>
-                                        </div>
-                                        <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
-                                            <i class="ti ti-phone-plus me-2"></i>
-                                            <p class="mb-0">04434***1212</p>
+                                            <p class="mb-0">{{ $ciAssistant->cia_phone }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-building me-2"></i>
-                                            <p class="mb-0">Gov Hr Sec School</p>
+                                            <p class="mb-0">{{ $ciAssistant->venue->venue_name }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -237,8 +237,8 @@
             <!-- [ Main Content ] end -->
         </div>
     </div>
-        @include('partials.footer')
+    @include('partials.footer')
 
-        @include('partials.theme')
+    @include('partials.theme')
 
-    @endsection
+@endsection

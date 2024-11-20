@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CheifInvigilatorAssistant;
+use App\Models\CIAssistant;
 use App\Models\Center;
 use App\Models\District;
 use App\Models\Venues;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use App\Services\AuditLogger;
 use Illuminate\Support\Facades\Storage;
 use App\Services\ImageCompressService;
@@ -26,7 +25,7 @@ class CIAssistantsController extends Controller
     public function index()
     {
         // Fetch all CI Assistants with related district, center, and venue using eager loading
-        $ciAssistants = CheifInvigilatorAssistant::with('district', 'center', 'venue')->get();
+        $ciAssistants = CIAssistant::with('district', 'center', 'venue')->get();
 
         // Pass the CI Assistants to the view
         return view('masters.venues.ci_assistants.index', compact('ciAssistants'));
@@ -75,7 +74,7 @@ class CIAssistantsController extends Controller
             }
 
             // Create a new CheifInvigilatorAssistant record
-            $cia = CheifInvigilatorAssistant::create([
+            $cia = CIAssistant::create([
                 'cia_district_id' => $validated['district_id'],
                 'cia_center_id'   => $validated['center_id'],
                 'cia_venue_id'    => $validated['venue_id'],
@@ -86,7 +85,7 @@ class CIAssistantsController extends Controller
                 'cia_image'       => $newImagePath
             ]);
 
-            AuditLogger::log('Cheif Invigilator Assistant Created', CheifInvigilatorAssistant::class, $cia->cia_id, null, $cia->toArray());
+            AuditLogger::log('Cheif Invigilator Assistant Created', CIAssistant::class, $cia->cia_id, null, $cia->toArray());
 
             return redirect()->route('ci-assistant')->with('success', 'Assistant created successfully.');
         } catch (\Exception $e) {
@@ -99,7 +98,7 @@ class CIAssistantsController extends Controller
     public function edit($id)
     {
         // Fetch the specific CI Assistant record by its ID
-        $ciAssistant = CheifInvigilatorAssistant::findOrFail($id);
+        $ciAssistant = CIAssistant::findOrFail($id);
 
         // Fetch data for dropdowns
         $venues = Venues::all();
@@ -113,7 +112,7 @@ class CIAssistantsController extends Controller
     public function update(Request $request, $id)
     {
         // Find the CI Assistant record by ID
-        $ciAssistant = CheifInvigilatorAssistant::findOrFail($id);
+        $ciAssistant = CIAssistant::findOrFail($id);
 
         // Validation rules for CI Assistant data
         $validated = $request->validate([
@@ -181,7 +180,7 @@ class CIAssistantsController extends Controller
 
             // Update the CI Assistant record with the validated data
             $ciAssistant->update($updateData);
-            AuditLogger::log('CI Assistant Created', CheifInvigilatorAssistant::class, $ciAssistant->cia_id, null, $ciAssistant->toArray());
+            AuditLogger::log('CI Assistant Created', CIAssistant::class, $ciAssistant->cia_id, null, $ciAssistant->toArray());
 
             // Redirect to the CI Assistant show page
             return redirect()->route('ci-assistant', $ciAssistant->cia_id)
@@ -196,7 +195,7 @@ class CIAssistantsController extends Controller
     {
         try {
             // Find the CI Assistant by ID
-            $ciAssistant = CheifInvigilatorAssistant::findOrFail($id);
+            $ciAssistant = CIAssistant::findOrFail($id);
 
             // Get the current status before updating
             $oldStatus = $ciAssistant->cia_status;
@@ -223,7 +222,7 @@ class CIAssistantsController extends Controller
     public function show($id)
     {
         // Retrieve the CI Assistant record by ID, or fail if not found
-        $ciAssistant = CheifInvigilatorAssistant::findOrFail($id);
+        $ciAssistant = CIAssistant::findOrFail($id);
 
         // Fetch related District, Venue, and Center records based on the CI Assistant's foreign keys
         $district = District::findOrFail($ciAssistant->cia_district_id);

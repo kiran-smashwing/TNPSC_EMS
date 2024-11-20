@@ -149,9 +149,7 @@
 
 
             <!-- [ Main Content ] start -->
-            <div class="row">
-
-            </div>
+           
             <div class="row">
                 <!-- [ basic-table ] start -->
                 <div class="col-xl-12">

@@ -149,9 +149,7 @@
 
 
             <!-- [ Main Content ] start -->
-            <div class="row">
-
-            </div>
+           
             <div class="row">
                 @if (session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">

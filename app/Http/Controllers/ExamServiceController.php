@@ -84,4 +84,49 @@ class ExamServiceController extends Controller
             return back()->withInput()->with('error', 'Error updating exam service: ' . $e->getMessage());
         }
     }
+    public function toggleExamServiceStatus($id)
+    {
+        try {
+            // Find the ExamService by ID
+            $examService = ExamService::findOrFail($id);
+
+            // Get the previous status for logging
+            $previousStatus = $examService->examservice_status;
+
+            // Temporarily disable timestamp updating for this operation
+            $examService->timestamps = false;
+
+            // Toggle the status (examservice_status column is being toggled)
+            $examService->examservice_status = !$examService->examservice_status;
+            $examService->save();
+
+            // Restore timestamp behavior for subsequent operations
+            $examService->timestamps = true;
+
+            // Log the status change in the audit log
+            AuditLogger::log(
+                'Exam Service Status Toggled',
+                ExamService::class,
+                $examService->examservice_id,
+                null,
+                [
+                    'previous_status' => $previousStatus,
+                    'new_status' => $examService->examservice_status
+                ]
+            );
+
+            // Return a JSON response with the updated status
+            return response()->json([
+                'success' => true,
+                'status' => $examService->examservice_status,  // Corrected to examservice_status
+                'message' => 'Exam Service status updated successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update status',
+                'details' => $e->getMessage(), // Optional for debugging
+            ], 500);
+        }
+    }
 }

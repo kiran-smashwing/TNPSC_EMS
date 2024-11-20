@@ -6,6 +6,7 @@ use App\Models\DepartmentOfficial;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Services\AuditLogger;
 use App\Services\ImageCompressService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
@@ -82,7 +83,7 @@ class DepartmentOfficialsController extends Controller
             }
 
             // Create a new department official record
-            DepartmentOfficial::create([
+            $official = DepartmentOfficial::create([
                 'dept_off_name' => $validated['dept_off_name'],
                 'dept_off_designation' => $validated['dept_off_designation'],
                 'dept_off_phone' => $validated['dept_off_phone'],
@@ -93,6 +94,9 @@ class DepartmentOfficialsController extends Controller
                 'dept_off_createdat' => now(), // Set the current timestamp
                 'dept_off_image' => $imagePath, // If no image was uploaded, this will be null
             ]);
+
+            // Log the creation action in the audit log
+            AuditLogger::log('Department Official Created', DepartmentOfficial::class, $official->dept_off_emp_id, null, $official->toArray());
 
             // Redirect with success message
             return redirect()->route('department')->with('success', 'Department official added successfully.');
@@ -166,6 +170,8 @@ class DepartmentOfficialsController extends Controller
 
             // Update the DepartmentOfficial with the new data
             $official->update($updateData);
+            // Log the update action in the audit log
+            AuditLogger::log('Department Official Updated', DepartmentOfficial::class, $official->dept_off_emp_id, null, $official->toArray());
 
             // Redirect with success message
             return redirect()->route('department')

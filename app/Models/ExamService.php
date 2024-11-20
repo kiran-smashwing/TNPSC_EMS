@@ -22,14 +22,14 @@ class ExamService extends Model
         'examservice_createdat',  // Created at timestamp
     ];
 
-    // Specify that `examservice_createdat` is a timestamp field
-    protected $casts = [
-        'examservice_createdat' => 'datetime',
-    ];
+    // // Specify that `examservice_createdat` is a timestamp field
+    // protected $casts = [
+    //     'examservice_createdat' => 'datetime',
+    // ];
 
     // If you don't want to use the `updated_at` column, you can disable it
-    public function getUpdatedAtColumn()
-    {
-        return null;
-    }
+    // public function getUpdatedAtColumn()
+    // {
+    //     return null;
+    // }
 }

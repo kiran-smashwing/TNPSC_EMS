@@ -35,51 +35,51 @@
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
                                             <img class="rounded-circle img-fluid wid-70"
-                                                src="{{ $district->district_image
-                                                    ? asset('storage/' . $district->district_image)
+                                                src="{{ $venue->district->district_image
+                                                    ? asset('storage/' . $venue->district->district_image)
                                                     : asset('storage/assets/images/user/collectorate.png') }}"
                                                 alt="District image" />
                                         </div>
-                                        <h5 class="mb-0">{{ $district->district_code }} - {{ $district->district_name }}
+                                        <h5 class="mb-0">{{ $venue->district->district_code }} - {{ $venue->district->district_name }}
                                         </h5>
-                                        <p class="text-muted text-sm">{{ $district->district_type }}</p>
+                                        <p class="text-muted text-sm">{{ $venue->district->district_type }}</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
                                             <div class="col-4">
-                                                <h5 class="mb-0">{{ $district->centers_count }}</h5>
+                                                <h5 class="mb-0">{{ $venue->district->centers_count }}</h5>
                                                 <small class="text-muted">Centers</small>
                                             </div>
                                             <div class="col-4 border border-top-0 border-bottom-0">
-                                                <h5 class="mb-0">{{ $district->venues_count }}</h5>
+                                                <h5 class="mb-0">{{ $venue->district->venues_count }}</h5>
                                                 <small class="text-muted">Venues</small>
                                             </div>
                                             <div class="col-4">
-                                                <h5 class="mb-0">{{ $district->members_count }}</h5>
+                                                <h5 class="mb-0">{{ $venue->district->members_count }}</h5>
                                                 <small class="text-muted">Members</small>
                                             </div>
                                         </div>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">{{ $district->district_email }}</p>
+                                            <p class="mb-0">{{ $venue->district->district_email }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">{{ $district->district_phone }}</p>
+                                            <p class="mb-0">{{ $venue->district->district_phone }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone-plus me-2"></i>
-                                            <p class="mb-0">{{ $district->district_alternate_phone }}</p>
+                                            <p class="mb-0">{{ $venue->district->district_alternate_phone }}</p>
                                         </div>
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">{{ $district->district_address }}</p>
+                                            <p class="mb-0">{{ $venue->district->district_address }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100">
                                             <i class="ti ti-link me-2"></i>
                                             <a href="#" class="link-primary">
-                                                <p class="mb-0">{{ $district->district_website }}</p>
+                                                <p class="mb-0">{{ $venue->district->district_website }}</p>
                                             </a>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
@@ -154,7 +154,8 @@
                                             </a>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
-                                            <a href="#" onclick="openMap({{ $venue->venue_latitude }}, {{ $venue->venue_longitude }})"
+                                            <a href="#"
+                                                onclick="openMap({{ $venue->venue_latitude }}, {{ $venue->venue_longitude }})"
                                                 class="btn btn-success d-inline-flex  justify-content-center"><i
                                                     class="ti ti-map-2 me-1"></i>View Location</a>
                                         </div>
@@ -176,7 +177,8 @@
                                         <div class="col-sm-6">
                                             <div class="d-flex align-items-center">
                                                 <div class="flex-grow-1 me-3">
-                                                    <p class="mb-0 text-muted"> {{ $center->center_code }} - {{ $center->center_name }}</p>
+                                                    <p class="mb-0 text-muted"> {{ $venue->center->center_code }} -
+                                                        {{ $venue->center->center_name }}</p>
                                                 </div>
                                             </div>
                                         </div>

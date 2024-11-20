@@ -90,12 +90,14 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::post('/exam-service/store', [ExamServiceController::class, 'store'])->name('examservice.store');
     Route::get('/exam-service/{id}/edit', [ExamServiceController::class, 'edit'])->name('examservice.edit');
     Route::put('/exam-service/{id}', [ExamServiceController::class, 'update'])->name('examservice.update');
+    Route::post('/exam-service/{id}/toggle-status', [ExamServiceController::class, 'toggleExamServiceStatus']);
     // CI CheckList
     Route::get('/ci-checklist', [CIChecklistController::class, 'index'])->name('ci-checklist');
     Route::get('/ci-checklist/add', [CIChecklistController::class, 'create'])->name('ci-checklist.create');
     Route::post('/ci-checklist/store', [CiChecklistController::class, 'store'])->name('ci-checklist.store');
     Route::get('ci-checklist/edit/{id}', [CiChecklistController::class, 'edit'])->name('ci-checklist.edit');
     Route::put('ci-checklist/update/{id}', [CiChecklistController::class, 'update'])->name('ci-checklist.update');
+    Route::post('/ci-checklist/{id}/toggle-status', [CiChecklistController::class, 'toggleCiChecklistStatus']);
     //Current Exam
     Route::get('/current-exam', [CurrentExamController::class, 'index'])->name('current-exam');
     Route::get('/current-exam/add', [CurrentExamController::class, 'create'])->name('current-exam.create');

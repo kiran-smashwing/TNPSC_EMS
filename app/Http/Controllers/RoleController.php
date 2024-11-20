@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Role;
 use Illuminate\Http\Request;
+use App\Services\AuditLogger;
 use Illuminate\Support\Facades\Auth;
 
 class RoleController extends Controller
@@ -21,19 +22,31 @@ class RoleController extends Controller
 
     public function store(Request $request)
     {
+        // Validate the incoming request data
         $request->validate([
             'role_name' => 'required|string|max:255',
             'role_department' => 'required|string|max:255',
         ]);
 
-        Role::create([
-            'role_name' => $request->role_name,
-            'role_department' => $request->role_department,
-            'role_createdat' => now(),
-        ]);
+        try {
+            // Create the new role
+            $role = Role::create([
+                'role_name' => $request->role_name,
+                'role_department' => $request->role_department,
+                'role_createdat' => now(),
+            ]);
 
-        return redirect()->route('role')->with('success', 'Role created successfully.');
+            // Log the creation action in the audit log
+            AuditLogger::log('Role Created', Role::class, $role->role_id, null, $role->toArray());
+
+            // Redirect with success message
+            return redirect()->route('role')->with('success', 'Role created successfully.');
+        } catch (\Exception $e) {
+            // Send the error message to the session and show it in the view
+            return redirect()->back()->with('error', 'There was an issue creating the role: ' . $e->getMessage());
+        }
     }
+
 
 
     public function edit($id)
@@ -60,6 +73,9 @@ class RoleController extends Controller
                 'role_name' => $request->role_name,
             ]);
 
+            // Log the update action in the audit log
+            AuditLogger::log('Role Updated', Role::class, $role->role_id, null, $role->toArray());
+
             // Redirect with success message
             return redirect()->route('role')->with('success', 'Role updated successfully.');
         } catch (\Exception $e) {
@@ -72,9 +88,9 @@ class RoleController extends Controller
 
 
 
-    public function destroy(Designation $designation)
-    {
-        $designation->delete();
-        return redirect()->route('designations.index')->with('success', 'Designation deleted successfully.');
-    }
+    // public function destroy(Designation $designation)
+    // {
+    //     $designation->delete();
+    //     return redirect()->route('designations.index')->with('success', 'Designation deleted successfully.');
+    // }
 }

@@ -5,15 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CheifInvigilatorAssistant extends Model
+class CIAssistant extends Model
 {
     use HasFactory;
+    protected $casts = [
+        'cia_status' => 'boolean',
+    ];
 
     // Set the correct table name
     protected $table = 'cheif_invigilator_assistant';
 
     // Set the primary key for the model
     protected $primaryKey = 'cia_id';
+
+    public $timestamps = false;
 
     // Allow mass assignment for the specified fields
     protected $fillable = [
@@ -24,19 +29,19 @@ class CheifInvigilatorAssistant extends Model
         'cia_email',
         'cia_phone',
         'cia_designation',
-        'cia_image', // Image field if storing image path
+        'cia_image', 
+        'cia_createdat',
+        'cia_status',
     ];
 
-    // Cast attributes to appropriate data types
-    protected $casts = [
-        'cia_createdat' => 'datetime', // Ensures timestamp handling for `cia_createdat`
-    ];
-
-    // Disable automatic handling of 'updated_at' column
-    public function getUpdatedAtColumn()
-    {
-        return null; // Disables automatic 'updated_at' handling
-    }
+      // Add timestamp for createdat
+      protected static function boot()
+      {
+          parent::boot();
+          static::creating(function ($model) {
+              $model->cia_createdat = now();
+          });
+      }
 
     // Define relationships with other models
     public function district()

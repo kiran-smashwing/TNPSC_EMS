@@ -160,7 +160,7 @@
                         </li> --}}
                         <li class="pc-item"><a class="pc-link" href="{{route('exam-service')}}">Examination Service</a>
                         </li>
-                        <li class="pc-item"><a class="pc-link" href="">Subjects</a>
+                        {{-- <li class="pc-item"><a class="pc-link" href="">Subjects</a> --}}
                         </li>
                         <li class="pc-item"><a class="pc-link" href="{{route('ci-checklist')}}">CI Checklist</a>
                         </li>

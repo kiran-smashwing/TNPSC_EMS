@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                          <h2 class="mb-0"></h2>
-                        </div> -->
+                              <h2 class="mb-0"></h2>
+                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -149,7 +149,7 @@
 
 
             <!-- [ Main Content ] start -->
-           
+
             <div class="row">
                 <!-- [ basic-table ] start -->
                 @if (session('success'))
@@ -242,8 +242,13 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-shrink-0">
-                                                        <img src="{{ $assistant->cia_image ? asset('storage/' . $assistant->cia_image) : asset('assets/images/user/default-avatar.jpg') }}"
-                                                            alt="user image" class="img-radius wid-40">
+                                                        @if ($assistant->cia_image)
+                                                            <img src="{{ asset('storage/' . $assistant->cia_image) }}"
+                                                                alt="district image" class="img-radius wid-40">
+                                                        @else
+                                                            <img src="{{ asset('storage/assets/images/user/avatar-4.jpg') }}"
+                                                                alt="default image" class="img-radius wid-40">
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </td>

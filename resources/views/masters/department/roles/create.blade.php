@@ -38,7 +38,7 @@
                                             <div class="mb-3">
                                                 <label class="form-label" for="role_department">Department<span
                                                         class="text-danger">*</span></label>
-                                                <select class="form-control" id="role_department" name="role_department"
+                                                <select class="form-control @error('role_department') is-invalid @enderror" id="role_department" name="role_department"
                                                     required>
                                                     <option>Select Department</option>
                                                     <option value="APD">Application Processing Department - APD</option>
@@ -50,14 +50,20 @@
                                                     <option value="VSD">Verification Stationary Department - VSD</option>
                                                     <option value="MCD">Monitoring Coordination Department - MCD</option>
                                                 </select>
+                                                @error('role_department')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         </div>
                                         <div class="col-sm-12">
                                             <div class="mb-3">
                                                 <label class="form-label" for="role_name">Role<span
                                                         class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="role_name" name="role_name"
+                                                <input type="text" class="form-control @error('role_name') is-invalid @enderror" id="role_name" name="role_name"
                                                     placeholder="Enter role" required>
+                                                @error('role_name')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         </div>
                                     </div>

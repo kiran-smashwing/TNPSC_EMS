@@ -23,50 +23,51 @@
             <div class="row">
 
                 <div class="tab-content">
-                    <div class="row">
-                        @if (session('success'))
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                {{ session('success') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        @endif
-
-                        @if (session('error'))
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                {{ session('error') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                    aria-label="Close"></button>
-                            </div>
-                        @endif
-
-                        @if ($errors->any())
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <ul class="mb-0">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                    aria-label="Close"></button>
-                            </div>
-                        @endif
-                        <div class="col-lg-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5>Role - <span class="text-primary">Edit</span></h5>
+                    <form action="{{ route('roles.update', $role->role_id) }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        @method('PUT')
+                        <div class="row">
+                            @if (session('success'))
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    {{ session('success') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
                                 </div>
-                                <div class="card-body">
-                                    <form action="{{ route('roles.update', $role->role_id) }}" method="POST"
-                                        enctype="multipart/form-data">
-                                        @csrf
-                                        @method('PUT')
+                            @endif
+
+                            @if (session('error'))
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    {{ session('error') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
+                                </div>
+                            @endif
+
+                            @if ($errors->any())
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <ul class="mb-0">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
+                                </div>
+                            @endif
+                            <div class="col-lg-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Role - <span class="text-primary">Edit</span></h5>
+                                    </div>
+                                    <div class="card-body">
+
                                         <div class="row">
 
                                             <div class="col-sm-12">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="role_department">Department<span
                                                             class="text-danger">*</span></label>
-                                                    <select class="form-control" id="role_department" name="role_department"
+                                                    <select class="form-control @error('role_department') is-invalid @enderror" id="role_department" name="role_department"
                                                         required>
                                                         <option value="">Select Department</option>
                                                         <option value="APD"
@@ -99,27 +100,33 @@
                                                             Monitoring
                                                             Coordination Department - MCD</option>
                                                     </select>
+                                                    @error('role_department')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
                                             </div>
                                             <div class="col-sm-12">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="role_name">Role<span
                                                             class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control" id="role_name"
+                                                    <input type="text" class="form-control @error('role_name') is-invalid @enderror" id="role_name"
                                                         name="role_name" placeholder="Enter role"
                                                         value="{{ old('role_name', $role->role_name) }}" required>
+                                                    @error('role_name')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
                                             </div>
 
                                         </div>
+                                    </div>
                                 </div>
                             </div>
+                            <div class="col-12 text-end btn-page">
+                                <a href="{{ route('role') }}" class="btn btn-outline-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary">Update</button>
+                            </div>
                         </div>
-                        <div class="col-12 text-end btn-page">
-                            <a href="{{ route('role') }}" class="btn btn-outline-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary">Update</button>
-                        </div>
-                    </div>
                     </form>
                 </div>
             </div>

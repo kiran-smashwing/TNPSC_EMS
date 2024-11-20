@@ -209,9 +209,9 @@
                                             </td>
                                             <td>
                                                 <!-- View Button -->
-                                                <a href="{{ route('roles.show', $role->role_id) }}" class="avtar avtar-xs btn-light-success">
+                                                {{-- <a href="{{ route('roles.show', $role->role_id) }}" class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-eye f-20"></i>
-                                                </a>
+                                                </a> --}}
                                                 <!-- Edit Button -->
                                                 <a href="{{ route('roles.edit', $role->role_id) }}" class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-edit f-20"></i>

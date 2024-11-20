@@ -69,29 +69,56 @@
 
                 <div class="tab-content">
                     <div class="row">
+                        @if (session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @if ($errors->any())
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                aria-label="Close"></button>
+                        </div>
+                    @endif
                         <div class="col-lg-12">
                             <div class="card">
                                 <div class="card-header">
                                     <h5>Current Exam - <span class="text-primary">Add</span></h5>
                                 </div>
                                 <div class="card-body">
-                                    {{-- <form action="{{ route('collectorates.store') }}" method="POST" enctype="multipart/form-data"> --}}
+                                    <form action="{{ route('current_exam.store') }}" method="POST" enctype="multipart/form-data">
                                     @csrf
                                     <div class="row">
                                         <div class="col-sm-3">
                                             <div class="mb-3">
-                                                <label class="form-label" for="exam_id">Exam ID <span
+                                                <label class="form-label" for="exam_main_no">Exam ID <span
                                                         class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="exam_id" name="exam_id"
+                                                <input type="text" class="form-control" id="exam_main_no" name="exam_main_no"
                                                     readonly required value="20240719165037">
                                             </div>
                                         </div>
 
                                         <div class="col-sm-3">
                                             <div class="mb-3">
-                                                <label class="form-label" for="exam_type">Type of Exam<span
+                                                <label class="form-label" for="exam_main_type">Type of Exam<span
                                                         class="text-danger">*</span></label>
-                                                <select class="form-control" id="exam_type" name="exam_type" required>
+                                                <select class="form-control" id="exam_main_type" name="exam_main_type" required>
                                                     <option disabled selected>Select Exam Type</option>
                                                     <option value="Objective">Objective</option>
                                                     <option value="Descriptive">Descriptive</option>
@@ -103,9 +130,9 @@
                                         </div>
                                         <div class="col-sm-3">
                                             <div class="mb-3">
-                                                <label class="form-label" for="exam_model">Exam Model<span
+                                                <label class="form-label" for="exam_main_model">Exam Model<span
                                                         class="text-danger">*</span></label>
-                                                <select class="form-control" id="exam_model" name="exam_model" required>
+                                                <select class="form-control" id="exam_main_model" name="exam_main_model" required>
                                                     <option disabled selected>Select Exam Model</option>
                                                     <option value="Major">Major</option>
                                                     <option value="Minor">Minor</option>
@@ -115,9 +142,9 @@
                                         </div>
                                         <div class="col-sm-3">
                                             <div class="mb-3">
-                                                <label class="form-label" for="exam_tiers">Exam Tiers<span
+                                                <label class="form-label" for="exam_main_tiers">Exam Tiers<span
                                                         class="text-danger">*</span></label>
-                                                <select class="form-control" id="exam_tiers" name="exam_tiers" required>
+                                                <select class="form-control" id="exam_main_tiers" name="exam_main_tiers" required>
                                                     <option disabled selected>Select Exam Tiers</option>
                                                     <option value="1">1 - (Single Tier)</option>
                                                     <option value="2">2 - (Multi Tiers)</option>
@@ -127,9 +154,9 @@
                                         </div>
                                         <div class="col-sm-3">
                                             <div class="mb-3">
-                                                <label class="form-label" for="exam_service">Exam Service<span
+                                                <label class="form-label" for="exam_main_service">Exam Service<span
                                                         class="text-danger">*</span></label>
-                                                <select class="form-control" id="exam_service" name="exam_service" required>
+                                                <select class="form-control" id="exam_main_service" name="exam_main_service" required>
                                                     <option disabled selected>Select Exam Service</option>
                                                     <option value="001">GROUP I SERVICES EXAMINATION</option>
                                                     <option value="002">GROUP I-A SERVICES EXAMINATION</option>
@@ -139,19 +166,19 @@
                                         </div>
                                         <div class="col-sm-3">
                                             <div class="mb-3">
-                                                <label class="form-label" for="notif_no">Notification no <span
+                                                <label class="form-label" for="exam_main_notification">Notification no <span
                                                         class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="notif_no" name="notif_no"
+                                                <input type="text" class="form-control" id="exam_main_notification" name="exam_main_notification"
                                                     required placeholder="08/2024">
                                             </div>
                                         </div>
                                         <div class="col-sm-3">
                                             <div class="mb-3 ">
-                                                <label class="form-label" for="notif_date">Notification Date <span
+                                                <label class="form-label" for="exam_main_notifdate">Notification Date <span
                                                         class="text-danger">*</span></label>
                                                 <div class="input-group date">
-                                                    <input type="text" name="notif_date" class="form-control"
-                                                        value="05/20/2017" id="notif_date" />
+                                                    <input type="text" name="exam_main_notifdate" class="form-control"
+                                                        value="05/20/2017" id="exam_main_notifdate" />
                                                     <span class="input-group-text">
                                                         <i class="feather icon-calendar"></i>
                                                     </span>
@@ -161,36 +188,36 @@
 
                                         <div class="col-sm-6">
                                             <div class="mb-3">
-                                                <label class="form-label" for="exam_name">Exam Name <span
+                                                <label class="form-label" for="exam_main_name">Exam Name <span
                                                         class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="exam_name" name="exam_name"
+                                                <input type="text" class="form-control" id="exam_main_name" name="exam_main_name"
                                                     required placeholder="Combined Civil Services Examination - II">
                                             </div>
                                         </div>
                                         <div class="col-sm-6">
                                             <div class="mb-3">
-                                                <label class="form-label" for="exam_name_tamil">Exam Name in Tamil <span
+                                                <label class="form-label" for="exam_main_nametamil">Exam Name in Tamil <span
                                                         class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="exam_name_tamil"
-                                                    name="exam_name_tamil" required
+                                                <input type="text" class="form-control" id="exam_main_nametamil"
+                                                    name="exam_main_nametamil" required
                                                     placeholder="ஒருங்கிணைந்த சிவில் சர்வீசஸ் தேர்வு - II (குரூப் II மற்றும் IIA சேவைகள்)">
                                             </div>
                                         </div>
                                         <div class="col-sm-6">
                                             <div class="mb-3">
-                                                <label class="form-label" for="post_name">Post Name <span
+                                                <label class="form-label" for="exam_main_postname">Post Name <span
                                                         class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="post_name"
-                                                    name="post_name" required placeholder="Group II and IIA Services">
+                                                <input type="text" class="form-control" id="exam_main_postname"
+                                                    name="exam_main_postname" required placeholder="Group II and IIA Services">
                                             </div>
                                         </div>
                                         <div class="col-sm-3">
                                             <div class="mb-3 ">
-                                                <label class="form-label" for="last_date_apply">Last Date For Apply <span
+                                                <label class="form-label" for="exam_main_lastdate">Last Date For Apply <span
                                                         class="text-danger">*</span></label>
                                                 <div class="input-group date">
-                                                    <input type="text" name="last_date_apply" class="form-control"
-                                                        value="05/20/2017" id="last_date_apply" />
+                                                    <input type="text" name="exam_main_lastdate" class="form-control"
+                                                        value="05/20/2017" id="exam_main_lastdate" />
                                                     <span class="input-group-text">
                                                         <i class="feather icon-calendar"></i>
                                                     </span>
@@ -199,11 +226,11 @@
                                         </div>
                                         <div class="col-sm-3">
                                             <div class="mb-3 ">
-                                                <label class="form-label" for="exam_start_date">Exam Start Date <span
+                                                <label class="form-label" for="exam_main_startdate">Exam Start Date <span
                                                         class="text-danger">*</span></label>
                                                 <div class="input-group date">
-                                                    <input type="text" name="exam_start_date" class="form-control"
-                                                        value="05/20/2017" id="exam_start_date" />
+                                                    <input type="text" name="exam_main_startdate" class="form-control"
+                                                        value="05/20/2017" id="exam_main_startdate" />
                                                     <span class="input-group-text">
                                                         <i class="feather icon-calendar"></i>
                                                     </span>
@@ -215,7 +242,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-12 mt-4">
+                        {{-- <div class="col-lg-12 mt-4">
                             <div class="card">
                                 <div class="card-header">
                                     <h5>Exam Subjects, Date, and Session</h5>
@@ -284,12 +311,14 @@
                                     </table>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="col-12 text-end btn-page">
-                            <div class="btn btn-outline-secondary">Cancel</div>
-                            <div class="btn btn-primary">Create</div>
+                            <a href="{{ route('current-exam') }}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Create</button>
+                            
                         </div>
                     </div>
+                </form>
                 </div>
 
 

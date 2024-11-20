@@ -114,6 +114,8 @@ class CenterController extends Controller
         }
     }
 
+    
+
     public function edit($center_id)
     {
         $center = Center::findOrFail($center_id); // Retrieves the center by its ID

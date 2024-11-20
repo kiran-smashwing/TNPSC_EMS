@@ -106,12 +106,14 @@ Route::middleware(['auth.multi'])->group(function () {
     //Current Exam
     Route::get('/current-exam', [CurrentExamController::class, 'index'])->name('current-exam');
     Route::get('/current-exam/add', [CurrentExamController::class, 'create'])->name('current-exam.create');
+    Route::post('/current-exam/store', [CurrentExamController::class, 'store'])->name('current_exam.store');
     Route::get('/current-exam/task', [CurrentExamController::class, 'task'])->name('current-exam.task');
     Route::get('/current-exam/ciTask', [CurrentExamController::class, 'ciTask'])->name('current-exam.citask');
     Route::get('/current-exam/ciMeeting', [CurrentExamController::class, 'ciMeeting'])->name('current-exam.ciMeeting');
     Route::get('/current-exam/examActivityTask', [CurrentExamController::class, 'examActivityTask'])->name('current-exam.examActivityTask');
     Route::get('/current-exam/districtTask', [CurrentExamController::class, 'districtCollectrateTask'])->name('current-exam.districtTask');
-    Route::get('/current-exam/edit', [CurrentExamController::class, 'edit'])->name('current-exam.edit');
+    Route::get('/current-exam/edit/{id}', [CurrentExamController::class, 'edit'])->name('current-exam.edit');
+    Route::put('/current-exam/update/{id}', [CurrentExamController::class, 'update'])->name('current-exam.update');
     Route::get('/current-exam/increaseCandidate', [CurrentExamController::class, 'increaseCandidate'])->name('current-exam.incCandidate');
     Route::get('/current-exam/intimateCollectorate', [CurrentExamController::class, 'sendMailtoCollectorate'])->name('current-exam.intimateCollectorate');
     Route::get('/current-exam/venueConsent', [CurrentExamController::class, 'venueConsent'])->name('current-exam.venueConsent');

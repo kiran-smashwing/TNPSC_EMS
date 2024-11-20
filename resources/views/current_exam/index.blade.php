@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                  <h2 class="mb-0"></h2>
-                </div> -->
+                      <h2 class="mb-0"></h2>
+                    </div> -->
                         </div>
                     </div>
                 </div>
@@ -211,36 +211,45 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>
-                                            <div class="flex-grow-1 ms-3">
-                                                <h6 class="mb-0">08/2024</h6>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="flex-grow-1 ms-3">
-                                                <h6 class="mb-0">Combined Civil Services Examination - II </h6>
-                                            </div>
-                                        </td>
-                                        <td>20-06-2024</td>
-                                        <td>1</td>
-                                        <td>Objective</td>
-                                        <td>19-07-2024</td>
-                                        <td>
-                                            <a href="{{ route('current-exam.task') }}" class="avtar avtar-xs  btn-light-success"><i
-                                                    class="ti ti-eye f-20"></i></a>
-                                            <a href="{{ route('current-exam.edit') }}"
-                                                class="avtar avtar-xs  btn-light-success"><i
-                                                    class="ti ti-edit f-20"></i></a>
-                                            <!-- <a href="#" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-trash f-20"></i></a> -->
-                                            <a href="#" class="avtar avtar-xs  btn-light-success"
-                                                title="Change Status (Active or Inactive)">
-                                                <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
-                                            </a>
-                                        </td>
-                                    </tr>
+                                    @forelse ($exams as $exam)
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>
+                                                <div class="flex-grow-1 ms-3">
+                                                    <h6 class="mb-0">{{ $exam->exam_main_no }}</h6>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="flex-grow-1 ms-3">
+                                                    <h6 class="mb-0">{{ $exam->exam_main_name }}</h6>
+                                                </div>
+                                            </td>
+                                            <td>{{ $exam->exam_main_startdate }}</td>
+                                            <td>{{ $exam->exam_main_flag }}</td>
+                                            <td>{{ $exam->exam_main_type }}</td>
+                                            <td>{{ $exam->exam_main_lastdate }}</td>
+                                            <td>
+                                                <a href="{{ route('current-exam.task', $exam->exam_main_id) }}"
+                                                    class="avtar avtar-xs btn-light-success">
+                                                    <i class="ti ti-eye f-20"></i>
+                                                </a>
+                                                <a href="{{ route('current-exam.edit', $exam->exam_main_id) }}"
+                                                    class="avtar avtar-xs btn-light-success">
+                                                    <i class="ti ti-edit f-20"></i>
+                                                </a>
+                                                <a href="#" class="avtar avtar-xs btn-light-success"
+                                                    title="Change Status (Active or Inactive)">
+                                                    <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon -->
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="8" class="text-center">No exams found.</td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
+
                             </table>
                         </div>
                     </div>

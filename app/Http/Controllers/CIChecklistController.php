@@ -94,4 +94,52 @@ class CIChecklistController extends Controller
             return back()->withInput()->with('error', 'Error updating CiChecklist: ' . $e->getMessage());
         }
     }
+
+    public function toggleCiChecklistStatus($id)
+    {
+        try {
+            // Find the CiChecklist by ID
+            $ciChecklist = CiChecklist::findOrFail($id);
+
+            // Get the previous status for logging (assuming `ci_checklist_status` is the column you are toggling)
+            $previousStatus = $ciChecklist->ci_checklist_status;
+
+            // Temporarily disable automatic timestamp updates
+            $ciChecklist->timestamps = false;
+
+            // Toggle the status (e.g., 1 = Active, 0 = Inactive)
+            $ciChecklist->ci_checklist_status = !$ciChecklist->ci_checklist_status;
+
+            // Save the updated status without updating `updated_at`
+            $ciChecklist->save();
+
+            // Re-enable the timestamp updates
+            $ciChecklist->timestamps = true;
+
+            // Log the status change in the audit log
+            AuditLogger::log(
+                'CiChecklist Status Toggled',
+                CiChecklist::class,
+                $ciChecklist->id,
+                null,
+                [
+                    'previous_status' => $previousStatus,
+                    'new_status' => $ciChecklist->ci_checklist_status
+                ]
+            );
+
+            // Return a JSON response with the updated status
+            return response()->json([
+                'success' => true,
+                'status' => $ciChecklist->ci_checklist_status,
+                'message' => 'CiChecklist status updated successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update status',
+                'details' => $e->getMessage(), // Optional for debugging
+            ], 500);
+        }
+    }
 }

@@ -49,8 +49,8 @@ class VenuesController extends Controller
             'venue_code_provider' => 'required|string', // Adjust max length as needed
             'type' => 'required|string',
             'category' => 'required|string',
-            'distance_from_railway' => 'required|string', 
-            'distance_from_treasury' => 'required|string', 
+            'distance_from_railway' => 'required|string',
+            'distance_from_treasury' => 'required|string',
             'email' => 'required|email|unique:venue,venue_email',
             'phone' => 'required|string|max:20',
             'alternative_phone' => 'nullable|string|max:20',
@@ -148,9 +148,9 @@ class VenuesController extends Controller
             'venue_code_provider' => 'required|string', // Adjust max length as needed
             'type' => 'required|string',
             'category' => 'required|string',
-            'distance_from_railway' => 'required|string', 
-            'distance_from_treasury' => 'required|string', 
-            'email' => 'required|email|unique:venue,venue_email,'. $id . ',venue_id',
+            'distance_from_railway' => 'required|string',
+            'distance_from_treasury' => 'required|string',
+            'email' => 'required|email|unique:venue,venue_email,' . $id . ',venue_id',
             'phone' => 'required|string|max:20',
             'alternative_phone' => 'nullable|string|max:20',
             'website' => 'nullable|url',
@@ -287,13 +287,10 @@ class VenuesController extends Controller
 
     public function show($id)
     {
-        // Fetch the venue first based on the ID
-        $venue = Venues::findOrFail($id);
-        // Fetch the district related to the venue, assuming there's a `district_id` column in the `venues` table
-        $district = District::findOrFail($venue->venue_district_id);
-        // Fetch the center related to the venue, assuming there's a `center_id` column in the `venues` table
-        $center = Center::findOrFail($venue->venue_center_id);
+        // Fetch the venue with its related district and center in one query using eager loading
+        $venue = Venues::with(['district', 'center'])->findOrFail($id);
+
         // Return the view with venue, district, and center data
-        return view('masters.venues.venue.show', compact('venue', 'district', 'center'));
+        return view('masters.venues.venue.show', compact('venue'));
     }
 }

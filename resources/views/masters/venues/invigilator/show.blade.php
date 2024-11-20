@@ -35,12 +35,12 @@
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
                                             <img class="rounded-circle img-fluid wid-70"
-                                            src="{{ $district->district_image
-                                                ? asset('storage/' . $district->district_image)
+                                            src="{{ $invigilator->district->district_image
+                                                ? asset('storage/' . $invigilator->district->district_image)
                                                 : asset('storage/assets/images/user/collectorate.png') }}"
                                             alt="District image" />
                                         </div>
-                                        <h5 class="mb-0">{{ $district->district_code }} - {{ $district->district_name }}</h5>
+                                        <h5 class="mb-0">{{ $invigilator->district->district_code }} - {{ $invigilator->district->district_name }}</h5>
                                         <p class="text-muted text-sm">District Collectorate</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
@@ -60,25 +60,25 @@
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">{{ $district->district_email }}</p>
+                                            <p class="mb-0">{{ $invigilator->district->district_email }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">{{ $district->district_phone }}</p>
+                                            <p class="mb-0">{{ $invigilator->district->district_phone }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone-plus me-2"></i>
-                                            <p class="mb-0">{{ $district->district_alternate_phone }}</p>
+                                            <p class="mb-0">{{ $invigilator->district->district_alternate_phone }}</p>
                                         </div>
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">{{ $district->district_address }}</p>
+                                            <p class="mb-0">{{ $invigilator->district->district_address }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100">
                                             <i class="ti ti-link me-2"></i>
                                             <a href="#" class="link-primary">
-                                                <p class="mb-0">{{ $district->district_website }}</p>
+                                                <p class="mb-0">{{ $invigilator->district->district_website }}</p>
                                             </a>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
@@ -100,22 +100,22 @@
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
                                             <img class="rounded-circle img-fluid wid-70"
-                                                src="{{ $venue->venue_image
-                                                    ? asset('storage/' . $venue->venue_image)
+                                                src="{{ $invigilator->venue->venue_image
+                                                    ? asset('storage/' . $invigilator->venue->venue_image)
                                                     : asset('storage/assets/images/user/collectorate.png') }}"
                                                 alt="Venue image" />
                                         </div>
-                                        <h5 class="mb-0">{{ $venue->venue_code }} - {{ $venue->venue_name }}</h5>
+                                        <h5 class="mb-0">{{ $invigilator->venue->venue_code }} - {{ $invigilator->venue->venue_name }}</h5>
                                         <p class="text-muted text-sm">Venues</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
                                             <div class="col-4">
                                                 <h5 class="mb-0">2</h5>
-                                                <small class="text-muted">Cheif Invigilators</small>
+                                                <small class="text-muted">Cheif invigilator</small>
                                             </div>
                                             <div class="col-4 border border-top-0 border-bottom-0">
                                                 <h5 class="mb-0">4</h5>
-                                                <small class="text-muted">Invigilators</small>
+                                                <small class="text-muted">invigilator</small>
                                             </div>
                                             <div class="col-4">
                                                 <h5 class="mb-0">3</h5>
@@ -125,25 +125,25 @@
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">{{ $venue->venue_email }}</p>
+                                            <p class="mb-0">{{ $invigilator->venue->venue_email }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">{{ $venue->venue_phone }}</p>
+                                            <p class="mb-0">{{ $invigilator->venue->venue_phone }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone-plus me-2"></i>
-                                            <p class="mb-0">{{ $venue->venue_alternative_phone }}</p>
+                                            <p class="mb-0">{{ $invigilator->venue->venue_alternative_phone }}</p>
                                         </div>
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">{{ $venue->venue_address }}</p>
+                                            <p class="mb-0">{{ $invigilator->venue->venue_address }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100">
                                             <i class="ti ti-link me-2"></i>
                                             <a href="#" class="link-primary">
-                                                <p class="mb-0">{{ $venue->venue_website }}</p>
+                                                <p class="mb-0">{{ $invigilator->venue->venue_website }}</p>
                                             </a>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
@@ -197,7 +197,7 @@
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">{{ $center->center_code }} - {{ $center->center_name }}</p>
+                                            <p class="mb-0">{{ $invigilator->center->center_code }} - {{ $invigilator->center->center_name }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
@@ -209,7 +209,7 @@
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-building me-2"></i>
-                                            <p class="mb-0">{{ $venue->venue_name}}</p>
+                                            <p class="mb-0">{{ $invigilator->venue->venue_name}}</p>
                                         </div>
                                     </div>
                                 </div>

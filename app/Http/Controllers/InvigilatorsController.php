@@ -260,16 +260,15 @@ class InvigilatorsController extends Controller
             ], 500);
         }
     }
-   
+
 
 
     public function show($id)
     {
-        $invigilator = Invigilator::findOrFail($id);
-        $district = District::findOrFail($invigilator->invigilator_district_id);
-        $venue = Venues::findOrFail($invigilator->invigilator_venue_id);
-        $center = Center::findOrFail($invigilator->invigilator_center_id);
+        // Fetch the invigilator with its related district, venue, and center using eager loading
+        $invigilator = Invigilator::with(['district', 'venue', 'center'])->findOrFail($id);
 
-        return view('masters.venues.invigilator.show', compact('invigilator', 'district', 'venue', 'center'));
+        // Return the view with the invigilator and its related data
+        return view('masters.venues.invigilator.show', compact('invigilator'));
     }
 }

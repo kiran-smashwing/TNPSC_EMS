@@ -148,7 +148,7 @@
                                             </a>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
-                                            <a href="#"
+                                            <a href="#" onclick="openMap({{ $venue->venue_latitude }}, {{ $venue->venue_longitude }})"
                                                 class="btn btn-success d-inline-flex  justify-content-center"><i
                                                     class="ti ti-map-2 me-1"></i>View Location</a>
                                         </div>

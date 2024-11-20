@@ -58,14 +58,7 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/inspection-officer', [InspectionOfficersController::class, 'index'])->name('inspection-officer');
     Route::get('/inspection-officer/add', [InspectionOfficersController::class, 'create'])->name('inspection-officer.create');
     Route::get('/inspection-officer/edit', [InspectionOfficersController::class, 'edit'])->name('inspection-officer.edit');
-    // Cheif Invigilator routes
-    Route::get('/chief-invigilator', [ChiefInvigilatorsController::class, 'index'])->name('chief-invigilator');
-    Route::get('/chief-invigilator/add', [ChiefInvigilatorsController::class, 'create'])->name('chief-invigilator.create');
-    Route::post('/chief-invigilator/store', [ChiefInvigilatorsController::class, 'store'])->name('chief-invigilator.store');
-    Route::get('/chief-invigilator/{id}/edit', [ChiefInvigilatorsController::class, 'edit'])->name('chief-invigilator.edit');
-    Route::put('/chief-invigilator/{id}', [ChiefInvigilatorsController::class, 'update'])->name('chief-invigilator.update');
-    Route::get('/chief-invigilator/show', [ChiefInvigilatorsController::class, 'show'])->name('chief-invigilator.show');
-    
+
     // CI Assistants
     Route::get('/ci-assistant', [CIAssistantsController::class, 'index'])->name('ci-assistant');
     Route::get('/ci-assistant/add', [CIAssistantsController::class, 'create'])->name('ci-assistant.create');
@@ -230,6 +223,19 @@ Route::prefix('scribes')->group(function () {
         Route::get('/{id}', [ScribeController::class, 'show'])->name('scribes.show');
         Route::post('/{id}/toggle-status', [ScribeController::class, 'toggleStatus'])->name('scribes.toggle-status');
         Route::delete('/{id}', [ScribeController::class, 'destroy'])->name('scribes.destroy');
+    });
+});
+//chief-invigilators Route::prefix('chief-invigilators')->group(function () {
+Route::prefix('chief-invigilators')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/', [ChiefInvigilatorsController::class, 'index'])->name('chief-invigilators.index');
+        Route::get('/create', [ChiefInvigilatorsController::class, 'create'])->name('chief-invigilators.create');
+        Route::post('/', [ChiefInvigilatorsController::class, 'store'])->name('chief-invigilators.store');
+        Route::get('/{id}/edit', [ChiefInvigilatorsController::class, 'edit'])->name('chief-invigilators.edit');
+        Route::put('/{id}', [ChiefInvigilatorsController::class, 'update'])->name('chief-invigilators.update');
+        Route::get('/{id}', [ChiefInvigilatorsController::class, 'show'])->name('chief-invigilators.show');
+        Route::post('/{id}/toggle-status', [ChiefInvigilatorsController::class, 'toggleStatus'])->name('chief-invigilators.toggle-status');
+        Route::delete('/{id}', [ChiefInvigilatorsController::class, 'destroy'])->name('chief-invigilators.destroy');
     });
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

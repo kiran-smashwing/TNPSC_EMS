@@ -1,15 +1,17 @@
-<?php 
+<?php
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class ChiefInvigilator extends Authenticatable
 {
     use HasFactory;
-
+    protected $casts = [
+        'ci_status' => 'boolean',
+        'ci_email_status' => 'boolean',
+    ];
     protected $table = 'cheif_invigilator';
     protected $primaryKey = 'ci_id';
     public $timestamps = false;
@@ -25,24 +27,42 @@ class ChiefInvigilator extends Authenticatable
         'ci_designation',
         'ci_password',
         'ci_image',
+        'ci_status',
+        'ci_email_status',
+        'ci_createdat',
+        'remember_token',
     ];
-
     protected $hidden = [
         'ci_password',
     ];
-
-    // Boot method to set `ci_createdat` when creating a new record
-    public function getAuthPassword()
-    {
-        return $this->ci_password;
-    }
-
+    // Add timestamp for createdat
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($model) {
-            $model->ci_createdat = now()->format('H:i:s'); // Set creation time without time zone
+            $model->ci_createdat = now();
         });
     }
+    public function getDisplayNameAttribute()
+    {
+        return $this->ci_name; // or whatever field you use for the name
+    }
+    public function getAuthPassword()
+    {
+        return $this->ci_password;
+    }
+    public function district()
+    {
+        return $this->belongsTo(District::class, 'ci_district_id', 'district_id');
+    }
+    public function center()
+    {
+        return $this->belongsTo(Center::class, 'ci_center_id', 'center_id');
+    }
+    public function venue()
+    {
+        return $this->belongsTo(Venues::class, 'ci_venue_id', 'venue_id');
+    }
+
 }

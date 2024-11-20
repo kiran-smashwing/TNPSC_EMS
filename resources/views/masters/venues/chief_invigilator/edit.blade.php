@@ -33,45 +33,46 @@
                 <div class="col-sm-12"></div>
                 <div class="tab-content">
                     <div>
-                        <div class="row">
-                            @if (session('success'))
-                                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                    {{ session('success') }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                        aria-label="Close"></button>
-                                </div>
-                            @endif
-
-                            @if (session('error'))
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                    {{ session('error') }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                        aria-label="Close"></button>
-                                </div>
-                            @endif
-
-                            @if ($errors->any())
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                    <ul class="mb-0">
-                                        @foreach ($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                        aria-label="Close"></button>
-                                </div>
-                            @endif
-
-                            <div class="col-lg-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5>Chief Invigilator - <span class="text-primary">Edit</span></h5>
+                        <form action="{{ route('chief-invigilators.update', $chiefInvigilator->ci_id) }}" method="POST"
+                            enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
+                            <div class="row">
+                                @if (session('success'))
+                                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                        {{ session('success') }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                            aria-label="Close"></button>
                                     </div>
-                                    <div class="card-body">
-                                        <form action="{{ route('chief-invigilator.update', $chiefInvigilator->ci_id) }}"
-                                            method="POST" enctype="multipart/form-data">
-                                            @csrf
-                                            @method('PUT')
+                                @endif
+
+                                @if (session('error'))
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        {{ session('error') }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                            aria-label="Close"></button>
+                                    </div>
+                                @endif
+
+                                @if ($errors->any())
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        <ul class="mb-0">
+                                            @foreach ($errors->all() as $error)
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                            aria-label="Close"></button>
+                                    </div>
+                                @endif
+
+                                <div class="col-lg-6">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5>Chief Invigilator - <span class="text-primary">Edit</span></h5>
+                                        </div>
+                                        <div class="card-body">
+
 
                                             <div class="row">
                                                 <div class="col-sm-12 text-center mb-3">
@@ -87,75 +88,105 @@
                                                     </div>
                                                 </div>
 
-
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="ci_district_id">District<span
+                                                        <label class="form-label" for="district">District<span
                                                                 class="text-danger">*</span></label>
-                                                        <select class="form-control" id="ci_district_id"
-                                                            name="ci_district_id" required>
+                                                        <select class="form-control @error('district') is-invalid @enderror"
+                                                            id="district" name="district" required>
                                                             <option value="">Select District</option>
                                                             @foreach ($districts as $district)
                                                                 <option value="{{ $district->district_id }}"
-                                                                    {{ old('ci_district_id', $chiefInvigilator->ci_district_id) == $district->district_id ? 'selected' : '' }}>
+                                                                    {{ old('district', $chiefInvigilator->ci_district_id) == $district->district_id ? 'selected' : '' }}>
                                                                     {{ $district->district_name }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
+                                                        @error('district')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="ci_center_id">Center<span
+                                                        <label class="form-label" for="center">Center<span
                                                                 class="text-danger">*</span></label>
-                                                        <select class="form-control" id="ci_center_id" name="ci_center_id"
-                                                            required>
+                                                        <select class="form-control @error('center') is-invalid @enderror"
+                                                            id="center" name="center" required>
                                                             <option value="">Select Center</option>
                                                             @foreach ($centers as $center)
                                                                 <option value="{{ $center->center_id }}"
-                                                                    {{ old('ci_center_id', $chiefInvigilator->ci_center_id) == $center->center_id ? 'selected' : '' }}>
+                                                                    {{ old('center', $chiefInvigilator->ci_center_id) == $center->center_id ? 'selected' : '' }}>
                                                                     {{ $center->center_name }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
+                                                        @error('center')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="ci_venue_id">Venue<span
+                                                        <label class="form-label" for="venue">Venue<span
                                                                 class="text-danger">*</span></label>
-                                                        <select class="form-control" id="ci_venue_id" name="ci_venue_id"
-                                                            required>
+                                                        <select class="form-control @error('venue') is-invalid @enderror"
+                                                            id="venue" name="venue" required>
                                                             <option value="">Select Venue</option>
                                                             @foreach ($venues as $venue)
                                                                 <option value="{{ $venue->venue_id }}"
-                                                                    {{ old('ci_venue_id', $chiefInvigilator->ci_venue_id) == $venue->venue_id ? 'selected' : '' }}>
+                                                                    {{ old('venue', $chiefInvigilator->ci_venue_id) == $venue->venue_id ? 'selected' : '' }}>
                                                                     {{ $venue->venue_name }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
+                                                        @error('venue')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
+
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
                                                         <label class="form-label">Name <span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control" id="ci_name"
-                                                            name="ci_name"
-                                                            value="{{ old('ci_name', $chiefInvigilator->ci_name) }}"
+                                                        <input type="text"
+                                                            class="form-control @error('name') is-invalid @enderror"
+                                                            id="name" name="name"
+                                                            value="{{ old('name', $chiefInvigilator->ci_name) }}" required>
+                                                        @error('name')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="employee_id">Employee ID <span
+                                                                class="text-danger">*</span></label>
+                                                        <input type="text"
+                                                            class="form-control @error('employee_id') is-invalid @enderror"
+                                                            id="employee_id" name="employee_id"
+                                                            value="{{ old('employee_id', $chiefInvigilator->ci_employee_id) }}"
                                                             required>
+                                                        @error('employee_id')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
                                                         <label class="form-label" for="designation">Designation <span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control" id="ci_designation"
-                                                            name="ci_designation"
-                                                            value="{{ old('ci_designation', $chiefInvigilator->ci_designation) }}"
+                                                        <input type="text"
+                                                            class="form-control @error('designation') is-invalid @enderror"
+                                                            id="designation" name="designation"
+                                                            value="{{ old('designation', $chiefInvigilator->ci_designation) }}"
                                                             required>
+                                                        @error('designation')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
 
@@ -163,10 +194,14 @@
                                                     <div class="mb-3">
                                                         <label class="form-label">Email <span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="email" class="form-control" id="ci_email"
-                                                            name="ci_email"
+                                                        <input type="email"
+                                                            class="form-control @error('email') is-invalid @enderror"
+                                                            id="email" name="email"
                                                             value="{{ old('email', $chiefInvigilator->ci_email) }}"
                                                             required>
+                                                        @error('email')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
 
@@ -174,10 +209,30 @@
                                                     <div class="mb-3">
                                                         <label class="form-label" for="phone">Phone <span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="tel" class="form-control" id="ci_phone"
-                                                            name="ci_phone"
-                                                            value="{{ old('ci_phone', $chiefInvigilator->ci_phone) }}"
+                                                        <input type="tel"
+                                                            class="form-control @error('phone') is-invalid @enderror"
+                                                            id="phone" name="phone"
+                                                            value="{{ old('phone', $chiefInvigilator->ci_phone) }}"
                                                             required>
+                                                        @error('phone')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-6">
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="alternative_phone">Alternative
+                                                            Phone
+                                                            <span class="text-danger">*</span></label>
+                                                        <input type="tel"
+                                                            class="form-control @error('alternative_phone') is-invalid @enderror"
+                                                            id="alternative_phone" name="alternative_phone"
+                                                            value="{{ old('alternative_phone', $chiefInvigilator->ci_alternative_phone) }}"
+                                                            required>
+                                                        @error('alternative_phone')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
 
@@ -185,20 +240,26 @@
                                                     <div class="mb-3">
                                                         <label class="form-label" for="password">Password <span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="password" class="form-control" id="ci_password"
-                                                            name="password" placeholder="Leave blank to keep current">
+                                                        <input type="password"
+                                                            class="form-control @error('password') is-invalid @enderror"
+                                                            id="password" name="password"
+                                                            placeholder="Leave blank to keep current">
+                                                        @error('password')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
                                             </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="col-12 text-end btn-page">
-                                <a href="{{ route('chief-invigilator') }}" class="btn btn-outline-secondary">Cancel</a>
-                                <button type="submit" class="btn btn-primary">Update</button>
+                                <div class="col-12 text-end btn-page">
+                                    <a href="{{ route('chief-invigilators.index') }}"
+                                        class="btn btn-outline-secondary">Cancel</a>
+                                    <button type="submit" class="btn btn-primary">Update</button>
+                                </div>
                             </div>
-                        </div>
                         </form>
                     </div>
                 </div>

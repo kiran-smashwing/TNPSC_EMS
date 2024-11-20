@@ -29,18 +29,27 @@
                             <div class="card">
                                 <div class="card-body position-relative">
                                     <div class="position-absolute end-0 top-0 p-3">
-                                        <span class="d-flex align-items-center"></span>
+                                        <span class="d-flex align-items-center">
+
+                                            <span class="me-2">E-mail</span>
+
+                                            <i class="ph-duotone ph-circle-wavy-check text-success"></i>
+
+                                        </span>
                                     </div>
 
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
-                                            <img class="rounded-circle img-fluid wid-70"
-                                                src="{{ asset('storage/assets/images/user/collectorate.png') }}"
-                                                alt="User image" />
+                                            <img alt="User image" src="{{ $chiefInvigilator->district->district_image
+                                            ? asset('storage/' . $chiefInvigilator->district->district_image)
+                                            : asset('storage/assets/images/user/collectorate.png') }}"
+                                            id="previewImage" alt="Cropped Preview"
+                                            class="rounded-circle img-fluid wid-70">
                                         </div>
-                                        <h5 class="mb-0">01 - Chennai</h5>
+                                        <h5 class="mb-0">{{ $chiefInvigilator->district->district_name }} - {{ $chiefInvigilator->district->district_code }}
+                                        </h5>
                                         <p class="text-muted text-sm">District Collectorate</p>
-                                        <hr class="my-3 border border-secondary-subtle" />
+                                        <hr class="my-3 border border-secondary-subtle">
                                         <div class="row g-3">
                                             <div class="col-4">
                                                 <h5 class="mb-0">86</h5>
@@ -55,35 +64,35 @@
                                                 <small class="text-muted">Members</small>
                                             </div>
                                         </div>
-                                        <hr class="my-3 border border-secondary-subtle" />
+                                        <hr class="my-3 border border-secondary-subtle">
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">ceochn@***.in</p>
+                                            <p class="mb-0">{{ $chiefInvigilator->district->district_email }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">(+91) 9434***1212</p>
+                                            <p class="mb-0">{{ $chiefInvigilator->district->district_phone }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone-plus me-2"></i>
-                                            <p class="mb-0">04434***1212</p>
+                                            <p class="mb-0">{{ $chiefInvigilator->district->district_alternate_phone }}</p>
                                         </div>
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">Tamil Nadu Public Service Commission, TNPSC Road, Broadway,
-                                                Chennai-600003.</p>
+                                            <p class="mb-0">{{ $chiefInvigilator->district->district_address }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100">
                                             <i class="ti ti-link me-2"></i>
-                                            <a href="#" class="link-primary">
-                                                <p class="mb-0">https://chennai.nic.in/</p>
+                                            <a class="link-primary" href="#">
+                                                <p class="mb-0">{{ $chiefInvigilator->district->district_website }}</p>
                                             </a>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
-                                            <a href="#"
-                                                class="btn btn-success d-inline-flex  justify-content-center"><i
-                                                    class="ti ti-map-2 me-1"></i>View Location</a>
+                                            <a class="btn btn-success d-inline-flex  justify-content-center" href="#"
+                                                onclick="openMap({{ $chiefInvigilator->district->district_latitude }}, {{ $chiefInvigilator->district->district_longitude }})">
+                                                <i class="ti ti-map-2 me-1"></i>View Location
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -93,16 +102,24 @@
                             <div class="card">
                                 <div class="card-body position-relative">
                                     <div class="position-absolute end-0 top-0 p-3">
-                                        <span class="d-flex align-items-center"></span>
+                                        <span class="d-flex align-items-center">
+                                            <!-- Email Address -->
+                                            <span class="me-2">E-mail</span>
+                                            <!-- Verified Icon -->
+                                            <i class="ph-duotone ph-circle-wavy-check text-success"></i>
+                                            <!-- Bootstrap Icon -->
+                                        </span>
                                     </div>
 
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
                                             <img class="rounded-circle img-fluid wid-70"
-                                                src="{{ asset('storage/assets/images/user/venue.png') }}"
-                                                alt="User image" />
+                                                src="{{ $chiefInvigilator->venue->venue_image
+                                                    ? asset('storage/' . $chiefInvigilator->venue->venue_image)
+                                                    : asset('storage/assets/images/user/venue.png') }}"
+                                                alt="Venue image" />
                                         </div>
-                                        <h5 class="mb-0">448966 - Gov Hr Sec School</h5>
+                                        <h5 class="mb-0">{{ $chiefInvigilator->venue->venue_code }} - {{ $chiefInvigilator->venue->venue_name }}</h5>
                                         <p class="text-muted text-sm">Venues</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
@@ -122,30 +139,29 @@
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">ceochn@***.in</p>
+                                            <p class="mb-0">{{ $chiefInvigilator->venue->venue_email }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">(+91) 9434***1212</p>
+                                            <p class="mb-0">{{ $chiefInvigilator->venue->venue_phone }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone-plus me-2"></i>
-                                            <p class="mb-0">04434***1212</p>
+                                            <p class="mb-0">{{ $chiefInvigilator->venue->venue_alternative_phone }}</p>
                                         </div>
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">Tamil Nadu Public Service Commission, TNPSC Road, Broadway,
-                                                Chennai-600003.</p>
+                                            <p class="mb-0">{{ $chiefInvigilator->venue->venue_address }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100">
                                             <i class="ti ti-link me-2"></i>
                                             <a href="#" class="link-primary">
-                                                <p class="mb-0">https://chennai.nic.in/</p>
+                                                <p class="mb-0">{{ $chiefInvigilator->venue->venue_website }}</p>
                                             </a>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
-                                            <a href="#"
+                                            <a href="#" onclick="openMap({{ $chiefInvigilator->venue->venue_latitude }}, {{ $chiefInvigilator->venue->venue_longitude }})"
                                                 class="btn btn-success d-inline-flex  justify-content-center"><i
                                                     class="ti ti-map-2 me-1"></i>View Location</a>
                                         </div>
@@ -169,11 +185,13 @@
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
                                             <img class="rounded-circle img-fluid wid-70"
-                                                src="{{ asset('storage/assets/images/user/avatar-4.jpg') }}"
-                                                alt="User image" />
+                                                src="{{ $chiefInvigilator->ci_image
+                                                    ? asset('storage/' . $chiefInvigilator->ci_image)
+                                                    : asset('storage/assets/images/user/avatar-4.jpg') }}"
+                                                alt="Venue image" />
                                         </div>
-                                        <h5 class="mb-0">Malarvizhi</h5>
-                                        <p class="text-muted text-sm">Professor</p>
+                                        <h5 class="mb-0">{{ $chiefInvigilator->ci_name }}</h5>
+                                        <p class="text-muted text-sm">{{ $chiefInvigilator->ci_designation }}</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
                                             <div class="col-4">
@@ -193,23 +211,23 @@
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">Alandur - Chennai</p>
+                                            <p class="mb-0">{{ $chiefInvigilator->center->center_code }} - {{ $chiefInvigilator->center->center_name }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">malarvizhi@***.in</p>
+                                            <p class="mb-0">{{ $chiefInvigilator->ci_email }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">(+91) 9434***1212</p>
+                                            <p class="mb-0">{{ $chiefInvigilator->ci_phone }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone-plus me-2"></i>
-                                            <p class="mb-0">04434***1212</p>
+                                            <p class="mb-0">{{ $chiefInvigilator->ci_alternative_phone }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-building me-2"></i>
-                                            <p class="mb-0">Gov Hr Sec School</p>
+                                            <p class="mb-0">{{ $chiefInvigilator->venue->venue_name}}</p>
                                         </div>
                                     </div>
                                 </div>

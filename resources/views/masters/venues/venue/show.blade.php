@@ -109,7 +109,7 @@
                                             <img class="rounded-circle img-fluid wid-70"
                                                 src="{{ $venue->venue_image
                                                     ? asset('storage/' . $venue->venue_image)
-                                                    : asset('storage/assets/images/user/collectorate.png') }}"
+                                                    : asset('storage/assets/images/user/venue.png') }}"
                                                 alt="Venue image" />
                                         </div>
                                         <h5 class="mb-0">{{ $venue->venue_code }} - {{ $venue->venue_name }}</h5>
@@ -154,7 +154,7 @@
                                             </a>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
-                                            <a href="#"
+                                            <a href="#" onclick="openMap({{ $venue->venue_latitude }}, {{ $venue->venue_longitude }})"
                                                 class="btn btn-success d-inline-flex  justify-content-center"><i
                                                     class="ti ti-map-2 me-1"></i>View Location</a>
                                         </div>

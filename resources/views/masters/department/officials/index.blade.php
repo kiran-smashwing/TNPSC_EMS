@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                          <h2 class="mb-0"></h2>
-                        </div> -->
+                                      <h2 class="mb-0"></h2>
+                                    </div> -->
                         </div>
                     </div>
                 </div>
@@ -149,7 +149,7 @@
 
 
             <!-- [ Main Content ] start -->
-           
+
             <div class="row">
                 <!-- [ basic-table ] start -->
                 <div class="col-xl-12">
@@ -158,7 +158,7 @@
                             <div class="d-sm-flex align-items-center justify-content-between">
                                 <h5 class="mb-3 mb-sm-0">Department Officials list</h5>
                                 <div>
-                                    <a href="{{ route('department.create') }}" class="btn btn-outline-success">Add
+                                    <a href="{{ route('department-officials.create') }}" class="btn btn-outline-success">Add
                                         Department Officials</a>
                                 </div>
                             </div>
@@ -213,9 +213,9 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($departmentOfficials as $official)
+                                    @foreach ($departmentOfficials as $key => $official)
                                         <tr>
-                                            <td>{{ $official->dept_off_id }}</td>
+                                            <td>{{ $key + 1 }}</td>
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-shrink-0">
@@ -239,19 +239,18 @@
                                             <td>{{ $official->dept_off_email }}</td>
                                             <td>{{ $official->dept_off_phone }}</td>
                                             <td class="text-center">
-                                                <!-- Display active/inactive status icon -->
-                                                @if ($official->dept_off_email_status == 'active')
+                                                @if ($official->dept_off_email_status)
                                                     <i class="ti ti-circle-check text-success f-18"></i>
                                                 @else
-                                                    <i class="ti ti-circle-x text-danger f-18"></i>
+                                                    <i class="ti ti-alert-circle text-danger f-18"></i>
                                                 @endif
                                             </td>
                                             <td>
                                                 <!-- Action buttons -->
-                                                <a href="{{ route('department.show', $official->dept_off_id) }}"
+                                                <a href="{{ route('department-officials.show', $official->dept_off_id) }}"
                                                     class="avtar avtar-xs btn-light-success"><i
                                                         class="ti ti-eye f-20"></i></a>
-                                                <a href="{{ route('department.edit', $official->dept_off_id) }}"
+                                                <a href="{{ route('department-officials.edit', $official->dept_off_id) }}"
                                                     class="avtar avtar-xs btn-light-success"><i
                                                         class="ti ti-edit f-20"></i></a>
                                                 <a href="#"
@@ -292,7 +291,7 @@
                     const departmentOfficialId = this.dataset.departmentOfficialId;
 
                     // Send the request to toggle the status
-                    fetch(`{{ url('/') }}/department-official/${departmentOfficialId}/toggle-status`, {
+                    fetch(`{{ url('/') }}/department-officials/${departmentOfficialId}/toggle-status`, {
                             method: 'POST',
                             headers: {
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}',

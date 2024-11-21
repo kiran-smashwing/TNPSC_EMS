@@ -75,16 +75,6 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/roles/{id}/edit', [RoleController::class, 'edit'])->name('roles.edit');
     Route::put('/roles/{id}', [RoleController::class, 'update'])->name('roles.update');
     Route::get('/role/show', [RoleController::class, 'edit'])->name('roles.show');
-
-    // Department
-    Route::get('/department', [DepartmentOfficialsController::class, 'index'])->name('department');
-    Route::get('/department/add', [DepartmentOfficialsController::class, 'create'])->name('department.create');
-    Route::post('/department-officials/store', [DepartmentOfficialsController::class, 'store'])->name('department-officials.store');
-    Route::get('/department-officials/{id}/edit', [DepartmentOfficialsController::class, 'edit'])->name('department.edit');
-    Route::put('department/officials/{id}', [DepartmentOfficialsController::class, 'update'])->name('department.officials.update');
-    Route::get('/department/officials/show/{id}', [DepartmentOfficialsController::class, 'show'])->name('department.show');
-    Route::post('/department-official/{id}/toggle-status', [DepartmentOfficialsController::class, 'toggleStatus'])->name('departmentOfficial.toggleStatus');
-
     // CI CheckList
     Route::get('/ci-checklist', [CIChecklistController::class, 'index'])->name('ci-checklist');
     Route::get('/ci-checklist/add', [CIChecklistController::class, 'create'])->name('ci-checklist.create');
@@ -247,5 +237,17 @@ Route::prefix('exam-services')->group(function () {
         Route::delete('/{id}', [ExamServiceController::class, 'destroy'])->name('exam-services.destroy');
     });
 });
-
+//department-officials Route::prefix('department-officials ')->group(function(){
+Route::prefix('department-officials')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/', [DepartmentOfficialsController::class, 'index'])->name('department-officials.index');
+        Route::get('/create', [DepartmentOfficialsController::class, 'create'])->name('department-officials.create');
+        Route::post('/', [DepartmentOfficialsController::class, 'store'])->name('department-officials.store');
+        Route::get('/{id}/edit', [DepartmentOfficialsController::class, 'edit'])->name('department-officials.edit');
+        Route::put('/{id}', [DepartmentOfficialsController::class, 'update'])->name('department-officials.update');
+        Route::get('/{id}', [DepartmentOfficialsController::class, 'show'])->name('department-officials.show');
+        Route::post('/{id}/toggle-status', [DepartmentOfficialsController::class, 'toggleStatus'])->name('department-officials.toggle-status');
+        Route::delete('/{id}', [DepartmentOfficialsController::class, 'destroy'])->name('department-officials.destroy');
+    });
+});
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

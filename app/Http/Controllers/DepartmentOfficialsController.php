@@ -39,21 +39,24 @@ class DepartmentOfficialsController extends Controller
 
     public function store(Request $request)
     {
-        // Validate the incoming request
+        // Custom error messages for validation
+        $messages = [
+            'role.required' => 'Please select a role',
+            'role.integer' => 'Please select a valid role',
+        ];
         $validated = $request->validate([
-            'dept_off_name' => 'required|string|max:255',
-            'dept_off_designation' => 'nullable|string|max:255',
-            'dept_off_phone' => 'nullable|string|max:15',
-            'dept_off_role' => 'required|string|max:255',
-            'dept_off_emp_id' => 'required|string|max:255',
-            'dept_off_email' => 'required|email',
-            'dept_off_password' => 'required|string|min:8', // Assuming there's a password confirmation field in the form
-            'cropped_image' => 'nullable|string', // If you are dealing with a base64 image
-        ]);
+            'name' => 'required|string|max:255',
+            'designation' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:15',
+            'role' => 'required|integer',
+            'employee_id' => 'required|string|max:255',
+            'email' => 'required|email|unique:department_officer,dept_off_email',
+            'password' => 'required|string|min:6',
+            'cropped_image' => 'nullable|string',
+        ], $messages);
 
         try {
-            // Handle image upload (if any)
-            $imagePath = null;
+
             if (!empty($validated['cropped_image'])) {
                 // Remove the data URL prefix if present
                 $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
@@ -64,7 +67,7 @@ class DepartmentOfficialsController extends Controller
                 }
 
                 // Create a unique image name
-                $imageName = 'dept_official_' . time() . '.png';
+                $imageName = $validated['email'] . time() . '.png';
                 $imagePath = 'images/dept_officials/' . $imageName;
 
                 // Store the image
@@ -80,26 +83,28 @@ class DepartmentOfficialsController extends Controller
                     // Assuming you have an image service for compressing the image
                     $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200);  // 200 KB max size
                 }
-            }
+                $validated['image'] = $imagePath;
 
+            }
+            // Hash password
+            $validated['dept_off_password'] = Hash::make($validated['password']);
             // Create a new department official record
             $official = DepartmentOfficial::create([
-                'dept_off_name' => $validated['dept_off_name'],
-                'dept_off_designation' => $validated['dept_off_designation'],
-                'dept_off_phone' => $validated['dept_off_phone'],
-                'dept_off_role' => $validated['dept_off_role'],
-                'dept_off_emp_id' => $validated['dept_off_emp_id'],
-                'dept_off_email' => $validated['dept_off_email'],
-                'dept_off_password' => Hash::make($validated['dept_off_password']), // Hashing the password before storing
-                'dept_off_createdat' => now(), // Set the current timestamp
-                'dept_off_image' => $imagePath, // If no image was uploaded, this will be null
+                'dept_off_name' => $validated['name'],
+                'dept_off_designation' => $validated['designation'],
+                'dept_off_phone' => $validated['phone'],
+                'dept_off_role' => $validated['role'],
+                'dept_off_emp_id' => $validated['employee_id'],
+                'dept_off_email' => $validated['email'],
+                'dept_off_password' => $validated['dept_off_password'], // Hashing the password before storing
+                'dept_off_image' => $validated['image'] ?? null // If no image was uploaded, this will be null
             ]);
 
             // Log the creation action in the audit log
             AuditLogger::log('Department Official Created', DepartmentOfficial::class, $official->dept_off_emp_id, null, $official->toArray());
 
             // Redirect with success message
-            return redirect()->route('department')->with('success', 'Department official added successfully.');
+            return redirect()->route('department-officials.index')->with('success', 'Department official added successfully.');
         } catch (\Exception $e) {
             // Handle any errors during the process
             return redirect()->back()->with('error', 'There was an issue creating the department official: ' . $e->getMessage());
@@ -118,17 +123,21 @@ class DepartmentOfficialsController extends Controller
     {
         // Find the DepartmentOfficial by ID
         $official = DepartmentOfficial::findOrFail($id);
-
+        $messages = [
+            'role.required' => 'Please select a role',
+            'role.integer' => 'Please select a valid role',
+        ];
         // Validate the incoming request
         $validated = $request->validate([
-            'dept_off_name' => 'required|string|max:255',
-            'dept_off_emp_id' => 'required|string|max:20',
-            'dept_off_designation' => 'nullable|string|max:100',
-            'dept_off_role' => 'required|integer',
-            'dept_off_phone' => 'nullable|string|max:20',
-            'dept_off_email' => 'required|email|max:255',
+            'name' => 'required|string|max:255',
+            'employee_id' => 'required|string|max:20',
+            'designation' => 'nullable|string|max:100',
+            'role' => 'required|integer',
+            'phone' => 'nullable|string|max:20',
+            'email' => 'required|email|max:255|unique:department_officer,dept_off_email,' . $id . ',dept_off_id',
             'cropped_image' => 'nullable|string', // Base64 encoded string for image
-        ]);
+            'password' => 'nullable|string|min:6',
+        ], $messages);
 
         try {
             $newImagePath = null;
@@ -141,7 +150,7 @@ class DepartmentOfficialsController extends Controller
                     throw new \Exception('Base64 decode failed.');
                 }
 
-                $imageName = 'dept_official_' . time() . '.jpg';
+                $imageName = $validated['email'] . time() . '.png';
                 $imagePath = 'images/dept_official/' . $imageName;
 
                 Storage::disk('public')->put($imagePath, $imageData);
@@ -153,28 +162,38 @@ class DepartmentOfficialsController extends Controller
 
                 $newImagePath = $imagePath;
             }
+            // Only update password if provided
+            if ($request->filled('password')) {
+                $validated['dept_off_password'] = Hash::make($validated['password']);
+            }
 
             // Prepare data for updating
             $updateData = [
-                'dept_off_name' => $validated['dept_off_name'],
-                'dept_off_emp_id' => $validated['dept_off_emp_id'],
-                'dept_off_designation' => $validated['dept_off_designation'],
-                'dept_off_role' => $validated['dept_off_role'],
-                'dept_off_phone' => $validated['dept_off_phone'],
-                'dept_off_email' => $validated['dept_off_email'],
+                'dept_off_name' => $validated['name'],
+                'dept_off_emp_id' => $validated['employee_id'],
+                'dept_off_designation' => $validated['designation'],
+                'dept_off_role' => $validated['role'],
+                'dept_off_phone' => $validated['phone'],
+                'dept_off_email' => $validated['email'],
+                'dept_off_password' => $validated['dept_off_password'] ?? $official->dept_off_password
             ];
 
             if ($newImagePath) {
                 $updateData['dept_off_image'] = $newImagePath;
             }
-
-            // Update the DepartmentOfficial with the new data
+            // Get old values and update the DepartmentOfficial
+            $oldValues = $official->getOriginal();
             $official->update($updateData);
-            // Log the update action in the audit log
-            AuditLogger::log('Department Official Updated', DepartmentOfficial::class, $official->dept_off_emp_id, null, $official->toArray());
+
+            // Get changed values for logging
+            $changedValues = $official->getChanges();
+            $oldValues = array_intersect_key($oldValues, $changedValues);
+
+            // Log district update with old and new values
+            AuditLogger::log('Department Official Updated', DepartmentOfficial::class, $official->dept_off_emp_id, $oldValues, $changedValues);
 
             // Redirect with success message
-            return redirect()->route('department')
+            return redirect()->route('department-officials.index')
                 ->with('success', 'Department official updated successfully.');
         } catch (\Exception $e) {
             return back()->withInput()

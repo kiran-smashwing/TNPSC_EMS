@@ -173,7 +173,7 @@
                         </li> --}}
                         <li class="pc-item"><a class="pc-link" href="{{ route('role') }}">Role</a>
                         </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('department') }}">Department Officials</a>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('department-officials.index') }}">Department Officials</a>
                         </li>
                     </ul>
                 </li>

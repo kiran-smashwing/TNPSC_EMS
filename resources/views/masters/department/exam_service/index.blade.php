@@ -201,9 +201,9 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($examServices as $examService)
+                                    @foreach ($examServices as $key =>  $examService)
                                         <tr>
-                                            <td>{{ $examService->examservice_id }}</td>
+                                            <td>{{ $key + 1  }}</td>
                                             <td>
                                                 <div class="flex-grow-1 ms-3">
                                                     <h6 class="mb-0">{{ $examService->examservice_name }}</h6>

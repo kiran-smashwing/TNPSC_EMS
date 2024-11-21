@@ -158,7 +158,7 @@
                         </li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('ci_assistants') }}">CI Assistants </a>
                         </li> --}}
-                        <li class="pc-item"><a class="pc-link" href="{{route('exam-service')}}">Examination Service</a>
+                        <li class="pc-item"><a class="pc-link" href="{{route('exam-services.index')}}">Examination Service</a>
                         </li>
                         {{-- <li class="pc-item"><a class="pc-link" href="">Subjects</a> --}}
                         </li>

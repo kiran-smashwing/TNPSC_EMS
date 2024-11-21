@@ -24,59 +24,63 @@
             <div class="row">
                 <div class="col-sm-12">
                     <!-- <div class="card">
-              <div class="card-body py-0">
-                 Your content here
-              </div> -->
+                  <div class="card-body py-0">
+                     Your content here
+                  </div> -->
                 </div>
                 <div class="tab-content">
                     <div>
                         <div class="row">
-                            <div class="col-lg-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5>Exam Service - <span class="text-primary">Edit</span></h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <form action="{{ route('examservice.update', $examService->examservice_id) }}" method="POST"
-                                            enctype="multipart/form-data">
-                                            @csrf
-                                            @method('PUT')
-                                            <div class="row">
+                            <form action="{{ route('exam-services.update', $examService->examservice_id) }}" method="POST"
+                                enctype="multipart/form-data">
+                                @csrf
+                                @method('PUT')
+                                <div class="col-lg-6">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5>Exam Service - <span class="text-primary">Edit</span></h5>
+                                        </div>
+                                        <div class="card-body">
 
+                                            <div class="row">
 
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
                                                         <label class="form-label" for="name">Name <span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control" id="name"
+                                                        <input type="text" class="form-control @error('examservice_name') is-invalid @enderror" id="name"
                                                             name="examservice_name"
                                                             placeholder="GROUP I SERVICES EXAMINATION"
                                                             value="{{ old('examservice_name', $examService->examservice_name) }}"
                                                             required>
+                                                        @error('examservice_name')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
-
 
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
                                                         <label class="form-label" for="code">Code <span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control" id="code"
+                                                        <input type="text" class="form-control @error('examservice_code') is-invalid @enderror" id="code"
                                                             name="examservice_code" placeholder="001"
                                                             value="{{ old('examservice_code', $examService->examservice_code) }}"
                                                             required>
+                                                        @error('examservice_code')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
 
-
                                             </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-12 text-end btn-page">
-                                <a href="{{ route('exam-service') }}" class="btn btn-outline-secondary">Cancel</a>
-                                <button type="submit" class="btn btn-primary">Update</button>
-                            </div>
+                                <div class="col-12 text-end btn-page">
+                                    <a href="{{ route('exam-services.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                                    <button type="submit" class="btn btn-primary">Update</button>
+                                </div>
                             </form>
                         </div>
                     </div>

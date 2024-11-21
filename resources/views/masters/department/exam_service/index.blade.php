@@ -184,7 +184,7 @@
                             <div class="d-sm-flex align-items-center justify-content-between">
                                 <h5 class="mb-3 mb-sm-0">Exam Service list</h5>
                                 <div>
-                                    <a href="{{ route('exam-service.create') }}" class="btn btn-outline-success">Add Exam
+                                    <a href="{{ route('exam-services.create') }}" class="btn btn-outline-success">Add Exam
                                         Service</a>
                                 </div>
                             </div>
@@ -211,7 +211,7 @@
                                             </td>
                                             <td>{{ $examService->examservice_code }}</td>
                                             <td>
-                                                <a href="{{ route('examservice.edit', $examService->examservice_id) }}"
+                                                <a href="{{ route('exam-services.edit', $examService->examservice_id) }}"
                                                     class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-edit f-20"></i>
                                                 </a>
@@ -252,7 +252,7 @@
                     const examServiceId = this.dataset.examServiceId;
 
                     // Send the request to toggle the status
-                    fetch(`{{ url('/exam-service') }}/${examServiceId}/toggle-status`, {
+                    fetch(`{{ url('/exam-services') }}/${examServiceId}/toggle-status`, {
                             method: 'POST',
                             headers: {
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}',

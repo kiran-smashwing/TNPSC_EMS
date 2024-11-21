@@ -48,8 +48,8 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/myaccount', [MyAccountController::class, 'index'])->name('myaccount');
     // Change Password routes
     Route::get('/change-password', [ChangePasswordController::class, 'showchangePassword'])->name('change-password');
-  
- 
+
+
     // Escort Staffs routes
     Route::get('/escort-staff', [EscortStaffsController::class, 'index'])->name('escort-staff');
     Route::get('/escort-staff/add', [EscortStaffsController::class, 'create'])->name('escort-staff.create');
@@ -75,7 +75,7 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/roles/{id}/edit', [RoleController::class, 'edit'])->name('roles.edit');
     Route::put('/roles/{id}', [RoleController::class, 'update'])->name('roles.update');
     Route::get('/role/show', [RoleController::class, 'edit'])->name('roles.show');
- 
+
     // Department
     Route::get('/department', [DepartmentOfficialsController::class, 'index'])->name('department');
     Route::get('/department/add', [DepartmentOfficialsController::class, 'create'])->name('department.create');
@@ -84,13 +84,7 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::put('department/officials/{id}', [DepartmentOfficialsController::class, 'update'])->name('department.officials.update');
     Route::get('/department/officials/show/{id}', [DepartmentOfficialsController::class, 'show'])->name('department.show');
     Route::post('/department-official/{id}/toggle-status', [DepartmentOfficialsController::class, 'toggleStatus'])->name('departmentOfficial.toggleStatus');
-    // Examination Services
-    Route::get('/exam-service', [ExamServiceController::class, 'index'])->name('exam-service');
-    Route::get('/exam-service/add', [ExamServiceController::class, 'create'])->name('exam-service.create');
-    Route::post('/exam-service/store', [ExamServiceController::class, 'store'])->name('examservice.store');
-    Route::get('/exam-service/{id}/edit', [ExamServiceController::class, 'edit'])->name('examservice.edit');
-    Route::put('/exam-service/{id}', [ExamServiceController::class, 'update'])->name('examservice.update');
-    Route::post('/exam-service/{id}/toggle-status', [ExamServiceController::class, 'toggleExamServiceStatus']);
+
     // CI CheckList
     Route::get('/ci-checklist', [CIChecklistController::class, 'index'])->name('ci-checklist');
     Route::get('/ci-checklist/add', [CIChecklistController::class, 'create'])->name('ci-checklist.create');
@@ -240,4 +234,18 @@ Route::prefix('chief-invigilators')->group(function () {
         Route::delete('/{id}', [ChiefInvigilatorsController::class, 'destroy'])->name('chief-invigilators.destroy');
     });
 });
+//exam-service Route::prefix('exam-services')->group(function(){
+Route::prefix('exam-services')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/', [ExamServiceController::class, 'index'])->name('exam-services.index');
+        Route::get('/create', [ExamServiceController::class, 'create'])->name('exam-services.create');
+        Route::post('/', [ExamServiceController::class, 'store'])->name('exam-services.store');
+        Route::get('/{id}/edit', [ExamServiceController::class, 'edit'])->name('exam-services.edit');
+        Route::put('/{id}', [ExamServiceController::class, 'update'])->name('exam-services.update');
+        Route::get('/{id}', [ExamServiceController::class, 'show'])->name('exam-services.show');
+        Route::post('/{id}/toggle-status', [ExamServiceController::class, 'toggleStatus'])->name('exam-services.toggle-status');
+        Route::delete('/{id}', [ExamServiceController::class, 'destroy'])->name('exam-services.destroy');
+    });
+});
+
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

@@ -11,25 +11,29 @@ class ExamService extends Model
 
     // Define the table name (optional if following Laravel conventions)
     protected $table = 'exam_service';
+    protected $casts = [
+        'examservice_status' => 'boolean',
+    ];
 
     // Define the primary key
     protected $primaryKey = 'examservice_id';
+    public $timestamps = false;
+
 
     // Define the fillable attributes
     protected $fillable = [
-        'examservice_name',       // Name of the exam service
-        'examservice_code',       // Code for the exam service
-        'examservice_createdat',  // Created at timestamp
+        'examservice_name',      
+        'examservice_code',      
+        'examservice_createdat', 
+        'examservice_status'
     ];
 
-    // // Specify that `examservice_createdat` is a timestamp field
-    // protected $casts = [
-    //     'examservice_createdat' => 'datetime',
-    // ];
-
-    // If you don't want to use the `updated_at` column, you can disable it
-    // public function getUpdatedAtColumn()
-    // {
-    //     return null;
-    // }
+    // Add timestamp for createdat
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            $model->examservice_createdat = now();
+        });
+    }
 }

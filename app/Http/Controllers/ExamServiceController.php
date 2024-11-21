@@ -28,19 +28,19 @@ class ExamServiceController extends Controller
     {
         // Validation for the request data
         $validated = $request->validate([
-            'name'    => 'required|string|max:255',
-            'code'    => 'required|string|max:50',
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:50|unique:exam_service,examservice_code',
         ]);
         try {
             // Create a new exam service record
             $examService = ExamService::create([
-                'examservice_name'    => $validated['name'],
-                'examservice_code'    => $validated['code'],
+                'examservice_name' => $validated['name'],
+                'examservice_code' => $validated['code'],
             ]);
             // Log the creation of the exam service
             AuditLogger::log('Exam Service Created', ExamService::class, $examService->examservice_id, null, $examService->toArray());
             // Redirect to the exam service list or wherever necessary
-            return redirect()->route('exam-service')->with('success', 'Exam service created successfully.');
+            return redirect()->route('exam-services.index')->with('success', 'Exam service created successfully.');
         } catch (\Exception $e) {
             // If there's an error, return back with an error message
             return back()->withInput()->with('error', 'Error creating exam service: ' . $e->getMessage());
@@ -57,16 +57,15 @@ class ExamServiceController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Find the ExamService by ID
+        $examService = ExamService::findOrFail($id);
         // Validate the incoming data
         $validated = $request->validate([
             'examservice_name' => 'required|string|max:255',
-            'examservice_code' => 'required|string|max:50',
+            'examservice_code' => 'required|string|max:50|unique:exam_service,examservice_code,' . $id . ',examservice_id',
         ]);
 
         try {
-            // Find the ExamService by ID
-            $examService = ExamService::findOrFail($id);
-
             // Update the exam service fields
             $examService->update([
                 'examservice_name' => $validated['examservice_name'],
@@ -77,14 +76,14 @@ class ExamServiceController extends Controller
             AuditLogger::log('Exam Service Updated', ExamService::class, $examService->examservice_id, null, $examService->toArray());
 
             // Redirect to the index page with a success message
-            return redirect()->route('exam-service')
+            return redirect()->route('exam-services.index')
                 ->with('success', 'Exam Service updated successfully.');
         } catch (\Exception $e) {
             // Return back with the error message if the update fails
             return back()->withInput()->with('error', 'Error updating exam service: ' . $e->getMessage());
         }
     }
-    public function toggleExamServiceStatus($id)
+    public function toggleStatus($id)
     {
         try {
             // Find the ExamService by ID

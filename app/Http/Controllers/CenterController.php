@@ -22,8 +22,7 @@ class CenterController extends Controller
     public function index()
     {
         // Fetch centers with the district relationship, paginate the result
-        $centers = Center::with('district')->paginate(10);
-
+        $centers = Center::with('district')->get();
         // Return the view with the centers data
         return view('masters.district.centers.index', compact('centers'));
     }

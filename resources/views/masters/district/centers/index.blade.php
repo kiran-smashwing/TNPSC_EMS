@@ -215,10 +215,15 @@
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                                 </div>
+                                <div class="btn-container">
+                                    <button type="reset" class="btn btn-secondary d-flex align-items-center">
+                                        <i class="ti ti-refresh me-2"></i> Reset
+                                    </button>
+                                </div>
                             </form>
 
 
-                            <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
+                            <table id="res-configs" class="display table table-striped table-hover dt-responsive nowrap"
                                 style="width: 100%">
                                 <thead>
                                     <tr>
@@ -241,10 +246,12 @@
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-shrink-0">
                                                         @if ($center->center_image)
-                                                            <img src="{{ asset('storage/' . $center->center_image) }}"
+                                                            <img loading="lazy"
+                                                                src="{{ asset('storage/' . $center->center_image) }}"
                                                                 alt="district image" class="img-radius wid-40">
                                                         @else
-                                                            <img src="{{ asset('storage/assets/images/user/collectorate.png') }}"
+                                                            <img loading="lazy"
+                                                                src="{{ asset('storage/assets/images/user/collectorate.png') }}"
                                                                 alt="default image" class="img-radius wid-40">
                                                         @endif
                                                     </div>
@@ -305,6 +312,52 @@
 
     @push('scripts')
         @include('partials.datatable-export-js')
+        <script>
+            $('#res-configs').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('centers.index') }}",
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex'
+                    },
+                    {
+                        data: 'center_image',
+                        name: 'center_image'
+                    },
+                    {
+                        data: 'center_name',
+                        name: 'center_name'
+                    },
+                    {
+                        data: 'center_code',
+                        name: 'center_code'
+                    },
+                    {
+                        data: 'district.district_name',
+                        name: 'district.district_name'
+                    },
+                    {
+                        data: 'center_email',
+                        name: 'center_email'
+                    },
+                    {
+                        data: 'center_phone',
+                        name: 'center_phone'
+                    },
+                    {
+                        data: 'center_email_status',
+                        name: 'center_email_status'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    }
+                ]
+            });
+        </script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const toggleButtons = document.querySelectorAll('.status-toggle');

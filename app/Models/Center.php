@@ -52,6 +52,6 @@ class Center  extends Authenticatable
 
     public function district()
     {
-        return $this->belongsTo(District::class, 'center_district_id', 'district_id');
+        return $this->belongsTo(District::class, 'center_district_id', 'district_code');
     }
 }

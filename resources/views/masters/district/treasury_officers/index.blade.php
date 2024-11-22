@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                          <h2 class="mb-0"></h2>
-                        </div> -->
+                              <h2 class="mb-0"></h2>
+                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -149,7 +149,7 @@
 
 
             <!-- [ Main Content ] start -->
-           
+
             <div class="row">
                 @if (session('success'))
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -190,33 +190,38 @@
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
                             <form id="filterForm" class="mb-3">
-                                <div class="filter-item">
+                                {{-- <div class="filter-item">
                                     <select class="form-select" id="roleFilter" name="role">
                                         <option value="">Select Role</option>
                                         <option value="AD">AD</option>
                                         <option value="Manager">Manager</option>
                                         <option value="Staff">Staff</option>
                                     </select>
-                                </div>
+                                </div> --}}
                                 <div class="filter-item">
                                     <select class="form-select" id="districtFilter" name="district">
                                         <option value="">Select District</option>
-                                        <option value="Vellore">Vellore</option>
-                                        <option value="Chennai">Chennai</option>
-                                        <option value="Coimbatore">Coimbatore</option>
+                                        @foreach ($districts as $district)
+                                            <option value="{{ $district->district_id }}"
+                                                {{ request('district') == $district->district_id ? 'selected' : '' }}>
+                                                {{ $district->district_name }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
-                                <div class="filter-item">
+                                {{-- <div class="filter-item">
                                     <select class="form-select" id="centerCodeFilter" name="centerCode">
                                         <option value="">Select Center Code</option>
                                         <option value="00101">00101</option>
                                         <option value="00102">00102</option>
                                         <option value="00103">00103</option>
                                     </select>
-                                </div>
+                                </div> --}}
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                                 </div>
+                                <!-- Reset Filters Button -->
+                                <a href="{{ url()->current() }}" class="btn btn-secondary">Reset Filters</a>
                             </form>
 
 
@@ -304,70 +309,71 @@
         @include('partials.datatable-export-js')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-            const toggleButtons = document.querySelectorAll('.status-toggle');
+                const toggleButtons = document.querySelectorAll('.status-toggle');
 
-            toggleButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                e.preventDefault();
+                toggleButtons.forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
 
-                // Disable the button during processing
-                this.classList.add('disabled');
+                        // Disable the button during processing
+                        this.classList.add('disabled');
 
-                const officerId = this.dataset.officerId;
+                        const officerId = this.dataset.officerId;
 
-                fetch(`{{ url('/') }}/treasury-officers/${officerId}/toggle-status`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                    if (data.success) {
-                        // Toggle classes
-                        this.classList.toggle('btn-light-success');
-                        this.classList.toggle('btn-light-danger');
+                        fetch(`{{ url('/') }}/treasury-officers/${officerId}/toggle-status`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json'
+                                },
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Toggle classes
+                                    this.classList.toggle('btn-light-success');
+                                    this.classList.toggle('btn-light-danger');
 
-                        // Toggle icon
-                        const icon = this.querySelector('i');
-                        if (icon.classList.contains('ti-toggle-right')) {
-                        icon.classList.remove('ti-toggle-right');
-                        icon.classList.add('ti-toggle-left');
-                        } else {
-                        icon.classList.remove('ti-toggle-left');
-                        icon.classList.add('ti-toggle-right');
-                        }
-                        // Show success notification
-                        showNotification(
-                        'Status Updated',
-                        data.message || 'Treasury officer status updated successfully',
-                        'success'
-                        );
-                    } else {
-                        // Show error notification
-                        showNotification(
-                        'Update Failed',
-                        data.message || 'Failed to update status',
-                        'error'
-                        );
-                    }
-                    })
-                    .catch(error => {
-                    console.error('Error:', error);
-                    showNotification(
-                        'Error',
-                        'An error occurred while updating status',
-                        'error'
-                    );
-                    })
-                    .finally(() => {
-                    // Re-enable the button
-                    this.classList.remove('disabled');
+                                    // Toggle icon
+                                    const icon = this.querySelector('i');
+                                    if (icon.classList.contains('ti-toggle-right')) {
+                                        icon.classList.remove('ti-toggle-right');
+                                        icon.classList.add('ti-toggle-left');
+                                    } else {
+                                        icon.classList.remove('ti-toggle-left');
+                                        icon.classList.add('ti-toggle-right');
+                                    }
+                                    // Show success notification
+                                    showNotification(
+                                        'Status Updated',
+                                        data.message ||
+                                        'Treasury officer status updated successfully',
+                                        'success'
+                                    );
+                                } else {
+                                    // Show error notification
+                                    showNotification(
+                                        'Update Failed',
+                                        data.message || 'Failed to update status',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                showNotification(
+                                    'Error',
+                                    'An error occurred while updating status',
+                                    'error'
+                                );
+                            })
+                            .finally(() => {
+                                // Re-enable the button
+                                this.classList.remove('disabled');
+                            });
                     });
                 });
-            });
             });
         </script>
     @endpush

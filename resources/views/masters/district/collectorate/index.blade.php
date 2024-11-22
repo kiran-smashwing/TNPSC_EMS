@@ -149,8 +149,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                  <h2 class="mb-0"></h2>
-                                </div> -->
+                                          <h2 class="mb-0"></h2>
+                                        </div> -->
                         </div>
                     </div>
                 </div>
@@ -199,31 +199,35 @@
                         </div>
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
-                            <form id="filterForm" class="mb-3">
-                                <div class="filter-item">
+                            <form id="filterForm" class="mb-3" method="GET" action="{{ route('district.index') }}">
+                                {{-- <div class="filter-item">
                                     <select class="form-select" id="roleFilter" name="role">
                                         <option value="">Select Role</option>
                                         <option value="AD">AD</option>
                                         <option value="Manager">Manager</option>
                                         <option value="Staff">Staff</option>
                                     </select>
-                                </div>
+                                </div> --}}
                                 <div class="filter-item">
                                     <select class="form-select" id="districtFilter" name="district">
                                         <option value="">Select District</option>
-                                        <option value="Vellore">Vellore</option>
-                                        <option value="Chennai">Chennai</option>
-                                        <option value="Coimbatore">Coimbatore</option>
+                                        @foreach ($allDistricts as $district)
+                                            <option value="{{ $district->district_name }}"
+                                                {{ request('district') == $district->district_name ? 'selected' : '' }}>
+                                                {{ $district->district_name }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
-                                <div class="filter-item">
+
+                                {{-- <div class="filter-item">
                                     <select class="form-select" id="centerCodeFilter" name="centerCode">
                                         <option value="">Select Center Code</option>
                                         <option value="00101">00101</option>
                                         <option value="00102">00102</option>
                                         <option value="00103">00103</option>
                                     </select>
-                                </div>
+                                </div> --}}
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                                 </div>
@@ -240,7 +244,7 @@
                                         <th>District Code</th>
                                         <th>E-mail</th>
                                         <th>Phone</th>
-                                        <th>E-mail status</th>
+                                        <th>E-mail Status</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -261,11 +265,7 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>
-                                                <div class="flex-grow-1 ms-3">
-                                                    <h6 class="mb-0">{{ $district->district_name }}</h6>
-                                                </div>
-                                            </td>
+                                            <td>{{ $district->district_name }}</td>
                                             <td>{{ $district->district_code }}</td>
                                             <td>{{ $district->district_email }}</td>
                                             <td>{{ $district->district_phone }}</td>
@@ -301,6 +301,7 @@
                                     @endforelse
                                 </tbody>
                             </table>
+
                         </div>
                     </div>
                 </div>

@@ -187,34 +187,32 @@
                         </div>
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
-                            <form id="filterForm" class="mb-3">
-                                <div class="filter-item">
-                                    <select class="form-select" id="roleFilter" name="role">
-                                        <option value="">Select Role</option>
-                                        <option value="AD">AD</option>
-                                        <option value="Manager">Manager</option>
-                                        <option value="Staff">Staff</option>
-                                    </select>
-                                </div>
+                            <form id="filterForm" method="GET" action="{{ route('centers.index') }}" class="mb-3">
                                 <div class="filter-item">
                                     <select class="form-select" id="districtFilter" name="district">
                                         <option value="">Select District</option>
-                                        <option value="Vellore">Vellore</option>
-                                        <option value="Chennai">Chennai</option>
-                                        <option value="Coimbatore">Coimbatore</option>
+                                        @foreach ($districts as $district)
+                                            <option value="{{ $district->district_id }}" {{ request('district') == $district->district_id ? 'selected' : '' }}>
+                                                {{ $district->district_name }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="filter-item">
                                     <select class="form-select" id="centerCodeFilter" name="centerCode">
                                         <option value="">Select Center Code</option>
-                                        <option value="00101">00101</option>
-                                        <option value="00102">00102</option>
-                                        <option value="00103">00103</option>
+                                        @foreach ($centerCodes as $centerCode)
+                                            <option value="{{ $centerCode }}"
+                                                {{ request('centerCode') == $centerCode ? 'selected' : '' }}>
+                                                {{ $centerCode }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                                 </div>
+                                
                                 <div class="btn-container">
                                     <button type="reset" class="btn btn-secondary d-flex align-items-center">
                                         <i class="ti ti-refresh me-2"></i> Reset
@@ -222,8 +220,7 @@
                                 </div>
                             </form>
 
-
-                            <table id="res-configs" class="display table table-striped table-hover dt-responsive nowrap"
+                            <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
                                 style="width: 100%">
                                 <thead>
                                     <tr>
@@ -241,7 +238,7 @@
                                 <tbody>
                                     @forelse($centers as $key => $center)
                                         <tr>
-                                            <td>{{ $key + 1 }}</td>
+                                            <td>{{ $centers->firstItem() + $key }}</td>
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-shrink-0">
@@ -257,11 +254,7 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>
-                                                <div class="flex-grow-1 ms-3">
-                                                    <h6 class="mb-0">{{ $center->center_name }}</h6>
-                                                </div>
-                                            </td>
+                                            <td>{{ $center->center_name }}</td>
                                             <td>{{ $center->center_code }}</td>
                                             <td>{{ $center->district->district_name }}</td>
                                             <td>{{ $center->center_email }}</td>
@@ -293,7 +286,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="8" class="text-center">No centers found</td>
+                                            <td colspan="9" class="text-center">No centers found</td>
                                         </tr>
                                     @endforelse
                                 </tbody>

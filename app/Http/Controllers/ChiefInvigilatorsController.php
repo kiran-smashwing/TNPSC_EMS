@@ -23,11 +23,37 @@ class ChiefInvigilatorsController extends Controller
     }
 
 
-    public function index()
+    public function index(Request $request)
     {
-        $chiefInvigilator = ChiefInvigilator::all();
-        return view('masters.venues.chief_invigilator.index', compact('chiefInvigilator'));
+        // Start the query for ChiefInvigilator with related district and venue
+        $query = ChiefInvigilator::with(['district', 'venue']);
+    
+        // Filter by district if selected
+        if ($request->filled('district')) {
+            $query->where('ci_district_id', $request->input('district'));
+        }
+    
+        // Filter by center if selected
+        if ($request->filled('center')) {
+            $query->where('ci_center_id', $request->input('center'));
+        }
+    
+        // Filter by venue if selected
+        if ($request->filled('venue')) {
+            $query->where('ci_venue_id', $request->input('venue'));
+        }
+    
+        // Fetch the filtered data
+        $chiefInvigilator = $query->paginate(10);
+    
+        // Fetch unique districts, centers, and venues for the filters
+        $districts = District::all(['district_id', 'district_name']);
+        $centers = Center::all(['center_id', 'center_name']);
+        $venues = Venues::all(['venue_id', 'venue_name']);
+    
+        return view('masters.venues.chief_invigilator.index', compact('chiefInvigilator', 'districts', 'centers', 'venues'));
     }
+    
 
     public function create()
     {

@@ -22,14 +22,44 @@ class ScribeController extends Controller
         $this->imageService = $imageService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        // Fetch all scribes with related district, center, and venue (optional eager loading)
-        $scribes = Scribe::with('venue')->get();
+        // Start query for Scribe with related District, Center, and Venue
+        $query = Scribe::with(['district', 'center', 'venue']);
 
-        // Pass the scribes to the view
-        return view('masters.venues.scribe.index', compact('scribes'));
+        // Apply filters based on the request
+        if ($request->filled('district')) {
+            $query->where('scribe_district_id', $request->input('district'));
+        }
+
+        if ($request->filled('center')) {
+            $query->where('scribe_center_id', $request->input('center'));
+        }
+
+        if ($request->filled('venue')) {
+            $query->where('scribe_venue_id', $request->input('venue'));
+        }
+
+        // Fetch filtered scribes
+        $scribes = $query->paginate(10);
+
+        // Fetch distinct districts, centers, and venues only present in the Scribe table
+        $districts = District::whereIn('district_id', function ($query) {
+            $query->selectRaw('CAST(scribe_district_id AS INTEGER)')->from('scribe');
+        })->get(['district_id', 'district_name']);
+
+        $centers = Center::whereIn('center_id', function ($query) {
+            $query->selectRaw('CAST(scribe_center_id AS INTEGER)')->from('scribe');
+        })->get(['center_id', 'center_name']);
+
+        $venues = Venues::whereIn('venue_id', function ($query) {
+            $query->selectRaw('CAST(scribe_venue_id AS INTEGER)')->from('scribe');
+        })->get(['venue_id', 'venue_name']);
+
+        // Return view with the filtered scribes and filter data
+        return view('masters.venues.scribe.index', compact('scribes', 'districts', 'centers', 'venues'));
     }
+
     public function create()
     {
         // Fetch any necessary data to display in the form (e.g., venues, centers)
@@ -151,7 +181,7 @@ class ScribeController extends Controller
             'designation' => 'required|string|max:255',
             'cropped_image' => 'nullable|string' // Base64 image input
         ], $messages);
-    
+
 
         try {
             $newImagePath = null;

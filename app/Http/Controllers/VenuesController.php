@@ -21,12 +21,35 @@ class VenuesController extends Controller
         $this->middleware('auth.multi');
         $this->imageService = $imageService;
     }
-    public function index()
+
+    public function index(Request $request)
     {
-        // Eager load the related district and center
-        $venues = Venues::with(['district', 'center'])->get();
-        return view('masters.venues.venue.index', compact('venues'));
+        // Start the query for venues with related district and center
+        $query = Venues::with(['district', 'center']);
+
+        // Filter by district if a district is selected
+        if ($request->filled('district')) {
+            $query->where('venue_district_id', $request->input('district'));
+        }
+
+        // Filter by center ID if a center name is selected
+        if ($request->filled('centerName')) {
+            $query->where('venue_center_id', $request->input('centerName'));
+        }
+
+        // Get the filtered venues
+        $venues = $query->get();
+
+        // Fetch unique districts for the district filter dropdown
+        $districts = District::all(['district_id', 'district_name']);
+
+        // Fetch centers for the center filter dropdown
+        $centers = Center::all(['center_id', 'center_name']);
+
+        return view('masters.venues.venue.index', compact('venues', 'districts', 'centers'));
     }
+
+
     public function create()
     {
         $districts = District::all(); // Retrieve all districts

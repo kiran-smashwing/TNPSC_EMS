@@ -284,6 +284,9 @@
                                     @endforelse
                                 </tbody>
                             </table>
+                            {{-- <div class="pagination">
+                                {{ $centers->appends(request()->query())->links() }}
+                            </div> --}}
                         </div>
                     </div>
                 </div>

@@ -23,11 +23,44 @@ class InvigilatorsController extends Controller
         $this->imageService = $imageService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $invigilators = Invigilator::all();
-        return view('masters.venues.invigilator.index', compact('invigilators'));
+        // Start query for Invigilator with related District, Center, and Venue
+        $query = Invigilator::with(['district', 'center', 'venue']);
+
+        // Apply filters based on the request
+        if ($request->filled('district')) {
+            $query->where('invigilator_district_id', $request->input('district'));
+        }
+
+        if ($request->filled('center')) {
+            $query->where('invigilator_center_id', $request->input('center'));
+        }
+
+        if ($request->filled('venue')) {
+            $query->where('invigilator_venue_id', $request->input('venue'));
+        }
+
+        // Fetch filtered invigilators
+        $invigilators = $query->paginate(10);
+
+        // Fetch distinct districts, centers, and venues only present in the Invigilator table
+        $districts = District::whereIn('district_id', function ($query) {
+            $query->selectRaw('CAST(invigilator_district_id AS INTEGER)')->from('invigilator');
+        })->get(['district_id', 'district_name']);
+
+        $centers = Center::whereIn('center_id', function ($query) {
+            $query->selectRaw('CAST(invigilator_center_id AS INTEGER)')->from('invigilator');
+        })->get(['center_id', 'center_name']);
+
+        $venues = Venues::whereIn('venue_id', function ($query) {
+            $query->selectRaw('CAST(invigilator_venue_id AS INTEGER)')->from('invigilator');
+        })->get(['venue_id', 'venue_name']);
+
+        return view('masters.venues.invigilator.index', compact('invigilators', 'districts', 'centers', 'venues'));
     }
+
+
 
     public function create()
     {

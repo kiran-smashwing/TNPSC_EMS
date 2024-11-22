@@ -22,14 +22,44 @@ class CIAssistantsController extends Controller
         $this->imageService = $imageService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        // Fetch all CI Assistants with related district, center, and venue using eager loading
-        $ciAssistants = CIAssistant::with('district', 'center', 'venue')->get();
+        // Start the query for CIAssistants with related District, Center, and Venue
+        $query = CIAssistant::with(['district', 'center', 'venue']);
 
-        // Pass the CI Assistants to the view
-        return view('masters.venues.ci_assistants.index', compact('ciAssistants'));
+        // Apply filters based on the request
+        if ($request->filled('district')) {
+            $query->where('cia_district_id', $request->input('district')); // Filter by cia_district_id
+        }
+
+        if ($request->filled('center')) {
+            $query->where('cia_center_id', $request->input('center')); // Filter by cia_center_id
+        }
+
+        if ($request->filled('venue')) {
+            $query->where('cia_venue_id', $request->input('venue')); // Filter by cia_venue_id
+        }
+
+        // Fetch filtered CIAssistants
+        $ciAssistants = $query->paginate(10);
+
+        // Fetch distinct districts, centers, and venues that exist in the CIAssistant table with type casting
+        $districts = District::whereIn('district_id', function ($query) {
+            $query->selectRaw('CAST(cia_district_id AS INTEGER)')->from('cheif_invigilator_assistant');
+        })->get(['district_id', 'district_name']);
+
+        $centers = Center::whereIn('center_id', function ($query) {
+            $query->selectRaw('CAST(cia_center_id AS INTEGER)')->from('cheif_invigilator_assistant');
+        })->get(['center_id', 'center_name']);
+
+        $venues = Venues::whereIn('venue_id', function ($query) {
+            $query->selectRaw('CAST(cia_venue_id AS INTEGER)')->from('cheif_invigilator_assistant');
+        })->get(['venue_id', 'venue_name']);
+
+        // Return the view with filtered CIAssistants and filter data
+        return view('masters.venues.ci_assistants.index', compact('ciAssistants', 'districts', 'centers', 'venues'));
     }
+
 
 
     public function create()
@@ -248,7 +278,7 @@ class CIAssistantsController extends Controller
     public function show($id)
     {
         // Retrieve the CI Assistant record by ID, or fail if not found
-        $ciAssistant = CIAssistant::with(['district', 'venue','center'])->findOrFail($id);
+        $ciAssistant = CIAssistant::with(['district', 'venue', 'center'])->findOrFail($id);
         // Return the view with the CI Assistant and related data
         return view('masters.venues.ci_assistants.show', compact('ciAssistant'));
     }

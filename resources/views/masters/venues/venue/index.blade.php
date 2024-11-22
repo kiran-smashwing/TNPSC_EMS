@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                              <h2 class="mb-0"></h2>
-                            </div> -->
+                                              <h2 class="mb-0"></h2>
+                                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -149,7 +149,7 @@
 
 
             <!-- [ Main Content ] start -->
-           
+
             <div class="row">
                 <!-- [ basic-table ] start -->
                 @if (session('success'))
@@ -189,33 +189,42 @@
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
                             <form id="filterForm" class="mb-3">
-                                <div class="filter-item">
+                                {{-- <div class="filter-item">
                                     <select class="form-select" id="roleFilter" name="role">
                                         <option value="">Select Role</option>
                                         <option value="AD">AD</option>
                                         <option value="Manager">Manager</option>
                                         <option value="Staff">Staff</option>
                                     </select>
-                                </div>
+                                </div> --}}
                                 <div class="filter-item">
                                     <select class="form-select" id="districtFilter" name="district">
                                         <option value="">Select District</option>
-                                        <option value="Vellore">Vellore</option>
-                                        <option value="Chennai">Chennai</option>
-                                        <option value="Coimbatore">Coimbatore</option>
+                                        @foreach ($districts as $district)
+                                            <option value="{{ $district->district_id }}"
+                                                {{ request('district') == $district->district_id ? 'selected' : '' }}>
+                                                {{ $district->district_name }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="filter-item">
-                                    <select class="form-select" id="centerCodeFilter" name="centerCode">
-                                        <option value="">Select Center Code</option>
-                                        <option value="00101">00101</option>
-                                        <option value="00102">00102</option>
-                                        <option value="00103">00103</option>
+                                    <select class="form-select" id="centerFilter" name="centerName">
+                                        <option value="">Select Center</option>
+                                        @foreach ($centers as $center)
+                                            <option value="{{ $center->center_id }}"
+                                                {{ request('centerName') == $center->center_id ? 'selected' : '' }}>
+                                                {{ $center->center_name }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                                 </div>
+                                <!-- Reset Filters -->
+                                <a href="{{ route('venues.index') }}" class="btn btn-secondary">X</a>
+
                             </form>
 
 
@@ -250,7 +259,7 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                           
+
                                             <td>{{ $venue->venue_name }}</td>
                                             <td>{{ $venue->district->district_name ?? 'N/A' }}</td>
                                             {{-- <td>{{ $venue->center->center_name ?? 'N/A' }}</td> --}}
@@ -264,15 +273,15 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <a href="{{  route('venues.show', $venue->venue_id) }}"
+                                                <a href="{{ route('venues.show', $venue->venue_id) }}"
                                                     class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-eye f-20"></i>
                                                 </a>
-                                                <a href="{{route('venues.edit', $venue->venue_id) }}"
+                                                <a href="{{ route('venues.edit', $venue->venue_id) }}"
                                                     class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-edit f-20"></i>
                                                 </a>
-                                               
+
                                                 <a href="#"
                                                     class="avtar avtar-xs status-toggle {{ $venue->venue_status ? 'btn-light-success' : 'btn-light-danger' }}"
                                                     data-venue-id="{{ $venue->venue_id }}"
@@ -296,7 +305,7 @@
         </div>
     </section>
     <!-- [ Main Content ] end -->
-   
+
 
     @include('partials.footer')
 
@@ -305,17 +314,17 @@
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const toggleButtons = document.querySelectorAll('.status-toggle');
-    
+
                 toggleButtons.forEach(button => {
                     button.addEventListener('click', function(e) {
                         e.preventDefault();
-    
+
                         // Disable the button during processing
                         this.classList.add('disabled');
-    
+
                         // Get the venue ID from the data attribute
                         const venueId = this.dataset.venueId;
-    
+
                         // Send the request to toggle the venue status
                         fetch(`{{ url('/') }}/venues/${venueId}/toggle-status`, { // Adjust the URL for venues
                                 method: 'POST',
@@ -331,7 +340,7 @@
                                     // Toggle button classes to reflect the new status
                                     this.classList.toggle('btn-light-success');
                                     this.classList.toggle('btn-light-danger');
-    
+
                                     // Toggle icon
                                     const icon = this.querySelector('i');
                                     if (icon.classList.contains('ti-toggle-right')) {
@@ -341,7 +350,7 @@
                                         icon.classList.remove('ti-toggle-left');
                                         icon.classList.add('ti-toggle-right');
                                     }
-    
+
                                     // Show success notification
                                     showNotification(
                                         'Status Updated',

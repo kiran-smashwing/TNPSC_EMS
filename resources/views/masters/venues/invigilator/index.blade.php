@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                      <h2 class="mb-0"></h2>
-                    </div> -->
+                                  <h2 class="mb-0"></h2>
+                                </div> -->
                         </div>
                     </div>
                 </div>
@@ -149,7 +149,7 @@
 
 
             <!-- [ Main Content ] start -->
-           
+
             <div class="row">
                 <!-- [ basic-table ] start -->
                 @if (session('success'))
@@ -191,33 +191,49 @@
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
                             <form id="filterForm" class="mb-3">
-                                <div class="filter-item">
-                                    <select class="form-select" id="roleFilter" name="role">
-                                        <option value="">Select Role</option>
-                                        <option value="AD">AD</option>
-                                        <option value="Manager">Manager</option>
-                                        <option value="Staff">Staff</option>
-                                    </select>
-                                </div>
+                                {{-- District Filter --}}
                                 <div class="filter-item">
                                     <select class="form-select" id="districtFilter" name="district">
                                         <option value="">Select District</option>
-                                        <option value="Vellore">Vellore</option>
-                                        <option value="Chennai">Chennai</option>
-                                        <option value="Coimbatore">Coimbatore</option>
+                                        @foreach ($districts as $district)
+                                            <option value="{{ $district->district_id }}"
+                                                {{ request('district') == $district->district_id ? 'selected' : '' }}>
+                                                {{ $district->district_name }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
+
+                                {{-- Center Filter --}}
                                 <div class="filter-item">
-                                    <select class="form-select" id="centerCodeFilter" name="centerCode">
-                                        <option value="">Select Center Code</option>
-                                        <option value="00101">00101</option>
-                                        <option value="00102">00102</option>
-                                        <option value="00103">00103</option>
+                                    <select class="form-select" id="centerFilter" name="center">
+                                        <option value="">Select Center</option>
+                                        @foreach ($centers as $center)
+                                            <option value="{{ $center->center_id }}"
+                                                {{ request('center') == $center->center_id ? 'selected' : '' }}>
+                                                {{ $center->center_name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                {{-- Venue Filter --}}
+                                <div class="filter-item">
+                                    <select class="form-select" id="venueFilter" name="venue">
+                                        <option value="">Select Venue</option>
+                                        @foreach ($venues as $venue)
+                                            <option value="{{ $venue->venue_id }}"
+                                                {{ request('venue') == $venue->venue_id ? 'selected' : '' }}>
+                                                {{ $venue->venue_name }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
+
                                 </div>
+                                <a href="{{ route('invigilators.index') }}" class="btn btn-secondary">X</a>
                             </form>
 
 
@@ -253,7 +269,7 @@
                                             </td>
 
                                             <td>{{ $invigilator->invigilator_name }}</td>
-                                            <td>{{ $invigilator->invigilator_designation }}</td>
+                                            <td>{{ $invigilator->venue->venue_name }}</td>
                                             <td>{{ $invigilator->invigilator_email }}</td>
                                             <td>{{ $invigilator->invigilator_phone }}</td>
 

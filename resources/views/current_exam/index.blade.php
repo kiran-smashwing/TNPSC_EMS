@@ -214,7 +214,7 @@
                                             <td>{{ $loop->iteration }}</td>
                                             <td>
                                                 <div class="flex-grow-1 ms-3">
-                                                    <h6 class="mb-0">{{ $exam->exam_main_no }}</h6>
+                                                    <h6 class="mb-0">{{ $exam->exam_main_notification }}</h6>
                                                 </div>
                                             </td>
                                             <td>

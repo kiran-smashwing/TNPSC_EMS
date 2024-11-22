@@ -17,15 +17,27 @@ class DistrictController extends Controller
 
         $this->middleware('auth.multi');
         $this->imageService = $imageService;
-
     }
 
 
-    public function index()
+    public function index(Request $request)
     {
-        $districts = District::all();
-        return view('masters.district.collectorate.index', compact('districts'));
+        // Fetch all districts for the dropdown list
+        $allDistricts = District::all();
+
+        // Filter the districts based on the selected value, if any
+        $districtsQuery = District::query();
+
+        if ($request->filled('district')) {
+            $districtsQuery->where('district_name', 'LIKE', '%' . $request->input('district') . '%');
+        }
+
+        // Fetch the filtered districts for the table
+        $districts = $districtsQuery->get();
+
+        return view('masters.district.collectorate.index', compact('districts', 'allDistricts'));
     }
+
 
     public function create()
     {
@@ -78,7 +90,6 @@ class DistrictController extends Controller
                 }
 
                 $validated['image'] = $imagePath;
-
             }
 
             // Hash password
@@ -104,7 +115,6 @@ class DistrictController extends Controller
 
             return redirect()->route('district.index')
                 ->with('success', 'District created successfully');
-
         } catch (\Exception $e) {
             return back()->withInput()
                 ->with('error', 'Error creating district: ' . $e->getMessage());
@@ -205,7 +215,6 @@ class DistrictController extends Controller
 
             return redirect()->route('district.index')
                 ->with('success', 'District updated successfully');
-
         } catch (\Exception $e) {
             return back()->withInput()
                 ->with('error', 'Error updating district: ' . $e->getMessage());

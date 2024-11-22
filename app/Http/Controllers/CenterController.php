@@ -19,14 +19,36 @@ class CenterController extends Controller
         $this->middleware('auth.multi');
         $this->imageService = $imageService;
     }
-    public function index()
+    public function index(Request $request)
     {
-        // Fetch centers with the district relationship, paginate the result
-        $centers = Center::with('district')->paginate(10);
+        // Start the query for centers with the district relationship
+        $query = Center::with('district');
 
-        // Return the view with the centers data
-        return view('masters.district.centers.index', compact('centers'));
+        // Filter by district if a district is selected
+        if ($request->filled('district')) {
+            $query->where('center_district_id', $request->input('district'));
+        }
+
+        // Filter by center code if a center code is selected
+        if ($request->filled('centerCode')) {
+            $query->where('center_code', $request->input('centerCode'));
+        }
+
+        // Paginate the filtered results
+        $centers = $query->paginate(10);
+
+        // Fetch only districts that are referenced in the Center table
+        $districtIds = Center::distinct('center_district_id')->pluck('center_district_id');
+        $districts = District::whereIn('district_id', $districtIds)->get(['district_id', 'district_name']);
+
+        // Fetch unique center codes for the center code filter dropdown
+        $centerCodes = Center::distinct('center_code')->pluck('center_code');
+
+        return view('masters.district.centers.index', compact('centers', 'districts', 'centerCodes'));
     }
+
+
+
 
     public function create()
     {
@@ -114,7 +136,7 @@ class CenterController extends Controller
         }
     }
 
-    
+
 
     public function edit($center_id)
     {
@@ -211,7 +233,7 @@ class CenterController extends Controller
         }
     }
 
-   
+
     public function show($id)
     {
         $center = Center::with(relations: 'district')->findOrFail($id);

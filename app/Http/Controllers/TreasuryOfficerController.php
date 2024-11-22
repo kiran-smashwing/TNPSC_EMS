@@ -20,10 +20,25 @@ class TreasuryOfficerController extends Controller
         $this->imageService = $imageService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $treasuryOfficers = TreasuryOfficer::with('district')->get();
-        return view('masters.district.treasury_Officers.index', compact('treasuryOfficers'));
+        // Start the query for Treasury Officers with the district relationship
+        $query = TreasuryOfficer::with('district');
+
+        // Filter by district if a district is selected
+        if ($request->filled('district')) {
+            // Filter using the correct column name `tre_off_district_id`
+            $query->where('tre_off_district_id', $request->input('district'));
+        }
+
+        // Fetch filtered Treasury Officers
+        $treasuryOfficers = $query->paginate(10);
+
+        // Fetch only districts that are referenced in the TreasuryOfficer table
+        $districtIds = TreasuryOfficer::distinct('tre_off_district_id')->pluck('tre_off_district_id');
+        $districts = District::whereIn('district_id', $districtIds)->get(['district_id', 'district_name']);
+
+        return view('masters.district.treasury_Officers.index', compact('treasuryOfficers', 'districts'));
     }
 
     public function create()
@@ -77,7 +92,6 @@ class TreasuryOfficerController extends Controller
                 }
 
                 $validated['image'] = $imagePath;
-
             }
             // Hash the password
             $validated['password'] = Hash::make($validated['password']);
@@ -98,7 +112,6 @@ class TreasuryOfficerController extends Controller
             AuditLogger::log('Treasury Officer Created', TreasuryOfficer::class, $treasuryOfficer->tre_off_id, null, $treasuryOfficer->toArray());
 
             return redirect()->route('treasury-officers.index')->with('success', 'Treasury Officer created successfully');
-
         } catch (\Exception $e) {
             return back()->withInput()->with('error', 'Error creating treasury officer: ' . $e->getMessage());
         }
@@ -188,7 +201,6 @@ class TreasuryOfficerController extends Controller
             AuditLogger::log('Treasury Officer Updated', TreasuryOfficer::class, $treasuryOfficer->tre_off_id, $oldValues, $changedValues);
 
             return redirect()->route('treasury-officers.index')->with('success', 'Treasury Officer updated successfully');
-
         } catch (\Exception $e) {
             return back()->withInput()->with('error', 'Error updating treasury officer: ' . $e->getMessage());
         }

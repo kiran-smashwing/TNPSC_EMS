@@ -23,6 +23,7 @@ use App\Http\Controllers\ExamServiceController;
 use App\Http\Controllers\CurrentExamController;
 use App\Http\Controllers\CompletedExamController;
 use App\Http\Controllers\QrCodeController;
+// use App\Http\Controllers\DataController;
 
 // Public routes
 Route::get('/', function () {
@@ -83,16 +84,11 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::put('ci-checklist/update/{id}', [CiChecklistController::class, 'update'])->name('ci-checklist.update');
     Route::post('/ci-checklist/{id}/toggle-status', [CiChecklistController::class, 'toggleCiChecklistStatus']);
     //Current Exam
-    Route::get('/current-exam', [CurrentExamController::class, 'index'])->name('current-exam');
-    Route::get('/current-exam/add', [CurrentExamController::class, 'create'])->name('current-exam.create');
-    Route::post('/current-exam/store', [CurrentExamController::class, 'store'])->name('current_exam.store');
-    Route::get('/current-exam/task', [CurrentExamController::class, 'task'])->name('current-exam.task');
+
     Route::get('/current-exam/ciTask', [CurrentExamController::class, 'ciTask'])->name('current-exam.citask');
     Route::get('/current-exam/ciMeeting', [CurrentExamController::class, 'ciMeeting'])->name('current-exam.ciMeeting');
     Route::get('/current-exam/examActivityTask', [CurrentExamController::class, 'examActivityTask'])->name('current-exam.examActivityTask');
     Route::get('/current-exam/districtTask', [CurrentExamController::class, 'districtCollectrateTask'])->name('current-exam.districtTask');
-    Route::get('/current-exam/edit/{id}', [CurrentExamController::class, 'edit'])->name('current-exam.edit');
-    Route::put('/current-exam/update/{id}', [CurrentExamController::class, 'update'])->name('current-exam.update');
     Route::get('/current-exam/increaseCandidate', [CurrentExamController::class, 'increaseCandidate'])->name('current-exam.incCandidate');
     Route::get('/current-exam/intimateCollectorate', [CurrentExamController::class, 'sendMailtoCollectorate'])->name('current-exam.intimateCollectorate');
     Route::get('/current-exam/venueConsent', [CurrentExamController::class, 'venueConsent'])->name('current-exam.venueConsent');
@@ -250,4 +246,21 @@ Route::prefix('department-officials')->group(function () {
         Route::delete('/{id}', [DepartmentOfficialsController::class, 'destroy'])->name('department-officials.destroy');
     });
 });
+//current-exam Route::prefix('current-exam')->group(function(){
+Route::prefix('current-exam')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/', [CurrentExamController::class, 'index'])->name('current-exam.index');
+        Route::get('/create', [CurrentExamController::class, 'create'])->name('current-exam.create');
+        Route::post('/', [CurrentExamController::class, 'store'])->name('current-exam.store');
+        Route::post('/fetch-exam-details', [CurrentExamController::class, 'getExamByNotificationNo'])->name('current-exam.getExamByNotificationNo');
+        Route::get('/{id}/edit', [CurrentExamController::class, 'edit'])->name('current-exam.edit');
+        Route::put('/{id}', [CurrentExamController::class, 'update'])->name('current-exam.update');
+        Route::get('/{id}', [CurrentExamController::class, 'show'])->name('current-exam.show');
+        Route::post('/{id}/toggle-status', [CurrentExamController::class, 'toggleStatus'])->name('current-exam.toggle-status');
+        Route::delete('/{id}', [CurrentExamController::class, 'destroy'])->name('current-exam.destroy');
+        Route::get('/task/{id}', [CurrentExamController::class, 'task'])->name('current-exam.task');
+    });
+});
+// Route::get('/run-function', [DataController::class, 'addData']);
+
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

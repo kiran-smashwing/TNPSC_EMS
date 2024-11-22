@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Currentexam;
+use App\Models\ExamSession;
 use App\Services\AuditLogger;
 use Illuminate\Http\Request;
-
-use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 class CurrentExamController extends Controller
 {
@@ -19,7 +19,9 @@ class CurrentExamController extends Controller
     public function index()
     {
         // Fetch all exams from the `exam_main` table
-        $exams = Currentexam::orderBy('exam_main_createdat', 'desc')->get();
+        $exams = Currentexam::withCount('examsession')
+            ->orderBy('exam_main_createdat', 'desc')
+            ->get();
 
         // Pass the exams to the index view
         return view('current_exam.index', compact('exams'));
@@ -31,7 +33,6 @@ class CurrentExamController extends Controller
     }
     public function store(Request $request)
     {
-        // dd($request->all());
         // Custom error messages for validation
         $messages = [
             'exam_main_no.required' => 'The exam number is required.',
@@ -43,12 +44,12 @@ class CurrentExamController extends Controller
 
         // Validate the incoming request
         $validated = $request->validate([
-            // 'exam_main_no' => 'required|string|max:255|unique:exam_main,exam_main_no',
+            'exam_main_no' => 'required|string|max:255|unique:exam_main,exam_main_no',
             'exam_main_type' => 'nullable|string|max:255',
             'exam_main_model' => 'nullable|string|max:255',
             'exam_main_tiers' => 'nullable|string|max:255',
             'exam_main_service' => 'nullable|string|max:255',
-            'exam_main_notification' => 'nullable|string|max:255',
+            'exam_main_notification' => 'required|string|max:255|unique:exam_main,exam_main_notification,NULL,NULL,exam_main_tiers,' . $request->input('exam_main_tiers'),
             'exam_main_notifdate' => 'nullable|date',
             'exam_main_name' => 'required|string|max:255',
             'exam_main_nametamil' => 'nullable|string|max:255',
@@ -56,13 +57,21 @@ class CurrentExamController extends Controller
             'exam_main_lastdate' => 'nullable|date',
             'exam_main_startdate' => 'nullable|date',
             'exam_main_flag' => 'nullable|string|max:10',
+            'subjects' => 'required|array',
+            'subjects.*.date' => 'required|date',
+            'subjects.*.session' => 'required|string',
+            'subjects.*.time' => 'required|string',
+            'subjects.*.duration' => 'required|string',
+            'subjects.*.name' => 'required|string',
         ], $messages);
-        // dd($validated);
+
 
         try {
-            // Create a new `ExamMain` record
+            DB::beginTransaction();
+
+            // Create a new `Currentexam` record
             $examMain = Currentexam::create([
-                // 'exam_main_no' => $validated['exam_main_no'],
+                'exam_main_no' => $validated['exam_main_no'],
                 'exam_main_type' => $validated['exam_main_type'] ?? null,
                 'exam_main_model' => $validated['exam_main_model'] ?? null,
                 'exam_main_tiers' => $validated['exam_main_tiers'] ?? null,
@@ -77,16 +86,145 @@ class CurrentExamController extends Controller
                 'exam_main_flag' => $validated['exam_main_flag'] ?? null,
             ]);
 
+            // Save the subjects in the `exam_session` table
+            foreach ($validated['subjects'] as $subject) {
+                ExamSession::create([
+                    'exam_sess_mainid' => $validated['exam_main_no'],
+                    'exam_sess_date' => $subject['date'],
+                    'exam_sess_session' => $subject['session'],
+                    'exam_sess_time' => $subject['time'],
+                    'exam_sess_duration' => $subject['duration'],
+                    'exam_sess_subject' => $subject['name'],
+                    'exam_sess_flag' => 'active', // Set a default value for the flag
+                ]);
+            }
+
+            DB::commit();
+
             // Log the creation of the exam (optional, replace `AuditLogger` with your own logger if needed)
             AuditLogger::log('Exam Created', Currentexam::class, $examMain->exam_main_id, null, $examMain->toArray());
 
             // Redirect to the index route with a success message
-            return redirect()->route('current-exam')->with('success', 'Exam created successfully.');
+            return redirect()->route('current-exam.index')->with('success', 'Exam created successfully.');
         } catch (\Exception $e) {
+            DB::rollBack();
             // Return with an error message on exception
             return back()->withInput()
                 ->with('error', 'Error creating exam: ' . $e->getMessage());
         }
+    }
+    public function edit($id)
+    {
+        $exam = Currentexam::with('examsession')->findOrFail($id); // Fetch the exam with the given ID and its related exam sessions
+        return view('current_exam.edit', compact('exam')); // Pass the exam to the edit view
+    }
+
+    public function update(Request $request, $id)
+    {
+        $message = [
+            'exam_main_no.required' => 'The exam number is required.',
+            'exam_main_no.unique' => 'The exam number must be unique.',
+            'exam_main_name.required' => 'The exam name is required.',
+            'exam_main_startdate.date' => 'The start date must be a valid date.',
+            'exam_main_lastdate.date' => 'The last date must be a valid date.',
+        ];
+        $validated = $request->validate([
+            'exam_main_no' => 'required|string|max:255|unique:exam_main,exam_main_no,' . $id . ',exam_main_id',
+            'exam_main_type' => 'nullable|string|max:255',
+            'exam_main_model' => 'nullable|string|max:255',
+            'exam_main_tiers' => 'nullable|string|max:255',
+            'exam_main_service' => 'nullable|string|max:255',
+            'exam_main_notification' => 'required|string|max:255|unique:exam_main,exam_main_notification,' . $id . ',exam_main_id,exam_main_tiers,' . $request->input('exam_main_tiers'),
+            'exam_main_notifdate' => 'nullable|date',
+            'exam_main_name' => 'required|string|max:255',
+            'exam_main_nametamil' => 'nullable|string|max:255',
+            'exam_main_postname' => 'nullable|string|max:255',
+            'exam_main_lastdate' => 'nullable|date',
+            'exam_main_startdate' => 'nullable|date',
+            'exam_main_flag' => 'nullable|string|max:10',
+            'subjects' => 'required|array',
+            'subjects.*.date' => 'required|date',
+            'subjects.*.session' => 'required|string',
+            'subjects.*.time' => 'required|string',
+            'subjects.*.duration' => 'required|string',
+            'subjects.*.name' => 'required|string',
+        ], $message);
+
+        try {
+            DB::beginTransaction();
+
+            // Update the `Currentexam` record
+            $exam = Currentexam::findOrFail($id);
+            $exam->update([
+                'exam_main_no' => $validated['exam_main_no'],
+                'exam_main_type' => $validated['exam_main_type'] ?? null,
+                'exam_main_model' => $validated['exam_main_model'] ?? null,
+                'exam_main_tiers' => $validated['exam_main_tiers'] ?? null,
+                'exam_main_service' => $validated['exam_main_service'] ?? null,
+                'exam_main_notification' => $validated['exam_main_notification'] ?? null,
+                'exam_main_notifdate' => $validated['exam_main_notifdate'] ?? null,
+                'exam_main_name' => $validated['exam_main_name'],
+                'exam_main_nametamil' => $validated['exam_main_nametamil'] ?? null,
+                'exam_main_postname' => $validated['exam_main_postname'] ?? null,
+                'exam_main_lastdate' => $validated['exam_main_lastdate'] ?? null,
+                'exam_main_startdate' => $validated['exam_main_startdate'] ?? null,
+                'exam_main_flag' => $validated['exam_main_flag'] ?? null,
+            ]);
+
+            // Delete the existing subjects
+            ExamSession::where('exam_sess_mainid', $exam->exam_main_no)->delete();
+
+            // Save the updated subjects in the `exam_session` table
+            foreach ($validated['subjects'] as $subject) {
+                ExamSession::create([
+                    'exam_sess_mainid' => $validated['exam_main_no'],
+                    'exam_sess_date' => $subject['date'],
+                    'exam_sess_session' => $subject['session'],
+                    'exam_sess_time' => $subject['time'],
+                    'exam_sess_duration' => $subject['duration'],
+                    'exam_sess_subject' => $subject['name'],
+                    'exam_sess_flag' => 'active', // Set a default value for the flag
+                ]);
+            }
+
+            DB::commit();
+
+            // Log the update of the exam (optional, replace `AuditLogger` with your own logger if needed)
+            AuditLogger::log('Exam Updated', Currentexam::class, $exam->exam_main_id, $exam->toArray(), $exam->getChanges());
+
+            // Redirect to the index route with a success message
+            return redirect()->route('current-exam.index')->with('success', 'Exam updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Return with an error message on exception
+            return back()->withInput()
+                ->with('error', 'Error updating exam: ' . $e->getMessage());
+        }
+
+    }
+    public function getExamByNotificationNo(Request $request)
+    {
+       
+        $notificationNumber = $request->input('notificationNumber');
+        // Fetch the exam details using the notification number
+        $exam = Currentexam::with('examsession')
+            ->where('exam_main_notification', $notificationNumber)
+            ->where('exam_main_tiers', '2-Preliminary')
+            ->first();
+    
+        // Check if the exam exists
+        if (!$exam) {
+            return response()->json(['error' => 'Exam not found'], 404);
+        }
+    
+        // Return the exam details as a JSON response
+        return response()->json($exam);
+    }
+    
+    public function show($id)
+    {
+        $exam = Currentexam::with('examsession')->findOrFail($id); // Fetch the exam with the given ID and its related exam sessions
+        return view('current_exam.show', compact('exam')); // Pass the exam to
     }
 
     public function task()
@@ -125,57 +263,6 @@ class CurrentExamController extends Controller
     {
         return view('current_exam.exam-activities-task');
     }
-    public function edit($id)
-    {
-        $exam = Currentexam::findOrFail($id); // Fetch the exam or throw a 404 error
-        return view('current_exam.edit', compact('exam')); // Pass the exam to the edit view
-    }
-
-    public function update(Request $request, $id)
-    {
-        // Custom error messages for validation
-        $messages = [
-            'exam_main_no.required' => 'The exam number is required.',
-            'exam_main_no.unique' => 'The exam number must be unique.',
-            'exam_main_name.required' => 'The exam name is required.',
-        ];
-
-        // Validate the incoming request
-        $validated = $request->validate([
-            // 'exam_main_no' => 'required|string|max:255|unique:exam_main,exam_main_no,' . $id . ',exam_main_id',
-            'exam_main_type' => 'nullable|string|max:255',
-            'exam_main_model' => 'nullable|string|max:255',
-            'exam_main_tiers' => 'nullable|string|max:255',
-            'exam_main_service' => 'nullable|string|max:255',
-            'exam_main_notification' => 'nullable|string|max:255',
-            'exam_main_notifdate' => 'nullable|date',
-            'exam_main_name' => 'required|string|max:255',
-            'exam_main_nametamil' => 'nullable|string|max:255',
-            'exam_main_postname' => 'nullable|string|max:255',
-            'exam_main_lastdate' => 'nullable|date',
-            'exam_main_startdate' => 'nullable|date',
-            'exam_main_flag' => 'nullable|string|max:10',
-        ], $messages);
-
-        try {
-            // Fetch the record to update
-            $exam = Currentexam::findOrFail($id);
-
-            // Update the record
-            $exam->update($validated);
-
-            // Log the update (optional)
-            AuditLogger::log('Exam Updated', Currentexam::class, $id, $exam->getOriginal(), $exam->toArray());
-
-            // Redirect with success message
-            return redirect()->route('current-exam')->with('success', 'Exam updated successfully.');
-        } catch (\Exception $e) {
-            // Return with an error message on exception
-            return back()->withInput()
-                ->with('error', 'Error updating exam: ' . $e->getMessage());
-        }
-    }
-
 
     public function increaseCandidate()
     {

@@ -192,7 +192,7 @@
                                     <select class="form-select" id="districtFilter" name="district">
                                         <option value="">Select District</option>
                                         @foreach ($districts as $district)
-                                            <option value="{{ $district->district_id }}" {{ request('district') == $district->district_id ? 'selected' : '' }}>
+                                            <option value="{{ $district->district_code }}" {{ request('district') == $district->district_code ? 'selected' : '' }}>
                                                 {{ $district->district_name }}
                                             </option>
                                         @endforeach
@@ -212,9 +212,8 @@
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                                 </div>
-                                
                                 <div class="btn-container">
-                                    <button type="reset" class="btn btn-secondary d-flex align-items-center">
+                                    <button type="button" id="resetButton" class="btn btn-secondary d-flex align-items-center" onclick="window.location.href='{{ route('centers.index') }}'">
                                         <i class="ti ti-refresh me-2"></i> Reset
                                     </button>
                                 </div>
@@ -236,10 +235,9 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($centers as $key => $center)
+                                    @foreach($centers as $key => $center)
                                         <tr>
-                                            <td>{{ $centers->firstItem() + $key }}</td>
-                                            <td>
+                                            <td>{{ $key + 1 }}</td>                                            <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-shrink-0">
                                                         @if ($center->center_image)
@@ -284,11 +282,7 @@
                                                 </a>
                                             </td>
                                         </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="9" class="text-center">No centers found</td>
-                                        </tr>
-                                    @endforelse
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -305,52 +299,7 @@
 
     @push('scripts')
         @include('partials.datatable-export-js')
-        <script>
-            $('#res-configs').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: "{{ route('centers.index') }}",
-                columns: [{
-                        data: 'DT_RowIndex',
-                        name: 'DT_RowIndex'
-                    },
-                    {
-                        data: 'center_image',
-                        name: 'center_image'
-                    },
-                    {
-                        data: 'center_name',
-                        name: 'center_name'
-                    },
-                    {
-                        data: 'center_code',
-                        name: 'center_code'
-                    },
-                    {
-                        data: 'district.district_name',
-                        name: 'district.district_name'
-                    },
-                    {
-                        data: 'center_email',
-                        name: 'center_email'
-                    },
-                    {
-                        data: 'center_phone',
-                        name: 'center_phone'
-                    },
-                    {
-                        data: 'center_email_status',
-                        name: 'center_email_status'
-                    },
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        searchable: false
-                    }
-                ]
-            });
-        </script>
+       
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const toggleButtons = document.querySelectorAll('.status-toggle');

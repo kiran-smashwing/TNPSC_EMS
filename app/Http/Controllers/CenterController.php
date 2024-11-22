@@ -9,6 +9,7 @@ use App\Services\ImageCompressService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use App\Services\AuditLogger;
+use Illuminate\Support\Facades\DB;
 
 class CenterController extends Controller
 {
@@ -21,30 +22,61 @@ class CenterController extends Controller
     }
     public function index(Request $request)
     {
-        // Start the query for centers with the district relationship
-        $query = Center::with('district');
+        // Get the filtered centers and options in a single method
+        $data = $this->getFilteredData($request);
+        
+        return view('masters.district.centers.index', $data);
+    }
 
-        // Filter by district if a district is selected
+    private function getFilteredData(Request $request)
+    {
+        // Build the centers query with eager loading
+        $centersQuery = Center::query()
+            ->select([
+                'centers.center_id',
+                'centers.center_district_id',
+                'centers.center_name',
+                'centers.center_code',
+                'centers.center_email',
+                'centers.center_phone',
+                'centers.center_image',
+                'centers.center_email_status',
+                'centers.center_status'
+            ])
+            ->join('district', 'centers.center_district_id', '=', 'district.district_code')
+            ->with(['district' => function ($query) {
+                $query->select('district_id', 'district_code', 'district_name');
+            }]);
+
+        // Apply filters
         if ($request->filled('district')) {
-            $query->where('center_district_id', $request->input('district'));
+            $centersQuery->where('centers.center_district_id', $request->district);
         }
 
-        // Filter by center code if a center code is selected
         if ($request->filled('centerCode')) {
-            $query->where('center_code', $request->input('centerCode'));
+            $centersQuery->where('centers.center_code', $request->centerCode);
         }
 
-        // Paginate the filtered results
-        $centers = $query->paginate(10);
+        // Get centers
+        $centers = $centersQuery->orderBy('centers.center_name')->get();
 
-        // Fetch only districts that are referenced in the Center table
-        $districtIds = Center::distinct('center_district_id')->pluck('center_district_id');
-        $districts = District::whereIn('district_id', $districtIds)->get(['district_id', 'district_name']);
+        // Get districts and center codes efficiently
+        $districts = District::select('district_code', 'district_name')
+            ->whereExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('centers')
+                    ->whereColumn('centers.center_district_id', 'district.district_code');
+            })
+            ->orderBy('district_name')
+            ->get();
 
-        // Fetch unique center codes for the center code filter dropdown
-        $centerCodes = Center::distinct('center_code')->pluck('center_code');
+        $centerCodes = Center::select('center_code')
+            ->whereNotNull('center_code')
+            ->distinct()
+            ->orderBy('center_code')
+            ->pluck('center_code');
 
-        return view('masters.district.centers.index', compact('centers', 'districts', 'centerCodes'));
+        return compact('centers', 'districts', 'centerCodes');
     }
 
 

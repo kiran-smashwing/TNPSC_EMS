@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                      <h2 class="mb-0"></h2>
-                    </div> -->
+                          <h2 class="mb-0"></h2>
+                        </div> -->
                         </div>
                     </div>
                 </div>
@@ -149,7 +149,7 @@
 
 
             <!-- [ Main Content ] start -->
-           
+
             <div class="row">
                 <!-- [ basic-table ] start -->
                 <div class="col-xl-12">
@@ -157,10 +157,12 @@
                         <div class="card-header">
                             <div class="d-sm-flex align-items-center justify-content-between">
                                 <h5 class="mb-3 mb-sm-0">Current Exam list</h5>
-                                <div>
-                                    <a href="{{ route('current-exam.create') }}" class="btn btn-outline-success">Add Exam
-                                    </a>
-                                </div>
+                                @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'RND')
+                                    <div>
+                                        <a href="{{ route('current-exam.create') }}" class="btn btn-outline-success">Add Exam
+                                        </a>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                         <div class="card-body table-border-style">
@@ -199,35 +201,33 @@
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Notification No</th>
+                                        <th>Notif. No.</th>
                                         <th>Exam Name</th>
                                         <th>Exam Date</th>
-                                        <th>Session Count</th>
-                                        <th>Type of Exam</th>
-                                        <th>Last Submisson Date</th>
+                                        <th>Sess. Count</th>
+                                        <th>Type </th>
+                                        <th>Last Date</th>
+                                        <th>Tier</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse ($exams as $exam)
+                                    @foreach ($exams as $exam)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>
-                                                <div class="flex-grow-1 ms-3">
-                                                    <h6 class="mb-0">{{ $exam->exam_main_notification }}</h6>
-                                                </div>
+                                                    <h6 class="mb-0">{{ $exam->exam_main_notification}}</h6>
                                             </td>
                                             <td>
-                                                <div class="flex-grow-1 ms-3">
                                                     <h6 class="mb-0">{{ $exam->exam_main_name }}</h6>
-                                                </div>
                                             </td>
                                             <td>{{ $exam->exam_main_startdate }}</td>
-                                            <td>{{ $exam->exam_main_flag }}</td>
+                                            <td>{{ $exam->examsession_count }}</td>
                                             <td>{{ $exam->exam_main_type }}</td>
                                             <td>{{ $exam->exam_main_lastdate }}</td>
+                                            <td>{{ $exam->exam_main_tiers }}</td>
                                             <td>
-                                                <a href="{{ route('current-exam.task', $exam->exam_main_id) }}"
+                                                <a href="{{ route('my-exam.index') }}"
                                                     class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-eye f-20"></i>
                                                 </a>
@@ -241,11 +241,7 @@
                                                 </a>
                                             </td>
                                         </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="8" class="text-center">No exams found.</td>
-                                        </tr>
-                                    @endforelse
+                                    @endforeach
                                 </tbody>
 
                             </table>

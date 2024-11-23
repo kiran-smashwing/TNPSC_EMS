@@ -41,21 +41,13 @@ class Currentexam extends Model
             $model->exam_main_createdat = now();
         });
     }
-
-    /**
-     * Accessor for a displayable name of the exam.
-     */
-    public function getDisplayNameAttribute()
+    public function examsession()
     {
-        return $this->exam_main_name; // or customize based on your requirements
+        return $this->hasMany(Examsession::class, 'exam_sess_mainid', 'exam_main_no');
     }
-
-    /**
-     * Example relationship (if there are related tables, update accordingly).
-     */
-    // public function relatedData()
-    // {
-    //     // Replace `RelatedModel` and foreign key based on your database structure.
-    //     return $this->hasMany(RelatedModel::class, 'foreign_key', 'exam_main_id');
-    // }
+    public function examservice()
+    {
+        return $this->belongsTo(Examservice::class, 'exam_main_service', 'examservice_id');
+    }
+    
 }

@@ -31,7 +31,7 @@ class SecurityHeaders
          */
         function isBase64Image($value)
         {
-            return preg_match('/^data:image\/(png|jpeg|jpg);base64,/', $value);
+            return is_string($value) && preg_match('/^data:image\/(png|jpeg|jpg);base64,/', $value);
         }
         foreach ($input as $value) {
             // Check if the value is a base64 image
@@ -39,7 +39,7 @@ class SecurityHeaders
                 continue; // Skip pattern matching for base64 image inputs
             }
             foreach ($patterns as $pattern) {
-                if (preg_match($pattern, $value)) {
+                if (is_string($value) && preg_match($pattern, $value)) {
                     abort(403, 'Forbidden');
                 }
             }

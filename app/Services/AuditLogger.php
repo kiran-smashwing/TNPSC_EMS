@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Audit;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
 
 class AuditLogger
 {
@@ -26,6 +25,21 @@ class AuditLogger
                     break;
                 case 'mobile_team_staffs':
                     $userId = $user->mobile_team_id;
+                    break;
+                case 'venue':
+                    $userId = $user->venue_id;
+                    break;
+                case 'center':
+                    $userId = $user->center_id;
+                    break;
+                case 'headquarters':
+                    $userId = $user->dept_off_id;
+                    break;
+                case 'ci':
+                    $userId = $user->ci_id;
+                    break;
+                default:
+                    $userId = $user->id;
                     break;
             }
         }

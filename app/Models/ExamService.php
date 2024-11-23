@@ -36,4 +36,11 @@ class ExamService extends Model
             $model->examservice_createdat = now();
         });
     }
+
+    // Define the relationship with the Currentexam model
+    public function currentexam()
+    {
+        return $this->hasMany(Currentexam::class, 'exam_main_service', 'examservice_id');
+    }
+
 }

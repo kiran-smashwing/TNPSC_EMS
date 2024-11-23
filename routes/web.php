@@ -23,6 +23,7 @@ use App\Http\Controllers\ExamServiceController;
 use App\Http\Controllers\CurrentExamController;
 use App\Http\Controllers\CompletedExamController;
 use App\Http\Controllers\QrCodeController;
+use App\Http\Controllers\MyExamController;
 // use App\Http\Controllers\DataController;
 
 // Public routes
@@ -258,7 +259,13 @@ Route::prefix('current-exam')->group(function () {
         Route::get('/{id}', [CurrentExamController::class, 'show'])->name('current-exam.show');
         Route::post('/{id}/toggle-status', [CurrentExamController::class, 'toggleStatus'])->name('current-exam.toggle-status');
         Route::delete('/{id}', [CurrentExamController::class, 'destroy'])->name('current-exam.destroy');
-        Route::get('/task/{id}', [CurrentExamController::class, 'task'])->name('current-exam.task');
+    });
+});
+//myexam Route::prefix('my-exam')->group(function(){
+Route::prefix('my-exam')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/exam-task', action: [MyExamController::class, 'index'])->name('my-exam.index');
+        Route::get('/{examid}/{session}', action: [MyExamController::class, 'task'])->name('my-exam.examTask');
     });
 });
 // Route::get('/run-function', [DataController::class, 'addData']);

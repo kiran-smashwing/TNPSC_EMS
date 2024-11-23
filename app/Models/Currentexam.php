@@ -45,5 +45,9 @@ class Currentexam extends Model
     {
         return $this->hasMany(Examsession::class, 'exam_sess_mainid', 'exam_main_no');
     }
+    public function examservice()
+    {
+        return $this->belongsTo(Examservice::class, 'exam_main_service', 'examservice_id');
+    }
     
 }

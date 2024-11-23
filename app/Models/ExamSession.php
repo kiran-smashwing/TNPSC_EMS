@@ -46,9 +46,10 @@ class ExamSession extends Model
             $model->exam_sess_createdat = now();
         });
     }
-    public function examsessions()
+    public function currentexam()
     {
-        return $this->hasMany(Examsession::class, 'exam_sess_mainid', 'exam_main_no');
+        return $this->belongsTo(Currentexam::class, 'exam_sess_mainid', 'exam_main_no');
     }
+    
 
 }

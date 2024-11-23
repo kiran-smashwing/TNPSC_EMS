@@ -157,10 +157,12 @@
                         <div class="card-header">
                             <div class="d-sm-flex align-items-center justify-content-between">
                                 <h5 class="mb-3 mb-sm-0">Current Exam list</h5>
-                                <div>
-                                    <a href="{{ route('current-exam.create') }}" class="btn btn-outline-success">Add Exam
-                                    </a>
-                                </div>
+                                @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'RND')
+                                    <div>
+                                        <a href="{{ route('current-exam.create') }}" class="btn btn-outline-success">Add Exam
+                                        </a>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                         <div class="card-body table-border-style">
@@ -225,7 +227,7 @@
                                             <td>{{ $exam->exam_main_lastdate }}</td>
                                             <td>{{ $exam->exam_main_tiers }}</td>
                                             <td>
-                                                <a href="{{ route('current-exam.task', $exam->exam_main_id) }}"
+                                                <a href="{{ route('my-exam.index') }}"
                                                     class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-eye f-20"></i>
                                                 </a>

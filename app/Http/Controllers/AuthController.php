@@ -243,8 +243,12 @@ class AuthController extends Controller
                 return District::class;
             case 'treasury':
                 return TreasuryOfficer::class;
-                case 'mobile_team_staffs':
+            case 'mobile_team_staffs':
                 return MobileTeamStaffs::class;
+            case 'headquarters':
+                return DepartmentOfficialsController::class;
+            case 'ci':
+                return ChiefInvigilatorsController::class;
             // Add other cases as needed
             default:
                 throw new \Exception('Invalid role');

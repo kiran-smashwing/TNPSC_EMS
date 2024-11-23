@@ -89,14 +89,13 @@
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label" for="district">District <span
-                                                            class="text-danger">*</span></label>
+                                                    <label class="form-label" for="district">District <span class="text-danger">*</span></label>
                                                     <select class="form-control @error('district') is-invalid @enderror" id="district" name="district" required>
                                                         <option>Select District</option>
                                                         @foreach ($districts as $district)
-                                                            <option value="{{ $district->district_id }}"
-                                                                {{ $district->district_id == $venue->venue_district_id ? 'selected' : '' }}>
-                                                                {{ $district->district_name }}
+                                                            <option value="{{ $district->district_code }}"
+                                                                {{ $district->district_code == $venue->venue_district_id ? 'selected' : '' }}>
+                                                                {{ $district->district_code }}
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -107,14 +106,13 @@
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label" for="center">Center <span
-                                                            class="text-danger">*</span></label>
+                                                    <label class="form-label" for="center">Center <span class="text-danger">*</span></label>
                                                     <select class="form-control @error('center') is-invalid @enderror" id="center" name="center" required>
                                                         <option>Select Centers</option>
                                                         @foreach ($centers as $center)
-                                                            <option value="{{ $center->center_id }}"
-                                                                {{ $center->center_id == $venue->venue_center_id ? 'selected' : '' }}>
-                                                                {{ $center->center_name }}
+                                                            <option value="{{ $center->center_code }}"
+                                                                {{ $center->center_code == $venue->venue_center_id ? 'selected' : '' }}>
+                                                                {{ $center->center_code }}
                                                             </option>
                                                         @endforeach
                                                     </select>

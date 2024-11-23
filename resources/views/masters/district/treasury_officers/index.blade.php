@@ -202,7 +202,7 @@
                                     <select class="form-select" id="districtFilter" name="district">
                                         <option value="">Select District</option>
                                         @foreach ($districts as $district)
-                                            <option value="{{ $district->district_id }}"
+                                            <option value="{{ $district->district_code }}"
                                                 {{ request('district') == $district->district_id ? 'selected' : '' }}>
                                                 {{ $district->district_name }}
                                             </option>

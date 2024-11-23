@@ -25,35 +25,49 @@ class ChiefInvigilatorsController extends Controller
 
     public function index(Request $request)
     {
-        // Start the query for ChiefInvigilator with related district and venue
-        $query = ChiefInvigilator::with(['district', 'venue']);
-    
+        // Start the query for ChiefInvigilator
+        $query = ChiefInvigilator::query();
+
         // Filter by district if selected
         if ($request->filled('district')) {
             $query->where('ci_district_id', $request->input('district'));
         }
-    
+
         // Filter by center if selected
         if ($request->filled('center')) {
             $query->where('ci_center_id', $request->input('center'));
         }
-    
+
         // Filter by venue if selected
         if ($request->filled('venue')) {
             $query->where('ci_venue_id', $request->input('venue'));
         }
-    
-        // Fetch the filtered data
+
+        // Fetch the filtered data with pagination
         $chiefInvigilator = $query->paginate(10);
-    
-        // Fetch unique districts, centers, and venues for the filters
-        $districts = District::all(['district_id', 'district_name']);
-        $centers = Center::all(['center_id', 'center_name']);
-        $venues = Venues::all(['venue_id', 'venue_name']);
-    
+
+        // Fetch unique districts with ID and code
+        $districts = ChiefInvigilator::select('ci_district_id')
+            ->distinct()
+            ->get();
+
+        // Fetch unique centers with ID and code
+        $centers = ChiefInvigilator::select('ci_center_id')
+            ->distinct()
+            ->get();
+
+        // Fetch unique venues with ID and code
+        $venues = ChiefInvigilator::select('ci_venue_id')
+            ->distinct()
+            ->get();
+
+        // Return the view with data
         return view('masters.venues.chief_invigilator.index', compact('chiefInvigilator', 'districts', 'centers', 'venues'));
     }
-    
+
+
+
+
 
     public function create()
     {
@@ -86,7 +100,7 @@ class ChiefInvigilatorsController extends Controller
             'designation' => 'required|string|max:100',
             'cropped_image' => 'nullable|string',
             'password' => 'required|string|min:6',
-        ],$messages);
+        ], $messages);
 
         try {
             if (!empty($validated['cropped_image'])) {
@@ -181,7 +195,7 @@ class ChiefInvigilatorsController extends Controller
             'designation' => 'required|string|max:100',
             'password' => 'nullable|string|min:6',
             'cropped_image' => 'nullable|string',
-        ],$messages);
+        ], $messages);
 
         try {
             $newImagePath = null;
@@ -258,7 +272,7 @@ class ChiefInvigilatorsController extends Controller
     }
     public function show($id)
     {
-        $chiefInvigilator = ChiefInvigilator::with(['district', 'venue','center'])->findOrFail($id);
+        $chiefInvigilator = ChiefInvigilator::with(['district', 'venue', 'center'])->findOrFail($id);
 
         return view('masters.venues.chief_invigilator.show', compact('chiefInvigilator'));
     }
@@ -308,5 +322,4 @@ class ChiefInvigilatorsController extends Controller
             ], 500);
         }
     }
-
 }

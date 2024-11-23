@@ -82,8 +82,8 @@
                                                         <select class="form-control @error('district') is-invalid @enderror" id="district" name="district" required>
                                                             <option value="">Select District</option>
                                                             @foreach ($districts as $district)
-                                                                <option value="{{ $district->district_id }}" {{ old('district', $ciAssistant->cia_district_id) == $district->district_id ? 'selected' : '' }}>
-                                                                    {{ $district->district_name }}
+                                                                <option value="{{ $district->district_code }}" {{ old('district', $ciAssistant->cia_district_id) == $district->district_code ? 'selected' : '' }}>
+                                                                    {{ $district->district_code }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
@@ -98,8 +98,8 @@
                                                         <select class="form-control @error('center') is-invalid @enderror" id="center" name="center" required>
                                                             <option value="">Select Center</option>
                                                             @foreach ($centers as $center)
-                                                                <option value="{{ $center->center_id }}" {{ old('center', $ciAssistant->cia_center_id) == $center->center_id ? 'selected' : '' }}>
-                                                                    {{ $center->center_name }}
+                                                                <option value="{{ $center->center_code }}" {{ old('center', $ciAssistant->cia_center_id) == $center->center_code ? 'selected' : '' }}>
+                                                                    {{ $center->center_code }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
@@ -115,8 +115,8 @@
                                                         <select class="form-control @error('venue') is-invalid @enderror" id="venue" name="venue" required>
                                                             <option value="">Select Venue</option>
                                                             @foreach ($venues as $venue)
-                                                                <option value="{{ $venue->venue_id }}" {{ old('venue', $ciAssistant->cia_venue_id) == $venue->venue_id ? 'selected' : '' }}>
-                                                                    {{ $venue->venue_name }}
+                                                                <option value="{{ $venue->venue_code }}" {{ old('venue', $ciAssistant->cia_venue_id) == $venue->venue_code ? 'selected' : '' }}>
+                                                                    {{ $venue->venue_code }}
                                                                 </option>
                                                             @endforeach
                                                         </select>

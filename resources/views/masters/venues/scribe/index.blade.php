@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                              <h2 class="mb-0"></h2>
-                            </div> -->
+                                  <h2 class="mb-0"></h2>
+                                </div> -->
                         </div>
                     </div>
                 </div>
@@ -197,7 +197,9 @@
                                     <select class="form-select" id="venueFilter" name="venue">
                                         <option value="">Select Venue</option>
                                         @foreach ($venues as $venue)
-                                            <option value="{{ $venue->venue_id }}">{{ $venue->venue_name }}</option>
+                                            <option value="{{ $venue->scribe_venue_id }}">
+                                                {{ $venue->scribe_venue_id }} 
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -207,7 +209,9 @@
                                     <select class="form-select" id="centerFilter" name="center">
                                         <option value="">Select Center</option>
                                         @foreach ($centers as $center)
-                                            <option value="{{ $center->center_id }}">{{ $center->center_name }}</option>
+                                            <option value="{{ $center->scribe_center_id }}">
+                                                {{ $center->scribe_center_id }} 
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -217,7 +221,8 @@
                                     <select class="form-select" id="districtFilter" name="district">
                                         <option value="">Select District</option>
                                         @foreach ($districts as $district)
-                                            <option value="{{ $district->district_id }}">{{ $district->district_name }}
+                                            <option value="{{ $district->scribe_district_id }}">
+                                                {{ $district->scribe_district_id }} 
                                             </option>
                                         @endforeach
                                     </select>
@@ -227,7 +232,7 @@
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                                 </div>
-                                <a href="{{ route('invigilators.index') }}" class="btn btn-secondary">X</a>
+                                <a href="{{ route('scribes.index') }}" class="btn btn-secondary">X</a>
                             </form>
 
 
@@ -267,7 +272,7 @@
                                                     <h6 class="mb-0">{{ $scribe->scribe_name }}</h6>
                                                 </div>
                                             </td>
-                                            <td>{{ $scribe->district->district_name }}</td>
+                                            <td>{{ $scribe->scribe_venue_id }}</td>
                                             <td>{{ $scribe->scribe_email }}</td>
                                             <td>{{ $scribe->scribe_phone }}</td>
                                             <td>

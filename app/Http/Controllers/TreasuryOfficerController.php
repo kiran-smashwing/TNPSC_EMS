@@ -27,7 +27,7 @@ class TreasuryOfficerController extends Controller
 
         // Filter by district if a district is selected
         if ($request->filled('district')) {
-            // Filter using the correct column name `tre_off_district_id`
+            // Apply filter using the correct column name `tre_off_district_id`
             $query->where('tre_off_district_id', $request->input('district'));
         }
 

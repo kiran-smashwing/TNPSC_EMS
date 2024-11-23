@@ -25,40 +25,47 @@ class InvigilatorsController extends Controller
 
     public function index(Request $request)
     {
-        // Start query for Invigilator with related District, Center, and Venue
-        $query = Invigilator::with(['district', 'center', 'venue']);
+        // Start the query for Invigilators
+        $query = Invigilator::query();
 
-        // Apply filters based on the request
+        // Apply filter by district if selected
         if ($request->filled('district')) {
             $query->where('invigilator_district_id', $request->input('district'));
         }
 
+        // Apply filter by center if selected
         if ($request->filled('center')) {
             $query->where('invigilator_center_id', $request->input('center'));
         }
 
+        // Apply filter by venue if selected
         if ($request->filled('venue')) {
             $query->where('invigilator_venue_id', $request->input('venue'));
         }
 
-        // Fetch filtered invigilators
+        // Fetch filtered invigilators with pagination
         $invigilators = $query->paginate(10);
 
-        // Fetch distinct districts, centers, and venues only present in the Invigilator table
-        $districts = District::whereIn('district_id', function ($query) {
-            $query->selectRaw('CAST(invigilator_district_id AS INTEGER)')->from('invigilator');
-        })->get(['district_id', 'district_name']);
+        // Fetch unique district values from the Invigilator table
+        $districts = Invigilator::select('invigilator_district_id')
+            ->distinct()
+            ->get();
 
-        $centers = Center::whereIn('center_id', function ($query) {
-            $query->selectRaw('CAST(invigilator_center_id AS INTEGER)')->from('invigilator');
-        })->get(['center_id', 'center_name']);
+        // Fetch unique center values from the Invigilator table
+        $centers = Invigilator::select('invigilator_center_id')
+            ->distinct()
+            ->get();
 
-        $venues = Venues::whereIn('venue_id', function ($query) {
-            $query->selectRaw('CAST(invigilator_venue_id AS INTEGER)')->from('invigilator');
-        })->get(['venue_id', 'venue_name']);
+        // Fetch unique venue values from the Invigilator table
+        $venues = Invigilator::select('invigilator_venue_id')
+            ->distinct()
+            ->get();
 
+        // Return the view with the necessary data
         return view('masters.venues.invigilator.index', compact('invigilators', 'districts', 'centers', 'venues'));
     }
+
+
 
 
 

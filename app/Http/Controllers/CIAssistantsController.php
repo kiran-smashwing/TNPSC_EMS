@@ -24,41 +24,46 @@ class CIAssistantsController extends Controller
 
     public function index(Request $request)
     {
-        // Start the query for CIAssistants with related District, Center, and Venue
-        $query = CIAssistant::with(['district', 'center', 'venue']);
-
-        // Apply filters based on the request
+        // Start the query for CIAssistants
+        $query = CIAssistant::query();
+    
+        // Apply filter by district if selected
         if ($request->filled('district')) {
-            $query->where('cia_district_id', $request->input('district')); // Filter by cia_district_id
+            $query->where('cia_district_id', $request->input('district'));
         }
-
+    
+        // Apply filter by center if selected
         if ($request->filled('center')) {
-            $query->where('cia_center_id', $request->input('center')); // Filter by cia_center_id
+            $query->where('cia_center_id', $request->input('center'));
         }
-
+    
+        // Apply filter by venue if selected
         if ($request->filled('venue')) {
-            $query->where('cia_venue_id', $request->input('venue')); // Filter by cia_venue_id
+            $query->where('cia_venue_id', $request->input('venue'));
         }
-
-        // Fetch filtered CIAssistants
+    
+        // Fetch filtered CIAssistants with pagination
         $ciAssistants = $query->paginate(10);
-
-        // Fetch distinct districts, centers, and venues that exist in the CIAssistant table with type casting
-        $districts = District::whereIn('district_id', function ($query) {
-            $query->selectRaw('CAST(cia_district_id AS INTEGER)')->from('cheif_invigilator_assistant');
-        })->get(['district_id', 'district_name']);
-
-        $centers = Center::whereIn('center_id', function ($query) {
-            $query->selectRaw('CAST(cia_center_id AS INTEGER)')->from('cheif_invigilator_assistant');
-        })->get(['center_id', 'center_name']);
-
-        $venues = Venues::whereIn('venue_id', function ($query) {
-            $query->selectRaw('CAST(cia_venue_id AS INTEGER)')->from('cheif_invigilator_assistant');
-        })->get(['venue_id', 'venue_name']);
-
-        // Return the view with filtered CIAssistants and filter data
+    
+        // Fetch unique district values from the CIAssistant table
+        $districts = CIAssistant::select('cia_district_id')
+            ->distinct()
+            ->get();
+    
+        // Fetch unique center values from the CIAssistant table
+        $centers = CIAssistant::select('cia_center_id')
+            ->distinct()
+            ->get();
+    
+        // Fetch unique venue values from the CIAssistant table
+        $venues = CIAssistant::select('cia_venue_id')
+            ->distinct()
+            ->get();
+    
+        // Return the view with the necessary data
         return view('masters.venues.ci_assistants.index', compact('ciAssistants', 'districts', 'centers', 'venues'));
     }
+    
 
 
 

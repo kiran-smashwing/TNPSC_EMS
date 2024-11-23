@@ -31,44 +31,43 @@
             <div class="row">
 
                 <div class="tab-content">
-                    <form action="{{ route('chief-invigilators.store') }}" method="POST"
-                    enctype="multipart/form-data">
-                    @csrf
-                    <div class="row">
-                        @if (session('success'))
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                {{ session('success') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                    aria-label="Close"></button>
-                            </div>
-                        @endif
-
-                        @if (session('error'))
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                {{ session('error') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                    aria-label="Close"></button>
-                            </div>
-                        @endif
-
-                        @if ($errors->any())
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <ul class="mb-0">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                    aria-label="Close"></button>
-                            </div>
-                        @endif
-                        <div class="col-lg-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5>Chief Invigilator - <span class="text-primary">Add</span></h5>
+                    <form action="{{ route('chief-invigilators.store') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="row">
+                            @if (session('success'))
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    {{ session('success') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
                                 </div>
-                                <div class="card-body">
-                                   
+                            @endif
+
+                            @if (session('error'))
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    {{ session('error') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
+                                </div>
+                            @endif
+
+                            @if ($errors->any())
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <ul class="mb-0">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
+                                </div>
+                            @endif
+                            <div class="col-lg-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Chief Invigilator - <span class="text-primary">Add</span></h5>
+                                    </div>
+                                    <div class="card-body">
+
                                         <div class="row">
                                             <div class="col-sm-12 text-center mb-3">
                                                 <div class="user-upload wid-75" data-pc-animate="just-me"
@@ -80,6 +79,7 @@
                                                     <label for="imageUpload" class="img-avtar-upload"></label>
                                                 </div>
                                             </div>
+                                            <!-- District Dropdown -->
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="district">District <span
@@ -88,9 +88,9 @@
                                                         id="district" name="district" required>
                                                         <option value="">Select District</option>
                                                         @foreach ($districts as $district)
-                                                            <option value="{{ $district->district_id }}"
-                                                                {{ old('district') == $district->district_id ? 'selected' : '' }}>
-                                                                {{ $district->district_name }}
+                                                            <option value="{{ $district->district_code }}"
+                                                                {{ old('district') == $district->district_code ? 'selected' : '' }}>
+                                                                {{ $district->district_code }}
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -109,9 +109,9 @@
                                                         id="center" name="center" required>
                                                         <option value="">Select Center</option>
                                                         @foreach ($centers as $center)
-                                                            <option value="{{ $center->center_id }}"
-                                                                {{ old('center') == $center->center_id ? 'selected' : '' }}>
-                                                                {{ $center->center_name }}
+                                                            <option value="{{ $center->center_code }}"
+                                                                {{ old('center') == $center->center_code ? 'selected' : '' }}>
+                                                                {{ $center->center_code }}
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -130,9 +130,9 @@
                                                         id="venue" name="venue" required>
                                                         <option value="">Select Venue</option>
                                                         @foreach ($venues as $venue)
-                                                            <option value="{{ $venue->venue_id }}"
-                                                                {{ old('venue') == $venue->venue_id ? 'selected' : '' }}>
-                                                                {{ $venue->venue_name }}
+                                                            <option value="{{ $venue->venue_code }}"
+                                                                {{ old('venue') == $venue->venue_code ? 'selected' : '' }}>
+                                                                {{ $venue->venue_code }}
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -141,6 +141,7 @@
                                                     @enderror
                                                 </div>
                                             </div>
+
 
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
@@ -232,14 +233,15 @@
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-12 text-end">
-                        <a href="{{ route('chief-invigilators.index') }}" class="btn btn-outline-secondary">Cancel</a>
-                        <button type="submit" class="btn btn-primary">Create</button>
-                    </div>
+                        <div class="col-12 text-end">
+                            <a href="{{ route('chief-invigilators.index') }}"
+                                class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Create</button>
+                        </div>
                     </form>
                 </div>
             </div>

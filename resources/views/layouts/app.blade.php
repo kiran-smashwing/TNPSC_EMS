@@ -41,7 +41,9 @@
         (function() {
             var savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-pc-theme', savedTheme);
-            layout_change(savedTheme);
+            document.addEventListener('DOMContentLoaded', function() {
+                layout_change(savedTheme);
+            });
         })();
     </script>
 </head>

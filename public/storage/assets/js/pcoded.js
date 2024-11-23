@@ -481,8 +481,8 @@ function preset_change(value) {
   document.getElementsByTagName('body')[0].setAttribute('data-pc-preset', value);
   var control = document.querySelector('.pct-offcanvas');
   if (control) {
-    document.querySelector('.preset-color > a.active').classList.remove('active');
-    document.querySelector(".preset-color > a[data-value='" + value + "']").classList.add('active');
+    // document.querySelector('.preset-color > a.active').classList.remove('active');
+    // document.querySelector(".preset-color > a[data-value='" + value + "']").classList.add('active');
   }
 }
 

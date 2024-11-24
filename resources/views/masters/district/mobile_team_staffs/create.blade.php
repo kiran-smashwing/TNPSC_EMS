@@ -63,7 +63,7 @@
                                             <select class="form-control @error('district') is-invalid @enderror" id="district" name="district" required>
                                                 <option>Select District</option>
                                                 @foreach ($districts as $district)
-                                                    <option value="{{ $district->district_id }}">
+                                                    <option value="{{ $district->district_code }}">
                                                         {{ $district->district_name }}</option>
                                                 @endforeach
                                             </select>

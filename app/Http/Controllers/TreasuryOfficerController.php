@@ -24,22 +24,23 @@ class TreasuryOfficerController extends Controller
     {
         // Start the query for Treasury Officers with the district relationship
         $query = TreasuryOfficer::with('district');
-
+    
         // Filter by district if a district is selected
         if ($request->filled('district')) {
-            // Apply filter using the correct column name `tre_off_district_id`
+            // Apply filter using the correct column `tre_off_district_id`
             $query->where('tre_off_district_id', $request->input('district'));
         }
-
+    
         // Fetch filtered Treasury Officers
         $treasuryOfficers = $query->paginate(10);
-
-        // Fetch only districts that are referenced in the TreasuryOfficer table
-        $districtIds = TreasuryOfficer::distinct('tre_off_district_id')->pluck('tre_off_district_id');
-        $districts = District::whereIn('district_id', $districtIds)->get(['district_id', 'district_name']);
-
+    
+        $districts = TreasuryOfficer::select('tre_off_district_id')
+            ->distinct()
+            ->get();
+    
         return view('masters.district.treasury_Officers.index', compact('treasuryOfficers', 'districts'));
     }
+    
 
     public function create()
     {

@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                              <h2 class="mb-0"></h2>
-                            </div> -->
+                                  <h2 class="mb-0"></h2>
+                                </div> -->
                         </div>
                     </div>
                 </div>
@@ -199,12 +199,13 @@
                                     </select>
                                 </div> --}}
                                 <div class="filter-item">
+                                    
                                     <select class="form-select" id="districtFilter" name="district">
                                         <option value="">Select District</option>
                                         @foreach ($districts as $district)
-                                            <option value="{{ $district->district_code }}"
-                                                {{ request('district') == $district->district_id ? 'selected' : '' }}>
-                                                {{ $district->district_name }}
+                                            <option value="{{ $district->tre_off_district_id }}"
+                                                {{ request('district') == $district->tre_off_district_id ? 'selected' : '' }}>
+                                                {{ $district->tre_off_district_id }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -261,7 +262,7 @@
                                                     <h6 class="mb-0">{{ $officer->tre_off_name }}</h6>
                                                 </div>
                                             </td>
-                                            <td>{{ $officer->district?->district_name ?? 'N/A' }}</td>
+                                            <td>{{ $officer->tre_off_district_id ?? 'N/A' }}</td>
                                             <td>{{ $officer->tre_off_email }}</td>
                                             <td>{{ $officer->tre_off_phone }}</td>
                                             <td class="text-center">

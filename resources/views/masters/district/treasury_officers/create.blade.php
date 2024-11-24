@@ -92,7 +92,7 @@
                                                             name="district" required>
                                                             <option value="">Select District</option>
                                                             @foreach ($districts as $district)
-                                                                <option value="{{ $district->district_id }}">
+                                                                <option value="{{ $district->district_code }}">
                                                                     {{ $district->district_name }}</option>
                                                             @endforeach
                                                         </select>

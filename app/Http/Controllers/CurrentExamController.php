@@ -5,15 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Currentexam;
 use App\Models\ExamSession;
 use App\Services\AuditLogger;
+use App\Services\ExamAuditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class CurrentExamController extends Controller
 {
-    public function __construct()
+    protected $auditService;
+
+    public function __construct(ExamAuditService $auditService)
     {
         //apply the auth middleware to the entire controller
         $this->middleware('auth.multi');
+        $this->auditService = $auditService;
     }
 
     public function index()
@@ -100,9 +104,18 @@ class CurrentExamController extends Controller
             }
 
             DB::commit();
+            // Log the action
+            $this->auditService->log(
+                examId: $examMain->exam_main_no,
+                actionType: 'created',
+                taskType: 'exam_metadata',
+                afterState: $examMain->toArray(),
+                description: 'Created exam metadata',
+                metadata: $validated,
+            );
 
             // Log the creation of the exam (optional, replace `AuditLogger` with your own logger if needed)
-            AuditLogger::log('Exam Created', Currentexam::class, $examMain->exam_main_id, null, $examMain->toArray());
+            // AuditLogger::log('Exam Created', Currentexam::class, $examMain->exam_main_id, null, $examMain->toArray());
 
             // Redirect to the index route with a success message
             return redirect()->route('current-exam.index')->with('success', 'Exam created successfully.');
@@ -204,23 +217,23 @@ class CurrentExamController extends Controller
     }
     public function getExamByNotificationNo(Request $request)
     {
-       
+
         $notificationNumber = $request->input('notificationNumber');
         // Fetch the exam details using the notification number
         $exam = Currentexam::with('examsession')
             ->where('exam_main_notification', $notificationNumber)
             ->where('exam_main_tiers', '2-Preliminary')
             ->first();
-    
+
         // Check if the exam exists
         if (!$exam) {
             return response()->json(['error' => 'Exam not found'], 404);
         }
-    
+
         // Return the exam details as a JSON response
         return response()->json($exam);
     }
-    
+
     public function show($id)
     {
         $exam = Currentexam::with('examsession')->findOrFail($id); // Fetch the exam with the given ID and its related exam sessions

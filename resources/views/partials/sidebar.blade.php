@@ -185,6 +185,16 @@
                     </svg>
                 </li>
                 <li class="pc-item">
+                    <a href="{{route('my-exam.index')}}" class="pc-link">
+                        <span class="pc-micon">
+                            <svg class="pc-icon">
+                                <use xlink:href="#custom-text-align-justify-center"></use>
+                            </svg>
+                        </span>
+                        <span class="pc-mtext">My Exams</span>
+                    </a>
+                </li>
+                <li class="pc-item">
                     <a href="{{route('current-exam.index')}}" class="pc-link">
                         <span class="pc-micon">
                             <svg class="pc-icon">

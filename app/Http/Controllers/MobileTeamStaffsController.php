@@ -20,11 +20,26 @@ class MobileTeamStaffsController extends Controller
         $this->imageService = $imageService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $mobileTeams = MobileTeamStaffs::with('district')->paginate(10); // Get all records
-        return view('masters.district.mobile_team_staffs.index', compact('mobileTeams'));
+        // Start the query for MobileTeamStaffs with the district relationship
+        $query = MobileTeamStaffs::with('district');
+    
+        // Filter by district if a district is selected
+        if ($request->filled('district')) {
+            $query->where('mobile_district_id', $request->input('district')); // Adjust the column as per your table schema
+        }
+    
+        // Fetch filtered MobileTeamStaffs with pagination
+        $mobileTeams = $query->paginate(10);
+    
+        $districts = MobileTeamStaffs::select('mobile_district_id')
+            ->distinct()
+            ->get();
+    
+        return view('masters.district.mobile_team_staffs.index', compact('mobileTeams', 'districts'));
     }
+    
 
     public function create()
     {

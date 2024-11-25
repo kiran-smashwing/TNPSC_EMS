@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                  <h2 class="mb-0"></h2>
-                                </div> -->
+                                              <h2 class="mb-0"></h2>
+                                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -191,44 +191,46 @@
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
                             <form id="filterForm" class="mb-3">
-                                <!-- District filter -->
+                                <!-- District Filter for CI Assistants -->
                                 <div class="filter-item">
                                     <select class="form-select" id="districtFilter" name="district">
                                         <option value="">Select District</option>
                                         @foreach ($districts as $district)
-                                            <option value="{{ $district->district_id }}"
-                                                {{ request('district') == $district->district_id ? 'selected' : '' }}>
-                                                {{ $district->district_name }}
+                                            <option value="{{ $district->cia_district_id }}"
+                                                {{ request('district') == $district->cia_district_id ? 'selected' : '' }}>
+                                                {{ $district->cia_district_id }}
                                             </option>
                                         @endforeach
                                     </select>
                                 </div>
 
-                                <!-- Center filter -->
+                                <!-- Center Filter for CI Assistants -->
                                 <div class="filter-item">
                                     <select class="form-select" id="centerFilter" name="center">
                                         <option value="">Select Center</option>
                                         @foreach ($centers as $center)
-                                            <option value="{{ $center->center_id }}"
-                                                {{ request('center') == $center->center_id ? 'selected' : '' }}>
-                                                {{ $center->center_name }}
+                                            <option value="{{ $center->cia_center_id }}"
+                                                {{ request('center') == $center->cia_center_id ? 'selected' : '' }}>
+                                                {{ $center->cia_center_id }}
                                             </option>
                                         @endforeach
                                     </select>
                                 </div>
 
-                                <!-- Venue filter -->
+                                <!-- Venue Filter for CI Assistants -->
                                 <div class="filter-item">
                                     <select class="form-select" id="venueFilter" name="venue">
                                         <option value="">Select Venue</option>
                                         @foreach ($venues as $venue)
-                                            <option value="{{ $venue->venue_id }}"
-                                                {{ request('venue') == $venue->venue_id ? 'selected' : '' }}>
-                                                {{ $venue->venue_name }}
+                                            <option value="{{ $venue->cia_venue_id }}"
+                                                {{ request('venue') == $venue->cia_venue_id ? 'selected' : '' }}>
+                                                {{ $venue->cia_venue_id }}
                                             </option>
                                         @endforeach
                                     </select>
                                 </div>
+
+
 
                                 <!-- Buttons -->
                                 <div class="btn-container">
@@ -274,7 +276,7 @@
                                                     <h6 class="mb-0">{{ $assistant->cia_name }}</h6>
                                                 </div>
                                             </td>
-                                            <td>{{ $assistant->venue->venue_name ?? 'N/A' }}</td>
+                                            <td>{{ $assistant->cia_venue_id ?? 'N/A' }}</td>
                                             <td>{{ $assistant->cia_email }}</td>
                                             <td>{{ $assistant->cia_phone }}</td>
                                             <td>

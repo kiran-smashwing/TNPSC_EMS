@@ -93,8 +93,8 @@
                                                             name="district" required>
                                                             <option value="">Select District</option>
                                                             @foreach ($districts as $district)
-                                                                <option value="{{ $district->district_id }}"
-                                                                    {{ $district->district_id == $treasuryOfficer->tre_off_district_id ? 'selected' : '' }}>
+                                                                <option value="{{ $district->district_code }}"
+                                                                    {{ $district->district_code == $treasuryOfficer->tre_off_district_id ? 'selected' : '' }}>
                                                                     {{ $district->district_name }}
                                                                 </option>
                                                             @endforeach

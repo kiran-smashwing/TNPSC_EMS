@@ -24,30 +24,31 @@ class VenuesController extends Controller
 
     public function index(Request $request)
     {
-        // Start the query for venues with related district and center
-        $query = Venues::with(['district', 'center']);
+        // Start the query for venues
+        $query = Venues::query();
 
-        // Filter by district if a district is selected
+        // Apply filter by district if selected
         if ($request->filled('district')) {
             $query->where('venue_district_id', $request->input('district'));
         }
 
-        // Filter by center ID if a center name is selected
-        if ($request->filled('centerName')) {
-            $query->where('venue_center_id', $request->input('centerName'));
+        // Apply filter by center if selected
+        if ($request->filled('center')) {
+            $query->where('venue_center_id', $request->input('center'));
         }
 
-        // Get the filtered venues
-        $venues = $query->get();
+        // Fetch filtered venues with pagination
+        $venues = $query->paginate(10);
 
-        // Fetch unique districts for the district filter dropdown
-        $districts = District::all(['district_id', 'district_name']);
+        // Fetch unique district values from the same table
+        $districts = Venues::select('venue_district_id')->distinct()->get();
 
-        // Fetch centers for the center filter dropdown
-        $centers = Center::all(['center_id', 'center_name']);
+        // Fetch unique center values from the same table
+        $centers = Venues::select('venue_center_id')->distinct()->get();
 
         return view('masters.venues.venue.index', compact('venues', 'districts', 'centers'));
     }
+
 
 
     public function create()

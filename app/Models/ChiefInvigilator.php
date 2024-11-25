@@ -54,15 +54,15 @@ class ChiefInvigilator extends Authenticatable
     }
     public function district()
     {
-        return $this->belongsTo(District::class, 'ci_district_id', 'district_id');
+        return $this->belongsTo(District::class, 'ci_district_id', 'district_code');
     }
     public function center()
     {
-        return $this->belongsTo(Center::class, 'ci_center_id', 'center_id');
+        return $this->belongsTo(Center::class, 'ci_center_id', 'center_code');
     }
     public function venue()
     {
-        return $this->belongsTo(Venues::class, 'ci_venue_id', 'venue_id');
+        return $this->belongsTo(Venues::class, 'ci_venue_id', 'venue_code');
     }
 
 }

@@ -189,33 +189,37 @@
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
                             <form id="filterForm" class="mb-3">
-                                <div class="filter-item">
+                                {{-- <div class="filter-item">
                                     <select class="form-select" id="roleFilter" name="role">
                                         <option value="">Select Role</option>
                                         <option value="AD">AD</option>
                                         <option value="Manager">Manager</option>
                                         <option value="Staff">Staff</option>
                                     </select>
-                                </div>
+                                </div> --}}
                                 <div class="filter-item">
                                     <select class="form-select" id="districtFilter" name="district">
                                         <option value="">Select District</option>
-                                        <option value="Vellore">Vellore</option>
-                                        <option value="Chennai">Chennai</option>
-                                        <option value="Coimbatore">Coimbatore</option>
+                                        @foreach ($districts as $district)
+                                            <option value="{{ $district->mobile_district_id }}"
+                                                {{ request('district') == $district->mobile_district_id ? 'selected' : '' }}>
+                                                {{ $district->mobile_district_id }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
-                                <div class="filter-item">
+                                {{-- <div class="filter-item">
                                     <select class="form-select" id="centerCodeFilter" name="centerCode">
                                         <option value="">Select Center Code</option>
                                         <option value="00101">00101</option>
                                         <option value="00102">00102</option>
                                         <option value="00103">00103</option>
                                     </select>
-                                </div>
+                                </div> --}}
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                                 </div>
+                                <a href="{{ route('mobile-team-staffs.index') }}" class="btn btn-secondary">Reset Filters</a>
                             </form>
 
 
@@ -256,7 +260,7 @@
                                                     <h6 class="mb-0">{{ $team->mobile_name }}</h6>
                                                 </div>
                                             </td>
-                                            <td>{{ $team->district ? $team->district->district_name : 'N/A' }}</td>
+                                            <td>{{ $team->mobile_district_id  }}</td>
                                             <!-- Displaying district name -->
                                             <td>{{ $team->mobile_email }}</td>
                                             <td>{{ $team->mobile_phone }}</td>

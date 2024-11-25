@@ -71,7 +71,7 @@
                                         </div>
                                         <div class="card-body">
                                             <div class="row">
-                                             <div class="col-sm-12 text-center mb-3">
+                                                <div class="col-sm-12 text-center mb-3">
                                                     <div class="user-upload wid-75" data-pc-animate="just-me"
                                                         data-bs-toggle="modal" data-bs-target="#cropperModal">
                                                         <img src="{{ asset('storage/assets/images/user/avatar-4.jpg') }}"
@@ -83,25 +83,38 @@
                                                 </div>
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="district">District<span class="text-danger">*</span></label>
-                                                        <select class="form-control @error('district') is-invalid @enderror" id="district" name="district" required>
+                                                        <label class="form-label" for="district">District<span
+                                                                class="text-danger">*</span></label>
+                                                        <select class="form-control @error('district') is-invalid @enderror"
+                                                            id="district" name="district" required>
                                                             <option value="">Select District</option>
                                                             @foreach ($districts as $district)
-                                                                <option value="{{ $district->district_id }}">{{ $district->district_name }}</option>
+                                                                <option value="{{ $district->district_code }}"
+                                                                    {{ old('district') == $district->district_code ? 'selected' : '' }}>
+                                                                    {{ $district->district_code }}                                                             
+                                                                </option>
                                                             @endforeach
                                                         </select>
                                                         @error('district')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
                                                     </div>
-                                                </div>                                            
+                                                </div>
+
+                                                <!-- Center Filter -->
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="center">Center<span class="text-danger">*</span></label>
-                                                        <select class="form-control @error('center') is-invalid @enderror" id="center" name="center" required>
+                                                        <label class="form-label" for="center">Center<span
+                                                                class="text-danger">*</span></label>
+                                                        <select class="form-control @error('center') is-invalid @enderror"
+                                                            id="center" name="center" required>
                                                             <option value="">Select Center</option>
                                                             @foreach ($centers as $center)
-                                                                <option value="{{ $center->center_id }}">{{ $center->center_name }}</option>
+                                                                <option value="{{ $center->center_code }}"
+                                                                    {{ old('center') == $center->center_code ? 'selected' : '' }}>
+                                                                    {{ $center->center_code }}
+                                                                    
+                                                                </option>
                                                             @endforeach
                                                         </select>
                                                         @error('center')
@@ -109,14 +122,20 @@
                                                         @enderror
                                                     </div>
                                                 </div>
-                                                
+
+                                                <!-- Venue Filter -->
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="venue">Venue<span class="text-danger">*</span></label>
-                                                        <select class="form-control @error('venue') is-invalid @enderror" id="venue" name="venue" required>
+                                                        <label class="form-label" for="venue">Venue<span
+                                                                class="text-danger">*</span></label>
+                                                        <select class="form-control @error('venue') is-invalid @enderror"
+                                                            id="venue" name="venue" required>
                                                             <option value="">Select Venue</option>
                                                             @foreach ($venues as $venue)
-                                                                <option value="{{ $venue->venue_id }}">{{ $venue->venue_name }}</option>
+                                                                <option value="{{ $venue->venue_code }}"
+                                                                    {{ old('venue') == $venue->venue_code ? 'selected' : '' }}>
+                                                                    {{ $venue->venue_code }}
+                                                                </option>
                                                             @endforeach
                                                         </select>
                                                         @error('venue')
@@ -124,13 +143,15 @@
                                                         @enderror
                                                     </div>
                                                 </div>
-                                                
+
+
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
                                                         <label class="form-label" for="name">Name <span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name"
-                                                            placeholder="Malarvizhi" required>
+                                                        <input type="text"
+                                                            class="form-control @error('name') is-invalid @enderror"
+                                                            id="name" name="name" placeholder="Malarvizhi" required>
                                                         @error('name')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -140,8 +161,10 @@
                                                     <div class="mb-3">
                                                         <label class="form-label">Email<span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="email" class="form-control @error('mail') is-invalid @enderror" id="mail" name="mail"
-                                                            placeholder="malarvizhi@***.in" required>
+                                                        <input type="email"
+                                                            class="form-control @error('mail') is-invalid @enderror"
+                                                            id="mail" name="mail" placeholder="malarvizhi@***.in"
+                                                            required>
                                                         @error('mail')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -151,8 +174,10 @@
                                                     <div class="mb-3">
                                                         <label class="form-label" for="phone">Phone<span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="tel" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone"
-                                                            placeholder="9434***1212" required>
+                                                        <input type="tel"
+                                                            class="form-control @error('phone') is-invalid @enderror"
+                                                            id="phone" name="phone" placeholder="9434***1212"
+                                                            required>
                                                         @error('phone')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -162,8 +187,10 @@
                                                     <div class="mb-3">
                                                         <label class="form-label" for="designation">Designation <span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control @error('designation') is-invalid @enderror" id="designation"
-                                                            name="designation" placeholder="Asst Professor" required>
+                                                        <input type="text"
+                                                            class="form-control @error('designation') is-invalid @enderror"
+                                                            id="designation" name="designation"
+                                                            placeholder="Asst Professor" required>
                                                         @error('designation')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror

@@ -89,8 +89,8 @@
                                                             required>
                                                             <option value="">Select District</option>
                                                             @foreach ($districts as $district)
-                                                                <option value="{{ $district->district_id }}">
-                                                                    {{ $district->district_name }}</option>
+                                                                <option value="{{ $district->district_code }}">
+                                                                    {{ $district->district_code }}</option>
                                                             @endforeach
                                                         </select>
                                                         @error('district')
@@ -105,8 +105,8 @@
                                                         <select class="form-control @error('center') is-invalid @enderror" id="center" name="center" required>
                                                             <option value="">Select Center</option>
                                                             @foreach ($centers as $center)
-                                                                <option value="{{ $center->center_id }}">
-                                                                    {{ $center->center_name }}</option>
+                                                                <option value="{{ $center->center_code }}">
+                                                                    {{ $center->center_code }}</option>
                                                             @endforeach
                                                         </select>
                                                         @error('center')
@@ -121,8 +121,8 @@
                                                         <select class="form-control @error('venue') is-invalid @enderror" id="venue" name="venue" required>
                                                             <option value="">Select Venue</option>
                                                             @foreach ($venues as $venue)
-                                                                <option value="{{ $venue->venue_id }}">
-                                                                    {{ $venue->venue_name }}</option>
+                                                                <option value="{{ $venue->venue_code }}">
+                                                                    {{ $venue->venue_code }}</option>
                                                             @endforeach
                                                         </select>
                                                         @error('venue')

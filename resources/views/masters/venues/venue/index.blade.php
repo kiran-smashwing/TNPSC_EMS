@@ -199,24 +199,24 @@
                                 </div> --}}
                                 <div class="filter-item">
                                     <select class="form-select" id="districtFilter" name="district">
-                                        <option value="">Select District</option>
+                                        <option value="">Select District Code</option>
                                         @foreach ($districts as $district)
-                                            <option value="{{ $district->district_id }}"
-                                                {{ request('district') == $district->district_id ? 'selected' : '' }}>
-                                                {{ $district->district_name }}
-                                            </option>
-                                        @endforeach
+                                        <option value="{{ $district->venue_district_id }}"
+                                            {{ request('district') == $district->venue_district_id ? 'selected' : '' }}>
+                                            {{ $district->venue_district_id }}
+                                        </option>
+                                    @endforeach
                                     </select>
                                 </div>
                                 <div class="filter-item">
-                                    <select class="form-select" id="centerFilter" name="centerName">
-                                        <option value="">Select Center</option>
+                                    <select class="form-select" id="centerFilter" name="center">
+                                        <option value="">Select Center Code</option>
                                         @foreach ($centers as $center)
-                                            <option value="{{ $center->center_id }}"
-                                                {{ request('centerName') == $center->center_id ? 'selected' : '' }}>
-                                                {{ $center->center_name }}
-                                            </option>
-                                        @endforeach
+                                        <option value="{{ $center->venue_center_id }}"
+                                            {{ request('center') == $center->venue_center_id ? 'selected' : '' }}>
+                                            {{ $center->venue_center_id }}
+                                        </option>
+                                    @endforeach
                                     </select>
                                 </div>
                                 <div class="btn-container">
@@ -261,7 +261,7 @@
                                             </td>
 
                                             <td>{{ $venue->venue_name }}</td>
-                                            <td>{{ $venue->district->district_name ?? 'N/A' }}</td>
+                                            <td>{{ $venue->venue_district_id ?? 'N/A' }}</td>
                                             {{-- <td>{{ $venue->center->center_name ?? 'N/A' }}</td> --}}
                                             <td>{{ $venue->venue_email }}</td>
                                             <td>{{ $venue->venue_phone }}</td>

@@ -96,9 +96,9 @@
                                                             id="district" name="district" required>
                                                             <option value="">Select District</option>
                                                             @foreach ($districts as $district)
-                                                                <option value="{{ $district->district_id }}"
-                                                                    {{ old('district', $chiefInvigilator->ci_district_id) == $district->district_id ? 'selected' : '' }}>
-                                                                    {{ $district->district_name }}
+                                                                <option value="{{ $district->district_code }}"
+                                                                    {{ old('district', $chiefInvigilator->ci_district_id) == $district->district_code ? 'selected' : '' }}>
+                                                                    {{ $district->district_code }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
@@ -116,9 +116,9 @@
                                                             id="center" name="center" required>
                                                             <option value="">Select Center</option>
                                                             @foreach ($centers as $center)
-                                                                <option value="{{ $center->center_id }}"
-                                                                    {{ old('center', $chiefInvigilator->ci_center_id) == $center->center_id ? 'selected' : '' }}>
-                                                                    {{ $center->center_name }}
+                                                                <option value="{{ $center->center_code }}"
+                                                                    {{ old('center', $chiefInvigilator->ci_center_id) == $center->center_code ? 'selected' : '' }}>
+                                                                    {{ $center->center_code }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
@@ -136,9 +136,9 @@
                                                             id="venue" name="venue" required>
                                                             <option value="">Select Venue</option>
                                                             @foreach ($venues as $venue)
-                                                                <option value="{{ $venue->venue_id }}"
-                                                                    {{ old('venue', $chiefInvigilator->ci_venue_id) == $venue->venue_id ? 'selected' : '' }}>
-                                                                    {{ $venue->venue_name }}
+                                                                <option value="{{ $venue->venue_code }}"
+                                                                    {{ old('venue', $chiefInvigilator->ci_venue_id) == $venue->venue_code ? 'selected' : '' }}>
+                                                                    {{ $venue->venue_code }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
@@ -147,6 +147,7 @@
                                                         @enderror
                                                     </div>
                                                 </div>
+
 
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">

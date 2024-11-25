@@ -43,16 +43,16 @@ class Invigilator extends Model
     // Define relationships with other models
     public function district()
     {
-        return $this->belongsTo(District::class, 'invigilator_district_id', 'district_id');
+        return $this->belongsTo(District::class, 'invigilator_district_id', 'district_code');
     }
 
     public function center()
     {
-        return $this->belongsTo(Center::class, 'invigilator_center_id', 'center_id');
+        return $this->belongsTo(Center::class, 'invigilator_center_id', 'center_code');
     }
 
     public function venue()
     {
-        return $this->belongsTo(Venues::class, 'invigilator_venue_id', 'venue_id');
+        return $this->belongsTo(Venues::class, 'invigilator_venue_id', 'venue_code');
     }
 }

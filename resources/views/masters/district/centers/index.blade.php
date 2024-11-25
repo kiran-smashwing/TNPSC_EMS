@@ -193,7 +193,7 @@
                                         <option value="">Select District</option>
                                         @foreach ($districts as $district)
                                             <option value="{{ $district->district_code }}" {{ request('district') == $district->district_code ? 'selected' : '' }}>
-                                                {{ $district->district_name }}
+                                                {{ $district->district_code }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -254,7 +254,7 @@
                                             </td>
                                             <td>{{ $center->center_name }}</td>
                                             <td>{{ $center->center_code }}</td>
-                                            <td>{{ $center->district->district_name }}</td>
+                                            <td>{{ $center->center_district_id }}</td>
                                             <td>{{ $center->center_email }}</td>
                                             <td>{{ $center->center_phone }}</td>
                                             <td class="text-center">

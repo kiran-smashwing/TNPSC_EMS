@@ -69,12 +69,12 @@ class Venues extends Authenticatable
     // Define the relationship with District (if applicable)
     public function district()
     {
-        return $this->belongsTo(District::class, 'venue_district_id', 'district_id');
+        return $this->belongsTo(District::class, 'venue_district_id', 'district_code');
     }
 
     // Define the relationship with Center (if applicable)
     public function center()
     {
-        return $this->belongsTo(Center::class, 'venue_center_id', 'center_id');
+        return $this->belongsTo(Center::class, 'venue_center_id', 'center_code');
     }
 }

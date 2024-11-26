@@ -164,17 +164,20 @@
 
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label" for="exam_main_service">Exam Service<span
-                                                            class="text-danger">*</span></label>
+                                                    <label class="form-label" for="exam_main_service">Exam Service
+                                                        <span class="text-danger">*</span>
+                                                    </label>
                                                     <select class="form-control" id="exam_main_service"
                                                         name="exam_main_service" required>
                                                         <option disabled selected>Select Exam Service</option>
-                                                        <option value="001">GROUP I SERVICES EXAMINATION</option>
-                                                        <option value="002">GROUP I-A SERVICES EXAMINATION</option>
-                                                    </select>
+                                                        @foreach ($examServices as $service)
+                                                            <option value="{{ $service->examservice_code }}">{{ $service->examservice_name }}
+                                                            </option>
+                                                        @endforeach
                                                     </select>
                                                 </div>
                                             </div>
+
                                             <div class="col-sm-3">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="exam_main_notification">Notification no
@@ -535,7 +538,9 @@
                                                 'Content-Type': 'application/json',
                                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                                             },
-                                            body: JSON.stringify({ notificationNumber: notificationNumber })
+                                            body: JSON.stringify({
+                                                notificationNumber: notificationNumber
+                                            })
                                         })
                                     .then(response => response.json())
                                     .then(data => {
@@ -568,14 +573,21 @@
                                             document.getElementById('exam_main_startdate').value =
                                                 data.exam_main_startdate;
                                             // all readonly fields
-                                            document.getElementById('exam_main_service').disabled = true;
-                                            document.getElementById('exam_main_notification').disabled = true;
-                                            document.getElementById('exam_main_notifdate').disabled = true;
-                                            document.getElementById('exam_main_name').disabled = true;
-                                            document.getElementById('exam_main_nametamil').disabled = true;
-                                            document.getElementById('exam_main_postname').disabled = true;
-                                            document.getElementById('exam_main_lastdate').disabled = true;
-                                            
+                                            document.getElementById('exam_main_service').disabled =
+                                                true;
+                                            document.getElementById('exam_main_notification')
+                                                .disabled = true;
+                                            document.getElementById('exam_main_notifdate')
+                                                .disabled = true;
+                                            document.getElementById('exam_main_name').disabled =
+                                                true;
+                                            document.getElementById('exam_main_nametamil')
+                                                .disabled = true;
+                                            document.getElementById('exam_main_postname').disabled =
+                                                true;
+                                            document.getElementById('exam_main_lastdate').disabled =
+                                                true;
+
                                         }
                                     })
                                     .catch(error => {

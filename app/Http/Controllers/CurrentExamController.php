@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Currentexam;
 use App\Models\ExamSession;
+use App\Models\ExamService;
 use App\Services\AuditLogger;
 use App\Services\ExamAuditService;
 use Illuminate\Http\Request;
@@ -33,7 +34,8 @@ class CurrentExamController extends Controller
 
     public function create()
     {
-        return view('current_exam.create');
+        $examServices = ExamService::all();
+        return view('current_exam.create',compact('examServices'));
     }
     public function store(Request $request)
     {
@@ -129,7 +131,8 @@ class CurrentExamController extends Controller
     public function edit($id)
     {
         $exam = Currentexam::with('examsession')->findOrFail($id); // Fetch the exam with the given ID and its related exam sessions
-        return view('current_exam.edit', compact('exam')); // Pass the exam to the edit view
+        $examServices = ExamService::all(); // Retrieve all exam services
+        return view('current_exam.edit',compact('exam', 'examServices')); // Pass the exam to the edit view
     }
 
     public function update(Request $request, $id)

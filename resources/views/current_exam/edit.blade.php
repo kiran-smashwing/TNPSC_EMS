@@ -180,20 +180,22 @@
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label" for="exam_main_service">Exam Service<span
-                                                            class="text-danger">*</span></label>
+                                                    <label class="form-label" for="exam_main_service">Exam Service
+                                                        <span class="text-danger">*</span>
+                                                    </label>
                                                     <select class="form-control" id="exam_main_service"
                                                         name="exam_main_service" required>
                                                         <option disabled selected>Select Exam Service</option>
-                                                        <option value="001"
-                                                            {{ $exam->exam_main_service == '001' ? 'selected' : '' }}>
-                                                            GROUP I SERVICES EXAMINATION</option>
-                                                        <option value="002"
-                                                            {{ $exam->exam_main_service == '002' ? 'selected' : '' }}>
-                                                            GROUP I-A SERVICES EXAMINATION</option>
+                                                        @foreach ($examServices as $service)
+                                                            <option value="{{ $service->examservice_id }}"
+                                                                {{ $exam->exam_main_service == $service->examservice_id ? 'selected' : '' }}>
+                                                                {{ $service->examservice_name }}
+                                                            </option>
+                                                        @endforeach
                                                     </select>
                                                 </div>
                                             </div>
+
                                             <div class="col-sm-3">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="exam_main_notification">Notification no

@@ -69,8 +69,9 @@
                                                                 {{ $exam_main->exam_sess_date }} |
                                                                 {{ $exam_main->exam_sess_time }}
                                                             </div>
+                                                          
                                                             <div class="flex-shrink-0">
-                                                                <a href="{{ route('my-exam.examTask', ['examid' => $exam->exam_main_id, 'session' => $exam_main->exam_session_id]) }}"
+                                                                <a href="{{ route('my-exam.examTask', ['examid' => $exam->exam_main_no, 'session' => $exam_main->exam_session_id]) }}"
                                                                     class="avtar avtar-s btn-link-secondary">
                                                                     <i class="ti ti-chevron-right f-20"></i>
                                                                 </a>
@@ -114,7 +115,7 @@
                                                                 {{ $exam_main->exam_sess_time }}
                                                             </div>
                                                             <div class="flex-shrink-0">
-                                                                <a href="{{ route('my-exam.examTask', ['examid' => $exam->exam_main_id, 'session' => $exam_main->exam_session_id]) }}"
+                                                                <a href="{{ route('my-exam.examTask', ['examid' => $exam->exam_main_no, 'session' => $exam_main->exam_session_id]) }}"
                                                                     class="avtar avtar-s btn-link-secondary">
                                                                     <i class="ti ti-chevron-right f-20"></i>
                                                                 </a>

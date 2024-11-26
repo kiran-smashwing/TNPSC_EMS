@@ -35,7 +35,7 @@ class CurrentExamController extends Controller
     public function create()
     {
         $examServices = ExamService::all();
-        return view('current_exam.create',compact('examServices'));
+        return view('current_exam.create', compact('examServices'));
     }
     public function store(Request $request)
     {
@@ -107,14 +107,18 @@ class CurrentExamController extends Controller
 
             DB::commit();
             // Log the action
+            // Log the action
+            $currentUser = current_user();
+            $userName = $currentUser ? $currentUser->display_name : 'Unknown';
             $this->auditService->log(
                 examId: $examMain->exam_main_no,
                 actionType: 'created',
                 taskType: 'exam_metadata',
                 afterState: $examMain->toArray(),
                 description: 'Created exam metadata',
-                metadata: $validated,
+                metadata: ['user_name' => $userName]
             );
+
 
             // Log the creation of the exam (optional, replace `AuditLogger` with your own logger if needed)
             // AuditLogger::log('Exam Created', Currentexam::class, $examMain->exam_main_id, null, $examMain->toArray());
@@ -132,7 +136,7 @@ class CurrentExamController extends Controller
     {
         $exam = Currentexam::with('examsession')->findOrFail($id); // Fetch the exam with the given ID and its related exam sessions
         $examServices = ExamService::all(); // Retrieve all exam services
-        return view('current_exam.edit',compact('exam', 'examServices')); // Pass the exam to the edit view
+        return view('current_exam.edit', compact('exam', 'examServices')); // Pass the exam to the edit view
     }
 
     public function update(Request $request, $id)

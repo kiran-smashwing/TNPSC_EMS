@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Currentexam;
 use App\Models\ExamSession;
+use Illuminate\Support\Facades\DB;
 
 
 class MyExamController extends Controller
@@ -28,9 +29,13 @@ class MyExamController extends Controller
         if (!$session) {
             abort(404, 'Session not found');
         }
-        
-        return view('my_exam.task', compact('session'));
-    }
+        // Fetch the audit details for the exam
+        $auditDetails = DB::table('exam_audit_logs')
+            ->where('exam_id', $examId)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
+        return view('my_exam.task', compact('session','auditDetails'));
+    }
 
 }

@@ -49,7 +49,36 @@
                                 </nav>
                             </div>
                         </div>
-
+                        @if (session('success'))
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                {{ session('success') }}
+                                @if (session('failed_csv_path'))
+                                    <br>
+                                    <a href="{{ asset('storage/' . session('failed_csv_path')) }}"
+                                        class="btn btn-link">Download Failed Rows</a>
+                                @endif
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                        @endif
+                        @if (session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                {{ session('error') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                        @endif
+                        @if ($errors->any())
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <ul class="mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                        @endif
                         <div class="card-body">
                             <ul class="list-unstyled task-list">
                                 @foreach ($auditDetails as $audit)
@@ -120,6 +149,9 @@
                                             </div>
                                         </li>
                                     @endif
+                                    @endforeach
+                                    @foreach ($auditDetails as $audit)
+                                    @if ($audit->task_type == 'apd_expected_candidates_upload')
                                     <li class="task-list-item">
                                         <i class="task-icon bg-primary"></i>
                                         <div class="card ticket-card open-ticket">
@@ -133,11 +165,6 @@
                                                             <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                                 <ul
                                                                     class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                    {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 Ticket</a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                                 </ul>
                                                             </div>
                                                         </div>
@@ -149,46 +176,57 @@
                                                             </div>
                                                             <div class="help-sm-hidden">
                                                                 <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"
-                                                    ><img src="../assets/images/admin/p1.jpg" alt="" class="wid-20 rounded me-2 img-fluid" /></li
-                                                  > --}}
+                                                             
                                                                     <li class="d-sm-inline-block d-block mt-1"><img
                                                                             src="../assets/images/user/avatar-5.jpg"
                                                                             alt=""
                                                                             class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                        <b>Poonkuzhali</b>
+                                                                            <b>{{ json_decode($audit->metadata)->user_name }}</b>
                                                                     </li>
                                                                     <li class="d-sm-inline-block d-block mt-1"><i
-                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>23-07-2024
-                                                                        09:55 AM</li>
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"
-                                                    ><i class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                  </li> --}}
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                            {{ \Carbon\Carbon::parse($audit->updated_at)->format('d-m-Y h:i A') }}
+                                                                        </li>
+                                                                  
                                                                 </ul>
                                                             </div>
                                                             <div class="h5 mt-3"><i
                                                                     class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                APD
-                                                                - Section Officer</div>
-
+                                                                    {{ $audit->department }}</div>
                                                         </div>
                                                         <div class="mt-2">
-                                                            <a href="#" class="me-2 btn btn-sm btn-light-primary m-2"
-                                                                data-pc-animate="just-me" data-bs-toggle="modal"
-                                                                data-bs-target="#animateModal"><i
-                                                                    class="feather icon-upload mx-1 "></i>Upload </a>
-                                                            <a href="#" class="me-2 btn btn-sm btn-light-info"
-                                                                data-pc-animate="just-me" data-bs-toggle="modal"
-                                                                data-bs-target="#animateModal"><i
-                                                                    class="feather icon-edit mx-1"></i>Edit </a>
-                                                            <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
+                                                            @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'APD')
+                                                                @if (isset(json_decode($audit->metadata)->uploaded_csv_link))
+                                                                    <a href="#"
+                                                                        class="me-2 btn btn-sm btn-light-info"
+                                                                        data-pc-animate="just-me" data-bs-toggle="modal"
+                                                                        data-bs-target="#animateModal"><i
+                                                                            class="feather icon-edit mx-1"></i>Edit </a>
+                                                                @else
+                                                                    <a href="#"
+                                                                        class="me-2 btn btn-sm btn-light-primary m-2"
+                                                                        data-pc-animate="just-me" data-bs-toggle="modal"
+                                                                        data-bs-target="#animateModal"><i
+                                                                            class="feather icon-upload mx-1 "></i>Upload </a>
+                                                                @endif
+                                                            @endif
+                                                            <a href="{{ json_decode($audit->metadata)->uploaded_csv_link }}" class="me-3 btn btn-sm btn-light-warning"><i
                                                                     class="feather icon-download mx-1"></i>Download </a>
+                                                        @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'APD')
+                                                            @if(isset(json_decode($audit->metadata)->failed_csv_link) && file_exists(storage_path('app/public/' . basename(json_decode($audit->metadata)->failed_csv_link))))
+                                                                <a href="{{ json_decode($audit->metadata)->failed_csv_link }}" class="me-3 btn btn-sm btn-light-danger">
+                                                                    <i class="feather icon-download mx-1"></i>Failed Records
+                                                                </a>
+                                                            @endif
+                                                        @endif  
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </li>
+                                    @endif
+                                    @endforeach
                                     <li class="task-list-item">
                                         <i class="task-icon bg-danger"></i>
                                         <div class="card ticket-card open-ticket">
@@ -1836,7 +1874,8 @@
                                                                     <li class="d-sm-inline-block d-block mt-1"><img
                                                                             src="../assets/images/user/avatar-5.jpg"
                                                                             alt=""
-                                                                            class="wid-20 rounded me-2 img-fluid" />Done by
+                                                                            class="wid-20 rounded me-2 img-fluid" />Done
+                                                                        by
                                                                         <b>Chezhiyan</b>
                                                                     </li>
                                                                     <li class="d-sm-inline-block d-block mt-1"><i
@@ -1852,7 +1891,8 @@
                                                                 Chief Invigilator</div>
                                                         </div>
                                                         <div class="mt-2">
-                                                            <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
+                                                            <a href="#"
+                                                                class="me-2 btn btn-sm btn-light-primary"><i
                                                                     class="feather icon-eye mx-1"></i>View</a>
                                                             <a href="#" class="me-2 btn btn-sm btn-light-info"><i
                                                                     class="feather icon-info mx-1"></i>Verify</a>
@@ -2451,7 +2491,6 @@
                                             </div>
                                         </div>
                                     </li>
-                                @endforeach
                             </ul>
                             {{-- <div class="text-end">
                       <a href="#!" class="b-b-primary text-primary">View Friend List</a>

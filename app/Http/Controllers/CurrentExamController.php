@@ -107,7 +107,6 @@ class CurrentExamController extends Controller
 
             DB::commit();
             // Log the action
-            // Log the action
             $currentUser = current_user();
             $userName = $currentUser ? $currentUser->display_name : 'Unknown';
             $this->auditService->log(

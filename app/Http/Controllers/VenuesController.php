@@ -154,6 +154,7 @@ class VenuesController extends Controller
     }
     public function update(Request $request, $id)
     {
+        // dd($request->all());
         $venue = Venues::findOrFail($id);
         // Validate the incoming request
         $messages = [

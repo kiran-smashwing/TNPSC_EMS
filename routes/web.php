@@ -24,6 +24,7 @@ use App\Http\Controllers\CurrentExamController;
 use App\Http\Controllers\CompletedExamController;
 use App\Http\Controllers\QrCodeController;
 use App\Http\Controllers\MyExamController;
+use App\Http\Controllers\TestMailController;
 // use App\Http\Controllers\DataController;
 
 // Public routes
@@ -110,6 +111,8 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/completed-exam', [CompletedExamController::class, 'index'])->name('completed-exam');
     Route::get('/completed-exam/task', [CompletedExamController::class, 'task'])->name('completed-exam.task');
     Route::get('/completed-exam/edit', [CompletedExamController::class, 'edit'])->name('completed-exam.edit');
+    Route::get('/test-mail', [TestMailController::class, 'sendTestEmail']);
+    Route::get('/password/reset', [AuthController::class, 'showResetForm'])->name('password.reset');
     //Qr Code Reader
     Route::get('/qr-code-reader', [QrCodeController::class, 'index'])->name('qr-code-reader');
     Route::post('/process-qr-code', [QrCodeController::class, 'process'])->name('process-qr-code');

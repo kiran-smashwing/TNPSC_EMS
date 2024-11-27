@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -12,10 +13,15 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use App\Models\District;
 use App\Models\TreasuryOfficer;
 use App\Models\Center;
 use App\Models\MobileTeamStaffs;
+use App\Models\Venues;
+use App\Models\ChiefInvigilator;
+use App\Models\DepartmentOfficial;
+
 
 class AuthController extends Controller
 {
@@ -112,36 +118,36 @@ class AuthController extends Controller
                     $userId = $user->mobile_id; // Adjust this based on your mobile team table's ID column
                 }
                 break;
-                case 'venue':
-                    $success = Auth::guard('venue')->attempt([
-                        'venue_email' => $email,
-                        'password' => $password
-                    ], $remember);
-                    if ($success) {
-                        $user = Auth::guard('venue')->user();
-                        $userId = $user->venue_id; // Adjust this based on your treasury table's ID column
-                    }
-                    break;
-                case 'headquarters':
-                    $success = Auth::guard('headquarters')->attempt([
-                        'dept_off_email' => $email,
-                        'password' => $password
-                    ], $remember);
-                    if ($success) {
-                        $user = Auth::guard('headquarters')->user();
-                        $userId = $user->dept_off_id; // Adjust this based on your treasury table's ID column
-                    }
-                    break;
-                case 'ci':
-                    $success = Auth::guard('ci')->attempt([
-                        'ci_email' => $email,
-                        'password' => $password
-                    ], $remember);
-                    if ($success) {
-                        $user = Auth::guard('ci')->user();
-                        $userId = $user->ci_id; // Adjust this based on your treasury table's ID column
-                    }
-                    break;
+            case 'venue':
+                $success = Auth::guard('venue')->attempt([
+                    'venue_email' => $email,
+                    'password' => $password
+                ], $remember);
+                if ($success) {
+                    $user = Auth::guard('venue')->user();
+                    $userId = $user->venue_id; // Adjust this based on your treasury table's ID column
+                }
+                break;
+            case 'headquarters':
+                $success = Auth::guard('headquarters')->attempt([
+                    'dept_off_email' => $email,
+                    'password' => $password
+                ], $remember);
+                if ($success) {
+                    $user = Auth::guard('headquarters')->user();
+                    $userId = $user->dept_off_id; // Adjust this based on your treasury table's ID column
+                }
+                break;
+            case 'ci':
+                $success = Auth::guard('ci')->attempt([
+                    'ci_email' => $email,
+                    'password' => $password
+                ], $remember);
+                if ($success) {
+                    $user = Auth::guard('ci')->user();
+                    $userId = $user->ci_id; // Adjust this based on your treasury table's ID column
+                }
+                break;
         }
 
         if ($success && $user) {
@@ -249,7 +255,7 @@ class AuthController extends Controller
                 return DepartmentOfficialsController::class;
             case 'ci':
                 return ChiefInvigilatorsController::class;
-            // Add other cases as needed
+                // Add other cases as needed
             default:
                 throw new \Exception('Invalid role');
         }
@@ -277,27 +283,104 @@ class AuthController extends Controller
     public function sendResetLinkEmail(Request $request)
     {
         $request->validate([
+            'role' => 'required|string',
             'email' => 'required|email',
         ]);
 
+        // Map roles to their corresponding Eloquent models, password column names, and email column names
+        $roleModelMap = [
+            'headquarters' => [
+                'model' => DepartmentOfficial::class,
+                'password_column' => 'dept_off_password',
+                'email_column' => 'dept_off_email'
+            ],
+            'district' => [
+                'model' => District::class,
+                'password_column' => 'district_password',
+                'email_column' => 'district_email'
+            ],
+            'center' => [
+                'model' => Center::class,
+                'password_column' => 'center_password',
+                'email_column' => 'center_email'
+            ],
+            'treasury' => [
+                'model' => TreasuryOfficer::class,
+                'password_column' => 'tre_off_password',
+                'email_column' => 'tre_off_email'
+            ],
+            'mobile_team_staffs' => [
+                'model' => MobileTeamStaffs::class,
+                'password_column' => 'mobile_password',
+                'email_column' => 'mobile_email'
+            ],
+            'venue' => [
+                'model' => Venues::class,
+                'password_column' => 'venue_password',
+                'email_column' => 'venue_email'
+            ],
+            'ci' => [
+                'model' => ChiefInvigilator::class,
+                'password_column' => 'ci_password',
+                'email_column' => 'ci_email'
+            ],
+        ];
+
+        $role = $request->role;
+        $email = $request->email;
+
+        // Check if the role exists in the mapping
+        if (!array_key_exists($role, $roleModelMap)) {
+            return back()->withErrors(['role' => 'Invalid role selected.']);
+        }
+
         try {
-            $status = Password::sendResetLink(
-                $request->only('email')
-            );
+            // Dynamically get the model, password column name, and email column name
+            $roleData = $roleModelMap[$role];
+            $model = $roleData['model'];
+            $passwordColumn = $roleData['password_column'];
+            $emailColumn = $roleData['email_column'];
 
-            Log::info('Password reset attempt', ['email' => $request->email, 'status' => $status]);
+            // Check if the email exists in the corresponding model
+            $user = $model::where($emailColumn, $email)->first();
 
-            if ($status === Password::RESET_LINK_SENT) {
-                return redirect()->route('password.check-email')->with('email', $request->email);
+            if (!$user) {
+                return back()->withErrors([
+                    'email' => 'No user found with the provided email and role.',
+                ]);
             }
 
-            return back()->withErrors(['email' => __($status)]);
+            // Generate a new password and hash it before saving
+            $newPassword = Str::random(12);
+            $hashedPassword = bcrypt($newPassword);
+
+            // Update the relevant user model with the new password
+            $model::where($emailColumn, $email)->update([$passwordColumn => $hashedPassword]);
+
+            // Send the new password via email
+            Mail::send('email.password_reset', ['newPassword' => $newPassword], function ($message) use ($email) {
+                $message->to($email)
+                    ->subject('Your New Password');
+            });
+
+            Log::info('Password reset email sent', [
+                'email' => $email,
+                'role' => $role,
+            ]);
+
+            return redirect()->route('password.check-email')->with('email', $email);
         } catch (\Exception $e) {
-            Log::error('Error sending password reset email', ['email' => $request->email, 'error' => $e->getMessage()]);
-            return back()->withErrors(['email' => 'An error occurred while sending the password reset email. Please try again later.']);
+            Log::error('Error sending password reset email', [
+                'email' => $email,
+                'role' => $role,
+                'error' => $e->getMessage(),
+            ]);
+
+            return back()->withErrors([
+                'email' => 'An error occurred while sending the password reset email. Please try again later. ' . $e->getMessage(),
+            ]);
         }
     }
-
     public function showCheckEmail()
     {
         if (!session('email')) {

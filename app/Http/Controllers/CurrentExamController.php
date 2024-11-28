@@ -291,10 +291,7 @@ class CurrentExamController extends Controller
     {
         return view('current_exam.venue-consent');
     }
-    public function sendMailtoCollectorate()
-    {
-        return view('current_exam.send-mailto-collectorate');
-    }
+ 
 
     public function selectSendMailtoVenue()
     {

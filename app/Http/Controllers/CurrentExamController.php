@@ -293,10 +293,7 @@ class CurrentExamController extends Controller
     }
  
 
-    public function selectSendMailtoVenue()
-    {
-        return view('current_exam.send-mailto-venue');
-    }
+
     public function confirmVenues()
     {
         return view('current_exam.confirm-venues');

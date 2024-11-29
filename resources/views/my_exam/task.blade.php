@@ -303,10 +303,12 @@
                                                                     class="me-2 btn btn-sm btn-light-info m-2"><i
                                                                         class="feather icon-download mx-1"></i>Download
                                                                     CSV</a>
-                                                                <a href="{{ route('id-candidates.intimateCollectorate', $session->currentexam->exam_main_no) }}"
-                                                                    class="me-3 btn btn-sm btn-light-warning m-2"><i
-                                                                        class="feather icon-navigation mx-1"></i>Send
-                                                                    Intimation</a>
+                                                                @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'ID')
+                                                                    <a href="{{ route('id-candidates.intimateCollectorate', $session->currentexam->exam_main_no) }}"
+                                                                        class="me-3 btn btn-sm btn-light-warning m-2"><i
+                                                                            class="feather icon-navigation mx-1"></i>Send
+                                                                        Intimation</a>
+                                                                @endif
                                                             </div>
                                                         </div>
                                                     </div>
@@ -370,7 +372,7 @@
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary m-2"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
                                                         <a target="_blank"
-                                                            href="{{ route('current-exam.intimateVenue') }}"
+                                                            href="{{ route('district-candidates.showVenueIntimationForm', $session->currentexam->exam_main_no) }}"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-check-circle mx-1"></i>Select
                                                             Venues</a>

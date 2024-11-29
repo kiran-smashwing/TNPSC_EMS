@@ -37,8 +37,8 @@ class VenuesController extends Controller
             $query->where('venue_center_id', $request->input('center'));
         }
 
-        // Fetch filtered venues with pagination
-        $venues = $query->paginate(10);
+        // Fetch filtered venues without pagination
+        $venues = $query->get();
 
         // Fetch unique district values from the same table
         $districts = Venues::select('venue_district_id')->distinct()->get();

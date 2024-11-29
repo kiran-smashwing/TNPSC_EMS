@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DistrictCandidatesController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\MyExamController;
 use App\Http\Controllers\APDCandidatesController;
 use App\Http\Controllers\TestMailController;
 use App\Http\Controllers\IDCandidatesController;
+use App\Http\Controllers\DataController;
 
 // Public routes
 Route::get('/', function () {
@@ -94,7 +96,6 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/current-exam/districtTask', [CurrentExamController::class, 'districtCollectrateTask'])->name('current-exam.districtTask');
     Route::get('/current-exam/increaseCandidate', [CurrentExamController::class, 'increaseCandidate'])->name('current-exam.incCandidate');
     Route::get('/current-exam/venueConsent', [CurrentExamController::class, 'venueConsent'])->name('current-exam.venueConsent');
-    Route::get('/current-exam/intimateVenue', [CurrentExamController::class, 'selectSendMailtoVenue'])->name('current-exam.intimateVenue');
     Route::get('/current-exam/confirmVenues', [CurrentExamController::class, 'confirmVenues'])->name('current-exam.confirmVenues');
     Route::get('/current-exam/ciReceiveMaterials', [CurrentExamController::class, 'ciReceiveMaterials'])->name('current-exam.ciReceiveMaterials');
     Route::get('/current-exam/treasury-mobTeam', [CurrentExamController::class, 'mobileTeamReceiveMaterialsFromTreasury'])->name('current-exam.treasury-mobTeam');
@@ -285,6 +286,12 @@ Route::prefix('id-candidates')->group(function () {
         Route::get('/download-updated-count-csv/{examId}', [IDCandidatesController::class, 'downloadUpdatedCountCsv'])->name('id-candidates.download-updated-count-csv');
         Route::get('/intimateCollectorate/{examId}', [IDCandidatesController::class, 'showDistrictIntimationForm'])->name('id-candidates.intimateCollectorate');
         Route::post('/send-accommodation-email', [IDCandidatesController::class, 'sendAccommodationEmail'])->name('id-candidates.send-accommodation-email');
+    });
+});
+//disitrict-candidates Route::prefix('district-candidates')->group(function(){
+Route::prefix('district-candidates')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+    Route::get('/showVenueIntimationForm/{examId}', [DistrictCandidatesController::class, 'showVenueIntimationForm'])->name('district-candidates.showVenueIntimationForm');
     });
 });
 // Route::get('/run-function', [DataController::class, 'addData']);

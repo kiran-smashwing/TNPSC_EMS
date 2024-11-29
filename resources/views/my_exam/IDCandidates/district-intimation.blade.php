@@ -58,8 +58,9 @@
                                                                     <div class="flex-grow-1 mx-2">
                                                                         <h6 class="mb-0">{{ $district['district_name'] }}
                                                                         </h6>
-                                                                        <span class="text-sm text-muted">19-07-2024 12:00
-                                                                            PM</span>
+                                                                        <span class="text-sm text-muted">
+                                                                            {{ $district['sent_at'] ? \Carbon\Carbon::parse($district['sent_at'])->format('d-m-Y h:i:s A') : 'Email not sent yet' }}
+                                                                        </span>
                                                                     </div>
                                                                     <div class="chat-avtar">
                                                                         <span class="chat-badge-status text-warning">
@@ -325,6 +326,8 @@
 
     @include('partials.footer')
     @push('scripts')
+    <script src="{{ asset('storage/assets/js/plugins/sweetalert2.all.min.js') }}"></script>
+
         <!-- [Page Specific JS] start -->
         <script>
             // scroll-block
@@ -356,24 +359,47 @@
                 };
                 console.log(payload);
 
-                // Send via AJAX (using fetch as an example)
                 fetch('{{ route('id-candidates.send-accommodation-email') }}', {
                         method: 'POST',
-                        headers: {  // Add CSRF token to headers
+                        headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}' // CSRF token for security
                         },
                         body: JSON.stringify(payload)
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
-                        // Handle successful response
-                        alert('Mails sent successfully!');
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: data.message,
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                console.log('Logs:', data.logs); // Log email logs if needed
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.error || 'Failed to send emails',
+                                confirmButtonText: 'Try Again'
+                            });
+                        }
                     })
                     .catch(error => {
-                        // Handle error
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An error occurred while sending emails. Please try again later.',
+                            confirmButtonText: 'Close'
+                        });
                         console.error('Error:', error);
-                        alert('Failed to send mails');
                     });
             }
 

@@ -159,15 +159,43 @@ class IDCandidatesController extends Controller
                 'center_count' => $district->center_count,
             ];
         });
+
+        // Check if a consolidated log already exists
+        $existingLog = $this->auditService->findLog([
+            'exam_id' => $examId,
+            'task_type' => 'send_accommodation_email',
+        ]);
+
+        // Extract email logs from the existing log's metadata
+        $emailLogs = [];
+        if ($existingLog && isset($existingLog->metadata)) {
+            $metadata = is_string($existingLog->metadata) ? json_decode($existingLog->metadata, true) : $existingLog->metadata;
+            if (isset($metadata['email_logs'])) {
+                $emailLogs = collect($metadata['email_logs'])->mapWithKeys(function ($log) {
+                    return [$log['district_code'] => $log['sent_at']];
+                });
+            }
+        }
+
+        // Merge email sent times with districts
+        $districts = $districts->map(function ($district) use ($emailLogs) {
+            $district['sent_at'] = $emailLogs[$district['district_code']] ?? null;
+            return $district;
+        });
         // Pass data to the view
-        return view('my_exam.IDCandidates.district-intimation', compact('examId', 'districts', 'totalDistricts', 'groupedDistrictCount'));
-    }
+        return view('my_exam.IDCandidates.district-intimation', compact(
+            'examId',
+            'districts',
+            'totalDistricts',
+            'groupedDistrictCount',
+            'existingLog'
+        ));
+    } 
 
     public function sendAccommodationEmail(Request $request)
     {
-
         $request->validate([
-            'exam_id' => 'required|integer',
+            'exam_id' => 'required|string',
             'district_codes' => 'required|array|min:1',
         ]);
 
@@ -177,15 +205,18 @@ class IDCandidatesController extends Controller
         // Retrieve the exam and its related candidates
         $exam = Currentexam::where('exam_main_no', $examId)->first();
         if (!$exam) {
-            return redirect()->back()->with('error', 'Exam not found.');
+            return response()->json(['error' => 'Exam not found.'], 404);
         }
+
+        $emailLogs = []; // Consolidate logs for all districts
 
         foreach ($districtCodes as $districtCode) {
             // Retrieve the centers in the specified district
-            $district = District::where('district_code', $districtCode)->get();
-            if ($district->isEmpty()) {
+            $district = District::where('district_code', $districtCode)->first();
+            if (!$district) {
                 continue; // Skip if no centers found for the specified district
             }
+
             // Calculate the required accommodations
             $totalCandidates = DB::table('exam_candidates_projection')
                 ->where('exam_id', $examId)
@@ -193,8 +224,59 @@ class IDCandidatesController extends Controller
                 ->sum('accommodation_required');
 
             // Send the email notification
-            Mail::to('kiran@smashwing.com')->send(new AccommodationNotification($exam, $districtCode, $totalCandidates));
+            Mail::to($district->district_email)->send(new AccommodationNotification($exam, $districtCode, $totalCandidates));
+
+            // Add district-specific log to the consolidated array
+            $emailLogs[] = [
+                'district_code' => $districtCode,
+                'district_email' => $district->district_email,
+                'total_candidates' => $totalCandidates,
+                'sent_at' => now()->toDateTimeString(),
+            ];
         }
 
+        // If no emails were sent, return an error response
+        if (empty($emailLogs)) {
+            return response()->json(['error' => 'No emails were sent.'], 400);
+        }
+
+        // Prepare metadata for the audit log
+        $metadata = [
+            'email_logs' => $emailLogs,
+            'exam_id' => $examId,
+        ];
+
+        // Log the email operation
+        $existingLog = $this->auditService->findLog([
+            'exam_id' => $examId,
+            'task_type' => 'send_accommodation_email',
+        ]);
+
+        if ($existingLog) {
+            $this->auditService->updateLog(
+                logId: $existingLog->id,
+                metadata: $metadata,
+                afterState: $exam->toArray(),
+                description: 'Updated accommodation email notifications.'
+            );
+        } else {
+            $this->auditService->log(
+                examId: $examId,
+                actionType: 'sent',
+                taskType: 'send_accommodation_email',
+                afterState: $exam->toArray(),
+                description: 'Sent accommodation email notifications.',
+                metadata: $metadata
+            );
+        }
+
+        // Return success response with logs
+        return response()->json([
+            'success' => true,
+            'message' => 'Accommodation emails sent successfully.',
+            'logs' => $emailLogs,
+        ], 200);
     }
+
+
 }

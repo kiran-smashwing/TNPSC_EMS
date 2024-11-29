@@ -6,6 +6,7 @@ use App\Models\District;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Services\AuditLogger;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use App\Services\ImageCompressService;
 
@@ -45,81 +46,92 @@ class DistrictController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'district_name' => 'required|string|max:255',
-            'district_code' => 'required|numeric|unique:district',
-            'mail' => 'required|email|unique:district,district_email',
-            'phone' => 'required|string|max:15',
-            'alternate_phone' => 'nullable|string|max:15',
-            'password' => 'required|string|min:6',
-            'website' => 'required|url',
-            'address' => 'required|string',
-            'longitude' => 'required|numeric',
-            'latitude' => 'required|numeric',
-            'cropped_image' => 'nullable|string'
-        ]);
+{
+    $validated = $request->validate([
+        'district_name' => 'required|string|max:255',
+        'district_code' => 'required|numeric|unique:district',
+        'mail' => 'required|email|unique:district,district_email',
+        'phone' => 'required|string|max:15',
+        'alternate_phone' => 'nullable|string|max:15',
+        'password' => 'required|string|min:6',
+        'website' => 'required|url',
+        'address' => 'required|string',
+        'longitude' => 'required|numeric',
+        'latitude' => 'required|numeric',
+        'cropped_image' => 'nullable|string'
+    ]);
 
-        try {
-            if (!empty($validated['cropped_image'])) {
-                // Remove the data URL prefix if present
-                $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
-                $imageData = base64_decode($imageData);
+    try {
+        if (!empty($validated['cropped_image'])) {
+            // Remove the data URL prefix if present
+            $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
+            $imageData = base64_decode($imageData);
 
-                if ($imageData === false) {
-                    throw new \Exception('Base64 decode failed.');
-                }
-
-                // Create a unique image name
-                $imageName = $validated['district_code'] . time() . '.png';
-                $imagePath = 'images/districts/' . $imageName;
-
-                // Store the image
-                $stored = Storage::disk('public')->put($imagePath, $imageData);
-
-                if (!$stored) {
-                    throw new \Exception('Failed to save image to storage.');
-                }
-
-
-                // Compress the image if it exceeds 200 KB
-                $fullImagePath = storage_path('app/public/' . $imagePath);
-                if (filesize($fullImagePath) > 200 * 1024) {
-                    // Use the ImageService to save and compress the image
-                    $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200);  // 200 KB max size
-                }
-
-                $validated['image'] = $imagePath;
+            if ($imageData === false) {
+                throw new \Exception('Base64 decode failed.');
             }
 
-            // Hash password
-            $validated['district_password'] = Hash::make($validated['password']);
-            // Map the fields to match your database columns
-            $district = District::create([
-                'district_name' => $validated['district_name'],
-                'district_code' => $validated['district_code'],
-                'district_email' => $validated['mail'],
-                'district_phone' => $validated['phone'],
-                'district_alternate_phone' => $validated['alternate_phone'],
-                'district_password' => $validated['district_password'],
-                'district_website' => $validated['website'],
-                'district_address' => $validated['address'],
-                'district_longitude' => $validated['longitude'],
-                'district_latitude' => $validated['latitude'],
-                'district_image' => $validated['image'] ?? null
-            ]);
+            // Create a unique image name
+            $imageName = $validated['district_code'] . time() . '.png';
+            $imagePath = 'images/districts/' . $imageName;
 
-            // Log district creation with new values
-            AuditLogger::log('District Created', District::class, $district->district_id, null, $district->toArray());
+            // Store the image
+            $stored = Storage::disk('public')->put($imagePath, $imageData);
 
+            if (!$stored) {
+                throw new \Exception('Failed to save image to storage.');
+            }
 
-            return redirect()->route('district.index')
-                ->with('success', 'District created successfully');
-        } catch (\Exception $e) {
-            return back()->withInput()
-                ->with('error', 'Error creating district: ' . $e->getMessage());
+            // Compress the image if it exceeds 200 KB
+            $fullImagePath = storage_path('app/public/' . $imagePath);
+            if (filesize($fullImagePath) > 200 * 1024) {
+                $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200); // 200 KB max size
+            }
+
+            $validated['image'] = $imagePath;
         }
+
+        // Hash password
+        $validated['district_password'] = Hash::make($validated['password']);
+
+        // Map the fields to match your database columns
+        $district = District::create([
+            'district_name' => $validated['district_name'],
+            'district_code' => $validated['district_code'],
+            'district_email' => $validated['mail'],
+            'district_phone' => $validated['phone'],
+            'district_alternate_phone' => $validated['alternate_phone'],
+            'district_password' => $validated['district_password'],
+            'district_website' => $validated['website'],
+            'district_address' => $validated['address'],
+            'district_longitude' => $validated['longitude'],
+            'district_latitude' => $validated['latitude'],
+            'district_image' => $validated['image'] ?? null
+        ]);
+
+        // Log district creation with new values
+        AuditLogger::log('District Created', District::class, $district->district_id, null, $district->toArray());
+
+        // Send email to the district
+        $emailData = [
+            'name' => $district->district_name,
+            'email' => $district->district_email,
+            'password' => $request->password, // Plain password sent for first-time login
+        ];
+
+        Mail::send('email.district_created', $emailData, function ($message) use ($emailData) {
+            $message->to($emailData['email'])
+                ->subject('Welcome to Our Platform');
+        });
+
+        return redirect()->route('district.index')
+            ->with('success', 'District created successfully. Notification email sent.');
+    } catch (\Exception $e) {
+        return back()->withInput()
+            ->with('error', 'Error creating district: ' . $e->getMessage());
     }
+}
+
 
 
     public function edit($id)

@@ -8,6 +8,7 @@ use App\Models\District;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Services\AuditLogger;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use App\Services\ImageCompressService;
@@ -57,6 +58,8 @@ class VenuesController extends Controller
         $centers = Center::all(); // Retrieve all centers
         return view('masters.venues.venue.create', compact('districts', 'centers'));
     }
+
+
     public function store(Request $request)
     {
         $messages = [
@@ -65,12 +68,13 @@ class VenuesController extends Controller
             'center.required' => 'Please select a center',
             'center.integer' => 'Please select a valid center',
         ];
+
         $validated = $request->validate([
             'district' => 'required|integer',
             'center' => 'required|integer',
             'venue_name' => 'required|string',
             'venue_code' => 'required|string|unique:venue,venue_code',
-            'venue_code_provider' => 'required|string', // Adjust max length as needed
+            'venue_code_provider' => 'required|string',
             'type' => 'required|string',
             'category' => 'required|string',
             'distance_from_railway' => 'required|string',
@@ -91,32 +95,32 @@ class VenuesController extends Controller
             'ifsc' => 'required|string|max:11',
             'cropped_image' => 'nullable|string',
         ], $messages);
+
         try {
+            // Handling image upload
             if (!empty($validated['cropped_image'])) {
-                // Remove the data URL prefix if present
                 $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
                 $imageData = base64_decode($imageData);
                 if ($imageData === false) {
                     throw new \Exception('Base64 decode failed.');
                 }
-                // Create a unique image name
                 $imageName = $validated['venue_code'] . time() . '.png';
                 $imagePath = 'images/venue/' . $imageName;
-                // Store the image
                 $stored = Storage::disk('public')->put($imagePath, $imageData);
                 if (!$stored) {
                     throw new \Exception('Failed to save image to storage.');
                 }
-                // Compress the image if it exceeds 200 KB
                 $fullImagePath = storage_path('app/public/' . $imagePath);
                 if (filesize($fullImagePath) > 200 * 1024) {
-                    // Use the ImageService to save and compress the image
-                    $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200);  // 200 KB max size
+                    $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200);
                 }
                 $validated['venue_image'] = $imagePath;
             }
+
+            // Hashing the password
             $validated['venue_password'] = Hash::make($validated['password']);
-            // Create the venue with bank details
+
+            // Creating the venue
             $venue = Venues::create([
                 'venue_district_id' => $validated['district'],
                 'venue_center_id' => $validated['center'],
@@ -143,15 +147,30 @@ class VenuesController extends Controller
                 'venue_account_type' => $validated['account_type'],
                 'venue_ifsc' => $validated['ifsc'],
             ]);
-            // Log venue creation with new values
+
+            // Sending email to the venue after creation
+            $emailData = [
+                'venue_name' => $venue->venue_name,
+                'venue_email' => $venue->venue_email,
+                'password' => $validated['password'], // Send the password for the first login
+            ];
+
+            Mail::send('email.venue_created', $emailData, function ($message) use ($emailData) {
+                $message->to($emailData['venue_email'])
+                    ->subject('Venue Account Created');
+            });
+
+            // Log the venue creation
             AuditLogger::log('Venue Created', Venues::class, $venue->venue_id, null, $venue->toArray());
+
             return redirect()->route('venues.index')
-                ->with('success', 'Venue created successfully');
+                ->with('success', 'Venue created successfully and notification email sent.');
         } catch (\Exception $e) {
             return back()->withInput()
                 ->with('error', 'Error creating venue: ' . $e->getMessage());
         }
     }
+
     public function update(Request $request, $id)
     {
         // dd($request->all());

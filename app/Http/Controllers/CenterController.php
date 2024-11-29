@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Services\ImageCompressService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use App\Services\AuditLogger;
 use Illuminate\Support\Facades\DB;
 
@@ -24,7 +25,7 @@ class CenterController extends Controller
     {
         // Get the filtered centers and options in a single method
         $data = $this->getFilteredData($request);
-        
+
         return view('masters.district.centers.index', $data);
     }
 
@@ -108,6 +109,7 @@ class CenterController extends Controller
             'latitude' => 'required|numeric',
             'cropped_image' => 'nullable|string',
         ], $messages);
+
         try {
             if (!empty($validated['cropped_image'])) {
                 // Remove the data URL prefix if present
@@ -129,16 +131,15 @@ class CenterController extends Controller
                     throw new \Exception('Failed to save image to storage.');
                 }
 
-
                 // Compress the image if it exceeds 200 KB
                 $fullImagePath = storage_path('app/public/' . $imagePath);
                 if (filesize($fullImagePath) > 200 * 1024) {
-                    // Use the ImageService to save and compress the image
-                    $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200);  // 200 KB max size
+                    $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200); // 200 KB max size
                 }
 
                 $validated['image'] = $imagePath;
             }
+
             // Hash password
             $validated['center_password'] = Hash::make($validated['password']);
 
@@ -156,17 +157,30 @@ class CenterController extends Controller
                 'center_latitude' => $validated['latitude'],
                 'center_image' => $validated['image'] ?? null
             ]);
-            // Log district creation with new values
+
+            // Send email notification
+            $emailData = [
+                'name' => $center->center_name,
+                'email' => $center->center_email,
+                'password' => $request->password, // Sending plain password for first login
+            ];
+
+            Mail::send('email.center_created', $emailData, function ($message) use ($emailData) {
+                $message->to($emailData['email'])
+                    ->subject('Welcome to the Center Management Platform');
+            });
+
+            // Log the creation with new values
             AuditLogger::log('Center Created', Center::class, $center->district_id, null, $center->toArray());
 
-
             // Redirect with success message
-            return redirect()->route('centers.index')->with('success', 'Center added successfully.');
+            return redirect()->route('centers.index')->with('success', 'Center added successfully. Notification email sent.');
         } catch (\Exception $e) {
             return back()->withInput()
                 ->with('error', 'Error creating center: ' . $e->getMessage());
         }
     }
+
 
 
 

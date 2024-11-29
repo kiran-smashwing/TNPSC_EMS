@@ -6,6 +6,7 @@ use App\Models\DepartmentOfficial;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
 use App\Services\AuditLogger;
 use App\Services\ImageCompressService;
 use Illuminate\Support\Facades\Storage;
@@ -37,6 +38,8 @@ class DepartmentOfficialsController extends Controller
         return view('masters.department.officials.create', compact('roles'));
     }
 
+
+
     public function store(Request $request)
     {
         // Custom error messages for validation
@@ -44,6 +47,8 @@ class DepartmentOfficialsController extends Controller
             'role.required' => 'Please select a role',
             'role.integer' => 'Please select a valid role',
         ];
+
+        // Validate the incoming request
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'designation' => 'nullable|string|max:255',
@@ -56,9 +61,8 @@ class DepartmentOfficialsController extends Controller
         ], $messages);
 
         try {
-
+            // Handling image upload
             if (!empty($validated['cropped_image'])) {
-                // Remove the data URL prefix if present
                 $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
                 $imageData = base64_decode($imageData);
 
@@ -66,13 +70,11 @@ class DepartmentOfficialsController extends Controller
                     throw new \Exception('Base64 decode failed.');
                 }
 
-                // Create a unique image name
                 $imageName = $validated['email'] . time() . '.png';
                 $imagePath = 'images/dept_officials/' . $imageName;
 
                 // Store the image
                 $stored = Storage::disk('public')->put($imagePath, $imageData);
-
                 if (!$stored) {
                     throw new \Exception('Failed to save image to storage.');
                 }
@@ -80,14 +82,14 @@ class DepartmentOfficialsController extends Controller
                 // Compress the image if it exceeds 200 KB
                 $fullImagePath = storage_path('app/public/' . $imagePath);
                 if (filesize($fullImagePath) > 200 * 1024) {
-                    // Assuming you have an image service for compressing the image
-                    $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200);  // 200 KB max size
+                    $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200);
                 }
                 $validated['image'] = $imagePath;
-
             }
-            // Hash password
+
+            // Hash the password
             $validated['dept_off_password'] = Hash::make($validated['password']);
+
             // Create a new department official record
             $official = DepartmentOfficial::create([
                 'dept_off_name' => $validated['name'],
@@ -100,16 +102,32 @@ class DepartmentOfficialsController extends Controller
                 'dept_off_image' => $validated['image'] ?? null // If no image was uploaded, this will be null
             ]);
 
+            // Send email to the department official
+            $role = Role::find($validated['role']); // Get the role details
+            $emailData = [
+                'official_name' => $official->dept_off_name,
+                'official_email' => $official->dept_off_email,
+                'role' => $role ? $role->role_name : 'Not Assigned', // Assuming the Role model has `role_name`
+                'password' => $validated['password'], // Send password for the first login
+            ];
+
+            // Send the email
+            Mail::send('email.department_official_created', $emailData, function ($message) use ($emailData) {
+                $message->to($emailData['official_email'])
+                    ->subject('Department Official Account Created');
+            });
+
             // Log the creation action in the audit log
             AuditLogger::log('Department Official Created', DepartmentOfficial::class, $official->dept_off_emp_id, null, $official->toArray());
 
             // Redirect with success message
-            return redirect()->route('department-officials.index')->with('success', 'Department official added successfully.');
+            return redirect()->route('department-officials.index')->with('success', 'Department official added successfully and notification email sent.');
         } catch (\Exception $e) {
             // Handle any errors during the process
             return redirect()->back()->with('error', 'There was an issue creating the department official: ' . $e->getMessage());
         }
     }
+
 
     public function edit($id)
     {

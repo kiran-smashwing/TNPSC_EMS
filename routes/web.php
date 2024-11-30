@@ -120,6 +120,9 @@ Route::middleware(['auth.multi'])->group(function () {
     // Add other protected routes here
 });
 
+// email verification
+Route::get('/district/verify/{token}', [DistrictController::class, 'verifyEmail'])->name('district.verify');
+
 //District Route::prefix('district')->group(function () {
 Route::prefix('district')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {

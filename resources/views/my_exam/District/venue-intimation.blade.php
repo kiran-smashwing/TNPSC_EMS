@@ -124,7 +124,9 @@
                                             <li class="list-inline-item">
                                                 <a href="#" class="badge bg-success">Accepted 110</a>
                                             </li>
-                                            <li class="list-inline-item"><a href="#" class="badge bg-info">    Selected <span id="selected-venues">0</span> / <span id="total-venues">0</span></a></li>
+                                            <li class="list-inline-item"><a href="#" class="badge bg-info"> Selected
+                                                    <span id="selected-venues">0</span> / <span
+                                                        id="total-venues">0</span></a></li>
                                         </ul>
                                         <ul class="list-inline ms-auto mb-0">
                                             <li class="list-inline-item"><a href="#"
@@ -148,14 +150,17 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
+
                                                         @foreach ($allvenues as $centerCode => $venues)
                                                             @foreach ($venues as $venue)
                                                                 <tr class="venue-row"
                                                                     data-center-code="{{ $centerCode }}">
                                                                     <td>
-                                                                        <input class="form-check-input input-success venue-checkbox" 
-                                                                        data-center-code="{{ $centerCode }}"
-                                                                            type="checkbox">
+                                                                        <input
+                                                                            class="form-check-input input-success venue-checkbox"
+                                                                            data-center-code="{{ $venue->venue_id }}"
+                                                                            type="checkbox"
+                                                                            @if ($venue->consent_status !== 'not_requested') checked disabled @endif>
                                                                     </td>
                                                                     <td>
                                                                         <b>{{ $venue->venue_name }}</b> <br>
@@ -166,17 +171,45 @@
                                                                         {{ $venue->venue_phone }}
                                                                     </td>
                                                                     <td>
-                                                                        <select class="form-select" name="allocationCount">
+                                                                        <select class="form-select" name="allocationCount"
+                                                                            @if ($venue->halls_count !== 0) disabled @endif>
                                                                             <option value="">No of Halls</option>
-                                                                            <option value="200">1 - 200</option>
-                                                                            <option value="400">2 - 400</option>
-                                                                            <option value="600">3 - 600</option>
-                                                                            <option value="800">4 - 800</option>
-                                                                            <option value="1000">5 - 1000</option>
+
+                                                                            <option value="1"
+                                                                                @if ($venue->halls_count == 1) selected @endif>
+                                                                                1 - 200</option>
+
+                                                                            <option value="2"
+                                                                                @if ($venue->halls_count == 2) selected @endif>
+                                                                                2 - 400</option>
+
+                                                                            <option value="3"
+                                                                                @if ($venue->halls_count == 3) selected @endif>
+                                                                                3 - 600</option>
+
+                                                                            <option value="4"
+                                                                                @if ($venue->halls_count == 4) selected @endif>
+                                                                                4 - 800</option>
+
+                                                                            <option value="5"
+                                                                                @if ($venue->halls_count == 5) selected @endif>
+                                                                                5 - 1000</option>
                                                                         </select>
                                                                     </td>
                                                                     <td>
-                                                                        <span class="badge bg-light-warning">Waiting</span>
+                                                                        @if ($venue->consent_status === 'not_requested')
+                                                                            <span
+                                                                                class="badge bg-light-warning">Waiting</span>
+                                                                        @elseif ($venue->consent_status === 'requested')
+                                                                            <span class="badge bg-light-info">Email
+                                                                                Sent</span>
+                                                                        @elseif ($venue->consent_status === 'accepted')
+                                                                            <span
+                                                                                class="badge bg-light-success">Accepted</span>
+                                                                        @elseif ($venue->consent_status === 'denied')
+                                                                            <span
+                                                                                class="badge bg-light-danger">Denied</span>
+                                                                        @endif
                                                                     </td>
                                                                 </tr>
                                                             @endforeach
@@ -440,8 +473,8 @@
                         </div>
                         <div class="offcanvas-xxl offcanvas-end chat-offcanvas" tabindex="-1" id="offcanvas_User_info">
                             <div class="offcanvas-header">
-                                <button class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#offcanvas_User_info"
-                                    aria-label="Close"></button>
+                                <button class="btn-close" data-bs-dismiss="offcanvas"
+                                    data-bs-target="#offcanvas_User_info" aria-label="Close"></button>
                             </div>
                             <div class="offcanvas-body p-0">
                                 <div id="chat-user_info" class="collapse collapse-horizontal">
@@ -610,14 +643,15 @@
 
     @include('partials.footer')
     @push('scripts')
-    <script>
-        $(document).ready(function() {
-            // Select/Deselect all venues
-            $('#select-all-venues').change(function() {
-                $('.venue-checkbox:visible').prop('checked', $(this).prop('checked'));
-                updateSelectedVenuesCount();
+        <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
+        <script>
+            $(document).ready(function() {
+                // Select/Deselect all venues
+                $('#select-all-venues').change(function() {
+                    $('.venue-checkbox:visible').prop('checked', $(this).prop('checked'));
+                    updateSelectedVenuesCount();
+                });
             });
-        });
         </script>
         <script>
             $(document).ready(function() {
@@ -628,7 +662,11 @@
                 $('.center-list-item').click(function() {
                     // Get the center code
                     var centerCode = $(this).data('center-code');
+                    // Remove active class from all center list items
+                    $('.center-list-item').removeClass('list-group-item');
 
+                    // Add active class to the clicked center list item
+                    $(this).addClass('list-group-item-success');
                     // Hide all venue rows first
                     $('.venue-row').hide();
 
@@ -686,6 +724,83 @@
                 element.scrollTop += h;
             }, 100);
         </script>
+        <script>
+            $(document).ready(function() {
+                // Send Mail Button Click Handler
+                $('a.bg-light-success[href="#"]').click(function(e) {
+                    e.preventDefault();
+
+                    // Get the current selected center code
+                    var centerCode = $('.center-list-item.list-group-item-success').data('center-code');
+
+                    // Collect selected venues
+                    var selectedVenues = [];
+                    $('.venue-row:visible .venue-checkbox:checked').each(function() {
+                        var venueId = $(this).data('center-code');
+                        var hallCount = $(this).closest('tr').find('select[name="allocationCount"]')
+                            .val();
+
+                        selectedVenues.push({
+                            venue_id: venueId,
+                            halls_count: hallCount
+                        });
+                    });
+
+                    // Validate selection
+                    if (selectedVenues.length === 0) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'No Venues Selected',
+                            text: 'Please select at least one venue',
+                        });
+                        return;
+                    }
+
+                    // Send AJAX request
+                    $.ajax({
+                        url: '{{ route('district-candidates.processVenueConsentEmail') }}', // Create this route in web.php
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            center_code: centerCode,
+                            exam_id: '{{ $examId }}', // Assuming you pass the current exam ID
+                            venues: selectedVenues
+                        },
+                        success: function(response) {
+                            // Handle success
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: 'Consent emails sent successfully',
+                            }).then(() => {
+                                // Reload the page after the user acknowledges the success alert
+                                location.reload();
+                            });
+
+                            // Optionally update UI to reflect sent status
+                            selectedVenues.forEach(function(venue) {
+                                $(`input[data-center-code="${venue.venue_id}"]`)
+                                    .closest('tr')
+                                    .find('.badge')
+                                    .removeClass('bg-light-warning')
+                                    .addClass('bg-light-info')
+                                    .text('Email Sent');
+                            });
+                        },
+                        error: function(xhr) {
+                            // Handle error
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Failed to send consent emails',
+                            });
+                            console.error(xhr.responseText);
+                        }
+                    });
+                });
+            });
+        </script>
+
         <!-- [Page Specific JS] end -->
     @endpush
     @include('partials.theme')

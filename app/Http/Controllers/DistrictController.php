@@ -120,6 +120,7 @@ class DistrictController extends Controller
             // Send the email verification link
             Mail::send('email.district_verification', [
                 'name' => $district->district_name,
+                'email' => $district->district_email,
                 'verification_link' => route('district.verify', ['token' => $district->verification_token]),
             ], function ($message) use ($district) {
                 $message->to($district->district_email)

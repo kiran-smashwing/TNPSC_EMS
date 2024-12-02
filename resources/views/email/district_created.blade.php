@@ -1,3 +1,18 @@
+{{-- <!DOCTYPE html>
+<html>
+<head>
+    <title>Your Login Credentials</title>
+</head>
+<body>
+    <p>Dear {{ $name }},</p>
+    <p>Your account has been successfully created. Below are your login credentials:</p>
+    <p><strong>Email:</strong> {{ $email }}</p>
+    <p><strong>Password:</strong> {{ $password }}</p>
+    <p>We recommend changing your password after your first login for security reasons.</p>
+    <p>Best Regards,</p>
+    <p>The Team</p>
+</body>
+</html> --}}
 <!DOCTYPE html>
 <html lang="ta">
 
@@ -74,8 +89,8 @@
 
             <p>கீழே உங்கள் உள்ளீட்டு கணக்கு விவரங்கள்:</p>
             <ul>
-                <strong>மின்னஞ்சல்: </strong>{{ $email }}
-                <strong>கடவுச்சொல்:</strong>{{ $password }}
+                <p><strong>மின்னஞ்சல்: </strong>{{ $email }}</p>
+                <p><strong>கடவுச்சொல்:</strong>{{ $password }}</p>
             </ul>
 
             <p>தயவுசெய்து உங்கள் கணக்கு விவரங்களை சரிபார்க்கவும். ஏதேனும் தவறு இருந்தால், உடனடியாக புதுப்பிக்கவும்.</p>
@@ -112,3 +127,4 @@
 </html>
 
 
+     

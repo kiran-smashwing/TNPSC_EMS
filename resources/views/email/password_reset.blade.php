@@ -25,7 +25,7 @@
 
         .header {
             background-color: #eaf6f2;
-            padding: 20px;
+            padding: 20px;   
             text-align: center;
         }
 
@@ -68,10 +68,10 @@
 
         <!-- Content -->
         <div class="content">
-            <h3>வணக்கம் ,</h3>
+            <h3>வணக்கம் {{ $name }} ,</h3>
             <p>தங்கள் உள்ளீட்டு கணக்கு விவரங்கள் கீழே கொடுக்கப்பட்டுள்ளது:</p>
-            <p><strong>மின்னஞ்சல்:</strong> </p>
-            <p><strong>கடவுச்சொல்:</strong> </p>
+            <p><strong>மின்னஞ்சல்:</strong> {{ $email }} </p>
+            <p><strong>கடவுச்சொல்:</strong>{{ $newPassword }} </p>
             <a href="{{ url('/login') }}" class="button">உள்நுழைக</a>
         </div>
         <div>

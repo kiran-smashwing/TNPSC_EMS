@@ -295,6 +295,7 @@ Route::prefix('id-candidates')->group(function () {
 Route::prefix('district-candidates')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
     Route::get('/showVenueIntimationForm/{examId}', [DistrictCandidatesController::class, 'showVenueIntimationForm'])->name('district-candidates.showVenueIntimationForm');
+    Route::post('/processVenueConsentEmail', [DistrictCandidatesController::class, 'processVenueConsentEmail'])->name('district-candidates.processVenueConsentEmail');
     });
 });
 // Route::get('/run-function', [DataController::class, 'addData']);

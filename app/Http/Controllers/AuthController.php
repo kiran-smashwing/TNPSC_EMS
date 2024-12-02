@@ -286,88 +286,100 @@ class AuthController extends Controller
             'role' => 'required|string',
             'email' => 'required|email',
         ]);
-
+    
         // Map roles to their corresponding Eloquent models, password column names, and email column names
         $roleModelMap = [
             'headquarters' => [
                 'model' => DepartmentOfficial::class,
                 'password_column' => 'dept_off_password',
-                'email_column' => 'dept_off_email'
+                'email_column' => 'dept_off_email',
+                'name_column' => 'dept_off_name'
             ],
             'district' => [
                 'model' => District::class,
                 'password_column' => 'district_password',
-                'email_column' => 'district_email'
+                'email_column' => 'district_email',
+                'name_column' => 'district_name'
             ],
             'center' => [
                 'model' => Center::class,
                 'password_column' => 'center_password',
-                'email_column' => 'center_email'
+                'email_column' => 'center_email',
+                'name_column' => 'center_name'
             ],
             'treasury' => [
                 'model' => TreasuryOfficer::class,
                 'password_column' => 'tre_off_password',
-                'email_column' => 'tre_off_email'
+                'email_column' => 'tre_off_email',
+                'name_column' => 'tre_off_name'
             ],
             'mobile_team_staffs' => [
                 'model' => MobileTeamStaffs::class,
                 'password_column' => 'mobile_password',
-                'email_column' => 'mobile_email'
+                'email_column' => 'mobile_email',
+                'name_column' => 'mobile_name'
             ],
             'venue' => [
                 'model' => Venues::class,
                 'password_column' => 'venue_password',
-                'email_column' => 'venue_email'
+                'email_column' => 'venue_email',
+                'name_column' => 'venue_name'
             ],
             'ci' => [
                 'model' => ChiefInvigilator::class,
                 'password_column' => 'ci_password',
-                'email_column' => 'ci_email'
+                'email_column' => 'ci_email',
+                'name_column' => 'ci_name'
             ],
         ];
-
+    
         $role = $request->role;
         $email = $request->email;
-
+    
         // Check if the role exists in the mapping
         if (!array_key_exists($role, $roleModelMap)) {
             return back()->withErrors(['role' => 'Invalid role selected.']);
         }
-
+    
         try {
             // Dynamically get the model, password column name, and email column name
             $roleData = $roleModelMap[$role];
             $model = $roleData['model'];
             $passwordColumn = $roleData['password_column'];
             $emailColumn = $roleData['email_column'];
-
+            $nameColumn = $roleData['name_column'];
+    
             // Check if the email exists in the corresponding model
             $user = $model::where($emailColumn, $email)->first();
-
+    
             if (!$user) {
                 return back()->withErrors([
                     'email' => 'No user found with the provided email and role.',
                 ]);
             }
-
+    
             // Generate a new password and hash it before saving
             $newPassword = Str::random(12);
-            $hashedPassword = bcrypt($newPassword);
-
+            $hashedPassword = Hash::make($newPassword);
+    
             // Update the relevant user model with the new password
             $model::where($emailColumn, $email)->update([$passwordColumn => $hashedPassword]);
-
+    
             // Send the new password via email
-            Mail::send('email.password_reset', ['newPassword' => $newPassword], function ($message) use ($email) {
+            Mail::send('email.password_reset', [
+                'newPassword' => $newPassword,
+                'email' => $email,
+                'name' => $user->$nameColumn,
+            ], function ($message) use ($email) {
                 $message->to($email)
                     ->subject('Your New Password');
             });
-
+    
             Log::info('Password reset email sent', [
                 'email' => $email,
                 'role' => $role,
             ]);
-
+    
             return redirect()->route('password.check-email')->with('email', $email);
         } catch (\Exception $e) {
             Log::error('Error sending password reset email', [
@@ -375,12 +387,13 @@ class AuthController extends Controller
                 'role' => $role,
                 'error' => $e->getMessage(),
             ]);
-
+    
             return back()->withErrors([
                 'email' => 'An error occurred while sending the password reset email. Please try again later. ' . $e->getMessage(),
             ]);
         }
     }
+    
     public function showCheckEmail()
     {
         if (!session('email')) {

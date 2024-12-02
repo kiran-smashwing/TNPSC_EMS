@@ -371,6 +371,7 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary m-2"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
+                                                                @if (session('auth_role')== 'district')
                                                         <a target="_blank"
                                                             href="{{ route('district-candidates.showVenueIntimationForm', $session->currentexam->exam_main_no) }}"
                                                             class="me-2 btn btn-sm btn-light-info"><i
@@ -381,6 +382,8 @@
                                                             class="me-3 btn btn-sm btn-light-warning"><i
                                                                 class="feather icon-navigation mx-1"></i>Send
                                                             Intimation</a>
+                                                            @endif
+
                                                     </div>
                                                 </div>
                                             </div>

@@ -94,10 +94,10 @@ class CenterController extends Controller
         // Validate the incoming request
         $messages = [
             'district.required' => 'Please select a district',
-            'district.integer' => 'Please select a valid district',
+            'district.numeric' => 'Please select a valid district',
         ];
         $validated = $request->validate([
-            'district' => 'required|integer',
+            'district' => 'required|numeric',
             'center_name' => 'required|string|max:255',
             'center_code' => 'required|numeric|unique:centers',
             'email' => 'required|email|unique:centers,center_email',

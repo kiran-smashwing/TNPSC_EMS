@@ -97,9 +97,9 @@
     <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;">
         <!-- Toasts will be dynamically inserted here -->
     </div>
-      <!-- Loader -->
-      <div class="loader" id="loader">
-        <img  src="{{ asset('storage/assets/images/loader-image.png')}}" alt="Logo" >
+    <!-- Loader -->
+    <div class="loader" id="loader">
+        <img src="{{ asset('storage/assets/images/loader-image.png') }}" alt="Logo">
         <div class="spinner"></div>
     </div>
     <!--Loader End -->
@@ -203,6 +203,14 @@
                 this.parentElement.remove();
             });
         }
+    </script>
+    <script>
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.style.display = 'none';
+            }
+        });
     </script>
     <!-- [Body] end -->
 </body>

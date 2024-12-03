@@ -27,6 +27,7 @@ class DepartmentOfficial extends Authenticatable
         'dept_off_status',
         'dept_off_email_status',
         'remember_token',
+        'verification_token',
         'dept_off_createdat'
     ];
     // Add timestamp for createdat

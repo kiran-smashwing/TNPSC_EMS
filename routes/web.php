@@ -28,7 +28,7 @@ use App\Http\Controllers\MyExamController;
 use App\Http\Controllers\APDCandidatesController;
 use App\Http\Controllers\TestMailController;
 use App\Http\Controllers\IDCandidatesController;
-use App\Http\Controllers\DataController;
+use App\Http\Controllers\VenueConsentController;
 
 // Public routes
 Route::get('/', function () {
@@ -179,7 +179,7 @@ Route::prefix('mobile-team-staffs')->group(function () {
 //venues Route::prefix('venues')->group(function () {
 Route::prefix('venues')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
-        Route::get('/', [VenuesController::class, 'index'])->name('venues.index');
+        Route::get('/', action: [VenuesController::class, 'index'])->name('venues.index');
         Route::get('/create', [VenuesController::class, 'create'])->name('venues.create');
         Route::post('/', [VenuesController::class, 'store'])->name('venues.store');
         Route::get('/{id}/edit', [VenuesController::class, 'edit'])->name('venues.edit');
@@ -187,6 +187,7 @@ Route::prefix('venues')->group(function () {
         Route::get('/{id}', [VenuesController::class, 'show'])->name('venues.show');
         Route::post('/{id}/toggle-status', [VenuesController::class, 'toggleStatus'])->name('venues.toggle-status');
         Route::delete('/{id}', [VenuesController::class, 'destroy'])->name('venues.destroy');
+        Route::get('/{id}/venue-consent', action: [VenueConsentController::class, 'showVenueConsentForm'])->name('venues.venue-consent');
     });
 });
 //invigilators Route::prefix('invigilators')->group(function () {

@@ -445,7 +445,7 @@
                                                         <a href="helpdesk-ticket-details.html"
                                                             class="me-2 btn btn-sm btn-light-primary m-2"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="{{ route('current-exam.venueConsent') }}"
+                                                        <a href="{{ route('venues.venue-consent', $session->currentexam->exam_main_no) }}"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-check-circle mx-1"></i>Add Hall</a>
                                                         <a href="{{ route('current-exam.venueConsent') }}"

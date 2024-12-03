@@ -64,14 +64,14 @@ class VenuesController extends Controller
     {
         $messages = [
             'district.required' => 'Please select a district',
-            'district.integer' => 'Please select a valid district',
+            'district.numeric' => 'Please select a valid district',
             'center.required' => 'Please select a center',
-            'center.integer' => 'Please select a valid center',
+            'center.numeric' => 'Please select a valid center',
         ];
 
         $validated = $request->validate([
-            'district' => 'required|integer',
-            'center' => 'required|integer',
+            'district' => 'required|numeric',
+            'center' => 'required|numeric',
             'venue_name' => 'required|string',
             'venue_code' => 'required|string|unique:venue,venue_code',
             'venue_code_provider' => 'required|string',
@@ -178,15 +178,15 @@ class VenuesController extends Controller
         // Validate the incoming request
         $messages = [
             'district.required' => 'Please select a district',
-            'district.integer' => 'Please select a valid district',
+            'district.numeric' => 'Please select a valid district',
             'center.required' => 'Please select a center',
-            'center.integer' => 'Please select a valid center',
+            'center.numeric' => 'Please select a valid center',
             'venue_type.required' => 'Please select a venue type',
             'venue_category.required' => 'Please select a venue category',
         ];
         $validated = $request->validate([
-            'district' => 'required|integer',
-            'center' => 'required|integer',
+            'district' => 'required|numeric',
+            'center' => 'required|numeric',
             'venue_name' => 'required|string',
             'venue_code' => 'required|string|unique:venue,venue_code,'  . $id . ',venue_id',
             'venue_code_provider' => 'required|string', // Adjust max length as needed

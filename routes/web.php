@@ -122,7 +122,8 @@ Route::middleware(['auth.multi'])->group(function () {
 
 // email verification
 Route::get('/district/verify/{token}', [DistrictController::class, 'verifyEmail'])->name('district.verify');
-
+Route::get('/center/verify/{token}', [CenterController::class, 'verifyEmail'])->name('center.verifyEmail');
+Route::get('/department-official/verify/{token}', [DepartmentOfficialsController::class, 'verifyEmail'])->name('department-official.verifyEmail');
 //District Route::prefix('district')->group(function () {
 Route::prefix('district')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {

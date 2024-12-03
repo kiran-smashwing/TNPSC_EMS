@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Services\AuditLogger;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 class CenterController extends Controller
@@ -90,96 +92,119 @@ class CenterController extends Controller
     }
 
     public function store(Request $request)
-    {
-        // Validate the incoming request
-        $messages = [
-            'district.required' => 'Please select a district',
-            'district.numeric' => 'Please select a valid district',
-        ];
-        $validated = $request->validate([
-            'district' => 'required|numeric',
-            'center_name' => 'required|string|max:255',
-            'center_code' => 'required|numeric|unique:centers',
-            'email' => 'required|email|unique:centers,center_email',
-            'phone' => 'required|string|max:15',
-            'alternate_phone' => 'nullable|string|max:15',
-            'password' => 'required|string|min:6',
-            'address' => 'required|string',
-            'longitude' => 'required|numeric',
-            'latitude' => 'required|numeric',
-            'cropped_image' => 'nullable|string',
-        ], $messages);
+{
+    $validated = $request->validate([
+        'center_name' => 'required|string|max:255',
+        'center_code' => 'required|numeric|unique:centers',
+        'email' => 'required|email|unique:centers,center_email',
+        'phone' => 'required|string|max:15',
+        'alternate_phone' => 'nullable|string|max:15',
+        'password' => 'required|string|min:6',
+        'address' => 'required|string',
+        'longitude' => 'required|numeric',
+        'latitude' => 'required|numeric',
+        'cropped_image' => 'nullable|string'
+    ]);
 
-        try {
-            if (!empty($validated['cropped_image'])) {
-                // Remove the data URL prefix if present
-                $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
-                $imageData = base64_decode($imageData);
+    try {
+        // Process the cropped image if present
+        if (!empty($validated['cropped_image'])) {
+            $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
+            $imageData = base64_decode($imageData);
 
-                if ($imageData === false) {
-                    throw new \Exception('Base64 decode failed.');
-                }
-
-                // Create a unique image name
-                $imageName = $validated['center_code'] . time() . '.png';
-                $imagePath = 'images/center/' . $imageName;
-
-                // Store the image
-                $stored = Storage::disk('public')->put($imagePath, $imageData);
-
-                if (!$stored) {
-                    throw new \Exception('Failed to save image to storage.');
-                }
-
-                // Compress the image if it exceeds 200 KB
-                $fullImagePath = storage_path('app/public/' . $imagePath);
-                if (filesize($fullImagePath) > 200 * 1024) {
-                    $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200); // 200 KB max size
-                }
-
-                $validated['image'] = $imagePath;
+            if ($imageData === false) {
+                throw new \Exception('Base64 decode failed.');
             }
 
-            // Hash password
-            $validated['center_password'] = Hash::make($validated['password']);
+            $imageName = $validated['center_code'] . time() . '.png';
+            $imagePath = 'images/centers/' . $imageName;
 
-            // Create a new center record
-            $center = Center::create([
-                'center_district_id' => $validated['district'],
-                'center_name' => $validated['center_name'],
-                'center_code' => $validated['center_code'],
-                'center_email' => $validated['email'],
-                'center_phone' => $validated['phone'],
-                'center_alternate_phone' => $validated['alternate_phone'] ?? null,
-                'center_password' => $validated['center_password'],
-                'center_address' => $validated['address'],
-                'center_longitude' => $validated['longitude'],
-                'center_latitude' => $validated['latitude'],
-                'center_image' => $validated['image'] ?? null
-            ]);
+            $stored = Storage::disk('public')->put($imagePath, $imageData);
 
-            // Send email notification
-            $emailData = [
-                'name' => $center->center_name,
-                'email' => $center->center_email,
-                'password' => $request->password, // Sending plain password for first login
-            ];
+            if (!$stored) {
+                throw new \Exception('Failed to save image to storage.');
+            }
 
-            Mail::send('email.center_created', $emailData, function ($message) use ($emailData) {
-                $message->to($emailData['email'])
-                    ->subject('Welcome to the Center Management Platform');
-            });
-
-            // Log the creation with new values
-            AuditLogger::log('Center Created', Center::class, $center->district_id, null, $center->toArray());
-
-            // Redirect with success message
-            return redirect()->route('centers.index')->with('success', 'Center added successfully. Notification email sent.');
-        } catch (\Exception $e) {
-            return back()->withInput()
-                ->with('error', 'Error creating center: ' . $e->getMessage());
+            $validated['image'] = $imagePath;
         }
+
+        // Hash the password and generate a verification token
+        $validated['center_password'] = Hash::make($validated['password']);
+        $validated['verification_token'] = Str::random(64);
+
+        // Create the center record
+        $center = Center::create([
+            'center_name' => $validated['center_name'],
+            'center_code' => $validated['center_code'],
+            'center_email' => $validated['email'],
+            'center_phone' => $validated['phone'],
+            'center_alternate_phone' => $validated['alternate_phone'],
+            'center_password' => $validated['center_password'],
+            'center_address' => $validated['address'],
+            'center_longitude' => $validated['longitude'],
+            'center_latitude' => $validated['latitude'],
+            'center_image' => $validated['image'] ?? null,
+            'verification_token' => $validated['verification_token'],
+        ]);
+
+        // Log the creation with the audit logger
+        AuditLogger::log('Center Created', Center::class, $center->id, null, $center->toArray());
+
+        // Send the welcome email
+        Mail::send('email.center_created', [
+            'name' => $center->center_name,
+            'email' => $center->center_email,
+            'password' => $request->password, // Plain password for first login
+        ], function ($message) use ($center) {
+            $message->to($center->center_email)
+                ->subject('Welcome to Our Platform');
+        });
+
+        // Send the email verification link
+        Mail::send('email.center_verification', [
+            'name' => $center->center_name,
+            'email' => $center->center_email,
+            'verification_link' => route('center.verifyEmail', ['token' => urlencode($center->verification_token)]),
+        ], function ($message) use ($center) {
+            $message->to($center->center_email)
+                ->subject('Verify Your Email Address');
+        });
+
+        // Redirect with success message
+        return redirect()->route('centers.index')
+            ->with('success', 'Center created successfully. Email verification link has been sent.');
+    } catch (\Exception $e) {
+        // Handle exceptions and show an error message
+        return back()->withInput()
+            ->with('error', 'Error creating center: ' . $e->getMessage());
     }
+}
+
+    
+
+    public function verifyEmail($token)
+    {
+        Log::info('Verification token received: ' . $token);
+
+        $decodedToken = urldecode($token);
+
+        $center = Center::where('verification_token', $decodedToken)->first();
+
+        if (!$center) {
+            Log::error('Verification failed: Token not found in database. Token: ' . $decodedToken);
+            return redirect()->route('centers.index')->with('error', 'Invalid verification link.');
+        }
+
+        $center->update([
+            'center_email_status' => true,
+            'verification_token' => null,
+        ]);
+
+        Log::info('Email verified successfully for center ID: ' . $center->id);
+
+        return redirect()->route('centers.index')->with('success', 'Email verified successfully.');
+    }
+
 
 
 

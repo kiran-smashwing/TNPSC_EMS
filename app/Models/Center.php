@@ -31,6 +31,7 @@ class Center  extends Authenticatable
         'center_email_status',
         'center_createdat',
         'remember_token',
+        'verification_token',
     ];
 
     protected static function boot()

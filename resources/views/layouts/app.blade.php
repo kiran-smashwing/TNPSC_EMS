@@ -46,6 +46,47 @@
             });
         })();
     </script>
+    <style>
+        /* Loader styles */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 1);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loader img {
+            width: 196px;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #09f;
+            animation: spin 1s ease infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 </head>
 </head>
 <!-- [Head] end -->
@@ -56,6 +97,12 @@
     <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;">
         <!-- Toasts will be dynamically inserted here -->
     </div>
+    <!-- Loader -->
+    <div class="loader" id="loader">
+        <img src="{{ asset('storage/assets/images/loader-image.png') }}" alt="Logo">
+        <div class="spinner"></div>
+    </div>
+    <!--Loader End -->
     @yield('content')
     <script>
         // Get the base URL from the data attribute
@@ -156,6 +203,14 @@
                 this.parentElement.remove();
             });
         }
+    </script>
+    <script>
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.style.display = 'none';
+            }
+        });
     </script>
     <!-- [Body] end -->
 </body>

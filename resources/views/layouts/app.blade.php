@@ -10,13 +10,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="description"
-        content="Able Pro is trending dashboard template made using Bootstrap 5 design framework. Able Pro is available in Bootstrap, React, CodeIgniter, Angular,  and .net Technologies." />
+        content="TNPSC EMS is a comprehensive examination management system designed to efficiently manage and streamline TNPSC-related processes and functionalities. Developed and maintained by Smashwing Technologies." />
     <meta name="keywords"
-        content="Bootstrap admin template, Dashboard UI Kit, Dashboard Template, Backend Panel, react dashboard, angular dashboard" />
-    <meta name="author" content="Phoenixcoded" />
-
+        content="Tamil Nadu, தமிழ்நாடு, TNPSC, TNPSC EMS, Examination Management System, Tamil Nadu Public Service Commission, தமிழ்நாடு அரசுப் பணியாளர் தேர்வாணையம், Smashwing Technologies, Exam Management, TNPSC Software Solutions" />
+    <meta name="author" content="Smashwing Technologies" />
+    <!-- SEO and Indexing -->
+    <meta name="robots" content="index, follow, max-snippet:-1, max-video-preview:-1, max-image-preview:large" />
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="TNPSC EMS - Examination Management System" />
+    <meta property="og:description"
+        content="Innovative digital platform for efficient TNPSC examination managment processes" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ url('/') }}" />
+    <meta property="og:site_name" content="TNPSC EMS - Examination Management System" />
+    <meta property="og:locale" content="en_IN" />
+    <!-- Geo Tags -->
+    <meta name="geo.region" content="IN-TN" />
+    <meta name="geo.placename" content="Tamil Nadu" />
+    <!-- Language and Localization -->
+    <meta http-equiv="content-language" content="en, ta" />
     <!-- [Favicon] icon -->
-    <link rel="icon" href="{{ asset('storage/assets/images/favicon.svg') }}" type="image/x-icon" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('storage/assets/images/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('storage/assets/images/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('storage/assets/images/favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ asset('storage/assets/site.webmanifest') }}">
     <!-- [Font] Family -->
     <link rel="stylesheet" href="{{ asset('storage/assets/fonts/inter/inter.css') }}" id="main-font-link" />
 

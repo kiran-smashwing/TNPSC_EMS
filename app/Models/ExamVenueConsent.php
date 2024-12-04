@@ -9,6 +9,10 @@ class ExamVenueConsent extends Model
 {
     use HasFactory;
     protected $table = 'exam_venue_consent';
+
+    protected $casts = [
+        'chief_invigilator_ids' => 'array', // Cast as array
+    ];
     // Define the fillable attributes for mass assignment
     protected $fillable = [
         'exam_id',
@@ -18,19 +22,20 @@ class ExamVenueConsent extends Model
         'consent_status',
         'email_sent_status',
         'expected_candidates_count',
+        'chief_invigilator_ids',
         'updated_at',
         'created_at',
     ];
 
-     // Relationship with the Exam model
-     public function Currentexam()
-     {
+    // Relationship with the Exam model
+    public function Currentexam()
+    {
         return $this->belongsTo(Currentexam::class, 'exam_id', 'exam_main_no');
-     }
- 
-     // Relationship with the Venue model
-     public function Venues()
-     {
-         return $this->belongsTo(Venues::class, 'venue_id','venue_code');
-     }
+    }
+
+    // Relationship with the Venue model
+    public function Venues()
+    {
+        return $this->belongsTo(Venues::class, 'venue_id', 'venue_code');
+    }
 }

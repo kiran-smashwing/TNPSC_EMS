@@ -42,8 +42,7 @@ class VenuesController extends Controller
         $venues = $query->get();
 
         // Fetch unique district values from the same table
-    $districts = District::all(); // Fetch all districts
-
+        $districts = District::all(); // Fetch all districts
 
         // Fetch unique center values from the same table
         $centers = center::all(); // Fetch all venues
@@ -189,7 +188,7 @@ class VenuesController extends Controller
             'district' => 'required|numeric',
             'center' => 'required|numeric',
             'venue_name' => 'required|string',
-            'venue_code' => 'required|string|unique:venue,venue_code,'  . $id . ',venue_id',
+            'venue_code' => 'required|string|unique:venue,venue_code,' . $id . ',venue_id',
             'venue_code_provider' => 'required|string', // Adjust max length as needed
             'type' => 'required|string',
             'category' => 'required|string',
@@ -221,7 +220,7 @@ class VenuesController extends Controller
                     throw new \Exception('Base64 decode failed.');
                 }
                 // Create a unique filename
-                $imageName = $validated['venue_code']  . time() . '.png';
+                $imageName = $validated['venue_code'] . time() . '.png';
                 $imagePath = 'images/venues/' . $imageName;
                 // Save the image in public storage
                 Storage::disk('public')->put($imagePath, $imageData);
@@ -279,8 +278,13 @@ class VenuesController extends Controller
             // Log venue update with old and new values
             AuditLogger::log('Venue Updated', Venues::class, $venue->venue_id, $oldValues, $changedValues);
             // Redirect back with success message
-            return redirect()->route('venues.index')
-                ->with('success', 'Venue updated successfully');
+            if (url()->previous() === route('venues.edit', $id)) {
+                return redirect()->route('venues.index')
+                    ->with('success', 'Venue updated successfully');
+            } else {
+                return redirect()->back()->with('success', 'Venue updated successfully');
+            }
+
         } catch (\Exception $e) {
             // Handle any errors
             return back()->withInput()

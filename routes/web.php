@@ -189,6 +189,7 @@ Route::prefix('venues')->group(function () {
         Route::post('/{id}/toggle-status', [VenuesController::class, 'toggleStatus'])->name('venues.toggle-status');
         Route::delete('/{id}', [VenuesController::class, 'destroy'])->name('venues.destroy');
         Route::get('/{id}/venue-consent', action: [VenueConsentController::class, 'showVenueConsentForm'])->name('venues.venue-consent');
+        Route::post('/{id}/venue-consent', [VenueConsentController::class,'submitVenueConsentForm'])->name('venues.submit-venue-consent');
     });
 });
 //invigilators Route::prefix('invigilators')->group(function () {

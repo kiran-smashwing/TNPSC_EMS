@@ -56,6 +56,33 @@
             <div class="row">
                 <div class="tab-content">
                     <div class="row">
+                        @if (session('success'))
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                {{ session('success') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                        @endif
+
+                        @if (session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                {{ session('error') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                        @endif
+
+                        @if ($errors->any())
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <ul class="mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                        @endif
                         <div class="col-lg-12">
                             <div class="card">
                                 <div class="card-header">
@@ -170,7 +197,9 @@
                                         Venue Consent Form</h5>
                                 </div>
                                 <div class="card-body">
-                                    <form action="" method="POST">
+                                    <form id="venueConsentForm"
+                                        action="{{ route('venues.submit-venue-consent', $exam->exam_main_no) }}"
+                                        method="POST">
                                         @csrf
                                         <div class="mb-4">
                                             <h6 class="text-muted">Dear Venue Administrator,</h6>
@@ -184,7 +213,10 @@
                                             <div class="d-flex flex-column flex-md-row gap-3">
                                                 <div class="form-check form-check-inline">
                                                     <input class="form-check-input" type="radio" name="consent"
-                                                        id="consent_accept" value="accept" required>
+                                                        id="consent_accept" value="accept"
+                                                        {{ $venueConsents->consent_status == 'accepted' ? 'checked' : '' }}
+                                                        {{ $venueConsents->consent_status == 'denied' ? 'disabled' : '' }}
+                                                        required>
                                                     <label class="form-check-label" for="consent_accept">
                                                         <span class="badge bg-success me-2"><i
                                                                 class="feather icon-check"></i></span>I agree to host the
@@ -193,7 +225,10 @@
                                                 </div>
                                                 <div class="form-check form-check-inline">
                                                     <input class="form-check-input" type="radio" name="consent"
-                                                        id="consent_decline" value="decline" required>
+                                                        id="consent_decline" value="decline"
+                                                        {{ $venueConsents->consent_status == 'denied' ? 'checked' : '' }}
+                                                        {{ $venueConsents->consent_status == 'accepted' ? 'disabled' : '' }}
+                                                        required>
                                                     <label class="form-check-label" for="consent_decline">
                                                         <span class="badge bg-danger me-2"><i
                                                                 class="feather icon-x"></i></span>I am unable to host the
@@ -210,16 +245,30 @@
                                                 <label for="totalCandidates" class="form-label fw-bold">Total no of
                                                     Halls:</label>
                                                 <div class="col-sm-3 col-md-3">
-                                                    <select class="form-select" name="allocationCount">
+                                                    <select disabled class="form-select" name="allocationCount">
                                                         <option value="">No of Halls</option>
-                                                        <option value="200">1 - 200</option>
-                                                        <option selected value="400">2 - 400</option>
-                                                        <option value="600">3 - 600</option>
-                                                        <option value="600">4 - 800</option>
-                                                        <option value="600">5 - 1000</option>
+                                                        <option value="200"
+                                                            {{ $venueConsents->expected_candidates_count == 200 ? 'selected' : '' }}>
+                                                            1 - 200
+                                                        </option>
+                                                        <option value="400"
+                                                            {{ $venueConsents->expected_candidates_count == 400 ? 'selected' : '' }}>
+                                                            2 - 400
+                                                        </option>
+                                                        <option value="600"
+                                                            {{ $venueConsents->expected_candidates_count == 600 ? 'selected' : '' }}>
+                                                            3 - 600
+                                                        </option>
+                                                        <option value="600"
+                                                            {{ $venueConsents->expected_candidates_count == 800 ? 'selected' : '' }}>
+                                                            4 - 800
+                                                        </option>
+                                                        <option value="600"
+                                                            {{ $venueConsents->expected_candidates_count == 1000 ? 'selected' : '' }}>
+                                                            5 - 1000
+                                                        </option>
                                                         <!-- Add more options as needed -->
                                                     </select>
-
                                                 </div>
                                             </div>
 
@@ -238,46 +287,52 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr>
-                                                            <td>
-                                                                <select class="form-select" name="ciName">
-                                                                    <option value="">Select Chief Invigilator
-                                                                    </option>
-                                                                    <option value="ci1">CI 1</option>
-                                                                    <option value="ci2">CI 2</option>
-                                                                    <option value="ci3">CI 3</option>
-                                                                </select>
-                                                            </td>
-                                                            <td>
-                                                                Professor
-                                                            </td>
-                                                            <td>
-                                                                Jhondoe@gmail.com
-                                                            </td>
-                                                            <td>
-                                                                9123456780
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>
-                                                                <select class="form-select" name="ciName">
-                                                                    <option value="">Select Chief Invigilator
-                                                                    </option>
-                                                                    <option value="ci1">CI 1</option>
-                                                                    <option value="ci2">CI 2</option>
-                                                                    <option value="ci3">CI 3</option>
-                                                                </select>
-                                                            </td>
-                                                            <td>
-                                                                Professor
-                                                            </td>
-                                                            <td>
-                                                                Jhondoe@gmail.com
-                                                            </td>
-                                                            <td>
-                                                                9123456780
-                                                            </td>
-                                                        </tr>
+                                                        @php
+                                                            $totalCandidates =
+                                                                $venueConsents->expected_candidates_count ?? 0;
+                                                            $ciCount = ceil($totalCandidates / 200); // Assuming 1 CI per 200 candidates
+                                                            // Convert saved CI IDs to an array if it's a string
+                                                            $savedCIIds = is_string(
+                                                                $venueConsents->chief_invigilator_ids,
+                                                            )
+                                                                ? json_decode(
+                                                                    $venueConsents->chief_invigilator_ids,
+                                                                    true,
+                                                                )
+                                                                : $venueConsents->chief_invigilator_ids ?? [];
+                                                        @endphp
+
+                                                        @for ($i = 0; $i < $ciCount; $i++)
+                                                            <tr>
+                                                                <td>
+                                                                    <select class="form-select" name="ciName[]"
+                                                                        {{ $venueConsents->consent_status == 'accepted' ? 'disabled' : '' }}>
+                                                                        <option value="">Select Chief Invigilator
+                                                                        </option>
+                                                                        @foreach ($chiefInvigilators as $ci)
+                                                                            <option value="{{ $ci->ci_id }}"
+                                                                                {{ isset($savedCIIds[$i]) && $savedCIIds[$i] == $ci->ci_id ? 'selected' : '' }}>
+                                                                                {{ $ci->ci_name }}
+                                                                            </option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" class="form-control"
+                                                                        name="ciDesignation[]" placeholder="Designation"
+                                                                        disabled>
+                                                                </td>
+                                                                <td>
+                                                                    <input type="email" class="form-control"
+                                                                        name="ciEmail[]" placeholder="Email" disabled>
+                                                                </td>
+                                                                <td>
+                                                                    <input type="tel" class="form-control"
+                                                                        name="ciPhone[]" placeholder="Phone Number"
+                                                                        disabled>
+                                                                </td>
+                                                            </tr>
+                                                        @endfor
                                                         <!-- You can add more rows as needed -->
                                                     </tbody>
                                                 </table>
@@ -305,6 +360,7 @@
     @push('scripts')
         <!-- Include jQuery -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
 
         <script>
             $(document).ready(function() {
@@ -333,6 +389,131 @@
                 }
 
                 // Attach event listeners to the radio buttons
+                consentAcceptRadio.addEventListener('change', toggleAdditionalFields);
+                consentDeclineRadio.addEventListener('change', toggleAdditionalFields);
+
+                // Initial check on page load
+                toggleAdditionalFields();
+            });
+        </script>
+        <script>
+            // Store Chief Invigilators data as a JavaScript object for easy lookup
+            const chiefInvigilators = @json($chiefInvigilators);
+
+            // Function to update row details when CI is selected
+            function updateCIDetails(selectElement) {
+                // Find the parent row
+                const row = $(selectElement).closest('tr');
+
+                // Get selected CI ID
+                const selectedCIId = $(selectElement).val();
+
+                // Find the matching CI in the array
+                const selectedCI = chiefInvigilators.find(ci => ci.ci_id == selectedCIId);
+
+                if (selectedCI) {
+                    // Update designation input
+                    row.find('input[name="ciDesignation[]"]').val(selectedCI.ci_designation || '');
+
+                    // Update email input
+                    row.find('input[name="ciEmail[]"]').val(selectedCI.ci_email || '');
+
+                    // Update phone input
+                    row.find('input[name="ciPhone[]"]').val(selectedCI.ci_phone || '');
+                } else {
+                    // Clear fields if no CI selected
+                    row.find('input[name="ciDesignation[]"]').val('');
+                    row.find('input[name="ciEmail[]"]').val('');
+                    row.find('input[name="ciPhone[]"]').val('');
+                }
+            }
+
+            // Attach event listener to CI dropdowns
+            $(document).on('change', 'select[name="ciName[]"]:not(:disabled)', function() {
+                updateCIDetails(this);
+            });
+
+            // Trigger details update for pre-selected CIs on page load
+            $(document).ready(function() {
+                $('select[name="ciName[]"] option:selected').each(function() {
+                    if ($(this).val()) {
+                        updateCIDetails($(this).closest('select'));
+                    }
+                });
+            });
+        </script>
+        <script>
+            $(document).ready(function() {
+                $('#venueConsentForm').on('submit', function(e) {
+                    e.preventDefault();
+
+                    // Check which consent option is selected
+                    const consentValue = $('input[name="consent"]:checked').val();
+
+                    // Prepare form data
+                    const formData = new FormData(this);
+
+                    // Add additional logic for accepted consent
+                    if (consentValue === 'accept') {
+                        // Collect selected Chief Invigilator IDs
+                        const selectedCIIds = $('select[name="ciName[]"]')
+                            .map(function() {
+                                return $(this).val();
+                            })
+                            .get()
+                            .filter(id => id !== '');
+
+                        // Append additional data
+                        formData.append('chiefInvigilatorIds', JSON.stringify(selectedCIIds));
+                        formData.append('expectedCandidatesCount', $('select[name="allocationCount"]').val());
+                    }
+
+                    // Send AJAX request
+                    $.ajax({
+                        url: $(this).attr('action'),
+                        method: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(response) {
+                            // Handle successful submission
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Consent Submitted',
+                                text: response.message ||
+                                    'Your consent has been recorded successfully.',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                // Optionally redirect or refresh
+                                window.location.reload();
+                            });
+                        },
+                        error: function(xhr) {
+                            // Handle errors
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Submission Failed',
+                                text: xhr.responseJSON?.message ||
+                                    'There was an error submitting your consent.',
+                                confirmButtonText: 'Try Again'
+                            });
+                        }
+                    });
+                });
+
+                // Existing radio button toggle logic
+                const consentAcceptRadio = document.getElementById('consent_accept');
+                const consentDeclineRadio = document.getElementById('consent_decline');
+                const additionalFields = document.getElementById('additionalFields');
+
+                function toggleAdditionalFields() {
+                    if (consentAcceptRadio.checked) {
+                        additionalFields.classList.remove('d-none');
+                    } else {
+                        additionalFields.classList.add('d-none');
+                    }
+                }
+
                 consentAcceptRadio.addEventListener('change', toggleAdditionalFields);
                 consentDeclineRadio.addEventListener('change', toggleAdditionalFields);
 

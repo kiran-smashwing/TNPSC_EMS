@@ -45,21 +45,17 @@ class ChiefInvigilatorsController extends Controller
 
         // Fetch the filtered data with pagination
         $chiefInvigilator = $query->paginate(10);
+        
+        // Fetch unique district values from the same table
+        $districts = District::all(); // Fetch all districts
+        
 
-        // Fetch unique districts with ID and code
-        $districts = ChiefInvigilator::select('ci_district_id')
-            ->distinct()
-            ->get();
-
-        // Fetch unique centers with ID and code
-        $centers = ChiefInvigilator::select('ci_center_id')
-            ->distinct()
-            ->get();
-
-        // Fetch unique venues with ID and code
-        $venues = ChiefInvigilator::select('ci_venue_id')
-            ->distinct()
-            ->get();
+        // Fetch unique centers values from the same table
+        $centers = center::all();  // Fetch all centers
+            
+        // Fetch unique venues values from the same table
+        $venues = venues::all();  // Fetch all venues
+           
 
         // Return the view with data
         return view('masters.venues.chief_invigilator.index', compact('chiefInvigilator', 'districts', 'centers', 'venues'));

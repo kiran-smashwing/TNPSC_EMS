@@ -95,7 +95,7 @@
                                                         @foreach ($districts as $district)
                                                             <option value="{{ $district->district_code }}"
                                                                 {{ $district->district_code == $venue->venue_district_id ? 'selected' : '' }}>
-                                                                {{ $district->district_code }}
+                                                                {{ $district->district_name }}
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -112,7 +112,7 @@
                                                         @foreach ($centers as $center)
                                                             <option value="{{ $center->center_code }}"
                                                                 {{ $center->center_code == $venue->venue_center_id ? 'selected' : '' }}>
-                                                                {{ $center->center_code }}
+                                                                {{ $center->center_name }}
                                                             </option>
                                                         @endforeach
                                                     </select>

@@ -56,7 +56,7 @@ class ExamAuditService
             'action_type' => $actionType,
             'task_type' => $taskType,
             'role' => $role,
-            'department' => $role == 'headquarters' ? $user->role->role_department ." ".  $user->role->role_name: $role,
+            'department' => $role == 'headquarters' ? $user->role->role_department ." -  ".  $user->role->role_name: $role,
             'before_state' => $beforeState,
             'after_state' => $afterState,
             'description' => $description,

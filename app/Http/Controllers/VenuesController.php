@@ -38,13 +38,14 @@ class VenuesController extends Controller
         }
 
         // Fetch filtered venues with pagination
-        $venues = $query->paginate(10);
+        $venues = $query->get();
 
         // Fetch unique district values from the same table
-        $districts = Venues::select('venue_district_id')->distinct()->get();
+    $districts = District::all(); // Fetch all districts
+
 
         // Fetch unique center values from the same table
-        $centers = Venues::select('venue_center_id')->distinct()->get();
+        $centers = center::all(); // Fetch all venues
 
         return view('masters.venues.venue.index', compact('venues', 'districts', 'centers'));
     }

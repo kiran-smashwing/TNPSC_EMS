@@ -24,6 +24,7 @@ use App\Http\Controllers\CurrentExamController;
 use App\Http\Controllers\CompletedExamController;
 use App\Http\Controllers\QrCodeController;
 use App\Http\Controllers\MyExamController;
+use App\Http\Controllers\APDCandidatesController;
 // use App\Http\Controllers\DataController;
 
 // Public routes
@@ -266,6 +267,13 @@ Route::prefix('my-exam')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::get('/exam-task', action: [MyExamController::class, 'index'])->name('my-exam.index');
         Route::get('/{examid}/{session}', action: [MyExamController::class, 'task'])->name('my-exam.examTask');
+    });
+});
+//apd-candidates Route::prefix('apd-candidates')->group(function(){
+Route::prefix('apd-candidates')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/download-sample-csv', [APDCandidatesController::class, 'downloadSampleCsv'])->name('apd-candidates.download-sample-csv');
+        Route::post('/upload-candidates-csv', [APDCandidatesController::class, 'uploadCandidatesCsv'])->name('apd-candidates.upload-candidates-csv');
     });
 });
 // Route::get('/run-function', [DataController::class, 'addData']);

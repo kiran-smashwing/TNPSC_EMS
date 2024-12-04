@@ -33,12 +33,12 @@
                                 {{-- <h6 class="f-w-500 mb-0 me-2">Role:</h6> --}}
                                 <select name="role" class="form-select @error('role') is-invalid @enderror" aria-label="Select Role" required>
                                     <option selected disabled>Select Role</option>
-                                    <option value="headquarters" {{ old('role') == 'headquarters' ? 'selected' : '' }}>Headquarters Officers</option>
+                                    <option value="headquarters" {{ old('role') == 'headquarters' ? 'selected' : '' }}>Department Officials</option>
                                     <option value="district" {{ old('role') == 'district' ? 'selected' : '' }}>District Collectorates</option>
-                                    <option value="center" {{ old('role') == 'center' ? 'selected' : '' }}>Centers</option>
-                                    <option value="treasury" {{ old('role') == 'treasury' ? 'selected' : '' }}>Sub-Treasury</option>
-                                    <option value="mobile_team_staffs" {{ old('role') == 'mobile_team_staffs' ? 'selected' : '' }}>Mobile Team</option>
-                                    <option value="venue" {{ old('role') == 'venue' ? 'selected' : '' }}>Venues</option>
+                                    <option value="center" {{ old('role') == 'center' ? 'selected' : '' }}>Centers/Sub Treasuries</option>
+                                    <option value="treasury" {{ old('role') == 'treasury' ? 'selected' : '' }}>District Treasuries</option>
+                                    <option value="mobile_team_staffs" {{ old('role') == 'mobile_team_staffs' ? 'selected' : '' }}>Mobile Teams</option>
+                                    <option value="venue" {{ old('role') == 'venue' ? 'selected' : '' }}>Venues(Schools/Colleges)</option>
                                     <option value="ci" {{ old('role') == 'ci' ? 'selected' : '' }}>Chief Invigilators</option>
                                 </select>
                                 @error('role')

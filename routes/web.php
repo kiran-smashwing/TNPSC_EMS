@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DistrictCandidatesController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
@@ -25,7 +26,9 @@ use App\Http\Controllers\CompletedExamController;
 use App\Http\Controllers\QrCodeController;
 use App\Http\Controllers\MyExamController;
 use App\Http\Controllers\APDCandidatesController;
-// use App\Http\Controllers\DataController;
+use App\Http\Controllers\TestMailController;
+use App\Http\Controllers\IDCandidatesController;
+use App\Http\Controllers\VenueConsentController;
 
 // Public routes
 Route::get('/', function () {
@@ -92,9 +95,7 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/current-exam/examActivityTask', [CurrentExamController::class, 'examActivityTask'])->name('current-exam.examActivityTask');
     Route::get('/current-exam/districtTask', [CurrentExamController::class, 'districtCollectrateTask'])->name('current-exam.districtTask');
     Route::get('/current-exam/increaseCandidate', [CurrentExamController::class, 'increaseCandidate'])->name('current-exam.incCandidate');
-    Route::get('/current-exam/intimateCollectorate', [CurrentExamController::class, 'sendMailtoCollectorate'])->name('current-exam.intimateCollectorate');
     Route::get('/current-exam/venueConsent', [CurrentExamController::class, 'venueConsent'])->name('current-exam.venueConsent');
-    Route::get('/current-exam/intimateVenue', [CurrentExamController::class, 'selectSendMailtoVenue'])->name('current-exam.intimateVenue');
     Route::get('/current-exam/confirmVenues', [CurrentExamController::class, 'confirmVenues'])->name('current-exam.confirmVenues');
     Route::get('/current-exam/ciReceiveMaterials', [CurrentExamController::class, 'ciReceiveMaterials'])->name('current-exam.ciReceiveMaterials');
     Route::get('/current-exam/treasury-mobTeam', [CurrentExamController::class, 'mobileTeamReceiveMaterialsFromTreasury'])->name('current-exam.treasury-mobTeam');
@@ -111,12 +112,18 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/completed-exam', [CompletedExamController::class, 'index'])->name('completed-exam');
     Route::get('/completed-exam/task', [CompletedExamController::class, 'task'])->name('completed-exam.task');
     Route::get('/completed-exam/edit', [CompletedExamController::class, 'edit'])->name('completed-exam.edit');
+    Route::get('/test-mail', [TestMailController::class, 'sendTestEmail']);
+    Route::get('/password/reset', [AuthController::class, 'showResetForm'])->name('password.reset');
     //Qr Code Reader
     Route::get('/qr-code-reader', [QrCodeController::class, 'index'])->name('qr-code-reader');
     Route::post('/process-qr-code', [QrCodeController::class, 'process'])->name('process-qr-code');
     // Add other protected routes here
 });
 
+// email verification
+Route::get('/district/verify/{token}', [DistrictController::class, 'verifyEmail'])->name('district.verify');
+Route::get('/center/verify/{token}', [CenterController::class, 'verifyEmail'])->name('center.verifyEmail');
+Route::get('/department-official/verify/{token}', [DepartmentOfficialsController::class, 'verifyEmail'])->name('department-official.verifyEmail');
 //District Route::prefix('district')->group(function () {
 Route::prefix('district')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
@@ -173,7 +180,7 @@ Route::prefix('mobile-team-staffs')->group(function () {
 //venues Route::prefix('venues')->group(function () {
 Route::prefix('venues')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
-        Route::get('/', [VenuesController::class, 'index'])->name('venues.index');
+        Route::get('/', action: [VenuesController::class, 'index'])->name('venues.index');
         Route::get('/create', [VenuesController::class, 'create'])->name('venues.create');
         Route::post('/', [VenuesController::class, 'store'])->name('venues.store');
         Route::get('/{id}/edit', [VenuesController::class, 'edit'])->name('venues.edit');
@@ -181,6 +188,7 @@ Route::prefix('venues')->group(function () {
         Route::get('/{id}', [VenuesController::class, 'show'])->name('venues.show');
         Route::post('/{id}/toggle-status', [VenuesController::class, 'toggleStatus'])->name('venues.toggle-status');
         Route::delete('/{id}', [VenuesController::class, 'destroy'])->name('venues.destroy');
+        Route::get('/{id}/venue-consent', action: [VenueConsentController::class, 'showVenueConsentForm'])->name('venues.venue-consent');
     });
 });
 //invigilators Route::prefix('invigilators')->group(function () {
@@ -274,6 +282,22 @@ Route::prefix('apd-candidates')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::get('/download-sample-csv', [APDCandidatesController::class, 'downloadSampleCsv'])->name('apd-candidates.download-sample-csv');
         Route::post('/upload-candidates-csv', [APDCandidatesController::class, 'uploadCandidatesCsv'])->name('apd-candidates.upload-candidates-csv');
+    });
+});
+//id-candidates Route::prefix('id-candidates')->group(function(){
+Route::prefix('id-candidates')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::post('/update-percentage', [IDCandidatesController::class, 'updatePercentage'])->name('id-candidates.update-percentage');
+        Route::get('/download-updated-count-csv/{examId}', [IDCandidatesController::class, 'downloadUpdatedCountCsv'])->name('id-candidates.download-updated-count-csv');
+        Route::get('/intimateCollectorate/{examId}', [IDCandidatesController::class, 'showDistrictIntimationForm'])->name('id-candidates.intimateCollectorate');
+        Route::post('/send-accommodation-email', [IDCandidatesController::class, 'sendAccommodationEmail'])->name('id-candidates.send-accommodation-email');
+    });
+});
+//disitrict-candidates Route::prefix('district-candidates')->group(function(){
+Route::prefix('district-candidates')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+    Route::get('/showVenueIntimationForm/{examId}', [DistrictCandidatesController::class, 'showVenueIntimationForm'])->name('district-candidates.showVenueIntimationForm');
+    Route::post('/processVenueConsentEmail', [DistrictCandidatesController::class, 'processVenueConsentEmail'])->name('district-candidates.processVenueConsentEmail');
     });
 });
 // Route::get('/run-function', [DataController::class, 'addData']);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\TreasuryOfficer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use App\Services\AuditLogger;
 use App\Models\District;
 use Illuminate\Support\Facades\Storage;
@@ -48,74 +49,85 @@ class TreasuryOfficerController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'district' => 'required|string|max:50',
-            'name' => 'required|string|max:255',
-            'designation' => 'required|string|max:255',
-            'phone' => 'required|string|max:15',
-            'email' => 'required|email|unique:treasury_officer,tre_off_email',
-            'employeeid' => 'required|string|unique:treasury_officer,tre_off_employeeid',
-            'password' => 'required|string|min:6',
-            'cropped_image' => 'nullable|string'
+{
+    $validated = $request->validate([
+        'district' => 'required|string|max:50',
+        'name' => 'required|string|max:255',
+        'designation' => 'required|string|max:255',
+        'phone' => 'required|string|max:15',
+        'email' => 'required|email|unique:treasury_officer,tre_off_email',
+        'employeeid' => 'required|string|unique:treasury_officer,tre_off_employeeid',
+        'password' => 'required|string|min:6',
+        'cropped_image' => 'nullable|string',
+    ]);
 
+    try {
+        if (!empty($validated['cropped_image'])) {
+            // Remove the data URL prefix if present
+            $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
+            $imageData = base64_decode($imageData);
+
+            if ($imageData === false) {
+                throw new \Exception('Base64 decode failed.');
+            }
+
+            // Create a unique image name
+            $imageName = 'tre_off_' . time() . '.png';
+            $imagePath = 'images/treasury/' . $imageName;
+
+            // Store the image
+            $stored = Storage::disk('public')->put($imagePath, $imageData);
+
+            if (!$stored) {
+                throw new \Exception('Failed to save image to storage.');
+            }
+
+            // Compress the image if it exceeds 200 KB
+            $fullImagePath = storage_path('app/public/' . $imagePath);
+            if (filesize($fullImagePath) > 200 * 1024) {
+                $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200); // 200 KB max size
+            }
+
+            $validated['image'] = $imagePath;
+        }
+
+        // Hash the password
+        $plainPassword = $validated['password']; // Store the plain password for email
+        $validated['password'] = Hash::make($validated['password']);
+
+        // Create the treasury officer record
+        $treasuryOfficer = TreasuryOfficer::create([
+            'tre_off_district_id' => $validated['district'],
+            'tre_off_name' => $validated['name'],
+            'tre_off_designation' => $validated['designation'],
+            'tre_off_phone' => $validated['phone'],
+            'tre_off_email' => $validated['email'],
+            'tre_off_employeeid' => $validated['employeeid'],
+            'tre_off_password' => $validated['password'],
+            'tre_off_image' => $validated['image'] ?? null,
         ]);
 
-        try {
+        // Send email notification
+        $emailData = [
+            'name' => $treasuryOfficer->tre_off_name,
+            'email' => $treasuryOfficer->tre_off_email,
+            'password' => $plainPassword, // Send the plain password
+        ];
 
-            if (!empty($validated['cropped_image'])) {
-                // Remove the data URL prefix if present
-                $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
-                $imageData = base64_decode($imageData);
+        Mail::send('email.treasury_officer_created', $emailData, function ($message) use ($emailData) {
+            $message->to($emailData['email'])
+                ->subject('Welcome to Treasury Management Platform');
+        });
 
-                if ($imageData === false) {
-                    throw new \Exception('Base64 decode failed.');
-                }
+        // Log the creation
+        AuditLogger::log('Treasury Officer Created', TreasuryOfficer::class, $treasuryOfficer->tre_off_id, null, $treasuryOfficer->toArray());
 
-                // Create a unique image name
-                $imageName = 'tre_off_' . time() . '.png';
-                $imagePath = 'images/treasury/' . $imageName;
-
-                // Store the image
-                $stored = Storage::disk('public')->put($imagePath, $imageData);
-
-                if (!$stored) {
-                    throw new \Exception('Failed to save image to storage.');
-                }
-
-
-                // Compress the image if it exceeds 200 KB
-                $fullImagePath = storage_path('app/public/' . $imagePath);
-                if (filesize($fullImagePath) > 200 * 1024) {
-                    // Use the ImageService to save and compress the image
-                    $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200);  // 200 KB max size
-                }
-
-                $validated['image'] = $imagePath;
-            }
-            // Hash the password
-            $validated['password'] = Hash::make($validated['password']);
-
-            // Create the treasury officer record
-            $treasuryOfficer = TreasuryOfficer::create([
-                'tre_off_district_id' => $validated['district'],
-                'tre_off_name' => $validated['name'],
-                'tre_off_designation' => $validated['designation'],
-                'tre_off_phone' => $validated['phone'],
-                'tre_off_email' => $validated['email'],
-                'tre_off_employeeid' => $validated['employeeid'],
-                'tre_off_password' => $validated['password'],
-                'tre_off_image' => $validated['image'] ?? null
-            ]);
-
-            // Log the creation
-            AuditLogger::log('Treasury Officer Created', TreasuryOfficer::class, $treasuryOfficer->tre_off_id, null, $treasuryOfficer->toArray());
-
-            return redirect()->route('treasury-officers.index')->with('success', 'Treasury Officer created successfully');
-        } catch (\Exception $e) {
-            return back()->withInput()->with('error', 'Error creating treasury officer: ' . $e->getMessage());
-        }
+        return redirect()->route('treasury-officers.index')->with('success', 'Treasury Officer created successfully and notification email sent.');
+    } catch (\Exception $e) {
+        return back()->withInput()->with('error', 'Error creating treasury officer: ' . $e->getMessage());
     }
+}
+
 
     public function edit($id)
     {

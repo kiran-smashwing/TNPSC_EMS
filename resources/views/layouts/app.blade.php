@@ -10,13 +10,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="description"
-        content="Able Pro is trending dashboard template made using Bootstrap 5 design framework. Able Pro is available in Bootstrap, React, CodeIgniter, Angular,  and .net Technologies." />
+        content="TNPSC EMS is a comprehensive examination management system designed to efficiently manage and streamline TNPSC-related processes and functionalities. Developed and maintained by Smashwing Technologies." />
     <meta name="keywords"
-        content="Bootstrap admin template, Dashboard UI Kit, Dashboard Template, Backend Panel, react dashboard, angular dashboard" />
-    <meta name="author" content="Phoenixcoded" />
-
+        content="Tamil Nadu, தமிழ்நாடு, TNPSC, TNPSC EMS, Examination Management System, Tamil Nadu Public Service Commission, தமிழ்நாடு அரசுப் பணியாளர் தேர்வாணையம், Smashwing Technologies, Exam Management, TNPSC Software Solutions" />
+    <meta name="author" content="Smashwing Technologies" />
+    <!-- SEO and Indexing -->
+    <meta name="robots" content="index, follow, max-snippet:-1, max-video-preview:-1, max-image-preview:large" />
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="TNPSC EMS - Examination Management System" />
+    <meta property="og:description"
+        content="Innovative digital platform for efficient TNPSC examination managment processes" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ url('/') }}" />
+    <meta property="og:site_name" content="TNPSC EMS - Examination Management System" />
+    <meta property="og:locale" content="en_IN" />
+    <!-- Geo Tags -->
+    <meta name="geo.region" content="IN-TN" />
+    <meta name="geo.placename" content="Tamil Nadu" />
+    <!-- Language and Localization -->
+    <meta http-equiv="content-language" content="en, ta" />
     <!-- [Favicon] icon -->
-    <link rel="icon" href="{{ asset('storage/assets/images/favicon.svg') }}" type="image/x-icon" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('storage/assets/images/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('storage/assets/images/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('storage/assets/images/favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ asset('storage/assets/site.webmanifest') }}">
     <!-- [Font] Family -->
     <link rel="stylesheet" href="{{ asset('storage/assets/fonts/inter/inter.css') }}" id="main-font-link" />
 
@@ -46,6 +64,47 @@
             });
         })();
     </script>
+    <style>
+        /* Loader styles */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 1);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loader img {
+            width: 196px;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #09f;
+            animation: spin 1s ease infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 </head>
 </head>
 <!-- [Head] end -->
@@ -56,6 +115,12 @@
     <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;">
         <!-- Toasts will be dynamically inserted here -->
     </div>
+    <!-- Loader -->
+    <div class="loader" id="loader">
+        <img src="{{ asset('storage/assets/images/loader-image.png') }}" alt="Logo">
+        <div class="spinner"></div>
+    </div>
+    <!--Loader End -->
     @yield('content')
     <script>
         // Get the base URL from the data attribute
@@ -156,6 +221,14 @@
                 this.parentElement.remove();
             });
         }
+    </script>
+    <script>
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.style.display = 'none';
+            }
+        });
     </script>
     <!-- [Body] end -->
 </body>

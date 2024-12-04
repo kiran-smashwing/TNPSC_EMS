@@ -6,7 +6,10 @@ use App\Models\DepartmentOfficial;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
 use App\Services\AuditLogger;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use App\Services\ImageCompressService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
@@ -37,13 +40,17 @@ class DepartmentOfficialsController extends Controller
         return view('masters.department.officials.create', compact('roles'));
     }
 
+
+
     public function store(Request $request)
     {
         // Custom error messages for validation
         $messages = [
-            'role.required' => 'Please select a role',
-            'role.integer' => 'Please select a valid role',
+            'role.required' => 'Please select a role.',
+            'role.integer' => 'Please select a valid role.',
         ];
+    
+        // Validate the incoming request
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'designation' => 'nullable|string|max:255',
@@ -54,41 +61,34 @@ class DepartmentOfficialsController extends Controller
             'password' => 'required|string|min:6',
             'cropped_image' => 'nullable|string',
         ], $messages);
-
+    
         try {
-
+            // Handle image upload
             if (!empty($validated['cropped_image'])) {
-                // Remove the data URL prefix if present
                 $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
                 $imageData = base64_decode($imageData);
-
+    
                 if ($imageData === false) {
                     throw new \Exception('Base64 decode failed.');
                 }
-
-                // Create a unique image name
+    
                 $imageName = $validated['email'] . time() . '.png';
                 $imagePath = 'images/dept_officials/' . $imageName;
-
+    
                 // Store the image
                 $stored = Storage::disk('public')->put($imagePath, $imageData);
-
                 if (!$stored) {
                     throw new \Exception('Failed to save image to storage.');
                 }
-
-                // Compress the image if it exceeds 200 KB
-                $fullImagePath = storage_path('app/public/' . $imagePath);
-                if (filesize($fullImagePath) > 200 * 1024) {
-                    // Assuming you have an image service for compressing the image
-                    $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200);  // 200 KB max size
-                }
+    
                 $validated['image'] = $imagePath;
-
             }
-            // Hash password
+    
+            // Hash the password and generate verification token
             $validated['dept_off_password'] = Hash::make($validated['password']);
-            // Create a new department official record
+            $validated['verification_token'] = Str::random(64);
+    
+            // Create the department officer record
             $official = DepartmentOfficial::create([
                 'dept_off_name' => $validated['name'],
                 'dept_off_designation' => $validated['designation'],
@@ -96,20 +96,72 @@ class DepartmentOfficialsController extends Controller
                 'dept_off_role' => $validated['role'],
                 'dept_off_emp_id' => $validated['employee_id'],
                 'dept_off_email' => $validated['email'],
-                'dept_off_password' => $validated['dept_off_password'], // Hashing the password before storing
-                'dept_off_image' => $validated['image'] ?? null // If no image was uploaded, this will be null
+                'dept_off_password' => $validated['dept_off_password'], // Hashed password
+                'dept_off_image' => $validated['image'] ?? null,
+                'verification_token' => $validated['verification_token'], // Verification token
             ]);
-
-            // Log the creation action in the audit log
+    
+            // Send welcome email
+            Mail::send('email.department_official_created', [
+                'name' => $official->dept_off_name,
+                'email' => $official->dept_off_email,
+                'role' => $official->role,
+                'password' => $request->password, // Plain password for first login
+            ], function ($message) use ($official) {
+                $message->to($official->dept_off_email)
+                    ->subject('Welcome to the System');
+            });
+    
+            // Send email verification link
+            Mail::send('email.department_official_verification', [
+                'name' => $official->dept_off_name,
+                'email' => $official->dept_off_email,
+                'verification_link' => route('department-official.verifyEmail', ['token' => urlencode($official->verification_token)]),
+            ], function ($message) use ($official) {
+                $message->to($official->dept_off_email)
+                    ->subject('Verify Your Email Address');
+            });
+    
+            // Log the creation action
             AuditLogger::log('Department Official Created', DepartmentOfficial::class, $official->dept_off_emp_id, null, $official->toArray());
-
+    
             // Redirect with success message
-            return redirect()->route('department-officials.index')->with('success', 'Department official added successfully.');
+            return redirect()->route('department-officials.index')
+                ->with('success', 'Department official added successfully. Email verification link sent.');
         } catch (\Exception $e) {
             // Handle any errors during the process
-            return redirect()->back()->with('error', 'There was an issue creating the department official: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'There was an issue creating the department official: ' . $e->getMessage());
         }
     }
+    
+
+    public function verifyEmail($token)
+    {
+        Log::info('Verification token received: ' . $token);
+
+        $decodedToken = urldecode($token);
+
+        $official = DepartmentOfficial::where('verification_token', $decodedToken)->first();
+
+        if (!$official) {
+            Log::error('Verification failed: Token not found. Token: ' . $decodedToken);
+            return redirect()->route('department-officials.index')->with('error', 'Invalid verification link.');
+        }
+
+        $official->update([
+            'dept_off_email_status' => true, // Updating the correct column for email verification
+            'verification_token' => null, // Clear the token after verification
+        ]);
+
+        Log::info('Email verified successfully for department officer ID: ' . $official->dept_off_emp_id);
+
+        return redirect()->route('department-officials.index')->with('success', 'Email verified successfully.');
+    }
+
+
+
 
     public function edit($id)
     {

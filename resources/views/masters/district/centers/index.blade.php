@@ -190,21 +190,24 @@
                             <form id="filterForm" method="GET" action="{{ route('centers.index') }}" class="mb-3">
                                 <div class="filter-item">
                                     <select class="form-select" id="districtFilter" name="district">
-                                        <option value="">Select District</option>
+                                        <option value="">Select District Name</option>
                                         @foreach ($districts as $district)
                                             <option value="{{ $district->district_code }}" {{ request('district') == $district->district_code ? 'selected' : '' }}>
-                                                {{ $district->district_code }}
+                                                {{ $district->district_name }}
                                             </option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="filter-item">
+                                    
+                             
                                     <select class="form-select" id="centerCodeFilter" name="centerCode">
-                                        <option value="">Select Center Code</option>
+                                        <option value="">Select Center Name</option>
+                                    
                                         @foreach ($centerCodes as $centerCode)
-                                            <option value="{{ $centerCode }}"
-                                                {{ request('centerCode') == $centerCode ? 'selected' : '' }}>
-                                                {{ $centerCode }}
+                                            <option value="{{ $centerCode->center_code }}"
+                                                {{ request('centerCode') == $centerCode->center_code ? 'selected' : '' }}>
+                                                {{ $centerCode->center_name}} 
                                             </option>
                                         @endforeach
                                     </select>

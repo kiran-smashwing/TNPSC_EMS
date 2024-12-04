@@ -46,20 +46,15 @@ class InvigilatorsController extends Controller
         // Fetch filtered invigilators with pagination
         $invigilators = $query->paginate(10);
 
-        // Fetch unique district values from the Invigilator table
-        $districts = Invigilator::select('invigilator_district_id')
-            ->distinct()
-            ->get();
+        // Fetch unique district values from the same table
+        $districts = District::all(); // Fetch all districts
+        
 
-        // Fetch unique center values from the Invigilator table
-        $centers = Invigilator::select('invigilator_center_id')
-            ->distinct()
-            ->get();
-
-        // Fetch unique venue values from the Invigilator table
-        $venues = Invigilator::select('invigilator_venue_id')
-            ->distinct()
-            ->get();
+        // Fetch unique centers values from the same table
+        $centers = center::all();  // Fetch all centers
+            
+        // Fetch unique venues values from the same table
+        $venues = venues::all();  // Fetch all venues
 
         // Return the view with the necessary data
         return view('masters.venues.invigilator.index', compact('invigilators', 'districts', 'centers', 'venues'));

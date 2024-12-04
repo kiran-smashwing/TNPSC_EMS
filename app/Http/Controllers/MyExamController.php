@@ -32,7 +32,7 @@ class MyExamController extends Controller
         // Fetch the audit details for the exam
         $auditDetails = DB::table('exam_audit_logs')
             ->where('exam_id', $examId)
-            ->orderBy('created_at', 'desc')
+            ->orderBy('created_at', 'asc')
             ->get();
 
         return view('my_exam.task', compact('session','auditDetails'));

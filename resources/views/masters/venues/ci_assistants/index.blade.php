@@ -194,11 +194,11 @@
                                 <!-- District Filter for CI Assistants -->
                                 <div class="filter-item">
                                     <select class="form-select" id="districtFilter" name="district">
-                                        <option value="">Select District</option>
+                                        <option value="">Select District Name</option>
                                         @foreach ($districts as $district)
-                                            <option value="{{ $district->cia_district_id }}"
-                                                {{ request('district') == $district->cia_district_id ? 'selected' : '' }}>
-                                                {{ $district->cia_district_id }}
+                                            <option value="{{ $district->cia_district_code }}"
+                                                {{ request('district') == $district->cia_district_code ? 'selected' : '' }}>
+                                                {{ $district->district_name }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -207,11 +207,11 @@
                                 <!-- Center Filter for CI Assistants -->
                                 <div class="filter-item">
                                     <select class="form-select" id="centerFilter" name="center">
-                                        <option value="">Select Center</option>
+                                        <option value="">Select Center Name</option>
                                         @foreach ($centers as $center)
-                                            <option value="{{ $center->cia_center_id }}"
-                                                {{ request('center') == $center->cia_center_id ? 'selected' : '' }}>
-                                                {{ $center->cia_center_id }}
+                                            <option value="{{ $center->cia_center_code }}"
+                                                {{ request('center') == $center->cia_center_code ? 'selected' : '' }}>
+                                                {{ $center->center_name }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -220,11 +220,11 @@
                                 <!-- Venue Filter for CI Assistants -->
                                 <div class="filter-item">
                                     <select class="form-select" id="venueFilter" name="venue">
-                                        <option value="">Select Venue</option>
+                                        <option value="">Select Venue Name</option>
                                         @foreach ($venues as $venue)
-                                            <option value="{{ $venue->cia_venue_id }}"
-                                                {{ request('venue') == $venue->cia_venue_id ? 'selected' : '' }}>
-                                                {{ $venue->cia_venue_id }}
+                                            <option value="{{ $venue->cia_venue_code }}"
+                                                {{ request('venue') == $venue->cia_venue_code ? 'selected' : '' }}>
+                                                {{ $venue->venue_name }}
                                             </option>
                                         @endforeach
                                     </select>

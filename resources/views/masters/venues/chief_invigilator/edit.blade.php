@@ -98,7 +98,7 @@
                                                             @foreach ($districts as $district)
                                                                 <option value="{{ $district->district_code }}"
                                                                     {{ old('district', $chiefInvigilator->ci_district_id) == $district->district_code ? 'selected' : '' }}>
-                                                                    {{ $district->district_code }}
+                                                                    {{ $district->district_name }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
@@ -118,7 +118,7 @@
                                                             @foreach ($centers as $center)
                                                                 <option value="{{ $center->center_code }}"
                                                                     {{ old('center', $chiefInvigilator->ci_center_id) == $center->center_code ? 'selected' : '' }}>
-                                                                    {{ $center->center_code }}
+                                                                    {{ $center->center_name }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
@@ -138,7 +138,7 @@
                                                             @foreach ($venues as $venue)
                                                                 <option value="{{ $venue->venue_code }}"
                                                                     {{ old('venue', $chiefInvigilator->ci_venue_id) == $venue->venue_code ? 'selected' : '' }}>
-                                                                    {{ $venue->venue_code }}
+                                                                    {{ $venue->venue_name }}
                                                                 </option>
                                                             @endforeach
                                                         </select>

@@ -6,8 +6,11 @@ use App\Models\District;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Services\AuditLogger;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use App\Services\ImageCompressService;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class DistrictController extends Controller
 {
@@ -44,6 +47,8 @@ class DistrictController extends Controller
         return view('masters.district.collectorate.create');
     }
 
+
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -61,8 +66,8 @@ class DistrictController extends Controller
         ]);
 
         try {
+            // Process the cropped image if present
             if (!empty($validated['cropped_image'])) {
-                // Remove the data URL prefix if present
                 $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
                 $imageData = base64_decode($imageData);
 
@@ -70,31 +75,23 @@ class DistrictController extends Controller
                     throw new \Exception('Base64 decode failed.');
                 }
 
-                // Create a unique image name
                 $imageName = $validated['district_code'] . time() . '.png';
                 $imagePath = 'images/districts/' . $imageName;
 
-                // Store the image
                 $stored = Storage::disk('public')->put($imagePath, $imageData);
 
                 if (!$stored) {
                     throw new \Exception('Failed to save image to storage.');
                 }
 
-
-                // Compress the image if it exceeds 200 KB
-                $fullImagePath = storage_path('app/public/' . $imagePath);
-                if (filesize($fullImagePath) > 200 * 1024) {
-                    // Use the ImageService to save and compress the image
-                    $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200);  // 200 KB max size
-                }
-
                 $validated['image'] = $imagePath;
             }
 
-            // Hash password
+            // Hash the password and generate a verification token
             $validated['district_password'] = Hash::make($validated['password']);
-            // Map the fields to match your database columns
+            $validated['verification_token'] = Str::random(64);
+
+            // Create the district record
             $district = District::create([
                 'district_name' => $validated['district_name'],
                 'district_code' => $validated['district_code'],
@@ -106,20 +103,67 @@ class DistrictController extends Controller
                 'district_address' => $validated['address'],
                 'district_longitude' => $validated['longitude'],
                 'district_latitude' => $validated['latitude'],
-                'district_image' => $validated['image'] ?? null
+                'district_image' => $validated['image'] ?? null,
+                'verification_token' => Str::random(64),
             ]);
 
-            // Log district creation with new values
-            AuditLogger::log('District Created', District::class, $district->district_id, null, $district->toArray());
+            // Send the welcome email
+            Mail::send('email.district_created', [
+                'name' => $district->district_name,
+                'email' => $district->district_email,
+                'password' => $request->password,
+            ], function ($message) use ($district) {
+                $message->to($district->district_email)
+                    ->subject('Welcome to Our Platform');
+            });
 
+            // Send the email verification link
+            Mail::send('email.district_verification', [
+                'name' => $district->district_name,
+                'email' => $district->district_email,
+                'verification_link' => route('district.verify', ['token' => $district->verification_token]),
+            ], function ($message) use ($district) {
+                $message->to($district->district_email)
+                    ->subject('Verify Your Email Address');
+            });
 
+            // Redirect with success message
             return redirect()->route('district.index')
-                ->with('success', 'District created successfully');
+                ->with('success', 'District created successfully. Email verification link has been sent.');
         } catch (\Exception $e) {
+            // Handle exceptions and show an error message
             return back()->withInput()
                 ->with('error', 'Error creating district: ' . $e->getMessage());
         }
     }
+
+
+    public function verifyEmail($token)
+    {
+        Log::info('Verification token received: ' . $token);
+
+        $decodedToken = urldecode($token);
+
+        $district = District::where('verification_token', $decodedToken)->first();
+
+        if (!$district) {
+            Log::error('Verification failed: Token not found in database. Token: ' . $decodedToken);
+            return redirect()->route('district.index')->with('error', 'Invalid verification link.');
+        }
+
+        $district->update([
+            'district_email_status' => true,
+            'verification_token' => null,
+        ]);
+
+        Log::info('Email verified successfully for district ID: ' . $district->district_id);
+
+        return redirect()->route('district.index')->with('success', 'Email verified successfully.');
+    }
+
+
+
+
 
 
     public function edit($id)

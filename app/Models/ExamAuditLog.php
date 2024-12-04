@@ -26,13 +26,10 @@ class ExamAuditLog extends Model
         'metadata' => 'array',
     ];
 
-    public function exam(): BelongsTo
-    {
-        return $this->belongsTo(Exam::class);
-    }
-
+ 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
+    
 }

@@ -56,7 +56,7 @@ class ExamAuditService
             'action_type' => $actionType,
             'task_type' => $taskType,
             'role' => $role,
-            'department' => $role == 'headquarters' ? $user->role->role_department ." -  ".  $user->role->role_name: $role,
+            'department' => $role == 'headquarters' ? $user->role->role_department . " -  " . $user->role->role_name : $role,
             'before_state' => $beforeState,
             'after_state' => $afterState,
             'description' => $description,
@@ -70,5 +70,25 @@ class ExamAuditService
             ->where('exam_id', $examId)
             ->orderBy('created_at', 'desc')
             ->get();
+    }
+    public function findLog(array $criteria): ?ExamAuditLog
+    {
+        return ExamAuditLog::where($criteria)->first();
+    }
+
+    public function updateLog(
+        int $logId,
+        ?array $metadata = null,
+        ?array $afterState = null,
+        ?string $description = null
+    ): bool {
+        $log = ExamAuditLog::find($logId);
+        if ($log) {
+            $log->metadata = $metadata;
+            $log->after_state = $afterState;
+            $log->description = $description;
+            return $log->save();
+        }
+        return false;
     }
 }

@@ -195,10 +195,10 @@
                                 <!-- Venue Filter -->
                                 <div class="filter-item">
                                     <select class="form-select" id="venueFilter" name="venue">
-                                        <option value="">Select Venue</option>
+                                        <option value="">Select Venue Name</option>
                                         @foreach ($venues as $venue)
-                                            <option value="{{ $venue->scribe_venue_id }}">
-                                                {{ $venue->scribe_venue_id }} 
+                                            <option value="{{ $venue->scribe_venue_code }}">
+                                                {{ $venue->venue_name }} 
                                             </option>
                                         @endforeach
                                     </select>
@@ -207,10 +207,10 @@
                                 <!-- Center Filter -->
                                 <div class="filter-item">
                                     <select class="form-select" id="centerFilter" name="center">
-                                        <option value="">Select Center</option>
+                                        <option value="">Select Center Name</option>
                                         @foreach ($centers as $center)
-                                            <option value="{{ $center->scribe_center_id }}">
-                                                {{ $center->scribe_center_id }} 
+                                            <option value="{{ $center->scribe_center_code }}">
+                                                {{ $center->center_name }} 
                                             </option>
                                         @endforeach
                                     </select>
@@ -219,10 +219,10 @@
                                 <!-- District Filter -->
                                 <div class="filter-item">
                                     <select class="form-select" id="districtFilter" name="district">
-                                        <option value="">Select District</option>
+                                        <option value="">Select District Name</option>
                                         @foreach ($districts as $district)
-                                            <option value="{{ $district->scribe_district_id }}">
-                                                {{ $district->scribe_district_id }} 
+                                            <option value="{{ $district->scribe_district_code }}">
+                                                {{ $district->district_name }} 
                                             </option>
                                         @endforeach
                                     </select>

@@ -43,18 +43,16 @@ class ScribeController extends Controller
         // Fetch filtered scribes
         $scribes = $query->paginate(10);
 
-        // Fetch distinct districts, centers, and venues only present in the Scribe table
-        $districts = District::whereIn('district_id', function ($query) {
-            $query->selectRaw('CAST(scribe_district_id AS INTEGER)')->from('scribe');
-        })->get(['district_id', 'district_name']);
+        // Fetch unique district values from the same table
+        $districts = District::all(); // Fetch all districts
+        
 
-        $centers = Center::whereIn('center_id', function ($query) {
-            $query->selectRaw('CAST(scribe_center_id AS INTEGER)')->from('scribe');
-        })->get(['center_id', 'center_name']);
+        // Fetch unique centers values from the same table
+        $centers = center::all();  // Fetch all centers
+            
+        // Fetch unique venues values from the same table
+        $venues = venues::all();  // Fetch all venues
 
-        $venues = Venues::whereIn('venue_id', function ($query) {
-            $query->selectRaw('CAST(scribe_venue_id AS INTEGER)')->from('scribe');
-        })->get(['venue_id', 'venue_name']);
 
         // Return view with the filtered scribes and filter data
         return view('masters.venues.scribe.index', compact('scribes', 'districts', 'centers', 'venues'));

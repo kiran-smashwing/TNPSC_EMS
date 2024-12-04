@@ -107,7 +107,6 @@ class CurrentExamController extends Controller
 
             DB::commit();
             // Log the action
-            // Log the action
             $currentUser = current_user();
             $userName = $currentUser ? $currentUser->display_name : 'Unknown';
             $this->auditService->log(
@@ -292,15 +291,9 @@ class CurrentExamController extends Controller
     {
         return view('current_exam.venue-consent');
     }
-    public function sendMailtoCollectorate()
-    {
-        return view('current_exam.send-mailto-collectorate');
-    }
+ 
 
-    public function selectSendMailtoVenue()
-    {
-        return view('current_exam.send-mailto-venue');
-    }
+
     public function confirmVenues()
     {
         return view('current_exam.confirm-venues');

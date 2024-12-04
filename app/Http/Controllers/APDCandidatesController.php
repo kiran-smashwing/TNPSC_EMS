@@ -200,25 +200,42 @@ class APDCandidatesController extends Controller
     {
         $currentUser = current_user();
         $userName = $currentUser ? $currentUser->display_name : 'Unknown';
-
+    
         $metadata = [
             'user_name' => $userName,
             'successful_inserts' => $successfulInserts,
             'failed_count' => $failedCount,
             'uploaded_csv_link' => $uploadedFileUrl, // Include uploaded file link
-            'failed_csv_link' => $failedCsvPath ? url('storage/' . $failedCsvPath) : null
+            'failed_csv_link' => $failedCsvPath ? url('storage/' . $failedCsvPath) : null,
         ];
-
-        $this->auditService->log(
-            examId: $examId,
-            actionType: 'uploaded',
-            taskType: 'apd_expected_candidates_upload',
-            afterState: $exam->toArray(),
-            description: 'Uploaded APD expected candidates CSV',
-            metadata: $metadata
-        );
+    
+        // Check if a log already exists for this exam and task type
+        $existingLog = $this->auditService->findLog([
+            'exam_id' => $examId,
+            'task_type' => 'apd_expected_candidates_upload',
+        ]);
+    
+        if ($existingLog) {
+            // Update the existing log
+            $this->auditService->updateLog(
+                logId: $existingLog->id,
+                metadata: $metadata,
+                afterState: $exam->toArray(),
+                description: 'Updated APD expected candidates CSV log'
+            );
+        } else {
+            // Create a new log entry
+            $this->auditService->log(
+                examId: $examId,
+                actionType: 'uploaded',
+                taskType: 'apd_expected_candidates_upload',
+                afterState: $exam->toArray(),
+                description: 'Uploaded APD expected candidates CSV',
+                metadata: $metadata
+            );
+        }
     }
-
+    
     /**
      * Delete old failed rows CSV files before proceeding.
      */

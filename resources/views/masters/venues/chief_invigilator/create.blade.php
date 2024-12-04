@@ -86,11 +86,11 @@
                                                             class="text-danger">*</span></label>
                                                     <select class="form-control @error('district') is-invalid @enderror"
                                                         id="district" name="district" required>
-                                                        <option value="">Select District</option>
+                                                        <option value="">Select District Name</option>
                                                         @foreach ($districts as $district)
                                                             <option value="{{ $district->district_code }}"
                                                                 {{ old('district') == $district->district_code ? 'selected' : '' }}>
-                                                                {{ $district->district_code }}
+                                                                {{ $district->district_name }}
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -107,11 +107,11 @@
                                                             class="text-danger">*</span></label>
                                                     <select class="form-control @error('center') is-invalid @enderror"
                                                         id="center" name="center" required>
-                                                        <option value="">Select Center</option>
+                                                        <option value="">Select Center Name</option>
                                                         @foreach ($centers as $center)
                                                             <option value="{{ $center->center_code }}"
                                                                 {{ old('center') == $center->center_code ? 'selected' : '' }}>
-                                                                {{ $center->center_code }}
+                                                                {{ $center->center_name }}
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -128,11 +128,11 @@
                                                             class="text-danger">*</span></label>
                                                     <select class="form-control @error('venue') is-invalid @enderror"
                                                         id="venue" name="venue" required>
-                                                        <option value="">Select Venue</option>
+                                                        <option value="">Select Venue Name</option>
                                                         @foreach ($venues as $venue)
                                                             <option value="{{ $venue->venue_code }}"
                                                                 {{ old('venue') == $venue->venue_code ? 'selected' : '' }}>
-                                                                {{ $venue->venue_code }}
+                                                                {{ $venue->venue_name }}
                                                             </option>
                                                         @endforeach
                                                     </select>

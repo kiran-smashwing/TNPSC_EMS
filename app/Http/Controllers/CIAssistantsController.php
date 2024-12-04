@@ -45,20 +45,15 @@ class CIAssistantsController extends Controller
         // Fetch filtered CIAssistants with pagination
         $ciAssistants = $query->paginate(10);
     
-        // Fetch unique district values from the CIAssistant table
-        $districts = CIAssistant::select('cia_district_id')
-            ->distinct()
-            ->get();
-    
-        // Fetch unique center values from the CIAssistant table
-        $centers = CIAssistant::select('cia_center_id')
-            ->distinct()
-            ->get();
-    
-        // Fetch unique venue values from the CIAssistant table
-        $venues = CIAssistant::select('cia_venue_id')
-            ->distinct()
-            ->get();
+        // Fetch unique district values from the same table
+        $districts = District::all(); // Fetch all districts
+        
+
+        // Fetch unique centers values from the same table
+        $centers = center::all();  // Fetch all centers
+            
+        // Fetch unique venues values from the same table
+        $venues = venues::all();  // Fetch all venues
     
         // Return the view with the necessary data
         return view('masters.venues.ci_assistants.index', compact('ciAssistants', 'districts', 'centers', 'venues'));

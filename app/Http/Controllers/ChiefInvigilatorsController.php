@@ -8,6 +8,7 @@ use App\Models\District;
 use App\Models\Venues;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use App\Services\AuditLogger;
 use Illuminate\Support\Facades\Storage;
 use App\Services\ImageCompressService;
@@ -84,6 +85,7 @@ class ChiefInvigilatorsController extends Controller
             'venue.required' => 'Please select a venue',
             'venue.integer' => 'Please select a valid venue',
         ];
+        
         $validated = $request->validate([
             'district' => 'required|string|max:50',
             'center' => 'required|string|max:50',
@@ -97,40 +99,42 @@ class ChiefInvigilatorsController extends Controller
             'cropped_image' => 'nullable|string',
             'password' => 'required|string|min:6',
         ], $messages);
-
+    
         try {
             if (!empty($validated['cropped_image'])) {
                 // Remove the data URL prefix if present
                 $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
                 $imageData = base64_decode($imageData);
-
+    
                 if ($imageData === false) {
                     throw new \Exception('Base64 decode failed.');
                 }
-
+    
                 // Create a unique image name
                 $imageName = $validated['email'] . time() . '.png';
                 $imagePath = 'images/chiefinvigilator/' . $imageName;
-
+    
                 // Store the image
                 $stored = Storage::disk('public')->put($imagePath, $imageData);
-
+    
                 if (!$stored) {
                     throw new \Exception('Failed to save image to storage.');
                 }
-
-
+    
                 // Compress the image if it exceeds 200 KB
                 $fullImagePath = storage_path('app/public/' . $imagePath);
                 if (filesize($fullImagePath) > 200 * 1024) {
                     // Use the ImageService to save and compress the image
                     $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200);  // 200 KB max size
                 }
-
+    
                 $validated['image'] = $imagePath;
             }
+            
             // Hash password
             $validated['ci_password'] = Hash::make($validated['password']);
+            
+            // Create the Chief Invigilator record
             $chiefInvigilator = ChiefInvigilator::create([
                 'ci_district_id' => $validated['district'],
                 'ci_center_id' => $validated['center'],
@@ -144,12 +148,24 @@ class ChiefInvigilatorsController extends Controller
                 'ci_password' => $validated['ci_password'], // Hashing the password before storing
                 'ci_image' => $validated['image'] ?? null, // Handle image path, set to null if not provided
             ]);
-
-
+    
+            // Send email notification to Chief Invigilator
+            $emailData = [
+                'name' => $chiefInvigilator->ci_name,
+                'email' => $chiefInvigilator->ci_email,
+                'password' => $validated['password'], // Send plain password for the first login
+            ];
+    
+            Mail::send('email.chief_invigilator_created', $emailData, function ($message) use ($emailData) {
+                $message->to($emailData['email'])
+                        ->subject('Welcome to the Chief Invigilator Role');
+            });
+    
+            // Log the creation
             AuditLogger::log('Chief Invigilator Created', ChiefInvigilator::class, $chiefInvigilator->ci_id, null, $chiefInvigilator->toArray());
-
+    
             return redirect()->route('chief-invigilators.index')
-                ->with('success', 'Chief Invigilator created successfully');
+                ->with('success', 'Chief Invigilator created successfully and notification email sent.');
         } catch (\Exception $e) {
             return back()->withInput()
                 ->with('error', 'Error creating Chief Invigilator: ' . $e->getMessage());

@@ -194,11 +194,11 @@
                                 {{-- District Filter --}}
                                 <div class="filter-item">
                                     <select class="form-select" id="districtFilter" name="district">
-                                        <option value="">Select District</option>
+                                        <option value="">Select District Name</option>
                                         @foreach ($districts as $district)
                                             <option value="{{ $district->invigilator_district_id }}"
                                                 {{ request('district') == $district->invigilator_district_id ? 'selected' : '' }}>
-                                                {{ $district->invigilator_district_id }}
+                                                {{ $district->district_name }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -207,11 +207,11 @@
                                 {{-- Center Filter --}}
                                 <div class="filter-item">
                                     <select class="form-select" id="centerFilter" name="center">
-                                        <option value="">Select Center</option>
+                                        <option value="">Select Center Name</option>
                                         @foreach ($centers as $center)
                                             <option value="{{ $center->invigilator_center_id }}"
                                                 {{ request('center') == $center->invigilator_center_id ? 'selected' : '' }}>
-                                                {{ $center->invigilator_center_id }}
+                                                {{ $center->center_name }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -220,11 +220,11 @@
                                 {{-- Venue Filter --}}
                                 <div class="filter-item">
                                     <select class="form-select" id="venueFilter" name="venue">
-                                        <option value="">Select Venue</option>
+                                        <option value="">Select Venue Name</option>
                                         @foreach ($venues as $venue)
                                             <option value="{{ $venue->invigilator_venue_id }}"
                                                 {{ request('venue') == $venue->invigilator_venue_id ? 'selected' : '' }}>
-                                                {{ $venue->invigilator_venue_id }}
+                                                {{ $venue->venue_name }}
                                             </option>
                                         @endforeach
                                     </select>

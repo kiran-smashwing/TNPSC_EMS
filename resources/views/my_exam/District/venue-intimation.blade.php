@@ -36,175 +36,49 @@
                                     <div class="chat-user_list">
                                         <div class="card overflow-hidden">
                                             <div class="card-header">
-                                                <h5 class="">Thiruvannamalai<span
-                                                        class="me-2 btn btn-sm bg-light-primary ">10/12</span> </h5>
-                                                {{-- <div class="form-search">
-                          <i class="ti ti-search"></i>
-                          <input type="search" class="form-control" placeholder="Search Followers" />
-                        </div> --}}
+
+                                                <h5 class="">{{ $user->district_name }}<span
+                                                        class="me-2 btn btn-sm bg-light-primary ">{{ $totalCentersFromProjection }}/{{ $totalCenters }}</span>
+                                                </h5>
                                             </div>
                                             <div class="scroll-block">
                                                 <div class="card-body p-0">
                                                     <div class="list-group list-group-flush">
-                                                        <a href="#"
+                                                        @foreach ($examCenters as $center)
+                                                            <a href="#"
+                                                                class="list-group-item list-group-item-action p-3 center-list-item"
+                                                                data-center-code="{{ $center->center_code }}">
+                                                                <div class="d-flex align-items-center">
+                                                                    <div class="flex-grow-1 mx-2">
+                                                                        <h6 class="mb-0 center-name">
+                                                                            {{ $center->details->center_name }}</h6>
+                                                                        <span class="text-sm text-muted required-halls">
+                                                                            Required Halls -
+                                                                            {{ ceil($center->total_accommodation / 200) }}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div
+                                                                        class="chat-avtar text-md text-warning f-w-400 fs-5">
+                                                                        {{ $center->center_code }}
+                                                                    </div>
+                                                                </div>
+                                                            </a>
+                                                        @endforeach
+
+                                                        {{-- <a href="#"
                                                             class="list-group-item list-group-item-action p-3">
                                                             <div class="d-flex align-items-center">
-                                                                
-                                                                <div class="flex-grow-1 mx-2">
-                                                                    <h6 class="mb-0">Thiruvannamalai 
-                                                                    </h6>
-                                                                    <span class="text-sm text-muted">Required Halls - 100
-                                                                    </span>
-                                                                </div>
-                                                                <div class="chat-avtar text-md text-warning f-w-400 fs-5">
-                                                                    2201
-                                                                </div>
-                                                            </div>
-                                                        </a>
-                                                        <a href="#"
-                                                            class="list-group-item list-group-item-action p-3">
-                                                            <div class="d-flex align-items-center">
-                                                               
+
                                                                 <div class="flex-grow-1 mx-2">
                                                                     <h6 class="mb-0">Arni</h6>
                                                                     <span class="text-sm text-muted">19-07-2024 12:00 PM
-                                                                        {{-- <span class="float-end">
-                                        <span class="chat-badge-status bg-success text-white"><i class="ti ti-check"></i></span> </span
-                                    ></span> --}}
+                                                                     
                                                                 </div>
                                                                 <div class="chat-avtar text-md text-warning f-w-400 fs-5">
                                                                     2201
                                                                 </div>
                                                             </div>
-                                                        </a>
-                                                        <a href="#"
-                                                            class="list-group-item list-group-item-action p-3">
-                                                            <div class="d-flex align-items-center">
-                                                             
-                                                                <div class="flex-grow-1 mx-2">
-                                                                    <h6 class="mb-0">Chengam</h6>
-                                                                    <span class="text-sm text-muted">19-07-2024 12:00 PM
-                                                                        {{-- <span class="float-end">
-                                        <span class="chat-badge-status bg-success text-white"><i class="ti ti-check"></i></span> </span
-                                    ></span> --}}
-                                                                </div>
-                                                                <div class="chat-avtar text-md text-warning f-w-400 fs-5">
-                                                                    2201
-                                                                </div>
-                                                            </div>
-                                                        </a>
-                                                        <a href="#"
-                                                            class="list-group-item list-group-item-action p-3">
-                                                            <div class="d-flex align-items-center">
-                                                               
-                                                                <div class="flex-grow-1 mx-2">
-                                                                    <h6 class="mb-0">Chetpet</h6>
-                                                                    <span class="text-sm text-muted">19-07-2024 12:00 PM
-                                                                        {{-- <span class="float-end">
-                                        <span class="chat-badge-status bg-success text-white"><i class="ti ti-check"></i></span> </span
-                                    ></span> --}}
-                                                                </div>
-                                                                <div class="chat-avtar text-md text-warning f-w-400 fs-5">
-                                                                    2201
-                                                                </div>
-                                                            </div>
-                                                        </a>
-                                                        <a href="#"
-                                                            class="list-group-item list-group-item-action p-3">
-                                                            <div class="d-flex align-items-center">
-                                                               
-                                                                <div class="flex-grow-1 mx-2">
-                                                                    <h6 class="mb-0">Cheyyar</h6>
-                                                                    <span class="text-sm text-muted">19-07-2024 12:00 PM
-                                                                        {{-- <span class="float-end">
-                                        <span class="chat-badge-status bg-success text-white"><i class="ti ti-check"></i></span> </span
-                                    ></span> --}}
-                                                                </div>
-                                                                <div class="chat-avtar text-md text-warning f-w-400 fs-5">
-                                                                    2201
-                                                                </div>
-                                                            </div>
-                                                        </a>
-                                                        <a href="#"
-                                                            class="list-group-item list-group-item-action p-3">
-                                                            <div class="d-flex align-items-center">
-                                                               
-                                                                <div class="flex-grow-1 mx-2">
-                                                                    <h6 class="mb-0">Jamunamarathur</h6>
-                                                                    <span class="text-sm text-muted">19-07-2024 12:00 PM
-                                                                        {{-- <span class="float-end">
-                                        <span class="chat-badge-status bg-success text-white"><i class="ti ti-check"></i></span> </span
-                                    ></span> --}}
-                                                                </div>
-                                                                <div class="chat-avtar text-md text-warning f-w-400 fs-5">
-                                                                    2201
-                                                                </div>
-                                                            </div>
-                                                        </a>
-                                                        <a href="#"
-                                                            class="list-group-item list-group-item-action p-3">
-                                                            <div class="d-flex align-items-center">
-                                                               
-                                                                <div class="flex-grow-1 mx-2">
-                                                                    <h6 class="mb-0">Kalasapakkam</h6>
-                                                                    <span class="text-sm text-muted">19-07-2024 12:00 PM
-                                                                        {{-- <span class="float-end">
-                                        <span class="chat-badge-status bg-success text-white"><i class="ti ti-check"></i></span> </span
-                                    ></span> --}}
-                                                                </div>
-                                                                <div class="chat-avtar text-md text-warning f-w-400 fs-5">
-                                                                    2201
-                                                                </div>
-                                                            </div>
-                                                        </a>
-                                                        <a href="#"
-                                                            class="list-group-item list-group-item-action p-3">
-                                                            <div class="d-flex align-items-center">
-                                                               
-                                                                <div class="flex-grow-1 mx-2">
-                                                                    <h6 class="mb-0">Kilpennathur</h6>
-                                                                    <span class="text-sm text-muted">19-07-2024 12:00 PM
-                                                                        {{-- <span class="float-end">
-                                        <span class="chat-badge-status bg-success text-white"><i class="ti ti-check"></i></span> </span
-                                    ></span> --}}
-                                                                </div>
-                                                                <div class="chat-avtar text-md text-warning f-w-400 fs-5">
-                                                                    2201
-                                                                </div>
-                                                            </div>
-                                                        </a>
-                                                        <a href="#"
-                                                            class="list-group-item list-group-item-action p-3">
-                                                            <div class="d-flex align-items-center">
-                                                               
-                                                                <div class="flex-grow-1 mx-2">
-                                                                    <h6 class="mb-0">Polur</h6>
-                                                                    <span class="text-sm text-muted">19-07-2024 12:00 PM
-                                                                        {{-- <span class="float-end">
-                                        <span class="chat-badge-status bg-success text-white"><i class="ti ti-check"></i></span> </span
-                                    ></span> --}}
-                                                                </div>
-                                                                <div class="chat-avtar text-md text-warning f-w-400 fs-5">
-                                                                    2201
-                                                                </div>
-                                                            </div>
-                                                        </a>
-                                                        <a href="#"
-                                                            class="list-group-item list-group-item-action p-3">
-                                                            <div class="d-flex align-items-center">
-                                                               
-                                                                <div class="flex-grow-1 mx-2">
-                                                                    <h6 class="mb-0">Thandramet</h6>
-                                                                    <span class="text-sm text-muted">19-07-2024 12:00 PM
-                                                                        {{-- <span class="float-end">
-                                        <span class="chat-badge-status bg-success text-white"><i class="ti ti-check"></i></span> </span
-                                    ></span> --}}
-                                                                </div>
-                                                                <div class="chat-avtar text-md text-warning f-w-400 fs-5">
-                                                                    2201
-                                                                </div>
-                                                            </div>
-                                                        </a>
+                                                        </a> --}}
                                                     </div>
                                                 </div>
                                             </div>
@@ -241,16 +115,18 @@
                                             </li>
 
                                         </ul>
-                                      
+
                                         <ul class="list-inline ms-auto me-auto mb-0 fs-5 ">
                                             <li class="list-inline-item">
-                                                <a href="#" class="badge bg-dark ">Requested 150</a>
+                                                <a href="#" class="badge bg-dark ">Requested
+                                                    {{ ceil($center->total_accommodation / 200) }}</a>
                                             </li>
                                             <li class="list-inline-item">
                                                 <a href="#" class="badge bg-success">Accepted 110</a>
                                             </li>
-                                            <li class="list-inline-item"><a href="#"
-                                                    class="badge bg-info">Selected 40 / 100</a></li>
+                                            <li class="list-inline-item"><a href="#" class="badge bg-info"> Selected
+                                                    <span id="selected-venues">0</span> / <span
+                                                        id="total-venues">0</span></a></li>
                                         </ul>
                                         <ul class="list-inline ms-auto mb-0">
                                             <li class="list-inline-item"><a href="#"
@@ -274,7 +150,71 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr>
+
+                                                        @foreach ($allvenues as $centerCode => $venues)
+                                                            @foreach ($venues as $venue)
+                                                                <tr class="venue-row"
+                                                                    data-center-code="{{ $centerCode }}">
+                                                                    <td>
+                                                                        <input
+                                                                            class="form-check-input input-success venue-checkbox"
+                                                                            data-center-code="{{ $venue->venue_id }}"
+                                                                            type="checkbox"
+                                                                            @if ($venue->consent_status !== 'not_requested') checked disabled @endif>
+                                                                    </td>
+                                                                    <td>
+                                                                        <b>{{ $venue->venue_name }}</b> <br>
+                                                                        {{ $venue->venue_address }}
+                                                                    </td>
+                                                                    <td>
+                                                                        {{ $venue->venue_email }} <br>
+                                                                        {{ $venue->venue_phone }}
+                                                                    </td>
+                                                                    <td>
+                                                                        <select class="form-select" name="allocationCount"
+                                                                            @if ($venue->halls_count !== 0) disabled @endif>
+                                                                            <option value="">No of Halls</option>
+
+                                                                            <option value="1"
+                                                                                @if ($venue->halls_count == 1) selected @endif>
+                                                                                1 - 200</option>
+
+                                                                            <option value="2"
+                                                                                @if ($venue->halls_count == 2) selected @endif>
+                                                                                2 - 400</option>
+
+                                                                            <option value="3"
+                                                                                @if ($venue->halls_count == 3) selected @endif>
+                                                                                3 - 600</option>
+
+                                                                            <option value="4"
+                                                                                @if ($venue->halls_count == 4) selected @endif>
+                                                                                4 - 800</option>
+
+                                                                            <option value="5"
+                                                                                @if ($venue->halls_count == 5) selected @endif>
+                                                                                5 - 1000</option>
+                                                                        </select>
+                                                                    </td>
+                                                                    <td>
+                                                                        @if ($venue->consent_status === 'not_requested')
+                                                                            <span
+                                                                                class="badge bg-light-warning">Waiting</span>
+                                                                        @elseif ($venue->consent_status === 'requested')
+                                                                            <span class="badge bg-light-info">Email
+                                                                                Sent</span>
+                                                                        @elseif ($venue->consent_status === 'accepted')
+                                                                            <span
+                                                                                class="badge bg-light-success">Accepted</span>
+                                                                        @elseif ($venue->consent_status === 'denied')
+                                                                            <span
+                                                                                class="badge bg-light-danger">Denied</span>
+                                                                        @endif
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                        @endforeach
+                                                        {{-- <tr>
                                                             <td>
                                                                 <input class="form-check-input input-success"
                                                                     type="checkbox" id="customCheckc3" checked="checked">
@@ -518,8 +458,7 @@
                                                             <td>
                                                                 <span class="badge bg-light-danger">Denied</span>
                                                             </td>
-                                                        </tr>
-
+                                                        </tr> --}}
                                                         <!-- You can add more rows as needed -->
                                                     </tbody>
                                                 </table>
@@ -704,6 +643,72 @@
 
     @include('partials.footer')
     @push('scripts')
+        <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
+        <script>
+            $(document).ready(function() {
+                // Select/Deselect all venues
+                $('#select-all-venues').change(function() {
+                    $('.venue-checkbox:visible').prop('checked', $(this).prop('checked'));
+                    updateSelectedVenuesCount();
+                });
+            });
+        </script>
+        <script>
+            $(document).ready(function() {
+                // Initially hide all venue rows
+                $('.venue-row').hide();
+
+                // Handle center selection
+                $('.center-list-item').click(function() {
+                    // Get the center code
+                    var centerCode = $(this).data('center-code');
+                    // Remove active class from all center list items
+                    $('.center-list-item').removeClass('list-group-item');
+
+                    // Add active class to the clicked center list item
+                    $(this).addClass('list-group-item-success');
+                    // Hide all venue rows first
+                    $('.venue-row').hide();
+
+                    // Show venues for selected center
+                    var $centerVenues = $('.venue-row[data-center-code="' + centerCode + '"]');
+                    $centerVenues.show();
+
+                    // Update header information
+                    updateCenterInfo($(this), $centerVenues);
+                });
+
+                // Handle venue checkbox selection
+                $(document).on('change', '.venue-checkbox', function() {
+                    updateSelectedVenuesCount();
+                });
+
+                function updateCenterInfo(centerElement, $centerVenues) {
+                    // Update center name and other details
+                    var centerName = centerElement.find('.center-name').text();
+                    var centerCode = centerElement.data('center-code');
+                    var requiredHalls = centerElement.find('.required-halls').text();
+                    var totalVenues = $centerVenues.length;
+
+                    $('#selected-center-name').text(centerName);
+                    $('#selected-center-code').text(centerCode);
+                    $('#required-halls').text(requiredHalls);
+                    $('#total-venues').text(totalVenues);
+
+                    // Reset and update selected venues count
+                    updateSelectedVenuesCount();
+                }
+
+                function updateSelectedVenuesCount() {
+                    var $visibleVenues = $('.venue-row:visible');
+                    var selectedVenues = $visibleVenues.find('.venue-checkbox:checked').length;
+                    var totalVenues = $visibleVenues.length;
+
+                    $('#selected-venues').text(selectedVenues);
+                    $('#total-venues').text(totalVenues);
+                }
+            });
+        </script>
         <!-- [Page Specific JS] start -->
         <script>
             // scroll-block
@@ -719,6 +724,83 @@
                 element.scrollTop += h;
             }, 100);
         </script>
+        <script>
+            $(document).ready(function() {
+                // Send Mail Button Click Handler
+                $('a.bg-light-success[href="#"]').click(function(e) {
+                    e.preventDefault();
+
+                    // Get the current selected center code
+                    var centerCode = $('.center-list-item.list-group-item-success').data('center-code');
+
+                    // Collect selected venues
+                    var selectedVenues = [];
+                    $('.venue-row:visible .venue-checkbox:checked').each(function() {
+                        var venueId = $(this).data('center-code');
+                        var hallCount = $(this).closest('tr').find('select[name="allocationCount"]')
+                            .val();
+
+                        selectedVenues.push({
+                            venue_id: venueId,
+                            halls_count: hallCount
+                        });
+                    });
+
+                    // Validate selection
+                    if (selectedVenues.length === 0) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'No Venues Selected',
+                            text: 'Please select at least one venue',
+                        });
+                        return;
+                    }
+
+                    // Send AJAX request
+                    $.ajax({
+                        url: '{{ route('district-candidates.processVenueConsentEmail') }}', // Create this route in web.php
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            center_code: centerCode,
+                            exam_id: '{{ $examId }}', // Assuming you pass the current exam ID
+                            venues: selectedVenues
+                        },
+                        success: function(response) {
+                            // Handle success
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: 'Consent emails sent successfully',
+                            }).then(() => {
+                                // Reload the page after the user acknowledges the success alert
+                                location.reload();
+                            });
+
+                            // Optionally update UI to reflect sent status
+                            selectedVenues.forEach(function(venue) {
+                                $(`input[data-center-code="${venue.venue_id}"]`)
+                                    .closest('tr')
+                                    .find('.badge')
+                                    .removeClass('bg-light-warning')
+                                    .addClass('bg-light-info')
+                                    .text('Email Sent');
+                            });
+                        },
+                        error: function(xhr) {
+                            // Handle error
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Failed to send consent emails',
+                            });
+                            console.error(xhr.responseText);
+                        }
+                    });
+                });
+            });
+        </script>
+
         <!-- [Page Specific JS] end -->
     @endpush
     @include('partials.theme')

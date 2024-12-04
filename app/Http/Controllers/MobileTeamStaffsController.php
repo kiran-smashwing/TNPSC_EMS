@@ -6,6 +6,7 @@ use App\Models\MobileTeamStaffs;
 use App\Models\District;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use App\Services\ImageCompressService;
 use App\Services\AuditLogger;
@@ -63,42 +64,41 @@ class MobileTeamStaffsController extends Controller
             'password' => 'required|string|min:6',
             'cropped_image' => 'nullable|string'
         ], $messages);
-
+    
         try {
             if (!empty($validated['cropped_image'])) {
                 // Remove the data URL prefix if present
                 $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
                 $imageData = base64_decode($imageData);
-
+    
                 if ($imageData === false) {
                     throw new \Exception('Base64 decode failed.');
                 }
-
+    
                 // Create a unique image name
                 $imageName = $validated['name'] . time() . '.png';
                 $imagePath = 'images/mobile_team/' . $imageName;
-
+    
                 // Store the image
                 $stored = Storage::disk('public')->put($imagePath, $imageData);
-
+    
                 if (!$stored) {
                     throw new \Exception('Failed to save image to storage.');
                 }
-
-
+    
                 // Compress the image if it exceeds 200 KB
                 $fullImagePath = storage_path('app/public/' . $imagePath);
                 if (filesize($fullImagePath) > 200 * 1024) {
                     // Use the ImageService to save and compress the image
                     $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200);  // 200 KB max size
                 }
-
+    
                 $validated['image'] = $imagePath;
             }
-
+    
             // Hash the password
             $validated['mobile_password'] = Hash::make($validated['password']);
-
+    
             // Create a new Mobile Team member
             $mobileTeamStaff = MobileTeamStaffs::create([
                 'mobile_district_id' => $validated['district'],
@@ -109,12 +109,25 @@ class MobileTeamStaffsController extends Controller
                 'mobile_employeeid' => $validated['employee_id'],
                 'mobile_password' => $validated['mobile_password'],
                 'mobile_image' => $validated['image'] ?? null,
-
             ]);
+    
+            // Send email notification
+            $emailData = [
+                'name' => $mobileTeamStaff->mobile_name,
+                'email' => $mobileTeamStaff->mobile_email,
+                'password' => $validated['password'], // Send plain password for the first login
+            ];
+    
+            Mail::send('email.mobile_team_created', $emailData, function ($message) use ($emailData) {
+                $message->to($emailData['email'])
+                        ->subject('Welcome to the Mobile Team');
+            });
+    
+            // Log the creation
             AuditLogger::log('Mobile Team Staff Created', MobileTeamStaffs::class, $mobileTeamStaff->mobile_id, null, $mobileTeamStaff->toArray());
-
+    
             return redirect()->route('mobile-team-staffs.index')
-                ->with('success', 'Mobile team member created successfully');
+                ->with('success', 'Mobile team member created successfully and notification email sent.');
         } catch (\Exception $e) {
             return back()->withInput()
                 ->with('error', 'Error creating mobile team member: ' . $e->getMessage());

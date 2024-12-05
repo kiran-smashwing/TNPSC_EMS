@@ -29,6 +29,7 @@ class MobileTeamStaffs extends Authenticatable
         'mobile_email_status',
         'mobile_createdat',
         'remember_token',
+        'verification_token',
     ];
 
    

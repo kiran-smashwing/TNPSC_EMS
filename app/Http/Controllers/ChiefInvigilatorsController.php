@@ -9,6 +9,8 @@ use App\Models\Venues;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use App\Services\AuditLogger;
 use Illuminate\Support\Facades\Storage;
 use App\Services\ImageCompressService;
@@ -46,17 +48,17 @@ class ChiefInvigilatorsController extends Controller
 
         // Fetch the filtered data with pagination
         $chiefInvigilator = $query->paginate(10);
-        
+
         // Fetch unique district values from the same table
         $districts = District::all(); // Fetch all districts
-        
+
 
         // Fetch unique centers values from the same table
         $centers = center::all();  // Fetch all centers
-            
+
         // Fetch unique venues values from the same table
         $venues = venues::all();  // Fetch all venues
-           
+
 
         // Return the view with data
         return view('masters.venues.chief_invigilator.index', compact('chiefInvigilator', 'districts', 'centers', 'venues'));
@@ -77,6 +79,7 @@ class ChiefInvigilatorsController extends Controller
 
     public function store(Request $request)
     {
+        // Custom validation messages
         $messages = [
             'district.required' => 'Please select a district',
             'district.integer' => 'Please select a valid district',
@@ -85,7 +88,8 @@ class ChiefInvigilatorsController extends Controller
             'venue.required' => 'Please select a venue',
             'venue.integer' => 'Please select a valid venue',
         ];
-        
+
+        // Validate incoming request data
         $validated = $request->validate([
             'district' => 'required|string|max:50',
             'center' => 'required|string|max:50',
@@ -99,41 +103,44 @@ class ChiefInvigilatorsController extends Controller
             'cropped_image' => 'nullable|string',
             'password' => 'required|string|min:6',
         ], $messages);
-    
+
         try {
+            // Process and store the image if provided
             if (!empty($validated['cropped_image'])) {
-                // Remove the data URL prefix if present
                 $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
                 $imageData = base64_decode($imageData);
-    
+
                 if ($imageData === false) {
                     throw new \Exception('Base64 decode failed.');
                 }
-    
-                // Create a unique image name
+
+                // Generate a unique image name
                 $imageName = $validated['email'] . time() . '.png';
                 $imagePath = 'images/chiefinvigilator/' . $imageName;
-    
-                // Store the image
+
+                // Store the image in public storage
                 $stored = Storage::disk('public')->put($imagePath, $imageData);
-    
+
                 if (!$stored) {
                     throw new \Exception('Failed to save image to storage.');
                 }
-    
-                // Compress the image if it exceeds 200 KB
+
+                // Compress the image if its size exceeds 200 KB
                 $fullImagePath = storage_path('app/public/' . $imagePath);
                 if (filesize($fullImagePath) > 200 * 1024) {
-                    // Use the ImageService to save and compress the image
-                    $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200);  // 200 KB max size
+                    // Compress the image
+                    $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200);
                 }
-    
+
                 $validated['image'] = $imagePath;
             }
-            
-            // Hash password
+
+            // Hash the password before storing
             $validated['ci_password'] = Hash::make($validated['password']);
-            
+
+            // Generate a verification token
+            $verificationToken = Str::random(64); // Create a random string for the token
+
             // Create the Chief Invigilator record
             $chiefInvigilator = ChiefInvigilator::create([
                 'ci_district_id' => $validated['district'],
@@ -145,31 +152,76 @@ class ChiefInvigilatorsController extends Controller
                 'ci_alternative_phone' => $validated['alternative_phone'],
                 'ci_id' => $validated['employee_id'],
                 'ci_email' => $validated['email'],
-                'ci_password' => $validated['ci_password'], // Hashing the password before storing
-                'ci_image' => $validated['image'] ?? null, // Handle image path, set to null if not provided
+                'ci_password' => $validated['ci_password'], // Hash the password
+                'ci_image' => $validated['image'] ?? null, // Store image if provided
+                'verification_token' => $verificationToken, // Store the verification token
             ]);
-    
-            // Send email notification to Chief Invigilator
+
+            // Send welcome email to Chief Invigilator
             $emailData = [
                 'name' => $chiefInvigilator->ci_name,
                 'email' => $chiefInvigilator->ci_email,
-                'password' => $validated['password'], // Send plain password for the first login
+                'password' => $validated['password'], // Send plain password for first login
             ];
-    
+
             Mail::send('email.chief_invigilator_created', $emailData, function ($message) use ($emailData) {
                 $message->to($emailData['email'])
-                        ->subject('Welcome to the Chief Invigilator Role');
+                    ->subject('Welcome to the Chief Invigilator Role');
             });
-    
-            // Log the creation
+
+            // Send email verification email
+            $verificationLink = route('chief-invigilator.verifyEmail', ['token' => urlencode($verificationToken)]);
+            $verificationData = [
+                'name' => $chiefInvigilator->ci_name,
+                'email' => $chiefInvigilator->ci_email,
+                'verification_link' => $verificationLink,
+            ];
+
+            Mail::send('email.chief_invigilator_verification', $verificationData, function ($message) use ($verificationData) {
+                $message->to($verificationData['email'])
+                    ->subject('Verify Your Email Address');
+            });
+
+            // Log the creation for auditing purposes
             AuditLogger::log('Chief Invigilator Created', ChiefInvigilator::class, $chiefInvigilator->ci_id, null, $chiefInvigilator->toArray());
-    
+
+            // Redirect back with a success message
             return redirect()->route('chief-invigilators.index')
-                ->with('success', 'Chief Invigilator created successfully and notification email sent.');
+                ->with('success', 'Chief Invigilator created successfully. A verification email has been sent.');
         } catch (\Exception $e) {
+            // Handle any errors and return with the error message
             return back()->withInput()
                 ->with('error', 'Error creating Chief Invigilator: ' . $e->getMessage());
         }
+    }
+
+
+    public function verifyEmail($token)
+    {
+        Log::info('Verification token received: ' . $token);
+
+        // Decode the token received in the URL
+        $decodedToken = urldecode($token);
+
+        // Look for a Chief Invigilator record matching the verification token
+        $chiefInvigilator = ChiefInvigilator::where('verification_token', $decodedToken)->first();
+
+        // Check if the Chief Invigilator exists with the provided token
+        if (!$chiefInvigilator) {
+            Log::error('Verification failed: Token not found in database. Token: ' . $decodedToken);
+            return redirect()->route('chief-invigilators.index')->with('error', 'Invalid verification link.');
+        }
+
+        // Update the Chief Invigilator record to mark email as verified and clear the verification token
+        $chiefInvigilator->update([
+            'ci_email_status' => true, // Set email status to true (verified)
+            'verification_token' => null, // Clear the verification token after successful verification
+        ]);
+
+        Log::info('Email verified successfully for Chief Invigilator ID: ' . $chiefInvigilator->ci_id);
+
+        // Redirect with a success message
+        return redirect()->route('chief-invigilators.index')->with('success', 'Email verified successfully.');
     }
 
     public function edit($id)

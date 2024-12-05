@@ -115,10 +115,10 @@
                                     <div class="col-sm-6">
                                         <div class="mb-3">
                                             <label class="form-label">Email<span class="text-danger">*</span></label>
-                                            <input type="email" class="form-control @error('mail') is-invalid @enderror"
-                                                id="mail" name="mail" placeholder="ceochn@***.in" required
-                                                value="{{ old('mail') }}">
-                                            @error('mail')
+                                            <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                                id="email" name="email" placeholder="ceochn@***.in" required
+                                                value="{{ old('email') }}">
+                                            @error('email')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>

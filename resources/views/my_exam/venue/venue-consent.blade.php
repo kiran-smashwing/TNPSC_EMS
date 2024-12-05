@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Current Exam')
+@section('title', 'Venue Consent')
 @push('styles')
     <link rel="stylesheet" href="{{ asset('storage/assets/css/plugins/datepicker-bs5.min.css') }}" />
     <style>
@@ -338,11 +338,14 @@
                                                 </table>
                                             </div>
                                         </div>
-                                        <div class="d-flex justify-content-end mt-4">
-                                            <button type="submit" class="btn btn-primary px-4 d-flex align-items-center">
-                                                <i class="feather icon-send me-2"></i>Submit Consent
-                                            </button>
-                                        </div>
+                                        @if ($venueConsents->consent_status !== 'accepted' && $venueConsents->consent_status !== 'denied')
+                                            <div class="d-flex justify-content-end mt-4">
+                                                <button type="submit"
+                                                    class="btn btn-primary px-4 d-flex align-items-center">
+                                                    <i class="feather icon-send me-2"></i>Submit Consent
+                                                </button>
+                                            </div>
+                                        @endif
                                     </form>
                                 </div>
                             </div>

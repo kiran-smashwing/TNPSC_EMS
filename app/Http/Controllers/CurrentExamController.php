@@ -46,6 +46,7 @@ class CurrentExamController extends Controller
             'exam_main_name.required' => 'The exam name is required.',
             'exam_main_startdate.date' => 'The start date must be a valid date.',
             'exam_main_lastdate.date' => 'The last date must be a valid date.',
+            'exam_main_candidates_for_hall.required' => 'The count of candidates for each hall is required.',
         ];
 
         // Validate the incoming request
@@ -69,6 +70,7 @@ class CurrentExamController extends Controller
             'subjects.*.time' => 'required|string',
             'subjects.*.duration' => 'required|string',
             'subjects.*.name' => 'required|string',
+            'exam_main_candidates_for_hall' => 'required|integer',
         ], $messages);
 
 
@@ -90,6 +92,7 @@ class CurrentExamController extends Controller
                 'exam_main_lastdate' => $validated['exam_main_lastdate'] ?? null,
                 'exam_main_startdate' => $validated['exam_main_startdate'] ?? null,
                 'exam_main_flag' => $validated['exam_main_flag'] ?? null,
+                'exam_main_candidates_for_hall' => $validated['exam_main_candidates_for_hall'],
             ]);
 
             // Save the subjects in the `exam_session` table
@@ -146,6 +149,7 @@ class CurrentExamController extends Controller
             'exam_main_name.required' => 'The exam name is required.',
             'exam_main_startdate.date' => 'The start date must be a valid date.',
             'exam_main_lastdate.date' => 'The last date must be a valid date.',
+            'exam_main_candidates_for_hall.required' => 'The count of candidates for each hall is required.',
         ];
         $validated = $request->validate([
             'exam_main_no' => 'required|string|max:255|unique:exam_main,exam_main_no,' . $id . ',exam_main_id',
@@ -167,6 +171,7 @@ class CurrentExamController extends Controller
             'subjects.*.time' => 'required|string',
             'subjects.*.duration' => 'required|string',
             'subjects.*.name' => 'required|string',
+            'exam_main_candidates_for_hall' => 'required|integer',
         ], $message);
 
         try {
@@ -188,6 +193,7 @@ class CurrentExamController extends Controller
                 'exam_main_lastdate' => $validated['exam_main_lastdate'] ?? null,
                 'exam_main_startdate' => $validated['exam_main_startdate'] ?? null,
                 'exam_main_flag' => $validated['exam_main_flag'] ?? null,
+                'exam_main_candidates_for_hall' => $validated['exam_main_candidates_for_hall'],
             ]);
 
             // Delete the existing subjects
@@ -242,7 +248,7 @@ class CurrentExamController extends Controller
 
     public function show($id)
     {
-        $exam = Currentexam::with('examsession')->findOrFail($id); // Fetch the exam with the given ID and its related exam sessions
+        $exam = Currentexam::with(relations: ['examsession', 'examservice'])->findOrFail($id); // Fetch the exam with the given ID and its related exam sessions
         return view('current_exam.show', compact('exam')); // Pass the exam to
     }
 

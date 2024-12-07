@@ -28,10 +28,12 @@ class Currentexam extends Model
         'exam_main_startdate',
         'exam_main_createdat',
         'exam_main_flag',
+        'exam_main_candidates_for_hall'
     ];
 
     protected $casts = [
         'exam_main_createdat' => 'datetime',
+        'exam_main_candidates_for_hall' => 'integer',
     ];
 
     protected static function boot()

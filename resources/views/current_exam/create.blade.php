@@ -4,6 +4,17 @@
 @push('styles')
     <link rel="stylesheet" href="{{ asset('storage/assets/css/plugins/datepicker-bs5.min.css') }}" />
     <style>
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+            /* For Firefox */
+        }
+
         @media screen and (max-width: 600px) {
             #subjectsTable thead {
                 display: none;
@@ -171,7 +182,8 @@
                                                         name="exam_main_service" required>
                                                         <option disabled selected>Select Exam Service</option>
                                                         @foreach ($examServices as $service)
-                                                            <option value="{{ $service->examservice_code }}">{{ $service->examservice_name }}
+                                                            <option value="{{ $service->examservice_id }}">
+                                                                {{ $service->examservice_name }}
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -256,6 +268,19 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div class="col-sm-3">
+                                                <div class="mb-3">
+                                                    <label class="form-label"
+                                                        for="exam_main_candidates_for_hall">Candidates For Each Hall <span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="number" class="form-control"
+                                                        id="exam_main_candidates_for_hall"
+                                                        name="exam_main_candidates_for_hall" required placeholder="200"
+                                                        min="1"
+                                                        oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/^0+/, '');"
+                                                        style="padding-right: 0;">
+                                                </div>
+                                            </div>
 
                                         </div>
                                 </div>
@@ -293,8 +318,8 @@
                                                 <td data-label="Session">
                                                     <select name="subjects[0][session]" class="form-control" required>
                                                         <option disabled selected>Select Session</option>
-                                                        <option value="fn">FN</option>
-                                                        <option value="an">AN</option>
+                                                        <option value="FN">FN</option>
+                                                        <option value="AN">AN</option>
                                                     </select>
                                                 </td>
                                                 <td data-label="Time">
@@ -395,8 +420,8 @@
                     <td data-label="Session">
                         <select name="subjects[${rowIndex}][session]" class="form-control" required>
                             <option disabled selected>Select Session</option>
-                            <option value="fn">FN</option>
-                            <option value="an">AN</option>
+                            <option value="FN">FN</option>
+                            <option value="AN">AN</option>
                         </select>
                     </td>
                     <td data-label="Time">

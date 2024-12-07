@@ -11,7 +11,7 @@ class ExamVenueConsent extends Model
     protected $table = 'exam_venue_consent';
 
     protected $casts = [
-        'chief_invigilator_ids' => 'array', // Cast as array
+        'chief_invigilator_data' => 'array', // Cast as array
     ];
     // Define the fillable attributes for mass assignment
     protected $fillable = [
@@ -22,7 +22,7 @@ class ExamVenueConsent extends Model
         'consent_status',
         'email_sent_status',
         'expected_candidates_count',
-        'chief_invigilator_ids',
+        'chief_invigilator_data',
         'updated_at',
         'created_at',
     ];

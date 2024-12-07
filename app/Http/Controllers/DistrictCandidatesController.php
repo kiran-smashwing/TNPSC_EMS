@@ -45,7 +45,7 @@ class DistrictCandidatesController extends Controller
                 ->get();
             $allvenues[$center->center_code] = $centerVenues;
         }
-      
+
         $venueConsents = \DB::table('exam_venue_consent')
             ->where('exam_id', $examId)
             ->where('district_code', $user->district_code)
@@ -54,7 +54,7 @@ class DistrictCandidatesController extends Controller
 
         foreach ($allvenues as $centerCode => $venues) {
             foreach ($venues as $venue) {
-                $venue->halls_count =  $venueConsents->has($venue->venue_id) ? $venueConsents->get($venue->venue_id)->expected_candidates_count / 200 : 0; 
+                $venue->halls_count = $venueConsents->has($venue->venue_id) ? $venueConsents->get($venue->venue_id)->expected_candidates_count / 200 : 0;
                 $venue->consent_status = $venueConsents->has($venue->venue_id) ? $venueConsents->get($venue->venue_id)->consent_status : 'not_requested';
             }
         }
@@ -66,7 +66,7 @@ class DistrictCandidatesController extends Controller
             ->where('district_code', $user->district_code)
             ->distinct('center_code')
             ->count('center_code');
-        return view('my_exam.District.venue-intimation', compact('examId','examCenters', 'user', 'totalCenters', 'totalCentersFromProjection', 'allvenues'));
+        return view('my_exam.District.venue-intimation', compact('examId', 'examCenters', 'user', 'totalCenters', 'totalCentersFromProjection', 'allvenues'));
     }
     public function processVenueConsentEmail(Request $request)
     {
@@ -104,6 +104,59 @@ class DistrictCandidatesController extends Controller
 
             // Send actual email to venue
             $this->sendVenueConsentEmail($venue['venue_id'], $currentExam);
+
+        }
+        // Log the action using the AuditService
+        $currentUser = current_user();
+        $userName = $currentUser ? $currentUser->display_name : 'Unknown';
+
+        $metadata = [
+            'user_name' => $userName,
+        ];
+
+        // Check if a log already exists for this exam and task type
+        $existingLog = $this->auditService->findLog([
+            'exam_id' => $request->exam_id,
+            'task_type' => 'exam_venue_consent',
+            'action_type' => 'email_sent',
+        ]);
+
+        if ($existingLog) {
+            // Retrieve existing venues from the previous afterState
+            $existingVenues = $existingLog->after_state['venues'] ?? [];
+
+            // Merge existing venues with new venues and remove duplicates
+            $mergedVenues = collect(array_merge($existingVenues,$request->venues))
+                ->unique('venue_id')
+                ->values()
+                ->all();
+            // Update the existing log
+            $this->auditService->updateLog(
+                logId: $existingLog->id,
+                metadata: $metadata,
+                afterState: [
+                    'venues' => $mergedVenues,
+                    'email_sent_status' => true,
+                    'total_venues_count' => count($mergedVenues)
+                ],
+                description: 'Sent consent email to ' . count($request->venues) . ' venues (Total: ' . count($mergedVenues) . ' venues)'
+            );
+        }
+        // Create a new log
+        else {
+            $this->auditService->log(
+                examId: $request->exam_id,
+                actionType: 'email_sent',
+                taskType: 'exam_venue_consent',
+                beforeState: null,
+                afterState: [
+                    'venues' => $request->venues,
+                    'email_sent_status' => true,
+                    'total_venues_count' => count($request->venues)
+                ],
+                description: 'Sent consent email to ' . count($request->venues) . ' venues',
+                metadata: $metadata
+            );
         }
 
         return response()->json([

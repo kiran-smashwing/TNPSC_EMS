@@ -29,6 +29,12 @@ use App\Http\Controllers\APDCandidatesController;
 use App\Http\Controllers\TestMailController;
 use App\Http\Controllers\IDCandidatesController;
 use App\Http\Controllers\VenueConsentController;
+use App\Http\Controllers\CIConsolidateController;
+use App\Http\Controllers\UtilityController;
+
+Route::get('/ci-consolidate-report', [CIConsolidateController::class, 'generateReport'])->name('download.report');
+Route::get('generate-utilization-certificate', [UtilityController::class, 'generateUtilizationCertificate'])->name('download.utilireport');
+
 
 // Public routes
 Route::get('/', function () {

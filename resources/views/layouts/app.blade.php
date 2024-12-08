@@ -106,7 +106,6 @@
         }
     </style>
 </head>
-</head>
 <!-- [Head] end -->
 <!-- [Body] Start -->
 

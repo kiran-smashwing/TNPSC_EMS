@@ -382,7 +382,7 @@ foreach ($savedCIIds as $ci) {
                                                 </table>
                                             </div>
                                         </div>
-                                        @if ($venueConsents->consent_status !== 'accepted' && $venueConsents->consent_status !== 'denied')
+                                        @if (Route::is('venues.venue-consent'))
                                             <div class="d-flex justify-content-end mt-4">
                                                 <button type="submit"
                                                     class="btn btn-primary px-4 d-flex align-items-center">

@@ -23,19 +23,31 @@ class ExamVenueConsent extends Model
         'email_sent_status',
         'expected_candidates_count',
         'chief_invigilator_data',
+        'is_confirmed',
         'updated_at',
         'created_at',
     ];
 
     // Relationship with the Exam model
-    public function Currentexam()
+    public function currentexam()
     {
         return $this->belongsTo(Currentexam::class, 'exam_id', 'exam_main_no');
     }
 
     // Relationship with the Venue model
-    public function Venues()
+    public function venues()
     {
-        return $this->belongsTo(Venues::class, 'venue_id', 'venue_code');
+        return $this->belongsTo(Venues::class, 'venue_id', 'venue_id');
     }
+    // Relationship with the District model
+    public function district()
+    {
+        return $this->belongsTo(District::class, 'district_code', 'district_code');
+    }
+    // Relationship with the Center model
+    public function center()
+    {
+        return $this->belongsTo(Center::class, 'center_code', 'center_code');
+    }
+    
 }

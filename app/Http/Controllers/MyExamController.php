@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Currentexam;
 use App\Models\ExamSession;
+use App\Models\ExamVenueConsent;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 
 class MyExamController extends Controller
@@ -34,8 +36,23 @@ class MyExamController extends Controller
             ->where('exam_id', $examId)
             ->orderBy('created_at', 'asc')
             ->get();
+        //get exam venue consent data from venue id
+        $role = session('auth_role');
+        $guard = $role ? Auth::guard($role) : null;
+        $user = $guard ? $guard->user() : null;
+        // if user role is venue user
+        $venueConsents = null;
+        if ($role == 'venue') {
+            $venueConsents = ExamVenueConsent::where('exam_id', $examId)
+                ->where('venue_id', $user->venue_id)
+                ->first();
+            $venueConsents->venueName = $user->venue_name;
+            if (!$venueConsents) {
+                abort(404, 'Venue consent not found');
+            }
+        }
 
-        return view('my_exam.task', compact('session','auditDetails'));
+        return view('my_exam.task', compact('session', 'auditDetails', 'venueConsents'));
     }
 
 }

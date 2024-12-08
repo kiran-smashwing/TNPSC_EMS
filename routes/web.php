@@ -190,6 +190,7 @@ Route::prefix('venues')->group(function () {
         Route::delete('/{id}', [VenuesController::class, 'destroy'])->name('venues.destroy');
         Route::get('/{id}/venue-consent', action: [VenueConsentController::class, 'showVenueConsentForm'])->name('venues.venue-consent');
         Route::post('/{id}/venue-consent', [VenueConsentController::class,'submitVenueConsentForm'])->name('venues.submit-venue-consent');
+        Route::get('/{id}/show-venue-consent', action: [VenueConsentController::class, 'showVenueConsentForm'])->name('venues.show-venue-consent');
     });
 });
 //invigilators Route::prefix('invigilators')->group(function () {
@@ -292,6 +293,8 @@ Route::prefix('id-candidates')->group(function () {
         Route::get('/download-updated-count-csv/{examId}', [IDCandidatesController::class, 'downloadUpdatedCountCsv'])->name('id-candidates.download-updated-count-csv');
         Route::get('/intimateCollectorate/{examId}', [IDCandidatesController::class, 'showDistrictIntimationForm'])->name('id-candidates.intimateCollectorate');
         Route::post('/send-accommodation-email', [IDCandidatesController::class, 'sendAccommodationEmail'])->name('id-candidates.send-accommodation-email');
+        Route::get('/show-venue-confirmation-form/{examId}', [IDCandidatesController::class, 'showVenueConfirmationForm'])->name('id-candidates.show-venue-confirmation-form');
+        Route::post('/save-venue-confirmation/{examId}', [IDCandidatesController::class, 'saveVenueConfirmation'])->name('id-candidates.save-venue-confirmation');
     });
 });
 //disitrict-candidates Route::prefix('district-candidates')->group(function(){

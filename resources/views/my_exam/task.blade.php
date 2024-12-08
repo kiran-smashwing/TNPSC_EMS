@@ -415,26 +415,21 @@
                                                 <div class="col">
                                                     <div class="popup-trigger">
                                                         <div class="h5 font-weight-bold">Give Consent & Assign CI<small
-                                                                class="badge bg-light-secondary ms-2">accepted</small>
+                                                                class="badge bg-light-secondary ms-2">{{$venueConsents->consent_status ?? ''}}</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
+                                                              
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Gov Hr Sec School</b>
+                                                                    <b>{{$venueConsents->venueName ?? 'venue'}}</b>
                                                                 </li>
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    25-07-2024 08:47 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                        {{ \Carbon\Carbon::parse($venueConsents->updated_at ?? '')->format('d-m-Y h:i A') }}</li>
+                                                                
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -442,15 +437,21 @@
                                                             Venue</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="helpdesk-ticket-details.html"
+                                                        @if(isset($venueConsents->consent_status) )
+                                                        <a href="{{ route('venues.show-venue-consent', $session->currentexam->exam_main_no) }}"
                                                             class="me-2 btn btn-sm btn-light-primary m-2"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
+                                                        @endif
+                                                        @if (isset($venueConsents->consent_status) && $venueConsents->consent_status == 'requested')
                                                         <a href="{{ route('venues.venue-consent', $session->currentexam->exam_main_no) }}"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-check-circle mx-1"></i>Add Hall</a>
-                                                        <a href="{{ route('current-exam.venueConsent') }}"
+                                                        @endif
+                                                        @if (isset($venueConsents->consent_status) && $venueConsents->consent_status  == 'accepted')
+                                                        <a href="{{ route('venues.venue-consent', $session->currentexam->exam_main_no) }}"
                                                             class="me-3 btn btn-sm btn-light-warning"><i
                                                                 class="feather icon-edit mx-1"></i>Edit Hall</a>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </div>
@@ -470,11 +471,7 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 Ticket</a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
+                                                              
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -486,10 +483,7 @@
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
+                                                               
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
@@ -499,9 +493,7 @@
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
                                                                     23-07-2024 05:00 PM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                           
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -511,7 +503,7 @@
                                                     </div>
                                                     <div class="mt-2">
                                                         <a target="_blank"
-                                                            href="{{ route('current-exam.confirmVenues') }}"
+                                                            href="{{ route('id-candidates.show-venue-confirmation-form', $session->currentexam->exam_main_no) }}"
                                                             class="me-2 btn btn-sm btn-light-primary m-2"><i
                                                                 class="feather icon-eye mx-1"></i>Review Venues</a>
                                                         <a href="" class="me-2 btn btn-sm btn-light-info"><i

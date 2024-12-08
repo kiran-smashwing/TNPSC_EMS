@@ -34,4 +34,9 @@ class ExamCandidatesProjection extends Model
         'accommodation_received' => 'integer',
     ];
 
+    public function district()
+    {
+        return $this->belongsTo(District::class, 'district_code', 'district_code');
+    }
+
 }

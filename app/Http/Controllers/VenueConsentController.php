@@ -47,29 +47,61 @@ class VenueConsentController extends Controller
     {
         $request->validate([
             'consent' => 'required|in:accept,decline',
-            'ciName' => 'nullable|array'
+            'ciExamData' => 'required_if:consent,accept|json',
         ]);
         try {
             $role = session('auth_role');
             $guard = $role ? Auth::guard($role) : null;
             $user = $guard ? $guard->user() : null;
 
+            // Retrieve the venue's existing consent for the exam
             $examVenueConsent = ExamVenueConsent::where('exam_id', $examId)
                 ->where('venue_id', $user->venue_id)
                 ->first();
-            if ($examVenueConsent) {
-                // Update existing exam venue consent
-                $examVenueConsent->consent_status = $request->consent == 'accept' ? 'accepted' : 'denied';
-                $examVenueConsent->chief_invigilator_ids = $request->consent == 'accept' ? $request->ciName : null;
-                $examVenueConsent->save();
+
+            if (!$examVenueConsent) {
+                return response()->json([
+                    'message' => 'Venue consent not found.'
+                ], 404);
             }
+            // Update existing exam venue consent
+            $examVenueConsent->consent_status = $request->consent == 'accept' ? 'accepted' : 'denied';
+            // If consent is accepted, process and save ciExamData
+            if ($request->consent == 'accept') {
+                $ciExamData = json_decode($request->ciExamData, true);
+
+                if (!is_array($ciExamData)) {
+                    return response()->json([
+                        'message' => 'Invalid format for Chief Invigilator data.'
+                    ], 422);
+                }
+
+                // Map and save the data
+                $mappedData = [];
+                foreach ($ciExamData as $data) {
+                    if (isset($data['exam_date'], $data['ci_id'])) {
+                        $mappedData[] = [
+                            'id' => $data['id'],
+                            'exam_date' => $data['exam_date'],
+                            'ci_id' => $data['ci_id']
+                        ];
+                    }
+                }
+
+                // Save the mapped data as JSON
+                $examVenueConsent->chief_invigilator_data = $mappedData;
+            } else {
+                // Clear CI data if consent is declined
+                $examVenueConsent->chief_invigilator_data = null;
+            }
+            $examVenueConsent->save();
             // Return a success response
             return response()->json([
                 'message' => 'Your consent has been recorded successfully.'
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'There was an error submitting your consent.'
+                'message' => 'There was an error submitting your consent.'.$e->getMessage()
             ], 422);
         }
     }

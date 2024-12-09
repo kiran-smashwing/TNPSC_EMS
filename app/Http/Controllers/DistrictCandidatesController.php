@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VenueConsentMail;
 use Illuminate\Http\Request;
-use App\Models\District;
+use App\Models\Currentexam;
 use App\Models\Venues;
 
 class DistrictCandidatesController extends Controller
@@ -26,6 +26,11 @@ class DistrictCandidatesController extends Controller
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
         $user = $guard ? $guard->user() : null;
+        //get the exam_main_candidates_for_hall data from current exam table with exam id
+
+
+        $candidatesCountForEachHall = Currentexam::where('exam_main_no', $examId)
+            ->value('exam_main_candidates_for_hall');
 
         $examCenters = \DB::table('exam_candidates_projection')
             ->select('center_code', \DB::raw('SUM(accommodation_required) as total_accommodation'), \DB::raw('COUNT(*) as candidate_count'))
@@ -54,7 +59,7 @@ class DistrictCandidatesController extends Controller
 
         foreach ($allvenues as $centerCode => $venues) {
             foreach ($venues as $venue) {
-                $venue->halls_count = $venueConsents->has($venue->venue_id) ? $venueConsents->get($venue->venue_id)->expected_candidates_count / 200 : 0;
+                $venue->halls_count = $venueConsents->has($venue->venue_id) ? $venueConsents->get($venue->venue_id)->expected_candidates_count  : 0;
                 $venue->consent_status = $venueConsents->has($venue->venue_id) ? $venueConsents->get($venue->venue_id)->consent_status : 'not_requested';
             }
         }
@@ -66,7 +71,7 @@ class DistrictCandidatesController extends Controller
             ->where('district_code', $user->district_code)
             ->distinct('center_code')
             ->count('center_code');
-        return view('my_exam.District.venue-intimation', compact('examId', 'examCenters', 'user', 'totalCenters', 'totalCentersFromProjection', 'allvenues'));
+        return view('my_exam.District.venue-intimation', compact('examId', 'examCenters', 'user', 'totalCenters', 'totalCentersFromProjection', 'allvenues', 'candidatesCountForEachHall'));
     }
     public function processVenueConsentEmail(Request $request)
     {
@@ -96,7 +101,7 @@ class DistrictCandidatesController extends Controller
                 [
                     'consent_status' => 'requested', // Initial status
                     'email_sent_status' => true,
-                    'expected_candidates_count' => $venue['halls_count'] * 200 // Assuming 200 candidates per hall
+                    'expected_candidates_count' => $venue['halls_count']  // Assuming 200 candidates per hall
                 ]
             );
             // Get the current exam details
@@ -126,7 +131,7 @@ class DistrictCandidatesController extends Controller
             $existingVenues = $existingLog->after_state['venues'] ?? [];
 
             // Merge existing venues with new venues and remove duplicates
-            $mergedVenues = collect(array_merge($existingVenues,$request->venues))
+            $mergedVenues = collect(array_merge($existingVenues, $request->venues))
                 ->unique('venue_id')
                 ->values()
                 ->all();

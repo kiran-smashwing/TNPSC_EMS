@@ -277,6 +277,16 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div class="col-sm-3">
+                                                <div class="mb-3">
+                                                    <label class="form-label"
+                                                        for="exam_main_candidates_for_hall">Candidates For Each Hall
+                                                        <span class="text-danger">*</span></label>
+                                                    <input type="text" value="{{ $exam->exam_main_candidates_for_hall }}" class="form-control"
+                                                        id="exam_main_candidates_for_hall"
+                                                        name="exam_main_candidates_for_hall" required placeholder="200">
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -316,11 +326,11 @@
                                                         <td data-label="Session">
                                                             <select name="subjects[{{ $index }}][session]"
                                                                 class="form-control" required>
-                                                                <option value="fn"
+                                                                <option value="FN"
                                                                     {{ $exam_session->exam_sess_session == 'fn' ? 'selected' : '' }}>
                                                                     FN
                                                                 </option>
-                                                                <option value="an"
+                                                                <option value="AN"
                                                                     {{ $exam_session->exam_sess_session == 'an' ? 'selected' : '' }}>
                                                                     AN
                                                                 </option>
@@ -335,6 +345,27 @@
                                                                 <option value="10:00AM"
                                                                     {{ $exam_session->exam_sess_time == '10:00AM' ? 'selected' : '' }}>
                                                                     10:00AM</option>
+                                                                <option value="10:30AM"
+                                                                    {{ $exam_session->exam_sess_time == '10:30AM' ? 'selected' : '' }}>
+                                                                    10:30AM</option>
+                                                                <option value="11:00AM"
+                                                                    {{ $exam_session->exam_sess_time == '11:00AM' ? 'selected' : '' }}>
+                                                                    11:00AM</option>
+                                                                <option value="11:30AM"
+                                                                    {{ $exam_session->exam_sess_time == '11:30AM' ? 'selected' : '' }}>
+                                                                    11:30AM</option>
+                                                                <option value="02:00PM"
+                                                                    {{ $exam_session->exam_sess_time == '02:00PM' ? 'selected' : '' }}>
+                                                                    02:00PM</option>
+                                                                <option value="02:30PM"
+                                                                    {{ $exam_session->exam_sess_time == '02:30PM' ? 'selected' : '' }}>
+                                                                    02:30PM</option>
+                                                                <option value="03:00PM"
+                                                                    {{ $exam_session->exam_sess_time == '03:00PM' ? 'selected' : '' }}>
+                                                                    03:00PM</option>
+                                                                <option value="03:30PM"
+                                                                    {{ $exam_session->exam_sess_time == '03:30PM' ? 'selected' : '' }}>
+                                                                    03:30PM</option>
                                                                 <!-- Add other time options with similar selected check -->
                                                             </select>
                                                         </td>
@@ -444,14 +475,21 @@
                 </td>
                 <td data-label="Session">
                     <select name="subjects[${rowIndex}][session]" class="form-control" required>
-                        <option value="fn">FN</option>
-                        <option value="an">AN</option>
+                        <option value="FN">FN</option>
+                        <option value="AN">AN</option>
                     </select>
                 </td>
                 <td data-label="Time">
                     <select name="subjects[${rowIndex}][time]" class="form-control" required>
                         <option value="09:30AM">09:30AM</option>
                         <option value="10:00AM">10:00AM</option>
+                        <option value="10:30AM">10:30AM</option>
+                        <option value="11:00AM">11:00AM</option>
+                        <option value="11:30AM">11:30AM</option>
+                        <option value="02:00PM">02:00PM</option>
+                        <option value="02:30PM">02:30PM</option>
+                        <option value="03:00PM">03:00PM</option>
+                        <option value="03:30PM">03:30PM</option>
                     </select>
                 </td>
                 <td data-label="Duration">

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\District;
+use App\Models\ExamCandidatesProjection;
+use App\Models\ExamVenueConsent;
 use Illuminate\Http\Request;
 use App\Models\Currentexam;
 use App\Services\ExamAuditService;
@@ -189,7 +191,7 @@ class IDCandidatesController extends Controller
             'groupedDistrictCount',
             'existingLog'
         ));
-    } 
+    }
 
     public function sendAccommodationEmail(Request $request)
     {
@@ -276,6 +278,78 @@ class IDCandidatesController extends Controller
             'logs' => $emailLogs,
         ], 200);
     }
+    public function showVenueConfirmationForm(Request $request, $examId)
+    {
+        // Retrieve the exam
+        $exam = Currentexam::where('exam_main_no', $examId)->first();
+        if (!$exam) {
+            return redirect()->back()->with('error', 'Exam not found.');
+        }
 
+        // Retrieve filters from the request
+        $selectedDistrict = $request->input('district');
+        $selectedCenter = $request->input('center_code');
+        $confirmedOnly = $request->input('confirmed_only');
+
+        // Query confirmed venues with conditional filtering
+        $confirmedVenuesQuery = ExamVenueConsent::where('exam_id', $examId)->where('consent_status', 'accepted')->with('venues');
+
+        if ($selectedDistrict) {
+            $confirmedVenuesQuery->where('district_code', $selectedDistrict);
+        }
+
+        if ($selectedCenter) {
+            $confirmedVenuesQuery->where('center_code', $selectedCenter);
+        }
+
+        $confirmedVenues = $confirmedVenuesQuery->get();
+
+        // Retrieve districts
+        $districts = DB::table('exam_candidates_projection as ecp')
+            ->join('district as d', 'ecp.district_code', '=', 'd.district_code')
+            ->where('ecp.exam_id', $examId)
+            ->select('ecp.district_code', 'd.district_name')
+            ->distinct()
+            ->get();
+
+        // Retrieve centers
+        $centers = DB::table('exam_candidates_projection as ecp')
+            ->join('centers as c', 'ecp.center_code', '=', 'c.center_code')
+            ->where('ecp.exam_id', $examId)
+            ->select('ecp.center_code', 'c.center_name', 'ecp.district_code')
+            ->distinct()
+            ->get();
+
+        // Pass data to the view
+        return view('my_exam.IDCandidates.venue-confirmation', compact('exam', 'confirmedVenues', 'districts', 'centers', 'selectedDistrict', 'selectedCenter' ,'confirmedOnly'));
+    }
+    public function saveVenueConfirmation(Request $request, $examId)
+    {
+        // Retrieve the exam
+        $exam = Currentexam::where('exam_main_no', $examId)->first();
+        if (!$exam) {
+            return redirect()->back()->with('error', 'Exam not found.');
+        }
+
+        // Validate the request
+        $request->validate([
+            'venues' => 'required|array|min:1',
+        ]);
+
+        // Get the confirmed venues from the request
+        $confirmedVenues = $request->input('venues');
+
+        // Save the confirmed venues
+        foreach ($confirmedVenues as $venueId) {
+            $confirmedVenue = ExamVenueConsent::where('exam_id', $examId)->where('venue_id', $venueId)->first();
+            if ($confirmedVenue) {
+                $confirmedVenue->confirmed_only = true;
+                $confirmedVenue->save();
+            }
+        }
+
+        // Redirect back to the confirmation form with success message
+        return redirect()->back()->with('success', 'Venues confirmed successfully.');
+    }
 
 }

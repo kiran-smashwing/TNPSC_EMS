@@ -135,7 +135,7 @@
                                                 <label class="form-label" for="exam_main_service">Exam Service</label>
                                                 <input type="text" class="form-control" id="exam_main_service"
                                                     name="exam_main_service" disabled
-                                                    value="{{ $exam->exam_main_service }}">
+                                                    value="{{ $exam->examservice->examservice_name }}">
                                             </div>
                                         </div>
                                         <div class="col-sm-3">
@@ -198,6 +198,18 @@
                                                     value="{{ $exam->exam_main_startdate }}">
                                             </div>
                                         </div>
+                                        <div class="col-sm-3">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="exam_main_candidates_for_hall">Candidates
+                                                    For Each Hall
+                                                    <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control"
+                                                    id="exam_main_candidates_for_hall"
+                                                    name="exam_main_candidates_for_hall" disabled
+                                                    value="{{ $exam->exam_main_candidates_for_hall }}">
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>

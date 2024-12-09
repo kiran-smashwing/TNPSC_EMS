@@ -153,16 +153,16 @@
 
                                                         @foreach ($allvenues as $centerCode => $venues)
                                                             @foreach ($venues as $venue)
-                                                                <tr class="venue-row"
+                                                                <tr class="venue-row {{ $venue->consent_status == 'denied' ? 'table-danger' : '' }}"
                                                                     data-center-code="{{ $centerCode }}">
                                                                     <td>
                                                                         <input
                                                                             class="form-check-input input-success venue-checkbox"
-                                                                            data-center-code="{{ $venue->venue_id }}"
+                                                                            data-venue-code="{{ $venue->venue_id }}"
                                                                             type="checkbox"
                                                                             @if ($venue->consent_status !== 'not_requested') checked disabled @endif>
                                                                     </td>
-                                                                    <td>
+                                                                    <td data-venue-name="{{ $venue->venue_name }}">
                                                                         <b>{{ $venue->venue_name }}</b> <br>
                                                                         {{ $venue->venue_address }}
                                                                     </td>
@@ -174,26 +174,13 @@
                                                                         <select class="form-select" name="allocationCount"
                                                                             @if ($venue->halls_count !== 0) disabled @endif>
                                                                             <option value="">No of Halls</option>
-
-                                                                            <option value="1"
-                                                                                @if ($venue->halls_count == 1) selected @endif>
-                                                                                1 - 200</option>
-
-                                                                            <option value="2"
-                                                                                @if ($venue->halls_count == 2) selected @endif>
-                                                                                2 - 400</option>
-
-                                                                            <option value="3"
-                                                                                @if ($venue->halls_count == 3) selected @endif>
-                                                                                3 - 600</option>
-
-                                                                            <option value="4"
-                                                                                @if ($venue->halls_count == 4) selected @endif>
-                                                                                4 - 800</option>
-
-                                                                            <option value="5"
-                                                                                @if ($venue->halls_count == 5) selected @endif>
-                                                                                5 - 1000</option>
+                                                                            @foreach (range(1, 5) as $hallCount)
+                                                                                <option value="{{ $hallCount * $candidatesCountForEachHall }}"
+                                                                                    @if ($venue->halls_count == $hallCount * $candidatesCountForEachHall ) selected @endif>
+                                                                                    {{ $hallCount }} -
+                                                                                    {{ $hallCount * $candidatesCountForEachHall }}
+                                                                                </option>
+                                                                            @endforeach
                                                                         </select>
                                                                     </td>
                                                                     <td>
@@ -473,8 +460,8 @@
                         </div>
                         <div class="offcanvas-xxl offcanvas-end chat-offcanvas" tabindex="-1" id="offcanvas_User_info">
                             <div class="offcanvas-header">
-                                <button class="btn-close" data-bs-dismiss="offcanvas"
-                                    data-bs-target="#offcanvas_User_info" aria-label="Close"></button>
+                                <button class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#offcanvas_User_info"
+                                    aria-label="Close"></button>
                             </div>
                             <div class="offcanvas-body p-0">
                                 <div id="chat-user_info" class="collapse collapse-horizontal">
@@ -735,13 +722,16 @@
 
                     // Collect selected venues
                     var selectedVenues = [];
-                    $('.venue-row:visible .venue-checkbox:checked').each(function() {
-                        var venueId = $(this).data('center-code');
+                    $('.venue-row:visible .venue-checkbox:checked').not(':disabled').each(function() {
+                        var venueId = $(this).data('venue-code');
                         var hallCount = $(this).closest('tr').find('select[name="allocationCount"]')
                             .val();
+                        var venueName = $(this).closest('tr').find('td[data-venue-name]').data(
+                            'venue-name'); // Get venue name
 
                         selectedVenues.push({
                             venue_id: venueId,
+                            venue_name: venueName,
                             halls_count: hallCount
                         });
                     });
@@ -752,6 +742,24 @@
                             icon: 'warning',
                             title: 'No Venues Selected',
                             text: 'Please select at least one venue',
+                        });
+                        return;
+                    }
+                    // Validate halls not selected
+                    var venuesWithoutHalls = selectedVenues.filter(function(venue) {
+                        return venue.halls_count === 0 || venue.halls_count === null || venue
+                            .halls_count === undefined || venue.halls_count === '';
+                    });
+
+                    if (venuesWithoutHalls.length > 0) {
+                        var venueNames = venuesWithoutHalls.map(function(venue) {
+                            return venue.venue_name;
+                        }).join(' || ');
+
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Halls Not Selected',
+                            html: `Please select at least one hall for the following venues:<br><strong>${venueNames}</strong>`,
                         });
                         return;
                     }
@@ -766,7 +774,19 @@
                             exam_id: '{{ $examId }}', // Assuming you pass the current exam ID
                             venues: selectedVenues
                         },
+                        beforeSend: function() {
+                            // Show the loader before the request starts
+                            const loader = document.getElementById('loader');
+                            if (loader) {
+                                loader.style.removeProperty('display');
+                            }
+                        },
                         success: function(response) {
+                            // Hide the loader when the request is complete
+                            const loader = document.getElementById('loader');
+                            if (loader) {
+                                loader.style.display = 'none';
+                            }
                             // Handle success
                             Swal.fire({
                                 icon: 'success',
@@ -779,7 +799,7 @@
 
                             // Optionally update UI to reflect sent status
                             selectedVenues.forEach(function(venue) {
-                                $(`input[data-center-code="${venue.venue_id}"]`)
+                                $(`input[data-venue-code="${venue.venue_id}"]`)
                                     .closest('tr')
                                     .find('.badge')
                                     .removeClass('bg-light-warning')

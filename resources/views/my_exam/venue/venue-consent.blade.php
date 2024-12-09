@@ -245,29 +245,16 @@
                                                 <label for="totalCandidates" class="form-label fw-bold">Total no of
                                                     Halls:</label>
                                                 <div class="col-sm-3 col-md-3">
-                                                    <select disabled class="form-select" name="allocationCount">
+                                                    <select class="form-select" name="allocationCount" disabled>
                                                         <option value="">No of Halls</option>
-                                                        <option value="200"
-                                                            {{ $venueConsents->expected_candidates_count == 200 ? 'selected' : '' }}>
-                                                            1 - 200
-                                                        </option>
-                                                        <option value="400"
-                                                            {{ $venueConsents->expected_candidates_count == 400 ? 'selected' : '' }}>
-                                                            2 - 400
-                                                        </option>
-                                                        <option value="600"
-                                                            {{ $venueConsents->expected_candidates_count == 600 ? 'selected' : '' }}>
-                                                            3 - 600
-                                                        </option>
-                                                        <option value="600"
-                                                            {{ $venueConsents->expected_candidates_count == 800 ? 'selected' : '' }}>
-                                                            4 - 800
-                                                        </option>
-                                                        <option value="600"
-                                                            {{ $venueConsents->expected_candidates_count == 1000 ? 'selected' : '' }}>
-                                                            5 - 1000
-                                                        </option>
-                                                        <!-- Add more options as needed -->
+                                                        @foreach (range(1, 5) as $hallCount)
+                                                            <option
+                                                                value="{{ $hallCount * $exam->exam_main_candidates_for_hall }}"
+                                                                @if ($venueConsents->expected_candidates_count == $hallCount * $exam->exam_main_candidates_for_hall) selected @endif>
+                                                                {{ $hallCount }} -
+                                                                {{ $hallCount * $exam->exam_main_candidates_for_hall }}
+                                                            </option>
+                                                        @endforeach
                                                     </select>
                                                 </div>
                                             </div>
@@ -277,9 +264,17 @@
                                             <div class="mb-4">
                                                 <label class="form-label fw-bold">Chief Invigilator and Candidate
                                                     Allocation:</label>
+                                                @php
+                                                    $sessionDates = $exam->examsession
+                                                        ->pluck('exam_sess_date')
+                                                        ->unique();
+                                                    $totalCandidates = $venueConsents->expected_candidates_count ?? 0;
+                                                    $candidatesPerHall = $exam->exam_main_candidates_for_hall;
+                                                @endphp
                                                 <table class="table table-bordered" id="responsiveTable">
                                                     <thead>
                                                         <tr>
+                                                            <th>Exam Date</th>
                                                             <th>Chief Invigilator (CI)</th>
                                                             <th>Designation</th>
                                                             <th>E-mail</th>
@@ -288,57 +283,106 @@
                                                     </thead>
                                                     <tbody>
                                                         @php
+                                                            $sessionDates = $exam->examsession
+                                                                ->pluck('exam_sess_date')
+                                                                ->unique();
+
                                                             $totalCandidates =
                                                                 $venueConsents->expected_candidates_count ?? 0;
-                                                            $ciCount = ceil($totalCandidates / 200); // Assuming 1 CI per 200 candidates
-                                                            // Convert saved CI IDs to an array if it's a string
-                                                            $savedCIIds = is_string(
-                                                                $venueConsents->chief_invigilator_ids,
-                                                            )
-                                                                ? json_decode(
-                                                                    $venueConsents->chief_invigilator_ids,
-                                                                    true,
-                                                                )
-                                                                : $venueConsents->chief_invigilator_ids ?? [];
-                                                        @endphp
+                                                            $ciCount = ceil(
+                                                                $totalCandidates / $exam->exam_main_candidates_for_hall,
+                                                            );
 
-                                                        @for ($i = 0; $i < $ciCount; $i++)
-                                                            <tr>
-                                                                <td>
-                                                                    <select class="form-select" name="ciName[]"
-                                                                        {{ $venueConsents->consent_status == 'accepted' ? 'disabled' : '' }}>
-                                                                        <option value="">Select Chief Invigilator
-                                                                        </option>
-                                                                        @foreach ($chiefInvigilators as $ci)
-                                                                            <option value="{{ $ci->ci_id }}"
-                                                                                {{ isset($savedCIIds[$i]) && $savedCIIds[$i] == $ci->ci_id ? 'selected' : '' }}>
-                                                                                {{ $ci->ci_name }}
+                                                            // Decode chief invigilator data if it's a string
+$savedCIIds = is_string(
+    $venueConsents->chief_invigilator_data,
+)
+    ? json_decode(
+        $venueConsents->chief_invigilator_data,
+        true,
+    )
+    : $venueConsents->chief_invigilator_data ?? [];
+
+// Group saved CIs by exam date with indexes for tracking
+$savedCIIdsByDate = [];
+foreach ($savedCIIds as $ci) {
+    $examDate = \Carbon\Carbon::createFromFormat(
+        'Y-m-d',
+        $ci['exam_date'],
+    )->format('d-m-Y');
+    // Store CI IDs for each date
+    $savedCIIdsByDate[$examDate][] = $ci['ci_id'];
+                                                            }
+                                                        @endphp
+                                                        @php
+                                                            $overallIndex = 0;
+                                                        @endphp
+                                                        @foreach ($sessionDates as $sessionDate)
+
+                                                            @for ($i = 0; $i < $ciCount; $i++)
+                                                                <tr>
+                                                                    <td>
+                                                                        <input type="date" class="form-control"
+                                                                            name="examDate[]"
+                                                                            value="{{ \Carbon\Carbon::createFromFormat('d-m-Y', $sessionDate)->format('Y-m-d') }}"
+                                                                            disabled>
+                                                                    </td>
+                                                                    <td>
+                                                                        <select class="form-select" name="ciName[]">
+                                                                            <option value="">Select Chief Invigilator
                                                                             </option>
-                                                                        @endforeach
-                                                                    </select>
-                                                                </td>
-                                                                <td>
-                                                                    <input type="text" class="form-control"
-                                                                        name="ciDesignation[]" placeholder="Designation"
-                                                                        disabled>
-                                                                </td>
-                                                                <td>
-                                                                    <input type="email" class="form-control"
-                                                                        name="ciEmail[]" placeholder="Email" disabled>
-                                                                </td>
-                                                                <td>
-                                                                    <input type="tel" class="form-control"
-                                                                        name="ciPhone[]" placeholder="Phone Number"
-                                                                        disabled>
-                                                                </td>
-                                                            </tr>
-                                                        @endfor
+                                                                            @foreach ($chiefInvigilators as $ci)
+                                                                                @php
+                                                                                    $savedCiId = null;
+                                                                                    foreach ($savedCIIds as $savedCi) {
+                                                                                        if (
+                                                                                            \Carbon\Carbon::createFromFormat(
+                                                                                                'Y-m-d',
+                                                                                                $savedCi['exam_date'],
+                                                                                            )->format('d-m-Y') ==
+                                                                                                $sessionDate &&
+                                                                                            $savedCi['id'] ==
+                                                                                                $overallIndex
+                                                                                        ) {
+                                                                                            $savedCiId =
+                                                                                                $savedCi['ci_id'];
+                                                                                            break;
+                                                                                        }
+                                                                                    }
+                                                                                @endphp
+                                                                                <option value="{{ $ci->ci_id }}"
+                                                                                    {{ $ci->ci_id == $savedCiId ? 'selected' : '' }}>
+                                                                                    {{ $ci->ci_name }}
+                                                                                </option>
+                                                                            @endforeach
+                                                                        </select>
+                                                                    </td>
+                                                                    <td>
+                                                                        <input type="text" class="form-control"
+                                                                            name="ciDesignation[]"
+                                                                            placeholder="Designation" disabled>
+                                                                    </td>
+                                                                    <td>
+                                                                        <input type="email" class="form-control"
+                                                                            name="ciEmail[]" placeholder="Email" disabled>
+                                                                    </td>
+                                                                    <td>
+                                                                        <input type="tel" class="form-control"
+                                                                            name="ciPhone[]" placeholder="Phone Number"
+                                                                            disabled>
+                                                                    </td>
+                                                                </tr>
+                                                                @php
+                                                                    $overallIndex++;
+                                                                @endphp
+                                                            @endfor
+                                                        @endforeach
                                                         <!-- You can add more rows as needed -->
                                                     </tbody>
                                                 </table>
                                             </div>
                                         </div>
-                                        @if ($venueConsents->consent_status !== 'accepted' && $venueConsents->consent_status !== 'denied')
+                                        @if (Route::is('venues.venue-consent'))
                                             <div class="d-flex justify-content-end mt-4">
                                                 <button type="submit"
                                                     class="btn btn-primary px-4 d-flex align-items-center">
@@ -456,18 +500,27 @@
                     // Prepare form data
                     const formData = new FormData(this);
 
-                    // Add additional logic for accepted consent
+
                     if (consentValue === 'accept') {
-                        // Collect selected Chief Invigilator IDs
-                        const selectedCIIds = $('select[name="ciName[]"]')
-                            .map(function() {
-                                return $(this).val();
-                            })
-                            .get()
-                            .filter(id => id !== '');
+                        const ciExamData = [];
+
+                        // Collect Chief Invigilator IDs and their respective exam dates
+                        $('input[name="examDate[]"]').each(function(index) {
+                            const examDate = $(this).val();
+                            const ciId = $(`select[name="ciName[]"]`).eq(index).val();
+
+                            if (ciId) {
+                                ciExamData.push({
+                                    id: index, // added index as id
+                                    exam_date: examDate,
+                                    ci_id: ciId
+                                });
+                            }
+                        });
+                        console.log(ciExamData);
 
                         // Append additional data
-                        formData.append('chiefInvigilatorIds', JSON.stringify(selectedCIIds));
+                        formData.append('ciExamData', JSON.stringify(ciExamData));
                         formData.append('expectedCandidatesCount', $('select[name="allocationCount"]').val());
                     }
 

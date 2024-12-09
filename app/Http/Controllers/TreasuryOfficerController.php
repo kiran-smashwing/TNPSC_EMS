@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Services\AuditLogger;
 use App\Models\District;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Services\ImageCompressService;
 
@@ -25,22 +27,22 @@ class TreasuryOfficerController extends Controller
     {
         // Start the query for Treasury Officers with the district relationship
         $query = TreasuryOfficer::with('district');
-    
+
         // Filter by district if a district is selected
         if ($request->filled('district')) {
             // Apply filter using the correct column `tre_off_district_id`
             $query->where('tre_off_district_id', $request->input('district'));
         }
-    
+
         // Fetch filtered Treasury Officers
         $treasuryOfficers = $query->paginate(10);
-    
-       // Fetch unique district values from the same table
-       $districts = District::all(); // Fetch all districts
-    
+
+        // Fetch unique district values from the same table
+        $districts = District::all(); // Fetch all districts
+
         return view('masters.district.treasury_Officers.index', compact('treasuryOfficers', 'districts'));
     }
-    
+
 
     public function create()
     {
@@ -49,85 +51,123 @@ class TreasuryOfficerController extends Controller
     }
 
     public function store(Request $request)
-{
-    $validated = $request->validate([
-        'district' => 'required|string|max:50',
-        'name' => 'required|string|max:255',
-        'designation' => 'required|string|max:255',
-        'phone' => 'required|string|max:15',
-        'email' => 'required|email|unique:treasury_officer,tre_off_email',
-        'employeeid' => 'required|string|unique:treasury_officer,tre_off_employeeid',
-        'password' => 'required|string|min:6',
-        'cropped_image' => 'nullable|string',
-    ]);
-
-    try {
-        if (!empty($validated['cropped_image'])) {
-            // Remove the data URL prefix if present
-            $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
-            $imageData = base64_decode($imageData);
-
-            if ($imageData === false) {
-                throw new \Exception('Base64 decode failed.');
-            }
-
-            // Create a unique image name
-            $imageName = 'tre_off_' . time() . '.png';
-            $imagePath = 'images/treasury/' . $imageName;
-
-            // Store the image
-            $stored = Storage::disk('public')->put($imagePath, $imageData);
-
-            if (!$stored) {
-                throw new \Exception('Failed to save image to storage.');
-            }
-
-            // Compress the image if it exceeds 200 KB
-            $fullImagePath = storage_path('app/public/' . $imagePath);
-            if (filesize($fullImagePath) > 200 * 1024) {
-                $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200); // 200 KB max size
-            }
-
-            $validated['image'] = $imagePath;
-        }
-
-        // Hash the password
-        $plainPassword = $validated['password']; // Store the plain password for email
-        $validated['password'] = Hash::make($validated['password']);
-
-        // Create the treasury officer record
-        $treasuryOfficer = TreasuryOfficer::create([
-            'tre_off_district_id' => $validated['district'],
-            'tre_off_name' => $validated['name'],
-            'tre_off_designation' => $validated['designation'],
-            'tre_off_phone' => $validated['phone'],
-            'tre_off_email' => $validated['email'],
-            'tre_off_employeeid' => $validated['employeeid'],
-            'tre_off_password' => $validated['password'],
-            'tre_off_image' => $validated['image'] ?? null,
+    {
+        $validated = $request->validate([
+            'district' => 'required|string|max:50',
+            'name' => 'required|string|max:255',
+            'designation' => 'required|string|max:255',
+            'phone' => 'required|string|max:15',
+            'email' => 'required|email|unique:treasury_officer,tre_off_email',
+            'employeeid' => 'required|string|unique:treasury_officer,tre_off_employeeid',
+            'password' => 'required|string|min:6',
+            'cropped_image' => 'nullable|string',
         ]);
 
-        // Send email notification
-        $emailData = [
-            'name' => $treasuryOfficer->tre_off_name,
-            'email' => $treasuryOfficer->tre_off_email,
-            'password' => $plainPassword, // Send the plain password
-        ];
+        try {
+            // Handle cropped image processing
+            if (!empty($validated['cropped_image'])) {
+                $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
+                $imageData = base64_decode($imageData);
 
-        Mail::send('email.treasury_officer_created', $emailData, function ($message) use ($emailData) {
-            $message->to($emailData['email'])
-                ->subject('Welcome to Treasury Management Platform');
-        });
+                if ($imageData === false) {
+                    throw new \Exception('Base64 decode failed.');
+                }
 
-        // Log the creation
-        AuditLogger::log('Treasury Officer Created', TreasuryOfficer::class, $treasuryOfficer->tre_off_id, null, $treasuryOfficer->toArray());
+                $imageName = 'tre_off_' . time() . '.png';
+                $imagePath = 'images/treasury/' . $imageName;
 
-        return redirect()->route('treasury-officers.index')->with('success', 'Treasury Officer created successfully and notification email sent.');
-    } catch (\Exception $e) {
-        return back()->withInput()->with('error', 'Error creating treasury officer: ' . $e->getMessage());
+                $stored = Storage::disk('public')->put($imagePath, $imageData);
+
+                if (!$stored) {
+                    throw new \Exception('Failed to save image to storage.');
+                }
+
+                $fullImagePath = storage_path('app/public/' . $imagePath);
+                if (filesize($fullImagePath) > 200 * 1024) {
+                    $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200);
+                }
+
+                $validated['image'] = $imagePath;
+            }
+
+            // Hash the password
+            $plainPassword = $validated['password']; // Keep plain password for the email
+            $validated['password'] = Hash::make($validated['password']);
+
+            // Generate email verification token
+            $verificationToken = Str::random(64);
+
+            // Create the Treasury Officer record
+            $treasuryOfficer = TreasuryOfficer::create([
+                'tre_off_district_id' => $validated['district'],
+                'tre_off_name' => $validated['name'],
+                'tre_off_designation' => $validated['designation'],
+                'tre_off_phone' => $validated['phone'],
+                'tre_off_email' => $validated['email'],
+                'tre_off_employeeid' => $validated['employeeid'],
+                'tre_off_password' => $validated['password'],
+                'tre_off_image' => $validated['image'] ?? null,
+                'verification_token' => $verificationToken, // Save the token for email verification
+            ]);
+
+            // Send welcome email
+            $emailData = [
+                'name' => $treasuryOfficer->tre_off_name,
+                'email' => $treasuryOfficer->tre_off_email,
+                'password' => $plainPassword, // Plain password for the first login
+            ];
+
+            Mail::send('email.treasury_officer_created', $emailData, function ($message) use ($emailData) {
+                $message->to($emailData['email'])
+                    ->subject('Welcome to Treasury Management Platform');
+            });
+
+            // Send email verification link
+            $verificationLink = route('treasury-officer.verifyEmail', ['token' => urlencode($verificationToken)]);
+            $verificationEmailData = [
+                'name' => $treasuryOfficer->tre_off_name,
+                'email' => $treasuryOfficer->tre_off_email,
+                'verification_link' => $verificationLink,
+            ];
+
+            Mail::send('email.treasury_officer_verification', $verificationEmailData, function ($message) use ($verificationEmailData) {
+                $message->to($verificationEmailData['email'])
+                    ->subject('Verify Your Email Address');
+            });
+
+            // Log the creation
+            AuditLogger::log('Treasury Officer Created', TreasuryOfficer::class, $treasuryOfficer->tre_off_id, null, $treasuryOfficer->toArray());
+
+            return redirect()->route('treasury-officers.index')
+                ->with('success', 'Treasury Officer created successfully. Welcome email and verification link sent.');
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Error creating treasury officer: ' . $e->getMessage());
+        }
     }
-}
 
+    public function verifyEmail($token)
+    {
+        Log::info('Verification token received: ' . $token);
+
+        $decodedToken = urldecode($token);
+
+        $treasuryOfficer = TreasuryOfficer::where('verification_token', $decodedToken)->first();
+
+        if (!$treasuryOfficer) {
+            Log::error('Verification failed: Token not found in database. Token: ' . $decodedToken);
+            return redirect()->route('treasury-officers.index')->with('error', 'Invalid verification link.');
+        }
+
+        $treasuryOfficer->update([
+            'tre_off_email_status' => true, // Mark email as verified
+            'verification_token' => null, // Clear verification token
+        ]);
+
+        Log::info('Email verified successfully for Treasury Officer ID: ' . $treasuryOfficer->tre_off_id);
+
+        return redirect()->route('treasury-officers.index')->with('success', 'Email verified successfully.');
+    }
+     
 
     public function edit($id)
     {

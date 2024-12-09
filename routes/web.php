@@ -29,6 +29,12 @@ use App\Http\Controllers\APDCandidatesController;
 use App\Http\Controllers\TestMailController;
 use App\Http\Controllers\IDCandidatesController;
 use App\Http\Controllers\VenueConsentController;
+use App\Http\Controllers\CIConsolidateController;
+use App\Http\Controllers\UtilityController;
+
+Route::get('/ci-consolidate-report', [CIConsolidateController::class, 'generateReport'])->name('download.report');
+Route::get('generate-utilization-certificate', [UtilityController::class, 'generateUtilizationCertificate'])->name('download.utilireport');
+
 
 // Public routes
 Route::get('/', function () {
@@ -124,6 +130,9 @@ Route::middleware(['auth.multi'])->group(function () {
 Route::get('/district/verify/{token}', [DistrictController::class, 'verifyEmail'])->name('district.verify');
 Route::get('/center/verify/{token}', [CenterController::class, 'verifyEmail'])->name('center.verifyEmail');
 Route::get('/department-official/verify/{token}', [DepartmentOfficialsController::class, 'verifyEmail'])->name('department-official.verifyEmail');
+Route::get('mobile-team/verify/{token}', [MobileTeamStaffsController::class, 'verifyEmail'])->name('mobile_team.verifyEmail');
+Route::get('chief-invigilator/verify/{token}', [ChiefInvigilatorsController::class, 'verifyEmail'])->name('chief-invigilator.verifyEmail');
+Route::get('/treasury-officers/verify-email/{token}', [TreasuryOfficerController::class, 'verifyEmail'])->name('treasury-officers.verifyEmail');
 //District Route::prefix('district')->group(function () {
 Route::prefix('district')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {

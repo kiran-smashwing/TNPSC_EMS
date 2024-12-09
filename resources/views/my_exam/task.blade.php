@@ -2148,7 +2148,7 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-plus mx-1"></i>Add</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
+                                                        <a href="{{route('download.report')}}" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-download mx-1"></i>Download</a>
                                                     </div>
                                                 </div>
@@ -2210,7 +2210,7 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-plus mx-1"></i>Add</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
+                                                        <a href="{{route('download.utilireport')}}" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-download mx-1"></i>Download</a>
                                                     </div>
                                                 </div>

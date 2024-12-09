@@ -7,6 +7,8 @@ use App\Models\District;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Services\ImageCompressService;
 use App\Services\AuditLogger;
@@ -25,21 +27,21 @@ class MobileTeamStaffsController extends Controller
     {
         // Start the query for MobileTeamStaffs with the district relationship
         $query = MobileTeamStaffs::with('district');
-    
+
         // Filter by district if a district is selected
         if ($request->filled('district')) {
             $query->where('mobile_district_id', $request->input('district')); // Adjust the column as per your table schema
         }
-    
+
         // Fetch filtered MobileTeamStaffs with pagination
         $mobileTeams = $query->paginate(10);
-    
-       // Fetch unique district values from the same table
-       $districts = District::all(); // Fetch all districts
-    
+
+        // Fetch unique district values from the same table
+        $districts = District::all(); // Fetch all districts
+
         return view('masters.district.mobile_team_staffs.index', compact('mobileTeams', 'districts'));
     }
-    
+
 
     public function create()
     {
@@ -49,90 +51,123 @@ class MobileTeamStaffsController extends Controller
 
     public function store(Request $request)
     {
-        // Validate the incoming request
-        $messages = [
-            'district.required' => 'Please select a district',
-            'district.integer' => 'Please select a valid district',
-        ];
         $validated = $request->validate([
-            'district' => 'required|integer',
+            'district' => 'required|numeric',
             'name' => 'required|string|max:255',
             'employee_id' => 'required|string|max:255|unique:mobile_team,mobile_employeeid',
             'designation' => 'required|string|max:255',
             'phone' => 'required|string|max:15',
-            'mail' => 'required|email|unique:mobile_team,mobile_email',
+            'email' => 'required|email|unique:mobile_team,mobile_email',
             'password' => 'required|string|min:6',
-            'cropped_image' => 'nullable|string'
-        ], $messages);
-    
+            'cropped_image' => 'nullable|string',
+        ]);
+
         try {
+            // Process the cropped image if present
             if (!empty($validated['cropped_image'])) {
-                // Remove the data URL prefix if present
                 $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
                 $imageData = base64_decode($imageData);
-    
+
                 if ($imageData === false) {
                     throw new \Exception('Base64 decode failed.');
                 }
-    
-                // Create a unique image name
-                $imageName = $validated['name'] . time() . '.png';
+
+                $imageName = $validated['employee_id'] . time() . '.png';
                 $imagePath = 'images/mobile_team/' . $imageName;
-    
-                // Store the image
+
                 $stored = Storage::disk('public')->put($imagePath, $imageData);
-    
+
                 if (!$stored) {
                     throw new \Exception('Failed to save image to storage.');
                 }
-    
-                // Compress the image if it exceeds 200 KB
-                $fullImagePath = storage_path('app/public/' . $imagePath);
-                if (filesize($fullImagePath) > 200 * 1024) {
-                    // Use the ImageService to save and compress the image
-                    $this->imageService->saveAndCompressImage($imageData, $fullImagePath, 200);  // 200 KB max size
-                }
-    
+
                 $validated['image'] = $imagePath;
             }
-    
-            // Hash the password
+
+            // Hash the password and generate a verification token
             $validated['mobile_password'] = Hash::make($validated['password']);
-    
-            // Create a new Mobile Team member
-            $mobileTeamStaff = MobileTeamStaffs::create([
+            $validated['verification_token'] = Str::random(64);
+
+            // Create the mobile team record
+            $mobileTeamMember = MobileTeamStaffs::create([
                 'mobile_district_id' => $validated['district'],
                 'mobile_name' => $validated['name'],
+                'mobile_employeeid' => $validated['employee_id'],
                 'mobile_designation' => $validated['designation'],
                 'mobile_phone' => $validated['phone'],
-                'mobile_email' => $validated['mail'],
-                'mobile_employeeid' => $validated['employee_id'],
+                'mobile_email' => $validated['email'],
                 'mobile_password' => $validated['mobile_password'],
                 'mobile_image' => $validated['image'] ?? null,
+                'verification_token' => $validated['verification_token'],
             ]);
-    
-            // Send email notification
-            $emailData = [
-                'name' => $mobileTeamStaff->mobile_name,
-                'email' => $mobileTeamStaff->mobile_email,
-                'password' => $validated['password'], // Send plain password for the first login
-            ];
-    
-            Mail::send('email.mobile_team_created', $emailData, function ($message) use ($emailData) {
-                $message->to($emailData['email'])
-                        ->subject('Welcome to the Mobile Team');
+
+            // Log the creation with the audit logger
+            AuditLogger::log('Mobile Team Member Created', MobileTeamStaffs::class, $mobileTeamMember->mobile_id, null, $mobileTeamMember->toArray());
+
+            // Send the welcome email
+            Mail::send('email.mobile_team_created', [
+                'name' => $mobileTeamMember->mobile_name,
+                'email' => $mobileTeamMember->mobile_email,
+                'password' => $request->password, // Plain password for first login
+            ], function ($message) use ($mobileTeamMember) {
+                $message->to($mobileTeamMember->mobile_email)
+                    ->subject('Welcome to the Mobile Team');
             });
-    
-            // Log the creation
-            AuditLogger::log('Mobile Team Staff Created', MobileTeamStaffs::class, $mobileTeamStaff->mobile_id, null, $mobileTeamStaff->toArray());
-    
+
+            // Send the email verification link
+            Mail::send('email.mobile_verification', [
+                'name' => $mobileTeamMember->mobile_name,
+                'email' => $mobileTeamMember->mobile_email,
+                'verification_link' => route('mobile_team.verifyEmail', ['token' => urlencode($mobileTeamMember->verification_token)]),
+            ], function ($message) use ($mobileTeamMember) {
+                $message->to($mobileTeamMember->mobile_email)
+                    ->subject('Verify Your Email Address');
+            });
+
+            // Redirect with success message
             return redirect()->route('mobile-team-staffs.index')
-                ->with('success', 'Mobile team member created successfully and notification email sent.');
+                ->with('success', 'Mobile team member created successfully. Email verification link has been sent.');
         } catch (\Exception $e) {
+            // Handle exceptions and show an error message
             return back()->withInput()
                 ->with('error', 'Error creating mobile team member: ' . $e->getMessage());
         }
     }
+
+    public function verifyEmail($token)
+    {
+        // Log the received verification token
+        Log::info('Mobile team email verification token received: ' . $token);
+
+        // Decode the token if URL encoded
+        $decodedToken = urldecode($token);
+
+        // Search for the mobile team member with the given token
+        $mobileTeamMember = MobileTeamStaffs::where('verification_token', $decodedToken)->first();
+
+        if (!$mobileTeamMember) {
+            // Log an error if the token is invalid
+            Log::error('Mobile team email verification failed: Token not found. Token: ' . $decodedToken);
+
+            // Redirect to the mobile team index page with an error message
+            return redirect()->route('mobile-team-staffs.index')
+                ->with('error', 'Invalid verification link. Please contact support if this issue persists.');
+        }
+
+        // Update the email verification status and clear the token
+        $mobileTeamMember->update([
+            'mobile_email_status' => true, // Using the correct column for email verification status
+            'verification_token' => null,   // Clear the token after verification
+        ]);
+
+        // Log the successful verification
+        Log::info('Mobile team email verified successfully for ID: ' . $mobileTeamMember->mobile_employeeid);
+
+        // Redirect to the mobile team index page with a success message
+        return redirect()->route('mobile-team-staffs.index')
+            ->with('success', 'Email verified successfully. Welcome to the Mobile Team!');
+    }
+
 
 
     public function edit($mobile_id)
@@ -239,7 +274,7 @@ class MobileTeamStaffsController extends Controller
     public function show($id)
     {
 
-        $team = MobileTeamStaffs::with('district')->findOrFail($id);// Ensure MobileTeam is the correct model
+        $team = MobileTeamStaffs::with('district')->findOrFail($id); // Ensure MobileTeam is the correct model
         return view('masters.district.mobile_team_staffs.show', compact('team'));
     }
     public function toggleStatus($id)

@@ -31,9 +31,11 @@ use App\Http\Controllers\IDCandidatesController;
 use App\Http\Controllers\VenueConsentController;
 use App\Http\Controllers\CIConsolidateController;
 use App\Http\Controllers\UtilityController;
+use App\Http\Controllers\AttendanceReportController;
 
 Route::get('/ci-consolidate-report', [CIConsolidateController::class, 'generateReport'])->name('download.report');
 Route::get('generate-utilization-certificate', [UtilityController::class, 'generateUtilizationCertificate'])->name('download.utilireport');
+Route::get('/attendance-report', [AttendanceReportController::class, 'generateAttendanceReport'])->name('download.attendanceReport');
 
 
 // Public routes

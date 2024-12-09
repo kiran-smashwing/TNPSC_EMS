@@ -326,7 +326,7 @@
                         <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> OMR
                                 Account</a>
                         </li>
-                        <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> Attendance
+                        <li class="pc-item"><a class="pc-link" href="{{route('download.attendanceReport')}}"> Attendance
                                 Reports</a>
                         </li>
                     </ul>

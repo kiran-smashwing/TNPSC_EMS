@@ -72,7 +72,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 255, 255, 1);
+            background-color:  rgba(var(--bs-body-bg-rgb),1) !important;
             z-index: 9999;
             display: flex;
             justify-content: center;

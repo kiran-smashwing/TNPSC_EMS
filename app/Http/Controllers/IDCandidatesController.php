@@ -11,6 +11,7 @@ use App\Services\ExamAuditService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AccommodationNotification;
+use App\Models\ExamConfirmedHalls;
 class IDCandidatesController extends Controller
 {
     protected $auditService;
@@ -292,7 +293,8 @@ class IDCandidatesController extends Controller
         $confirmedOnly = $request->input('confirmed_only');
 
         // Query confirmed venues with conditional filtering
-        $confirmedVenuesQuery = ExamVenueConsent::where('exam_id', $examId)->where('consent_status', 'accepted')->with('venues');
+        $confirmedVenuesQuery = ExamVenueConsent::where('exam_id', $examId)->where('consent_status', 'accepted')->with('venues')->orderBy('order_by_id', 'asc');
+        ;
 
         if ($selectedDistrict) {
             $confirmedVenuesQuery->where('district_code', $selectedDistrict);
@@ -300,6 +302,10 @@ class IDCandidatesController extends Controller
 
         if ($selectedCenter) {
             $confirmedVenuesQuery->where('center_code', $selectedCenter);
+        }
+
+        if ($confirmedOnly) {
+            $confirmedVenuesQuery->where('is_confirmed', 'true');
         }
 
         $confirmedVenues = $confirmedVenuesQuery->get();
@@ -321,35 +327,114 @@ class IDCandidatesController extends Controller
             ->get();
 
         // Pass data to the view
-        return view('my_exam.IDCandidates.venue-confirmation', compact('exam', 'confirmedVenues', 'districts', 'centers', 'selectedDistrict', 'selectedCenter' ,'confirmedOnly'));
+        return view('my_exam.IDCandidates.venue-confirmation', compact('exam', 'confirmedVenues', 'districts', 'centers', 'selectedDistrict', 'selectedCenter', 'confirmedOnly'));
     }
     public function saveVenueConfirmation(Request $request, $examId)
     {
         // Retrieve the exam
-        $exam = Currentexam::where('exam_main_no', $examId)->first();
+        $exam = Currentexam::where('exam_main_no', $examId)->with(['examsession'])->first();
         if (!$exam) {
             return redirect()->back()->with('error', 'Exam not found.');
         }
 
         // Validate the request
-        $request->validate([
-            'venues' => 'required|array|min:1',
+        $validate = $request->validate([
+            'selected_venues' => 'required|string',
         ]);
 
-        // Get the confirmed venues from the request
-        $confirmedVenues = $request->input('venues');
+        // Parse the JSON string
+        $venuesData = json_decode($validate['selected_venues'], true);
+        if (!is_array($venuesData)) {
+            return redirect()->back()->with('error', 'Invalid venue data.');
+        }
+        // Process each venue
+        foreach ($venuesData as $venueInfo) {
+            // Extract venue details
+            $venueId = $venueInfo['venue_id'];
+            $order = $venueInfo['order'];
+            $isChecked = $venueInfo['checked'];
 
-        // Save the confirmed venues
-        foreach ($confirmedVenues as $venueId) {
-            $confirmedVenue = ExamVenueConsent::where('exam_id', $examId)->where('venue_id', $venueId)->first();
+            // Find the existing venue consent record
+            $confirmedVenue = ExamVenueConsent::where('exam_id', $examId)
+                ->where('venue_id', $venueId)
+                ->first();
+
             if ($confirmedVenue) {
-                $confirmedVenue->confirmed_only = true;
+                // Always update the order
+                $confirmedVenue->order_by_id = $order;
+
+                // Update confirmation status if checked
+                $confirmedVenue->is_confirmed = $isChecked;
+                //If isChecked is true then genrate the halls for each ci in IDCandidatesController
+                if ($isChecked) {
+                    // Decode the CI data
+                    // Ensure chief_invigilator_data is in the correct format
+                    $ciData = is_string($confirmedVenue->chief_invigilator_data)
+                        ? json_decode($confirmedVenue->chief_invigilator_data, true)
+                        : $confirmedVenue->chief_invigilator_data;
+                    if (is_array($ciData)) {
+                        foreach ($ciData as $ci) {
+                            // Get the exam date and session for the current CI
+                            $examDate = $ci['exam_date'];
+                            $ciId = $ci['ci_id'];
+
+                            // Filter the sessions for the given exam date
+                            $sessionsForDate = $exam->examsession->filter(function ($session) use ($examDate) {
+                                return \Carbon\Carbon::parse($session->exam_sess_date)->format('Y-m-d') === $examDate;
+                            });
+
+                            // If no sessions are found for this exam date, skip this CI
+                            if ($sessionsForDate->isEmpty()) {
+                                continue;
+                            }
+
+                            // Loop through each session for the given date
+                            $hallCodeCounter = 1;  // Initialize hall code counter for this exam date
+
+                            foreach ($sessionsForDate as $session) {
+                                // Generate halls for each session
+                                $totalCandidates = $confirmedVenue->expected_candidates_count;
+                                $hallsRequired = ceil($totalCandidates / $exam->exam_main_candidates_for_hall);
+
+                                // Allocate halls for this session, starting from hall code 001 for each CI
+                                for ($i = 1; $i <= $hallsRequired; $i++) {
+                                    // Format hall code to be 3 digits (e.g., 001, 002, ...)
+                                    $hallCode = str_pad($hallCodeCounter, 3, '0', STR_PAD_LEFT);
+
+                                    // Create or update the hall record
+                                    ExamConfirmedHalls::updateOrCreate(
+                                        [
+                                            'exam_id' => $examId,
+                                            'venue_code' => $venueId,
+                                            'hall_code' => $hallCode,
+                                            'ci_id' => $ciId,
+                                            'exam_date' => $examDate,
+                                            'exam_session' => $session->exam_sess_session,
+                                        ],
+                                        [
+                                            'district_code' => $confirmedVenue->district_code,
+                                            'center_code' => $confirmedVenue->center_code,
+                                            'is_apd_uploaded' => false,
+                                            'alloted_count' => $exam->exam_main_candidates_for_hall,
+                                        ]
+                                    );
+
+                                    // Increment hall code for the next CI
+                                    $hallCodeCounter++;
+                                }
+                            }
+                        }
+                    }
+
+
+                }
+                // Save the changes
                 $confirmedVenue->save();
             }
         }
 
         // Redirect back to the confirmation form with success message
-        return redirect()->back()->with('success', 'Venues confirmed successfully.');
+        return redirect()->back()->with('success', 'Venues re-order and confirmation updated successfully.');
     }
 
 }

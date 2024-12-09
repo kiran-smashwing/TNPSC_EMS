@@ -12,6 +12,8 @@ class ExamVenueConsent extends Model
 
     protected $casts = [
         'chief_invigilator_data' => 'array', // Cast as array
+        'is_confirmed' => 'boolean', // Cast as boolean
+        'order_by_id' => 'integer', // Cast as integer
     ];
     // Define the fillable attributes for mass assignment
     protected $fillable = [
@@ -24,6 +26,7 @@ class ExamVenueConsent extends Model
         'expected_candidates_count',
         'chief_invigilator_data',
         'is_confirmed',
+        'order_by_id',
         'updated_at',
         'created_at',
     ];

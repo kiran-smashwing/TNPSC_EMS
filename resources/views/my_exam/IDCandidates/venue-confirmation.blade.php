@@ -28,7 +28,7 @@
                 flex: 1 1 200px;
                 /* Ensures button is on the same row */
                 display: flex;
-                justify-content: flex-end;
+                justify-content: space-between;
                 /* Aligns the button to the right */
             }
 
@@ -45,6 +45,12 @@
             .form-check-label {
                 font-size: 1.2rem !important;
                 /* Keep the label text size normal */
+            }
+
+            .table-responsive {
+                overflow-y: auto;
+                overflow-x: hidden;
+                max-width: 100%;
             }
         </style>
     @endpush
@@ -74,126 +80,152 @@
             </div>
             <!-- [ breadcrumb ] end -->
 
-
-            <!-- [ Main Content ] start -->
             <div class="row">
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
 
-            </div>
-            <div class="row">
-                <!-- [ basic-table ] start -->
-                <div class="col-xl-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="d-sm-flex align-items-center justify-content-between">
-                                <h5 class="mb-3 mb-sm-0">Review Confirmed Venues</h5>
+                @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
 
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                <div class="row">
+                    <!-- [ basic-table ] start -->
+                    <div class="col-xl-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="d-sm-flex align-items-center justify-content-between">
+                                    <h5 class="mb-3 mb-sm-0">Review Confirmed Venues</h5>
+
+                                </div>
                             </div>
-                        </div>
-                        <div class="card-body">
-                            <!-- Filter options -->
-                            <form id="filterForm" class="mb-3" method="GET">
-                                @csrf
-                                <input type="hidden" name="exam_id" value="{{ $exam->exam_main_no }}">
+                            <div class="card-body">
+                                <!-- Filter options -->
+                                <form id="filterForm" class="mb-3" method="GET">
+                                    @csrf
+                                    <input type="hidden" name="exam_id" value="{{ $exam->exam_main_no }}">
 
-                                <div class="filter-item">
-                                    <select class="form-select" id="districtFilter" name="district">
-                                        <option value="">Select District</option>
-                                        @foreach ($districts as $district)
-                                            <option value="{{ $district->district_code }}"
-                                                {{ $selectedDistrict == $district->district_code ? 'selected' : '' }}>
-                                                {{ $district->district_code }} - {{ $district->district_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div class="filter-item">
-                                    <select class="form-select" id="centerCodeFilter" name="center_code">
-                                        <option value="">Select Center Code</option>
-                                        <!-- Centers will be dynamically populated -->
-                                    </select>
-                                </div>
-                                <div class="filter-item">
-                                    <div class="form-check form-switch custom-switch-v2 mb-1 mt-2 switch-lg">
-                                        <input name="confirmed_only" type="checkbox"
-                                            class="form-check-input input-light-success" id="customswitchlightv1-3"
-                                            {{ $confirmedOnly == 'on' ? 'checked' : '' }}>
-                                        <label class="form-check-label " for="customswitchlightv1-3"> Confirmed Only</label>
+                                    <div class="filter-item">
+                                        <select class="form-select" id="districtFilter" name="district">
+                                            <option value="">Select District</option>
+                                            @foreach ($districts as $district)
+                                                <option value="{{ $district->district_code }}"
+                                                    {{ $selectedDistrict == $district->district_code ? 'selected' : '' }}>
+                                                    {{ $district->district_code }} - {{ $district->district_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
-                                </div>
-                                <div class="btn-container">
-                                    <button type="submit" class="btn btn-primary">Apply Filters</button>
-                                </div>
 
-                            </form>
+                                    <div class="filter-item">
+                                        <select class="form-select" id="centerCodeFilter" name="center_code">
+                                            <option value="">Select Center Code</option>
+                                            <!-- Centers will be dynamically populated -->
+                                        </select>
+                                    </div>
+                                    <div class="filter-item">
+                                        <div class="form-check form-switch custom-switch-v2 mb-1 mt-2 switch-lg">
+                                            <input name="confirmed_only" type="checkbox"
+                                                class="form-check-input input-light-success" id="customswitchlightv1-3"
+                                                {{ $confirmedOnly == 'on' ? 'checked' : '' }}>
+                                            <label class="form-check-label " for="customswitchlightv1-3"> Confirmed
+                                                Only</label>
+                                        </div>
+                                    </div>
+                                    <div class="btn-container">
+                                        <button type="submit" class="btn btn-primary">Apply Filters</button>
+                                        <button type="button" id="resetButton"
+                                            class="btn btn-secondary d-flex align-items-center"
+                                            onclick="window.location.href='{{ route('id-candidates.show-venue-confirmation-form', $exam->exam_main_no) }}'">
+                                            <i class="ti ti-refresh me-2"></i> Reset
+                                        </button>
+                                    </div>
+                                </form>
 
-                            <div class="dt-responsive table-responsive">
-                                <table id="reorder-events" class="table table-striped table-bordered nowrap">
-                                    <thead>
-                                        <tr>
-                                            <th>S.No</th>
-                                            <th>#</th>
-                                            <th>VENUE NAME</th>
-                                            <th>VENUE CODE</th>
-                                            <th>E- MAIL</th>
-                                            <th>PHONE</th>
-                                            <th>HALL COUNT</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($confirmedVenues as $key => $confirmedVenue)
+                                <div class="dt-responsive table-responsive">
+                                    <table id="reorder-events" class="table table-striped table-bordered nowrap">
+                                        <thead>
                                             <tr>
-                                                <td>{{ $key + 1 }}</td>
-                                                <td>
-                                                    <input class="form-check-input input-success venue-checkbox"
-                                                        type="checkbox" name="venue_checkbox[]"
-                                                        value="{{ $confirmedVenue->id }}">
-                                                </td>
-                                                <td>{{ $confirmedVenue->venues->venue_name }}</td>
-                                                <td>{{ $confirmedVenue->venues->venue_code }}</td>
-                                                <td>{{ $confirmedVenue->venues->venue_email }}</td>
-                                                <td>{{ $confirmedVenue->venues->venue_phone }}</td>
-                                                <td>{{ $confirmedVenue->expected_candidates_count / $exam->exam_main_candidates_for_hall }}
-                                                </td>
+                                                <th>S.No</th>
+                                                <th>#</th>
+                                                <th>VENUE NAME</th>
+                                                <th>VENUE CODE</th>
+                                                <th>E- MAIL</th>
+                                                <th>PHONE</th>
+                                                <th>HALL COUNT</th>
                                             </tr>
-                                        @endforeach
-
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <th>S.NO</th>
-                                            <th>#</th>
-                                            <th>VENUE NAME</th>
-                                            <th>VENUE CODE</th>
-                                            <th>E - MAIL</th>
-                                            <th>PHONE</th>
-                                            <th>HALL COUNT</th>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                                <div class="row mt-3">
-                                    <div class="col-12">
-                                        <form id="venueConfirmationForm"
-                                            action="{{ route('id-candidates.save-venue-confirmation', $exam->exam_main_no) }}"
-                                            method="POST">
-                                            @csrf
-                                            <input type="hidden" name="exam_id" value="{{ $exam->exam_main_no }}">
-                                            <input type="hidden" id="selectedVenuesOrder" name="selected_venues"
-                                                value="">
-                                            <button type="submit" class="btn btn-success save-venue-confirmation" disabled>
-                                                Save Venue Confirmation
-                                            </button>
-                                        </form>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($confirmedVenues as $key => $confirmedVenue)
+                                                <tr>
+                                                    <td>{{ $key + 1 }}</td>
+                                                    <td>
+                                                        <input class="form-check-input input-success venue-checkbox"
+                                                            type="checkbox" name="venue_checkbox[]"
+                                                            {{ $confirmedVenue->is_confirmed == true ? 'checked' : '' }}
+                                                            value="{{ $confirmedVenue->venue_id }}">
+                                                    </td>
+                                                    <td>{{ $confirmedVenue->venues->venue_name }}</td>
+                                                    <td>{{ $confirmedVenue->venues->venue_code }}</td>
+                                                    <td>{{ $confirmedVenue->venues->venue_email }}</td>
+                                                    <td>{{ $confirmedVenue->venues->venue_phone }}</td>
+                                                    <td>{{ $confirmedVenue->expected_candidates_count / $exam->exam_main_candidates_for_hall }}
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th>S.NO</th>
+                                                <th>#</th>
+                                                <th>VENUE NAME</th>
+                                                <th>VENUE CODE</th>
+                                                <th>E - MAIL</th>
+                                                <th>PHONE</th>
+                                                <th>HALL COUNT</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                    <div class="row mt-3">
+                                        <div class="col-12">
+                                            <form id="venueConfirmationForm"
+                                                action="{{ route('id-candidates.save-venue-confirmation', $exam->exam_main_no) }}"
+                                                method="POST">
+                                                @csrf
+                                                <input type="hidden" name="exam_id" value="{{ $exam->exam_main_no }}">
+                                                <input type="hidden" id="selectedVenuesOrder" name="selected_venues"
+                                                    value="">
+                                                <button type="submit" class="btn btn-success save-venue-confirmation">
+                                                    Save Confirmation
+                                                </button>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <!-- [ basic-table ] end -->
             </div>
-            <!-- [ basic-table ] end -->
-        </div>
-        <!-- [ Main Content ] end -->
+            <!-- [ Main Content ] end -->
         </div>
     </section>
     <!-- [ Main Content ] end -->
@@ -271,37 +303,45 @@
             });
         </script>
         <script>
-            $(document).ready(function() {
-                const saveButton = $('.save-venue-confirmation');
-                const venueCheckboxes = $('.venue-checkbox');
-                const selectedVenuesOrderInput = $('#selectedVenuesOrder');
+            // Form submission handling
+            $('#venueConfirmationForm').on('submit', function(e) {
+                const venueList = [];
+                const checkedBoxes = $('.venue-checkbox');
 
-                // Enable/disable save button based on checkbox selection
-                venueCheckboxes.on('change', function() {
-                    const checkedBoxes = venueCheckboxes.filter(':checked');
-                    saveButton.prop('disabled', checkedBoxes.length === 0);
-
-                    // Collect selected venue IDs in order
-                    if (checkedBoxes.length > 0) {
-                        const selectedVenueIds = checkedBoxes.map(function() {
-                            return $(this).val();
-                        }).get();
-
-                        selectedVenuesOrderInput.val(JSON.stringify(selectedVenueIds));
-                    } else {
-                        selectedVenuesOrderInput.val('');
-                    }
+                checkedBoxes.each(function(index) {
+                    const venueId = $(this).val();
+                    const isChecked = $(this).is(':checked');
+                    venueList.push({
+                        venue_id: venueId,
+                        order: index,
+                        checked: isChecked
+                    });
                 });
 
-                // Form submission handling
-                $('#venueConfirmationForm').on('submit', function(e) {
-                    const checkedBoxes = venueCheckboxes.filter(':checked');
-
-                    if (checkedBoxes.length === 0) {
-                        e.preventDefault();
-                        alert('Please select at least one venue.');
+                $('#selectedVenuesOrder').val(JSON.stringify(venueList));
+            });
+        </script>
+        <script>
+            $('#venueConfirmationForm').ajaxForm({
+                beforeSubmit: function() {
+                    // Show the loader before the request starts
+                    const loader = document.getElementById('loader');
+                    if (loader) {
+                        loader.style.removeProperty('display');
                     }
-                });
+                },
+                success: function(data) {
+                    const loader = document.getElementById('loader');
+                    if (loader) {
+                        loader.style.display = 'none';
+                    }
+                },
+                error: function(xhr, status, error) {
+                    const loader = document.getElementById('loader');
+                    if (loader) {
+                        loader.style.display = 'none';
+                    }
+                }
             });
         </script>
     @endpush

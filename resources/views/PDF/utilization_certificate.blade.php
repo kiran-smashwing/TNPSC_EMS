@@ -14,7 +14,7 @@
             position: relative;
             /* Required for the pseudo-element to work properly */
         }
-    
+
         body::before {
             content: '';
             position: absolute;
@@ -22,38 +22,42 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: url('{{ asset('storage/assets/images/login-logo.png') }}') no-repeat center center;
-            background-size: 400px 400px; /* Adjust size of the watermark */
-            opacity: 0.10/* Makes the watermark very light */
-            z-index: -1; /* Ensures the watermark stays behind the content */
-            border: none; /* Removes any border around the logo */
+            background: url('{{ asset('storage/assets/images/logo_background.png') }}') no-repeat center center;
+            background-size: 400px 400px;
+            /* Adjust size of the watermark */
+            opacity: 0.01;
+            /* Sets the opacity to 10% */
+            z-index: -1;
+            /* Ensures the watermark stays behind the content */
+            border: none;
+            /* Removes any border around the logo */
         }
-    
+
         .container {
             position: relative;
             /* Ensures the container is above the watermark */
             z-index: 1;
         }
-    
+
         h4 {
             text-align: center;
             text-decoration: underline;
             font-size: 20px;
         }
-    
+
         p {
             line-height: 1.8;
-            font-size: 20px;
+            font-size: 18px;
             text-indent: 0;
         }
-    
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
             font-size: 20px;
         }
-    
+
         table,
         th,
         td {
@@ -61,53 +65,53 @@
             padding: 10px;
             text-align: left;
         }
-    
+
         th {
             background-color: #f2f2f2;
             text-align: center;
             font-size: 16px;
         }
-    
+
         td {
             vertical-align: top;
         }
-    
+
         td.center {
             text-align: center;
         }
-    
+
         td.right {
             text-align: right;
         }
-    
+
         .amount-section {
             font-weight: bold;
             font-size: 16px;
         }
-    
+
         .signature-table td {
             padding: 30px 15px;
             font-size: 16px;
         }
-    
+
         .signature-table .seal {
             vertical-align: top;
         }
-    
+
         .signature-table .signature,
         .signature-table .name {
             text-align: center;
             width: 30%;
         }
-    
+
         .name-designation {
             padding-left: 15px;
             text-align: left;
             font-size: 20px;
         }
     </style>
-    
-    
+
+
 
 </head>
 

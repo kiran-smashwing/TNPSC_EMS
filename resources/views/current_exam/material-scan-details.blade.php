@@ -246,8 +246,8 @@
                                     <td>Data C</td>
                                     <td>Data TRUNK BOX</td>
                                     <td>
-                                        <a href="{{route('collectorate.show')}}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-eye f-20"></i></a>
-                                        <a href="{{ route('collectorate.edit') }}" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
+                                        <a href="" class="avtar avtar-xs  btn-light-success"><i class="ti ti-eye f-20"></i></a>
+                                        <a href="" class="avtar avtar-xs  btn-light-success"><i class="ti ti-edit f-20"></i></a>
                                         <a href="#" class="avtar avtar-xs  btn-light-success" title="Change Status (Active or Inactive)" onclick="toggleIcon(this)">
                                             <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
                                         </a>

@@ -106,11 +106,7 @@
                                                         <select class="form-control @error('center') is-invalid @enderror"
                                                             id="center" name="center" required>
                                                             <option value="">Select Center</option>
-                                                            @foreach ($centers as $center)
-                                                                <option value="{{ $center->center_code }}">
-                                                                    {{ $center->center_name }}
-                                                                </option>
-                                                            @endforeach
+                                                            <!-- Centers will be dynamically populated -->
                                                         </select>
                                                         @error('center')
                                                             <div class="invalid-feedback">{{ $message }}</div>
@@ -452,7 +448,7 @@
     </div>
 
     @include('partials.footer')
-
+    @push('scripts')
     <script src="{{ asset('storage/assets/js/plugins/croppr.min.js') }}"></script>
     <script src="{{ asset('storage/assets/js/pages/page-croper.js') }}"></script>
     <script>
@@ -472,6 +468,44 @@
             }
         });
     </script>
+    <script>
+        // Full list of centers
+        const allCenters = @json($centers);
+
+        // District dropdown change event
+        $('#district').on('change', function() {
+            const selectedDistrictCode = $(this).val();
+            const centerDropdown = $('#center');
+
+            // Clear previous options
+            centerDropdown.empty();
+            centerDropdown.append('<option value="">Select Center Name</option>');
+
+            // Filter centers based on selected district
+            const filteredCenters = allCenters.filter(center =>
+                center.center_district_id == selectedDistrictCode
+            );
+
+            // Populate centers
+            filteredCenters.forEach(center => {
+                const selected = "{{ old('center') }}" == center.center_code ? 'selected' : '';
+                centerDropdown.append(
+                    `<option value="${center.center_code}" ${selected}>
+                        ${center.center_name}
+                    </option>`
+                );
+            });
+        });
+
+        // Trigger change event on page load to handle old/existing selections
+        $(document).ready(function() {
+            const oldDistrict = "{{ old('district', $user->venue_district_id ?? '') }}";
+            if (oldDistrict) {
+                $('#district').val(oldDistrict).trigger('change');
+            }
+        });
+    </script>
+    @endpush
 
     @include('partials.theme')
 

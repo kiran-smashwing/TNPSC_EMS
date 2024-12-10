@@ -156,11 +156,11 @@ class CIAssistantsController extends Controller
         $ciAssistant = CIAssistant::findOrFail($id);
         $messages = [
             'district.required' => 'Please select a district',
-            'district.integer' => 'Please select a valid district',
+            'district.numeric' => 'Please select a valid district',
             'center.required' => 'Please select a center',
-            'center.integer' => 'Please select a valid center',
+            'center.numeric' => 'Please select a valid center',
             'venue.required' => 'Please select a venue',
-            'venue.integer' => 'Please select a valid venue',
+            'venue.numeric' => 'Please select a valid venue',
         ];
         // Validation rules for CI Assistant data
         $validated = $request->validate([
@@ -168,9 +168,9 @@ class CIAssistantsController extends Controller
             'email' => 'required|email|unique:cheif_invigilator_assistant,cia_email,' . $id . ',cia_id',
             'phone' => 'required|string|max:15',
             'designation' => 'nullable|string|max:255',
-            'district' => 'required|integer',
-            'center' => 'required|integer',
-            'venue' => 'required|integer',
+            'district' => 'required|numeric',
+            'center' => 'required|numeric',
+            'venue' => 'required|numeric',
             'cropped_image' => 'nullable|string', // Base64 encoded image string
         ], $messages);
 

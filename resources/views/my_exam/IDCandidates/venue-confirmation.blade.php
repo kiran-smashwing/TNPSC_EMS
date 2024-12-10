@@ -250,6 +250,9 @@
                     searchable: false, // Disable search for this column
                     visible: true, // Make the column visible
                 }],
+                language: {
+                    emptyTable: "Please select a district and center, or no venues have been confirmed yet.", // Custom message
+                }
             });
 
             rowevents.on('row-reorder', function(e, diff, edit) {

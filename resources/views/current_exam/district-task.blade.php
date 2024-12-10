@@ -101,7 +101,7 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View Exam</a>
-                                                        <a href="{{ route('current-exam.edit') }}"
+                                                        <a href="#"
                                                             class="me-3 btn btn-sm btn-light-warning"><i
                                                                 class="feather icon-edit mx-1"></i>Edit Exam</a>
                                                     </div>
@@ -164,7 +164,7 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
-                                                        <a target="_blank" href="{{ route('current-exam.intimateVenue') }}" class="me-2 btn btn-sm btn-light-info"><i
+                                                        <a target="_blank" href="#" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-check-circle mx-1"></i>Select
                                                             Venues</a>
                                                         <a href="#" data-pc-animate="blur" data-bs-toggle="modal"

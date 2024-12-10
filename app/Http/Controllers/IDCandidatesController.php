@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AccommodationNotification;
 use App\Models\ExamConfirmedHalls;
+use App\Models\Venues;
 class IDCandidatesController extends Controller
 {
     protected $auditService;
@@ -294,15 +295,10 @@ class IDCandidatesController extends Controller
 
         // Query confirmed venues with conditional filtering
         $confirmedVenuesQuery = ExamVenueConsent::where('exam_id', $examId)->where('consent_status', 'accepted')->with('venues')->orderBy('order_by_id', 'asc');
-        ;
 
-        if ($selectedDistrict) {
-            $confirmedVenuesQuery->where('district_code', $selectedDistrict);
-        }
+        $confirmedVenuesQuery->where('district_code', $selectedDistrict);
 
-        if ($selectedCenter) {
-            $confirmedVenuesQuery->where('center_code', $selectedCenter);
-        }
+        $confirmedVenuesQuery->where('center_code', $selectedCenter);
 
         if ($confirmedOnly) {
             $confirmedVenuesQuery->where('is_confirmed', 'true');
@@ -365,71 +361,62 @@ class IDCandidatesController extends Controller
 
                 // Update confirmation status if checked
                 $confirmedVenue->is_confirmed = $isChecked;
-                //If isChecked is true then genrate the halls for each ci in IDCandidatesController
-                if ($isChecked) {
-                    // Decode the CI data
+                //If isChecked is true then genrate the halls for each ci in IDCandidatesController                // Save the changes
+                $confirmedVenue->save();
+            }
+        }
+        $examSessions = $exam->examsession;
+        // Generate halls for each session, starting from hall code 001 for each CI
+
+        foreach ($examSessions as $session) {
+            $hallCodeCounter = 1;
+            // get all venues in saved order
+            $confirmedVenues = ExamVenueConsent::where('exam_id', $examId)
+                ->where('is_confirmed', 'true')
+                ->orderBy('order_by_id', 'asc')
+                ->get();
+            if ($confirmedVenues) {
+                foreach ($confirmedVenues as $confirmedVenue) {
+                    $venuecode = Venues::where('venue_id', $confirmedVenue->venue_id)->first()->venue_code ?? null;
                     // Ensure chief_invigilator_data is in the correct format
                     $ciData = is_string($confirmedVenue->chief_invigilator_data)
                         ? json_decode($confirmedVenue->chief_invigilator_data, true)
                         : $confirmedVenue->chief_invigilator_data;
-                    if (is_array($ciData)) {
-                        foreach ($ciData as $ci) {
-                            // Get the exam date and session for the current CI
-                            $examDate = $ci['exam_date'];
-                            $ciId = $ci['ci_id'];
+                    foreach ($ciData as $ci) {
 
-                            // Filter the sessions for the given exam date
-                            $sessionsForDate = $exam->examsession->filter(function ($session) use ($examDate) {
-                                return \Carbon\Carbon::parse($session->exam_sess_date)->format('Y-m-d') === $examDate;
-                            });
-
-                            // If no sessions are found for this exam date, skip this CI
-                            if ($sessionsForDate->isEmpty()) {
-                                continue;
-                            }
-
-                            // Loop through each session for the given date
-                            $hallCodeCounter = 1;  // Initialize hall code counter for this exam date
-
-                            foreach ($sessionsForDate as $session) {
-                                // Generate halls for each session
-                                $totalCandidates = $confirmedVenue->expected_candidates_count;
-                                $hallsRequired = ceil($totalCandidates / $exam->exam_main_candidates_for_hall);
-
-                                // Allocate halls for this session, starting from hall code 001 for each CI
-                                for ($i = 1; $i <= $hallsRequired; $i++) {
-                                    // Format hall code to be 3 digits (e.g., 001, 002, ...)
-                                    $hallCode = str_pad($hallCodeCounter, 3, '0', STR_PAD_LEFT);
-
-                                    // Create or update the hall record
-                                    ExamConfirmedHalls::updateOrCreate(
-                                        [
-                                            'exam_id' => $examId,
-                                            'venue_code' => $venueId,
-                                            'hall_code' => $hallCode,
-                                            'ci_id' => $ciId,
-                                            'exam_date' => $examDate,
-                                            'exam_session' => $session->exam_sess_session,
-                                        ],
-                                        [
-                                            'district_code' => $confirmedVenue->district_code,
-                                            'center_code' => $confirmedVenue->center_code,
-                                            'is_apd_uploaded' => false,
-                                            'alloted_count' => $exam->exam_main_candidates_for_hall,
-                                        ]
-                                    );
-
-                                    // Increment hall code for the next CI
-                                    $hallCodeCounter++;
-                                }
-                            }
+                        // Get the exam date and session for the current CI
+                        $examDate = $ci['exam_date'];
+                        $ciId = $ci['ci_id'];
+                        if (\Carbon\Carbon::parse($session->exam_sess_date)->format('Y-m-d') != $ci['exam_date']) {
+                            continue;
                         }
+
+                        // Format hall code to be 3 digits (e.g., 001, 002, ...)
+                        $hallCode = str_pad($hallCodeCounter, 3, '0', STR_PAD_LEFT);
+
+                        // Create or update the hall record
+                        ExamConfirmedHalls::updateOrCreate(
+                            [
+                                'exam_id' => $examId,
+                                'venue_code' => $venuecode,
+                                'hall_code' => $hallCode,
+                                'ci_id' => $ciId,
+                                'exam_date' => $examDate,
+                                'exam_session' => $session->exam_sess_session,
+                            ],
+                            [
+                                'district_code' => $confirmedVenue->district_code,
+                                'center_code' => $confirmedVenue->center_code,
+                                'is_apd_uploaded' => false,
+                                'alloted_count' => null,
+                            ]
+                        );
+                        // Increment hall code for the next CI
+                        $hallCodeCounter++;
+
                     }
 
-
                 }
-                // Save the changes
-                $confirmedVenue->save();
             }
         }
 

@@ -225,7 +225,7 @@ class CenterController extends Controller
             'district.integer' => 'Please select a valid district',
         ];
         $validated = $request->validate([
-            'district' => 'required|integer',
+            'district' => 'required|string|max:255',
             'center_name' => 'required|string|max:255',
             'center_code' => 'required|numeric|unique:centers,center_code,' . $id . ',center_id',
             'email' => 'required|email|unique:centers,center_email,' . $id . ',center_id',

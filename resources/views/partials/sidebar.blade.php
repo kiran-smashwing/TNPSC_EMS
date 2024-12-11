@@ -36,7 +36,7 @@
                             <h6 class="mb-0">{{ current_user()->display_name }}</h6>
 
                             {{-- Displaying the user's role in uppercase --}}
-                            <small>{{ strtoupper(str_replace('_', ' ', session('auth_role'))) }}</small>
+                            <small>{{ strtoupper(str_replace('_', ' ', session('athu_display_role'))) }}</small>
                         </div>
                         <a class="btn btn-icon btn-link-secondary avtar" data-bs-toggle="collapse"
                             href="#pc_sidebar_userlink">

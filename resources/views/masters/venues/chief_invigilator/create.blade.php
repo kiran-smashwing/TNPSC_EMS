@@ -99,7 +99,6 @@
                                                     @enderror
                                                 </div>
                                             </div>
-
                                             <!-- Center Dropdown -->
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
@@ -124,7 +123,7 @@
                                                     <select class="form-control @error('venue') is-invalid @enderror"
                                                         id="venue" name="venue" required>
                                                         <option value="">Select Venue Name</option>
-                                                        <!-- Venues will be dynamically populated -->
+                                                    <!-- Venues will be dynamically populated -->
                                                     </select>
                                                     @error('venue')
                                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -328,11 +327,13 @@
 
             // Trigger change event on page load to handle old/existing selections
             $(document).ready(function() {
-                const oldCenter = "{{ old('center', $user->venue_center_id ?? '') }}";
-                if (oldCenter) {
-                    $('#center').val(oldCenter).trigger('change');
-                }
-            });
+            const oldCenter = "{{ old('center', $chiefInvigilator->ci_center_id ?? '') }}";
+            if (oldCenter) {
+            $('#center').val(oldCenter).trigger('change');
+            
+    }
+});
+
         </script>
     @endpush
     @include('partials.theme')

@@ -228,7 +228,7 @@
                                     </div>
 
                                     <div class="flex-grow-1 ms-3">
-                                        <h6 class="mb-1">{{ session('auth_name') }}</h6>
+                                        <h6 class="mb-0">{{ current_user()->display_name }}</h6>
                                         <span>{{ session('auth_email') }}</span>
                                     </div>
                                 </div>

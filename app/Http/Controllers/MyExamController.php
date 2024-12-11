@@ -54,5 +54,10 @@ class MyExamController extends Controller
 
         return view('my_exam.task', compact('session', 'auditDetails', 'venueConsents'));
     }
+    public function centerTask()
+    {
+
+        return view('my_exam.center.task');
+    }
 
 }

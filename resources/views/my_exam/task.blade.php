@@ -151,7 +151,9 @@
                                     @endif
                                 @endforeach
                                 @foreach ($auditDetails as $audit)
-                                    @if ($audit->task_type == 'apd_expected_candidates_upload')
+                                    @php
+                                        $is_apd_upload = $audit->task_type == 'apd_expected_candidates_upload';
+                                    @endphp
                                         <li class="task-list-item">
                                             <i class="task-icon bg-primary"></i>
                                             <div class="card ticket-card open-ticket">
@@ -183,18 +185,18 @@
                                                                                 alt=""
                                                                                 class="wid-20 rounded me-2 img-fluid" />Done
                                                                             by
-                                                                            <b>{{ json_decode($audit->metadata)->user_name }}</b>
+                                                                            <b>{{ $is_apd_upload ? json_decode($audit->metadata)->user_name ?? '':' Unknown '}}</b>
                                                                         </li>
                                                                         <li class="d-sm-inline-block d-block mt-1"><i
                                                                                 class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                            {{ \Carbon\Carbon::parse($audit->updated_at)->format('d-m-Y h:i A') }}
+                                                                            {{ $is_apd_upload ? \Carbon\Carbon::parse($audit->updated_at)->format('d-m-Y h:i A') :' '}}
                                                                         </li>
 
                                                                     </ul>
                                                                 </div>
                                                                 <div class="h5 mt-3"><i
                                                                         class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                    {{ $audit->department }}</div>
+                                                                    {{ $is_apd_upload ? $audit->department :'APD - Section Officer' }}</div>
                                                             </div>
                                                             <div class="mt-2">
                                                                 @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'APD')
@@ -216,10 +218,12 @@
                                                                         </a>
                                                                     @endif
                                                                 @endif
+                                                                @if($is_apd_upload)
                                                                 <a href="{{ json_decode($audit->metadata)->uploaded_csv_link }}"
                                                                     class="me-3 btn btn-sm btn-light-warning"><i
                                                                         class="feather icon-download mx-1"></i>Download
                                                                 </a>
+                                                                @endif
                                                                 @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'APD')
                                                                     @if (isset(json_decode($audit->metadata)->failed_csv_link) &&
                                                                             file_exists(storage_path('app/public/' . basename(json_decode($audit->metadata)->failed_csv_link))))
@@ -237,10 +241,11 @@
                                                 </div>
                                             </div>
                                         </li>
-                                    @endif
                                 @endforeach
                                 @foreach ($auditDetails as $audit)
-                                    @if ($audit->task_type == 'id_candidates_update_percentage')
+                                    @php
+                                    $is_id_updated = $audit->task_type == 'id_candidates_update_percentage';
+                                    @endphp
                                         <li class="task-list-item">
                                             <i class="task-icon bg-danger"></i>
                                             <div class="card ticket-card open-ticket">
@@ -254,11 +259,6 @@
                                                                 <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                                     <ul
                                                                         class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                        {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 Ticket</a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                                     </ul>
                                                                 </div>
                                                             </div>
@@ -277,18 +277,18 @@
                                                                                 alt=""
                                                                                 class="wid-20 rounded me-2 img-fluid" />Done
                                                                             by
-                                                                            <b>{{ json_decode($audit->metadata)->user_name }}</b>
+                                                                            <b>{{ $is_id_updated ? json_decode($audit->metadata)->user_name :'Unknown' }}</b>
                                                                         </li>
                                                                         <li class="d-sm-inline-block d-block mt-1"><i
                                                                                 class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                            {{ \Carbon\Carbon::parse($audit->updated_at)->format('d-m-Y h:i A') }}
+                                                                            {{ $is_id_updated ? \Carbon\Carbon::parse($audit->updated_at)->format('d-m-Y h:i A') : '' }}
                                                                         </li>
 
                                                                     </ul>
                                                                 </div>
                                                                 <div class="h5 mt-3"><i
                                                                         class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                    {{ $audit->department }}</div>
+                                                                    {{ $is_id_updated ? $audit->department :'ID - Section Officer' }}</div>
                                                             </div>
                                                             <div class="mt-2">
                                                                 @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'ID')
@@ -299,10 +299,12 @@
                                                                             class="feather icon-chevrons-up mx-1"></i>Increase
                                                                         Count</a>
                                                                 @endif
+                                                                @if($is_id_updated)
                                                                 <a href="{{ route('id-candidates.download-updated-count-csv', $session->currentexam->exam_main_no) }}"
                                                                     class="me-2 btn btn-sm btn-light-info m-2"><i
                                                                         class="feather icon-download mx-1"></i>Download
                                                                     CSV</a>
+                                                                @endif
                                                                 @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'ID')
                                                                     <a href="{{ route('id-candidates.intimateCollectorate', $session->currentexam->exam_main_no) }}"
                                                                         class="me-3 btn btn-sm btn-light-warning m-2"><i
@@ -315,7 +317,6 @@
                                                 </div>
                                             </div>
                                         </li>
-                                    @endif
                                 @endforeach
                                 <li class="task-list-item">
                                     <i class="task-icon bg-warning"></i>

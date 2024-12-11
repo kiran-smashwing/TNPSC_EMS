@@ -25,15 +25,15 @@
                 <div class="page-block">
                     <div class="row align-items-center">
                         <div class="col-md-12">
-                            <ul class="breadcrumb">
+                            {{-- <ul class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="../dashboard/index.html">Home</a></li>
                                 <li class="breadcrumb-item"><a href="javascript: void(0)">Users</a></li>
                                 <li class="breadcrumb-item" aria-current="page">Account Profile</li>
-                            </ul>
+                            </ul> --}}
                         </div>
                         <div class="col-md-12">
                             <div class="page-header-title">
-                                <h2 class="mb-0">Account Profile</h2>
+                                <h2 class="mb-0">My Account</h2>
                             </div>
                         </div>
                     </div>
@@ -72,7 +72,7 @@
                                         <i class="ti ti-lock me-2"></i>Change Password
                                     </a>
                                 </li>
-                                <li class="nav-item">
+                                {{-- <li class="nav-item">
                                     <a class="nav-link" id="profile-tab-5" data-bs-toggle="tab" href="#profile-5"
                                         role="tab" aria-selected="true">
                                         <i class="ti ti-users me-2"></i>Role
@@ -83,7 +83,7 @@
                                         role="tab" aria-selected="true">
                                         <i class="ti ti-settings me-2"></i>Settings
                                     </a>
-                                </li>
+                                </li> --}}
                             </ul>
                         </div>
                     </div>
@@ -94,17 +94,20 @@
                                     <div class="card">
                                         <div class="card-body position-relative">
                                             <div class="position-absolute end-0 top-0 p-3">
-                                                <span class="badge bg-primary">Pro</span>
+                                                {{-- <span class="badge bg-primary"></span> --}}
                                             </div>
                                             <div class="text-center mt-3">
                                                 <div class="chat-avtar d-inline-flex mx-auto">
                                                     <img class="rounded-circle img-fluid wid-70"
-                                                        src="../assets/images/user/avatar-5.jpg" alt="User image" />
+                                                        src="{{ $userDetails['profile_picture'] }}" alt="User image" />
                                                 </div>
-                                                <h5 class="mb-0">Anshan H.</h5>
-                                                <p class="text-muted text-sm">Project Manager</p>
+
+                                                <h5 class="mb-0">{{ $userDetails['name'] }}</h5>
+                                                <p class="text-muted text-sm">
+                                                    {{ strtoupper(str_replace('_', ' ', session('athu_display_role'))) }}
+                                                </p>
                                                 <hr class="my-3 border border-secondary-subtle" />
-                                                <div class="row g-3">
+                                                {{-- <div class="row g-3">
                                                     <div class="col-4">
                                                         <h5 class="mb-0">86</h5>
                                                         <small class="text-muted">Post</small>
@@ -117,34 +120,51 @@
                                                         <h5 class="mb-0">4.5K</h5>
                                                         <small class="text-muted">Members</small>
                                                     </div>
-                                                </div>
+                                                </div> --}}
                                                 <hr class="my-3 border border-secondary-subtle" />
+                                                @if ($role == 'headquarters')
+                                                <div
+                                                    class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
+                                                    <i class="ti ti-man me-2"></i>
+                                                    <p class="mb-0">{{ $userDetails['role_department'] }}-{{ $userDetails['role_name'] }}</p>
+                                                </div>
+                                                @endif
                                                 <div
                                                     class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                                     <i class="ti ti-mail me-2"></i>
-                                                    <p class="mb-0">anshan@gmail.com</p>
+                                                    <p class="mb-0">{{ $userDetails['email'] }}</p>
                                                 </div>
                                                 <div
                                                     class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                                     <i class="ti ti-phone me-2"></i>
-                                                    <p class="mb-0">(+1-876) 8654 239 581</p>
+                                                    <p class="mb-0">{{ $userDetails['phone'] }}</p>
                                                 </div>
+                                                @if ($role == 'district' || $role == 'center' || $role == 'venue'|| $role == 'ci')
+                                                    <div
+                                                        class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
+                                                        <i class="ti ti-map-pin me-2"></i>
+                                                        <p class="mb-0">{{ $userDetails['address'] }}</p>
+                                                    </div>
+                                                @endif
+
                                                 <div
                                                     class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
-                                                    <i class="ti ti-map-pin me-2"></i>
-                                                    <p class="mb-0">New York</p>
+                                                    <i class="ti ti-barcode me-2"></i>
+                                                    <p class="mb-0">{{ $userDetails['address'] }}</p>
                                                 </div>
+                                                @if ($role == 'venue')
                                                 <div class="d-inline-flex align-items-center justify-content-start w-100">
                                                     <i class="ti ti-link me-2"></i>
                                                     <a href="#" class="link-primary">
                                                         <p class="mb-0">https://anshan.dh.url</p>
                                                     </a>
                                                 </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
                                     <div class="card">
-                                        <div class="card-header">
+                                        {{-- <div class="card-header">
                                             <h5>Skills</h5>
                                         </div>
                                         <div class="card-body">
@@ -250,11 +270,11 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> --}}
                                     </div>
                                 </div>
                                 <div class="col-lg-8 col-xxl-9">
-                                    <div class="card">
+                                    {{-- <div class="card">
                                         <div class="card-header">
                                             <h5>About me</h5>
                                         </div>
@@ -264,7 +284,7 @@
                                                 Products a more Beautiful and usable place. Morbid accusant ipsum. Nam nec
                                                 tellus at.</p>
                                         </div>
-                                    </div>
+                                    </div> --}}
                                     <div class="card">
                                         <div class="card-header">
                                             <h5>Personal Details</h5>
@@ -274,12 +294,12 @@
                                                 <li class="list-group-item px-0 pt-0">
                                                     <div class="row">
                                                         <div class="col-md-6">
-                                                            <p class="mb-1 text-muted">Full Name</p>
-                                                            <p class="mb-0">Anshan Handgun</p>
+                                                            <p class="mb-1 text-muted">Name</p>
+                                                            <p class="mb-0">{{ $userDetails['name'] }}</p>
                                                         </div>
                                                         <div class="col-md-6">
-                                                            <p class="mb-1 text-muted">Father Name</p>
-                                                            <p class="mb-0">Mr. Deepen Handgun</p>
+                                                            <p class="mb-1 text-muted">Role</p>
+                                                            <p class="mb-0">{{ $userDetails['role_department'] }}-{{ $userDetails['role_name'] }}</p>
                                                         </div>
                                                     </div>
                                                 </li>
@@ -287,11 +307,11 @@
                                                     <div class="row">
                                                         <div class="col-md-6">
                                                             <p class="mb-1 text-muted">Phone</p>
-                                                            <p class="mb-0">(+1-876) 8654 239 581</p>
+                                                            <p class="mb-0">{{ $userDetails['phone'] }}</p>
                                                         </div>
                                                         <div class="col-md-6">
-                                                            <p class="mb-1 text-muted">Country</p>
-                                                            <p class="mb-0">New York</p>
+                                                            <p class="mb-1 text-muted">Designation</p>
+                                                            <p class="mb-0">{{ $userDetails['designation'] }}</p>
                                                         </div>
                                                     </div>
                                                 </li>
@@ -299,23 +319,23 @@
                                                     <div class="row">
                                                         <div class="col-md-6">
                                                             <p class="mb-1 text-muted">Email</p>
-                                                            <p class="mb-0">anshan.dh81@gmail.com</p>
+                                                            <p class="mb-0">{{ $userDetails['email'] }}</p>
                                                         </div>
-                                                        <div class="col-md-6">
+                                                        {{-- <div class="col-md-6">
                                                             <p class="mb-1 text-muted">Zip Code</p>
                                                             <p class="mb-0">956 754</p>
-                                                        </div>
+                                                        </div> --}}
                                                     </div>
                                                 </li>
-                                                <li class="list-group-item px-0 pb-0">
+                                                {{-- <li class="list-group-item px-0 pb-0">
                                                     <p class="mb-1 text-muted">Address</p>
                                                     <p class="mb-0">Street 110-B Kalians Bag, Dewan, M.P. New York</p>
-                                                </li>
+                                                </li> --}}
                                             </ul>
                                         </div>
                                     </div>
                                     <div class="card">
-                                        <div class="card-header">
+                                        {{-- <div class="card-header">
                                             <h5>Education</h5>
                                         </div>
                                         <div class="card-body">
@@ -357,8 +377,9 @@
                                                     </div>
                                                 </li>
                                             </ul>
-                                        </div>
+                                        </div> --}}
                                     </div>
+                                    @if($role == 'venue')
                                     <div class="card">
                                         <div class="card-header">
                                             <h5>Employment</h5>
@@ -408,6 +429,7 @@
                                             </ul>
                                         </div>
                                     </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>

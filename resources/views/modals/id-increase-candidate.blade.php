@@ -3,7 +3,7 @@
         <div class="modal-content">
             <form action="{{ route('id-candidates.update-percentage') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <input type="hidden" name="exam_id" value="{{ $session->currentexam->exam_main_no }}">
+                <input type="hidden" name="exam_id" value="{{ $session->exam_main_no }}">
                 <div class="modal-header">
                     <h5 class="modal-title">Increase Candidate Count</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"> </button>

@@ -4,7 +4,7 @@
             <form action="{{ route('apd-candidates.upload-candidates-csv') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                
-                <input type="hidden" name="exam_id" value="{{ $session->currentexam->exam_main_no }}">
+                <input type="hidden" name="exam_id" value="{{ $session->exam_main_no }}">
                 <div class="modal-header">
                     <h5 class="modal-title">Tentative Candidates</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"> </button>

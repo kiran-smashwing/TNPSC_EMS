@@ -53,36 +53,37 @@
                                 <div class="card-body p-0">
                                     <ul class="list-group list-group-flush">
                                         @foreach ($exams as $exam)
-                                            @foreach ($exam->examsession as $exam_main)
-                                                @if (strtotime($exam_main->exam_sess_date) == strtotime(date('Y-m-d')))
-                                                    @php
-                                                        $key = 1;
-                                                    @endphp
-                                                    <li class="list-group-item">
-                                                        <div class="d-flex align-items-center">
-                                                            <div class="flex-shrink-0">
-                                                                <div class="avtar avtar-s border"> {{ $key }}
-                                                                </div>
-                                                            </div>
-                                                            <div class="flex-grow-1 mx-3"> {{ $exam->exam_main_name }} |
-                                                                {{ $exam_main->exam_sess_subject }} |
-                                                                {{ $exam_main->exam_sess_date }} |
-                                                                {{ $exam_main->exam_sess_time }}
-                                                            </div>
-                                                          
-                                                            <div class="flex-shrink-0">
-                                                                <a href="{{ route('my-exam.examTask', ['examid' => $exam->exam_main_no, 'session' => $exam_main->exam_session_id]) }}"
-                                                                    class="avtar avtar-s btn-link-secondary">
-                                                                    <i class="ti ti-chevron-right f-20"></i>
-                                                                </a>
+
+                                            @if (strtotime($exam->exam_main_startdate) <= strtotime(date('Y-m-d')))
+                                                @php
+                                                    $key = 1;
+                                                @endphp
+                                                <li class="list-group-item">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-shrink-0">
+                                                            <div class="avtar avtar-s border"> {{ $key }}
                                                             </div>
                                                         </div>
-                                                    </li>
-                                                    @php
-                                                        $key++;
-                                                    @endphp
-                                                @endif
-                                            @endforeach
+                                                        <div class="flex-grow-1 mx-3"> {{ $exam->exam_main_name }} |
+                                                            {{ $exam->exam_main_postname }} |
+                                                            {{ $exam->exam_main_notification }} |
+                                                            {{ $exam->exam_main_no }} |
+                                                            {{-- {{ $exam_main->exam_sess_date }} | 
+                                                            {{ $exam_main->exam_sess_time }} --}}
+                                                        </div>
+
+                                                        <div class="flex-shrink-0">
+                                                            <a href="{{ route('my-exam.task-action', $exam->exam_main_no) }}"
+                                                                class="avtar avtar-s btn-link-secondary">
+                                                                <i class="ti ti-chevron-right f-20"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                                @php
+                                                    $key++;
+                                                @endphp
+                                            @endif
                                         @endforeach
                                     </ul>
                                 </div>
@@ -101,32 +102,33 @@
                                             $key = 1;
                                         @endphp
                                         @foreach ($exams as $exam)
-                                            @foreach ($exam->examsession as $exam_main)
-                                                @if (strtotime($exam_main->exam_sess_date) > strtotime(date('Y-m-d')))
-                                                    <li class="list-group-item">
-                                                        <div class="d-flex align-items-center">
-                                                            <div class="flex-shrink-0">
-                                                                <div class="avtar avtar-s border"> {{ $key }}
-                                                                </div>
-                                                            </div>
-                                                            <div class="flex-grow-1 mx-3"> {{ $exam->exam_main_name }} |
-                                                                {{ $exam_main->exam_sess_subject }} |
-                                                                {{ $exam_main->exam_sess_date }} |
-                                                                {{ $exam_main->exam_sess_time }}
-                                                            </div>
-                                                            <div class="flex-shrink-0">
-                                                                <a href="{{ route('my-exam.examTask', ['examid' => $exam->exam_main_no, 'session' => $exam_main->exam_session_id]) }}"
-                                                                    class="avtar avtar-s btn-link-secondary">
-                                                                    <i class="ti ti-chevron-right f-20"></i>
-                                                                </a>
+                                        @if (strtotime($exam->exam_main_startdate) > strtotime(date('Y-m-d')))
+                                        <li class="list-group-item">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-shrink-0">
+                                                            <div class="avtar avtar-s border"> {{ $key }}
                                                             </div>
                                                         </div>
-                                                    </li>
+                                                        <div class="flex-grow-1 mx-3"> {{ $exam->exam_main_name }} |
+                                                            {{ $exam->exam_main_postname }} |
+                                                            {{ $exam->exam_main_notification }} |
+                                                            {{ $exam->exam_main_no }} |
+                                                            {{-- {{ $exam_main->exam_sess_date }} | 
+                                                            {{ $exam_main->exam_sess_time }} --}}
+                                                        </div>
+
+                                                        <div class="flex-shrink-0">
+                                                            <a href="{{route('my-exam.task-action', $exam->exam_main_no) }}"
+                                                                class="avtar avtar-s btn-link-secondary">
+                                                                <i class="ti ti-chevron-right f-20"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </li>
                                                     @php
                                                         $key++;
                                                     @endphp
                                                 @endif
-                                            @endforeach
                                         @endforeach
                                     </ul>
                                 </div>

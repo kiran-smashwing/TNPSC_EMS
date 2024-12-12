@@ -33,6 +33,9 @@ class MyAccountController extends Controller
         }
 
         $userDetails = $this->getUserDetailsByRole($role, $userId);
+        $roles = Role::all();
+        $districts = District::all();
+        $centers = Center::all(); // Retrieve all centers
 
         // Handle if user details are not found
         if (!$userDetails) {
@@ -40,7 +43,7 @@ class MyAccountController extends Controller
         }
 
         // Pass user details and role to the view
-        return view('user.my-account', compact('userDetails', 'role'));
+        return view('user.my-account', compact('userDetails', 'roles', 'role' ,'districts', 'centers'));
     }
 
     /**
@@ -146,16 +149,57 @@ class MyAccountController extends Controller
         if (!$venue) {
             return null;
         }
-
+    // dd($venue->venue_district_id); //
+        // Retrieve District Details
+        $district = District::find($venue->venue_district_id);
+        $districtDetails = $district ? [
+            'district_name' => $district->district_name,
+            'district_code' => $district->district_code,
+        ] : [
+            'district_name' => null,
+            'district_code' => null,
+        ];
+    
+        // Retrieve Center Details
+        // dd($venue->venue_center_id);
+        $center = Center::find($venue->venue_center_id);
+        $centerDetails = $center ? [
+            'center_name' => $center->center_name,
+            'center_code' => $center->center_code,
+        ] : [
+            'center_name' => null,
+            'center_code' => null,
+        ];
+    //  dd($centerDetails);
         return [
-            'name' => $venue->venue_name, // Assuming field names in Venues
-            'email' => $venue->venue_email,
+            'name' => $venue->venue_name,
+            'district_id' => $venue->venue_district_id,
+            'district_name' => $districtDetails['district_name'],
+            'district_code' => $districtDetails['district_code'],
+            'center_id' => $venue->venue_center_id,
+            'center_name' => $centerDetails['center_name'],
+            'center_code' => $centerDetails['center_code'],
+            'code' => $venue->venue_code,
+            'email' => $venue->venue_emai,
+            'code_provider' => $venue->venue_codeprovider,
             'phone' => $venue->venue_phone,
-            'designation' => 'Venue Officer',
-            'profile_picture' => $venue->profile_picture,
-            'address' => $venue->location,
+            'alternative_phone' => $venue->venue_alternative_phone,
+            'type' => $venue->venue_type,
+            'category' => $venue->venue_category,
+            'website' => $venue->venue_website,
+            'bank_name' => $venue->venue_bank_name,
+            'account_name' => $venue->venue_account_name,
+            'account_number' => $venue->venue_account_number,
+            'branch_name' => $venue->venue_branch_name,
+            'account_type' => $venue->venue_account_type,
+            'ifsc' => $venue->venue_ifsc,
+            'profile_picture' => $venue->venue_image 
+                ? asset('storage/' . $venue->venue_image) 
+                : asset('storage/assets/images/user/avatar-1.jpg'),
+            'address' => $venue->venue_address,
         ];
     }
+    
 
     private function getHeadquartersDetails($userId)
     {
@@ -177,6 +221,7 @@ class MyAccountController extends Controller
             'name' => $hq->dept_off_name, // Name from DepartmentOfficial
             'role_name' => $roleName, // Role name from Role model
             'role_department' => $roleDepartment, // Role department from Role model
+            'role' => $hq->dept_off_role,
             'email' => $hq->dept_off_email,
             'phone' => $hq->dept_off_phone,
             'designation' => $hq->dept_off_designation,

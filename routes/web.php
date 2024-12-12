@@ -292,6 +292,7 @@ Route::prefix('my-exam')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::get('/exam-task', action: [MyExamController::class, 'index'])->name('my-exam.index');
         Route::get('/{examid}/{session}', action: [MyExamController::class, 'task'])->name('my-exam.examTask');
+        Route::get('/center', action: [MyExamController::class, 'centerTask'])->name('my-exam.centerexamTask');
     });
 });
 //apd-candidates Route::prefix('apd-candidates')->group(function(){

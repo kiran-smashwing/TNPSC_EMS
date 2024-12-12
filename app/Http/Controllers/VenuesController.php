@@ -26,7 +26,7 @@ class VenuesController extends Controller
     public function index(Request $request)
     {
         // Start the query for venues
-        $query = Venues::query();
+        $query = Venues::query()->select(['venue_id', 'venue_image', 'venue_name','venue_district_id', 'venue_center_id','venue_email','venue_phone','venue_email_status']);
 
         // Apply filter by district if selected
         if ($request->filled('district')) {

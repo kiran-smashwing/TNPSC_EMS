@@ -162,7 +162,7 @@
                                                         name="exam_main_tiers" required>
                                                         <option disabled selected>Select Exam Tiers</option>
                                                         <optgroup label="Single Tier">
-                                                            <option value="1-Single Tier">Single Tier</option>
+                                                            <option value="1-Single Tier">Single</option>
                                                         </optgroup>
                                                         <optgroup label="Multi Tiers">
                                                             <option value="2-Preliminary"> Preliminary</option>
@@ -380,21 +380,16 @@
         <script src="{{ asset('storage/assets/js/plugins/datepicker-full.min.js') }}"></script>
         <script>
             function initializeDatepicker(element) {
-                new Datepicker(element, {
+                const datepicker = new Datepicker(element, {
                     buttonClass: 'btn',
                     todayBtn: true,
                     clearBtn: true,
-                    format: 'dd-mm-yyyy'
+                    format: 'dd-mm-yyyy',
+                    autohide: true,
                 });
+                // Set default date to today
+                datepicker.setDate(new Date());
             }
-            document.addEventListener("DOMContentLoaded", function() {
-                const element = document.getElementById("choices-single-groups");
-                const choices = new Choices(element, {
-                    searchEnabled: false, // Disable search if not required
-                    itemSelectText: "Select Exam Tier",
-
-                });
-            });
 
             document.addEventListener('DOMContentLoaded', function() {
                 let rowIndex = 1;
@@ -551,7 +546,7 @@
                         Swal.fire({
                             title: 'Input Preliminary Exam Notification Number',
                             input: 'text',
-                            inputPlaceholder: '12/24'
+                            inputPlaceholder: '12/2024'
                         }).then((result) => {
                             if (result.value) {
                                 const notificationNumber = result.value;

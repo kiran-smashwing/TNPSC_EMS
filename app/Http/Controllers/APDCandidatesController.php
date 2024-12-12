@@ -21,13 +21,13 @@ class APDCandidatesController extends Controller
     public function downloadSampleCsv(Request $request)
     {
         $data = [
-            ['center_code', 'center_name', 'date', 'session', 'count'],
-            ['1010', 'Chennai', '01-01-2024', 'FN', 100],
-            ['1010', 'Chennai', '01-01-2024', 'AN', 100],
-            ['1010', 'Chennai', '01-01-2024', 'FN', 100],
-            ['1010', 'Chennai', '01-01-2024', 'AN', 100],
-            ['1010', 'Chennai', '01-01-2024', 'FN', 100],
-            ['1010', 'Chennai', '01-01-2024', 'AN', 100],
+            ['center_code', 'date', 'session', 'count'],
+            ['0102', '01-01-2024', 'FN', 100],
+            ['0102', '01-01-2024', 'AN', 100],
+            ['0201', '01-01-2024', 'FN', 100],
+            ['0201', '01-01-2024', 'AN', 100],
+            ['2704', '01-01-2024', 'FN', 100],
+            ['2704', '01-01-2024', 'AN', 100],
         ];
 
         $filename = "apd_candidates_" . date('Ymd') . ".csv";
@@ -37,6 +37,8 @@ class APDCandidatesController extends Controller
         ob_start(); // Start output buffering
         fputcsv($handle, $data[0]); // Add headers to the CSV
         foreach (array_slice($data, 1) as $row) {
+            // Format `center_code` as a string to preserve leading zeros
+            $row[0] = sprintf('="%s"', $row[0]);
             fputcsv($handle, $row); // Add data rows to the CSV
         }
         fclose($handle);
@@ -129,16 +131,13 @@ class APDCandidatesController extends Controller
         if (!isset($data[0]) || !is_numeric($data[0])) {
             throw new \Exception('Invalid or missing center code.');
         }
-        if (!isset($data[1]) || empty($data[1])) {
-            throw new \Exception('Invalid or missing center name.');
-        }
-        if (!isset($data[2]) || !\Carbon\Carbon::createFromFormat('d-m-Y', $data[2])) {
+        if (!isset($data[1]) || !\Carbon\Carbon::createFromFormat('d-m-Y', $data[1])) {
             throw new \Exception('Invalid or missing exam date.');
         }
-        if (!isset($data[3]) || !in_array($data[3], ['FN', 'AN'])) {
+        if (!isset($data[2]) || !in_array($data[2], ['FN', 'AN'])) {
             throw new \Exception('Invalid session. Must be FN or AN.');
         }
-        if (!isset($data[4]) || !is_numeric($data[4])) {
+        if (!isset($data[3]) || !is_numeric($data[3])) {
             throw new \Exception('Invalid or missing expected candidates count.');
         }
 
@@ -146,13 +145,12 @@ class APDCandidatesController extends Controller
         $duplicate = \DB::table($table)
             ->where('exam_id', $examId)
             ->where('center_code', $data[0])
-            ->where('district_code', $data[0])
-            ->where('exam_date', \Carbon\Carbon::createFromFormat('d-m-Y', $data[2])->format('Y-m-d'))
-            ->where('session', $data[3])
+            ->where('exam_date', \Carbon\Carbon::createFromFormat('d-m-Y', $data[1])->format('Y-m-d'))
+            ->where('session', $data[2])
             ->first();
 
         if ($duplicate) {
-            $errorDetails = "Duplicate entry found. Existing data - Center Code: {$duplicate->center_code}, Center Name: {$duplicate->center_name}, Exam Date: {$duplicate->exam_date}, Session: {$duplicate->session}, Expected Candidates: {$duplicate->expected_candidates}, Updated At: {$duplicate->updated_at}";
+            $errorDetails = "Duplicate entry found. Existing data - Center Code: {$duplicate->center_code},  Exam Date: {$duplicate->exam_date}, Session: {$duplicate->session}, Expected Candidates: {$duplicate->expected_candidates}, Updated At: {$duplicate->updated_at}";
             throw new \Exception($errorDetails);
         }
 
@@ -171,19 +169,17 @@ class APDCandidatesController extends Controller
             $insertData += [
                 'center_code' => $center->center_code,
                 'district_code' => $center->district->district_code ?? null,
-                'center_name' => $data[1],
-                'exam_date' => \Carbon\Carbon::createFromFormat('d-m-Y', $data[2])->format('Y-m-d'),
-                'session' => $data[3],
-                'expected_candidates' => $data[4],
+                'exam_date' => \Carbon\Carbon::createFromFormat('d-m-Y', $data[1])->format('Y-m-d'),
+                'session' => $data[2],
+                'expected_candidates' => $data[3],
             ];
         } elseif ($exam->exam_main_model === "Minor") {
             $insertData += [
                 'center_code' => $data[0],
                 'district_code' => $data[0],
-                'center_name' => $data[1],
-                'exam_date' => \Carbon\Carbon::createFromFormat('d-m-Y', $data[2])->format('Y-m-d'),
-                'session' => $data[3],
-                'expected_candidates' => $data[4],
+                'exam_date' => \Carbon\Carbon::createFromFormat('d-m-Y', $data[1])->format('Y-m-d'),
+                'session' => $data[2],
+                'expected_candidates' => $data[3],
             ];
         } else {
             throw new \Exception('Invalid exam model.');
@@ -200,7 +196,7 @@ class APDCandidatesController extends Controller
     {
         $currentUser = current_user();
         $userName = $currentUser ? $currentUser->display_name : 'Unknown';
-    
+
         $metadata = [
             'user_name' => $userName,
             'successful_inserts' => $successfulInserts,
@@ -208,13 +204,13 @@ class APDCandidatesController extends Controller
             'uploaded_csv_link' => $uploadedFileUrl, // Include uploaded file link
             'failed_csv_link' => $failedCsvPath ? url('storage/' . $failedCsvPath) : null,
         ];
-    
+
         // Check if a log already exists for this exam and task type
         $existingLog = $this->auditService->findLog([
             'exam_id' => $examId,
             'task_type' => 'apd_expected_candidates_upload',
         ]);
-    
+
         if ($existingLog) {
             // Update the existing log
             $this->auditService->updateLog(
@@ -235,7 +231,7 @@ class APDCandidatesController extends Controller
             );
         }
     }
-    
+
     /**
      * Delete old failed rows CSV files before proceeding.
      */

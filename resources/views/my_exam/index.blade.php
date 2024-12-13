@@ -48,7 +48,7 @@
                         <div class="col-12 mb-4">
                             <div class="card shadow-sm border-0">
                                 <div class="card-header bg-primary  text-center py-3">
-                                    <h5 class="mb-0 text-white">Current Exams</h5>
+                                    <h5 class="mb-0 text-white">Today Exam's</h5>
                                 </div>
                                 <div class="card-body p-0">
                                     <ul class="list-group list-group-flush">
@@ -94,7 +94,7 @@
                         <div class="col-12">
                             <div class="card shadow-sm border-0">
                                 <div class="card-header bg-secondary text-white text-center py-3">
-                                    <h5 class="mb-0 text-white">Upcoming Exams</h5>
+                                    <h5 class="mb-0 text-white">Upcoming Exam's</h5>
                                 </div>
                                 <div class="card-body p-0">
                                     <ul class="list-group list-group-flush">

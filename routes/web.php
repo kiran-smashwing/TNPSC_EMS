@@ -295,7 +295,9 @@ Route::prefix('my-exam')->group(function () {
         Route::get('/center', action: [MyExamController::class, 'centerTask'])->name('my-exam.centerexamTask');
         Route::get('/mobile-team/{examid}', action: [MyExamController::class, 'mobileTeamTask'])->name('my-exam.mobileTeamTask');
         Route::get('/ci-task/{examid}', action: [MyExamController::class, 'ciTask'])->name('my-exam.ciTask');
+        Route::get('/ci-task/{examid}/{session}', [MyExamController::class, 'ciExamActivity'])->name('my-exam.ciExamActivity');
         Route::get('/{examid}', action: [MyExamController::class, 'task'])->name('my-exam.examTask');
+
     });
 });
 //apd-candidates Route::prefix('apd-candidates')->group(function(){
@@ -322,6 +324,8 @@ Route::prefix('district-candidates')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::get('/showVenueIntimationForm/{examId}', [DistrictCandidatesController::class, 'showVenueIntimationForm'])->name('district-candidates.showVenueIntimationForm');
         Route::post('/processVenueConsentEmail', [DistrictCandidatesController::class, 'processVenueConsentEmail'])->name('district-candidates.processVenueConsentEmail');
+        Route::post('/generate-qrcode', [DistrictCandidatesController::class, 'generateQRCode'])->name('generate.qrcode');
+        Route::get('/generatePdf', [DistrictCandidatesController::class, 'generatePdf'])->name('district-candidates.generatePdf');
     });
 });
 // Route::get('/run-function', [DataController::class, 'addData']);

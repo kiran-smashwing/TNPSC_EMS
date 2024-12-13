@@ -83,6 +83,19 @@ class MyExamController extends Controller
         return view('my_exam.CI.task', compact('session', 'groupedSessions'));
 
     }
+    public function ciExamActivity($examId, $session)
+    {
+        $session = ExamSession::with('currentexam')->where('exam_sess_mainid', $examId)->where('exam_sess_session', $session)->first();
+
+        if (!$session) {
+            abort(404, 'Session not found');
+        }
+
+        return view('my_exam.CI.ci-exam-activity', compact('session'));
+
+        // Group exam sessions by date
+       
+    }
     public function mobileTeamTask($examId)
     {
         $session = Currentexam::with('examsession')->where('exam_main_no', $examId)->first();

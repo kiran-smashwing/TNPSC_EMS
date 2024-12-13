@@ -778,7 +778,8 @@
                                                             District Collectorate</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary m-2"><i
+                                                        <a href="#"  data-pc-animate="just-me" data-bs-toggle="modal"
+                                                        data-bs-target="#ciMeetingCodeGenerateModal" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-grid mx-1"></i>Generate</a>
                                                         <a href="helpdesk-ticket-details.html"
                                                             class="me-2 btn btn-sm btn-light-info"><i
@@ -2517,6 +2518,7 @@
                 @include('modals.preliminary-checklist')
                 @include('modals.session-checklist')
                 @include('modals.invigilator-select')
+                @include('modals.ci-meetingcode-generate')
                 {{-- @include('modals.invigilator-allotment') --}}
                 @include('modals.qpbox-opentime')
             </div>

@@ -181,22 +181,23 @@
                                                     </div>
                                                 </div>
                                             </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 text-end btn-page">
+                                    <a href="{{ route('mobile-team-staffs.index') }}"
+                                        class="btn btn-outline-secondary">Cancel</a>
+                                    <button type="submit" class="btn btn-primary">Update</button>
+                                </div>
+                            </div>
                         </form>
                     </div>
                 </div>
             </div>
-
-            <div class="col-12 text-end btn-page">
-                <a href="{{ route('mobile-team-staffs.index') }}" class="btn btn-outline-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary">Update</button>
-            </div>
         </div>
-        </form>
-    </div>
-    </div>
-    </div>
-    </div>
-    <!-- [ Main Content ] end -->
+        <!-- [ Main Content ] end -->
     </div>
 
 

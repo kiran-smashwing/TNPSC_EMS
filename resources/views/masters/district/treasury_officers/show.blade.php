@@ -37,16 +37,22 @@
                                             <!-- Bootstrap Icon -->
                                         </span>
                                     </div>
-
+                    
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
-                                            <img alt="User image" src="{{ $treasuryOfficer->district->district_image
-                                            ? asset('storage/' . $treasuryOfficer->district->district_image)
-                                            : asset('storage/assets/images/user/collectorate.png') }}"
-                                            id="previewImage" alt="Cropped Preview"
+                                            <img 
+                                            alt="User image" 
+                                            src="{{ $treasuryOfficer->district && $treasuryOfficer->district->district_image
+                                                ? asset('storage/' . $treasuryOfficer->district->district_image)
+                                                : asset('storage/assets/images/user/collectorate.png') }}" 
+                                            id="previewImage" 
                                             class="rounded-circle img-fluid wid-70">
+                                        
                                         </div>
-                                        <h5 class="mb-0">{{ $treasuryOfficer->district->district_name }} - {{ $treasuryOfficer->district->district_code }}</h5>
+                                        <h5 class="mb-0">{{ $treasuryOfficer->district 
+                                            ? $treasuryOfficer->district->district_name . ' - ' . $treasuryOfficer->district->district_code 
+                                            : 'N/A' }}
+                                        </h5>
                                             <p class="text-muted text-sm">District Collectorate</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
@@ -66,30 +72,43 @@
                                         <hr class="my-3 border border-secondary-subtle">
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">{{ $treasuryOfficer->district->district_email }}</p>
+                                            <p class="mb-0">{{ $treasuryOfficer->district 
+                                                ? $treasuryOfficer->district->district_email 
+                                                : 'N/A' }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">{{ $treasuryOfficer->district->district_phone }}</p>
+                                            <p class="mb-0">{{ $treasuryOfficer->district 
+                                                ? $treasuryOfficer->district->district_phone 
+                                                : 'N/A' }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone-plus me-2"></i>
-                                            <p class="mb-0">{{ $treasuryOfficer->district->district_alternate_phone }}</p>
+                                            <p class="mb-0">{{ $treasuryOfficer->district 
+                                                ? $treasuryOfficer->district->district_alternate_phone 
+                                                : 'N/A' }}</p>
                                         </div>
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">{{ $treasuryOfficer->district->district_address }}</p>
+                                            <p class="mb-0">{{ $treasuryOfficer->district 
+                                                ? $treasuryOfficer->district->district_address 
+                                                : 'N/A' }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100">
                                             <i class="ti ti-link me-2"></i>
                                             <a class="link-primary" href="#">
-                                                <p class="mb-0">{{ $treasuryOfficer->district->district_website }}</p>
+                                                <p class="mb-0">{{ $treasuryOfficer->district 
+                                                    ? $treasuryOfficer->district->district_website 
+                                                    : 'N/A' }}</p>
                                             </a>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
                                             <a class="btn btn-success d-inline-flex  justify-content-center" href="#"
-                                                onclick="openMap({{ $treasuryOfficer->district->district_latitude }}, {{ $treasuryOfficer->district->district_longitude }})">
+                                                onclick="openMap({{ $treasuryOfficer->district 
+                        ? $treasuryOfficer->district->district_latitude . ', ' . $treasuryOfficer->district->district_longitude 
+                        : 'N/A' }}
+                    )">
                                                 <i class="ti ti-map-2 me-1"></i>View Location
                                             </a>
                                         </div>
@@ -109,7 +128,7 @@
                                             <!-- Bootstrap Icon -->
                                         </span>
                                     </div>
-
+                    
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
                                             <img alt="User image" src="{{ $treasuryOfficer->tre_off_image
@@ -140,7 +159,9 @@
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">{{ $treasuryOfficer->district->district_code }}- {{ $treasuryOfficer->district->district_name }}</p>
+                                            <p class="mb-0">{{ $treasuryOfficer->district 
+                                                ? $treasuryOfficer->district->district_code . ' - ' . $treasuryOfficer->district->district_name 
+                                                : 'N/A' }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
@@ -158,7 +179,7 @@
                                 </div>
                             </div>
                         </div>
-
+                    
                         <div class="col-lg-8 col-xxl-6">
                             <div class="card">
                                 <div class="card-header">
@@ -174,27 +195,7 @@
                                                     Your browser does not support the video tag.
                                                 </video>
                                             </div>
-                                            {{-- <div class="carousel-item">
-                                            <video class="img-fluid d-block w-100" controls>
-                                                <source src="../assets/videos/video-2.mp4" type="video/mp4">
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        </div> --}}
-                                            {{-- <div class="carousel-item">
-                                            <video class="img-fluid d-block w-100" controls>
-                                                <source src="../assets/videos/video-3.mp4" type="video/mp4">
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        </div> --}}
                                         </div>
-                                        {{-- <a class="carousel-control-prev" href="#carouselExampleFade" role="button" data-bs-slide="prev">
-                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                        <span class="sr-only">Previous</span>
-                                    </a> --}}
-                                        {{-- <a class="carousel-control-next" href="#carouselExampleFade" role="button" data-bs-slide="next">
-                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                        <span class="sr-only">Next</span>
-                                    </a> --}}
                                     </div>
                                 </div>
                             </div>

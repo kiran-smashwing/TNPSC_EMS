@@ -326,9 +326,12 @@ class ChiefInvigilatorsController extends Controller
             $oldValues = array_intersect_key($oldValues, $changedValues);
             // Log district update with old and new values
             AuditLogger::log('Chief Invigilator Updated', ChiefInvigilator::class, $chiefInvigilator->ci_id, $oldValues, $changedValues);
-
-            return redirect()->route('chief-invigilators.index')
-                ->with('success', 'Chief Invigilator updated successfully');
+                if (url()->previous() === route('chief-invigilators.edit', $id)) {
+                    return redirect()->route('chief-invigilators.index')
+                        ->with('success', 'Chief Invigilator updated successfully');
+                } else {
+                    return redirect()->back()->with('success', 'Chief Invigilator updated successfully');
+                }
         } catch (\Exception $e) {
             return back()->withInput()
                 ->with('error', 'Error updating Chief Invigilator: ' . $e->getMessage());

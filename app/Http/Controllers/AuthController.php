@@ -199,7 +199,7 @@ class AuthController extends Controller
                 case 'venue':
                     $venue = Venues::find($userId);
                     $name = $venue->venue_name;
-                    $display_role = "Venues(Schools/Colleges)";
+                    $display_role = "Venues";
                     $profileImage = $venue->venue_image ;
                     $email = $venue->venue_email ;  // Add email field
                     break;

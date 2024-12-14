@@ -219,12 +219,12 @@
                                 <div class="filter-item">
                                     <select class="form-select" id="centerFilter" name="center">
                                         <option value="">Select Center</option>
-                                        @foreach ($centers as $center)
+                                        {{-- @foreach ($centers as $center)
                                             <option value="{{ $center->ci_center_code }}"
                                                 {{ request('center') == $center->ci_center_code ? 'selected' : '' }}>
                                                 {{ $center->center_name }}
                                             </option>
-                                        @endforeach
+                                        @endforeach --}}
                                     </select>
                                 </div>
 
@@ -232,12 +232,12 @@
                                 <div class="filter-item">
                                     <select class="form-select" id="venueFilter" name="venue">
                                         <option value="">Select Venue</option>
-                                        @foreach ($venues as $venue)
+                                        {{-- @foreach ($venues as $venue)
                                             <option value="{{ $venue->ci_venue_code }}"
                                                 {{ request('venue') == $venue->ci_venue_code ? 'selected' : '' }}>
                                                 {{ $venue->venue_name }}
                                             </option>
-                                        @endforeach
+                                        @endforeach --}}
                                     </select>
                                 </div>
 
@@ -397,6 +397,80 @@
                         });
                 });
             });
+        });
+    </script>
+    <script>
+        // Full list of centers
+        const allCenters = @json($centers);
+
+        // District dropdown change event
+        $('#districts').on('change', function() {
+
+            const selectedDistrictCode = $(this).val();
+            const centerDropdown = $('#center');
+
+            // Clear previous options
+            centerDropdown.empty();
+            centerDropdown.append('<option value="">Select Center </option>');
+
+            // Filter centers based on selected district
+            const filteredCenters = allCenters.filter(center =>
+                center.center_district_id == selectedDistrictCode
+            );            
+
+            // Populate centers
+            filteredCenters.forEach(center => {
+                const selected = "{{ old('center', $chiefInvigilator->ci_center_id) }}" == center.center_code ? 'selected' : '';
+                centerDropdown.append(
+                    `<option value="${center.center_code}" ${selected}>
+                        ${center.center_name}
+                    </option>`
+                );
+            });
+        });
+
+        // Trigger change event on page load to handle old/existing selections
+        $(document).ready(function() {
+            const oldDistrict = "{{ old('districts', $chiefInvigilator->ci_district_id) }}";
+            if (oldDistrict) {
+                    $('#district').val(oldDistrict).trigger('change');
+                }
+            });
+    </script>
+    <script>
+        // Full list of venues
+        const allVenues = @json($venues);
+
+        // Center dropdown change event
+        $('#centers').on('change', function() {
+            const selectedCenterCode = $(this).val();
+            const venueDropdown = $('#venue');
+
+            // Clear previous options
+            venueDropdown.empty();
+            venueDropdown.append('<option value="">Select Venue Name</option>');
+
+            // Filter venues based on selected center
+            const filteredVenues = allVenues.filter(venue =>
+                venue.venue_center_id == selectedCenterCode
+            );
+            // Populate venues
+            filteredVenues.forEach(venue => {
+                const selected = "{{ old('venues', $chiefInvigilator->ci_venue_id) }}" == venue.venue_code ? 'selected' : '';
+                venueDropdown.append(
+                    `<option value="${venue.venue_code}" ${selected}>
+                        ${venue.venue_name}
+                    </option>`
+                );
+            });
+        });
+
+        // Trigger change event on page load to handle old/existing selections
+        $(document).ready(function() {
+            const oldCenter = "{{ old('centers', $chiefInvigilator->ci_center_id ?? '') }}";
+            if (oldCenter) {
+                $('#districtFilter').val(oldCenter).trigger('change');
+            }
         });
     </script>
 

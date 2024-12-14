@@ -227,7 +227,7 @@
                                             <td>{{ $exam->exam_main_lastdate }}</td>
                                             <td>{{ $exam->exam_main_tiers }}</td>
                                             <td>
-                                                <a href="{{ route('current-exam.show', $exam->exam_main_id) }}"
+                                                <a href="{{ route('my-exam.examTask', $exam->exam_main_no) }}"
                                                     class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-eye f-20"></i>
                                                 </a>

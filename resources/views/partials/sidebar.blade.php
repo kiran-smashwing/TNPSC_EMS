@@ -220,7 +220,7 @@
                 </a>
             </li>
             <li class="pc-item">
-                <a href="{{ route('current-exam.citask') }}" class="pc-link">
+                <a href="{{ route('my-exam.ciTask',"20241126092207") }}" class="pc-link">
                     <span class="pc-micon">
                         <svg class="pc-icon">
                             <use xlink:href="#custom-text-align-justify-center"></use>
@@ -257,6 +257,16 @@
                         </svg>
                     </span>
                     <span class="pc-mtext">Center - Current Exams</span>
+                </a>
+            </li>
+            <li class="pc-item">
+                <a href="{{ route('my-exam.mobileTeamTask',"20241126092207") }}" class="pc-link">
+                    <span class="pc-micon">
+                        <svg class="pc-icon">
+                            <use xlink:href="#custom-text-align-justify-center"></use>
+                        </svg>
+                    </span>
+                    <span class="pc-mtext">MobileTeam - Current Exams</span>
                 </a>
             </li>
             <li class="pc-item">

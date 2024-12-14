@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Center;
+use App\Models\ChiefInvigilator;
 use App\Models\District;
 use App\Models\ExamCandidatesProjection;
 use App\Models\ExamVenueConsent;
@@ -423,5 +425,57 @@ class IDCandidatesController extends Controller
         // Redirect back to the confirmation form with success message
         return redirect()->back()->with('success', 'Venues re-order and confirmation updated successfully.');
     }
+
+    public function exportToCSV($examId)
+    {
+        // Retrieve the exam
+        $exam = Currentexam::where('exam_main_no', $examId)->first();
+        if (!$exam) {
+            return redirect()->back()->with('error', 'Exam not found.');
+        }
+
+        // Retrieve the confirmed halls for the exam
+        $confirmedHalls = ExamConfirmedHalls::where('exam_id', $examId)->get();
+
+        // Prepare the data for CSV export
+        $csvData = [];
+        foreach ($confirmedHalls as $hall) {
+            $hall->centername = Center::where('center_code', $hall->center_code)->first()->center_name ?? null;
+            $hall->venue = Venues::where('venue_code', $hall->venue_code)->first() ?? null;
+            $ci = ChiefInvigilator::where('ci_venue_id', $hall->venue_code)->where('ci_id', $hall->ci_id)->first() ?? null;
+            // Format the data for CSV export
+            $csvData[] = [
+                'Hall Code' => $hall->hall_code ,
+                'CenterCode & Name' => $hall->center_code . ' - ' . $hall->centername,
+                'Hall Name' => $hall->venue->venue_name,
+                'Address' => $hall->venue->venue_address,
+                'Phone' => $hall->venue->venue_phone,
+                'GOVT OR PVT' => $hall->venue->venue_category,
+                'DIST. FROM COLL.'=>$hall->venue->venue_treasury_office,
+                'DIST. FROM RLWY/BUS STN'=>$hall->venue->venue_distance_railway,
+                'CI NAME & ADDRESS' => $ci->ci_name . ' - ' . $ci->ci_phone,
+                'CI PHONE' => $ci->ci_phone ,
+                'CI EMAIL' => $ci->ci_email,
+                'EXAM DATE' => $hall->exam_date,
+                'EXAM SESSION' => $hall->exam_session,
+                'GPS_COORD' => $hall->venue->venue_latitude . ',' . $hall->venue->venue_longitude ,
+            ];
+        }
+
+        // Generate the CSV string
+        $csvString = fopen('php://temp', 'r+');
+        fputcsv($csvString, array_keys($csvData[0]));
+        foreach ($csvData as $row) {
+            $row['Hall Code'] = sprintf('="%s"', $row['Hall Code']);
+            fputcsv($csvString, $row);
+        }
+        rewind($csvString);
+
+        // Return the CSV string as a response
+        return response(stream_get_contents($csvString), 200)
+            ->header('Content-Type', 'text/csv')
+            ->header('Content-Disposition', 'attachment; filename="confirmed_halls_exam_' . $examId . '.csv"');
+    }
+
 
 }

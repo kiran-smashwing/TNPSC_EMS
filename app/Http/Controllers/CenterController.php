@@ -73,7 +73,7 @@ class CenterController extends Controller
             ->orderBy('district_name')
             ->get();
 
-        $centerCodes = Center::select('center_code','center_name')
+        $centerCodes = Center::select('center_code','center_name','center_district_id')
             ->whereNotNull('center_code')
             ->distinct()
             ->orderBy('center_name')

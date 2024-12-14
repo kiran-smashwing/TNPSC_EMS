@@ -98,7 +98,7 @@
                                                             <option value="">Select District</option>
                                                             @foreach ($districts as $district)
                                                                 <option value="{{ $district->district_code }}"
-                                                                    {{ $scribe->scribe_district_id == $district->district_code ? 'selected' : '' }}>
+                                                                    {{ old('district', $scribe->scribe_district_id) == $district->district_code ? 'selected' : '' }}>
                                                                     {{ $district->district_name }}
                                                                 </option>
                                                             @endforeach
@@ -109,47 +109,36 @@
                                                     </div>
                                                 </div>
 
-                                                <!-- Center Filter -->
-                                                <div class="col-sm-6">
-                                                    <div class="mb-3">
-                                                        <label class="form-label" for="center">Center<span
-                                                                class="text-danger">*</span></label>
-                                                        <select class="form-control @error('center') is-invalid @enderror"
-                                                            id="center" name="center" required>
-                                                            <option value="">Select Center</option>
-                                                            @foreach ($centers as $center)
-                                                                <option value="{{ $center->center_code }}"
-                                                                    {{ $scribe->scribe_center_id == $center->center_code ? 'selected' : '' }}>
-                                                                    {{ $center->center_name }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                        @error('center')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
+                                                <!-- Center Dropdown -->
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label" for="center">Center<span
+                                                            class="text-danger">*</span></label>
+                                                    <select class="form-control @error('center') is-invalid @enderror"
+                                                        id="center" name="center" required>
+                                                        <option value="">Select Center</option>
+                                                    <!-- Centers will be dynamically populated -->    
+                                                    </select>
+                                                    @error('center')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
-
-                                                <!-- Venue Filter -->
-                                                <div class="col-sm-6">
-                                                    <div class="mb-3">
-                                                        <label class="form-label" for="venue">Venue<span
-                                                                class="text-danger">*</span></label>
-                                                        <select class="form-control @error('venue') is-invalid @enderror"
-                                                            id="venue" name="venue" required>
-                                                            <option value="">Select Venue</option>
-                                                            @foreach ($venues as $venue)
-                                                                <option value="{{ $venue->venue_code }}"
-                                                                    {{ $scribe->scribe_venue_id == $venue->venue_code ? 'selected' : '' }}>
-                                                                    {{ $venue->venue_name }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                        @error('venue')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
+                                            </div>
+                                            <!-- Venue Dropdown -->
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label" for="venue">Venue<span
+                                                            class="text-danger">*</span></label>
+                                                    <select class="form-control @error('venue') is-invalid @enderror"
+                                                        id="venue" name="venue" required>
+                                                        <option value="">Select Venue</option>
+                                                    <!-- Venues will be dynamically populated -->   
+                                                    </select>
+                                                    @error('venue')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
+                                            </div>
 
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
@@ -233,6 +222,81 @@
             document.getElementById('triggerModal').addEventListener('click', function() {
                 var modal = new bootstrap.Modal(document.getElementById('cropperModal'));
                 modal.show();
+            });
+        </script>
+        <script>
+            // Full list of centers
+            const allCenters = @json($centers);
+    
+            // District dropdown change event
+            $('#district').on('change', function() {
+    
+                const selectedDistrictCode = $(this).val();
+                const centerDropdown = $('#center');
+    
+                // Clear previous options
+                centerDropdown.empty();
+                centerDropdown.append('<option value="">Select Center </option>');
+    
+                // Filter centers based on selected district
+                const filteredCenters = allCenters.filter(center =>
+                    center.center_district_id == selectedDistrictCode
+                );            
+    
+                // Populate centers
+                filteredCenters.forEach(center => {
+                    const selected = "{{ old('center', $scribe->scribe_center_id) }}" == center.center_code ? 'selected' : '';
+                    centerDropdown.append(
+                        `<option value="${center.center_code}" ${selected}>
+                            ${center.center_name}
+                        </option>`
+                    );
+                });
+            });
+    
+            // Trigger change event on page load to handle old/existing selections
+            $(document).ready(function() {
+                    const oldDistrict = "{{ old('district', $scribe->scribe_district_id) }}";
+                    if (oldDistrict) {
+                        $('#district').val(oldDistrict).trigger('change');
+                    }
+                });
+        </script>
+        <script>
+            // Full list of venues
+            const allVenues = @json($venues);
+    
+            // Center dropdown change event
+            $('#center').on('change', function() {
+                const selectedCenterCode = $(this).val();
+                const venueDropdown = $('#venue');
+    
+                // Clear previous options
+                venueDropdown.empty();
+                venueDropdown.append('<option value="">Select Venue Name</option>');
+    
+                // Filter venues based on selected center
+                const filteredVenues = allVenues.filter(venue =>
+                    venue.venue_center_id == selectedCenterCode
+                );
+                // Populate venues
+                filteredVenues.forEach(venue => {
+                    const selected = "{{ old('venue', $scribe->scribe_venue_id) }}" == venue.venue_code ? 'selected' : '';
+    
+                    venueDropdown.append(
+                        `<option value="${venue.venue_code}" ${selected}>
+                            ${venue.venue_name}
+                        </option>`
+                    );
+                });
+            });
+    
+            // Trigger change event on page load to handle old/existing selections
+            $(document).ready(function() {
+                const oldCenter= "{{ old('center', $scribe->scribe_center_id ?? '') }}";
+                if (oldCenter) {
+                    $('#center').val(oldCenter).trigger('change');
+                }
             });
         </script>
     @endpush

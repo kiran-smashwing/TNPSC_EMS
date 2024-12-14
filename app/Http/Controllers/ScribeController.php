@@ -70,16 +70,16 @@ class ScribeController extends Controller
     {
         $messages = [
             'district.required' => 'Please select a district',
-            'district.integer' => 'Please select a valid district',
+            'district.numeric' => 'Please select a valid district',
             'center.required' => 'Please select a center',
-            'center.integer' => 'Please select a valid center',
+            'center.numeric' => 'Please select a valid center',
             'venue.required' => 'Please select a venue',
-            'venue.integer' => 'Please select a valid venue',
+            'venue.numeric' => 'Please select a valid venue',
         ];
         $validated = $request->validate([
-            'district' => 'required|integer', // Assuming you have a relation to district
-            'center' => 'required|integer',
-            'venue' => 'required|integer',
+            'district' => 'required|numeric', // Assuming you have a relation to district
+            'center' => 'required|numeric',
+            'venue' => 'required|numeric',
             'name' => 'required|string|max:255',
             'mail' => 'required|email|max:255|unique:scribe,scribe_email',
             'phone' => 'required|string|max:15',
@@ -163,16 +163,16 @@ class ScribeController extends Controller
         $scribe = Scribe::findOrFail($id);
         $messages = [
             'district.required' => 'Please select a district',
-            'district.integer' => 'Please select a valid district',
+            'district.numeric' => 'Please select a valid district',
             'center.required' => 'Please select a center',
-            'center.integer' => 'Please select a valid center',
+            'center.numeric' => 'Please select a valid center',
             'venue.required' => 'Please select a venue',
-            'venue.integer' => 'Please select a valid venue',
+            'venue.numeric' => 'Please select a valid venue',
         ];
         $validated = $request->validate([
-            'district' => 'required|integer',
-            'center' => 'required|integer',
-            'venue' => 'required|integer',
+            'district' => 'required|numeric',
+            'center' => 'required|numeric',
+            'venue' => 'required|numeric',
             'name' => 'required|string|max:255',
             'mail' => 'required|email|max:255|unique:scribe,scribe_email,' . $id . ',scribe_id',
             'phone' => 'required|string|max:15',

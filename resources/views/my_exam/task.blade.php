@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', $session->currentexam->exam_main_name . ' - ' . $session->currentexam->exam_main_notification)
+@section('title', $session->exam_main_name . ' - ' . $session->exam_main_notification)
 @push('styles')
     <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/monokai-sublime.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('storage/assets/css/plugins/quill.core.css') }}" />
@@ -39,10 +39,10 @@
                             <div class="card-body">
                                 <nav class="navbar justify-content-between p-0 align-items-center">
                                     <h5><span
-                                            class="text-primary">{{ $session->currentexam->exam_main_notification }}</span>
-                                        - {{ $session->currentexam->exam_main_name }} -
-                                        ({{ $session->currentexam->examservice->examservice_name }}) - <span
-                                            class="text-warning"> {{ $session->currentexam->exam_main_startdate }} </span>
+                                            class="text-primary">{{ $session->exam_main_notification }}</span>
+                                        - {{ $session->exam_main_name }} - {{ $session->exam_main_postname }}
+                                        - <span
+                                            class="text-warning"> {{ $session->exam_main_startdate }} </span>
                                     </h5>
                                     <div class="btn-group btn-group-sm help-filter" role="group"
                                         aria-label="button groups sm">
@@ -132,11 +132,11 @@
 
                                                             </div>
                                                             <div class="mt-2">
-                                                                <a href="{{ route('current-exam.show', $session->currentexam->exam_main_id) }}"
+                                                                <a href="{{ route('current-exam.show', $session->exam_main_id) }}"
                                                                     class="me-2 btn btn-sm btn-light-primary"><i
                                                                         class="feather icon-eye mx-1"></i>View Exam</a>
                                                                 @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'RND')
-                                                                    <a href="{{ route('current-exam.edit', $session->currentexam->exam_main_id) }}"
+                                                                    <a href="{{ route('current-exam.edit', $session->exam_main_id) }}"
                                                                         class="me-3 btn btn-sm btn-light-warning"><i
                                                                             class="feather icon-edit mx-1"></i>Edit Exam</a>
                                                                 @endif
@@ -306,13 +306,13 @@
                                                                         Count</a>
                                                                 @endif
                                                                 @if ($is_id_updated)
-                                                                    <a href="{{ route('id-candidates.download-updated-count-csv', $session->currentexam->exam_main_no) }}"
+                                                                    <a href="{{ route('id-candidates.download-updated-count-csv', $session->exam_main_no) }}"
                                                                         class="me-2 btn btn-sm btn-light-info m-2"><i
                                                                             class="feather icon-download mx-1"></i>Download
                                                                         CSV</a>
                                                                 @endif
                                                                 @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'ID')
-                                                                    <a href="{{ route('id-candidates.intimateCollectorate', $session->currentexam->exam_main_no) }}"
+                                                                    <a href="{{ route('id-candidates.intimateCollectorate', $session->exam_main_no) }}"
                                                                         class="me-3 btn btn-sm btn-light-warning m-2"><i
                                                                             class="feather icon-navigation mx-1"></i>Send
                                                                         Intimation</a>
@@ -384,7 +384,7 @@
                                                                 class="feather icon-eye mx-1"></i>View</a>
                                                         @if (session('auth_role') == 'district')
                                                             <a target="_blank"
-                                                                href="{{ route('district-candidates.showVenueIntimationForm', $session->currentexam->exam_main_no) }}"
+                                                                href="{{ route('district-candidates.showVenueIntimationForm', $session->exam_main_no) }}"
                                                                 class="me-2 btn btn-sm btn-light-info"><i
                                                                     class="feather icon-check-circle mx-1"></i>Select
                                                                 Venues</a>
@@ -451,17 +451,17 @@
                                                     </div>
                                                     <div class="mt-2">
                                                         @if (isset($venueConsents->consent_status))
-                                                            <a href="{{ route('venues.show-venue-consent', $session->currentexam->exam_main_no) }}"
+                                                            <a href="{{ route('venues.show-venue-consent', $session->exam_main_no) }}"
                                                                 class="me-2 btn btn-sm btn-light-primary m-2"><i
                                                                     class="feather icon-eye mx-1"></i>View</a>
                                                         @endif
                                                         @if (isset($venueConsents->consent_status) && $venueConsents->consent_status == 'requested')
-                                                            <a href="{{ route('venues.venue-consent', $session->currentexam->exam_main_no) }}"
+                                                            <a href="{{ route('venues.venue-consent', $session->exam_main_no) }}"
                                                                 class="me-2 btn btn-sm btn-light-info"><i
                                                                     class="feather icon-check-circle mx-1"></i>Add Hall</a>
                                                         @endif
                                                         @if (isset($venueConsents->consent_status) && $venueConsents->consent_status == 'accepted')
-                                                            <a href="{{ route('venues.venue-consent', $session->currentexam->exam_main_no) }}"
+                                                            <a href="{{ route('venues.venue-consent', $session->exam_main_no) }}"
                                                                 class="me-3 btn btn-sm btn-light-warning"><i
                                                                     class="feather icon-edit mx-1"></i>Edit Hall</a>
                                                         @endif
@@ -516,10 +516,10 @@
                                                     </div>
                                                     <div class="mt-2">
                                                         <a target="_blank"
-                                                            href="{{ route('id-candidates.show-venue-confirmation-form', $session->currentexam->exam_main_no) }}"
+                                                            href="{{ route('id-candidates.show-venue-confirmation-form', $session->exam_main_no) }}"
                                                             class="me-2 btn btn-sm btn-light-primary m-2"><i
                                                                 class="feather icon-eye mx-1"></i>Review Venues</a>
-                                                        <a href="" class="me-2 btn btn-sm btn-light-info"><i
+                                                        <a href="{{route('id-candidates.export-confirmed-halls', $session->exam_main_no)}}" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-download mx-1"></i>Download CSV</a>
 
                                                     </div>
@@ -778,7 +778,8 @@
                                                             District Collectorate</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary m-2"><i
+                                                        <a href="#"  data-pc-animate="just-me" data-bs-toggle="modal"
+                                                        data-bs-target="#ciMeetingCodeGenerateModal" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-grid mx-1"></i>Generate</a>
                                                         <a href="helpdesk-ticket-details.html"
                                                             class="me-2 btn btn-sm btn-light-info"><i
@@ -2517,6 +2518,7 @@
                 @include('modals.preliminary-checklist')
                 @include('modals.session-checklist')
                 @include('modals.invigilator-select')
+                @include('modals.ci-meetingcode-generate')
                 {{-- @include('modals.invigilator-allotment') --}}
                 @include('modals.qpbox-opentime')
             </div>

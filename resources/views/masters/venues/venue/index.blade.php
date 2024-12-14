@@ -236,6 +236,7 @@
                                         <th>Image</th>
                                         <th>Name</th>
                                         <th>District</th>
+                                        <th>Center</th>
                                         <th>E-mail</th>
                                         <th>Phone</th>
                                         <th>E-mail status</th>
@@ -262,7 +263,7 @@
 
                                             <td>{{ $venue->venue_name }}</td>
                                             <td>{{ $venue->venue_district_id ?? 'N/A' }}</td>
-                                            {{-- <td>{{ $venue->center->center_name ?? 'N/A' }}</td> --}}
+                                            <td>{{ $venue->venue_center_id ?? 'N/A' }}</td>
                                             <td>{{ $venue->venue_email }}</td>
                                             <td>{{ $venue->venue_phone }}</td>
                                             <td class="text-center">

@@ -36,7 +36,7 @@
                             <h6 class="mb-0">{{ current_user()->display_name }}</h6>
 
                             {{-- Displaying the user's role in uppercase --}}
-                            <small>{{ strtoupper(str_replace('_', ' ', session('auth_role'))) }}</small>
+                            <small>{{ strtoupper(str_replace('_', ' ', session('athu_display_role'))) }}</small>
                         </div>
                         <a class="btn btn-icon btn-link-secondary avtar" data-bs-toggle="collapse"
                             href="#pc_sidebar_userlink">
@@ -220,7 +220,7 @@
                 </a>
             </li>
             <li class="pc-item">
-                <a href="{{ route('current-exam.citask') }}" class="pc-link">
+                <a href="{{ route('my-exam.ciTask',"20241126092207") }}" class="pc-link">
                     <span class="pc-micon">
                         <svg class="pc-icon">
                             <use xlink:href="#custom-text-align-justify-center"></use>
@@ -247,6 +247,26 @@
                         </svg>
                     </span>
                     <span class="pc-mtext">District - Current Exams</span>
+                </a>
+            </li>
+            <li class="pc-item">
+                <a href="{{ route('my-exam.centerexamTask') }}" class="pc-link">
+                    <span class="pc-micon">
+                        <svg class="pc-icon">
+                            <use xlink:href="#custom-text-align-justify-center"></use>
+                        </svg>
+                    </span>
+                    <span class="pc-mtext">Center - Current Exams</span>
+                </a>
+            </li>
+            <li class="pc-item">
+                <a href="{{ route('my-exam.mobileTeamTask',"20241126092207") }}" class="pc-link">
+                    <span class="pc-micon">
+                        <svg class="pc-icon">
+                            <use xlink:href="#custom-text-align-justify-center"></use>
+                        </svg>
+                    </span>
+                    <span class="pc-mtext">MobileTeam - Current Exams</span>
                 </a>
             </li>
             <li class="pc-item">

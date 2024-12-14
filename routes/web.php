@@ -38,6 +38,7 @@ Route::get('generate-utilization-certificate', [UtilityController::class, 'gener
 Route::get('/attendance-report', [AttendanceReportController::class, 'generateAttendanceReport'])->name('download.attendanceReport');
 
 
+
 // Public routes
 Route::get('/', function () {
     return redirect()->route('dashboard'); // Redirect to the dashboard
@@ -62,6 +63,9 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/myaccount', [MyAccountController::class, 'index'])->name('myaccount');
     // Change Password routes
     Route::get('/change-password', [ChangePasswordController::class, 'showchangePassword'])->name('change-password');
+    // todo: -change in the perfixes
+    // Route::post('/check-old-password', [ChangePasswordController::class, 'checkOldPassword'])->name('password.check');
+    Route::post('/change-password', [ChangePasswordController::class, 'updatePassword'])->name('password.update');
 
 
     // Escort Staffs routes
@@ -200,7 +204,7 @@ Route::prefix('venues')->group(function () {
         Route::post('/{id}/toggle-status', [VenuesController::class, 'toggleStatus'])->name('venues.toggle-status');
         Route::delete('/{id}', [VenuesController::class, 'destroy'])->name('venues.destroy');
         Route::get('/{id}/venue-consent', action: [VenueConsentController::class, 'showVenueConsentForm'])->name('venues.venue-consent');
-        Route::post('/{id}/venue-consent', [VenueConsentController::class,'submitVenueConsentForm'])->name('venues.submit-venue-consent');
+        Route::post('/{id}/venue-consent', [VenueConsentController::class, 'submitVenueConsentForm'])->name('venues.submit-venue-consent');
         Route::get('/{id}/show-venue-consent', action: [VenueConsentController::class, 'showVenueConsentForm'])->name('venues.show-venue-consent');
     });
 });
@@ -287,7 +291,13 @@ Route::prefix('current-exam')->group(function () {
 Route::prefix('my-exam')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::get('/exam-task', action: [MyExamController::class, 'index'])->name('my-exam.index');
-        Route::get('/{examid}/{session}', action: [MyExamController::class, 'task'])->name('my-exam.examTask');
+        Route::get('/my-task-action/{examid}', action: [MyExamController::class, 'MyTaskAction'])->name('my-exam.task-action');
+        Route::get('/center', action: [MyExamController::class, 'centerTask'])->name('my-exam.centerexamTask');
+        Route::get('/mobile-team/{examid}', action: [MyExamController::class, 'mobileTeamTask'])->name('my-exam.mobileTeamTask');
+        Route::get('/ci-task/{examid}', action: [MyExamController::class, 'ciTask'])->name('my-exam.ciTask');
+        Route::get('/ci-task/{examid}/{session}', [MyExamController::class, 'ciExamActivity'])->name('my-exam.ciExamActivity');
+        Route::get('/{examid}', action: [MyExamController::class, 'task'])->name('my-exam.examTask');
+
     });
 });
 //apd-candidates Route::prefix('apd-candidates')->group(function(){
@@ -306,13 +316,16 @@ Route::prefix('id-candidates')->group(function () {
         Route::post('/send-accommodation-email', [IDCandidatesController::class, 'sendAccommodationEmail'])->name('id-candidates.send-accommodation-email');
         Route::get('/show-venue-confirmation-form/{examId}', [IDCandidatesController::class, 'showVenueConfirmationForm'])->name('id-candidates.show-venue-confirmation-form');
         Route::post('/save-venue-confirmation/{examId}', [IDCandidatesController::class, 'saveVenueConfirmation'])->name('id-candidates.save-venue-confirmation');
+        Route::get('/export-confirmed-halls/{examId}', [IDCandidatesController::class, 'exportToCSV'])->name('id-candidates.export-confirmed-halls');
     });
 });
 //disitrict-candidates Route::prefix('district-candidates')->group(function(){
 Route::prefix('district-candidates')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
-    Route::get('/showVenueIntimationForm/{examId}', [DistrictCandidatesController::class, 'showVenueIntimationForm'])->name('district-candidates.showVenueIntimationForm');
-    Route::post('/processVenueConsentEmail', [DistrictCandidatesController::class, 'processVenueConsentEmail'])->name('district-candidates.processVenueConsentEmail');
+        Route::get('/showVenueIntimationForm/{examId}', [DistrictCandidatesController::class, 'showVenueIntimationForm'])->name('district-candidates.showVenueIntimationForm');
+        Route::post('/processVenueConsentEmail', [DistrictCandidatesController::class, 'processVenueConsentEmail'])->name('district-candidates.processVenueConsentEmail');
+        Route::post('/generate-qrcode', [DistrictCandidatesController::class, 'generateQRCode'])->name('generate.qrcode');
+        Route::get('/generatePdf', [DistrictCandidatesController::class, 'generatePdf'])->name('district-candidates.generatePdf');
     });
 });
 // Route::get('/run-function', [DataController::class, 'addData']);

@@ -10,7 +10,18 @@ use App\Mail\VenueConsentMail;
 use Illuminate\Http\Request;
 use App\Models\Currentexam;
 use App\Models\Venues;
+use Barryvdh\Snappy\Facades\SnappyPdf;
+use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\Writer\PngWriter;
+use Endroid\QrCode\Color\Color;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use HeadlessChromium\BrowserFactory;
 
+
+// use Spatie\Browsershot\Browsershot;
 class DistrictCandidatesController extends Controller
 {
     protected $auditService;
@@ -59,7 +70,7 @@ class DistrictCandidatesController extends Controller
 
         foreach ($allvenues as $centerCode => $venues) {
             foreach ($venues as $venue) {
-                $venue->halls_count = $venueConsents->has($venue->venue_id) ? $venueConsents->get($venue->venue_id)->expected_candidates_count  : 0;
+                $venue->halls_count = $venueConsents->has($venue->venue_id) ? $venueConsents->get($venue->venue_id)->expected_candidates_count : 0;
                 $venue->consent_status = $venueConsents->has($venue->venue_id) ? $venueConsents->get($venue->venue_id)->consent_status : 'not_requested';
             }
         }
@@ -178,5 +189,142 @@ class DistrictCandidatesController extends Controller
 
         // Prepare and send email
         Mail::to("kiran@smashwing.com")->send(new VenueConsentMail($venue, $examId));
+    }
+    //snappy pdf generation mail function 
+    public function generateQRCode(Request $request)
+    {
+        // Get user info
+        $role = session('auth_role');
+        $guard = $role ? Auth::guard($role) : null;
+        $user = $guard ? $guard->user() : null;
+
+        // Validate incoming request
+        $request->validate([
+            'exam_id' => 'required|string',
+            'meeting_date' => 'required|date',
+            'meeting_time' => 'required|date_format:H:i',
+        ]);
+
+        // Retrieve inputs
+        $examId = $request->input('exam_id');
+        $meetingDate = $request->input('meeting_date');
+        $meetingTime = $request->input('meeting_time');
+
+        // Combine date and time
+        $meetingDateTime = $meetingDate . ' ' . $meetingTime;
+
+        // Create the QR code using Builder
+        $builder = new Builder(
+            writer: new PngWriter(),
+            data: "Exam ID: $examId, Meeting Date & Time: $meetingDateTime, District Code: $user->district_code",
+            encoding: new Encoding('UTF-8'),
+            errorCorrectionLevel: ErrorCorrectionLevel::High,
+            size: 300, // QR code size
+            margin: 10, // Margin around the QR code
+            backgroundColor: new Color(255, 255, 255) // White background
+        );
+
+        // Build the QR code
+        $result = $builder->build();
+
+        // Generate a unique file name for the QR code
+        $imageName = 'exam_' . $examId . '_' . time() . '.png';
+
+        // Define the storage path within the 'public' disk
+        $imagePath = 'qrcodes/' . $imageName;
+
+        // Store the QR code image using Storage
+        $stored = Storage::disk('public')->put($imagePath, $result->getString());
+
+        // Check if the file was successfully stored
+        if ($stored) {
+            // Save the QR code details in the database
+            DB::table('ci_meetting_qrcode')->insert([
+                'exam_id' => $examId,
+                'district_code' => $user->district_code,
+                'qrcode' => $imagePath,
+                'meeting_date_time' => $meetingDateTime,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            // Redirect with success message
+            return redirect()->back()->with('success', 'QR Code generated and saved successfully.');
+        } else {
+            return redirect()->back()->with('error', 'Failed to save QR Code.');
+        }
+    }
+
+    // public function generatePdf()
+    // {
+
+    //     // return view('pdfs.sample');
+    //     // Prepare data for the PDF
+    //     $examid = 
+    //     $data = [
+    //         'title' => 'Sample PDF Report',
+    //         'content' => 'This is a test PDF generated using Snappy in Laravel 11.',
+    //         'items' => [
+    //             ['name' => 'Item 1', 'price' => 10],
+    //             ['name' => 'Item 2', 'price' => 20],
+    //             ['name' => 'Item 3', 'price' => 30],
+    //         ]
+    //     ];
+
+    //     // Generate PDF from a Blade view
+    //     $pdf = SnappyPdf::loadView('pdfs.sample', $data)
+    //         ->setOption('page-size', 'A4');
+
+    //     // Download the PDF
+    //     // return $pdf->download('sample_report.pdf');
+
+    //     // Stream PDF in browser
+    //     return $pdf->stream('sample_report.pdf');
+    // }
+    public function generatePdf(Request $request)
+    {
+        $browserFactory = new BrowserFactory();
+
+        /* starts headless Chrome */
+
+        $browser = (new BrowserFactory())->createBrowser([
+
+            'windowSize' => [1920, 1080]
+
+        ]);
+
+        try {
+            // Create a new page and navigate to the rendered HTML view
+            $page = $browser->createPage();
+
+            // Render the view dynamically to HTML string
+            $htmlContent = view('pdfs.sample')->render();  // Render view to string
+
+            // Set up the page with the HTML content
+            $page->setContent($htmlContent);
+
+            // Wait for the content to load (if necessary)
+            $page->waitForSelector('body');  // Ensure body is loaded
+
+            // Options for PDF generation
+            $options = [
+                'landscape' => true,
+                'printBackground' => false,
+                'marginTop' => 0.0,
+                'marginBottom' => 0.0,
+                'marginLeft' => 0.0,
+                'marginRight' => 0.0,
+            ];
+
+            // Define the file name and save the PDF
+            $name = public_path("uploads/" . time() . '.pdf');
+            $page->pdf($options)->saveToFile($name);
+
+            // Return the PDF as a download response
+            return response()->download($name);
+        } finally {
+            // Close the browser instance
+            $browser->close();
+        }
     }
 }

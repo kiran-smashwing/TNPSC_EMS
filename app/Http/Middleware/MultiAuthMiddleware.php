@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class MultiAuthMiddleware
 {
@@ -13,7 +14,7 @@ class MultiAuthMiddleware
         $userId = session('auth_id');
 
         if (!$role || !$userId || !Auth::guard($role)->check()) {
-            \Log::warning('Auth middleware failed', [
+            Log::warning('Auth middleware failed', [
                 'role' => $role,
                 'user_id' => $userId,
                 'session_data' => session()->all(),

@@ -73,7 +73,7 @@ class CenterController extends Controller
             ->orderBy('district_name')
             ->get();
 
-        $centerCodes = Center::select('center_code','center_name')
+        $centerCodes = Center::select('center_code','center_name','center_district_id')
             ->whereNotNull('center_code')
             ->distinct()
             ->orderBy('center_name')
@@ -297,8 +297,12 @@ class CenterController extends Controller
 
             // Log district update with old and new values
             AuditLogger::log('Center Updated', Center::class, $center->center_id, $oldValues, $changedValues);
-            return redirect()->route('centers.index')
-                ->with('success', 'Center updated successfully');
+                if (url()->previous() === route('centers.edit', $id)) {
+                    return redirect()->route('centers.index')
+                        ->with('success', 'Center updated successfully');
+                } else {
+                    return redirect()->back()->with('success', 'Center updated successfully');
+                }
         } catch (\Exception $e) {
             return back()->withInput()
                 ->with('error', 'Error updating center: ' . $e->getMessage());

@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                  <h2 class="mb-0"></h2>
-                                </div> -->
+                                      <h2 class="mb-0"></h2>
+                                    </div> -->
                         </div>
                     </div>
                 </div>
@@ -192,13 +192,13 @@
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
                             <form id="filterForm" class="mb-3">
-                                <!-- Venue Filter -->
                                 <div class="filter-item">
-                                    <select class="form-select" id="venueFilter" name="venue">
-                                        <option value="">Select Venue Name</option>
-                                        @foreach ($venues as $venue)
-                                            <option value="{{ $venue->scribe_venue_code }}">
-                                                {{ $venue->venue_name }} 
+                                    <select class="form-select" id="districtFilter" name="district">
+                                        <option value="">Select District Name</option>
+                                        @foreach ($districts as $district)
+                                            <option value="{{ $district->district_code }}"
+                                                {{ request('district') == $district->invigilator_district_id ? 'selected' : '' }}>
+                                                {{ $district->district_name }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -208,27 +208,16 @@
                                 <div class="filter-item">
                                     <select class="form-select" id="centerFilter" name="center">
                                         <option value="">Select Center Name</option>
-                                        @foreach ($centers as $center)
-                                            <option value="{{ $center->scribe_center_code }}">
-                                                {{ $center->center_name }} 
-                                            </option>
-                                        @endforeach
                                     </select>
                                 </div>
 
-                                <!-- District Filter -->
+                                <!-- Venue Filter -->
                                 <div class="filter-item">
-                                    <select class="form-select" id="districtFilter" name="district">
-                                        <option value="">Select District Name</option>
-                                        @foreach ($districts as $district)
-                                            <option value="{{ $district->scribe_district_code }}">
-                                                {{ $district->district_name }} 
-                                            </option>
-                                        @endforeach
+                                    <select class="form-select" id="venueFilter" name="venue">
+                                        <option value="">Select Venue Name</option>
                                     </select>
                                 </div>
-
-                                <!-- Apply Filters Button -->
+                                 <!-- Apply Filters Button -->
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                                 </div>
@@ -306,9 +295,11 @@
         </div>
     </section>
     <!-- [ Main Content ] end -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     @include('partials.footer')
 
     @push('scripts')
+    
         @include('partials.datatable-export-js')
 
         <script>
@@ -383,7 +374,86 @@
             });
         </script>
     @endpush
+    <script>
+        // Check if jQuery is available
+        if (typeof jQuery === 'undefined') {
+            console.error('jQuery is not loaded. Please include it in your project.');
+        }
+        // Full list of centers
+        const allCenters = @json($centers);
+        // console.log(@json($districts));
+        // District filter change event
+        $('#districtFilter').on('change', function() {
+            const selectedDistrictCode = $(this).val();
+            // alert(selectedDistrictCode);
+            const centerDropdown = $('#centerFilter'); // Corrected to #centerFilter
 
+            // Clear previous options
+            centerDropdown.empty();
+            centerDropdown.append('<option value="">Select Center</option>');
+
+            // Filter centers based on selected district
+            const filteredCenters = allCenters.filter(center =>
+                center.center_district_id == selectedDistrictCode
+            );
+
+            // Populate centers
+            filteredCenters.forEach(center => {
+                const selected = "{{ request('center') }}" == center.center_code ? 'selected' : '';
+                centerDropdown.append(
+                    `<option value="${center.center_code}" ${selected}>
+                       ${center.center_name}
+                   </option>`
+                );
+            });
+        });
+
+        // Trigger change event on page load to handle old/existing selections
+        $(document).ready(function() {
+            const oldDistrict = "{{ request('district') }}";
+            if (oldDistrict) {
+                $('#districtFilter').val(oldDistrict).trigger('change');
+            }
+        });
+    </script>
+
+    <script>
+        // Full list of venues
+        const allVenues = @json($venues);
+
+        // Center filter change event
+        $('#centerFilter').on('change', function() {
+            const selectedCenterCode = $(this).val();
+            const venueDropdown = $('#venueFilter'); // Corrected to #venueFilter
+
+            // Clear previous options
+            venueDropdown.empty();
+            venueDropdown.append('<option value="">Select Venue</option>');
+
+            // Filter venues based on selected center
+            const filteredVenues = allVenues.filter(venue =>
+                venue.venue_center_id == selectedCenterCode
+            );
+
+            // Populate venues
+            filteredVenues.forEach(venue => {
+                const selected = "{{ request('venue') }}" == venue.venue_code ? 'selected' : '';
+                venueDropdown.append(
+                    `<option value="${venue.venue_code}" ${selected}>
+                       ${venue.venue_name}
+                   </option>`
+                );
+            });
+        });
+
+        // Trigger change event on page load to handle old/existing selections
+        $(document).ready(function() {
+            const oldCenter = "{{ request('center') }}";
+            if (oldCenter) {
+                $('#centerFilter').val(oldCenter).trigger('change');
+            }
+        });
+    </script>
     @include('partials.theme')
 
 

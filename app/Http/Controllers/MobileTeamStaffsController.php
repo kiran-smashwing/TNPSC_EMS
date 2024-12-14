@@ -187,7 +187,7 @@ class MobileTeamStaffsController extends Controller
         ];
         // Validate the request data
         $validated = $request->validate([
-            'district' => 'required|integer',
+            'district' => 'required|numeric',
             'name' => 'required|string|max:255',
             'employee_id' => 'required|string|max:255|unique:mobile_team,mobile_employeeid,' . $id . ',mobile_id',
             'designation' => 'required|string|max:255',
@@ -263,9 +263,12 @@ class MobileTeamStaffsController extends Controller
 
             // Log staff member update with old and new values (assuming you have a logging mechanism)
             AuditLogger::log('Mobile Team Staff Updated', MobileTeamStaffs::class, $staffMember->mobile_id, $oldValues, $changedValues);
-
-            return redirect()->route('mobile-team-staffs.index')
-                ->with('success', 'Mobile team staff updated successfully.');
+                if (url()->previous() === route('mobile-team-staffs.edit', $id)) {
+                    return redirect()->route('mobile-team-staffs.index')
+                        ->with('success', 'Mobile team staff updated successfully.');
+                } else {
+                    return redirect()->back()->with('success', 'Mobile team staff updated successfully.');
+                }
         } catch (\Exception $e) {
             return back()->withInput()
                 ->with('error', 'Error updating mobile team staff: ' . $e->getMessage());
@@ -275,6 +278,7 @@ class MobileTeamStaffsController extends Controller
     {
 
         $team = MobileTeamStaffs::with('district')->findOrFail($id); // Ensure MobileTeam is the correct model
+        // dd($team);
         return view('masters.district.mobile_team_staffs.show', compact('team'));
     }
     public function toggleStatus($id)

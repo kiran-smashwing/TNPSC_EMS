@@ -54,6 +54,6 @@ class MobileTeamStaffs extends Authenticatable
     // Define the relationship with District
     public function district()
     {
-        return $this->belongsTo(District::class, 'mobile_district_id', 'district_id');
+        return $this->belongsTo(District::class, 'mobile_district_id', 'district_code');
     }
 }

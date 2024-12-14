@@ -53,7 +53,7 @@ class TreasuryOfficerController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'district' => 'required|string|max:50',
+            'district' => 'required|numeric',
             'name' => 'required|string|max:255',
             'designation' => 'required|string|max:255',
             'phone' => 'required|string|max:15',
@@ -181,7 +181,7 @@ class TreasuryOfficerController extends Controller
         $treasuryOfficer = TreasuryOfficer::findOrFail($id);
 
         $validated = $request->validate([
-            'district' => 'required|string|max:50',
+            'district' => 'required|numeric',
             'name' => 'required|string|max:255',
             'designation' => 'required|string|max:255',
             'phone' => 'required|string|max:15',
@@ -251,8 +251,12 @@ class TreasuryOfficerController extends Controller
             $oldValues = array_intersect_key($oldValues, $changedValues);
             // Log the update
             AuditLogger::log('Treasury Officer Updated', TreasuryOfficer::class, $treasuryOfficer->tre_off_id, $oldValues, $changedValues);
-
-            return redirect()->route('treasury-officers.index')->with('success', 'Treasury Officer updated successfully');
+            if (url()->previous() === route('treasury-officers.edit', $id)) {
+                return redirect()->route('treasury-officers.index')
+                    ->with('success', 'Treasury Officer updated successfully');
+            } else {
+                return redirect()->back()->with('success', 'Treasury Officer updated successfully');
+            }
         } catch (\Exception $e) {
             return back()->withInput()->with('error', 'Error updating treasury officer: ' . $e->getMessage());
         }

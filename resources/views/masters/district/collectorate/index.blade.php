@@ -161,6 +161,7 @@
             <!-- [ Main Content ] start -->
 
             <div class="row">
+                <!-- [ basic-table ] start -->
                 @if (session('success'))
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         {{ session('success') }}
@@ -198,42 +199,7 @@
                             </div>
                         </div>
                         <div class="card-body table-border-style">
-                            <!-- Filter options -->
-                            <form id="filterForm" class="mb-3" method="GET" action="{{ route('district.index') }}">
-                                {{-- <div class="filter-item">
-                                    <select class="form-select" id="roleFilter" name="role">
-                                        <option value="">Select Role</option>
-                                        <option value="AD">AD</option>
-                                        <option value="Manager">Manager</option>
-                                        <option value="Staff">Staff</option>
-                                    </select>
-                                </div> --}}
-                                <div class="filter-item">
-                                    <select class="form-select" id="districtFilter" name="district">
-                                        <option value="">Select District</option>
-                                        @foreach ($allDistricts as $district)
-                                            <option value="{{ $district->district_name }}"
-                                                {{ request('district') == $district->district_name ? 'selected' : '' }}>
-                                                {{ $district->district_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                {{-- <div class="filter-item">
-                                    <select class="form-select" id="centerCodeFilter" name="centerCode">
-                                        <option value="">Select Center Code</option>
-                                        <option value="00101">00101</option>
-                                        <option value="00102">00102</option>
-                                        <option value="00103">00103</option>
-                                    </select>
-                                </div> --}}
-                                <div class="btn-container">
-                                    <button type="submit" class="btn btn-primary">Apply Filters</button>
-                                </div>
-                            </form>
-
-
+            
                             <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
                                 width="100%">
                                 <thead>

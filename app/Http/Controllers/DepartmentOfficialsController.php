@@ -245,8 +245,12 @@ class DepartmentOfficialsController extends Controller
             AuditLogger::log('Department Official Updated', DepartmentOfficial::class, $official->dept_off_emp_id, $oldValues, $changedValues);
 
             // Redirect with success message
-            return redirect()->route('department-officials.index')
-                ->with('success', 'Department official updated successfully.');
+            if (url()->previous() === route('department-officials.edit', $id)) {
+                return redirect()->route('department-officials.index')
+                    ->with('success', 'Department official updated successfully.');
+            } else {
+                return redirect()->back()->with('success', 'Department official updated successfully.');
+            }
         } catch (\Exception $e) {
             return back()->withInput()
                 ->with('error', 'Error updating department official: ' . $e->getMessage());

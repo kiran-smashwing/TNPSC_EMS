@@ -16,6 +16,8 @@
     <!-- [ Header Topbar ] start -->
     @include('partials.header')
 
+    @include('modals.cropper')
+
 
     <!-- [ Main Content ] start -->
     <div class="pc-container">
@@ -51,13 +53,13 @@
                                 <li class="nav-item">
                                     <a class="nav-link active" id="profile-tab-1" data-bs-toggle="tab" href="#profile-1"
                                         role="tab" aria-selected="true">
-                                        <i class="ti ti-user me-2"></i>Profile
+                                        <i class="ti ti-user me-2"></i>My Account
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" id="profile-tab-2" data-bs-toggle="tab" href="#profile-2"
                                         role="tab" aria-selected="true">
-                                        <i class="ti ti-file-text me-2"></i>Personal Details
+                                        <i class="ti ti-file-text me-2"></i>My Account Details
                                     </a>
                                 </li>
                                 {{-- <li class="nav-item">
@@ -89,431 +91,25 @@
                     </div>
                     <div class="tab-content">
                         <div class="tab-pane show active" id="profile-1" role="tabpanel" aria-labelledby="profile-tab-1">
-                            <div class="row">
-                                <div class="col-lg-4 col-xxl-3">
-                                    <div class="card">
-                                        <div class="card-body position-relative">
-                                            <div class="position-absolute end-0 top-0 p-3">
-                                                {{-- <span class="badge bg-primary"></span> --}}
-                                            </div>
-                                            <div class="text-center mt-3">
-                                                <div class="chat-avtar d-inline-flex mx-auto">
-                                                    <img class="rounded-circle img-fluid wid-70"
-                                                        src="{{ $userDetails['profile_picture'] }}" alt="User image" />
-                                                </div>
+                            @if ($role == 'headquarters')
+                                @include('partials.my_account_view.department_account_view')
+                            @elseif($role == 'venue')
+                                @include('partials.my_account_view.venue_account_view')
+                            @elseif($role == 'center')
+                                @include('partials.my_account_view.center_account_view')
+                            @elseif($role == 'treasury')
+                                @include('partials.my_account_view.treasury_account_view')
+                            @elseif($role == 'ci')
+                                @include('partials.my_account_view.ci_account_view')
+                            @elseif($role == 'district')
+                                @include('partials.my_account_view.district_account_view')
+                                @elseif($role == 'mobile_team_staffs')
+                                @include('partials.my_account_view.mobile_account_view')
 
-                                                <h5 class="mb-0">{{ $userDetails['name'] }}</h5>
-                                                <p class="text-muted text-sm">
-                                                    {{ strtoupper(str_replace('_', ' ', session('athu_display_role'))) }}
-                                                </p>
-                                                <hr class="my-3 border border-secondary-subtle" />
-                                                {{-- <div class="row g-3">
-                                                    <div class="col-4">
-                                                        <h5 class="mb-0">86</h5>
-                                                        <small class="text-muted">Post</small>
-                                                    </div>
-                                                    <div class="col-4 border border-top-0 border-bottom-0">
-                                                        <h5 class="mb-0">40</h5>
-                                                        <small class="text-muted">Project</small>
-                                                    </div>
-                                                    <div class="col-4">
-                                                        <h5 class="mb-0">4.5K</h5>
-                                                        <small class="text-muted">Members</small>
-                                                    </div>
-                                                </div> --}}
-                                                <hr class="my-3 border border-secondary-subtle" />
-                                                @if ($role == 'headquarters')
-                                                    <div
-                                                        class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
-                                                        <i class="ti ti-man me-2"></i>
-                                                        <p class="mb-0">
-                                                            {{ $userDetails['role_department'] }}-{{ $userDetails['role_name'] }}
-                                                        </p>
-                                                    </div>
-                                                @endif
-                                                <div
-                                                    class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
-                                                    <i class="ti ti-mail me-2"></i>
-                                                    <p class="mb-0">{{ $userDetails['email'] }}</p>
-                                                </div>
-                                                <div
-                                                    class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
-                                                    <i class="ti ti-phone me-2"></i>
-                                                    <p class="mb-0">{{ $userDetails['phone'] }}</p>
-                                                </div>
-                                                @if ($role == 'district' || $role == 'center' || $role == 'venue' || $role == 'ci')
-                                                    <div
-                                                        class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
-                                                        <i class="ti ti-map-pin me-2"></i>
-                                                        <p class="mb-0">{{ $userDetails['address'] }}</p>
-                                                    </div>
-                                                @endif
-                                                @if ($role == 'headquarters')
-                                                    <div
-                                                        class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
-                                                        <i class="ti ti-barcode me-2"></i>
-                                                        <p class="mb-0">{{ $userDetails['address'] }}</p>
-                                                    </div>
-                                                @endif
-                                                @if ($role == 'venue')
-                                                    <div
-                                                        class="d-inline-flex align-items-center justify-content-start w-100">
-                                                        <i class="ti ti-link me-2"></i>
-                                                        <a href="#" class="link-primary">
-                                                            <p class="mb-0">{{ $userDetails['website'] }}</p>
-                                                        </a>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card">
-                                        {{-- <div class="card-header">
-                                            <h5>Skills</h5>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row align-items-center mb-3">
-                                                <div class="col-sm-6 mb-2 mb-sm-0">
-                                                    <p class="mb-0">Junior</p>
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="flex-grow-1 me-3">
-                                                            <div class="progress progress-primary" style="height: 6px">
-                                                                <div class="progress-bar" style="width: 30%"></div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex-shrink-0">
-                                                            <p class="mb-0 text-muted">30%</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row align-items-center mb-3">
-                                                <div class="col-sm-6 mb-2 mb-sm-0">
-                                                    <p class="mb-0">UX Researcher</p>
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="flex-grow-1 me-3">
-                                                            <div class="progress progress-primary" style="height: 6px">
-                                                                <div class="progress-bar" style="width: 80%"></div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex-shrink-0">
-                                                            <p class="mb-0 text-muted">80%</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row align-items-center mb-3">
-                                                <div class="col-sm-6 mb-2 mb-sm-0">
-                                                    <p class="mb-0">Wordpress</p>
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="flex-grow-1 me-3">
-                                                            <div class="progress progress-primary" style="height: 6px">
-                                                                <div class="progress-bar" style="width: 90%"></div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex-shrink-0">
-                                                            <p class="mb-0 text-muted">90%</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row align-items-center mb-3">
-                                                <div class="col-sm-6 mb-2 mb-sm-0">
-                                                    <p class="mb-0">HTML</p>
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="flex-grow-1 me-3">
-                                                            <div class="progress progress-primary" style="height: 6px">
-                                                                <div class="progress-bar" style="width: 30%"></div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex-shrink-0">
-                                                            <p class="mb-0 text-muted">30%</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row align-items-center mb-3">
-                                                <div class="col-sm-6 mb-2 mb-sm-0">
-                                                    <p class="mb-0">Graphic Design</p>
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="flex-grow-1 me-3">
-                                                            <div class="progress progress-primary" style="height: 6px">
-                                                                <div class="progress-bar" style="width: 95%"></div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex-shrink-0">
-                                                            <p class="mb-0 text-muted">95%</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row align-items-center">
-                                                <div class="col-sm-6 mb-2 mb-sm-0">
-                                                    <p class="mb-0">Code Style</p>
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="flex-grow-1 me-3">
-                                                            <div class="progress progress-primary" style="height: 6px">
-                                                                <div class="progress-bar" style="width: 75%"></div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex-shrink-0">
-                                                            <p class="mb-0 text-muted">75%</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div> --}}
-                                    </div>
-                                </div>
-                                <div class="col-lg-8 col-xxl-9">
-                                    {{-- <div class="card">
-                                        <div class="card-header">
-                                            <h5>About me</h5>
-                                        </div>
-                                        <div class="card-body">
-                                            <p class="mb-0">Hello, I’m Anshan Handgun Creative Graphic Designer & User
-                                                Experience Designer based in Website, I create digital
-                                                Products a more Beautiful and usable place. Morbid accusant ipsum. Nam nec
-                                                tellus at.</p>
-                                        </div>
-                                    </div> --}}
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h5>Personal Details</h5>
-                                        </div>
-                                        <div class="card-body">
-                                            <ul class="list-group list-group-flush">
-                                                <li class="list-group-item px-0 pt-0">
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <p class="mb-1 text-muted">Name</p>
-                                                            <p class="mb-0">{{ $userDetails['name'] }}</p>
-                                                        </div>
-                                                        @if ($role == 'headquarters')
-                                                            <div class="col-md-6">
-                                                                <p class="mb-1 text-muted">Role</p>
-                                                                <p class="mb-0">
-                                                                    {{ $userDetails['role_department'] }}-{{ $userDetails['role_name'] }}
-                                                                </p>
-                                                            </div>
-                                                        @endif
-                                                        @if ($role == 'venue')
-                                                            <div class="col-md-6">
-                                                                <p class="mb-1 text-muted">District</p>
-                                                                <p class="mb-0">
-                                                                    {{ $userDetails['district_name'] }}
-                                                                </p>
-                                                            </div>
-                                                        @endif
-                                                    </div>
-                                                </li>
-                                                <li class="list-group-item px-0">
-                                                    <div class="row">
-                                                        @if ($role == 'venue')
-                                                            <div class="col-md-6">
-                                                                <p class="mb-1 text-muted">Center</p>
-                                                                <p class="mb-0">{{ $userDetails['center_name'] }}</p>
-                                                            </div>
-                                                        @endif
-                                                        <div class="col-md-6">
-                                                            <p class="mb-1 text-muted">Email</p>
-                                                            <p class="mb-0">{{ $userDetails['email'] }}</p>
-                                                        </div>
-
-                                                        @if ($role == 'headquarters')
-                                                            <div class="col-md-6">
-                                                                <p class="mb-1 text-muted">Designation</p>
-                                                                <p class="mb-0">{{ $userDetails['designation'] }}</p>
-                                                            </div>
-                                                        @endif
-                                                    </div>
-                                                </li>
-                                                <li class="list-group-item px-0">
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <p class="mb-1 text-muted">Phone</p>
-                                                            <p class="mb-0">{{ $userDetails['phone'] }}</p>
-                                                        </div>
-                                                        @if ($role == 'venue')
-                                                            <div class="col-md-6">
-                                                                <p class="mb-1 text-muted">Alternative Phone</p>
-                                                                <p class="mb-0">{{ $userDetails['alternative_phone'] }}
-                                                                </p>
-                                                            </div>
-                                                        @endif
-                                                        {{-- <div class="col-md-6">
-                                                            <p class="mb-1 text-muted">Zip Code</p>
-                                                            <p class="mb-0">956 754</p>
-                                                        </div> --}}
-                                                    </div>
-                                                </li>
-                                                @if ($role == 'venue')
-                                                    <li class="list-group-item px-0">
-                                                        <div class="row">
-                                                            <div class="col-md-6">
-                                                                <p class="mb-1 text-muted">Type</p>
-                                                                <p class="mb-0">{{ $userDetails['type'] }}</p>
-                                                            </div>
-                                                            @if ($role == 'venue')
-                                                                <div class="col-md-6">
-                                                                    <p class="mb-1 text-muted">Category</p>
-                                                                    <p class="mb-0">{{ $userDetails['category'] }}</p>
-                                                                </div>
-                                                            @endif
-                                                            {{-- <div class="col-md-6">
-                                                            <p class="mb-1 text-muted">Zip Code</p>
-                                                            <p class="mb-0">956 754</p>
-                                                        </div> --}}
-                                                        </div>
-                                                    </li>
-                                                @endif
-                                                @if ($role == 'venue')
-                                                    <li class="list-group-item px-0">
-                                                        <div class="row">
-                                                            @php
-                                                            $typeMapping = [
-                                                                '1' => 'Anna University',
-                                                                '2' => 'Thriuvalluvar University',
-                                                                '3' => 'Madras University',
-                                                                '4' => 'Madurai Kamraj University',
-                                                                '5' => 'Manonmaniam Sundaranar University',
-                                                                '6' => 'Others',
-                                                                'UDISE' => 'UDISE',
-                                                            ];
-
-                                                            $typeLabel =
-                                                                $typeMapping[$userDetails['code_provider'] ?? ''] ??
-                                                                'Not Available';
-                                                        @endphp
-                                                            <div class="col-md-6">
-                                                                <p class="mb-1 text-muted">Venue Code Provider</p>
-                                                                <p class="mb-0">{{ $typeLabel }}</p>
-                                                            </div>
-                                                            {{-- <div class="col-md-6">
-                                                            <p class="mb-1 text-muted">Zip Code</p>
-                                                            <p class="mb-0">956 754</p>
-                                                        </div> --}}
-                                                        </div>
-                                                    </li>
-                                                @endif
-                                                {{-- <li class="list-group-item px-0 pb-0">
-                                                    <p class="mb-1 text-muted">Address</p>
-                                                    <p class="mb-0">Street 110-B Kalians Bag, Dewan, M.P. New York</p>
-                                                </li> --}}
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <div class="card">
-                                        {{-- <div class="card-header">
-                                            <h5>Education</h5>
-                                        </div>
-                                        <div class="card-body">
-                                            <ul class="list-group list-group-flush">
-                                                <li class="list-group-item px-0 pt-0">
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <p class="mb-1 text-muted">Master Degree (Year)</p>
-                                                            <p class="mb-0">2014-2017</p>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <p class="mb-1 text-muted">Institute</p>
-                                                            <p class="mb-0">-</p>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                                <li class="list-group-item px-0">
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <p class="mb-1 text-muted">Bachelor (Year)</p>
-                                                            <p class="mb-0">2011-2013</p>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <p class="mb-1 text-muted">Institute</p>
-                                                            <p class="mb-0">Imperial College London</p>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                                <li class="list-group-item px-0 pb-0">
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <p class="mb-1 text-muted">School (Year)</p>
-                                                            <p class="mb-0">2009-2011</p>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <p class="mb-1 text-muted">Institute</p>
-                                                            <p class="mb-0">School of London, England</p>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                            </ul>
-                                        </div> --}}
-                                    </div>
-                                    @if ($role == 'venue')
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <h5>Bank Details</h5>
-                                            </div>
-                                            <div class="card-body">
-                                                <ul class="list-group list-group-flush">
-                                                    <li class="list-group-item px-0 pt-0">
-                                                        <div class="row">
-                                                            <div class="col-md-6">
-                                                                <p class="mb-1 text-muted">Bank Name</p>
-                                                                <p class="mb-0">{{ $userDetails['bank_name'] }}</p>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <p class="mb-1 text-muted">Account Name</p>
-                                                                <p class="mb-0">{{ $userDetails['account_name'] }}</p>
-                                                            </div>
-                                                        </div>
-                                                    </li>
-                                                    <li class="list-group-item px-0">
-                                                        <div class="row">
-                                                            <div class="col-md-6">
-                                                                <p class="mb-1 text-muted">Account Number
-                                                                </p>
-                                                                <p class="mb-0">{{ $userDetails['account_number'] }}</p>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <p class="mb-1 text-muted">Branch Name</p>
-                                                                <p class="mb-0">{{ $userDetails['branch_name'] }}
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    </li>
-                                                    <li class="list-group-item px-0 pb-0">
-                                                        <div class="row">
-                                                            <div class="col-md-6">
-                                                                <p class="mb-1 text-muted">Account Type</p>
-                                                                <p class="mb-0">{{ $userDetails['account_type'] }}</p>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <p class="mb-1 text-muted">IFSC Code</p>
-                                                                <p class="mb-0">{{ $userDetails['ifsc'] }}</p>
-                                                            </div>
-                                                        </div>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
+                            @endif
                         </div>
                         <!-- Modal -->
-                        <div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel"
+                        {{-- <div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel"
                             aria-hidden="true">
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content" style="width:850px">
@@ -668,274 +264,27 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="tab-pane" id="profile-2" role="tabpanel" aria-labelledby="profile-tab-2">
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h5>Personal Information</h5>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-12 text-center mb-3">
-                                                    <div class="user-upload wid-75" data-pc-animate="just-me"
-                                                        data-bs-toggle="modal" data-bs-target="#cropperModal">
-                                                        <img src="{{ $userDetails['profile_picture'] }}"
-                                                            id="previewImage" alt="Cropped Preview"
-                                                            style="max-width: 100%; height: auto; object-fit: cover;">
-                                                        <input type="hidden" name="cropped_image" id="cropped_image">
-                                                        <label for="imageUpload" class="img-avtar-upload"></label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Name<span
-                                                                class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control"
-                                                            value="{{ $userDetails['name'] ?? '' }}" name="name"
-                                                            required />
-                                                    </div>
-                                                </div>
-                                                @if ($role == 'headquarters')
-                                                    <div class="col-sm-6">
-                                                        <div class="mb-3">
-                                                            <label class="form-label" for="role">Role </label>
-                                                            <select
-                                                                class="form-control @error('role') is-invalid @enderror"
-                                                                id="role" name="role" disabled>
-                                                                <option>Select Role</option>
-                                                                @foreach ($roles as $roleOption)
-                                                                    <option value="{{ $roleOption->role_id }}"
-                                                                        {{ isset($userDetails) && $userDetails['role'] == $roleOption->role_id ? 'selected' : '' }}>
-                                                                        {{ $roleOption->role_department }} -
-                                                                        {{ $roleOption->role_name }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                            @error('role')
-                                                                <div class="invalid-feedback">{{ $message }}</div>
-                                                            @enderror
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Employee ID</label>
-                                                            <input type="text" class="form-control"
-                                                                value="{{ $userDetails['address'] }}" />
-                                                        </div>
-                                                    </div>
-                                                @endif
-                                                @if ($role == 'venue')
-                                                    <div class="col-sm-6">
-                                                        <div class="mb-3">
-                                                            <label class="form-label">District</label>
-                                                            <select class="form-control" name="district_id" disabled>
-                                                                <option value="">Select District</option>
-                                                                @foreach ($districts as $district)
-                                                                    <option value="{{ $district->district_code }}"
-                                                                        {{ old('district_code', $userDetails['district'] ?? '') == $district->id ? 'selected' : '' }}>
-                                                                        {{ $district->district_name }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Center</label>
-                                                            <select class="form-control" name="center_id" disabled>
-                                                                <option value="">Select Center</option>
-                                                                @foreach ($centers as $center)
-                                                                    <option value="{{ $center->center_code }}"
-                                                                        {{ old('center_code', $userDetails['center'] ?? '') == $center->id ? 'selected' : '' }}>
-                                                                        {{ $center->center_name }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                @endif
+                            @if ($role == 'headquarters')
+                                @include('partials.my_account_edit.department_account')
+                            @elseif($role == 'venue')
+                                @include('partials.my_account_edit.venue_account')
+                            @elseif($role == 'center')
+                                @include('partials.my_account_edit.center_account')
+                            @elseif($role == 'treasury')
+                                @include('partials.my_account_edit.treasury_account')
+                            @elseif($role == 'ci')
+                                @include('partials.my_account_edit.ci_account')
+                            @elseif($role == 'district')
+                                @include('partials.my_account_edit.district_account')
+                            @elseif($role == 'mobile_team_staffs')
+                                @include('partials.my_account_edit.mobile_account')
+                            
+                            @endif
 
-                                                {{-- <div class="col-sm-6">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Email</label>
-                                                        <input type="text" class="form-control"
-                                                            value="{{ $userDetails['email'] }}" />
-                                                    </div>
-                                                </div> --}}
-                                                @if ($role == 'venue')
-                                                    <div class="col-sm-6">
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Venue code</label>
-                                                            <input type="text" class="form-control"
-                                                                value="{{ $userDetails['code'] }}" />
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-sm-12">
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Address</label>
-                                                            <textarea class="form-control">{{ $userDetails['address'] }}</textarea>
-                                                        </div>
-
-                                                    </div>
-                                                    <div class="col-sm-12">
-                                                        <div class="mb-3">
-                                                            <label class="form-label" for="venue_code_provider">Venue Code
-                                                                Provider
-                                                                <span class="text-danger">*</span>
-                                                            </label>
-                                                            <select
-                                                                class="form-control @error('venue_code_provider') is-invalid @enderror"
-                                                                id="venue_code_provider" name="venue_code_provider"
-                                                                required>
-                                                                <option>Select Venue Code Provider</option>
-                                                                <option value="UDISE"
-                                                                    {{ old('venue_code_provider', $userDetails['code_provider'] ?? '') == 'UDISE' ? 'selected' : '' }}>
-                                                                    UDISE
-                                                                </option>
-                                                                <option value="1"
-                                                                    {{ old('venue_code_provider', $userDetails['code_provider'] ?? '') == '1' ? 'selected' : '' }}>
-                                                                    Anna University
-                                                                </option>
-                                                                <option value="2"
-                                                                    {{ old('venue_code_provider', $userDetails['code_provider'] ?? '') == '2' ? 'selected' : '' }}>
-                                                                    Thriuvalluvar University
-                                                                </option>
-                                                                <option value="3"
-                                                                    {{ old('venue_code_provider', $userDetails['code_provider'] ?? '') == '3' ? 'selected' : '' }}>
-                                                                    Madras University
-                                                                </option>
-                                                                <option value="4"
-                                                                    {{ old('venue_code_provider', $userDetails['code_provider'] ?? '') == '4' ? 'selected' : '' }}>
-                                                                    Madurai Kamraj University
-                                                                </option>
-                                                                <option value="5"
-                                                                    {{ old('venue_code_provider', $userDetails['code_provider'] ?? '') == '5' ? 'selected' : '' }}>
-                                                                    Manonmaniam Sundaranar University
-                                                                </option>
-                                                                <option value="6"
-                                                                    {{ old('venue_code_provider', $userDetails['code_provider'] ?? '') == '6' ? 'selected' : '' }}>
-                                                                    Others
-                                                                </option>
-                                                            </select>
-                                                            @error('venue_code_provider')
-                                                                <div class="invalid-feedback">{{ $message }}</div>
-                                                            @enderror
-                                                        </div>
-
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    {{-- <div class="card">
-                      <div class="card-header">
-                        <h5>Social Network</h5>
-                      </div>
-                      <div class="card-body">
-                        <div class="d-flex align-items-center mb-2">
-                          <div class="flex-grow-1 me-3">
-                            <div class="d-flex align-items-center">
-                              <div class="flex-shrink-0">
-                                <div class="avtar avtar-xs btn-light-twitter">
-                                  <i class="fab fa-twitter f-16"></i>
-                                </div>
-                              </div>
-                              <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Twitter</h6>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="flex-shrink-0">
-                            <button class="btn btn-link-primary">Connect</button>
-                          </div>
                         </div>
-                        <div class="d-flex align-items-center mb-2">
-                          <div class="flex-grow-1 me-3">
-                            <div class="d-flex align-items-center">
-                              <div class="flex-shrink-0">
-                                <div class="avtar avtar-xs btn-light-facebook">
-                                  <i class="fab fa-facebook-f f-16"></i>
-                                </div>
-                              </div>
-                              <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Facebook <small class="text-muted f-w-400">/Anshan Handgun</small></h6>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="flex-shrink-0">
-                            <button class="btn btn-link-danger">Remove</button>
-                          </div>
-                        </div>
-                        <div class="d-flex align-items-center">
-                          <div class="flex-grow-1 me-3">
-                            <div class="d-flex align-items-center">
-                              <div class="flex-shrink-0">
-                                <div class="avtar avtar-xs btn-light-linkedin">
-                                  <i class="fab fa-linkedin-in f-16"></i>
-                                </div>
-                              </div>
-                              <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Linkedin</h6>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="flex-shrink-0">
-                            <button class="btn btn-link-primary">Connect</button>
-                          </div>
-                        </div>
-                      </div>
-                    </div> --}}
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h5>Contact Information</h5>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                {{-- <div class="col-sm-6">
-                            <div class="mb-3">
-                              <label class="form-label">Contact Phone</label>
-                              <input type="text" class="form-control" value="(+99) 9999 999 999" />
-                            </div>
-                          </div> --}}
-                                                <div class="col-sm-12">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Email</label>
-                                                        <input type="text" class="form-control"
-                                                            value="{{ $userDetails['email'] }}" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    @if ($role == 'headquarters')
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Designation</label>
-                                                            <input type="text" class="form-control"
-                                                                value="{{ $userDetails['designation'] }}" />
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                                @if ($role == 'venue')
-                                                    <div class="col-sm-12">
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Address</label>
-                                                            <textarea class="form-control">3379  Monroe Avenue, Fort Myers, Florida(33912)</textarea>
-                                                        </div>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12 text-end btn-page">
-                                    <div class="btn btn-outline-secondary">Cancel</div>
-                                    <div class="btn btn-primary">Update Profile</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tab-pane" id="profile-3" role="tabpanel" aria-labelledby="profile-tab-3">
+                        {{-- <div class="tab-pane" id="profile-3" role="tabpanel" aria-labelledby="profile-tab-3">
                             <div class="row">
                                 <div class="col-12">
                                     <div class="card">
@@ -1133,7 +482,7 @@
                                     <button class="btn btn-primary">Update Profile</button>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="tab-pane" id="profile-4" role="tabpanel" aria-labelledby="profile-tab-4">
                             <div class="card">
                                 <div class="card-header">
@@ -1617,6 +966,93 @@
             });
         </script>
         <script>
+            document.querySelector('.btn-success').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(position => {
+                        document.getElementById('latitude').value = position.coords.latitude;
+                        document.getElementById('longitude').value = position.coords.longitude;
+                    });
+                }
+            });
+        </script>
+        @if($role == 'ci')
+        <script>
+            // Full list of centers
+            const allCenters = @json($centers);
+
+            // District dropdown change event
+            $('#district').on('change', function() {
+                const selectedDistrictCode = $(this).val();
+                const centerDropdown = $('#center');
+
+                // Clear previous options
+                centerDropdown.empty();
+                centerDropdown.append('<option value="">Select Center Name</option>');
+
+                // Filter centers based on selected district
+                const filteredCenters = allCenters.filter(center =>
+                    center.center_district_id == selectedDistrictCode
+                );
+
+                // Populate centers
+                filteredCenters.forEach(center => {
+                    const selected = "{{ old('center', $chiefInvigilator->ci_center_id) }}" == center
+                        .center_code ? 'selected' : '';
+                    centerDropdown.append(
+                        `<option value="${center.center_code}" ${selected}>
+                        ${center.center_name}
+                    </option>`
+                    );
+                });
+            });
+
+            // Trigger change event on page load to handle old/existing selections
+            $(document).ready(function() {
+                const oldDistrict = "{{ old('district', $chiefInvigilator->ci_district_id) }}";
+                if (oldDistrict) {
+                    $('#district').val(oldDistrict).trigger('change');
+                }
+            });
+        </script>
+        <script>
+            // Full list of venues
+            const allVenues = @json($venues);
+
+            // Center dropdown change event
+            $('#center').on('change', function() {
+                const selectedCenterCode = $(this).val();
+                const venueDropdown = $('#venue');
+
+                // Clear previous options
+                venueDropdown.empty();
+                venueDropdown.append('<option value="">Select Venue Name</option>');
+
+                // Filter venues based on selected center
+                const filteredVenues = allVenues.filter(venue =>
+                    venue.venue_center_id == selectedCenterCode
+                );
+                // Populate venues
+                filteredVenues.forEach(venue => {
+                    const selected = "{{ old('venue', $chiefInvigilator->ci_venue_id) }}" == venue.venue_code ?
+                        'selected' : '';
+                    venueDropdown.append(
+                        `<option value="${venue.venue_code}" ${selected}>
+                        ${venue.venue_name}
+                    </option>`
+                    );
+                });
+            });
+
+            // Trigger change event on page load to handle old/existing selections
+            $(document).ready(function() {
+                const oldCenter = "{{ old('center', $chiefInvigilator->ci_center_id ?? '') }}";
+                if (oldCenter) {
+                    $('#center').val(oldCenter).trigger('change');
+                }
+            });
+        </script>
+        @endif
         @endpush
         @include('partials.theme')
 

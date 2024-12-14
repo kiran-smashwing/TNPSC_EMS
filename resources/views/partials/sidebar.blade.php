@@ -33,7 +33,7 @@
                     
                        <div class="flex-grow-1 ms-3 me-2">
                             {{-- Displaying the user's display name --}}
-                            <h6 class="mb-0">{{ current_user()->display_name }}</h6>
+                            <h6 class="mb-0">{{ Str::limit(current_user()->display_name, 15, '...') }}</h6>
 
                             {{-- Displaying the user's role in uppercase --}}
                             <small>{{ strtoupper(str_replace('_', ' ', session('athu_display_role'))) }}</small>

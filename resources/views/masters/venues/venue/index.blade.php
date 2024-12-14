@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                              <h2 class="mb-0"></h2>
-                                            </div> -->
+                                                  <h2 class="mb-0"></h2>
+                                                </div> -->
                         </div>
                     </div>
                 </div>
@@ -201,22 +201,22 @@
                                     <select class="form-select" id="districtFilter" name="district">
                                         <option value="">Select District Name</option>
                                         @foreach ($districts as $district)
-                                        <option value="{{ $district->venue_district_code }}"
-                                            {{ request('district') == $district->venue_district_code ? 'selected' : '' }}>
-                                            {{ $district->district_name }}
-                                        </option>
-                                    @endforeach
+                                            <option value="{{ $district->district_code }}"
+                                                {{ request('district') == $district->district_code ? 'selected' : '' }}>
+                                                {{ $district->district_name }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="filter-item">
-                                    <select class="form-select" id="centerFilter" name="center">
+                                    <select class="form-select" id="centerCodeFilter" name="center">
                                         <option value="">Select Center name</option>
-                                        @foreach ($centers as $center)
+                                        {{-- @foreach ($centers as $center)
                                         <option value="{{ $center->venue_center_code }}"
                                             {{ request('center') == $center->venue_center_code ? 'selected' : '' }}>
                                             {{ $center->center_name }}
                                         </option>
-                                    @endforeach
+                                    @endforeach --}}
                                     </select>
                                 </div>
                                 <div class="btn-container">
@@ -380,6 +380,44 @@
                             });
                     });
                 });
+            });
+        </script>
+        <script>
+            // Full list of centers
+            const allCenters = @json($centers);
+            
+            // District dropdown change event
+            $('#districtFilter').on('change', function() {
+
+                const selectedDistrictCode = $(this).val();
+                const centerDropdown = $('#centerCodeFilter');
+
+                // Clear previous options
+                centerDropdown.empty();
+                centerDropdown.append('<option value="">Select Center </option>');
+
+                // Filter centers based on selected district
+                const filteredCenters = allCenters.filter(center =>
+                    center.center_district_id == selectedDistrictCode
+                );
+
+                // Populate centers
+                filteredCenters.forEach(center => {
+                    const selected = "{{ request('center') }}" == center.center_code ? 'selected' : '';
+                    centerDropdown.append(
+                        `<option value="${center.center_code}" ${selected}>
+                ${center.center_name}
+            </option>`
+                    );
+                });
+            });
+
+            // Trigger change event on page load to handle old/existing selections
+            $(document).ready(function() {
+                const oldDistrict = "{{ request('district') }}";
+                if (oldDistrict) {
+                    $('#districtFilter').val(oldDistrict).trigger('change');
+                }
             });
         </script>
     @endpush

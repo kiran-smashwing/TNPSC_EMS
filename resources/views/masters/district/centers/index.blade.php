@@ -204,12 +204,12 @@
                                     <select class="form-select" id="centerCodeFilter" name="centerCode">
                                         <option value="">Select Center Name</option>
                                     
-                                        @foreach ($centerCodes as $centerCode)
+                                        {{-- @foreach ($centerCodes as $centerCode)
                                             <option value="{{ $centerCode->center_code }}"
                                                 {{ request('centerCode') == $centerCode->center_code ? 'selected' : '' }}>
                                                 {{ $centerCode->center_name}} 
                                             </option>
-                                        @endforeach
+                                        @endforeach --}}
                                     </select>
                                 </div>
                                 <div class="btn-container">
@@ -374,6 +374,47 @@
                 });
             });
         </script>
+           
+    <script>
+        // Full list of centers
+        const allCenters = @json($centerCodes);
+
+        console.log(allCenters);
+
+        // District dropdown change event
+        $('#districtFilter').on('change', function() {
+
+            const selectedDistrictCode = $(this).val();
+            const centerDropdown = $('#centerCodeFilter');
+
+            // Clear previous options
+            centerDropdown.empty();
+            centerDropdown.append('<option value="">Select Center </option>');
+
+            // Filter centers based on selected district
+            const filteredCenters = allCenters.filter(center =>
+                center.center_district_id == selectedDistrictCode
+            );            
+
+            // Populate centers
+            filteredCenters.forEach(center => {
+                const selected = "{{  request('centerCode') }}" == center.center_code ? 'selected' : '';
+                centerDropdown.append(
+                    `<option value="${center.center_code}" ${selected}>
+                        ${center.center_name}
+                    </option>`
+                );
+            });
+        });
+
+        // Trigger change event on page load to handle old/existing selections
+        $(document).ready(function() {
+                const oldDistrict = "{{ request('district') }}";
+                if (oldDistrict) {
+                    $('#districtFilter').val(oldDistrict).trigger('change');
+                }
+            });
+    </script>
     @endpush
     @include('partials.theme')
 

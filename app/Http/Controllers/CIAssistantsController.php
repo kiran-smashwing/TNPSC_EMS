@@ -43,7 +43,7 @@ class CIAssistantsController extends Controller
         }
     
         // Fetch filtered CIAssistants with pagination
-        $ciAssistants = $query->paginate(10);
+         $ciAssistants = $query->get();
     
         // Fetch unique district values from the same table
         $districts = District::all(); // Fetch all districts

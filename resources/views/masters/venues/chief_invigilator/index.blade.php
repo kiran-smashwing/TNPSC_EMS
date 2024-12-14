@@ -8,6 +8,7 @@
         <link rel="stylesheet" href="{{ asset('storage/assets/css/plugins/buttons.bootstrap5.min.css') }}" />
         <link rel="stylesheet" href="{{ asset('storage/assets/css/plugins/responsive.bootstrap5.min.css') }}" />
 
+
         <style>
             /* Container and row adjustments */
             .dataTables_wrapper .container-fluid {
@@ -149,8 +150,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                              <h2 class="mb-0"></h2>
-                                                            </div> -->
+                                                                  <h2 class="mb-0"></h2>
+                                                                </div> -->
                         </div>
                     </div>
                 </div>
@@ -207,8 +208,8 @@
                                     <select class="form-select" id="districtFilter" name="district">
                                         <option value="">Select District</option>
                                         @foreach ($districts as $district)
-                                            <option value="{{ $district->ci_district_code }}"
-                                                {{ request('district') == $district->ci_district_code ? 'selected' : '' }}>
+                                            <option value="{{ $district->district_code }}"
+                                                {{ request('district') == $district->district_code ? 'selected' : '' }}>
                                                 {{ $district->district_name }}
                                             </option>
                                         @endforeach
@@ -221,7 +222,7 @@
                                         <option value="">Select Center</option>
                                         {{-- @foreach ($centers as $center)
                                             <option value="{{ $center->ci_center_code }}"
-                                                {{ request('center') == $center->ci_center_code ? 'selected' : '' }}>
+                                                {{ request('center') == $center->center_code ? 'selected' : '' }}>
                                                 {{ $center->center_name }}
                                             </option>
                                         @endforeach --}}
@@ -234,7 +235,7 @@
                                         <option value="">Select Venue</option>
                                         {{-- @foreach ($venues as $venue)
                                             <option value="{{ $venue->ci_venue_code }}"
-                                                {{ request('venue') == $venue->ci_venue_code ? 'selected' : '' }}>
+                                                {{ request('venue') == $venue->venue_code ? 'selected' : '' }}>
                                                 {{ $venue->venue_name }}
                                             </option>
                                         @endforeach --}}
@@ -325,153 +326,163 @@
 
     </section>
     <!-- [ Main Content ] end -->
+    {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
     @include('partials.footer')
 
     @push('scripts')
         @include('partials.datatable-export-js')
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const toggleButtons = document.querySelectorAll('.status-toggle');
+
+                toggleButtons.forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+
+                        // Disable the button during processing
+                        this.classList.add('disabled');
+                        const chiefInvigilatorId = this.dataset.ciId;
+                        fetch(`{{ url('/') }}/chief-invigilators/${chiefInvigilatorId}/toggle-status`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json'
+                                },
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Toggle classes
+                                    this.classList.toggle('btn-light-success');
+                                    this.classList.toggle('btn-light-danger');
+
+                                    // Toggle icon
+                                    const icon = this.querySelector('i');
+                                    if (icon.classList.contains('ti-toggle-right')) {
+                                        icon.classList.remove('ti-toggle-right');
+                                        icon.classList.add('ti-toggle-left');
+                                    } else {
+                                        icon.classList.remove('ti-toggle-left');
+                                        icon.classList.add('ti-toggle-right');
+                                    }
+                                    // Show success notification
+                                    showNotification(
+                                        'Status Updated',
+                                        data.message ||
+                                        'Chief Invigilators status updated successfully',
+                                        'success'
+                                    );
+                                } else {
+                                    // Show error notification
+                                    showNotification(
+                                        'Update Failed',
+                                        data.message || 'Failed to update status',
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                showNotification(
+                                    'Error',
+                                    'An error occurred while updating status',
+                                    'error'
+                                );
+                            })
+                            .finally(() => {
+                                // Re-enable the button
+                                this.classList.remove('disabled');
+                            });
+                    });
+                });
+            });
+        </script>
+        <script>
+            // Check if jQuery is available
+            if (typeof jQuery === 'undefined') {
+                console.error('jQuery is not loaded. Please include it in your project.');
+            }
+            // Full list of centers
+            const allCenters = @json($centers);
+            // console.log(@json($districts));
+            // District filter change event
+            $('#districtFilter').on('change', function() {
+                const selectedDistrictCode = $(this).val();
+                // alert(selectedDistrictCode);
+                const centerDropdown = $('#centerFilter'); // Corrected to #centerFilter
+
+                // Clear previous options
+                centerDropdown.empty();
+                centerDropdown.append('<option value="">Select Center</option>');
+
+                // Filter centers based on selected district
+                const filteredCenters = allCenters.filter(center =>
+                    center.center_district_id == selectedDistrictCode
+                );
+
+                // Populate centers
+                filteredCenters.forEach(center => {
+                    const selected = "{{ request('center') }}" == center.center_code ? 'selected' : '';
+                    centerDropdown.append(
+                        `<option value="${center.center_code}" ${selected}>
+                    ${center.center_name}
+                </option>`
+                    );
+                });
+            });
+
+            // Trigger change event on page load to handle old/existing selections
+            $(document).ready(function() {
+                const oldDistrict = "{{ request('district') }}";
+                if (oldDistrict) {
+                    $('#districtFilter').val(oldDistrict).trigger('change');
+                }
+            });
+        </script>
+
+        <script>
+            // Full list of venues
+            const allVenues = @json($venues);
+
+            // Center filter change event
+            $('#centerFilter').on('change', function() {
+                const selectedCenterCode = $(this).val();
+                const venueDropdown = $('#venueFilter'); // Corrected to #venueFilter
+
+                // Clear previous options
+                venueDropdown.empty();
+                venueDropdown.append('<option value="">Select Venue</option>');
+
+                // Filter venues based on selected center
+                const filteredVenues = allVenues.filter(venue =>
+                    venue.venue_center_id == selectedCenterCode
+                );
+
+                // Populate venues
+                filteredVenues.forEach(venue => {
+                    const selected = "{{ request('venue') }}" == venue.venue_code ? 'selected' : '';
+                    venueDropdown.append(
+                        `<option value="${venue.venue_code}" ${selected}>
+                    ${venue.venue_name}
+                </option>`
+                    );
+                });
+            });
+
+            // Trigger change event on page load to handle old/existing selections
+            $(document).ready(function() {
+                const oldCenter = "{{ request('center') }}";
+                if (oldCenter) {
+                    $('#centerFilter').val(oldCenter).trigger('change');
+                }
+            });
+        </script>
     @endpush
 
     @include('partials.theme')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const toggleButtons = document.querySelectorAll('.status-toggle');
 
-            toggleButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
 
-                    // Disable the button during processing
-                    this.classList.add('disabled');
-                    const chiefInvigilatorId = this.dataset.ciId;
-                    fetch(`{{ url('/') }}/chief-invigilators/${chiefInvigilatorId}/toggle-status`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json'
-                            },
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Toggle classes
-                                this.classList.toggle('btn-light-success');
-                                this.classList.toggle('btn-light-danger');
-
-                                // Toggle icon
-                                const icon = this.querySelector('i');
-                                if (icon.classList.contains('ti-toggle-right')) {
-                                    icon.classList.remove('ti-toggle-right');
-                                    icon.classList.add('ti-toggle-left');
-                                } else {
-                                    icon.classList.remove('ti-toggle-left');
-                                    icon.classList.add('ti-toggle-right');
-                                }
-                                // Show success notification
-                                showNotification(
-                                    'Status Updated',
-                                    data.message ||
-                                    'Chief Invigilators status updated successfully',
-                                    'success'
-                                );
-                            } else {
-                                // Show error notification
-                                showNotification(
-                                    'Update Failed',
-                                    data.message || 'Failed to update status',
-                                    'error'
-                                );
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            showNotification(
-                                'Error',
-                                'An error occurred while updating status',
-                                'error'
-                            );
-                        })
-                        .finally(() => {
-                            // Re-enable the button
-                            this.classList.remove('disabled');
-                        });
-                });
-            });
-        });
-    </script>
-    <script>
-        // Full list of centers
-        const allCenters = @json($centers);
-
-        // District dropdown change event
-        $('#districts').on('change', function() {
-
-            const selectedDistrictCode = $(this).val();
-            const centerDropdown = $('#center');
-
-            // Clear previous options
-            centerDropdown.empty();
-            centerDropdown.append('<option value="">Select Center </option>');
-
-            // Filter centers based on selected district
-            const filteredCenters = allCenters.filter(center =>
-                center.center_district_id == selectedDistrictCode
-            );            
-
-            // Populate centers
-            filteredCenters.forEach(center => {
-                const selected = "{{ old('center', $chiefInvigilator->ci_center_id) }}" == center.center_code ? 'selected' : '';
-                centerDropdown.append(
-                    `<option value="${center.center_code}" ${selected}>
-                        ${center.center_name}
-                    </option>`
-                );
-            });
-        });
-
-        // Trigger change event on page load to handle old/existing selections
-        $(document).ready(function() {
-            const oldDistrict = "{{ old('districts', $chiefInvigilator->ci_district_id) }}";
-            if (oldDistrict) {
-                    $('#district').val(oldDistrict).trigger('change');
-                }
-            });
-    </script>
-    <script>
-        // Full list of venues
-        const allVenues = @json($venues);
-
-        // Center dropdown change event
-        $('#centers').on('change', function() {
-            const selectedCenterCode = $(this).val();
-            const venueDropdown = $('#venue');
-
-            // Clear previous options
-            venueDropdown.empty();
-            venueDropdown.append('<option value="">Select Venue Name</option>');
-
-            // Filter venues based on selected center
-            const filteredVenues = allVenues.filter(venue =>
-                venue.venue_center_id == selectedCenterCode
-            );
-            // Populate venues
-            filteredVenues.forEach(venue => {
-                const selected = "{{ old('venues', $chiefInvigilator->ci_venue_id) }}" == venue.venue_code ? 'selected' : '';
-                venueDropdown.append(
-                    `<option value="${venue.venue_code}" ${selected}>
-                        ${venue.venue_name}
-                    </option>`
-                );
-            });
-        });
-
-        // Trigger change event on page load to handle old/existing selections
-        $(document).ready(function() {
-            const oldCenter = "{{ old('centers', $chiefInvigilator->ci_center_id ?? '') }}";
-            if (oldCenter) {
-                $('#districtFilter').val(oldCenter).trigger('change');
-            }
-        });
-    </script>
 
 @endsection

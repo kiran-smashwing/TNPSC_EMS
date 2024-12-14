@@ -751,7 +751,7 @@
                                                 <div class="col">
                                                     <div class="popup-trigger">
                                                         <div class="h5 font-weight-bold">Create CI Meeting<small
-                                                                class="badge bg-light-secondary ms-2">generated</small>
+                                                                class="badge bg-light-secondary ms-2"> {{ $meetingCodeGen ? ($meetingCodeGen->user ? 'generated' : 'not generated') : 'generated' }}</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
@@ -763,11 +763,11 @@
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Ariyalur</b>
+                                                                    <b>{{$meetingCodeGen ? $meetingCodeGen->user->district_name : 'District' }}</b>
                                                                 </li>
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    25-07-2024 04:30 PM</li>
+                                                                   {{ $meetingCodeGen ? \Carbon\Carbon::parse($meetingCodeGen->created_at)->format('d-m-Y h:i A') :' ' }}</li>
                                                                 {{-- <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
                                                                 </li> --}}
@@ -781,12 +781,13 @@
                                                         <a href="#"  data-pc-animate="just-me" data-bs-toggle="modal"
                                                         data-bs-target="#ciMeetingCodeGenerateModal" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-grid mx-1"></i>Generate</a>
-                                                        <a href="helpdesk-ticket-details.html"
+                                                        <a href="{{ $meetingCodeGen ? route('district-candidates.generatePdf', ['qrCodeId' => $meetingCodeGen->id]) : '#' }}"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-download mx-1"></i>Download</a>
                                                         <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
                                                                 class="feather icon-navigation mx-1"></i>Send
                                                             Intimation</a>
+
                                                     </div>
                                                 </div>
                                             </div>

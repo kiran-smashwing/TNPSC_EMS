@@ -60,10 +60,6 @@ class InvigilatorsController extends Controller
         return view('masters.venues.invigilator.index', compact('invigilators', 'districts', 'centers', 'venues'));
     }
 
-
-
-
-
     public function create()
     {
         // Fetch any necessary data to display in the form (e.g., venues, centers)

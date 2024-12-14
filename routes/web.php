@@ -32,6 +32,7 @@ use App\Http\Controllers\VenueConsentController;
 use App\Http\Controllers\CIConsolidateController;
 use App\Http\Controllers\UtilityController;
 use App\Http\Controllers\AttendanceReportController;
+use App\Http\Controllers\CIMeetingController;
 
 Route::get('/ci-consolidate-report', [CIConsolidateController::class, 'generateReport'])->name('download.report');
 Route::get('generate-utilization-certificate', [UtilityController::class, 'generateUtilizationCertificate'])->name('download.utilireport');
@@ -128,6 +129,7 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/password/reset', [AuthController::class, 'showResetForm'])->name('password.reset');
     //Qr Code Reader
     Route::get('/qr-code-reader', [QrCodeController::class, 'index'])->name('qr-code-reader');
+    //@todo:Remove this route after testing
     Route::post('/process-qr-code', [QrCodeController::class, 'process'])->name('process-qr-code');
     // Add other protected routes here
 });
@@ -325,7 +327,15 @@ Route::prefix('district-candidates')->group(function () {
         Route::get('/showVenueIntimationForm/{examId}', [DistrictCandidatesController::class, 'showVenueIntimationForm'])->name('district-candidates.showVenueIntimationForm');
         Route::post('/processVenueConsentEmail', [DistrictCandidatesController::class, 'processVenueConsentEmail'])->name('district-candidates.processVenueConsentEmail');
         Route::post('/generate-qrcode', [DistrictCandidatesController::class, 'generateQRCode'])->name('generate.qrcode');
-        Route::get('/generatePdf', [DistrictCandidatesController::class, 'generatePdf'])->name('district-candidates.generatePdf');
+        Route::get('/generatePdf/{qrCodeId}', [DistrictCandidatesController::class, 'generatePdf'])->name('district-candidates.generatePdf');
+    });
+});
+//CIMeeting Route::prefix ('ci-meetings')->group(function(){
+Route::prefix('ci-meetings')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/', [CIMeetingController::class, 'index'])->name('ci-meetings.index');
+        Route::post('/attendance-QRcode-scan',[CIMeetingController::class, 'handleAttendanceQRCodeScan'])->name('ci-meetings.attendance-QRcode-scan');
+        Route::post('/update-adequacy-check', [CIMeetingController::class, 'updateAdequacyCheck'])->name('ci-meetings.updateAdequacyCheck');
     });
 });
 // Route::get('/run-function', [DataController::class, 'addData']);

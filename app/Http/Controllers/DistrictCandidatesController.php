@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CIMeetingQrcode;
+use App\Models\District;
 use App\Services\ExamAuditService;
 use App\Models\ExamVenueConsent;
 use Illuminate\Support\Facades\Auth;
@@ -10,15 +12,14 @@ use App\Mail\VenueConsentMail;
 use Illuminate\Http\Request;
 use App\Models\Currentexam;
 use App\Models\Venues;
-use Barryvdh\Snappy\Facades\SnappyPdf;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\RoundBlockSizeMode;
 use Endroid\QrCode\Writer\PngWriter;
-use Endroid\QrCode\Color\Color;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use HeadlessChromium\BrowserFactory;
+use Spatie\Browsershot\Browsershot;
 
 
 // use Spatie\Browsershot\Browsershot;
@@ -210,18 +211,32 @@ class DistrictCandidatesController extends Controller
         $meetingDate = $request->input('meeting_date');
         $meetingTime = $request->input('meeting_time');
 
+        //if meeting is already created return the created pdf view 
+        $qrCode = DB::table('ci_meeting_qrcode')
+            ->where('exam_id', $examId)
+            ->where('district_code', $user->district_code)
+            ->first();
+
+        if ($qrCode) {
+            return redirect()->route('district-candidates.generatePdf', ['qrCodeId' => $qrCode->id]);
+        }
+
         // Combine date and time
         $meetingDateTime = $meetingDate . ' ' . $meetingTime;
-
+        $logoPath = asset('storage/assets/images/login-logo1.png'); // replace with your logo path
         // Create the QR code using Builder
         $builder = new Builder(
             writer: new PngWriter(),
+            writerOptions: [],
             data: "Exam ID: $examId, Meeting Date & Time: $meetingDateTime, District Code: $user->district_code",
             encoding: new Encoding('UTF-8'),
             errorCorrectionLevel: ErrorCorrectionLevel::High,
-            size: 300, // QR code size
-            margin: 10, // Margin around the QR code
-            backgroundColor: new Color(255, 255, 255) // White background
+            size: 300,
+            margin: 10,
+            roundBlockSizeMode: RoundBlockSizeMode::Margin,
+            logoPath: $logoPath,
+            logoResizeToWidth: 100,
+            logoPunchoutBackground: true,
         );
 
         // Build the QR code
@@ -239,7 +254,7 @@ class DistrictCandidatesController extends Controller
         // Check if the file was successfully stored
         if ($stored) {
             // Save the QR code details in the database
-            DB::table('ci_meetting_qrcode')->insert([
+            $qrCodeId = DB::table('ci_meeting_qrcode')->insertGetId([
                 'exam_id' => $examId,
                 'district_code' => $user->district_code,
                 'qrcode' => $imagePath,
@@ -248,83 +263,52 @@ class DistrictCandidatesController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // Redirect with success message
-            return redirect()->back()->with('success', 'QR Code generated and saved successfully.');
+            // Redirect to PDF generation with the QR code ID
+            return redirect()->route('district-candidates.generatePdf', ['qrCodeId' => $qrCodeId]);
         } else {
             return redirect()->back()->with('error', 'Failed to save QR Code.');
         }
     }
 
-    // public function generatePdf()
-    // {
-
-    //     // return view('pdfs.sample');
-    //     // Prepare data for the PDF
-    //     $examid = 
-    //     $data = [
-    //         'title' => 'Sample PDF Report',
-    //         'content' => 'This is a test PDF generated using Snappy in Laravel 11.',
-    //         'items' => [
-    //             ['name' => 'Item 1', 'price' => 10],
-    //             ['name' => 'Item 2', 'price' => 20],
-    //             ['name' => 'Item 3', 'price' => 30],
-    //         ]
-    //     ];
-
-    //     // Generate PDF from a Blade view
-    //     $pdf = SnappyPdf::loadView('pdfs.sample', $data)
-    //         ->setOption('page-size', 'A4');
-
-    //     // Download the PDF
-    //     // return $pdf->download('sample_report.pdf');
-
-    //     // Stream PDF in browser
-    //     return $pdf->stream('sample_report.pdf');
-    // }
-    public function generatePdf(Request $request)
+    public function generatePdf($qrCodeId)
     {
-        $browserFactory = new BrowserFactory();
-
-        /* starts headless Chrome */
-
-        $browser = (new BrowserFactory())->createBrowser([
-
-            'windowSize' => [1920, 1080]
-
-        ]);
-
-        try {
-            // Create a new page and navigate to the rendered HTML view
-            $page = $browser->createPage();
-
-            // Render the view dynamically to HTML string
-            $htmlContent = view('pdfs.sample')->render();  // Render view to string
-
-            // Set up the page with the HTML content
-            $page->setContent($htmlContent);
-
-            // Wait for the content to load (if necessary)
-            $page->waitForSelector('body');  // Ensure body is loaded
-
-            // Options for PDF generation
-            $options = [
-                'landscape' => true,
-                'printBackground' => false,
-                'marginTop' => 0.0,
-                'marginBottom' => 0.0,
-                'marginLeft' => 0.0,
-                'marginRight' => 0.0,
-            ];
-
-            // Define the file name and save the PDF
-            $name = public_path("uploads/" . time() . '.pdf');
-            $page->pdf($options)->saveToFile($name);
-
-            // Return the PDF as a download response
-            return response()->download($name);
-        } finally {
-            // Close the browser instance
-            $browser->close();
+        // Retrieve the QR code details from the database
+        $qrCode = CIMeetingQrcode::findOrFail($qrCodeId);
+        // If no data found, return error
+        if (!$qrCode) {
+            return redirect()->back()->with('error', 'QR Code data not found.');
         }
+        $examId = $qrCode->exam_id;
+        $exam = Currentexam::where('exam_main_no', $examId)->first();
+        $district = District::where('district_code', $qrCode->district_code)->first();
+
+        $html = view('PDF.District.ci-meeting-qrcode', [
+            'qrCodeData' => $qrCode,
+            'exam' => $exam,
+            'district' => $district,
+            'qrCodePath' => Storage::url($qrCode->qrcode)
+        ])->render();
+
+        $pdf = Browsershot::html($html)
+            ->setOption('landscape', false)
+            ->setOption('margin', [
+                'top' => '10mm',
+                'right' => '10mm',
+                'bottom' => '10mm',
+                'left' => '10mm'
+            ])
+            ->setOption('displayHeaderFooter', false)
+            ->setOption('preferCSSPageSize', true)
+            ->setOption('printBackground', true)
+            ->scale(1)
+            ->format('A4')
+            ->pdf();
+
+        $filename = 'meeting-qrcode-' .$qrCode->district_code. '-' .$qrCode->exam_id . '-' . time() . '.pdf';
+
+        return response($pdf)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
     }
+ 
 }

@@ -200,7 +200,7 @@
         }
 
         function processQrCode(data) {
-            fetch("{{route('process-qr-code')}}", {
+            fetch("{{route('ci-meetings.attendance-QRcode-scan')}}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -212,10 +212,9 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    console.log('Success:', data);
                     localStorage.setItem('qrCodeResult', JSON.stringify({
-                        type: 'success',
-                        message: 'QR Code processed successfully: ' + data.data
+                        type: data.status == 'success' ? 'success' : 'error',
+                        message: data.message
                     }));
                      window.history.back(); // Redirect to the previous page
                 })
@@ -223,7 +222,7 @@
                     console.error('Error:', error);
                     localStorage.setItem('qrCodeResult', JSON.stringify({
                         type: 'danger',
-                        message: 'Error processing QR Code'
+                        message: error
                     }));
                      window.history.back(); // Redirect to the previous page
                 });

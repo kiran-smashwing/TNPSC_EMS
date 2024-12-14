@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CIMeetingQrcode;
 use App\Models\Currentexam;
+use App\Models\ExamAuditLog;
 use App\Models\ExamSession;
 use App\Models\ExamVenueConsent;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Mockery\Undefined;
 
 class MyExamController extends Controller
 {
@@ -39,6 +42,7 @@ class MyExamController extends Controller
         $user = $guard ? $guard->user() : null;
         // if user role is venue user
         $venueConsents = null;
+        $meetingCodeGen = null;
         if ($role == 'venue') {
             $venueConsents = ExamVenueConsent::where('exam_id', $examId)
                 ->where('venue_id', $user->venue_id)
@@ -47,9 +51,16 @@ class MyExamController extends Controller
             if (!$venueConsents) {
                 abort(404, 'Venue consent not found');
             }
+        } else if ($role == 'district') {
+            $meetingCodeGen = CIMeetingQrcode::where('exam_id', $examId)
+                ->where('district_code', $user->district_code)
+                ->first();
+            if ($meetingCodeGen !== null) {
+                $meetingCodeGen->user = $user;
+            }
         }
 
-        return view('my_exam.task', compact('session', 'auditDetails', 'venueConsents'));
+        return view('my_exam.task', compact('session', 'auditDetails', 'venueConsents', 'meetingCodeGen'));
     }
     public function MyTaskAction($examId)
     {
@@ -94,7 +105,7 @@ class MyExamController extends Controller
         return view('my_exam.CI.ci-exam-activity', compact('session'));
 
         // Group exam sessions by date
-       
+
     }
     public function mobileTeamTask($examId)
     {

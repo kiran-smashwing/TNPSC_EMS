@@ -152,7 +152,7 @@ class CIMeetingController extends Controller
             'received_packet' => 'required',
             'received_amount' => 'required',
         ]);
-
+       
         try {
             // Get user info
             $role = session('auth_role');

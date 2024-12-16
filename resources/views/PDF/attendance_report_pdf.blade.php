@@ -5,13 +5,13 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Attendance Report</title>
     <style type="text/css">
-        /* @page {
+        @page {
             size: 8.27in 11.69in;
             margin-left: 0.49in;
             margin-right: 0.69in;
             margin-top: 0.5in;
             margin-bottom: 0.5in
-        } */
+        }
 
         p {
             text-align: center;

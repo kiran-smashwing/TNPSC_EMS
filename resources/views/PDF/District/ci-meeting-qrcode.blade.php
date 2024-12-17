@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CI Meeting Report</title>
+    <title>CI Meeting QR Code</title>
     <style>
         html,
         body {
@@ -51,12 +51,12 @@
         }
 
         .logo-container {
-            flex: 0 0 80px;
+            flex: 0 0 90px;
         }
 
         .logo-image {
             max-width: 100%;
-            max-height: 80px;
+            max-height: 90px;
         }
 
         .header-content {
@@ -65,7 +65,8 @@
         }
 
         .meeting-title {
-            background-color: #f0f0f0;
+            background-color: #E3F1EE;
+            /* background-color: #f0f0f0; */
             text-align: center;
             padding: 10px;
             margin-bottom: 20px;
@@ -73,13 +74,13 @@
         }
 
         h3 {
-            font-size: 16pt;
+            font-size: 18pt;
             margin: 0;
             font-weight: bold;
         }
 
         h5 {
-            font-size: 14pt;
+            font-size: 18pt;
             margin: 5px 0 0 0;
         }
 
@@ -109,6 +110,39 @@
             font-size: 12pt;
         }
 
+        .footer-instructions {
+            background-color: #E3F1EE;
+            /* background-color: #d7ffde; */
+            padding: 15px;
+            margin-top: 20px;
+            border-top: 2px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .footer-qr-codes {
+            display: flex;
+            gap: 20px;
+            margin-right: 20px;
+        }
+
+        .footer-qr-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .footer-qr-image {
+            width: 140px;
+            height: 140px;
+        }
+
+        .footer-instructions-text {
+            flex-grow: 1;
+            text-align: center;
+        }
+
         @media print {
             .header-container {
                 position: static;
@@ -123,6 +157,19 @@
             body {
                 zoom: 0.8;
             }
+
+            .footer-instructions {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                margin: 0;
+                padding: 15px;
+                box-sizing: border-box;
+            }
         }
     </style>
 </head>
@@ -132,7 +179,7 @@
     <div class="container">
         <div class="header-container">
             <div class="logo-container">
-                <img src="{{ asset('storage/assets/images/login-logo1.png') }}" alt="Logo" class="logo-image">
+                <img src="{{ asset('storage/assets/images/watermark.png') }}" alt="Logo" class="logo-image">
             </div>
             <div class="header-content">
                 <h3>தமிழ்நாடு அரசுப்பணியாளர் தேர்வாணையம்</h3>
@@ -144,8 +191,11 @@
             <h2>CI MEETING ATTENDANCE</h2>
         </div>
         <div class="content-section">
-            <p><strong>Exam Name:</strong> {{ $exam->exam_main_name }} | <strong>Notif
-                    No:</strong>{{ $exam->exam_main_notification }}</p>
+            <p><strong> Notification No:</strong> {{ $exam->exam_main_notification }} | <strong> Start Date: </strong>
+                {{ date('d-m-Y', strtotime($exam->exam_main_startdate)) }} <br>
+                <strong>Exam Name:</strong> {{ $exam->exam_main_name }} <br>
+                <strong>Exam Service:</strong> {{ $exam->examservice->examservice_name }}
+            </p>
         </div>
         <div class="content-section">
             <p><strong>District:</strong> {{ $district->district_name }} </p>
@@ -158,6 +208,36 @@
         <div class="qr-code-container">
             <img src="{{ asset($qrCodePath) }}" alt="QR Code" class="qr-code">
             <div class="qr-code-label">Scan for Attendance</div>
+        </div>
+        <div class="content-section">
+            <p><strong> For Attendance Submission & Adequacy Checks:</strong>
+            </p>
+            <p>Log in to your account via the website: <a
+                    href="https://smashsoft.site/tnpsc-ems/">https://smashsoft.site/tnpsc-ems/</a>
+                <br><strong>OR</strong><br> Download the app from Google Play Store: TNPSC EMS App.
+            </p>
+        </div>
+        <div class="footer-instructions">
+            <div class="footer-qr-codes">
+                <div class="footer-qr-item">
+                    <img src="{{ asset('storage/assets/images/website-qr.png') }}" alt="Website QR Code"
+                        class="footer-qr-image">
+                    <span>Website</span>
+                </div>
+
+            </div>
+            <div class="footer-instructions-text">
+                <p>For quick access, scan the QR codes to visit the website. <br><strong>OR</strong><br> Download the Android app directly
+                        from the Play Store.</p>
+            </div>
+            <div class="footer-qr-codes">
+
+                <div class="footer-qr-item">
+                    <img src="{{ asset('storage/assets/images/app-qr.png') }}" alt="App Download QR Code"
+                        class="footer-qr-image">
+                    <span>Android App</span>
+                </div>
+            </div>
         </div>
     </div>
 </body>

@@ -324,10 +324,11 @@ Route::prefix('id-candidates')->group(function () {
 //disitrict-candidates Route::prefix('district-candidates')->group(function(){
 Route::prefix('district-candidates')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
-        Route::get('/showVenueIntimationForm/{examId}', [DistrictCandidatesController::class, 'showVenueIntimationForm'])->name('district-candidates.showVenueIntimationForm');
-        Route::post('/processVenueConsentEmail', [DistrictCandidatesController::class, 'processVenueConsentEmail'])->name('district-candidates.processVenueConsentEmail');
+        Route::get('/show-venue-intimation-form/{examId}', [DistrictCandidatesController::class, 'showVenueIntimationForm'])->name('district-candidates.showVenueIntimationForm');
+        Route::post('/process-venue-consent-email', [DistrictCandidatesController::class, 'processVenueConsentEmail'])->name('district-candidates.processVenueConsentEmail');
         Route::post('/generate-qrcode', [DistrictCandidatesController::class, 'generateQRCode'])->name('generate.qrcode');
         Route::get('/generatePdf/{qrCodeId}', [DistrictCandidatesController::class, 'generatePdf'])->name('district-candidates.generatePdf');
+        Route::get('/generat-ci-meeting-report', [DistrictCandidatesController::class, 'generateCIMeetingReport'])->name('district-candidates.generat-ci-meeting-report');
     });
 });
 //CIMeeting Route::prefix ('ci-meetings')->group(function(){

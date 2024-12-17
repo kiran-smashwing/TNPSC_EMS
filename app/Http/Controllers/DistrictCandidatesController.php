@@ -216,6 +216,60 @@ class DistrictCandidatesController extends Controller
             ->where('exam_id', $examId)
             ->where('district_code', $user->district_code)
             ->first();
+        //generate qr code for this link and send it to view page https://smashsoft.site/tnpsc-ems/public/login
+        $logoPath = asset('storage/assets/images/qr-logo.png'); // replace with your logo path
+
+        $builder = new Builder(
+            writer: new PngWriter(),
+            writerOptions: [],
+            data: 'https://play.google.com/store/apps/details?id=com.tnpsc.ems&pcampaignid=web_share',
+            encoding: new Encoding('UTF-8'),
+            errorCorrectionLevel: ErrorCorrectionLevel::High,
+            size: 300,
+            margin: 10,
+            roundBlockSizeMode: RoundBlockSizeMode::Margin,
+            logoPath: $logoPath,
+            logoResizeToWidth: 100,
+            logoPunchoutBackground: true,
+        );
+        // Build the QR code
+        $result = $builder->build();
+
+        // Generate a unique file name for the QR code
+        $imageName = 'app-qr.png';
+
+        // Define the storage path within the 'public' disk
+        $imagePath = 'assets/images/' . $imageName;
+
+        // Store the QR code image using Storage
+        Storage::disk('public')->put($imagePath, $result->getString());
+        //generate qr code for this link and send it to view page https://smashsoft.site/tnpsc-ems/public/login
+        $logoPath = asset('storage/assets/images/qr-logo.png'); // replace with your logo path
+
+        $builder = new Builder(
+            writer: new PngWriter(),
+            writerOptions: [],
+            data: 'https://smashsoft.site/tnpsc-ems/public/login',
+            encoding: new Encoding('UTF-8'),
+            errorCorrectionLevel: ErrorCorrectionLevel::High,
+            size: 300,
+            margin: 10,
+            roundBlockSizeMode: RoundBlockSizeMode::Margin,
+            logoPath: $logoPath,
+            logoResizeToWidth: 100,
+            logoPunchoutBackground: true,
+        );
+        // Build the QR code
+        $result = $builder->build();
+
+        // Generate a unique file name for the QR code
+        $imageName = 'website-qr.png';
+
+        // Define the storage path within the 'public' disk
+        $imagePath = 'assets/images/' . $imageName;
+
+        // Store the QR code image using Storage
+        Storage::disk('public')->put($imagePath, $result->getString());
 
         if ($qrCode) {
             return redirect()->route('district-candidates.generatePdf', ['qrCodeId' => $qrCode->id]);
@@ -223,7 +277,7 @@ class DistrictCandidatesController extends Controller
 
         // Combine date and time
         $meetingDateTime = $meetingDate . ' ' . $meetingTime;
-        $logoPath = asset('storage/assets/images/login-logo1.png'); // replace with your logo path
+        $logoPath = asset('storage/assets/images/qr-code-logo.png'); // replace with your logo path
         // Create the QR code using Builder
         $builder = new Builder(
             writer: new PngWriter(),
@@ -272,6 +326,7 @@ class DistrictCandidatesController extends Controller
 
     public function generatePdf($qrCodeId)
     {
+
         // Retrieve the QR code details from the database
         $qrCode = CIMeetingQrcode::findOrFail($qrCodeId);
         // If no data found, return error
@@ -279,8 +334,16 @@ class DistrictCandidatesController extends Controller
             return redirect()->back()->with('error', 'QR Code data not found.');
         }
         $examId = $qrCode->exam_id;
-        $exam = Currentexam::where('exam_main_no', $examId)->first();
+        $exam = Currentexam::where('exam_main_no', $examId)->with('examservice')->first();
         $district = District::where('district_code', $qrCode->district_code)->first();
+
+        // return view('PDF.District.ci-meeting-qrcode', [
+        //     'qrCodeData' => $qrCode,
+        //     'exam' => $exam,
+        //     'district' => $district,
+        //     'qrCodePath' => Storage::url($qrCode->qrcode)
+        // ]);
+
 
         $html = view('PDF.District.ci-meeting-qrcode', [
             'qrCodeData' => $qrCode,
@@ -304,11 +367,38 @@ class DistrictCandidatesController extends Controller
             ->format('A4')
             ->pdf();
 
-        $filename = 'meeting-qrcode-' .$qrCode->district_code. '-' .$qrCode->exam_id . '-' . time() . '.pdf';
+        $filename = 'meeting-qrcode-' . $qrCode->district_code . '-' . $qrCode->exam_id . '-' . time() . '.pdf';
 
         return response($pdf)
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
     }
- 
+    public function generateCIMeetingReport()
+    {
+        // return view('PDF.Reports.ci-consolidate-report');
+     
+        $html = view('PDF.Reports.ci-meeting-report')->render();
+        $pdf = Browsershot::html($html)
+            ->setOption('landscape', true)
+            ->setOption('margin', [
+                'top' => '4mm',
+                'right' => '4mm',
+                'bottom' => '8mm',
+                'left' => '4mm'
+            ])
+            ->setOption('displayHeaderFooter', true)
+            ->setOption('headerTemplate', '<div></div>')
+            ->setOption('footerTemplate', '<div style="font-size:10px;width:100%;text-align:center;">Page <span class="pageNumber"></span> of <span class="totalPages"></span></div>')
+            ->setOption('preferCSSPageSize', true)
+            ->setOption('printBackground', true)
+            ->scale(1)
+            ->format('A4')
+            ->pdf();
+        $filename = 'ci-meeting-attendance-report' . time() . '.pdf';
+
+        return response($pdf)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
+    }
+
 }

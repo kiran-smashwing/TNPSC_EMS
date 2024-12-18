@@ -307,6 +307,8 @@ Route::prefix('apd-candidates')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::get('/download-sample-csv', [APDCandidatesController::class, 'downloadSampleCsv'])->name('apd-candidates.download-sample-csv');
         Route::post('/upload-candidates-csv', [APDCandidatesController::class, 'uploadCandidatesCsv'])->name('apd-candidates.upload-candidates-csv');
+        Route::post('/finalize-csv', [APDCandidatesController::class, 'finalizeHalls'])->name('apd-candidates.finalize-csv');
+        Route::get('/download-finalize-halls-sample-csv', [APDCandidatesController::class, 'downloadFinalizeHallsSampleCsv'])->name('apd-candidates.download-finalize-halls-sample-csv');
     });
 });
 //id-candidates Route::prefix('id-candidates')->group(function(){

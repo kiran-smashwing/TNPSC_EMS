@@ -557,9 +557,6 @@
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"
-                                                    ><img src="../assets/images/admin/p1.jpg" alt="" class="wid-20 rounded me-2 img-fluid" /></li
-                                                  > --}}
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
@@ -569,9 +566,6 @@
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>24-07-2024
                                                                     10:33 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"
-                                                    ><i class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                  </li> --}}
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -581,7 +575,7 @@
 
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="helpdesk-ticket-details.html"
+                                                        <a href="#"
                                                             class="me-2 btn btn-sm btn-light-primary m-2"
                                                             data-pc-animate="just-me" data-bs-toggle="modal"
                                                             data-bs-target="#apdFinalizeCandidate"><i
@@ -609,11 +603,7 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 Ticket</a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
+                                                                
                                                             </ul>
                                                         </div>
                                                     </div>

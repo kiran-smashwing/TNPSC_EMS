@@ -191,7 +191,7 @@ class DistrictCandidatesController extends Controller
         // Prepare and send email
         Mail::to("kiran@smashwing.com")->send(new VenueConsentMail($venue, $examId));
     }
-    //snappy pdf generation mail function 
+    //QRCODE  generation  function 
     public function generateQRCode(Request $request)
     {
         // Get user info
@@ -216,6 +216,7 @@ class DistrictCandidatesController extends Controller
             ->where('exam_id', $examId)
             ->where('district_code', $user->district_code)
             ->first();
+        //TODO: check if qr code is already created for the url and skip if exisits are already created.
         //generate qr code for this link and send it to view page https://smashsoft.site/tnpsc-ems/public/login
         $logoPath = asset('storage/assets/images/qr-logo.png'); // replace with your logo path
 
@@ -360,7 +361,15 @@ class DistrictCandidatesController extends Controller
                 'bottom' => '10mm',
                 'left' => '10mm'
             ])
-            ->setOption('displayHeaderFooter', false)
+            ->setOption('displayHeaderFooter', true)
+            ->setOption('headerTemplate', '<div></div>')
+            ->setOption('footerTemplate', '
+            <div style="font-size:10px;width:100%;text-align:center;">
+                Page <span class="pageNumber"></span> of <span class="totalPages"></span>
+            </div>
+            <div style="position: absolute; bottom: 5mm; right: 10px; font-size: 10px;">
+                 IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . ' 
+            </div>')
             ->setOption('preferCSSPageSize', true)
             ->setOption('printBackground', true)
             ->scale(1)
@@ -375,8 +384,7 @@ class DistrictCandidatesController extends Controller
     }
     public function generateCIMeetingReport()
     {
-        // return view('PDF.Reports.ci-consolidate-report');
-     
+
         $html = view('PDF.Reports.ci-meeting-report')->render();
         $pdf = Browsershot::html($html)
             ->setOption('landscape', true)
@@ -388,7 +396,13 @@ class DistrictCandidatesController extends Controller
             ])
             ->setOption('displayHeaderFooter', true)
             ->setOption('headerTemplate', '<div></div>')
-            ->setOption('footerTemplate', '<div style="font-size:10px;width:100%;text-align:center;">Page <span class="pageNumber"></span> of <span class="totalPages"></span></div>')
+            ->setOption('footerTemplate', '
+            <div style="font-size:10px;width:100%;text-align:center;">
+                Page <span class="pageNumber"></span> of <span class="totalPages"></span>
+            </div>
+            <div style="position: absolute; bottom: 5mm; right: 10px; font-size: 10px;">
+                 IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . ' 
+            </div>')
             ->setOption('preferCSSPageSize', true)
             ->setOption('printBackground', true)
             ->scale(1)

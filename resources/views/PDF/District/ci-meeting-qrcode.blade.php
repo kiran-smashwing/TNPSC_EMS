@@ -188,7 +188,7 @@
         </div>
 
         <div class="meeting-title">
-            <h2>CI MEETING ATTENDANCE</h2>
+            <h2>CHIEF INVIGILATORS MEETING ATTENDANCE</h2>
         </div>
         <div class="content-section">
             <p><strong> Notification No:</strong> {{ $exam->exam_main_notification }} | <strong> Start Date: </strong>
@@ -214,7 +214,7 @@
             </p>
             <p>Log in to your account via the website: <a
                     href="https://smashsoft.site/tnpsc-ems/">https://smashsoft.site/tnpsc-ems/</a>
-                <br><strong>OR</strong><br> Download the app from Google Play Store: TNPSC EMS App.
+                <br><strong>OR</strong><br> Log in to your account via the app from Google Play Store: TNPSC EMS.
             </p>
         </div>
         <div class="footer-instructions">

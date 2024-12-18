@@ -246,5 +246,79 @@ class APDCandidatesController extends Controller
             }
         }
     }
+    /**
+     * @param string $filename
+     * @param array $data
+     *     // Download the Finalize Halls sample CSV file
+     * */
+    public function downloadFinalizeHallsSampleCsv(Request $request)
+    {
+        //center_code	hall_code	exam_date	exam_session	canidates_count
+
+        $data = [
+            ['center_code', 'hall_code', 'exam_date', 'exam_session', 'canidates_count'],
+            ['0102', '001', '01-01-2024', 'FN', 100],
+            ['0102', '002', '01-01-2024', 'AN', 200],
+            ['0103', '001', '01-01-2024', 'FN', 150],
+            ['0103', '002', '01-01-2024', 'AN', 250],
+            ['0104', '001', '01-01-2024', 'FN', 200],
+            ['0104', '002', '01-01-2024', 'AN', 300],
+        ];
+
+        $filename = "apd_candidates_" . date('Ymd') . ".csv";
+
+        // Create CSV data in memory
+        $handle = fopen('php://output', 'w');
+        ob_start(); // Start output buffering
+        fputcsv($handle, $data[0]); // Add headers to the CSV
+        foreach (array_slice($data, 1) as $row) {
+            // Format `center_code` as a string to preserve leading zeros
+            $row[0] = sprintf('="%s"', $row[0]);
+            $row[1] = sprintf('="%s"', $row[1]);
+            fputcsv($handle, $row); // Add data rows to the CSV
+        }
+        fclose($handle);
+        $csvOutput = ob_get_clean(); // Capture CSV output
+
+        // Return CSV response
+        return response($csvOutput, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ]);
+    }
+    /**
+     * Finalize the halls confirmed by ID 
+     */
+    public function finalizeHalls(Request $request)
+    {
+        // Validate request data
+        $request->validate([
+            'exam_id' => 'required|integer',
+            'csv_file' => 'required|file|mimes:csv,txt',
+        ]);
+
+        $examId = $request->input('exam_id');
+        $file = $request->file('csv_file');
+        // Save the uploaded file
+        $uploadedFilePath = 'uploads/csv_files/';
+        $uploadedFileName = 'APD_FINALIZE_HALLS_'. $examId . '_uploaded_' . time() . '.' . $file->getClientOriginalExtension();
+        $file->storeAs($uploadedFilePath, $uploadedFileName, 'public');
+        $uploadedFileUrl = url('storage/' . $uploadedFilePath . $uploadedFileName);
+        
+        // Retrieve exam and its sessions
+        $exam = Currentexam::where('exam_main_no', $examId)->with('examsession')->first();
+        if (!$exam) {
+            return redirect()->back()->with('error', 'Exam not found.');
+        }
+
+        // Open the CSV file
+        if (($handle = fopen($file->getRealPath(), 'r')) === false) {
+            return redirect()->back()->with('error', 'Failed to open the CSV file.');
+        }
+
+        fgetcsv($handle); // Skip the header row
+
+
+    }
 
 }

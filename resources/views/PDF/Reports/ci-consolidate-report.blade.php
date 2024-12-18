@@ -128,21 +128,75 @@
         }
 
 
-
-        .signature-item {
-            margin-top: 10px;
+        .signature-container {
+            display: flex;
+            flex-direction: column;
+            width: 99.8%;
+            margin-top: 5px;
         }
 
-        .signature-section {
-            margin-top: 10px;
+        .signature-row {
             display: flex;
-            justify-content: space-between;
-            flex-direction: column;
-            align-items: flex-start;
-            padding: 10px;
-            background-color: #fff;
             border: 1px solid #ddd;
-            border-radius: 5px;
+
+        }
+
+        .signature-column {
+            flex: .6;
+            padding: 5px 10px;
+            vertical-align: top;
+        }
+
+        .signature-column-1 {
+            flex: 1;
+            padding: 5px 10px;
+            vertical-align: top;
+        }
+
+        .signature-column:last-child {
+            border-right: none;
+        }
+
+        .signature-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100px;
+            /* Adjust as needed */
+        }
+
+        .signature-row-inline {
+            display: flex;
+            align-items: center;
+        }
+
+        .signature-top-bottom-inline {
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        .signature-label {
+            font-weight: bold;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .empty-space {
+            flex-grow: 1;
+            height: 30px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .name-space {
+            flex-grow: 1;
+            font-weight: 500;
+            padding-left: 10px;
+        }
+
+        .seal-space {
+            height: 80px;
+            border: 1px solid #ddd;
+            margin-top: 10px;
         }
 
         @media print {
@@ -158,10 +212,6 @@
 
             body {
                 zoom: 0.8;
-            }
-
-            .page-number:after {
-                content: "Page " counter(page) " of " counter(pages);
             }
 
             #certificate {
@@ -488,18 +538,28 @@
         </table>
     </div>
 
-    <div class="signature-section">
-        <div class="signature-item">
-            <strong>Signature:</strong> ____________________
-        </div>
-        <div class="signature-item">
-            <strong>Name:</strong> THIRU.ARASU.S. HEAD MASTER
-        </div>
-        <div class="signature-item">
-            <strong>Mobile Number:</strong> 9381011219
-        </div>
-        <div class="signature-item">
-            <strong>School / Office Seal:</strong> ____________________
+    <div class="signature-container">
+        <div class="signature-row">
+            <div class="signature-column">
+                <div class="signature-label">School / Office Seal</div>
+                <div class="seal-space"></div>
+            </div>
+            <div class="signature-column-1">
+                <div class="signature-column signature-content">
+                    <div class="signature-row-inline signature-top-bottom-inline">
+                        <div class="signature-label">Signature with Date : </div>
+                        <div class="empty-space"></div>
+                    </div>
+                    <div class="signature-row-inline signature-top-bottom-inline">
+                        <div class="signature-label">Name and Designation : </div>
+                        <div class="name-space">THIRU.ARASU.S. HEAD MASTER</div>
+                    </div>
+                    <div class="signature-row-inline signature-top-bottom-inline">
+                        <div class="signature-label">Phone Number : </div>
+                        <div class="name-space">+91 9591234567</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

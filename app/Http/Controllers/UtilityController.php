@@ -1,29 +1,44 @@
 <?php
 
 namespace App\Http\Controllers;
-use Barryvdh\Snappy\Facades\SnappyPdf;
 use Illuminate\Http\Request;
+use Spatie\Browsershot\Browsershot;
 
 class UtilityController extends Controller
 {
-        public function generateUtilizationCertificate()
+    public function generateUtilizationCertificate()
     {
+        // return view('PDF.Reports.ci-utility-certificate');
         // Get the HTML content for the report
-        $html = view('pdf.utilization_certificate')->render();
-    
-        // Generate the PDF from HTML using Snappy PDF
-        return SnappyPdf::loadHTML($html)
-            ->setOption('no-images', false)           // Ensure images are included
-            ->setOption('lowquality', true)           // Optional: Reduce PDF file size
-            ->setOption('orientation', 'portrait')    // Set page orientation to portrait
-            ->setOption('page-size', 'A4')            // Set page size to A4
-            // ->setOption('margin-top', '10mm')         // Optional: Add top margin
-            // ->setOption('margin-bottom', '10mm')      // Optional: Add bottom margin
-            // ->setOption('margin-left', '10mm')        // Optional: Add left margin
-            // ->setOption('margin-right', '10mm')       // Optional: Add right margin
-            ->setOption('no-background', false)       // Optional: Include background images if necessary
-            ->setOption('disable-javascript', true)   // Disable JavaScript execution
-            ->setOption('load-error-handling', 'ignore') // Ignore loading errors
-            ->stream('utilization_certificate.pdf');      // Stream the PDF to the browser
+        $html = view('PDF.Reports.ci-utility-certificate')->render();
+        $pdf = Browsershot::html($html)
+            ->setOption('landscape', false)
+            ->setOption('margin', [
+                'top' => '10mm',
+                'right' => '10mm',
+                'bottom' => '10mm',
+                'left' => '10mm'
+            ])
+            ->setOption('displayHeaderFooter', true)
+            ->setOption('headerTemplate', '<div></div>')
+            ->setOption('footerTemplate', '
+            <div style="font-size:10px;width:100%;text-align:center;">
+                Page <span class="pageNumber"></span> of <span class="totalPages"></span>
+            </div>
+            <div style="position: absolute; bottom: 5mm; right: 10px; font-size: 10px;">
+                 IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . ' 
+            </div>')
+            ->setOption('preferCSSPageSize', true)
+            ->setOption('printBackground', true)
+            ->scale(1)
+            ->format('A4')
+            ->pdf();
+        // Define a unique filename for the report
+        $filename = 'utilization-report-' . time() . '.pdf';
+
+        // Return the PDF as a response
+        return response($pdf)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
     }
 }

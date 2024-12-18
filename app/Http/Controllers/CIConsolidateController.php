@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Barryvdh\Snappy\Facades\SnappyPdf;
 use Illuminate\Http\Request;
 use Spatie\Browsershot\Browsershot;
 
@@ -13,29 +12,7 @@ class CIConsolidateController extends Controller
      */
     public function generateReport()
     {
-        // Prepare the data for the report
-        $data = [
-            // Add any data you want to pass to the view
-        ];
-
-        // // Get the HTML content for the report
-        // $html = view('pdf.ci_consolidate', $data)->render();
-
-        // // Generate the PDF using Browsershot
-        // $pdf = Browsershot::html($html)
-        //     ->setOption('landscape', false) // Set to portrait orientation
-        //     ->setOption('margin', [
-        //         'top' => '10mm',
-        //         'right' => '10mm',
-        //         'bottom' => '10mm',
-        //         'left' => '10mm'
-        //     ])
-        //     ->setOption('displayHeaderFooter', false)
-        //     ->setOption('preferCSSPageSize', true)
-        //     ->setOption('printBackground', true)
-        //     ->scale(1)
-        //     ->format('A4')
-        //     ->pdf();
+       
         $html = view('PDF.Reports.ci-consolidate-report')->render();
         // $html = view('PDF.Reports.ci-utility-certificate')->render();
         $pdf = Browsershot::html($html)
@@ -48,7 +25,13 @@ class CIConsolidateController extends Controller
             ])
             ->setOption('displayHeaderFooter', true)
             ->setOption('headerTemplate', '<div></div>')
-            ->setOption('footerTemplate', '<div style="font-size:10px;width:100%;text-align:center;">Page <span class="pageNumber"></span> of <span class="totalPages"></span></div>')
+            ->setOption('footerTemplate', '
+            <div style="font-size:10px;width:100%;text-align:center;">
+                Page <span class="pageNumber"></span> of <span class="totalPages"></span>
+            </div>
+            <div style="position: absolute; bottom: 5mm; right: 10px; font-size: 10px;">
+                 IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . ' 
+            </div>')
             ->setOption('preferCSSPageSize', true)
             ->setOption('printBackground', true)
             ->scale(1)

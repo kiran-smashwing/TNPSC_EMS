@@ -61,7 +61,7 @@
             background-color: #E3F1EE;
             text-align: center;
             padding: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             border-radius: 5px;
         }
 
@@ -79,7 +79,7 @@
         .attendance-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         .attendance-table th,
@@ -94,6 +94,8 @@
             font-weight: bold;
             text-align: center;
         }
+
+       
 
         @media print {
             .header-container {
@@ -110,9 +112,6 @@
                 zoom: 0.8;
             }
 
-            .page-number:after {
-                content: "Page " counter(page) " of " counter(pages);
-            }
         }
     </style>
 </head>
@@ -131,11 +130,10 @@
         </div>
 
         <div class="meeting-title">
-            <h5>CI MEETING ATTENDANCE REPORT</h5>
+            <h5>CHIEF INVIGILATORS MEETING ATTENDANCE REPORT</h5>
             <p><strong> Notification No:</strong> 10/2024 |
                 <strong>Exam Name:</strong> RASHTRIYA INDIAN MILITARY COLLEGE(JULY-2025 TERM) |
-                <strong>Meeting Date & Time:</strong> 01-12-2024 10:30 AM | 
-                <strong>Date:</strong> 01-12-2024
+                <strong>Meeting Date & Time:</strong> 01-12-2024 10:30 AM
             </p>
         </div>
 
@@ -143,12 +141,12 @@
             <thead>
                 <tr>
                     <th>S.No</th>
-                    <th>District Name</th>
-                    <th>Center Code</th>
-                    <th>Hall No</th>
+                    <th>District <br> Name</th>
+                    <th>Center <br> Code</th>
+                    <th>Hall <br> No</th>
                     <th>Venue Name</th>
-                    <th>Attendance Date & Time</th>
-                    <th>Adequacy Check Date & Time</th>
+                    <th>Attendance <br> Date & Time</th>
+                    <th>Adequacy Check <br> Date & Time</th>
                     <th>CI Name</th>
                     <th>CI Phone</th>
                 </tr>
@@ -157,13 +155,13 @@
                 @for ($i = 1; $i <= 100; $i++)
                     <tr>
                         <td>{{ $i }}</td>
-                        <td>Chennai</td>
+                        <td>Thiruvanamalai</td>
                         <td>0102</td>
                         <td>001</td>
-                        <td>Chennai High School</td>
-                        <td>01-12-2024 10:30 AM</td>
-                        <td>01-12-2024 10:45 AM</td>
-                        <td>Mr. John Doe</td>
+                        <td>DURAI KAMALAM GOVERNMENT MODEL HIGHER SECONDARY SCHOOL</td>
+                        <td>01-12-2024 <br> 10:30 AM</td>
+                        <td>01-12-2024 <br> 10:45 AM</td>
+                        <td>Mrs. FLORIDA MERLINE LAWRENCE</td>
                         <td>9999999999</td>
                     </tr>
                 @endfor

@@ -71,10 +71,6 @@
             border-radius: 5px;
         }
 
-        .table-header th {
-            text-align: center;
-        }
-
         .table-body td {
             text-align: center;
         }
@@ -241,13 +237,15 @@
                     Session:</strong> FN<br>
                 <strong>Exam Name:</strong> RASHTRIYA INDIAN MILITARY COLLEGE(JULY-2025 TERM) <br>
                 <strong>Exam Service:</strong> GROUP I SERVICES EXAMINATION <br>
-               <strong>District:</strong> Chennai | <strong>Center Name:</strong> Alandur (0102	)
             </p>
         </div>
         <table class="report-table">
             <thead class="table-header">
                 <tr>
                     <th>S.No</th>
+                    <th>District</th>
+                    <th>Center Code</th>
+                    <th>Center Name</th>
                     <th>Hall Code</th>
                     <th style="text-align: left">Hall Name</th>
                     <th>Present</th>
@@ -259,6 +257,9 @@
             <tbody class="table-body">
                 <tr>
                     <td>1</td>
+                    <td>Chennai</td>
+                    <td>0102</td>
+                    <td>Alandur</td>
                     <td>001</td>
                     <td class="left-align">S.M.B.MANICKAM NADAR PACKIATHAMMAL MATRIC. HIGHER SEC.SCHOOL</td>
                     <td>99</td>
@@ -272,7 +273,7 @@
 
     </div>
     <table class="report-table">
-        <thead class="table-header">
+        <thead>
             <tr>
                 <th>Overall</th>
                 <th>Present</th>

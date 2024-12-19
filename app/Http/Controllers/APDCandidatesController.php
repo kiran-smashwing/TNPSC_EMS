@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Currentexam;
 use App\Models\Center;
 use App\Services\ExamAuditService;
+use App\Models\ExamConfirmedHalls;
 
 class APDCandidatesController extends Controller
 {
@@ -59,7 +60,7 @@ class APDCandidatesController extends Controller
 
         $examId = $request->input('exam_id');
         $file = $request->file('csv_file');
-
+        //TODO:Add functionality to preserve leading zeros in the CSV file and remove duplicate file already uplaoded 
         // Save the uploaded file
         $uploadedFilePath = 'uploads/csv_files/';
         $uploadedFileName = $examId . '_uploaded_' . time() . '.' . $file->getClientOriginalExtension();
@@ -100,7 +101,7 @@ class APDCandidatesController extends Controller
         }
 
         fclose($handle);
-
+            //TODO:Update the files to be saved in failes_csv file directory
         // Handle failed rows and generate a CSV file for them
         $failedCsvPath = null;
         if (!empty($failedRows)) {
@@ -299,12 +300,53 @@ class APDCandidatesController extends Controller
 
         $examId = $request->input('exam_id');
         $file = $request->file('csv_file');
-        // Save the uploaded file
+        // Read the original file content
+        $originalContent = file_get_contents($file->getRealPath());
+
+        // Process the content to preserve leading zeros
+        $rows = array_map('str_getcsv', explode("\n", $originalContent));
+        // Define the path and pattern for existing files
         $uploadedFilePath = 'uploads/csv_files/';
-        $uploadedFileName = 'APD_FINALIZE_HALLS_'. $examId . '_uploaded_' . time() . '.' . $file->getClientOriginalExtension();
-        $file->storeAs($uploadedFilePath, $uploadedFileName, 'public');
+        $pattern = storage_path('app/public/' . $uploadedFilePath . 'APD_FINALIZE_HALLS_' . $examId . '_uploaded_*');
+
+        // Find and delete existing files
+        $existingFiles = glob($pattern);
+        foreach ($existingFiles as $existingFile) {
+            if (file_exists($existingFile)) {
+                unlink($existingFile);
+            }
+        }
+
+        // Create new file with preserved formatting
+        $uploadedFilePath = 'uploads/csv_files/';
+        $uploadedFileName = 'APD_FINALIZE_HALLS_' . $examId . '_uploaded_' . time() . '.csv';
+        $fullPath = storage_path('app/public/' . $uploadedFilePath . $uploadedFileName);
+
+        // Ensure directory exists
+        if (!file_exists(dirname($fullPath))) {
+            mkdir(dirname($fullPath), 0777, true);
+        }
+
+        // Write to new file with proper formatting
+        $fp = fopen($fullPath, 'w');
+        fprintf($fp, chr(0xEF) . chr(0xBB) . chr(0xBF)); // Add UTF-8 BOM
+
+        foreach ($rows as $row) {
+            //skip first row heading
+            if ($row[0] == '') {
+                continue;
+            }
+            if (!empty($row)) { // Skip empty rows
+                // Format the columns that need leading zeros
+                $row[0] = '="' . str_pad(trim($row[0]), 3, '0', STR_PAD_LEFT) . '"'; // Center Code
+                $row[1] = '="' . str_pad(trim($row[1]), 3, '0', STR_PAD_LEFT) . '"'; // Hall Code
+                fputcsv($fp, $row);
+            }
+        }
+        fclose($fp);
+
         $uploadedFileUrl = url('storage/' . $uploadedFilePath . $uploadedFileName);
-        
+
         // Retrieve exam and its sessions
         $exam = Currentexam::where('exam_main_no', $examId)->with('examsession')->first();
         if (!$exam) {
@@ -317,8 +359,154 @@ class APDCandidatesController extends Controller
         }
 
         fgetcsv($handle); // Skip the header row
+        $successfulInserts = 0;
+        $failedRows = [];
+        $totalRows = 0;
 
+        // Delete old failed rows CSV files before proceeding
+        $this->deleteFinalizeOldFailedFiles($examId);
 
+        // Process each row from the CSV file
+        while (($data = fgetcsv($handle, 1000, ',')) !== false) {
+            // Skip empty rows or rows with missing required fields
+            if (empty(array_filter($data))) {
+                continue; // Skip this iteration if the row is empty
+            }
+            $totalRows++;
+            try {
+                // Validate the data for each field
+                $this->validateFinalizeCSVRow($data, $examId, $successfulInserts, $failedRows);
+            } catch (\Exception $e) {
+                $failedRows[] = array_merge($data, ['error' => $e->getMessage()]);
+            }
+        }
+
+        fclose($handle);
+
+        // Handle failed rows and generate a CSV file for them
+        $failedCsvPath = null;
+        if (!empty($failedRows)) {
+            $failedCsvPath = $examId . '_finalizehalls_failed_rows_' . time() . '.csv';
+            $filePath = storage_path('app/public/uploads/failed_csv_files/' . $failedCsvPath);
+            $fp = fopen($filePath, 'w');
+            fputcsv($fp, ['Center Code', 'Hall Code', 'Exam Date', 'Exam Session', 'Candidates Count', 'Error']);
+            foreach ($failedRows as $row) {
+                // Format `center_code` as a string to preserve leading zeros
+                $row[0] = sprintf('="%s"', $row[0]);
+                $row[1] = sprintf('="%s"', $row[1]);
+                fputcsv($fp, $row);
+            }
+            fclose($fp);
+            session()->put('failed_csv_path', $failedCsvPath); // Store the file path in session for future download
+        } else {
+            session()->forget('failed_csv_path'); // Clear failed file path if none exist
+        }
+
+        // Log the upload action
+        $this->logFinalizeHallsUploadAction($exam, $examId, $successfulInserts, count($failedRows), $uploadedFileUrl, $failedCsvPath);
+
+        return redirect()->back()->with('success', "CSV processed: Total Rows: $totalRows, Successful: $successfulInserts, Failed: " . count($failedRows));
+    }
+
+    /**
+     * Delete old failed rows CSV files before proceeding.
+     */
+    private function deleteFinalizeOldFailedFiles($examId)
+    {
+        $failedCsvFiles = glob(storage_path('app/public/uploads/failed_csv_files/' . $examId . '_finalizehalls_failed_rows_*.csv'));
+
+        // Loop through and delete old failed CSV files
+        foreach ($failedCsvFiles as $file) {
+            if (file_exists($file)) {
+                unlink($file); // Delete the file
+            }
+        }
+    }
+    /**
+     * Validate each row of the CSV and insert the data.
+     */
+    private function validateFinalizeCSVRow($data, $examId, &$successfulInserts, &$failedRows)
+    {
+
+        // Validate center code, name, date, session, and expected candidates
+        if (!isset($data[0]) || !is_numeric($data[0])) {
+            throw new \Exception('Invalid or missing center code.');
+        }
+        if (!isset($data[1]) || !is_numeric($data[1])) {
+            throw new \Exception('Invalid or missing Hall code.');
+        }
+        if (!isset($data[2]) || !\Carbon\Carbon::createFromFormat('d-m-Y', $data[2])) {
+            throw new \Exception('Invalid or missing exam date.');
+        }
+        if (!isset($data[3]) || !in_array($data[3], ['FN', 'AN'])) {
+            throw new \Exception('Invalid session. Must be FN or AN.');
+        }
+        if (!isset($data[4]) || !is_numeric($data[4])) {
+            throw new \Exception('Invalid or missing actual candidates count.');
+        }
+        // Validate center code, name, date, session, in ExamConfirmedHalls 
+        $confirmedByID = ExamConfirmedHalls::where('exam_id', $examId)
+            ->where('hall_code', $data[1])
+            ->where('exam_session', $data[3])
+            ->where('exam_date', \Carbon\Carbon::createFromFormat('d-m-Y', $data[2])->format('Y-m-d'))
+            ->where('center_code', $data[0])
+            ->first();
+
+        if (!$confirmedByID) {
+            $errorDetails = "No Confirmed Halls found. Existing data - Center Code: {$data[0]}, Hall Code: {$data[1]},  Exam Date: {$data[2]}, Session: {$data[3]}";
+            throw new \Exception($errorDetails);
+        }
+        // Insert data into the database
+        if ($confirmedByID) {
+            $confirmedByID->is_apd_uploaded = true;
+            $confirmedByID->alloted_count = $data[4];
+            $confirmedByID->save();
+        } else {
+            throw new \Exception('Invalid exam model.');
+        }
+        $successfulInserts++;
+    }
+    /**
+     * Log the upload action with metadata.
+     */
+    private function logFinalizeHallsUploadAction($exam, $examId, $successfulInserts, $failedCount, $uploadedFileUrl, $failedCsvPath)
+    {
+        $currentUser = current_user();
+        $userName = $currentUser ? $currentUser->display_name : 'Unknown';
+
+        $metadata = [
+            'user_name' => $userName,
+            'successful_inserts' => $successfulInserts,
+            'failed_count' => $failedCount,
+            'uploaded_csv_link' => $uploadedFileUrl, // Include uploaded file link
+            'failed_csv_link' => $failedCsvPath ? url('storage/uploads/failed_csv_files/' . $failedCsvPath) : null,
+        ];
+
+        // Check if a log already exists for this exam and task type
+        $existingLog = $this->auditService->findLog([
+            'exam_id' => $examId,
+            'task_type' => 'apd_finalize_halls_upload',
+        ]);
+
+        if ($existingLog) {
+            // Update the existing log
+            $this->auditService->updateLog(
+                logId: $existingLog->id,
+                metadata: $metadata,
+                afterState: null,
+                description: 'Updated APD Finalize Halls CSV '
+            );
+        } else {
+            // Create a new log entry
+            $this->auditService->log(
+                examId: $examId,
+                actionType: 'uploaded',
+                taskType: 'apd_finalize_halls_upload',
+                afterState: null,
+                description: 'Uploaded APD Finalize Halls CSV',
+                metadata: $metadata
+            );
+        }
     }
 
 }

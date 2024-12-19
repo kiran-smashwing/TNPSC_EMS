@@ -61,7 +61,7 @@ class CenterController extends Controller
         }
 
         // Get centers
-        $centers = $centersQuery->orderBy('centers.center_name')->get();
+        $centers = $centersQuery->orderBy('centers.center_code')->get();
 
         // Get districts and center codes efficiently
         $districts = District::select('district_code', 'district_name')

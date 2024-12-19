@@ -34,9 +34,20 @@ use App\Http\Controllers\UtilityController;
 use App\Http\Controllers\AttendanceReportController;
 use App\Http\Controllers\CIMeetingController;
 
+//PDF
 Route::get('/ci-consolidate-report', [CIConsolidateController::class, 'generateReport'])->name('download.report');
 Route::get('generate-utilization-certificate', [UtilityController::class, 'generateUtilizationCertificate'])->name('download.utilireport');
+//center_attenance_report
 Route::get('/attendance-report', [AttendanceReportController::class, 'generateAttendanceReport'])->name('download.attendanceReport');
+//district_attenance_report
+Route::get('/attendance-report-district', [AttendanceReportController::class, 'generateAttendanceReportDistrict'])->name('download.attendanceReportdistrict');
+//Overall_attenance_report
+Route::get('/attendance-report-overall', [AttendanceReportController::class, 'generateAttendanceReportOverall'])->name('download.attendanceReportoverall');
+//attendance-report
+Route::get('/attendance-report', [AttendanceReportController::class, 'index'])->name('attendance.report');
+Route::get('/api/get-dropdown-data', [AttendanceReportController::class, 'getDropdownData'])->name('attendance.dropdown');
+// Route::get('/attendance-report/filter', [AttendanceReportController::class, 'filterAttendanceReport'])->name('attendance-report.filter');
+
 
 
 

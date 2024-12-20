@@ -34,7 +34,7 @@ class MobileTeamStaffsController extends Controller
         }
 
         // Fetch filtered MobileTeamStaffs with pagination
-        $mobileTeams = $query->paginate(10);
+        $mobileTeams = $query->orderBy('mobile_name')->get();
 
         // Fetch unique district values from the same table
         $districts = District::all(); // Fetch all districts

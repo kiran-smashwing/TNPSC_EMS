@@ -39,7 +39,9 @@ class VenuesController extends Controller
         }
 
         // Fetch filtered venues without pagination
-        $venues = $query->get();
+        // Fetch filtered venues, ordered by venue name
+        $venues = $query->orderBy('venue_code')->get();
+
 
         // Fetch unique district values from the same table
         $districts = District::all(); // Fetch all districts

@@ -34,9 +34,10 @@ class DistrictController extends Controller
         if ($request->filled('district')) {
             $districtsQuery->where('district_name', 'LIKE', '%' . $request->input('district') . '%');
         }
-
-        // Fetch the filtered districts for the table
-        $districts = $districtsQuery->get();
+        
+         // Fetch the filtered districts for the table, ordered by district code
+        $districts = $districtsQuery->orderBy('district_code')->get();
+       
 
         return view('masters.district.collectorate.index', compact('districts', 'allDistricts'));
     }

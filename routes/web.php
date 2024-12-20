@@ -33,6 +33,7 @@ use App\Http\Controllers\CIConsolidateController;
 use App\Http\Controllers\UtilityController;
 use App\Http\Controllers\AttendanceReportController;
 use App\Http\Controllers\CIMeetingController;
+use App\Http\Controllers\ExamMaterialsDataController;
 use App\Http\Controllers\EDController;
 use App\Http\Controllers\Vehicle_SecurityController;
 
@@ -354,6 +355,14 @@ Route::prefix('ci-meetings')->group(function () {
         Route::post('/attendance-QRcode-scan', [CIMeetingController::class, 'handleAttendanceQRCodeScan'])->name('ci-meetings.attendance-QRcode-scan');
         Route::post('/update-adequacy-check', [CIMeetingController::class, 'updateAdequacyCheck'])->name('ci-meetings.updateAdequacyCheck');
     });
+});
+//ExamMaterialsController Route::prefix('exam-materials')->group(function(){
+Route::prefix('exam-materials')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/{examId}', [ExamMaterialsDataController::class, 'index'])->name('exam-materials.index');
+        Route::get('/download-sample-csv', [ExamMaterialsDataController::class, 'downloadSampleCsv'])->name('exam-materials.download-sample-csv');
+        Route::post('/upload', [ExamMaterialsDataController::class, 'uploadCsv'])->name('exam-materials.upload');
+});
 });
 // Route::get('/run-function', [DataController::class, 'addData']);
 

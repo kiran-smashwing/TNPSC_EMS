@@ -22,6 +22,7 @@ class ExamMaterialsData extends Model
         'exam_id',
         'district_code',
         'center_code',
+        'venue_code',
         'hall_code',
         'exam_date',
         'exam_session',
@@ -38,4 +39,17 @@ class ExamMaterialsData extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+    // Define the relationships
+    public function district()
+    {
+        return $this->belongsTo(District::class, 'district_code', 'district_code');
+    }
+    public function center()
+    {
+        return $this->belongsTo(Center::class, 'center_code', 'center_code');
+    }
+    public function venue()
+    {
+        return $this->belongsTo(Venues::class, 'venue_code', 'venue_code');
+    }
 }

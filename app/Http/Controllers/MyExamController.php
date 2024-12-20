@@ -59,8 +59,12 @@ class MyExamController extends Controller
                 $meetingCodeGen->user = $user;
             }
         }
+        $examMaterialsUpdate = null;
+        $examMaterialsUpdate = ExamAuditLog::where('exam_id', $examId)
+            ->where('task_type', 'ed_exam_materials_qrcode_upload')
+            ->first();
 
-        return view('my_exam.task', compact('session', 'auditDetails', 'venueConsents', 'meetingCodeGen'));
+        return view('my_exam.task', compact('session', 'auditDetails', 'venueConsents', 'meetingCodeGen','examMaterialsUpdate'));
     }
     public function MyTaskAction($examId)
     {

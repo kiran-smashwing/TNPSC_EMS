@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Currentexam;
 use Spatie\Browsershot\Browsershot;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Models\Center;
 use Illuminate\Support\Facades\Auth;
 use App\Models\District;
@@ -38,36 +39,36 @@ class AttendanceReportController extends Controller
         // Get the user based on the guard
         $user = $guard ? $guard->user() : null;
 
-        // Check if user exists
-        if ($user) {
-            // Assuming the user model has a district_code or a district relationship
-            // Fetch the district code from the user model
-            $districtCodeFromSession = $user->district_code; // If district_code is in the users table
-            // OR if the district is a related model
-            // $districtCodeFromSession = $user->district->district_code; // If district is related
-        } else {
-            $districtCodeFromSession = null;
-        }
+        // Check if user exists and fetch district and center codes
+        $districtCodeFromSession = $user ? $user->district_code : null; // Assuming district_code is in the user table
+        $centerCodeFromSession = $user ? $user->center_code : null; // Assuming center_code is in the user table or retrieved through a relationship
 
-        // Fetch related data
+        // Fetch districts - shown for headquarters and district roles
         $districts = [];
-
-        if ($role !== 'headquarters') {
-            // Only fetch districts for roles other than 'headquarters'
-            $districts = DB::table('district')->select('district_code as id', 'district_name as name')->get();
+        if ($role === 'headquarters' || $role === 'district') {
+            $districts = DB::table('district')
+                ->select('district_code as id', 'district_name as name')
+                ->get();
         }
 
-        // Filter centers based on district code if it's set in the session
-        if ($districtCodeFromSession) {
+        // Fetch centers
+        $centers = [];
+        if ($role === 'headquarters') {
+            // Fetch all centers for headquarters
             $centers = DB::table('centers')
-                ->where('center_district_id', $districtCodeFromSession) // Assuming center_district_id is the relationship to district
                 ->select('center_code as id', 'center_name as name')
                 ->get();
-        } else {
-            // Fetch all centers if no district code is set in the session
-            $centers = DB::table('centers')->select('center_code as id', 'center_name as name')->get();
+        } elseif ($role === 'district') {
+            // Fetch centers for the specific district
+            if ($districtCodeFromSession) {
+                $centers = DB::table('centers')
+                    ->where('center_district_id', $districtCodeFromSession)
+                    ->select('center_code as id', 'center_name as name')
+                    ->get();
+            }
         }
 
+        // Exam Dates and Sessions - applicable to all roles
         $examDates = DB::table('exam_session')
             ->where('exam_sess_mainid', $examDetails->exam_main_no)
             ->select('exam_sess_date')
@@ -80,22 +81,26 @@ class AttendanceReportController extends Controller
             ->distinct()
             ->pluck('exam_sess_session');
 
-        // Return the user and other data as JSON
+        // Log data to the Laravel log file (storage/logs/laravel.log)
+        // Log::info('Dropdown Data:', [
+        //     'user' => $user,
+        //     'districts' => $districts,
+        //     'centers' => $centers,
+        //     'examDates' => $examDates,
+        //     'sessions' => $sessions,
+        //     'centerCodeFromSession' => $centerCodeFromSession
+        // ]);
+
+        // Return data with logic applied based on roles
         return response()->json([
-            'user' => $user,  // Include the user object in the response
+            'user' => $user,
             'districts' => $districts,
             'centers' => $centers,
             'examDates' => $examDates,
             'sessions' => $sessions,
+            'centerCodeFromSession' => $centerCodeFromSession,
         ]);
     }
-
-
-
-
-
-
-
     public function generateAttendanceReport()
     {
 

@@ -340,10 +340,10 @@
                     <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                 </a>
                 <ul class="pc-submenu">
-                    <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> Exams
+                    <li class="pc-item"><a class="pc-link" href="{{route('ed.report')}}"> Exams
                             Reports</a>
                     </li>
-                    <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> Expenditure
+                    <li class="pc-item"><a class="pc-link" href="{{route('vehicel.report')}}"> Expenditure
                             Statement</a>
                     </li>
                     <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> Inspection

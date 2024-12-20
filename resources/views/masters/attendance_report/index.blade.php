@@ -84,6 +84,7 @@
                                     </div>
 
                                     <!-- District -->
+                                    <!-- District Dropdown -->
                                     <div class="col-md-4 mb-3" id="district-container"
                                         @if (!Auth::guard('headquarters')->check()) style="display: none;" @endif>
                                         <label for="district" class="form-label">District</label>
@@ -92,13 +93,17 @@
                                         </select>
                                     </div>
 
-                                    <!-- Center -->
-                                    <div class="col-md-4 mb-3">
+                                    <!-- Center Dropdown -->
+                                    <div class="col-md-4 mb-3" id="center-container"
+                                        @if (Auth::guard('district')->check()) style="display: block;" 
+                                        @elseif(Auth::guard('center')->check()) style="display: none;" 
+                                        @else style="display: block;" @endif>
                                         <label for="center" class="form-label">Center</label>
                                         <select name="center" id="center" class="form-control">
                                             <option value="" selected>Select Center</option>
                                         </select>
                                     </div>
+
 
                                     <!-- Exam Date -->
                                     <div class="col-md-4 mb-3">
@@ -139,7 +144,7 @@
         @include('partials.datatable-export-js')
         <script>
             document.getElementById('notification_no').addEventListener('blur', function() {
-                const notificationNo = this.value;
+                const notificationNo = this.value.trim();
 
                 if (notificationNo) {
                     fetch(`{{ route('attendance.dropdown') }}?notification_no=${notificationNo}`)
@@ -150,40 +155,67 @@
                             return response.json();
                         })
                         .then(data => {
-                            // Log the user data to the console
-                            console.log(data.user); // Log the user object
+                            console.log(data.user); // Debugging: Log user info
+                            console.log(data.districts); // Debugging: Log user info
+                            console.log(data.centers); // Debugging: Log user info
+                            console.log(data.examDates); // Debugging: Log user info
+                            console.log(data.sessions); // Debugging: Log user info
+                            console.log(data.centerCodeFromSession); // Debugging: Log user info
 
                             // Populate districts
                             const districtSelect = document.getElementById('district');
                             districtSelect.innerHTML = '<option value="" selected>Select District</option>';
-                            data.districts.forEach(district => {
-                                districtSelect.innerHTML +=
-                                    `<option value="${district.id}">${district.name}</option>`;
-                            });
+                            if (data.districts && data.districts.length > 0) {
+                                data.districts.forEach(district => {
+                                    const option = document.createElement('option');
+                                    option.value = district.id;
+                                    option.textContent = district.name;
+                                    districtSelect.appendChild(option);
+                                });
+                            }
 
                             // Populate centers
                             const centerSelect = document.getElementById('center');
                             centerSelect.innerHTML = '<option value="" selected>Select Center</option>';
-                            data.centers.forEach(center => {
-                                centerSelect.innerHTML +=
-                                    `<option value="${center.id}">${center.name}</option>`;
-                            });
+                            if (data.centers && data.centers.length > 0) {
+                                data.centers.forEach(center => {
+                                    const option = document.createElement('option');
+                                    option.value = center.id;
+                                    option.textContent = center.name;
+                                    centerSelect.appendChild(option);
+                                });
+                            }
 
                             // Populate exam dates
                             const examDateSelect = document.getElementById('exam_date');
                             examDateSelect.innerHTML = '<option value="" selected>Select Exam Date</option>';
-                            data.examDates.forEach(date => {
-                                examDateSelect.innerHTML += `<option value="${date}">${date}</option>`;
-                            });
+                            if (data.examDates && data.examDates.length > 0) {
+                                data.examDates.forEach(date => {
+                                    const option = document.createElement('option');
+                                    option.value = date;
+                                    option.textContent = date;
+                                    examDateSelect.appendChild(option);
+                                });
+                            }
 
                             // Populate sessions
                             const sessionSelect = document.getElementById('session');
                             sessionSelect.innerHTML = '<option value="" selected>Select Session</option>';
-                            data.sessions.forEach(session => {
-                                sessionSelect.innerHTML += `<option value="${session}">${session}</option>`;
-                            });
+                            if (data.sessions && data.sessions.length > 0) {
+                                data.sessions.forEach(session => {
+                                    const option = document.createElement('option');
+                                    option.value = session;
+                                    option.textContent = session;
+                                    sessionSelect.appendChild(option);
+                                });
+                            }
                         })
-                        .catch(error => console.error('Error fetching dropdown data:', error));
+                        .catch(error => {
+                            console.error('Error fetching dropdown data:', error);
+                            // alert('Failed to fetch data. Please try again later.');
+                        });
+                } else {
+                    // alert('Please enter a valid notification number.');
                 }
             });
         </script>

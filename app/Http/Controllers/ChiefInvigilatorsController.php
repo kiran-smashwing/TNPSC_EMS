@@ -47,7 +47,7 @@ class ChiefInvigilatorsController extends Controller
         }
 
         // Fetch the filtered data with pagination
-        $chiefInvigilator = $query->get();
+        $chiefInvigilator = $query->orderBy('ci_name')->get();
         // dd($chiefInvigilator);
 
         // Fetch unique district values from the same table

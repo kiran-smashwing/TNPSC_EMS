@@ -35,7 +35,7 @@ class TreasuryOfficerController extends Controller
         }
 
         // Fetch filtered Treasury Officers
-        $treasuryOfficers = $query->paginate(10);
+        $treasuryOfficers = $query->orderBy('tre_off_name')->get();
 
         // Fetch unique district values from the same table
         $districts = District::all(); // Fetch all districts

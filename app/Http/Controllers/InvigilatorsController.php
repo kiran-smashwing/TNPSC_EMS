@@ -44,8 +44,7 @@ class InvigilatorsController extends Controller
         }
 
         // Fetch filtered invigilators with pagination
-        $invigilators = $query->paginate(10);
-
+        $invigilators = $query->orderBy('invigilator_name')->get();
         // Fetch unique district values from the same table
         $districts = District::all(); // Fetch all districts
         

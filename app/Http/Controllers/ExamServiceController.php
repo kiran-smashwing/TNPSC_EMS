@@ -16,7 +16,7 @@ class ExamServiceController extends Controller
     public function index()
     {
         // Fetch all exam services from the database
-        $examServices = ExamService::all();
+        $examServices = ExamService::orderBy('examservice_code')->get();
         // Return the view with the exam services data
         return view('masters.department.exam_service.index', compact('examServices'));
     }

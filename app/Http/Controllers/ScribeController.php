@@ -41,7 +41,7 @@ class ScribeController extends Controller
         }
 
         // Fetch filtered scribes
-        $scribes = $query->paginate(10);
+        $scribes = $query->orderBy('scribe_name')->get();
 
         // Fetch unique district values from the same table
         $districts = District::all(); // Fetch all districts

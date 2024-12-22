@@ -36,6 +36,7 @@ use App\Http\Controllers\CIMeetingController;
 use App\Http\Controllers\ExamMaterialsDataController;
 use App\Http\Controllers\EDController;
 use App\Http\Controllers\Vehicle_SecurityController;
+use App\Http\Controllers\ReceiveExamMaterialsController;
 
 //PDF
 Route::get('/ci-consolidate-report', [CIConsolidateController::class, 'generateReport'])->name('download.report');
@@ -362,6 +363,12 @@ Route::prefix('exam-materials')->group(function () {
         Route::get('/{examId}', [ExamMaterialsDataController::class, 'index'])->name('exam-materials.index');
         Route::get('/download-sample-csv', [ExamMaterialsDataController::class, 'downloadSampleCsv'])->name('exam-materials.download-sample-csv');
         Route::post('/upload', [ExamMaterialsDataController::class, 'uploadCsv'])->name('exam-materials.upload');
+});
+});
+//ReceiveExamMaterialsController Route::prefix('receive-exam-materials')->group(function(){
+Route::prefix('receive-exam-materials')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/printer-to-disitrct-treasury/{examId}', [ReceiveExamMaterialsController::class, 'printerToDistrictTreasury'])->name('receive-exam-materials.printer-to-disitrict-treasury');
 });
 });
 // Route::get('/run-function', [DataController::class, 'addData']);

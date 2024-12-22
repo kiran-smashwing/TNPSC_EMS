@@ -745,8 +745,7 @@
                                                         </div>
                                                         <div class="h5 mt-3"><i
                                                                 class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            HQ
-                                                            - Treasury Officer</div>
+                                                                District Collectorate</div>
 
                                                     </div>
                                                     <div class="mt-2">
@@ -755,7 +754,7 @@
                                                             data-pc-animate="just-me" data-bs-toggle="modal"
                                                             data-bs-target="#animateModal"><i
                                                                 class="feather icon-eye mx-1 "></i>View </a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
+                                                        <a href="{{route('receive-exam-materials.printer-to-disitrict-treasury',$session->exam_main_no)}}" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-info mx-1"></i>Verify</a>
                                                         <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
                                                                 class="feather icon-edit mx-1"></i>Edit </a>

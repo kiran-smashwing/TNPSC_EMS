@@ -38,11 +38,9 @@
                         <div class="card">
                             <div class="card-body">
                                 <nav class="navbar justify-content-between p-0 align-items-center">
-                                    <h5><span
-                                            class="text-primary">{{ $session->exam_main_notification }}</span>
+                                    <h5><span class="text-primary">{{ $session->exam_main_notification }}</span>
                                         - {{ $session->exam_main_name }} - {{ $session->exam_main_postname }}
-                                        - <span
-                                            class="text-warning"> {{ $session->exam_main_startdate }} </span>
+                                        - <span class="text-warning"> {{ $session->exam_main_startdate }} </span>
                                     </h5>
                                     <div class="btn-group btn-group-sm help-filter" role="group"
                                         aria-label="button groups sm">
@@ -229,7 +227,8 @@
                                                                 @endif
                                                                 @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'APD')
                                                                     @if (isset(json_decode($audit->metadata)->failed_csv_link) &&
-                                                                            file_exists(storage_path('app/public/uploads/failed_csv_files/' . basename(json_decode($audit->metadata)->failed_csv_link))))
+                                                                            file_exists(storage_path(
+                                                                                    'app/public/uploads/failed_csv_files/' . basename(json_decode($audit->metadata)->failed_csv_link))))
                                                                         <a href="{{ json_decode($audit->metadata)->failed_csv_link }}"
                                                                             class="me-3 btn btn-sm btn-light-danger">
                                                                             <i
@@ -250,7 +249,7 @@
                                     @php
                                         $is_id_updated = $audit->task_type == 'id_candidates_update_percentage';
                                     @endphp
-                                    @if ($is_id_updated|| count($auditDetails) == 2)
+                                    @if ($is_id_updated || count($auditDetails) == 2)
                                         <li class="task-list-item">
                                             <i class="task-icon bg-danger"></i>
                                             <div class="card ticket-card open-ticket">
@@ -519,7 +518,8 @@
                                                             href="{{ route('id-candidates.show-venue-confirmation-form', $session->exam_main_no) }}"
                                                             class="me-2 btn btn-sm btn-light-primary m-2"><i
                                                                 class="feather icon-eye mx-1"></i>Review Venues</a>
-                                                        <a href="{{route('id-candidates.export-confirmed-halls', $session->exam_main_no)}}" class="me-2 btn btn-sm btn-light-info"><i
+                                                        <a href="{{ route('id-candidates.export-confirmed-halls', $session->exam_main_no) }}"
+                                                            class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-download mx-1"></i>Download CSV</a>
 
                                                     </div>
@@ -529,90 +529,103 @@
                                     </div>
                                 </li>
                                 @foreach ($auditDetails as $audit)
-                                @php
-                                    $is_apd_upload = $audit->task_type == 'apd_finalize_halls_upload';
-                                @endphp
-                                @if ($is_apd_upload )
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-primary"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-6.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                            </ul>
+                                    @php
+                                        $is_apd_upload = $audit->task_type == 'apd_finalize_halls_upload';
+                                    @endphp
+                                    @if ($is_apd_upload)
+                                        <li class="task-list-item">
+                                            <i class="task-icon bg-primary"></i>
+                                            <div class="card ticket-card open-ticket">
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-sm-auto mb-3 mb-sm-0">
+                                                            <div class="d-sm-inline-block d-flex align-items-center">
+                                                                <img class="media-object wid-60 img-radius"
+                                                                    src="{{ asset('storage/assets/images/user/avatar-6.jpg') }}"
+                                                                    alt="Generic placeholder image " />
+                                                                <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                                    <ul
+                                                                        class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col">
+                                                            <div class="popup-trigger">
+                                                                <div class="h5 font-weight-bold">Finalize Exam Halls<small
+                                                                        class="badge bg-light-secondary ms-2">uploaded</small>
+                                                                </div>
+                                                                <div class="help-sm-hidden">
+                                                                    <ul class="list-unstyled mt-2 mb-0 text-muted">
+                                                                        <li class="d-sm-inline-block d-block mt-1"><img
+                                                                                src="../assets/images/user/avatar-5.jpg"
+                                                                                alt=""
+                                                                                class="wid-20 rounded me-2 img-fluid" />Done
+                                                                            by
+                                                                            <b>{{ $is_apd_upload ? json_decode($audit->metadata)->user_name ?? '' : ' Unknown ' }}</b>
+                                                                        </li>
+                                                                        <li class="d-sm-inline-block d-block mt-1"><i
+                                                                                class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                            {{ $is_apd_upload ? \Carbon\Carbon::parse($audit->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                                <div class="h5 mt-3"><i
+                                                                        class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                    {{ $is_apd_upload ? $audit->department : 'APD - Section Officer' }}
+                                                                </div>
+                                                                <div class="mt-2">
+                                                                    @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'APD')
+                                                                        @if (isset(json_decode($audit->metadata)->uploaded_csv_link))
+                                                                            <a href="#"
+                                                                                class="me-2 btn btn-sm btn-light-info"
+                                                                                data-pc-animate="just-me"
+                                                                                data-bs-toggle="modal"
+                                                                                data-bs-target="#apdFinalizeCandidate"><i
+                                                                                    class="feather icon-edit mx-1"></i>Edit
+                                                                            </a>
+                                                                        @else
+                                                                            <a href="#"
+                                                                                class="me-2 btn btn-sm btn-light-primary m-2"
+                                                                                data-pc-animate="just-me"
+                                                                                data-bs-toggle="modal"
+                                                                                data-bs-target="#apdFinalizeCandidate"><i
+                                                                                    class="feather icon-upload mx-1 "></i>Upload
+                                                                            </a>
+                                                                        @endif
+                                                                    @endif
+                                                                    @if ($is_apd_upload)
+                                                                        <a href="{{ json_decode($audit->metadata)->uploaded_csv_link }}"
+                                                                            class="me-3 btn btn-sm btn-light-warning"><i
+                                                                                class="feather icon-download mx-1"></i>Download
+                                                                        </a>
+                                                                    @endif
+                                                                    @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'APD')
+                                                                        @if (isset(json_decode($audit->metadata)->failed_csv_link) &&
+                                                                                file_exists(storage_path(
+                                                                                        'app/public/uploads/failed_csv_files/' . basename(json_decode($audit->metadata)->failed_csv_link))))
+                                                                            <a href="{{ json_decode($audit->metadata)->failed_csv_link }}"
+                                                                                class="me-3 btn btn-sm btn-light-danger">
+                                                                                <i
+                                                                                    class="feather icon-download mx-1"></i>Failed
+                                                                                Records
+                                                                            </a>
+                                                                        @endif
+                                                                    @endif
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Finalize Exam Halls<small
-                                                                class="badge bg-light-secondary ms-2">uploaded</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>{{ $is_apd_upload ? json_decode($audit->metadata)->user_name ?? '' : ' Unknown ' }}</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                        {{ $is_apd_upload ? \Carbon\Carbon::parse($audit->updated_at)->format('d-m-Y h:i A') : ' ' }}
-                                                                   </li>
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                {{ $is_apd_upload ? $audit->department : 'APD - Section Officer' }}
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'APD')
-                                                        @if (isset(json_decode($audit->metadata)->uploaded_csv_link))
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info" 
-                                                          data-pc-animate="just-me" data-bs-toggle="modal"
-                                                        data-bs-target="#apdFinalizeCandidate"><i
-                                                            class="feather icon-edit mx-1"></i>Edit </a>
-                                                        @else
-                                                        <a href="#"
-                                                        class="me-2 btn btn-sm btn-light-primary m-2"
-                                                        data-pc-animate="just-me" data-bs-toggle="modal"
-                                                        data-bs-target="#apdFinalizeCandidate"><i
-                                                            class="feather icon-upload mx-1 "></i>Upload </a>
-                                                        @endif
-                                                    @endif
-                                                    @if ($is_apd_upload)
-                                                    <a href="{{ json_decode($audit->metadata)->uploaded_csv_link }}"
-                                                        class="me-3 btn btn-sm btn-light-warning"><i
-                                                            class="feather icon-download mx-1"></i>Download
-                                                    </a>
-                                                    @endif
-                                                    @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'APD')
-                                                    @if (isset(json_decode($audit->metadata)->failed_csv_link) &&
-                                                            file_exists(storage_path('app/public/uploads/failed_csv_files/' . basename(json_decode($audit->metadata)->failed_csv_link))))
-                                                        <a href="{{ json_decode($audit->metadata)->failed_csv_link }}"
-                                                            class="me-3 btn btn-sm btn-light-danger">
-                                                            <i
-                                                                class="feather icon-download mx-1"></i>Failed
-                                                            Records
-                                                        </a>
-                                                        @endif
-                                                    @endif
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                @endif
+                                        </li>
+                                    @endif
                                 @endforeach
+                                @php
+                                    $is_ed_qr_upload = $examMaterialsUpdate !== null ? true : false;
+                                    $metadata = is_string($examMaterialsUpdate->metadata)
+                                        ? json_decode($examMaterialsUpdate->metadata)
+                                        : (object) $examMaterialsUpdate->metadata;
+                                @endphp
                                 <li class="task-list-item">
                                     <i class="task-icon bg-primary"></i>
                                     <div class="card ticket-card open-ticket">
@@ -626,7 +639,7 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                
+
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -639,37 +652,50 @@
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"
-                                                    ><img src="../assets/images/admin/p1.jpg" alt="" class="wid-20 rounded me-2 img-fluid" /></li
-                                                  > --}}
+
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-4.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Anbezhili</b>
+                                                                    <b>{{ $is_ed_qr_upload ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
                                                                 </li>
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>25-07-2024
-                                                                    10:05 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"
-                                                    ><i class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                  </li> --}}
+                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                    {{ $is_ed_qr_upload ? \Carbon\Carbon::parse($examMaterialsUpdate->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                </li>
+
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
                                                                 class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            HQ
-                                                            - Treasury Officer</div>
+                                                            {{ $is_ed_qr_upload ? $examMaterialsUpdate->department : 'ED - Section Officer' }}
+                                                        </div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="{{ route('exam-materials.index',$session->exam_main_no ) }}"
+                                                        <a href="{{ route('exam-materials.index', $session->exam_main_no) }}"
                                                             class="me-2 btn btn-sm btn-light-primary m-2">
                                                             <i class="feather icon-upload mx-1 "></i>Upload </a>
+                                                        @if ($is_ed_qr_upload)
+                                                            <a href="{{ $metadata->uploaded_csv_link }}"
+                                                                class="me-3 btn btn-sm btn-light-warning"><i
+                                                                    class="feather icon-download mx-1"></i>Download
+                                                            </a>
+                                                        @endif
+                                                        {{-- TODO:change role to ED  --}}
+                                                        @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'APD')
+                                                            @if (isset($metadata->failed_csv_link) &&
+                                                                    file_exists(storage_path('app/public/uploads/failed_csv_files/' . basename($metadata->failed_csv_link))))
+                                                                <a href="{{ $metadata->failed_csv_link }}"
+                                                                    class="me-3 btn btn-sm btn-light-danger">
+                                                                    <i class="feather icon-download mx-1"></i>Failed
+                                                                    Records
+                                                                </a>
+                                                            @endif
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
                                 </li>
                                 <li class="task-list-item">
                                     <i class="task-icon bg-primary"></i>
@@ -719,8 +745,7 @@
                                                         </div>
                                                         <div class="h5 mt-3"><i
                                                                 class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            HQ
-                                                            - Treasury Officer</div>
+                                                                District Collectorate</div>
 
                                                     </div>
                                                     <div class="mt-2">
@@ -729,7 +754,7 @@
                                                             data-pc-animate="just-me" data-bs-toggle="modal"
                                                             data-bs-target="#animateModal"><i
                                                                 class="feather icon-eye mx-1 "></i>View </a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
+                                                        <a href="{{route('receive-exam-materials.printer-to-disitrict-treasury',$session->exam_main_no)}}" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-info mx-1"></i>Verify</a>
                                                         <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
                                                                 class="feather icon-edit mx-1"></i>Edit </a>
@@ -764,7 +789,8 @@
                                                 <div class="col">
                                                     <div class="popup-trigger">
                                                         <div class="h5 font-weight-bold">Create CI Meeting<small
-                                                                class="badge bg-light-secondary ms-2"> {{ $meetingCodeGen ? ($meetingCodeGen->user ? 'generated' : 'not generated') : 'generated' }}</small>
+                                                                class="badge bg-light-secondary ms-2">
+                                                                {{ $meetingCodeGen ? ($meetingCodeGen->user ? 'generated' : 'not generated') : 'generated' }}</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
@@ -776,11 +802,12 @@
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>{{$meetingCodeGen ? $meetingCodeGen->user->district_name : 'District' }}</b>
+                                                                    <b>{{ $meetingCodeGen ? $meetingCodeGen->user->district_name : 'District' }}</b>
                                                                 </li>
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                   {{ $meetingCodeGen ? \Carbon\Carbon::parse($meetingCodeGen->created_at)->format('d-m-Y h:i A') :' ' }}</li>
+                                                                    {{ $meetingCodeGen ? \Carbon\Carbon::parse($meetingCodeGen->created_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                </li>
                                                                 {{-- <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
                                                                 </li> --}}
@@ -791,8 +818,10 @@
                                                             District Collectorate</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#"  data-pc-animate="just-me" data-bs-toggle="modal"
-                                                        data-bs-target="#ciMeetingCodeGenerateModal" class="me-2 btn btn-sm btn-light-primary"><i
+                                                        <a href="#" data-pc-animate="just-me"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#ciMeetingCodeGenerateModal"
+                                                            class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-grid mx-1"></i>Generate</a>
                                                         <a href="{{ $meetingCodeGen ? route('district-candidates.generatePdf', ['qrCodeId' => $meetingCodeGen->id]) : '#' }}"
                                                             class="me-2 btn btn-sm btn-light-info"><i

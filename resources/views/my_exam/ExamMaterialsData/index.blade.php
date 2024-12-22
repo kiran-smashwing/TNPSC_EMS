@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                  <h2 class="mb-0"></h2>
-                </div> -->
+                                  <h2 class="mb-0"></h2>
+                                </div> -->
                         </div>
                     </div>
                 </div>
@@ -149,122 +149,132 @@
 
 
             <!-- [ Main Content ] start -->
-            <div class="row">
-
-            </div>
-            <div class="row">
-                <!-- [ basic-table ] start -->
-                <div class="col-xl-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="d-sm-flex align-items-center justify-content-between">
-                                <h5 class="mb-3 mb-sm-0">Update Material Scan Details</h5>
-                                <div>
-                                    <a href="#" class="btn btn-outline-success" data-pc-animate="just-me"
-                                        data-bs-toggle="modal" data-bs-target="#examMaterialsUploadModal">
-                                        <i class="ti ti-upload f-20"></i> Upload Excel Sheet
-                                    </a>
-                                </div>
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    @if (session('failed_csv_path'))
+                        <br>
+                        <a href="{{ session('failed_csv_path') }}" class="btn btn-link">Download Failed
+                            Rows</a>
+                    @endif
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+            @if ($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+            <!-- [ basic-table ] start -->
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-sm-flex align-items-center justify-content-between">
+                            <h5 class="mb-3 mb-sm-0">Update Material Scan Details</h5>
+                            <div>
+                                <a href="#" class="btn btn-outline-success" data-pc-animate="just-me"
+                                    data-bs-toggle="modal" data-bs-target="#examMaterialsUploadModal">
+                                    <i class="ti ti-upload f-20"></i> Upload Excel Sheet
+                                </a>
                             </div>
                         </div>
-                        <div class="card-body table-border-style">
-                            <!-- Filter options -->
-                            <form id="filterForm" class="mb-3">
-                                <div class="filter-item">
-                                    <select class="form-select" id="roleFilter" name="role">
-                                        <option value="">Select Role</option>
-                                        <option value="AD">AD</option>
-                                        <option value="Manager">Manager</option>
-                                        <option value="Staff">Staff</option>
-                                    </select>
-                                </div>
-                                <div class="filter-item">
-                                    <select class="form-select" id="districtFilter" name="district">
-                                        <option value="">Select District</option>
-                                        <option value="Vellore">Vellore</option>
-                                        <option value="Chennai">Chennai</option>
-                                        <option value="Coimbatore">Coimbatore</option>
-                                    </select>
-                                </div>
-                                <div class="filter-item">
-                                    <select class="form-select" id="centerCodeFilter" name="centerCode">
-                                        <option value="">Select Center Code</option>
-                                        <option value="00101">00101</option>
-                                        <option value="00102">00102</option>
-                                        <option value="00103">00103</option>
-                                    </select>
-                                </div>
-                                <div class="btn-container">
-                                    <button type="submit" class="btn btn-primary">Apply Filters</button>
-                                </div>
-                            </form>
+                    </div>
+                    <div class="card-body table-border-style">
+                        <!-- Filter options -->
+                        <form id="filterForm" class="mb-3">
+                            <div class="filter-item">
+                                <select class="form-select" id="roleFilter" name="role">
+                                    <option value="">Select Role</option>
+                                    <option value="AD">AD</option>
+                                    <option value="Manager">Manager</option>
+                                    <option value="Staff">Staff</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <select class="form-select" id="districtFilter" name="district">
+                                    <option value="">Select District</option>
+                                    <option value="Vellore">Vellore</option>
+                                    <option value="Chennai">Chennai</option>
+                                    <option value="Coimbatore">Coimbatore</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <select class="form-select" id="centerCodeFilter" name="centerCode">
+                                    <option value="">Select Center Code</option>
+                                    <option value="00101">00101</option>
+                                    <option value="00102">00102</option>
+                                    <option value="00103">00103</option>
+                                </select>
+                            </div>
+                            <div class="btn-container">
+                                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                            </div>
+                        </form>
 
 
-                            <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
-                                width="100%">
-                                <thead>
+                        <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
+                            width="100%">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Hall no</th>
+                                    <th>Center</th>
+                                    <th>District</th>
+                                    <th>Venue</th>
+                                    <th>Exam Date</th>
+                                    <th>Exam Session</th>
+                                    <th>Category</th>
+                                    <th>Qrcode</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($examMaterials as $key => $examMaterial)
                                     <tr>
-                                        <th>Hall no</th>
-                                        <th>Center</th>
-                                        <th>District</th>
-                                        <th>Venue</th>
-                                        <th>D1</th>
-                                        <th>D2</th>
-                                        <th>A1</th>
-                                        <th>A2</th>
-                                        <th>A</th>
-                                        <th>B1</th>
-                                        <th>B2</th>
-                                        <th>B3</th>
-                                        <th>B4</th>
-                                        <th>B5</th>
-                                        <th>B</th>
-                                        <th>BUNDLE I</th>
-                                        <th>BUNDLE II</th>
-                                        <th>C</th>
-                                        <th>TRUNK BOX</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>001</td>
-                                        <td>Govt High School</td>
-                                        <td>Vellore</td>
-                                        <td>VIT College</td>
-                                        <td>Data D1</td>
-                                        <td>Data D2</td>
-                                        <td>Data A1</td>
-                                        <td>Data A2</td>
-                                        <td>Data A</td>
-                                        <td>Data B1</td>
-                                        <td>Data B2</td>
-                                        <td>Data B3</td>
-                                        <td>Data B4</td>
-                                        <td>Data B5</td>
-                                        <td>Data B</td>
-                                        <td>Data BUNDLE I</td>
-                                        <td>Data BUNDLE II</td>
-                                        <td>Data C</td>
-                                        <td>Data TRUNK BOX</td>
+                                        <td>{{ $key + 1 }}</td>
+                                        <td>{{ $examMaterial->hall_code }}</td>
+                                        <td>{{ $examMaterial->center->center_name }}</td>
+                                        <td>{{ $examMaterial->district->district_name }}</td>
+                                        <td>{{ $examMaterial->venue->venue_name }}</td>
+                                        <td>{{ date('d-m-Y', strtotime($examMaterial->exam_date)) }}</td>
+                                        <td>{{ $examMaterial->exam_session }}</td>
+                                        <td>{{ $examMaterial->category }}</td>
+                                        <td>{{ $examMaterial->qr_code }}</td>
                                         <td>
-                                            <a href="" class="avtar avtar-xs  btn-light-success"><i
-                                                    class="ti ti-eye f-20"></i></a>
-                                            <a href="" class="avtar avtar-xs  btn-light-success"><i
-                                                    class="ti ti-edit f-20"></i></a>
-                                            <a href="#" class="avtar avtar-xs  btn-light-success"
-                                                title="Change Status (Active or Inactive)" onclick="toggleIcon(this)">
-                                                <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon for 'Active' -->
+                                            <a href="#" class="avtar avtar-xs btn-light-success">
+                                                <i class="ti ti-eye f-20"></i>
+                                            </a>
+                                            <a href="#" class="avtar avtar-xs btn-light-success">
+                                                <i class="ti ti-edit f-20"></i>
+                                            </a>
+                                            <a href="#"
+                                                class="avtar avtar-xs status-toggle {{ $examMaterial->status ? 'btn-light-success' : 'btn-light-danger' }}"
+                                                data-exam-material-id="{{ $examMaterial->id }}"
+                                                title="Change Status (Active or Inactive)">
+                                                <i
+                                                    class="ti ti-toggle-{{ $examMaterial->status ? 'right' : 'left' }} f-20"></i>
                                             </a>
                                         </td>
                                     </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-            <!-- [ basic-table ] end -->
+        </div>
+        <!-- [ basic-table ] end -->
         </div>
         <!-- [ Main Content ] end -->
         </div>

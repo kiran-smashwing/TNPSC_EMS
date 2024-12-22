@@ -123,7 +123,7 @@
         }
 
         .row-label {
-            width: 30%;
+            /* width: 20%; */
             font-weight: bold;
         }
 
@@ -174,23 +174,23 @@
         </div>
 
         <div class="meeting-title">
-            <h5> Statement of Receiving Team (Mofussil)</h5>
+            <h5>Annexure - IB Statement of Receiving Team (Mofussil) Venue: Receiving Cum Storage Hall (1st Floor)</h5>
         </div>
 
         {{-- <div class="header" style="text-align: center;">
             Venue: Receiving Cum Storage Hall (1st Floor)
         </div> --}}
         <div class="content-section">
-            <p><strong>Venue: Receiving Cum Storage Hall (1st Floor)</strong></p>
-            <p><strong> Notification No: 10/2024 </strong> | <strong> Exam Date: 01-12-2024 </strong>
-                <br>
-                <strong>Exam Name: RASHTRIYA INDIAN MILITARY COLLEGE(JULY-2025 TERM)</strong> <br>
-                {{-- <strong>Exam Service:</strong>  --}}
-            </p>
+          
         </div>
         <table>
             <tr>
-                <td  class="row-label" colspan="2">Route No:</td>
+                <td class="row-label" colspan="1">Notification No: 10/2024</td>
+                <td class="row-label" colspan="1">Exam Date: 01-12-2024</td>
+                <td class="row-label" colspan="2">Exam Name: RASHTRIYA INDIAN MILITARY COLLEGE (JULY-2025 TERM)</td>
+            </tr>
+            <tr>
+                <td class="row-label" colspan="2">Route No:</td>
                 <td class="row-label" colspan="2">District:</td>
             </tr>
             <tr>
@@ -200,20 +200,21 @@
             <tr>
                 <td class="row-label" colspan="1">GPS Lock Number:</td>
                 <td class="row-label" colspan="1">Access Card Number:</td>
-                <td class="row-label" colspan="1">Memory Cards Received from Dist. Treasury:</td>
+                <td class="row-label" colspan="2">Memory Cards Received from Dist. Treasury:</td>
             </tr>
-            </tr>
-            <td class="row-label" colspan="4">Particulars of Unused One Time Lock for Metal Trunk Box Received (Spare
-                Lock Number):</td>
             <tr>
+                <td class="row-label" colspan="4">
+                    Particulars of Unused One Time Lock for Metal Trunk Box Received (Spare Lock Number):
+                </td>
             </tr>
-            <td class="row-label" colspan="4">Particulars of One Time Lock For Chartered Vehicle: (I)Used OTL
-                No. <br> (II)Unused OTL (Spare Lock Number):</td>
             <tr>
-
-
+                <td class="row-label" colspan="4">
+                    Particulars of One Time Lock For Chartered Vehicle: (I) Used OTL No. <br>
+                    (II) Unused OTL (Spare Lock Number):
+                </td>
+            </tr>
         </table>
-
+        
         <table class="report-summary-table">
             <tr>
                 <th style="width: 20px;">Hall Code</th>
@@ -228,31 +229,52 @@
             <tr>
                 <td></td>
                 <td></td>
-                <td rowspan="3" style="text-align: left; font-weight: bold; vertical-align: top;"></td>
-                <td rowspan="3" style="text-align: left; font-weight: bold; vertical-align: top;"></td>
+                <td rowspan="6" style="text-align: left; font-weight: bold; vertical-align: top;"></td>
+                <td rowspan="6" style="text-align: left; font-weight: bold; vertical-align: top;"></td>
                 <td></td>
                 <td></td>
-                <td rowspan="3" style="text-align: left; font-weight: bold; vertical-align: top;"></td>
-                <td rowspan="3" style="text-align: left; font-weight: bold; vertical-align: top;"></td>
+                <td rowspan="6" style="text-align: left; font-weight: bold; vertical-align: top;"></td>
+                <td rowspan="6" style="text-align: left; font-weight: bold; vertical-align: top;"></td>
             </tr>
             <tr>
                 <td></td>
                 <td></td>
-                <!-- Keep the other columns with empty content -->
-                {{-- <td></td> --}}
                 <td></td>
                 <td></td>
             </tr>
             <tr>
                 <td></td>
                 <td></td>
-                <!-- Keep the other columns with empty content -->
-                {{-- <td></td> --}}
                 <td></td>
                 <td></td>
             </tr>
-            <!-- Add more rows as needed -->
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+               
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+               
+            </tr>
+            
+            
+           
+           
         </table>
+        
         
 
 

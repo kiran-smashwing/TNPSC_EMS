@@ -231,14 +231,6 @@ class AuthController extends Controller
                 'auth_email' => $email,
                 'auth_image' => $profileImage,
             ]);
-            // Debugging: dump and die the session values
-            // dd([
-            //     'auth_role' => session('auth_role'),
-            //     'auth_id' => session('auth_id'),
-            //     'auth_name' => session('auth_name'),
-            //     'auth_email' => session('auth_email'),
-            //     'auth_image' => session('auth_image'),
-            // ]);
 
             if ($remember) {
                 session()->put('auth.password_confirmed_at', time());

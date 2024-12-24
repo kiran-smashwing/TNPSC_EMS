@@ -369,19 +369,34 @@ Route::prefix('ci-meetings')->group(function () {
         Route::post('/update-adequacy-check', [CIMeetingController::class, 'updateAdequacyCheck'])->name('ci-meetings.updateAdequacyCheck');
     });
 });
+// Route::prefix('ci-meetings')->group(function () {
+//     Route::middleware(['auth.multi', 'role.permission:ci-meetings.index'])->group(function () {
+//         Route::get('/', [CIMeetingController::class, 'index'])
+//             ->name('ci-meetings.index');
+
+//         Route::post('/attendance-QRcode-scan', [CIMeetingController::class, 'handleAttendanceQRCodeScan'])
+//             ->name('ci-meetings.attendance-QRcode-scan')
+//             ->middleware('role.permission:ci-meetings.attendance-QRcode-scan');
+
+//         Route::post('/update-adequacy-check', [CIMeetingController::class, 'updateAdequacyCheck'])
+//             ->name('ci-meetings.update-adequacy-check')
+//             ->middleware('role.permission:ci-meetings.update-adequacy-check');
+//     });
+// });
 //ExamMaterialsController Route::prefix('exam-materials')->group(function(){
 Route::prefix('exam-materials')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::get('/{examId}', [ExamMaterialsDataController::class, 'index'])->name('exam-materials.index');
         Route::get('/download-sample-csv', [ExamMaterialsDataController::class, 'downloadSampleCsv'])->name('exam-materials.download-sample-csv');
         Route::post('/upload', [ExamMaterialsDataController::class, 'uploadCsv'])->name('exam-materials.upload');
-});
+    });
 });
 //ReceiveExamMaterialsController Route::prefix('receive-exam-materials')->group(function(){
 Route::prefix('receive-exam-materials')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::get('/printer-to-disitrct-treasury/{examId}', [ReceiveExamMaterialsController::class, 'printerToDistrictTreasury'])->name('receive-exam-materials.printer-to-disitrict-treasury');
-});
+        Route::post('/scan-disitrct-exam-materials/{examId}', [ReceiveExamMaterialsController::class, 'scanDistrictExamMaterials'])->name('receive-exam-materials.scan-disitrct-exam-materials');
+    });
 });
 // Route::get('/run-function', [DataController::class, 'addData']);
 

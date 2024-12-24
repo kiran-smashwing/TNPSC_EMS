@@ -1,4 +1,5 @@
-<div class="modal " data-bs-backdrop="static" id="qrCodeModal" tabindex="-1" aria-hidden="true" style="--bs-border-radius:0px;"> 
+<div class="modal " data-bs-backdrop="static" id="qrCodeModal" tabindex="-1" aria-hidden="true"
+    style="--bs-border-radius:0px;">
     <div class="modal-dialog modal-fullscreen" role="document">
         <div class="modal-content">
             <!-- Close button -->
@@ -149,3 +150,91 @@
         </div>
     </div>
 </div>
+@push('scripts')
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let lastScannedCode = null;
+        let scanning = true;
+        let videoStream = null;
+
+        // Function to start camera
+        function startCamera() {
+            scanning = true;
+            navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: "environment"
+                    },
+                    audio: false
+                })
+                .then(function(stream) {
+                    videoStream = stream;
+                    video.srcObject = stream;
+                    video.setAttribute('playsinline', true);
+                    video.play();
+                    requestAnimationFrame(tick);
+                })
+                .catch(function(error) {
+                    console.error("Error accessing the camera:", error);
+                });
+        }
+
+        // Function to stop camera
+        function stopCamera() {
+            scanning = false;
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+            if (video.srcObject) {
+                video.srcObject = null;
+            }
+        }
+
+        // Initialize modal events
+        document.addEventListener('DOMContentLoaded', function() {
+            const qrCodeModal = document.getElementById('qrCodeModal');
+
+            // Start camera when modal opens
+            qrCodeModal.addEventListener('shown.bs.modal', function() {
+                startCamera();
+            });
+
+            // Stop camera when modal closes
+            qrCodeModal.addEventListener('hidden.bs.modal', function() {
+                stopCamera();
+            });
+        });
+
+        function tick() {
+            if (video.readyState === video.HAVE_ENOUGH_DATA && scanning) {
+                canvas.height = video.videoHeight;
+                canvas.width = video.videoWidth;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                var code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: "dontInvert",
+                });
+
+                if (code) {
+                    scanning = false;
+                    lastScannedCode = code.data;
+                    console.log("QR code:", code);
+                    console.log("QR code found:", lastScannedCode);
+                    processQrCode(lastScannedCode);
+                    stopCamera();
+                }
+            }
+
+            if (scanning) {
+                requestAnimationFrame(tick);
+            }
+        }
+        // Add this to ensure cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            stopCamera();
+        });
+    </script>
+@endpush

@@ -105,7 +105,7 @@
 
             /* Align button to the end */
             .btn-container {
-                flex: 1 1 200px;
+                flex: 1 1 120px;
                 /* Ensures button is on the same row */
                 display: flex;
                 justify-content: flex-end;
@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                  <h2 class="mb-0"></h2>
-                                </div> -->
+                                                  <h2 class="mb-0"></h2>
+                                                </div> -->
                         </div>
                     </div>
                 </div>
@@ -158,8 +158,9 @@
                                 <h5 class="mb-3 mb-sm-0">Printer to Disitrct Treasury</h5>
                                 <ul class="list-inline ms-auto  mb-0">
 
-                                    <li class="list-inline-item"><a href="#" class="badge bg-dark f-14">Received 40 /
-                                            100</a></li>
+                                    <li class="list-inline-item"><a href="#" class="badge bg-dark f-14">Received
+                                            {{ $totalScanned }} /
+                                            {{ $totalExamMaterials }}</a></li>
                                     {{-- <li class="list-inline-item"> <a href="{{route('collectorate.create')}}" class="btn btn-outline-success">Scan Now</a></li> --}}
                                 </ul>
 
@@ -167,33 +168,43 @@
                         </div>
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
-                            <form id="filterForm" class="mb-3">
+                            <form id="filterForm" class="mb-3" method="GET" action="{{ route('receive-exam-materials.printer-to-disitrict-treasury', $examId) }}">
                                 <div class="filter-item">
-                                    <select class="form-select" id="districtFilter" name="district">
-                                        <option value="">Select District</option>
-                                        <option value="Vellore">Vellore</option>
-                                        <option value="Chennai">Chennai</option>
-                                        <option value="Coimbatore">Coimbatore</option>
+                                    <select class="form-select" id="centerCodeFilter" name="centerCode">
+                                        <option value="">Select Center</option>
+                                        @foreach ($centers as $center)
+                                            <option value="{{ $center->center_code }}" {{ request('centerCode') == $center->center_code ? 'selected' : '' }}>
+                                                {{ $center->center_code }} - {{ $center->center_name }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="filter-item">
-                                    <select class="form-select" id="centerCodeFilter" name="centerCode">
-                                        <option value="">Select Center Code</option>
-                                        <option value="00101">00101</option>
-                                        <option value="00102">00102</option>
-                                        <option value="00103">00103</option>
+                                    <input type="date" class="form-control" id="examDateFilter" name="examDate" value="{{ request('examDate') }}">
+                                </div>
+                                <div class="filter-item">
+                                    <select class="form-select" id="examSessionFilter" name="examSession">
+                                        <option value="">Select Exam Session</option>
+                                        <option value="FN" {{ request('examSession') == 'FN' ? 'selected' : '' }}>FN</option>
+                                        <option value="AN" {{ request('examSession') == 'AN' ? 'selected' : '' }}>AN</option>
                                     </select>
                                 </div>
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                                 </div>
                                 <div class="btn-container">
-                                    <a href="#" class="me-2 btn btn-sm btn-light-primary " data-pc-animate="just-me"
-                                        data-bs-toggle="modal" data-bs-target="#qrCodeModal"><i
-                                            class="feather icon-eye mx-1 "></i>Scan </a>
+                                    <button type="button" id="resetButton" class="btn btn-secondary d-flex align-items-center" onclick="window.location.href='{{ route('receive-exam-materials.printer-to-disitrict-treasury', $examId) }}'">
+                                        <i class="ti ti-refresh me-2"></i> Reset
+                                    </button>
+                                </div>
+                                <div class="btn-container">
+                                    <a href="#" class="btn btn-light-primary d-flex align-items-center"  data-pc-animate="just-me"
+                                        data-bs-toggle="modal" data-bs-target="#qrCodeModal">
+                                        <i class="feather icon-aperture mx-1"></i>Scan 
+                                    </a>
                                 </div>
                             </form>
-
+                            
                             <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
                                 width="100%">
                                 <thead>
@@ -204,30 +215,28 @@
                                         <th>Exam Date</th>
                                         <th>Exam Session</th>
                                         <th>QP / OMR No</th>
-                                        <th>Total Count</th>
                                         <th>Time Stamp</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @php $counter = 1; @endphp
-                                    @foreach ($examMaterials as $centerGroups)
-                                        @foreach ($centerGroups as $hallGroups)
-                                            @foreach ($hallGroups as $dateGroups)
-                                                @foreach ($dateGroups as $group)
-                                                    <tr>
-                                                        <td>{{ $counter++ }}</td>
-                                                        <td>{{ $group['center']->center_code }} -
-                                                            {{ $group['center']->center_name }}</td>
-                                                        <td>{{ $group['hall_code'] }}</td>
-                                                        <td>{{ date('d-m-Y', strtotime($group['exam_date'])) }}</td>
-                                                        <td>{{ $group['exam_session'] }}</td>
-                                                        <td>{{ $group['d1_count'] }} / {{ $group['d2_count'] }}</td>
-                                                        <td>{{ $group['total_count'] }}</td>
-                                                        <td>{{ date('d-m-Y h:i A', strtotime($group['created_at'])) }}</td>
-                                                    </tr>
-                                                @endforeach
-                                            @endforeach
-                                        @endforeach
+                                    @foreach ($examMaterials as $examMaterial)
+                                        <tr>
+                                            <td>{{ $counter++ }}</td>
+                                            <td>{{ $examMaterial['center']->center_code }} -
+                                                {{ $examMaterial['center']->center_name }}</td>
+                                            <td>{{ $examMaterial['hall_code'] }}</td>
+                                            <td>{{ date('d-m-Y', strtotime($examMaterial['exam_date'])) }}</td>
+                                            <td>{{ $examMaterial['exam_session'] }}</td>
+                                            <td>{{ $examMaterial->qr_code }}</td>
+                                            <td>
+                                                @if ($examMaterial->examMaterialsScan)
+                                                    {{ $examMaterial->examMaterialsScan->created_at->format('d-m-Y h:i:s') }}
+                                                @else
+                                                    No Scans
+                                                @endif
+                                            </td>
+                                        </tr>
                                     @endforeach
                                 </tbody>
                             </table>
@@ -247,89 +256,14 @@
 
     @push('scripts')
         @include('partials.datatable-export-js')
+        <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
         <script>
-            const video = document.getElementById('video');
-            const canvas = document.getElementById('canvas');
-            const ctx = canvas.getContext('2d');
-
-            let lastScannedCode = null;
-            let scanning = true;
-            let videoStream = null;
-
-            // Function to start camera
-            function startCamera() {
-                scanning = true;
-                navigator.mediaDevices.getUserMedia({
-                        video: {
-                            facingMode: "environment"
-                        },
-                        audio: false
-                    })
-                    .then(function(stream) {
-                        videoStream = stream;
-                        video.srcObject = stream;
-                        video.setAttribute('playsinline', true);
-                        video.play();
-                        requestAnimationFrame(tick);
-                    })
-                    .catch(function(error) {
-                        console.error("Error accessing the camera:", error);
-                    });
-            }
-
-            // Function to stop camera
-            function stopCamera() {
-                scanning = false;
-                if (videoStream) {
-                    videoStream.getTracks().forEach(track => track.stop());
-                    videoStream = null;
-                }
-                if (video.srcObject) {
-                    video.srcObject = null;
-                }
-            }
-
-            // Initialize modal events
-            document.addEventListener('DOMContentLoaded', function() {
-                const qrCodeModal = document.getElementById('qrCodeModal');
-
-                // Start camera when modal opens
-                qrCodeModal.addEventListener('shown.bs.modal', function() {
-                    startCamera();
-                });
-
-                // Stop camera when modal closes
-                qrCodeModal.addEventListener('hidden.bs.modal', function() {
-                    stopCamera();
-                });
-            });
-
-            function tick() {
-                if (video.readyState === video.HAVE_ENOUGH_DATA && scanning) {
-                    canvas.height = video.videoHeight;
-                    canvas.width = video.videoWidth;
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    var code = jsQR(imageData.data, imageData.width, imageData.height, {
-                        inversionAttempts: "dontInvert",
-                    });
-
-                    if (code) {
-                        scanning = false;
-                        lastScannedCode = code.data;
-                        console.log("QR code found:", lastScannedCode);
-                        processQrCode(lastScannedCode);
-                        stopCamera();
-                    }
-                }
-
-                if (scanning) {
-                    requestAnimationFrame(tick);
-                }
-            }
-
             function processQrCode(data) {
-                fetch("{{ route('ci-meetings.attendance-QRcode-scan') }}", {
+                // Hide the modal using Bootstrap's modal method
+                const qrCodeModal = document.getElementById('qrCodeModal');
+                const modalInstance = bootstrap.Modal.getInstance(qrCodeModal);
+                modalInstance.hide();
+                fetch("{{ route('receive-exam-materials.scan-disitrct-exam-materials', $examId) }}", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -341,25 +275,51 @@
                     })
                     .then(response => response.json())
                     .then(data => {
-                        localStorage.setItem('qrCodeResult', JSON.stringify({
-                            type: data.status == 'success' ? 'success' : 'error',
-                            message: data.message
-                        }));
+                        showAlert(data.status, data.message);
                         $('#qrCodeModal').modal('hide'); // Close modal after successful scan
+                        // Update the total scanned and total exam materials count
                     })
                     .catch((error) => {
-                        console.error('Error:', error);
-                        localStorage.setItem('qrCodeResult', JSON.stringify({
-                            type: 'danger',
-                            message: error
-                        }));
+                        showAlert(data.status, data.message);
                         $('#qrCodeModal').modal('hide');
                     });
             }
-            // Add this to ensure cleanup on page unload
-            window.addEventListener('beforeunload', function() {
-                stopCamera();
-            });
+
+            function showAlert(type, message) {
+                // Map the type to SweetAlert2's icon options
+                let iconType;
+                switch (type) {
+                    case 'success':
+                        iconType = 'success';
+                        break;
+                    case 'error':
+                        iconType = 'error';
+                        break;
+                    case 'info':
+                        iconType = 'info';
+                        break;
+                    case 'warning':
+                        iconType = 'warning';
+                        break;
+                    default:
+                        iconType = 'info'; // Default to 'info' if type is unknown
+                }
+
+                // Use SweetAlert2 to display the alert
+                Swal.fire({
+                    icon: iconType,
+                    title: type.charAt(0).toUpperCase() + type.slice(1),
+                    text: message,
+                    timer: 5000, // Hide after 5 seconds
+                    didOpen: () => {
+                        setTimeout(() => {
+                            Swal.close(); // Automatically close alert after 5 seconds
+                        }, 5000);
+                    }
+                }).then((result) => {
+                        window.location.reload(); // Reload the page when "OK" is clicked
+                });
+            }
         </script>
     @endpush
 

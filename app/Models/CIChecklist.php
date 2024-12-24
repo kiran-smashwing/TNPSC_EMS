@@ -11,6 +11,7 @@ class CIChecklist extends Model
 
     // Define the table name (optional if following Laravel conventions)
     protected $table = 'ci_checklist';
+    public $timestamps = false;
 
     // Define the primary key
     protected $primaryKey = 'ci_checklist_id';
@@ -27,17 +28,16 @@ class CIChecklist extends Model
     protected $casts = [
         'ci_checklist_createdat' => 'datetime',
     ];
-
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            $model->ci_checklist_createdat = now();
+        });
+    }
     // If you don't want to use the `updated_at` column, you can disable it
     public function getUpdatedAtColumn()
     {
         return null;
     }
-
-    // If there are relationships with other models, you can define them here
-    // For example, if a checklist belongs to an exam, you could define a relationship method.
-    // public function exam()
-    // {
-    //     return $this->belongsTo(Exam::class, 'ci_checklist_examid', 'exam_id');
-    // }
 }

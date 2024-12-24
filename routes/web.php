@@ -37,6 +37,11 @@ use App\Http\Controllers\ExamMaterialsDataController;
 use App\Http\Controllers\EDController;
 use App\Http\Controllers\Vehicle_SecurityController;
 use App\Http\Controllers\ReceiveExamMaterialsController;
+use App\Http\Controllers\Qp_BookletController;
+use App\Http\Controllers\Omr_AccountController;
+use App\Http\Controllers\Expenditure_StatmentController;
+use App\Http\Controllers\Bundle_ReceivingReportController;
+use App\Http\Controllers\CIPreliminaryCheckController;
 
 //PDF
 Route::get('/ci-consolidate-report', [CIConsolidateController::class, 'generateReport'])->name('download.report');
@@ -53,6 +58,14 @@ Route::get('/api/get-dropdown-data', [AttendanceReportController::class, 'getDro
 // Route::get('/attendance-report/filter', [AttendanceReportController::class, 'filterAttendanceReport'])->name('attendance-report.filter');
 Route::get('/ed-report', [EDController::class, 'generateEDReport'])->name('ed.report');
 Route::get('/vehicel-report', [Vehicle_SecurityController::class, 'generateVehicleReport'])->name('vehicel.report');
+// Qp_bookletcontroller
+Route::get('/qp-booklet', [Qp_BookletController::class, 'generateQpbookletReport'])->name('qp_booklet.report');
+// Qp_bookletcontroller
+Route::get('/omr-account', [Omr_AccountController::class, 'generateOmraccountReport'])->name('omr-account.report');
+// Expenditure_StatmentController
+Route::get('/expenditure-statment', [Expenditure_StatmentController::class, 'generateexpenditureReport'])->name('expenditure-statment.report');
+// Expenditure_StatmentController
+Route::get('/bundle-receiving', [Bundle_ReceivingReportController::class, 'generatebundlereceivingReport'])->name('bundle-receiving.report');
 
 
 // Public routes
@@ -357,6 +370,9 @@ Route::prefix('ci-meetings')->group(function () {
         Route::post('/attendance-QRcode-scan', [CIMeetingController::class, 'handleAttendanceQRCodeScan'])->name('ci-meetings.attendance-QRcode-scan');
         Route::post('/update-adequacy-check', [CIMeetingController::class, 'updateAdequacyCheck'])->name('ci-meetings.updateAdequacyCheck');
     });
+});
+Route::prefix('ci-checklist')->middleware(['auth.multi'])->group(function () {
+    Route::post('/save', [CIPreliminaryCheckController::class, 'saveChecklist'])->name('ci-checklist.save'); // To save checklist
 });
 // Route::prefix('ci-meetings')->group(function () {
 //     Route::middleware(['auth.multi', 'role.permission:ci-meetings.index'])->group(function () {

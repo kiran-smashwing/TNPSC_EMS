@@ -82,6 +82,21 @@
                                         <input type="text" name="notification_no" id="notification_no"
                                             class="form-control" placeholder="Enter Notification No" />
                                     </div>
+                                    <!-- Exam Date -->
+                                    <div class="col-md-4 mb-3">
+                                        <label for="exam_date" class="form-label">Exam Date</label>
+                                        <select name="exam_date" id="exam_date" class="form-control">
+                                            <option value="" selected>Select Exam Date</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Session -->
+                                    <div class="col-md-4 mb-3">
+                                        <label for="session" class="form-label">Session</label>
+                                        <select name="session" id="session" class="form-control">
+                                            <option value="" selected>Select Session</option>
+                                        </select>
+                                    </div>
 
                                     <!-- District -->
                                     <!-- District Dropdown -->
@@ -105,21 +120,7 @@
                                     </div>
 
 
-                                    <!-- Exam Date -->
-                                    <div class="col-md-4 mb-3">
-                                        <label for="exam_date" class="form-label">Exam Date</label>
-                                        <select name="exam_date" id="exam_date" class="form-control">
-                                            <option value="" selected>Select Exam Date</option>
-                                        </select>
-                                    </div>
 
-                                    <!-- Session -->
-                                    <div class="col-md-4 mb-3">
-                                        <label for="session" class="form-label">Session</label>
-                                        <select name="session" id="session" class="form-control">
-                                            <option value="" selected>Select Session</option>
-                                        </select>
-                                    </div>
                                 </div>
 
                                 <!-- Submit Button -->

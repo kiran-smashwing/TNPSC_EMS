@@ -343,7 +343,7 @@
                     <li class="pc-item"><a class="pc-link" href="{{route('ed.report')}}"> Exams
                             Reports</a>
                     </li>
-                    <li class="pc-item"><a class="pc-link" href="{{route('vehicel.report')}}"> Expenditure
+                    <li class="pc-item"><a class="pc-link" href="{{route('expenditure-statment.report')}}"> Expenditure
                             Statement</a>
                     </li>
                     <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> Inspection
@@ -352,13 +352,13 @@
                     <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> Meeting
                             Reports</a>
                     </li>
-                    <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> Question
+                    <li class="pc-item"><a class="pc-link" href="{{route('qp_booklet.report')}}"> Question
                             Booklet Account</a>
                     </li>
-                    <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> Receiving
+                    <li class="pc-item"><a class="pc-link" href="{{route('bundle-receiving.report')}}"> Receiving
                             Bundle Reports</a>
                     </li>
-                    <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> OMR
+                    <li class="pc-item"><a class="pc-link" href="{{route('omr-account.report')}}"> OMR
                             Account</a>
                     </li>
                     <li class="pc-item"><a class="pc-link" href="{{ route('attendance.report') }}">

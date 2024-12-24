@@ -9,7 +9,7 @@ use App\Models\ExamSession;
 use App\Models\ExamVenueConsent;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Mockery\Undefined;
+use App\Models\CIChecklist;
 
 class MyExamController extends Controller
 {
@@ -81,6 +81,8 @@ class MyExamController extends Controller
 
     public function centerTask()
     {
+        
+        
         return view('my_exam.center.task');
     }
     public function ciTask($examId)
@@ -91,11 +93,13 @@ class MyExamController extends Controller
             abort(404, 'Exam not found');
         }
         // Group exam sessions by date
+        
         $groupedSessions = $session->examsession->groupBy(function ($item) {
             return \Carbon\Carbon::parse($item->exam_sess_date)->format('d-m-Y');
         });
-
-        return view('my_exam.CI.task', compact('session', 'groupedSessions'));
+        $preliminary = CIChecklist::where('ci_checklist_type', 'Preliminary')->get();
+        // dd($preliminary);
+        return view('my_exam.CI.task', compact('session', 'groupedSessions','preliminary'));
 
     }
     public function ciExamActivity($examId, $session)
@@ -105,7 +109,7 @@ class MyExamController extends Controller
         if (!$session) {
             abort(404, 'Session not found');
         }
-
+        
         return view('my_exam.CI.ci-exam-activity', compact('session'));
 
         // Group exam sessions by date

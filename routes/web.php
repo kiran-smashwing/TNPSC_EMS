@@ -41,6 +41,7 @@ use App\Http\Controllers\Qp_BookletController;
 use App\Http\Controllers\Omr_AccountController;
 use App\Http\Controllers\Expenditure_StatmentController;
 use App\Http\Controllers\Bundle_ReceivingReportController;
+use App\Http\Controllers\CIPreliminaryCheckController;
 
 //PDF
 Route::get('/ci-consolidate-report', [CIConsolidateController::class, 'generateReport'])->name('download.report');
@@ -368,6 +369,9 @@ Route::prefix('ci-meetings')->group(function () {
         Route::post('/attendance-QRcode-scan', [CIMeetingController::class, 'handleAttendanceQRCodeScan'])->name('ci-meetings.attendance-QRcode-scan');
         Route::post('/update-adequacy-check', [CIMeetingController::class, 'updateAdequacyCheck'])->name('ci-meetings.updateAdequacyCheck');
     });
+});
+Route::prefix('ci-checklist')->middleware(['auth.multi'])->group(function () {
+    Route::post('/save', [CIPreliminaryCheckController::class, 'saveChecklist'])->name('ci-checklist.save'); // To save checklist
 });
 // Route::prefix('ci-meetings')->group(function () {
 //     Route::middleware(['auth.multi', 'role.permission:ci-meetings.index'])->group(function () {

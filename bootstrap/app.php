@@ -19,7 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(\App\Http\Middleware\SanitizeInput::class);
         // Add the multi-auth middleware
         $middleware->alias([
-            'auth.multi' => \App\Http\Middleware\MultiAuthMiddleware::class
+            'auth.multi' => \App\Http\Middleware\MultiAuthMiddleware::class,
+            // Add the role permission middleware
+            'role.permission' => \App\Http\Middleware\RolePermissionMiddleware::class,
+            // Add the redirect if authenticated middleware
+            'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         ]);
     })
 

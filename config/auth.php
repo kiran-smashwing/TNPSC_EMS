@@ -67,6 +67,10 @@ return [
             'driver' => 'session',
             'provider' => 'ci',
         ],
+        'sw-admin' => [
+            'driver' => 'session',
+            'provider' => 'sw-admin',
+        ],
     ],
 
 
@@ -120,11 +124,10 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\ChiefInvigilator::class,
         ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+       'sw-admin' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\User::class,
+        ],
     ],
 
     /*

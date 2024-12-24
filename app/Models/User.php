@@ -44,14 +44,19 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-
-    public function createdDesignations()
+    /**
+     * Ensure high-security measures for sw-admin role
+     */
+    public static function boot()
     {
-        return $this->hasMany(Designation::class, 'created_by');
+        parent::boot();
+
+        static::creating(function ($user) {
+                // Ensure strong password requirements
+                if (!preg_match('/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&#]).{8,}$/', $user->password)) {
+                    throw new \Exception('Password must be at least 8 characters long and include at least one letter, one number, and one special character.');
+                }
+        });
     }
 
-    public function modifiedDesignations()
-    {
-        return $this->hasMany(Designation::class, 'modified_by');
-    }
 }

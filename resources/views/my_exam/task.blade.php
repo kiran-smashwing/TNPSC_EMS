@@ -133,14 +133,11 @@
                                                                 <a href="{{ route('current-exam.show', $session->exam_main_id) }}"
                                                                     class="me-2 btn btn-sm btn-light-primary"><i
                                                                         class="feather icon-eye mx-1"></i>View Exam</a>
-                                                                @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'RND')
+                                                                @hasPermission('current-exam.edit')
                                                                     <a href="{{ route('current-exam.edit', $session->exam_main_id) }}"
                                                                         class="me-3 btn btn-sm btn-light-warning"><i
                                                                             class="feather icon-edit mx-1"></i>Edit Exam</a>
-                                                                @endif
-                                                                {{-- <a href="{{ route('current-exam.edit') }}"
-                                                            class="me-3 btn btn-sm btn-light-warning"><i
-                                                                class="feather icon-edit mx-1"></i>Edit Exam</a> --}}
+                                                                @endhasPermission
                                                             </div>
                                                         </div>
                                                     </div>
@@ -200,43 +197,40 @@
                                                                 </div>
                                                             </div>
                                                             <div class="mt-2">
-                                                                @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'APD')
+                                                                @hasPermission('upload-candidates-csv')
                                                                     @if (isset(json_decode($audit->metadata)->uploaded_csv_link))
                                                                         <a href="#"
                                                                             class="me-2 btn btn-sm btn-light-info"
-                                                                            data-pc-animate="just-me"
-                                                                            data-bs-toggle="modal"
+                                                                            data-pc-animate="just-me" data-bs-toggle="modal"
                                                                             data-bs-target="#animateModal"><i
                                                                                 class="feather icon-edit mx-1"></i>Edit
                                                                         </a>
                                                                     @else
                                                                         <a href="#"
                                                                             class="me-2 btn btn-sm btn-light-primary m-2"
-                                                                            data-pc-animate="just-me"
-                                                                            data-bs-toggle="modal"
+                                                                            data-pc-animate="just-me" data-bs-toggle="modal"
                                                                             data-bs-target="#animateModal"><i
                                                                                 class="feather icon-upload mx-1 "></i>Upload
                                                                         </a>
                                                                     @endif
-                                                                @endif
+                                                                @endhasPermission
                                                                 @if ($is_apd_upload)
                                                                     <a href="{{ json_decode($audit->metadata)->uploaded_csv_link }}"
                                                                         class="me-3 btn btn-sm btn-light-warning"><i
                                                                             class="feather icon-download mx-1"></i>Download
                                                                     </a>
                                                                 @endif
-                                                                @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'APD')
+                                                                @hasPermission('upload-candidates-csv')
                                                                     @if (isset(json_decode($audit->metadata)->failed_csv_link) &&
                                                                             file_exists(storage_path(
                                                                                     'app/public/uploads/failed_csv_files/' . basename(json_decode($audit->metadata)->failed_csv_link))))
                                                                         <a href="{{ json_decode($audit->metadata)->failed_csv_link }}"
                                                                             class="me-3 btn btn-sm btn-light-danger">
-                                                                            <i
-                                                                                class="feather icon-download mx-1"></i>Failed
+                                                                            <i class="feather icon-download mx-1"></i>Failed
                                                                             Records
                                                                         </a>
                                                                     @endif
-                                                                @endif
+                                                                @endhasPermission
                                                             </div>
                                                         </div>
                                                     </div>
@@ -296,26 +290,26 @@
                                                                 </div>
                                                             </div>
                                                             <div class="mt-2">
-                                                                @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'ID')
+                                                                @hasPermission('update-percentage')
                                                                     <a href="#" data-pc-animate="just-me"
                                                                         data-bs-toggle="modal"
                                                                         data-bs-target="#increaseCandiadteModal"
                                                                         class="me-2 btn btn-sm btn-light-primary m-2"><i
                                                                             class="feather icon-chevrons-up mx-1"></i>Increase
                                                                         Count</a>
-                                                                @endif
+                                                                @endhasPermission
                                                                 @if ($is_id_updated)
                                                                     <a href="{{ route('id-candidates.download-updated-count-csv', $session->exam_main_no) }}"
                                                                         class="me-2 btn btn-sm btn-light-info m-2"><i
                                                                             class="feather icon-download mx-1"></i>Download
                                                                         CSV</a>
                                                                 @endif
-                                                                @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'ID')
+                                                                @hasPermission('update-percentage')
                                                                     <a href="{{ route('id-candidates.intimateCollectorate', $session->exam_main_no) }}"
                                                                         class="me-3 btn btn-sm btn-light-warning m-2"><i
                                                                             class="feather icon-navigation mx-1"></i>Send
                                                                         Intimation</a>
-                                                                @endif
+                                                                @endhasPermission
                                                             </div>
                                                         </div>
                                                     </div>
@@ -381,20 +375,18 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary m-2"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
-                                                        @if (session('auth_role') == 'district')
+                                                        @hasPermission('showVenueIntimationForm')
                                                             <a target="_blank"
                                                                 href="{{ route('district-candidates.showVenueIntimationForm', $session->exam_main_no) }}"
                                                                 class="me-2 btn btn-sm btn-light-info"><i
                                                                     class="feather icon-check-circle mx-1"></i>Select
                                                                 Venues</a>
-                                                            <a href="#" data-pc-animate="blur"
-                                                                data-bs-toggle="modal"
+                                                            <a href="#" data-pc-animate="blur" data-bs-toggle="modal"
                                                                 data-bs-target="#sendConsentMailModel"
                                                                 class="me-3 btn btn-sm btn-light-warning"><i
                                                                     class="feather icon-navigation mx-1"></i>Send
                                                                 Intimation</a>
-                                                        @endif
-
+                                                        @endhasPermission
                                                     </div>
                                                 </div>
                                             </div>
@@ -575,7 +567,7 @@
                                                                     {{ $is_apd_upload ? $audit->department : 'APD - Section Officer' }}
                                                                 </div>
                                                                 <div class="mt-2">
-                                                                    @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'APD')
+                                                                    @hasPermission('finalize-csv')
                                                                         @if (isset(json_decode($audit->metadata)->uploaded_csv_link))
                                                                             <a href="#"
                                                                                 class="me-2 btn btn-sm btn-light-info"
@@ -593,14 +585,14 @@
                                                                                     class="feather icon-upload mx-1 "></i>Upload
                                                                             </a>
                                                                         @endif
-                                                                    @endif
+                                                                    @endhasPermission
                                                                     @if ($is_apd_upload)
                                                                         <a href="{{ json_decode($audit->metadata)->uploaded_csv_link }}"
                                                                             class="me-3 btn btn-sm btn-light-warning"><i
                                                                                 class="feather icon-download mx-1"></i>Download
                                                                         </a>
                                                                     @endif
-                                                                    @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'APD')
+                                                                    @hasPermission('finalize-csv')
                                                                         @if (isset(json_decode($audit->metadata)->failed_csv_link) &&
                                                                                 file_exists(storage_path(
                                                                                         'app/public/uploads/failed_csv_files/' . basename(json_decode($audit->metadata)->failed_csv_link))))
@@ -611,7 +603,7 @@
                                                                                 Records
                                                                             </a>
                                                                         @endif
-                                                                    @endif
+                                                                    @endhasPermission
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -672,17 +664,18 @@
                                                         </div>
                                                     </div>
                                                     <div class="mt-2">
+                                                        @hasPermission('upload-exam-materials-csv')
                                                         <a href="{{ route('exam-materials.index', $session->exam_main_no) }}"
                                                             class="me-2 btn btn-sm btn-light-primary m-2">
                                                             <i class="feather icon-upload mx-1 "></i>Upload </a>
+                                                        @endhasPermission
                                                         @if ($is_ed_qr_upload)
                                                             <a href="{{ $metadata->uploaded_csv_link }}"
                                                                 class="me-3 btn btn-sm btn-light-warning"><i
                                                                     class="feather icon-download mx-1"></i>Download
                                                             </a>
                                                         @endif
-                                                        {{-- TODO:change role to ED  --}}
-                                                        @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'APD')
+                                                        @hasPermission('upload-exam-materials-csv')
                                                             @if (isset($metadata->failed_csv_link) &&
                                                                     file_exists(storage_path('app/public/uploads/failed_csv_files/' . basename($metadata->failed_csv_link))))
                                                                 <a href="{{ $metadata->failed_csv_link }}"
@@ -691,7 +684,7 @@
                                                                     Records
                                                                 </a>
                                                             @endif
-                                                        @endif
+                                                        @endhasPermission
                                                     </div>
                                                 </div>
                                             </div>
@@ -745,7 +738,7 @@
                                                         </div>
                                                         <div class="h5 mt-3"><i
                                                                 class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                District Collectorate</div>
+                                                            District Collectorate</div>
 
                                                     </div>
                                                     <div class="mt-2">
@@ -754,7 +747,8 @@
                                                             data-pc-animate="just-me" data-bs-toggle="modal"
                                                             data-bs-target="#animateModal"><i
                                                                 class="feather icon-eye mx-1 "></i>View </a>
-                                                        <a href="{{route('receive-exam-materials.printer-to-disitrict-treasury',$session->exam_main_no)}}" class="me-2 btn btn-sm btn-light-info"><i
+                                                        <a href="{{ route('receive-exam-materials.printer-to-disitrict-treasury', $session->exam_main_no) }}"
+                                                            class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-info mx-1"></i>Verify</a>
                                                         <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
                                                                 class="feather icon-edit mx-1"></i>Edit </a>

@@ -55,15 +55,16 @@ Route::get('/ed-report', [EDController::class, 'generateEDReport'])->name('ed.re
 Route::get('/vehicel-report', [Vehicle_SecurityController::class, 'generateVehicleReport'])->name('vehicel.report');
 
 
-
-
 // Public routes
 Route::get('/', function () {
     return redirect()->route('dashboard'); // Redirect to the dashboard
 });
 // Authentication routes 
+Route::middleware(['guest'])->group(function () {
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/sw-login', [AuthController::class, 'showAdminLogin'])->name('sw-login');
+Route::post('/sw-login', [AuthController::class, 'Adminlogin']);
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('forgot-password');
@@ -71,7 +72,7 @@ Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail'])->
 Route::get('password/reset/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
 Route::post('password/reset', [AuthController::class, 'resetPassword'])->name('password.update');
 Route::get('password/check-email', [AuthController::class, 'showCheckEmail'])->name('password.check-email');
-
+});
 
 // Protected routes (require user to be logged in) 
 Route::middleware(['auth.multi'])->group(function () {

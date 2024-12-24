@@ -13,7 +13,10 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Mail;
+use InvalidArgumentException;
+use Exception;
 use App\Models\District;
 use App\Models\TreasuryOfficer;
 use App\Models\Center;
@@ -21,6 +24,7 @@ use App\Models\MobileTeamStaffs;
 use App\Models\Venues;
 use App\Models\ChiefInvigilator;
 use App\Models\DepartmentOfficial;
+
 
 
 class AuthController extends Controller
@@ -34,6 +38,7 @@ class AuthController extends Controller
     {
         return view('auth.login');
     }
+
 
     public function login(Request $request)
     {
@@ -171,15 +176,15 @@ class AuthController extends Controller
                     $profileImage = $district->district_image;
                     $email = $district->district_email;  // Add email field
                     break;
-            
+
                 case 'center':
                     $center = Center::find($userId);
                     $name = $center->center_name;
                     $display_role = "Centers/Sub Treasuries";
-                    $profileImage = $center->center_image ;
+                    $profileImage = $center->center_image;
                     $email = $center->center_email;  // Add email field
                     break;
-            
+
                 case 'treasury':
                     $treasuryOfficer = TreasuryOfficer::find($userId);
                     $name = $treasuryOfficer->tre_off_name;
@@ -187,31 +192,31 @@ class AuthController extends Controller
                     $profileImage = $treasuryOfficer->tre_off_image;
                     $email = $treasuryOfficer->tre_off_email;  // Add email field
                     break;
-            
+
                 case 'mobile_team_staffs':
                     $mobileTeamStaffs = MobileTeamStaffs::find($userId);
                     $name = $mobileTeamStaffs->mobile_name;
                     $display_role = "Mobile Teams";
-                    $profileImage = $mobileTeamStaffs->mobile_image ;
+                    $profileImage = $mobileTeamStaffs->mobile_image;
                     $email = $mobileTeamStaffs->mobile_email;  // Add email field
                     break;
-            
+
                 case 'venue':
                     $venue = Venues::find($userId);
                     $name = $venue->venue_name;
                     $display_role = "Venues";
-                    $profileImage = $venue->venue_image ;
-                    $email = $venue->venue_email ;  // Add email field
+                    $profileImage = $venue->venue_image;
+                    $email = $venue->venue_email;  // Add email field
                     break;
-            
+
                 case 'headquarters':
                     $departmentOfficial = DepartmentOfficial::find($userId);
                     $name = $departmentOfficial->dept_off_name;
                     $display_role = "Department Officials";
                     $profileImage = $departmentOfficial->dept_off_image;
-                    $email = $departmentOfficial->dept_off_email ;  // Add email field
+                    $email = $departmentOfficial->dept_off_email;  // Add email field
                     break;
-            
+
                 case 'ci':
                     $chiefInvigilator = ChiefInvigilator::find($userId);
                     $name = $chiefInvigilator->ci_name;
@@ -220,7 +225,7 @@ class AuthController extends Controller
                     $email = $chiefInvigilator->ci_email;  // Add email field
                     break;
             }
-            
+
 
             // Store essential session data with the correct ID
             session([
@@ -262,6 +267,101 @@ class AuthController extends Controller
         ])->withInput($request->only('email'));
     }
 
+    public function showAdminLogin()
+    {
+        return view('auth.admin-login');
+    }
+
+    public function Adminlogin(Request $request)
+    {
+        // Validate the incoming request
+        $validated = $request->validate([
+            '_token' => 'required|string',
+            'email' => 'required|string|email|max:255',
+            'password' => 'required|string',
+            'remember' => 'sometimes|string',
+        ]);
+
+        $email = $validated['email'];
+        $password = $validated['password'];
+        $remember = isset($validated['remember']) && $validated['remember'] === 'on';
+
+        // Throttle key for rate limiting, specifically for 'sw-admin'
+        $throttleKey = 'sw-admin|' . $email;
+
+        // Check for throttling (rate limiting)
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            return back()->withErrors([
+                'email' => __('auth.throttle', [
+                    'seconds' => $seconds,
+                    'minutes' => ceil($seconds / 60),
+                ]),
+            ])->withInput($request->only('email'));
+        }
+
+
+        // Authenticate the 'sw-admin' user
+        $success = Auth::guard('sw-admin')->attempt([
+            'email' => $email,
+            'password' => $password
+        ], $remember);
+
+        if ($success) {
+            // Retrieve the user
+            $user = Auth::guard('sw-admin')->user();
+            $userId = $user->id;
+
+            // Clear throttling attempts
+            RateLimiter::clear($throttleKey);
+
+            // Get user details
+            $name = $user->name;
+            $displayRole = "SW Admin";
+            $profileImage = 'default.png';
+            $email = $user->email;
+
+            // Store session data
+            session([
+                'auth_role' => 'sw-admin',  // No hardcoded role name used, just the context
+                'athu_display_role' => $displayRole,
+                'auth_id' => $userId,
+                'auth_name' => $name,
+                'auth_email' => $email,
+                'auth_image' => $profileImage,
+            ]);
+
+            // If the user chose 'remember me', store additional session data
+            if ($remember) {
+                session()->put('auth.password_confirmed_at', time());
+                session()->put('ip_address', $request->ip());
+                session()->put('user_agent', $request->userAgent());
+            }
+
+            // Log the user login action
+            AuditLogger::log(
+                'User Login',
+                get_class($user),
+                $user->getKey(),
+                null,
+                [
+                    'email' => $email,
+                    'role' => 'sw-admin', // Same as the session role
+                    'ip' => request()->ip()
+                ]
+            );
+
+            // Redirect to the intended page or dashboard
+            return redirect()->intended('/dashboard');
+        }
+
+        // If authentication failed, increment throttle attempts
+        RateLimiter::hit($throttleKey);
+
+        return back()->withErrors([
+            'email' => __('auth.failed'),
+        ])->withInput($request->only('email'));
+    }
 
     public function showRegister()
     {
@@ -300,51 +400,131 @@ class AuthController extends Controller
 
         return redirect('/dashboard');
     }
-    private function getRoleFromGuard()
+    private array $guardMap = [
+        'district' => [
+            'model' => District::class,
+            'id_field' => 'district_id'
+        ],
+        'center' => [
+            'model' => Center::class,
+            'id_field' => 'center_id'
+        ],
+        'venue' => [
+            'model' => Venues::class,
+            'id_field' => 'venue_id'
+        ],
+        'treasury' => [
+            'model' => TreasuryOfficer::class,
+            'id_field' => 'tre_off_id'
+        ],
+        'mobile_team_staffs' => [
+            'model' => MobileTeamStaffs::class,
+            'id_field' => 'mobile_id'
+        ],
+        'headquarters' => [
+            'model' => DepartmentOfficial::class,
+            'id_field' => 'dept_off_id'
+        ],
+        'ci' => [
+            'model' => ChiefInvigilator::class,
+            'id_field' => 'ci_id'
+        ],
+        'sw-admin' => [
+            'model' => User::class,
+            'id_field' => 'id'
+        ]
+    ];
+
+    private function getRoleFromGuard(): string
     {
-        $guards = config('auth.guards');
-        foreach ($guards as $guard => $config) {
+        $currentRole = session('auth_role');
+
+        // Verify the session role matches an active guard
+        if ($currentRole && Auth::guard($currentRole)->check()) {
+            return $currentRole;
+        }
+
+        // Fallback to checking all guards
+        foreach (array_keys($this->guardMap) as $guard) {
             if (Auth::guard($guard)->check()) {
                 return $guard;
             }
         }
-        throw new \Exception('Unable to determine role from guard.');
+
+        throw new AuthenticationException('No authenticated user found.');
     }
 
-    private function getModelByRole($role)
+    private function getModelInfo(string $role): array
     {
-        switch ($role) {
-            case 'district':
-                return District::class;
-            case 'center':
-                return Center::class;
-            case 'venue':
-                return District::class;
-            case 'treasury':
-                return TreasuryOfficer::class;
-            case 'mobile_team_staffs':
-                return MobileTeamStaffs::class;
-            case 'headquarters':
-                return DepartmentOfficialsController::class;
-            case 'ci':
-                return ChiefInvigilatorsController::class;
-                // Add other cases as needed
-            default:
-                throw new \Exception('Invalid role');
+        if (!isset($this->guardMap[$role])) {
+            Log::error('Invalid role attempted during logout', [
+                'role' => $role,
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent()
+            ]);
+            throw new InvalidArgumentException('Invalid role specified');
         }
+
+        return $this->guardMap[$role];
     }
+
     public function logout(Request $request)
     {
-        $role = $this->getRoleFromGuard();
-        $model = $this->getModelByRole($role);
+        try {
+            // Get current user info before logout
+            $role = $this->getRoleFromGuard();
+            $modelInfo = $this->getModelInfo($role);
+            $guard = Auth::guard($role);
+            $user = $guard->user();
 
-        AuditLogger::log('User Logged Out', $model, Auth::id());
-        Auth::guard($role)->logout();
+            if ($user) {
+                $userId = $user->{$modelInfo['id_field']};
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect('/');
+                // Log the logout event
+                AuditLogger::log(
+                    'User Logged Out',
+                    $modelInfo['model'],
+                    $userId,
+                    null,
+                    [
+                        'session_id' => session()->getId()
+                    ]
+                );
+
+                // Logout of specific guard
+                $guard->logout();
+            }
+
+            // Logout of all guards for extra security
+            foreach (array_keys($this->guardMap) as $guardName) {
+                Auth::guard($guardName)->logout();
+            }
+
+            // Clear and invalidate session
+            session()->flush();
+            session()->invalidate();
+            session()->regenerateToken();
+
+            return redirect('/')
+                ->with('status', 'You have been successfully logged out');
+
+        } catch (Exception $e) {
+            Log::error('Logout error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'ip' => $request->ip()
+            ]);
+
+            // Still perform session cleanup even if there's an error
+            session()->flush();
+            session()->invalidate();
+            session()->regenerateToken();
+
+            return redirect('/')
+                ->with('error', 'Logged out due to security concern');
+        }
     }
+
 
 
     public function showForgotPassword()

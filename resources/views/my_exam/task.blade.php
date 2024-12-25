@@ -1158,7 +1158,7 @@
                                         </div>
                                     </div>
                                 </li>
-                                <li class="task-list-item">
+                                {{-- <li class="task-list-item">
                                     <i class="task-icon bg-danger"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
@@ -1174,7 +1174,7 @@
 
                                                                 {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
+                                                                        3</a></li>
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -1201,7 +1201,7 @@
                                                                     28-07-2024 09:30 AM</li>
                                                                 {{-- <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                </li> 
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -1219,7 +1219,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </li>
+                                </li> --}}
                                 <li class="task-list-item">
                                     <i class="task-icon bg-danger"></i>
                                     <div class="card ticket-card open-ticket">
@@ -2558,7 +2558,7 @@
                 @include('modals.apd-upload-excel')
                 @include('modals.id-increase-candidate')
                 @include('modals.apd-finalize-candidate')
-                @include('modals.preliminary-checklist')
+                {{-- @include('modals.preliminary-checklist') --}}
                 @include('modals.session-checklist')
                 @include('modals.invigilator-select')
                 @include('modals.ci-meetingcode-generate')

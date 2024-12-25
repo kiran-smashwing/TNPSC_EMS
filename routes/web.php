@@ -142,7 +142,7 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/current-exam/confirmVenues', [CurrentExamController::class, 'confirmVenues'])->name('current-exam.confirmVenues');
     Route::get('/current-exam/ciReceiveMaterials', [CurrentExamController::class, 'ciReceiveMaterials'])->name('current-exam.ciReceiveMaterials');
     Route::get('/current-exam/treasury-mobTeam', [CurrentExamController::class, 'mobileTeamReceiveMaterialsFromTreasury'])->name('current-exam.treasury-mobTeam');
-    Route::get('/current-exam/mobTeam-ci', [CurrentExamController::class, 'ciReceiveMaterialsFromMobileTeam'])->name('current-exam.mobTeam-ci');
+
     Route::get('/current-exam/bundlePackaging', [CurrentExamController::class, 'bundlePackaging'])->name('current-exam.bundlePackaging');
     Route::get('/current-exam/bundlePackagingverfiy', [CurrentExamController::class, 'bundlePackagingverfiy'])->name('current-exam.bundlePackagingverfiy');
     Route::get('/current-exam/vandutyBundlePackagingverfiy', [CurrentExamController::class, 'vandutyBundlePackagingverfiy'])->name('current-exam.vandutyBundlePackagingverfiy');
@@ -372,6 +372,7 @@ Route::prefix('ci-meetings')->group(function () {
 });
 Route::prefix('ci-checklist')->middleware(['auth.multi'])->group(function () {
     Route::post('/save', [CIPreliminaryCheckController::class, 'saveChecklist'])->name('ci-checklist.save'); // To save checklist
+    Route::post('/ci-session-save', [CIPreliminaryCheckController::class, 'savesessionChecklist'])->name('ci-session-checklist.save'); // To save checklist
 });
 // Route::prefix('ci-meetings')->group(function () {
 //     Route::middleware(['auth.multi', 'role.permission:ci-meetings.index'])->group(function () {
@@ -400,6 +401,8 @@ Route::prefix('receive-exam-materials')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::get('/printer-to-disitrct-treasury/{examId}', [ReceiveExamMaterialsController::class, 'printerToDistrictTreasury'])->name('receive-exam-materials.printer-to-disitrict-treasury');
         Route::post('/scan-disitrct-exam-materials/{examId}', [ReceiveExamMaterialsController::class, 'scanDistrictExamMaterials'])->name('receive-exam-materials.scan-disitrct-exam-materials');
+        Route::get('/receive-exam-materials/{examId}/{exam_date}', [ReceiveExamMaterialsController::class, 'ciReceiveMaterialsFromMobileTeam'])->name('receive-exam-materials.mobileTeam-to-ci-materials');
+        Route::post('/scan-ci-exam-materials/{examId}', [ReceiveExamMaterialsController::class, 'scanCIExamMaterials'])->name('receive-exam-materials.scan-ci-exam-materials');
     });
 });
 // Route::get('/run-function', [DataController::class, 'addData']);

@@ -20,7 +20,7 @@
                         @else
                             @foreach ($preliminary as $item)
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input input-primary" name="checklist[]" type="checkbox"
+                                    <input class="form-check-input input-primary" name="checklist[{{ $item->ci_checklist_id }}]" type="checkbox"
                                         id="customCheck{{ $item->ci_checklist_id }}" checked>
                                     <label class="form-check-label" for="customCheck{{ $item->ci_checklist_id }}">
                                         {{ $item->ci_checklist_description }}

@@ -3,63 +3,120 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\CIChecklistAnswer; // Import the model
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use App\Models\CIChecklist;
 
 class CIPreliminaryCheckController extends Controller
 {
     public function __construct()
     {
-        //apply the auth middleware to the entire controller
         $this->middleware('auth.multi');
     }
 
-    /**
-     * Retrieve all data from the CIChecklist table.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function saveChecklist(Request $request)
+    {
+        // Validate the incoming data
+        $validated = $request->validate([
+            'checklist' => 'required|array',
+            'exam_id' => 'required|numeric',
+        ]);
 
-     public function saveChecklist(Request $request)
-     {
-         // Validate the incoming data
-         $validated = $request->validate([
-             'checklist' => 'required|array', // Ensure 'checklist' is an array
-             'exam_id' => 'required|exists:exam_confirmed_halls,exam_id', // Ensure the 'exam_id' exists in the 'exam_confirmed_halls' table
-         ]);
-         
-         // Retrieve the exam details from the 'exam_confirmed_halls' table based on the 'exam_id'
-         $examDetails = DB::table('exam_confirmed_halls')
-             ->where('exam_id', $validated['exam_id'])
-             ->first(); // Use `first()` to get a single record
-         
-         // If no exam details are found, you can handle it accordingly (e.g., abort or redirect with an error message)
-         if (!$examDetails) {
-             return back()->withErrors(['exam_id' => 'Exam not found in confirmed halls.']);
-         }
+        // Retrieve the exam details
+        $examDetails = DB::table('exam_confirmed_halls')
+            ->where('exam_id', $validated['exam_id'])
+            ->first();
 
-        
-         $role = session('auth_role');
+        if (!$examDetails) {
+            return back()->withErrors(['exam_id' => 'Exam not found in confirmed halls.']);
+        }
+
+        // Retrieve the authenticated user
+        $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
         $user = $guard ? $guard->user() : null;
-        $ci_id=$user->ci_id;
-        dd($examDetails,$validated,$ci_id);
-     
-         // You can now work with $examDetails, for example:
-         // dd($examDetails); // Uncomment this to inspect the fetched data
-     
-         // Save each selected checklist item to the database
-        //  foreach ($validated['checklist'] as $checklistId) {
-        //      DB::table('ci_checklist_submissions')->insert([
-        //          'ci_checklist_id' => $checklistId,
-        //          'exam_id' => $validated['exam_id'], // Include exam_id in your submission record
-        //          'submitted_at' => now(),
-        //      ]);
-        //  }
-     
-         // Redirect back with a success message
-         return redirect()->back()->with('success', 'Checklist saved successfully!');
-     }
-     
+
+        if (!$user || !isset($user->ci_id)) {
+            return back()->withErrors(['auth' => 'Unable to retrieve the authenticated user.']);
+        }
+
+        $ci_id = $user->ci_id;
+
+        // Prepare data for saving
+        $timestamp = now()->toDateTimeString(); // Single timestamp for all items
+
+
+        // Create the preliminary answer array with just checklist IDs (no timestamp for each)
+        $preliminaryAnswer = [
+            'checklist' => $validated['checklist'], // Store all checklist IDs in an array
+            'timestamp' => $timestamp, // Attach a single timestamp at the end
+        ];
+
+        // Save the data in JSON format
+        CIChecklistAnswer::create([
+            'exam_id' => $validated['exam_id'],
+            'center_code' => $examDetails->center_code,
+            'hall_code' => $examDetails->hall_code,
+            'ci_id' => $ci_id,
+            'preliminary_answer' => $preliminaryAnswer, // Save as JSON with the single timestamp
+        ]);
+
+        // Redirect back with a success message
+        return redirect()->back()->with('success', 'Checklist saved successfully!');
+    }
+    public function savesessionChecklist(Request $request)
+    {
+        // Validate the incoming data
+        // dd($request->all());
+        $validated = $request->validate([
+            'checklist' => 'required|array',
+            'exam_id' => 'required|numeric',
+            'exam_sess_date' => 'required',
+            'exam_sess_session' => 'required',
+            
+        ]);
+        dd($validated);
+
+        // Retrieve the exam details
+        $examDetails = DB::table('exam_confirmed_halls')
+            ->where('exam_id', $validated['exam_id'])
+            ->first();
+
+        if (!$examDetails) {
+            return back()->withErrors(['exam_id' => 'Exam not found in confirmed halls.']);
+        }
+
+        // Retrieve the authenticated user
+        $role = session('auth_role');
+        $guard = $role ? Auth::guard($role) : null;
+        $user = $guard ? $guard->user() : null;
+
+        if (!$user || !isset($user->ci_id)) {
+            return back()->withErrors(['auth' => 'Unable to retrieve the authenticated user.']);
+        }
+
+        $ci_id = $user->ci_id;
+
+        // Prepare data for saving
+        $timestamp = now()->toDateTimeString(); // Single timestamp for all items
+
+
+        // Create the preliminary answer array with just checklist IDs (no timestamp for each)
+        $preliminaryAnswer = [
+            'checklist' => $validated['checklist'], // Store all checklist IDs in an array
+            'timestamp' => $timestamp, // Attach a single timestamp at the end
+        ];
+
+        // Save the data in JSON format
+        CIChecklistAnswer::create([
+            'exam_id' => $validated['exam_id'],
+            'center_code' => $examDetails->center_code,
+            'hall_code' => $examDetails->hall_code,
+            'ci_id' => $ci_id,
+            'preliminary_answer' => $preliminaryAnswer, // Save as JSON with the single timestamp
+        ]);
+
+        // Redirect back with a success message
+        return redirect()->back()->with('success', 'Checklist saved successfully!');
+    }
 }

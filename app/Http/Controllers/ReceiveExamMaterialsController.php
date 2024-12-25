@@ -28,8 +28,8 @@ class ReceiveExamMaterialsController extends Controller
 
         $query = $role == 'district'
             ? ExamMaterialsData::where('exam_id', $examId)
-                ->where('district_code', $user->district_code)
-                ->whereIn('category', ['D1', 'D2'])
+            ->where('district_code', $user->district_code)
+            ->whereIn('category', ['D1', 'D2'])
             : ExamMaterialsData::where('exam_id', $examId);
         // Apply filters 
         if ($request->has('centerCode') && !empty($request->centerCode)) {
@@ -103,7 +103,7 @@ class ReceiveExamMaterialsController extends Controller
         // Check if already scanned
         if (
             ExamMaterialsScan::where([
-                'exam_material_id' => $examMaterials->id, 
+                'exam_material_id' => $examMaterials->id,
             ])->exists()
         ) {
             return response()->json([
@@ -116,6 +116,99 @@ class ReceiveExamMaterialsController extends Controller
             'exam_material_id' => $examMaterials->id,
             'district_scanned_at' => now()
         ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'QR code scanned successfully'
+        ], 200);
+    }
+
+    public function ciReceiveMaterialsFromMobileTeam(Request $request, $examId, $exam_date)
+    {
+        $role = session('auth_role');
+        $guard = $role ? Auth::guard($role) : null;
+        $user = $guard ? $guard->user() : null;
+
+        $query = $role == 'ci'
+            ? ExamMaterialsData::where('exam_id', $examId)
+            ->where('ci_id', $user->ci_id)
+            ->whereIn('category', ['D1', 'D2'])
+            ->whereDate('exam_date', $exam_date)
+            : ExamMaterialsData::where('exam_id', $examId);
+     
+        $examMaterials = $query
+            ->with([
+                'examMaterialsScan'
+            ])
+            ->get()
+            ->groupBy('exam_session');
+        // dd($examMaterials);
+
+        return view('my_exam.ExamMaterialsData.mobileTeam-to-ci-materials', compact('examMaterials', 'examId', 'exam_date',));
+    }
+
+    public function scanCIExamMaterials($examId, Request $request)
+    {
+        // Validate request
+        $request->validate([
+            'qr_code' => 'required|string',
+        ]);
+
+        // Get authenticated user
+        $role = session('auth_role');
+        $guard = $role ? Auth::guard($role) : null;
+        $user = $guard ? $guard->user() : null;
+
+        // Check authorization
+        if ($role !== 'ci' || !$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found or not authorized'
+            ], 403); // 403 is for authorization errors
+        }
+
+        // Find exam materials
+        $examMaterials = ExamMaterialsData::where([
+            'exam_id' => $examId,
+            'ci_id' => $user->ci_id,
+            'qr_code' => $request->qr_code
+        ])->first();
+
+        if (!$examMaterials) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'QR code not found'
+            ], 404);
+        }
+        // Check if already scanned with a valid timestamp
+        $existingScan = ExamMaterialsScan::where([
+            'exam_material_id' => $examMaterials->id,
+        ])->first();
+
+        // Check if already scanned
+        if (
+            ExamMaterialsScan::where([
+                'exam_material_id' => $examMaterials->id,
+            ])->whereNotNull('ci_scanned_at')->exists()
+        ) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'QR code has already been scanned'
+            ], 409);
+        }
+
+        // Update the existing record if center_scanned_at is null
+        if ($existingScan && !$existingScan->ci_scanned_at) {
+            $existingScan->update([
+                'ci_scanned_at' => now()
+            ]);
+        } else {
+            // Create a new record if no existing scan record is found
+            ExamMaterialsScan::create([
+                'exam_material_id' => $examMaterials->id,
+                'ci_scanned_at' => now()
+            ]);
+        }
 
         return response()->json([
             'status' => 'success',

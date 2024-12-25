@@ -33,12 +33,4 @@ class CIChecklistAnswer extends Model
         'consolidate_answer' => 'array',
         'videography_answer' => 'array', // If it's not nullable and expected as an array
     ];
-
-    // Optionally, define relationships if applicable
-    // Example: Define a relationship with an 'Exam' model
-    // public function exam()
-    // {
-    //     return $this->belongsTo(Exam::class, 'exam_id');
-    // }
 }
-

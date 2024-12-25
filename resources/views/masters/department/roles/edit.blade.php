@@ -80,8 +80,8 @@
                                                         <option value="RND"
                                                             {{ $role->role_department == 'RND' ? 'selected' : '' }}>Rules
                                                             Notification Department - RND</option>
-                                                        <option value="RD"
-                                                            {{ $role->role_department == 'RD' ? 'selected' : '' }}>
+                                                        <option value="ED"
+                                                            {{ $role->role_department == 'ED' ? 'selected' : '' }}>
                                                             Evaluation
                                                             Department - ED</option>
                                                         <option value="QD"

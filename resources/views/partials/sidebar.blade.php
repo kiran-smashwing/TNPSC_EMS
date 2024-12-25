@@ -11,24 +11,9 @@
             <div class="card pc-user-card">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
-                        @php
-                        $defaultImages = [
-                            'district' => 'storage/assets/images/user/collectorate.png',
-                            'center' => 'storage/assets/images/user/center.png',
-                            'treasury' => 'storage/assets/images/user/avatar-4.jpg',
-                            'mobile_team_staffs' => 'storage/assets/images/user/avatar-4.jpg',
-                            'venue' => 'storage/assets/images/user/venue.png',
-                            'headquarters' => 'storage/assets/images/user/avatar-1.jpg',
-                            'ci' => 'storage/assets/images/user/avatar-4.jpg',
-                        ];
-                    
-                        $authRole = session('auth_role');
-                        $defaultImage = $defaultImages[$authRole] ?? 'assets/images/user/default-avatar.jpg';
-                        $userImage = session('auth_image') ? 'storage/' . session('auth_image') : $defaultImage;
-                    @endphp
-                    
+                      
                     <div class="flex-shrink-0">
-                        <img src="{{ asset($userImage) }}" alt="user-image" class="user-avtar wid-50 rounded-circle" />
+                        <img src="{{ asset('storage/' . current_user()->profile_image) }}" alt="user-image" class="user-avtar wid-50 rounded-circle" />
                     </div>
                     
                        <div class="flex-grow-1 ms-3 me-2">

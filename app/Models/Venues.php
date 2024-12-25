@@ -61,6 +61,19 @@ class Venues extends Authenticatable
     {
         return $this->venue_name; // or whatever field you use for the name
     }
+    public function getEmailDisplayAttribute()
+    {
+        return !empty($this->venue_email) ? $this->venue_email : 'No email available';
+    }
+
+    public function getProfileImageAttribute()
+    {
+        if (!empty($this->venue_image) && file_exists(public_path('storage/' . $this->venue_image))) {
+            return $this->venue_image;
+        }
+
+        return '/assets/images/user/venue.png';
+    }
     public function getAuthPassword()
     {
         return $this->venue_password;

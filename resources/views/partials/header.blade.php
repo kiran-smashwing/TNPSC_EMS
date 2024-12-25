@@ -172,25 +172,10 @@
                     </div>
                 </li>
                 <li class="dropdown pc-h-item header-user-profile">
-                    @php
-                        $defaultImages = [
-                            'district' => 'storage/assets/images/user/collectorate.png',
-                            'center' => 'storage/assets/images/user/center.png',
-                            'treasury' => 'storage/assets/images/user/avatar-4.jpg',
-                            'mobile_team_staffs' => 'storage/assets/images/user/avatar-4.jpg',
-                            'venue' => 'storage/assets/images/user/venue.png',
-                            'headquarters' => 'storage/assets/images/user/avatar-1.jpg',
-                            'ci' => 'storage/assets/images/user/avatar-4.jpg',
-                        ];
-
-                        $authRole = session('auth_role'); // Fetch the user role from the session.
-                        $defaultImage = $defaultImages[$authRole] ?? 'storage/assets/images/user/default-avatar.jpg'; // Get the default image for the role.
-                        $userImage = session('auth_image') ? 'storage/' . session('auth_image') : $defaultImage; // Determine the user image.
-                    @endphp
 
                     <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown" href="#"
                         role="button" aria-haspopup="false" data-bs-auto-close="outside" aria-expanded="false">
-                        <img src="{{ asset($userImage) }}" alt="user-image"
+                        <img src="{{ asset('storage/' . current_user()->profile_image) }}" alt="user-image"
                             class="user-avtar wid-45 rounded-circle" />
                     </a>
 
@@ -203,33 +188,15 @@
                             <div class="profile-notification-scroll position-relative"
                                 style="max-height: calc(100vh - 225px)">
                                 <div class="d-flex mb-1">
-                                    @php
-                                        $defaultImages = [
-                                            'district' => 'storage/assets/images/user/collectorate.png',
-                                            'center' => 'storage/assets/images/user/center.png',
-                                            'treasury' => 'storage/assets/images/user/avatar-4.jpg',
-                                            'mobile_team_staffs' => 'storage/assets/images/user/avatar-4.jpg',
-                                            'venue' => 'storage/assets/images/user/venue.png',
-                                            'headquarters' => 'storage/assets/images/user/avatar-1.jpg',
-                                            'ci' => 'storage/assets/images/user/avatar-4.jpg',
-                                        ];
-
-                                        $authRole = session('auth_role');
-                                        $defaultImage =
-                                            $defaultImages[$authRole] ?? 'assets/images/user/default-avatar.jpg';
-                                        $userImage = session('auth_image')
-                                            ? 'storage/' . session('auth_image')
-                                            : $defaultImage;
-                                    @endphp
 
                                     <div class="flex-shrink-0">
-                                        <img src="{{ asset($userImage) }}" alt="user-image"
+                                        <img src="{{ asset('storage/' . current_user()->profile_image) }}" alt="user-image"
                                             class="user-avtar wid-50 rounded-circle" />
                                     </div>
 
                                     <div class="flex-grow-1 ms-3">
                                         <h6 class="mb-0">{{ current_user()->display_name }}</h6>
-                                        <span>{{ session('auth_email') }}</span>
+                                        <span>{{ Str::limit(current_user()->email_display, 20, '...') }}</span>
                                     </div>
                                 </div>
                                 <hr class="border-secondary border-opacity-50" />

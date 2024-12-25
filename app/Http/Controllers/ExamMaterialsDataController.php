@@ -304,6 +304,8 @@ class ExamMaterialsDataController extends Controller
             $venueConfirmed = ExamConfirmedHalls::where('exam_id', $exam->exam_main_no)
                 ->where('center_code', $parsedData['center_code'])
                 ->where('hall_code', $parsedData['hall_code'])
+                ->where('exam_date', $exam->examsession->first()->exam_sess_date)
+                ->where('exam_session', $examsession)
                 ->first();
             if (!$venueConfirmed) {
                 $error = 'Hall not found for the given QR code data.';
@@ -320,6 +322,7 @@ class ExamMaterialsDataController extends Controller
                 'exam_session' => $examsession,
                 'qr_code' => $qrCodeString,
                 'category' => $parsedData['category'],
+                'ci_id' => $venueConfirmed->ci_id,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];

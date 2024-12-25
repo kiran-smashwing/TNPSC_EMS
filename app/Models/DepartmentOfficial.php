@@ -42,6 +42,18 @@ class DepartmentOfficial extends Authenticatable
     {
         return $this->dept_off_name; // or whatever field you use for the name
     }
+    public function getEmailDisplayAttribute()
+    {
+        return !empty($this->dept_off_email) ? $this->dept_off_email : 'No email available';
+    }
+    public function getProfileImageAttribute()
+    {
+        if (!empty($this->dept_off_image) && file_exists(public_path('storage/' . $this->dept_off_image))) {
+            return $this->dept_off_image;
+        }
+
+        return '/assets/images/user/avatar-8.jpg';
+    }
 
     protected $hidden = [
         'dept_off_password', // Hide the password when retrieving data

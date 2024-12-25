@@ -44,6 +44,19 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function getDisplayNameAttribute()
+    {
+        return $this->name; // or whatever field you use for the name
+    }
+    public function getEmailDisplayAttribute()
+    {
+        return !empty($this->email) ? $this->email : 'No email available';
+    }
+    public function getProfileImageAttribute()
+    {
+        
+        return '/assets/images/user/avatar-10.jpg';
+    }
     /**
      * Ensure high-security measures for sw-admin role
      */
@@ -52,10 +65,10 @@ class User extends Authenticatable
         parent::boot();
 
         static::creating(function ($user) {
-                // Ensure strong password requirements
-                if (!preg_match('/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&#]).{8,}$/', $user->password)) {
-                    throw new \Exception('Password must be at least 8 characters long and include at least one letter, one number, and one special character.');
-                }
+            // Ensure strong password requirements
+            if (!preg_match('/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&#]).{8,}$/', $user->password)) {
+                throw new \Exception('Password must be at least 8 characters long and include at least one letter, one number, and one special character.');
+            }
         });
     }
 

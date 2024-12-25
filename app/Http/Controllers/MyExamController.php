@@ -64,7 +64,7 @@ class MyExamController extends Controller
             ->where('task_type', 'ed_exam_materials_qrcode_upload')
             ->first();
 
-        return view('my_exam.task', compact('session', 'auditDetails', 'venueConsents', 'meetingCodeGen','examMaterialsUpdate'));
+        return view('my_exam.task', compact('session', 'auditDetails', 'venueConsents', 'meetingCodeGen', 'examMaterialsUpdate'));
     }
     public function MyTaskAction($examId)
     {
@@ -81,8 +81,8 @@ class MyExamController extends Controller
 
     public function centerTask()
     {
-        
-        
+
+
         return view('my_exam.center.task');
     }
     public function ciTask($examId)
@@ -93,13 +93,12 @@ class MyExamController extends Controller
             abort(404, 'Exam not found');
         }
         // Group exam sessions by date
-        
         $groupedSessions = $session->examsession->groupBy(function ($item) {
             return \Carbon\Carbon::parse($item->exam_sess_date)->format('d-m-Y');
         });
         $preliminary = CIChecklist::where('ci_checklist_type', 'Preliminary')->get();
         // dd($preliminary);
-        return view('my_exam.CI.task', compact('session', 'groupedSessions','preliminary'));
+        return view('my_exam.CI.task', compact('session', 'groupedSessions', 'preliminary'));
 
     }
     public function ciExamActivity($examId, $session)
@@ -109,7 +108,7 @@ class MyExamController extends Controller
         if (!$session) {
             abort(404, 'Session not found');
         }
-        
+
         return view('my_exam.CI.ci-exam-activity', compact('session'));
 
         // Group exam sessions by date
@@ -122,12 +121,16 @@ class MyExamController extends Controller
         if (!$session) {
             abort(404, 'Exam not found');
         }
+        // Group exam sessions by date
+        $groupedSessions = $session->examsession->groupBy(function ($item) {
+            return \Carbon\Carbon::parse($item->exam_sess_date)->format('d-m-Y');
+        });
         // Fetch the audit details for the exam
         $auditDetails = DB::table('exam_audit_logs')
             ->where('exam_id', $examId)
             ->orderBy('created_at', 'asc')
             ->get();
-        return view('my_exam.MobileTeam.task', compact('auditDetails', 'session'));
+        return view('my_exam.MobileTeam.task', compact('auditDetails', 'session','groupedSessions'));
     }
 
 }

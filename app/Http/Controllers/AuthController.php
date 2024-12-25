@@ -67,16 +67,6 @@ class AuthController extends Controller
             ])->withInput($request->only('email'));
         }
 
-        // Log out of all guards first
-        Auth::guard('district')->logout();
-        Auth::guard('treasury')->logout();
-        // Auth::guard('center')->logout();
-        // Auth::guard('treasury')->logout();
-        Auth::guard('mobile_team_staffs')->logout();
-        // Auth::guard('venue')->logout();
-        // Auth::guard('headquarters')->logout();
-        // Auth::guard('ci')->logout();
-
         // Clear all existing sessions
         $request->session()->flush();
         $request->session()->regenerate();
@@ -164,65 +154,35 @@ class AuthController extends Controller
             RateLimiter::clear($throttleKey);
 
             // Store essential session data with the correct ID
-            // Get name and image based on the role
-            $name = null;
-            $profileImage = 'default.png';
+        
 
             switch ($role) {
                 case 'district':
-                    $district = District::find($userId);
-                    $name = $district->district_name;
                     $display_role = "District Collectorates";
-                    $profileImage = $district->district_image;
-                    $email = $district->district_email;  // Add email field
                     break;
 
                 case 'center':
-                    $center = Center::find($userId);
-                    $name = $center->center_name;
                     $display_role = "Centers/Sub Treasuries";
-                    $profileImage = $center->center_image;
-                    $email = $center->center_email;  // Add email field
                     break;
 
                 case 'treasury':
-                    $treasuryOfficer = TreasuryOfficer::find($userId);
-                    $name = $treasuryOfficer->tre_off_name;
                     $display_role = "District Treasuries";
-                    $profileImage = $treasuryOfficer->tre_off_image;
-                    $email = $treasuryOfficer->tre_off_email;  // Add email field
                     break;
 
                 case 'mobile_team_staffs':
-                    $mobileTeamStaffs = MobileTeamStaffs::find($userId);
-                    $name = $mobileTeamStaffs->mobile_name;
                     $display_role = "Mobile Teams";
-                    $profileImage = $mobileTeamStaffs->mobile_image;
-                    $email = $mobileTeamStaffs->mobile_email;  // Add email field
                     break;
 
                 case 'venue':
-                    $venue = Venues::find($userId);
-                    $name = $venue->venue_name;
                     $display_role = "Venues";
-                    $profileImage = $venue->venue_image;
-                    $email = $venue->venue_email;  // Add email field
                     break;
 
                 case 'headquarters':
-                    $departmentOfficial = DepartmentOfficial::find($userId);
-                    $name = $departmentOfficial->dept_off_name;
                     $display_role = "Department Officials";
-                    $profileImage = $departmentOfficial->dept_off_image;
-                    $email = $departmentOfficial->dept_off_email;  // Add email field
                     break;
 
                 case 'ci':
-                    $chiefInvigilator = ChiefInvigilator::find($userId);
-                    $name = $chiefInvigilator->ci_name;
                     $display_role = "Chief Invigilators";
-                    $profileImage = $chiefInvigilator->ci_image;
-                    $email = $chiefInvigilator->ci_email;  // Add email field
                     break;
             }
 
@@ -232,9 +192,6 @@ class AuthController extends Controller
                 'auth_role' => $role,
                 'athu_display_role' => $display_role,
                 'auth_id' => $userId,
-                'auth_name' => $name,
-                'auth_email' => $email,
-                'auth_image' => $profileImage,
             ]);
 
             if ($remember) {

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Storage;
 
 class District extends Authenticatable
 {
@@ -49,6 +50,19 @@ class District extends Authenticatable
         return $this->district_name; // or whatever field you use for the name
     }
 
+    public function getEmailDisplayAttribute()
+    {
+        return !empty($this->district_email) ? $this->district_email : 'No email available';
+    }
+
+    public function getProfileImageAttribute()
+    {
+        if (!empty($this->district_image) && file_exists(public_path('storage/' . $this->district_image))) {
+            return $this->district_image;
+        }
+
+        return '/assets/images/user/collectorate.png';
+    }
     public function getAuthPassword()
     {
         return $this->district_password;
@@ -65,7 +79,8 @@ class District extends Authenticatable
     {
         return $this->hasMany(MobileTeamStaffs::class, 'mobile_district_id', 'district_id');
     }
-    public function examCandidatesProjection(){
+    public function examCandidatesProjection()
+    {
         return $this->hasMany(ExamCandidatesProjection::class, 'district_code', 'district_code');
     }
 

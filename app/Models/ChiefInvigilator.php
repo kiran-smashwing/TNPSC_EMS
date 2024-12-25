@@ -48,6 +48,18 @@ class ChiefInvigilator extends Authenticatable
     {
         return $this->ci_name; // or whatever field you use for the name
     }
+    public function getEmailDisplayAttribute()
+    {
+        return !empty($this->ci_email) ? $this->ci_email : 'No email available';
+    }
+    public function getProfileImageAttribute()
+    {
+        if (!empty($this->ci_image) && file_exists(public_path('storage/' . $this->ci_image))) {
+            return $this->ci_image;
+        }
+
+        return '/assets/images/user/avatar-1.jpg';
+    }
     public function getAuthPassword()
     {
         return $this->ci_password;

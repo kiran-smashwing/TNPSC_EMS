@@ -401,6 +401,10 @@ Route::prefix('receive-exam-materials')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::get('/printer-to-disitrct-treasury/{examId}', [ReceiveExamMaterialsController::class, 'printerToDistrictTreasury'])->name('receive-exam-materials.printer-to-disitrict-treasury');
         Route::post('/scan-disitrct-exam-materials/{examId}', [ReceiveExamMaterialsController::class, 'scanDistrictExamMaterials'])->name('receive-exam-materials.scan-disitrct-exam-materials');
+        Route::get('/district-to-center/{examId}/', [ReceiveExamMaterialsController::class, 'districtTreasuryToCenter'])->name('receive-exam-materials.district-to-center');
+        Route::post('/scan-center-exam-materials/{examId}', [ReceiveExamMaterialsController::class, 'scanCenterExamMaterials'])->name('receive-exam-materials.scan-center-exam-materials');
+        Route::get('/sub-treasury-to-mobile-team/{examId}/{examDate}', [ReceiveExamMaterialsController::class, 'subTreasuryToMobileTeam'])->name('receive-exam-materials.sub-treasury-to-mobile-team');
+        Route::post('/scan-mobile-team-exam-materials/{examId}', [ReceiveExamMaterialsController::class, 'scanMobileTeamExamMaterials'])->name('receive-exam-materials.scan-mobile-team-exam-materials');
     });
 });
 // Route::get('/run-function', [DataController::class, 'addData']);

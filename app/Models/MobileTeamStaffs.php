@@ -44,6 +44,18 @@ class MobileTeamStaffs extends Authenticatable
     {
         return $this->mobile_name; // or whatever field you use for the name
     }
+    public function getEmailDisplayAttribute()
+    {
+        return !empty($this->mobile_email) ? $this->mobile_email : 'No email available';
+    }
+    public function getProfileImageAttribute()
+    {
+        if (!empty($this->mobile_image) && file_exists(public_path('storage/' . $this->mobile_image))) {
+            return $this->mobile_image;
+        }
+
+        return '/assets/images/user/avatar-5.jpg';
+    }
 
     public function getAuthPassword()
     {

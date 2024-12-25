@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-class Center  extends Authenticatable
+class Center extends Authenticatable
 {
     use HasFactory;
     protected $casts = [
@@ -46,6 +46,19 @@ class Center  extends Authenticatable
         return $this->center_name; // or whatever field you use for the name
     }
 
+    public function getEmailDisplayAttribute()
+    {
+        return !empty($this->center_email) ? $this->center_email : 'No email available';
+    }
+
+    public function getProfileImageAttribute()
+    {
+        if (!empty($this->center_image) && file_exists(public_path('storage/' . $this->center_image))) {
+            return $this->center_image;
+        }
+
+        return '/assets/images/user/center.png';
+    }
     public function getAuthPassword()
     {
         return $this->center_password;

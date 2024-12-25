@@ -185,7 +185,7 @@
                             <div>
                                 <a href="#" class="btn btn-outline-success" data-pc-animate="just-me"
                                     data-bs-toggle="modal" data-bs-target="#examMaterialsUploadModal">
-                                    <i class="ti ti-upload f-20"></i> Upload Excel Sheet
+                                    <i class="ti ti-upload f-20"></i> Upload CSV
                                 </a>
                             </div>
                         </div>

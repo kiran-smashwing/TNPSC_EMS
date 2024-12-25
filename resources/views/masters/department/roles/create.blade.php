@@ -44,7 +44,7 @@
                                                     <option value="APD">Application Processing Department - APD</option>
                                                     <option value="ID">Infrastructure Department - ID</option>
                                                     <option value="RND">Rules Notification Department - RND</option>
-                                                    <option value="RD">Evaluation Department - ED</option>
+                                                    <option value="ED">Evaluation Department - ED</option>
                                                     <option value="QD">Confidential Department - QD</option>
                                                     <option value="VMD">Vehicles Machineries Department - VMD</option>
                                                     <option value="VSD">Verification Stationary Department - VSD</option>

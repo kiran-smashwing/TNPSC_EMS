@@ -97,7 +97,6 @@ class MyExamController extends Controller
             return \Carbon\Carbon::parse($item->exam_sess_date)->format('d-m-Y');
         });
         $preliminary = CIChecklist::where('ci_checklist_type', 'Preliminary')->get();
-        // dd($preliminary);
         return view('my_exam.CI.task', compact('session', 'groupedSessions', 'preliminary'));
 
     }
@@ -108,8 +107,9 @@ class MyExamController extends Controller
         if (!$session) {
             abort(404, 'Session not found');
         }
-
-        return view('my_exam.CI.ci-exam-activity', compact('session'));
+        $type_sessions = CIChecklist::where('ci_checklist_type', 'Session')->get();
+        //  dd($type_sessions);
+        return view('my_exam.CI.ci-exam-activity', compact('session','type_sessions'));
 
         // Group exam sessions by date
 

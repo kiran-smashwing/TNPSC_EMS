@@ -109,7 +109,11 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a target="_blank" href="{{ route('current-exam.mobTeam-ci') }}"
+                                                        <a target="_blank"
+                                                            href="{{ route('receive-exam-materials.mobileTeam-to-ci-materials', [
+                                                                'examId' => $session->currentexam->exam_main_no,
+                                                                'exam_date' => $session->exam_sess_date,
+                                                            ]) }}"
                                                             class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-aperture mx-1"></i>Scan</a>
                                                     </div>
@@ -1096,7 +1100,7 @@
                         </div>
                     </div>
                 </div>
-                @include('modals.preliminary-checklist')
+                {{-- @include('modals.preliminary-checklist') --}}
                 @include('modals.session-checklist')
                 @include('modals.invigilator-select')
                 @include('modals.invigilator-allotment')

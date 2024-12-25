@@ -157,12 +157,12 @@
                         <div class="card-header">
                             <div class="d-sm-flex align-items-center justify-content-between">
                                 <h5 class="mb-3 mb-sm-0">Current Exam list</h5>
-                                @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'RND')
-                                    <div>
+                                @hasPermission('current-exam.create')
+                                <div>
                                         <a href="{{ route('current-exam.create') }}" class="btn btn-outline-success">Add Exam
                                         </a>
                                     </div>
-                                @endif
+                                @endhasPermission
                             </div>
                         </div>
                         <div class="card-body table-border-style">

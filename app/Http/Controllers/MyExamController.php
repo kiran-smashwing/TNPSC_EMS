@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\CIMeetingQrcode;
 use App\Models\Currentexam;
+use App\Models\Invigilator;
 use App\Models\ExamAuditLog;
 use App\Models\ExamSession;
 use App\Models\ExamVenueConsent;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\CIChecklist;
+use App\Models\ExamConfirmedHalls;
 
 class MyExamController extends Controller
 {
@@ -88,6 +90,7 @@ class MyExamController extends Controller
     public function ciTask($examId)
     {
         $session = Currentexam::with('examsession')->where('exam_main_no', $examId)->first();
+        
 
         if (!$session) {
             abort(404, 'Exam not found');
@@ -98,22 +101,66 @@ class MyExamController extends Controller
         });
         $preliminary = CIChecklist::where('ci_checklist_type', 'Preliminary')->get();
         return view('my_exam.CI.task', compact('session', 'groupedSessions', 'preliminary'));
-
     }
     public function ciExamActivity($examId, $session)
     {
-        $session = ExamSession::with('currentexam')->where('exam_sess_mainid', $examId)->where('exam_sess_session', $session)->first();
+        // Retrieve the session details with related currentexam
+        $session = ExamSession::with('currentexam')
+            ->where('exam_sess_mainid', $examId)
+            ->where('exam_sess_session', $session)
+            ->first();
 
+        // $session_exam_no = $session->exam_sess_mainid;
+    
+        // Check if session is found
         if (!$session) {
             abort(404, 'Session not found');
         }
+    
+        // Get the role and user from the session
+        $role = session('auth_role');
+        $guard = $role ? Auth::guard($role) : null;
+        $user = $guard ? $guard->user() : null;
+    
+        // Retrieve session type (Objective or Descriptive)
+        $session_type = $session->exam_sess_type; // Assuming 'exam_sess_type' is the column for exam type    
+        // Check the session type and perform specific logic
+        if ($session_type == 'Objective') {
+            // Fetch confirmed halls for Objective type
+            $session_confirmedhalls = ExamConfirmedHalls::where('exam_id', $examId)
+                ->where('exam_session', $session->exam_sess_session)
+                ->where('exam_date', $session->exam_sess_date)
+                ->where('ci_id', $user->ci_id)
+                ->first();
+    
+            // Divide the alloted_count by 2 and assign it to the variable
+            $alloted_count = $session_confirmedhalls->alloted_count / 20; // Sum and then divide by 2
+    
+        } elseif ($session_type == 'Descriptive') {
+            // Fetch confirmed halls for Descriptive type
+            $session_confirmedhalls = ExamConfirmedHalls::where('exam_id', $examId)
+                ->where('exam_session', $session->exam_sess_session)
+                ->where('exam_date', $session->exam_sess_date)
+                ->where('ci_id', $user->ci_id)
+                ->first();
+            $alloted_count = $session_confirmedhalls->alloted_count / 10; // Sum and then divide by 2
+        }
+    
+        // For debugging, you can uncomment the line below to check the fetched data
+        //  dd($alloted_count);
+    
+        // Retrieve the invigilators based on the venue
+        $invigilator = Invigilator::where('invigilator_venue_id', $user->ci_venue_id)->get();
+    
+        // Retrieve checklist sessions
         $type_sessions = CIChecklist::where('ci_checklist_type', 'Session')->get();
-        //  dd($type_sessions);
-        return view('my_exam.CI.ci-exam-activity', compact('session','type_sessions'));
-
-        // Group exam sessions by date
-
+    
+        // Return the view with the data
+        return view('my_exam.CI.ci-exam-activity', compact('session', 'type_sessions', 'invigilator', 'session_type', 'session_confirmedhalls', 'alloted_count'));
     }
+    
+
+
     public function mobileTeamTask($examId)
     {
         $session = Currentexam::with('examsession')->where('exam_main_no', $examId)->first();
@@ -130,7 +177,6 @@ class MyExamController extends Controller
             ->where('exam_id', $examId)
             ->orderBy('created_at', 'asc')
             ->get();
-        return view('my_exam.MobileTeam.task', compact('auditDetails', 'session','groupedSessions'));
+        return view('my_exam.MobileTeam.task', compact('auditDetails', 'session', 'groupedSessions'));
     }
-
 }

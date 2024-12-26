@@ -1101,8 +1101,8 @@
                     </div>
                 </div>
                 {{-- @include('modals.preliminary-checklist') --}}
-                @include('modals.session-checklist')
-                @include('modals.invigilator-select')
+                 @include('modals.session-checklist')
+                 @include('modals.invigilator-select')
                 @include('modals.invigilator-allotment')
                 @include('modals.scribe-select')
                 @include('modals.scribe-allotment')

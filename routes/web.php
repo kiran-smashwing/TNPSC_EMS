@@ -42,6 +42,7 @@ use App\Http\Controllers\Omr_AccountController;
 use App\Http\Controllers\Expenditure_StatmentController;
 use App\Http\Controllers\Bundle_ReceivingReportController;
 use App\Http\Controllers\CIPreliminaryCheckController;
+use App\Http\Controllers\ExamStaffAllotmentController;
 
 //PDF
 Route::get('/ci-consolidate-report', [CIConsolidateController::class, 'generateReport'])->name('download.report');
@@ -374,6 +375,9 @@ Route::prefix('ci-meetings')->group(function () {
 Route::prefix('ci-checklist')->middleware(['auth.multi'])->group(function () {
     Route::post('/save', [CIPreliminaryCheckController::class, 'saveChecklist'])->name('ci-checklist.save'); // To save checklist
     Route::post('/ci-session-save', [CIPreliminaryCheckController::class, 'savesessionChecklist'])->name('ci-session-checklist.save'); // To save checklist
+});
+Route::prefix('ci-staffalloment')->middleware(['auth.multi'])->group(function () {
+    Route::post('/save-invigilator-details', [ExamStaffAllotmentController::class, 'saveinvigilatoreDetails'])->name('save-invigilator.details');
 });
 // Route::prefix('ci-meetings')->group(function () {
 //     Route::middleware(['auth.multi', 'role.permission:ci-meetings.index'])->group(function () {

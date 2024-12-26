@@ -27,6 +27,7 @@ class ExamSession extends Model
         'exam_sess_time',
         'exam_sess_duration',
         'exam_sess_subject',
+        'exam_sess_type',
         'exam_sess_flag',
         'exam_sess_createdat',
     ];

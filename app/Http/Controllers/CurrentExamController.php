@@ -70,6 +70,7 @@ class CurrentExamController extends Controller
             'subjects.*.time' => 'required|string',
             'subjects.*.duration' => 'required|string',
             'subjects.*.name' => 'required|string',
+            'subjects.*.type' => 'nullable|string',
             'exam_main_candidates_for_hall' => 'required|integer',
         ], $messages);
 
@@ -104,6 +105,7 @@ class CurrentExamController extends Controller
                     'exam_sess_time' => $subject['time'],
                     'exam_sess_duration' => $subject['duration'],
                     'exam_sess_subject' => $subject['name'],
+                    'exam_sess_type' => $subject['type'],
                     'exam_sess_flag' => 'active', // Set a default value for the flag
                 ]);
             }
@@ -171,6 +173,7 @@ class CurrentExamController extends Controller
             'subjects.*.time' => 'required|string',
             'subjects.*.duration' => 'required|string',
             'subjects.*.name' => 'required|string',
+            'subjects.*.type' => 'required|string',
             'exam_main_candidates_for_hall' => 'required|integer',
         ], $message);
 
@@ -208,6 +211,7 @@ class CurrentExamController extends Controller
                     'exam_sess_time' => $subject['time'],
                     'exam_sess_duration' => $subject['duration'],
                     'exam_sess_subject' => $subject['name'],
+                    'exam_sess_type' => $subject['type'],
                     'exam_sess_flag' => 'active', // Set a default value for the flag
                 ]);
             }

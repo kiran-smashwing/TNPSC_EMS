@@ -305,6 +305,7 @@
                                                     <th>Time</th>
                                                     <th>Duration</th>
                                                     <th>Subject</th>
+                                                    <th>Type</th>
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>
@@ -391,6 +392,20 @@
                                                                 class="form-control"
                                                                 value="{{ $exam_session->exam_sess_subject }}"
                                                                 placeholder="Subject Name" required />
+                                                        </td>
+                                                        <td>
+                                                            <select name="subjects[{{ $index }}][type]"
+                                                                class="form-control" required>
+                                                                <option value="Objective"
+                                                                    {{ $exam_session->exam_sess_type == 'Objective' ? 'selected' : '' }}>
+                                                                    Objective</option>
+                                                                <option value="Descriptive"
+                                                                    {{ $exam_session->exam_sess_type == 'Descriptive' ? 'selected' : '' }}>
+                                                                    Descriptive</option>
+                                                                <option value="CBT"
+                                                                    {{ $exam_session->exam_sess_type == 'CBT' ? 'selected' : '' }}>
+                                                                    CBT</option>
+                                                            </select>
                                                         </td>
                                                         <td data-label="Action">
                                                             @if ($loop->first)
@@ -502,6 +517,13 @@
                 <td data-label="Subject">
                     <input type="text" name="subjects[${rowIndex}][name]" class="form-control" placeholder="Subject Name" required />
                 </td>
+                <td>
+                    <select name="subjects[${rowIndex}][type]" class="form-control" required>
+                        <option value="Objective">Objective</option>
+                        <option value="Descriptive">Descriptive</option>
+                        <option value="CBT">CBT</option>
+                    </select>
+                </td>
                 <td data-label="Action">
                     <button type="button" class="btn btn-danger remove-row">-</button>
                 </td>
@@ -544,6 +566,7 @@
                         const timeSelect = row.querySelector('select[name*="[time]"]');
                         const durationSelect = row.querySelector('select[name*="[duration]"]');
                         const nameInput = row.querySelector('input[name*="[name]"]');
+                        const typeSelect = row.querySelector('select[name*="[type]');
 
                         // Update the name attributes to ensure proper indexing
                         if (dateInput) dateInput.name = `subjects[${index}][date]`;
@@ -551,6 +574,7 @@
                         if (timeSelect) timeSelect.name = `subjects[${index}][time]`;
                         if (durationSelect) durationSelect.name = `subjects[${index}][duration]`;
                         if (nameInput) nameInput.name = `subjects[${index}][name]`;
+                        if (typeSelect) typeSelect.name = `subjects[${index}][type]`;
                     });
                 });
 

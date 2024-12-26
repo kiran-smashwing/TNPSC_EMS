@@ -231,12 +231,12 @@
                                                     class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-eye f-20"></i>
                                                 </a>
-                                                @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'RND')
+                                                @hasPermission('current-exam.edit')
                                                 <a href="{{ route('current-exam.edit', $exam->exam_main_id) }}"
                                                     class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-edit f-20"></i>
                                                 </a>
-                                                @endif
+                                                @endhasPermission
                                                 <a href="#" class="avtar avtar-xs btn-light-success"
                                                     title="Change Status (Active or Inactive)">
                                                     <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon -->

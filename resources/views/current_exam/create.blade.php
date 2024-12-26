@@ -300,6 +300,7 @@
                                                 <th>Time</th>
                                                 <th>Duration</th>
                                                 <th>Subject</th>
+                                                <th>Type</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -347,6 +348,14 @@
                                                 <td data-label="Subject">
                                                     <input type="text" name="subjects[0][name]" class="form-control"
                                                         placeholder="Subject Name" required />
+                                                </td>
+                                                <td>
+                                                    <select name="subjects[0][type]" class="form-control" required>
+                                                        <option disabled selected>Select Type</option>
+                                                        <option value="Objective">Objective</option>
+                                                        <option value="Descriptive">Descriptive</option>
+                                                        <option value="CBT">CBT</option>
+                                                    </select>
                                                 </td>
                                                 <td data-label="Action">
                                                     <button type="button" class="btn btn-success add-row">+</button>
@@ -444,6 +453,14 @@
                     <td data-label="Subject">
                         <input type="text" name="subjects[${rowIndex}][name]" class="form-control" placeholder="Subject Name" required />
                     </td>
+                    <td>
+                        <select name="subjects[${rowIndex}][type]" class="form-control" required>
+                            <option disabled selected>Select Type</option>
+                            <option value="Objective">Objective</option>
+                            <option value="Descriptive">Descriptive</option>
+                            <option value="CBT">CBT</option>
+                        </select>
+                    </td>
                     <td data-label="Action">
                         <button type="button" class="btn btn-danger remove-row">-</button>
                     </td>
@@ -491,6 +508,8 @@
                             duration: row.querySelector(
                                 `select[name^="subjects["][name$="[duration]"]`).value,
                             name: row.querySelector(`input[name^="subjects["][name$="[name]"]`)
+                                .value,
+                            type: row.querySelector(`select[name^="subjects["][name$="[type]"]`)
                                 .value
                         };
 
@@ -524,6 +543,12 @@
                         nameInput.name = `subjects[${index}][name]`;
                         nameInput.value = subject.name;
                         this.appendChild(nameInput);
+
+                        const typeInput = document.createElement('input');
+                        typeInput.type = 'hidden';
+                        typeInput.name = `subjects[${index}][type]`;
+                        typeInput.value = subject.type;
+                        this.appendChild(typeInput);
 
                         subjects.push(subject);
                     });

@@ -42,6 +42,7 @@ use App\Http\Controllers\Omr_AccountController;
 use App\Http\Controllers\Expenditure_StatmentController;
 use App\Http\Controllers\Bundle_ReceivingReportController;
 use App\Http\Controllers\CIPreliminaryCheckController;
+use App\Http\Controllers\ExamMaterialsRouteController;
 
 //PDF
 Route::get('/ci-consolidate-report', [CIConsolidateController::class, 'generateReport'])->name('download.report');
@@ -402,12 +403,27 @@ Route::prefix('receive-exam-materials')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::get('/printer-to-disitrct-treasury/{examId}', [ReceiveExamMaterialsController::class, 'printerToDistrictTreasury'])->name('receive-exam-materials.printer-to-disitrict-treasury');
         Route::post('/scan-disitrct-exam-materials/{examId}', [ReceiveExamMaterialsController::class, 'scanDistrictExamMaterials'])->name('receive-exam-materials.scan-disitrct-exam-materials');
+        Route::get('/printer-to-hq-treasury/{examId}', [ReceiveExamMaterialsController::class, 'printerToHQTreasury'])->name('receive-exam-materials.printer-to-hq-treasury');
+        Route::post('/scan-hq-exam-materials/{examId}', [ReceiveExamMaterialsController::class, 'scanHQExamMaterials'])->name('receive-exam-materials.scan-hq-exam-materials');
         Route::get('/district-to-center/{examId}/', [ReceiveExamMaterialsController::class, 'districtTreasuryToCenter'])->name('receive-exam-materials.district-to-center');
         Route::post('/scan-center-exam-materials/{examId}', [ReceiveExamMaterialsController::class, 'scanCenterExamMaterials'])->name('receive-exam-materials.scan-center-exam-materials');
         Route::get('/sub-treasury-to-mobile-team/{examId}/{examDate}', [ReceiveExamMaterialsController::class, 'subTreasuryToMobileTeam'])->name('receive-exam-materials.sub-treasury-to-mobile-team');
         Route::post('/scan-mobile-team-exam-materials/{examId}', [ReceiveExamMaterialsController::class, 'scanMobileTeamExamMaterials'])->name('receive-exam-materials.scan-mobile-team-exam-materials');
+        Route::get('/headquarters-to-vanduty/{examId}/{examDate}', [ReceiveExamMaterialsController::class, 'headquartersToVanDuty'])->name('receive-exam-materials.headquarters-to-vanduty');
+        Route::post('/scan-vandutystaff-exam-materials/{examId}', [ReceiveExamMaterialsController::class, 'scanVandutystaffExamMaterials'])->name('receive-exam-materials.scan-vandutystaff-exam-materials');
         Route::get('/receive-exam-materials/{examId}/{exam_date}', [ReceiveExamMaterialsController::class, 'ciReceiveMaterialsFromMobileTeam'])->name('receive-exam-materials.mobileTeam-to-ci-materials');
         Route::post('/scan-ci-exam-materials/{examId}', [ReceiveExamMaterialsController::class, 'scanCIExamMaterials'])->name('receive-exam-materials.scan-ci-exam-materials');
+    });
+});
+//ExamMaterialsRouteController Route::prefix('exam-materials-route')->group(function(){
+Route::prefix('exam-materials-route')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/{examId}', [ExamMaterialsRouteController::class, 'index'])->name('exam-materials-route.index');
+        Route::get('/create/{examId}', [ExamMaterialsRouteController::class, 'createRoute'])->name('exam-materials-route.create');
+        Route::get('/edit', [ExamMaterialsRouteController::class, 'editRoute'])->name('exam-materials-route.edit');
+        Route::post('/store', [ExamMaterialsRouteController::class, 'storeRoute'])->name('exam-materials-route.store');
+        Route::post('/update', [ExamMaterialsRouteController::class, 'updateRoute'])->name('exam-materials-route.update');
+        Route::get('/delete', [ExamMaterialsRouteController::class, 'deleteRoute'])->name('exam-materials-route.delete');
     });
 });
 // Route::get('/run-function', [DataController::class, 'addData']);

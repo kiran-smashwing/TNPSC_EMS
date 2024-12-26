@@ -714,7 +714,7 @@
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive Exam Materials<small
+                                                        <div class="h5 font-weight-bold">Receive Exam Materials From Printer<small
                                                                 class="badge bg-light-secondary ms-2">Received</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
@@ -748,6 +748,74 @@
                                                             data-bs-target="#animateModal"><i
                                                                 class="feather icon-eye mx-1 "></i>View </a>
                                                         <a href="{{ route('receive-exam-materials.printer-to-disitrict-treasury', $session->exam_main_no) }}"
+                                                            class="me-2 btn btn-sm btn-light-info"><i
+                                                                class="feather icon-info mx-1"></i>Verify</a>
+                                                        <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
+                                                                class="feather icon-edit mx-1"></i>Edit </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="task-list-item">
+                                    <i class="task-icon bg-primary"></i>
+                                    <div class="card ticket-card open-ticket">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-sm-auto mb-3 mb-sm-0">
+                                                    <div class="d-sm-inline-block d-flex align-items-center">
+                                                        <img class="media-object wid-60 img-radius"
+                                                            src="{{ asset('storage/assets/images/user/avatar-3.jpg') }}"
+                                                            alt="Generic placeholder image " />
+                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                            <ul
+                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                {{-- <li class="list-unstyled-item"><a href="#"
+                                                                        class="link-secondary">1 Ticket</a></li>
+                                                                <li class="list-unstyled-item"><a href="#"
+                                                                        class="link-danger"><i class="fas fa-heart"></i>
+                                                                        3</a></li> --}}
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="popup-trigger">
+                                                        <div class="h5 font-weight-bold">Receive Exam Materials From Printer<small
+                                                                class="badge bg-light-secondary ms-2">Received</small>
+                                                        </div>
+                                                        <div class="help-sm-hidden">
+                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
+                                                                {{-- <li class="d-sm-inline-block d-block mt-1"
+                                                    ><img src="../assets/images/admin/p1.jpg" alt="" class="wid-20 rounded me-2 img-fluid" /></li
+                                                  > --}}
+                                                                <li class="d-sm-inline-block d-block mt-1"><img
+                                                                        src="../assets/images/user/avatar-4.jpg"
+                                                                        alt=""
+                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
+                                                                    <b>Anbezhili</b>
+                                                                </li>
+                                                                <li class="d-sm-inline-block d-block mt-1"><i
+                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>25-07-2024
+                                                                    10:05 AM</li>
+                                                                {{-- <li class="d-sm-inline-block d-block mt-1"
+                                                    ><i class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
+                                                  </li> --}}
+                                                            </ul>
+                                                        </div>
+                                                        <div class="h5 mt-3"><i
+                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                            ED - Section Officer</div>
+
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <a href="helpdesk-ticket-details.html"
+                                                            class="me-2 btn btn-sm btn-light-primary "
+                                                            data-pc-animate="just-me" data-bs-toggle="modal"
+                                                            data-bs-target="#animateModal"><i
+                                                                class="feather icon-eye mx-1 "></i>View </a>
+                                                        <a href="{{ route('receive-exam-materials.printer-to-hq-treasury', $session->exam_main_no) }}"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-info mx-1"></i>Verify</a>
                                                         <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
@@ -947,7 +1015,7 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>view</a>
-                                                        <a href="helpdesk-ticket-details.html"
+                                                        <a href="{{ route('exam-materials-route.index', $session->exam_main_no) }}"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-map mx-1"></i>Create Route</a>
 
@@ -1247,7 +1315,7 @@
                                                                         src="../assets/images/admin/p1.jpg" alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Piaf able
                                                                 </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
+                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
@@ -1255,7 +1323,7 @@
                                                                 </li>
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
+                                                                    28-07-2024 09:30 AM</li> --}}
                                                                 {{-- <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
                                                                 </li> 
@@ -2616,7 +2684,7 @@
                 @include('modals.id-increase-candidate')
                 @include('modals.apd-finalize-candidate')
                 {{-- @include('modals.preliminary-checklist') --}}
-                @include('modals.session-checklist')
+                {{-- @include('modals.session-checklist') --}}
                 @include('modals.invigilator-select')
                 @include('modals.ci-meetingcode-generate')
                 {{-- @include('modals.invigilator-allotment') --}}

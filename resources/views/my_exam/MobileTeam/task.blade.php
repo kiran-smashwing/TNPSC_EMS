@@ -193,18 +193,89 @@
                                                             </li> --}}
                                                                 </ul>
                                                             </div>
-                                                            <div class="h5 mt-3"><i
-                                                                    class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                Chief Invigilator</div>
-                                                        </div>
-                                                        <div class="mt-2">
                                                             
                                                         </div>
+                                                      
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <ul class="list-unstyled task-list">
+                                            @if (session('auth_role') == 'headquarters')
+                                                <li class="task-list-item">
+                                                    <i class="task-icon bg-danger"></i>
+                                                    <div class="card ticket-card open-ticket">
+                                                        <div class="card-body">
+                                                            <div class="row">
+                                                                <div class="col-sm-auto mb-3 mb-sm-0">
+                                                                    <div
+                                                                        class="d-sm-inline-block d-flex align-items-center">
+                                                                        <img class="media-object wid-60 img-radius"
+                                                                            src="{{ asset('storage/assets/images/user/avatar-1.jpg') }}"
+                                                                            alt="Generic placeholder image " />
+                                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                                            <ul
+                                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                                {{-- <li class="list-unstyled-item"><a href="#"
+                                                                                    class="link-secondary">1 Ticket</a></li>
+                                                                            <li class="list-unstyled-item"><a href="#"
+                                                                                    class="link-danger"><i class="fas fa-heart"></i>
+                                                                                    3</a></li> --}}
+                                                                            </ul>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col">
+                                                                    <div class="popup-trigger">
+                                                                        <div class="h5 font-weight-bold">Receive Materials
+                                                                            From
+                                                                            Treasury<small
+                                                                                class="badge bg-light-secondary ms-2">received</small>
+                                                                        </div>
+                                                                        <div class="help-sm-hidden">
+                                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
+                                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
+                                                                                    src="../assets/images/admin/p1.jpg" alt=""
+                                                                                    class="wid-20 rounded me-2 img-fluid" />Piaf able
+                                                                            </li> --}}
+                                                                                <li class="d-sm-inline-block d-block mt-1">
+                                                                                    <img src="../assets/images/user/avatar-5.jpg"
+                                                                                        alt=""
+                                                                                        class="wid-20 rounded me-2 img-fluid" />Done
+                                                                                    by
+                                                                                    <b>Prabakaran</b>
+                                                                                </li>
+                                                                                <li class="d-sm-inline-block d-block mt-1">
+                                                                                    <i
+                                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                                    27-07-2024 02:32 PM</li>
+                                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
+                                                                                    class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
+                                                                            </li> --}}
+                                                                            </ul>
+                                                                        </div>
+                                                                        <div class="h5 mt-3"><i
+                                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                            HQ - Van Duty Staff</div>
+                                                                    </div>
+                                                                    <div class="mt-2">
+                                                                        <a href="{{route('receive-exam-materials.headquarters-to-vanduty', ['examId' => $session->exam_main_no, 'examDate' => $date])}}"
+                                                                            class="me-2 btn btn-sm btn-light-primary"><i
+                                                                                class="feather icon-info mx-1"></i>Verify
+                                                                        </a>
+                                                                        <a href="helpdesk-ticket-details.html"
+                                                                            class="me-2 btn btn-sm btn-light-info"><i
+                                                                                class="feather icon-map mx-1"></i>View
+                                                                            Route</a>
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            @endif
+                                            @if (session('auth_role') == 'mobile_team_staffs')
                                             <li class="task-list-item">
                                                 <i class="task-icon bg-danger"></i>
                                                 <div class="card ticket-card open-ticket">
@@ -260,7 +331,7 @@
                                                                         DC - Mobile Team</div>
                                                                 </div>
                                                                 <div class="mt-2">
-                                                                    <a href="{{ route('receive-exam-materials.sub-treasury-to-mobile-team',[ 'examId' => $session->exam_main_no , 'examDate' => $date ]) }}"
+                                                                    <a href="{{ route('receive-exam-materials.sub-treasury-to-mobile-team', ['examId' => $session->exam_main_no, 'examDate' => $date]) }}"
                                                                         class="me-2 btn btn-sm btn-light-primary"><i
                                                                             class="feather icon-info mx-1"></i>Verify </a>
                                                                     <a href="helpdesk-ticket-details.html"
@@ -343,6 +414,7 @@
                                                     </div>
                                                 </div>
                                             </li>
+                                            @endif
                                         </ul>
                                     </li>
                                 @endforeach

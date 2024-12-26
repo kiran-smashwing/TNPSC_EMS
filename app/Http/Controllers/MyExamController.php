@@ -76,7 +76,10 @@ class MyExamController extends Controller
         } else if ($role == 'mobile_team_staffs') {
             return $this->mobileTeamTask($examId);
         }
-        return abort(403, 'Unauthorized access');
+        else {
+            return $this->mobileTeamTask($examId);
+        }
+        // return abort(403, 'Unauthorized access');
     }
 
     public function centerTask()

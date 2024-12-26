@@ -160,7 +160,7 @@
                         <div class="d-sm-flex align-items-center justify-content-between">
                             <h5 class="mb-3 mb-sm-0">Route View</h5>
                             <div>
-                                <a href="{{route('current-exam.routeCreate')}}" class="btn btn-outline-success">Add Route</a>
+                                <a href="{{route('exam-materials-route.create',$examId)}}" class="btn btn-outline-success">Add Route</a>
                             </div>
                         </div>
                     </div>

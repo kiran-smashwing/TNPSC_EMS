@@ -2685,7 +2685,7 @@
                 @include('modals.apd-finalize-candidate')
                 {{-- @include('modals.preliminary-checklist') --}}
                 {{-- @include('modals.session-checklist') --}}
-                @include('modals.invigilator-select')
+                {{-- @include('modals.invigilator-select') --}}
                 @include('modals.ci-meetingcode-generate')
                 {{-- @include('modals.invigilator-allotment') --}}
                 @include('modals.qpbox-opentime')

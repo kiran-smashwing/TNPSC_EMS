@@ -44,13 +44,16 @@ class ExamMaterialRoutes extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'exam_date' => 'date',
-        'centers_allocated' => 'array',
-        'halls_allocated' => 'array',
+        'hall_code' => 'array',
     ];
     // Relationships
     public function district()
     {
         return $this->belongsTo(District::class, 'district_code', 'district_code');
+    }
+    public function mobileTeam()
+    {
+        return $this->belongsTo(MobileTeamStaffs::class, 'mobile_team_staff', 'mobile_id');
     }
 
 }

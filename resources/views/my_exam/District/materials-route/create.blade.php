@@ -30,6 +30,7 @@
             <div class="row">
                 <form action="{{ route('exam-materials-route.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
+                    <input type="hidden" name="exam_id" value="{{ $examId }}">
                     <div class="tab-content">
                         <div class="row">
                             <div class="col-lg-6">
@@ -101,23 +102,42 @@
                                         <div class="row">
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
+                                                    <label class="form-label" for="exam-date">Exam Date<span
+                                                            class="text-danger">*</span></label>
+                                                    <select class="form-control" name="exam-date" required data-trigger
+                                                        id="choices-single-default">
+                                                        <option value="" selected disabled>Select Exam Date
+                                                        </option>
+                                                        @foreach ($examDates as $examDate)
+                                                            <option value="{{ $examDate }}">
+                                                                {{ $examDate }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
                                                     <label class="form-label" for="mobile_staff">Mobile Staff<span
                                                             class="text-danger">*</span></label>
                                                     <select class="form-control" name="mobile_staff" required data-trigger
                                                         id="choices-single-default">
-                                                        <option value="1">John Doe</option>
-                                                        <option value="2">Jane Smith</option>
-                                                        <option value="3">Michael Johnson</option>
-                                                        <option value="4">Emily Davis</option>
+                                                        <option value="" selected disabled>Select Mobile Team Staff
+                                                        </option>
+                                                        @foreach ($mobileTeam as $mobile_staff)
+                                                            <option value="{{ $mobile_staff->mobile_id }}">
+                                                                {{ $mobile_staff->mobile_name }}
+                                                            </option>
+                                                        @endforeach
                                                     </select>
-
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="center">Center <span
                                                             class="text-danger">*</span></label>
-                                                    <select class="form-control" id="center-select" name="center-select[]" multiple>
+                                                    <select class="form-control" id="center-select" name="center-select[]"
+                                                        multiple>
                                                         <option value="">Select Center</option>
                                                         @foreach ($centers as $center)
                                                             <option value="{{ $center->center_code }}"
@@ -134,22 +154,8 @@
                                                 <div class="mb-3">
                                                     <label class="form-label" for="halls">Halls<span
                                                             class="text-danger">*</span></label>
-                                                            <select class="form-control" id="halls-select" name="halls[]" multiple></select>
-
-                                                    {{-- <select class="form-control" name="halls[]" id="halls-select" multiple>
-                                                    <optgroup label="Chennai">
-                                                        <option value="1" >Hall 1</option>
-                                                        <option value="2">Hall 2</option>
-                                                        <option value="3" >Hall 3</option>
-                                                        <option value="4">Hall 4</option>
-                                                    </optgroup>
-                                                    <optgroup label="Arcot">
-                                                        <option value="5">Hall 5</option>
-                                                        <option value="6" >Hall 6</option>
-                                                        <option value="7" >Hall 7</option>
-                                                        <option value="8">Hall 8</option>
-                                                    </optgroup>
-                                                </select> --}}
+                                                    <select class="form-control" id="halls-select" name="halls[]"
+                                                        multiple></select>
                                                 </div>
                                             </div>
                                         </div>
@@ -175,30 +181,16 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Choices for the Center select
-            var centerSelect = new Choices('#center-select', {
-                removeItemButton: true,
-                placeholderValue: 'Select Center',
-                searchPlaceholderValue: 'Search Centers'
-            });
-
-            // // Initialize Choices for the Halls select
-            // var hallsSelect = new Choices('#halls-select', {
-            //     removeItemButton: true,
-            //     placeholderValue: 'Select Halls',
-            //     searchPlaceholderValue: 'Search Halls'
-            // });
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
             // Store halls data grouped by center code
             const hallsByCenter = {};
             @foreach ($halls as $hall)
                 if (!hallsByCenter['{{ $hall->center_code }}']) {
-                    hallsByCenter['{{ $hall->center_code }}'] = [];
+                    hallsByCenter['{{ $hall->center_code }}'] = {
+                        centerName: '{{ $hall->center_name }}',
+                        halls: []
+                    };
                 }
-                hallsByCenter['{{ $hall->center_code }}'].push({
+                hallsByCenter['{{ $hall->center_code }}'].halls.push({
                     code: '{{ $hall->hall_code }}',
                     centerName: '{{ $hall->center_name }}'
                 });
@@ -206,26 +198,41 @@
 
             const centerSelect = new Choices('#center-select', {
                 removeItemButton: true,
-                placeholderValue: 'Select Center'
+                placeholderValue: 'Select Center',
+                multiple: true
             });
 
             const hallsSelect = new Choices('#halls-select', {
                 removeItemButton: true,
                 placeholderValue: 'Select Halls',
-                multiple: true
+                multiple: true,
+                shouldSort: false
             });
 
             document.getElementById('center-select').addEventListener('change', function(e) {
-                const selectedCenter = e.target.value;
-                const halls = hallsByCenter[selectedCenter] || [];
+                // Get all selected centers
+                const selectedCenters = centerSelect.getValue().map(choice => choice.value);
 
-                const hallOptions = halls.map(hall => ({
-                    value: hall.code,
-                    label: `${hall.code}`,
-                    selected: false
-                }));
+                // Create grouped choices structure
+                let groupedChoices = [];
+                selectedCenters.forEach(centerCode => {
+                    const centerData = hallsByCenter[centerCode];
+                    if (centerData) {
+                        groupedChoices.push({
+                            label: `${centerCode} - ${centerData.centerName}`,
+                            id: centerCode,
+                            choices: centerData.halls.map(hall => ({
+                                value: `${centerCode}:${hall.code}`, // Combine center code and hall code
+                                label: centerCode + ' - ' + hall.code,
+                                selected: false
+                            }))
+                        });
+                    }
+                });
 
-                hallsSelect.setChoices(hallOptions, 'value', 'label', true);
+                // Update halls dropdown with grouped choices
+                hallsSelect.clearStore();
+                hallsSelect.setChoices(groupedChoices, 'value', 'label', true);
             });
         });
     </script>

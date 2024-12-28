@@ -1025,6 +1025,7 @@
                                         </div>
                                     </div>
                                 </li>
+                                @if($session->exam_main_model == 'Major')
                                 <li class="task-list-item">
                                     <i class="task-icon bg-danger"></i>
                                     <div class="card ticket-card open-ticket">
@@ -1088,6 +1089,7 @@
                                         </div>
                                     </div>
                                 </li>
+                                @endif
                                 <li class="task-list-item">
                                     <i class="task-icon bg-danger"></i>
                                     <div class="card ticket-card open-ticket">
@@ -1112,8 +1114,8 @@
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive Materials From Sub
-                                                            Treasury<small
+                                                        <div class="h5 font-weight-bold">Receive Materials From {{$session->exam_main_model == 'Major' ? 'Sub
+                                                            Treasury' : 'Treasury' }} <small
                                                                 class="badge bg-light-secondary ms-2">received</small>
                                                         </div>
                                                         <div class="help-sm-hidden">

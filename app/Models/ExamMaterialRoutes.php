@@ -29,8 +29,8 @@ class ExamMaterialRoutes extends Model
         'driver_phone',
         'vehicle_no',
         'mobile_team_staff',
-        'centers_allocated',
-        'halls_allocated',
+        'center_code',
+        'hall_code',
         'created_at',
         'updated_at'
     ];

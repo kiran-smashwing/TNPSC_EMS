@@ -1,238 +1,271 @@
 @extends('layouts.app')
 
-@section('title', 'ROUTE - Create')
+@section('title', 'ROUTE - Edit')
 @push('styles')
     <link rel="stylesheet" href="{{ asset('storage/assets/css/plugins/croppr.min.css') }}" />
 @endpush
 
 @section('content')
-
     <!-- [ Pre-loader ] start -->
     <div class="page-loader">
         <div class="bar"></div>
     </div>
     <!-- [ Pre-loader ] End -->
 
-    <!-- [ Sidebar Menu ] start -->
     @include('partials.sidebar')
-    <!-- [ Sidebar Menu ] end -->
-
-    <!-- [ Header Topbar ] start -->
     @include('partials.header')
-    <!-- [ Header Topbar ] end -->
 
     <div class="pc-container">
         <div class="pc-content">
-            <!-- Modal start-->
-            @include('modals.cropper')
-            <!-- Modal start-->
-            <!-- [ Main Content ] start -->
             <div class="row">
-
-                <div class="tab-content">
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5>Route - <span class="text-primary">Edit</span></h5>
+                <form action="{{ route('exam-materials-route.update', $routes->id) }}" method="POST"
+                    enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+                    <div class="tab-content">
+                        <div class="row">
+                            @if (session('success'))
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    {{ session('success') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
                                 </div>
-                                <div class="card-body">
-                                    {{-- <form action="{{ route('collectorates.store') }}" method="POST" enctype="multipart/form-data"> --}}
-                                    @csrf
-                                    <div class="row">
-                                        <div class="col-sm-6 text-center mb-3">
-                                            <div class="user-upload wid-75" data-pc-animate="just-me" data-bs-toggle="modal"
-                                                data-bs-target="#cropperModal">
-                                                <img src="{{ asset('storage/assets/images/user/collectorate.png') }}"
-                                                    alt="img" class="img-fluid">
-                                                <label for="image" class="img-avtar-upload">
-                                                    <i class="ti ti-camera f-24 mb-1"></i>
-                                                    <span>Upload</span>
-                                                </label>
-                                                {{-- <input type="file" id="image" name="image" class="d-none"> --}}
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Route no <span
-                                                        class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="route_no" name="route_no"
-                                                    placeholder="001" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Driver Name<span
-                                                        class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="driver_name"
-                                                    name="driver_name" placeholder="vijay" required>
-                                            </div>
-                                        </div>
+                            @endif
 
-                                        <div class="col-sm-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Driver Licenese No<span
-                                                        class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="driver_licence_no"
-                                                    name="driver_licence_no" placeholder="DLR0101223" required>
-                                            </div>
-                                        </div>
+                            @if (session('error'))
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    {{ session('error') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
+                                </div>
+                            @endif
 
-                                        <div class="col-sm-6">
-                                            <div class="mb-3">
-                                                <label class="form-label" for="phone">Driver Phone<span
-                                                        class="text-danger">*</span></label>
-                                                <input type="tel" class="form-control" id="phone" name="phone"
-                                                    placeholder="9434***1212" required>
+                            @if ($errors->any())
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <ul class="mb-0">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
+                                </div>
+                            @endif
+                            <div class="col-lg-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Route - <span class="text-primary">Edit</span></h5>
+                                    </div>
+                                    <div class="card-body">
+
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Route no <span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="text"
+                                                        class="form-control @error('route_no') is-invalid @enderror"
+                                                        id="route_no" name="route_no"
+                                                        value="{{ old('route_no', $routes->route_no) }}" required>
+                                                    @error('route_no')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Driver Name<span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="text"
+                                                        class="form-control @error('driver_name') is-invalid @enderror"
+                                                        id="driver_name" name="driver_name"
+                                                        value="{{ old('driver_name', $routes->driver_name) }}" required>
+                                                    @error('driver_name')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Driver License No<span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="text"
+                                                        class="form-control @error('driver_licence_no') is-invalid @enderror"
+                                                        id="driver_licence_no" name="driver_licence_no"
+                                                        value="{{ old('driver_licence_no', $routes->driver_license) }}"
+                                                        required>
+                                                    @error('driver_licence_no')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Driver Phone<span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="tel"
+                                                        class="form-control @error('driver_phone') is-invalid @enderror"
+                                                        id="phone" name="driver_phone"
+                                                        value="{{ old('driver_phone', $routes->driver_phone) }}" required>
+                                                    @error('driver_phone')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Vehicle No<span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="text"
+                                                        class="form-control @error('vehicle_no') is-invalid @enderror"
+                                                        id="vehicle_no" name="vehicle_no"
+                                                        value="{{ old('vehicle_no', $routes->vehicle_no) }}" required>
+                                                    @error('vehicle_no')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="col-sm-6">
-                                            <div class="mb-3">
-                                                <label class="form-label" for="vehicle_no">Vehicle No<span
-                                                        class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="vehicle_no" name="vehicle_no"
-                                                    placeholder="TN 01 2345" required>
-                                            </div>
-                                        </div>
-                                        {{-- <div class="col-sm-6">
-                                              <div class="mb-3">
-                                                  <label class="form-label" for="status">Status</label>
-                                                  <select class="form-control" id="status" name="status" required>
-                                                    <option value="Active">Active</option>
-                                                    <option value="Inactive">Inactive</option>
-                                                  </select>
-                                              </div>
-                                          </div> --}}
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <div class="mb-3">
-                                                <label class="form-label" for="mobile_staff">Mobile Staff<span
-                                                        class="text-danger">*</span></label>
-                                                <select class="form-control" name="mobile_staff" required data-trigger
-                                                    id="choices-single-default">
-                                                    <option value="1">John Doe</option>
-                                                    <option value="2">Jane Smith</option>
-                                                    <option value="3">Michael Johnson</option>
-                                                    <option value="4">Emily Davis</option>
-                                                </select>
-
+                            <div class="col-lg-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label" for="exam_date">Exam Date<span
+                                                            class="text-danger">*</span></label>
+                                                    <select class="form-control @error('exam_date') is-invalid @enderror"
+                                                        name="exam_date" required data-trigger id="choices-single-default">
+                                                        <option value="" selected disabled>Select Exam Date</option>
+                                                        @foreach ($examDates as $examDate)
+                                                            <option value="{{ $examDate }}"
+                                                                @if (Carbon\Carbon::parse($routes->exam_date)->format('d-m-Y') == $examDate) selected @endif>
+                                                                {{ $examDate }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                    @error('exam_date')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Mobile Staff<span
+                                                            class="text-danger">*</span></label>
+                                                            <select class="form-control @error('mobile_staff') is-invalid @enderror" name="mobile_staff" required data-trigger id="choices-single-default">
+                                                                @foreach ($mobileTeam as $staff)
+                                                                    <option value="{{ $staff->mobile_id }}" {{ $routes->mobile_team_staff == $staff->id ? 'selected' : '' }}>
+                                                                        {{ $staff->mobile_name }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                    @error('mobile_staff')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Center<span
+                                                            class="text-danger">*</span></label>
+                                                    <select class="form-control" name="center_code" id="center_code">
+                                                        @foreach ($centers as $center)
+                                                            <option value="{{ $center->center_code }}"
+                                                                {{ $center->center_code == $routes->center_code ? 'selected' : '' }}>
+                                                                {{ $center->center_name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Halls<span
+                                                            class="text-danger">*</span></label>
+                                                    <select class="form-control" name="halls[]" id="hall_code" multiple>
+                                                        <!-- Halls will be populated dynamically -->
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="col-sm-6">
-                                            <div class="mb-3">
-                                                <label class="form-label" for="center">Center <span
-                                                        class="text-danger">*</span></label>
-                                                <select class="form-control" name="center" id="center-select" multiple>
-                                                    <option value="1" selected >Chennai</option>
-                                                    <option value="2" selected>Arcot</option>
-                                                    <option value="3">Vellore</option>
-                                                    <option value="4">Tirupattur</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-sm-6">
-                                            <div class="mb-3">
-                                                <label class="form-label" for="halls">Halls<span
-                                                        class="text-danger">*</span></label>
-                                                <select class="form-control" name="halls" id="halls-select" multiple>
-                                                    <optgroup label="Chennai">
-                                                        <option value="1" selected>Hall 1</option>
-                                                        <option value="2">Hall 2</option>
-                                                        <option value="3" selected>Hall 3</option>
-                                                        <option value="4">Hall 4</option>
-                                                    </optgroup>
-                                                    <optgroup label="Arcot">
-                                                        <option value="5">Hall 5</option>
-                                                        <option value="6" selected>Hall 6</option>
-                                                        <option value="7" selected>Hall 7</option>
-                                                        <option value="8">Hall 8</option>
-                                                    </optgroup>
-                                                </select>
-                                            </div>
-                                        </div>
-
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-12 text-end btn-page">
-                            <div class="btn btn-outline-secondary">Cancel</div>
-                            <div class="btn btn-primary">Create</div>
+                            <div class="col-12 text-end btn-page">
+                                <a href="{{ route('exam-materials-route.index', $routes->exam_id) }}"
+                                    class="btn btn-outline-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary">Update</button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
-        <!-- [ Main Content ] end -->
     </div>
 
     @include('partials.footer')
+    @include('partials.theme')
 
     <script src="{{ asset('storage/assets/js/plugins/croppr.min.js') }}"></script>
     <script src="{{ asset('storage/assets/js/pages/page-croper.js') }}"></script>
     <script src="{{ asset('storage/assets/js/plugins/choices.min.js') }}"></script>
 
     <script>
-        // Listen for the 'show.bs.modal' event on any modal
-        document.addEventListener('show.bs.modal', function(event) {
-            var modal = event.target; // Get the modal being triggered
-            var button = event.relatedTarget; // Button that triggered the modal
-            var recipient = button.getAttribute('data-pc-animate'); // Get data attribute for animation type
-
-            // Update the modal title and apply animation class
-            var modalTitle = modal.querySelector('.modal-title');
-            // modalTitle.textContent = 'Animate Modal: ' + recipient;
-            modal.classList.add('anim-' + recipient);
-
-            // Optionally, apply animation to the body for specific cases
-            if (recipient == 'let-me-in' || recipient == 'make-way' || recipient == 'slip-from-top') {
-                document.body.classList.add('anim-' + recipient);
-            }
-        });
-
-        // Listen for the 'hidden.bs.modal' event on any modal
-        document.addEventListener('hidden.bs.modal', function(event) {
-            var modal = event.target; // Get the modal being hidden
-            removeClassByPrefix(modal, 'anim-');
-            removeClassByPrefix(document.body, 'anim-');
-        });
-
-        // Helper function to remove classes by prefix
-        function removeClassByPrefix(node, prefix) {
-            var classesToRemove = Array.from(node.classList).filter(function(c) {
-                return c.startsWith(prefix);
-            });
-            classesToRemove.forEach(function(c) {
-                node.classList.remove(c);
-            });
-        }
-    </script>
-    <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Choices for the Center select
-            var centerSelect = new Choices('#center-select', {
-                removeItemButton: true,
-                placeholderValue: 'Select Center',
-                searchPlaceholderValue: 'Search Centers'
+            // Initialize hall data
+            const hallsByCenter = @json($halls->groupBy('center_code'));
+
+            // Get the currently selected halls from the route
+            const selectedHalls = @json(is_array($routes->hall_code) ? $routes->hall_code : explode(',', $routes->hall_code));
+
+            // Initialize select elements with Choices.js
+            const centerSelect = new Choices('#center_code', {
+                searchEnabled: true,
+                removeItemButton: false,
+                placeholder: true,
+                placeholderValue: 'Select Center'
             });
 
-            // Initialize Choices for the Halls select
-            var hallsSelect = new Choices('#halls-select', {
+            const hallSelect = new Choices('#hall_code', {
                 removeItemButton: true,
+                searchEnabled: true,
+                placeholder: true,
                 placeholderValue: 'Select Halls',
-                searchPlaceholderValue: 'Search Halls'
+                multiple: true
+            });
+
+            // Function to update halls based on selected center
+            function updateHalls(centerCode) {
+                const halls = hallsByCenter[centerCode] || [];
+
+                // Clear existing options
+                hallSelect.clearStore();
+
+                // Add new options
+                const choices = halls.map(hall => ({
+                    value: hall.hall_code,
+                    label: hall.hall_code,
+                    selected: selectedHalls.includes(hall.hall_code)
+                }));
+
+                hallSelect.setChoices(choices, 'value', 'label', true);
+            }
+
+            // Initial load of halls based on pre-selected center
+            const initialCenter = document.getElementById('center_code').value;
+            if (initialCenter) {
+                updateHalls(initialCenter);
+            }
+
+            // Update halls when center selection changes
+            document.getElementById('center_code').addEventListener('change', function(e) {
+                const selectedCenter = e.target.value;
+                updateHalls(selectedCenter);
             });
         });
     </script>
-
-    @include('partials.theme')
-
 @endsection

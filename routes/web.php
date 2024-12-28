@@ -424,10 +424,10 @@ Route::prefix('exam-materials-route')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::get('/{examId}', [ExamMaterialsRouteController::class, 'index'])->name('exam-materials-route.index');
         Route::get('/create/{examId}', [ExamMaterialsRouteController::class, 'createRoute'])->name('exam-materials-route.create');
-        Route::get('/edit', [ExamMaterialsRouteController::class, 'editRoute'])->name('exam-materials-route.edit');
+        Route::get('/edit/{Id}', [ExamMaterialsRouteController::class, 'editRoute'])->name('exam-materials-route.edit');
         Route::post('/store', [ExamMaterialsRouteController::class, 'storeRoute'])->name('exam-materials-route.store');
-        Route::post('/update', [ExamMaterialsRouteController::class, 'updateRoute'])->name('exam-materials-route.update');
-        Route::get('/delete', [ExamMaterialsRouteController::class, 'deleteRoute'])->name('exam-materials-route.delete');
+        Route::put('/update/{Id}', [ExamMaterialsRouteController::class, 'updateRoute'])->name('exam-materials-route.update');
+        Route::get('/view/{Id}', [ExamMaterialsRouteController::class, 'viewRoute'])->name('exam-materials-route.view');
     });
 });
 // Route::get('/run-function', [DataController::class, 'addData']);

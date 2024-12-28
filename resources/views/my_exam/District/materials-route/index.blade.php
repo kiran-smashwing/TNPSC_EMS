@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                      <h2 class="mb-0"></h2>
-                    </div> -->
+                          <h2 class="mb-0"></h2>
+                        </div> -->
                         </div>
                     </div>
                 </div>
@@ -167,9 +167,8 @@
                         </div>
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
-                            <!-- Filter options -->
                             <form id="filterForm" class="mb-3" method="GET"
-                                action="#">
+                                action="{{ route('exam-materials-route.index', $examId) }}">
                                 <div class="filter-item">
                                     <select class="form-select" id="centerCodeFilter" name="centerCode">
                                         <option value="">Select Center</option>
@@ -197,16 +196,9 @@
                                 </div>
                                 <div class="btn-container">
                                     <button type="button" id="resetButton"
-                                        class="btn btn-secondary d-flex align-items-center"
-                                        onclick="">
+                                        class="btn btn-secondary d-flex align-items-center" onclick="">
                                         <i class="ti ti-refresh me-2"></i> Reset
                                     </button>
-                                </div>
-                                <div class="btn-container">
-                                    <a href="#" class="btn btn-light-primary d-flex align-items-center"
-                                        data-pc-animate="just-me" data-bs-toggle="modal" data-bs-target="#qrCodeModal">
-                                        <i class="feather icon-aperture mx-1"></i>Scan
-                                    </a>
                                 </div>
                             </form>
 
@@ -243,12 +235,11 @@
                                             <td>{{ $route['mobileteam']->mobile_name ?? '' }}</td>
                                             <td>{{ $route['mobileteam']->mobile_phone ?? '' }}</td>
                                             <td>
-                                                <a href="#" class="avtar avtar-xs btn-light-success"><i
+                                                <a href="{{ route('exam-materials-route.edit', $route['id']) }}"
+                                                    class="avtar avtar-xs btn-light-success"><i
                                                         class="ti ti-edit f-20"></i></a>
-                                                <a href="#" class="avtar avtar-xs btn-light-success"
-                                                    title="Change Status (Active or Inactive)" onclick="toggleIcon(this)">
-                                                    <i class="ti ti-toggle-left f-20"></i>
-                                                </a>
+                                                <a href="{{route('exam-materials-route.view', $route['id'])}}"  class="avtar avtar-xs btn-light-success"><i
+                                                    class="ti ti-eye  f-20"></i></a>
                                             </td>
                                         </tr>
                                     @endforeach

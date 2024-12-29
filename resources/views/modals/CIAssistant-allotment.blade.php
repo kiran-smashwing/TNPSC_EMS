@@ -19,45 +19,47 @@
                             <!-- Each Hall Allocation Block -->
                             <div class="mb-4">
                                 <h6 class="text-primary mb-2">CI Assistants</h6>
-                                <!-- Card for each hall -->
-                                <div class="card mb-2">
-                                    <div class="card-body">
-                                        <div class="row">
-                                           
-                                            <div class="col-md-12 mb-2">
-                                                <label for="ciAssistant001" class="form-label">CI Assistant:</label>
-                                                <input type="text" class="form-control" id="ciAssistant001" value="Arun - 951234567" readonly>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Repeat similar card blocks for more halls -->
-                                <div class="card mb-2">
-                                    <div class="card-body">
-                                        <div class="row">
-                                        
-                                            <div class="col-md-12 mb-2">
-                                                <label for="ciAssistant002" class="form-label">CI Assistant:</label>
-                                                <input type="text" class="form-control" id="ciAssistant002" value="Bala - 951234567" readonly>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Add more cards as needed -->
-                            
 
+                                @if (!empty($assistants_type) && count($assistants_type) > 0)
+                                    @foreach ($assistants_type as $index => $assistant)
+                                        <div class="card mb-2">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-12 mb-2">
+                                                        <label
+                                                            for="ciAssistant{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}"
+                                                            class="form-label">
+                                                            CI Assistant:
+                                                        </label>
+                                                        <input type="text" class="form-control"
+                                                            id="ciAssistant{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}"
+                                                            value="{{ $assistant['assistant_name'] ?? 'Unknown' }} - {{ $assistant['assistant_phone'] ?? 'Unknown' }}"
+                                                            readonly>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @else
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <p class="text-muted">No CI Assistants assigned for this venue.</p>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
+
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
+            {{-- <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary d-flex align-items-center"
                     onclick="saveCIAssistantDetails()">
                     <i class="feather icon-save me-2"></i>Save Changes
                 </button>
-            </div>
+            </div> --}}
         </div>
     </div>
 </div>

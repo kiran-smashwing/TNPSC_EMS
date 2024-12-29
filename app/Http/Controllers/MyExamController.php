@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CIMeetingQrcode;
 use App\Models\Currentexam;
+use App\Models\CIAssistant;
 use App\Models\Invigilator;
 use App\Models\ExamAuditLog;
 use App\Models\ExamSession;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\CIChecklist;
 use App\Models\ExamConfirmedHalls;
+use App\Models\Scribe;
 
 class MyExamController extends Controller
 {
@@ -90,7 +92,7 @@ class MyExamController extends Controller
     public function ciTask($examId)
     {
         $session = Currentexam::with('examsession')->where('exam_main_no', $examId)->first();
-        
+
 
         if (!$session) {
             abort(404, 'Exam not found');
@@ -110,55 +112,175 @@ class MyExamController extends Controller
             ->where('exam_sess_session', $session)
             ->first();
 
-        // $session_exam_no = $session->exam_sess_mainid;
-    
         // Check if session is found
         if (!$session) {
             abort(404, 'Session not found');
         }
-    
+
         // Get the role and user from the session
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
         $user = $guard ? $guard->user() : null;
-    
-        // Retrieve session type (Objective or Descriptive)
-        $session_type = $session->exam_sess_type; // Assuming 'exam_sess_type' is the column for exam type    
-        // Check the session type and perform specific logic
-        if ($session_type == 'Objective') {
-            // Fetch confirmed halls for Objective type
-            $session_confirmedhalls = ExamConfirmedHalls::where('exam_id', $examId)
-                ->where('exam_session', $session->exam_sess_session)
-                ->where('exam_date', $session->exam_sess_date)
-                ->where('ci_id', $user->ci_id)
-                ->first();
-    
-            // Divide the alloted_count by 2 and assign it to the variable
-            $alloted_count = $session_confirmedhalls->alloted_count / 20; // Sum and then divide by 2
-    
-        } elseif ($session_type == 'Descriptive') {
-            // Fetch confirmed halls for Descriptive type
-            $session_confirmedhalls = ExamConfirmedHalls::where('exam_id', $examId)
-                ->where('exam_session', $session->exam_sess_session)
-                ->where('exam_date', $session->exam_sess_date)
-                ->where('ci_id', $user->ci_id)
-                ->first();
-            $alloted_count = $session_confirmedhalls->alloted_count / 10; // Sum and then divide by 2
+
+        if (!$user) {
+            abort(403, 'Unauthorized action.');
         }
-    
-        // For debugging, you can uncomment the line below to check the fetched data
-        //  dd($alloted_count);
-    
-        // Retrieve the invigilators based on the venue
+
+        $ci_id = $user->ci_id;
+
+        // Initialize variables
+        $invigilators_type = [];
+        $scribes_type = [];
+        $assistants_type = [];
+        $candidate_logs_data = [];
+
+        // Retrieve allocation records
+        $existingAllocations = DB::table('ci_staff_allocation')
+            ->where('exam_id', $examId)
+            ->where('ci_id', $user->ci_id)
+            ->get();
+
+        // Retrieve candidate logs data for the CI user
+        $ciCandidatelogs = DB::table('ci_candidate_logs')
+            ->where('exam_id', $examId)
+            ->where('ci_id', $user->ci_id)
+            ->first();  // Assuming there's only one entry per exam and CI
+
+        // Decode candidate logs
+        if ($ciCandidatelogs) {
+            $candidateLogs = json_decode($ciCandidatelogs->additional_details, true); // Assuming 'candidate_logs' is the JSON field
+        
+            // Separate the candidate logs by session type
+            if (isset($candidateLogs['AN']) && $session->exam_sess_session == 'AN') {
+                $candidate_logs_data['AN'] = [];
+                // Split registration_number and candidate_name for AN session
+                foreach ($candidateLogs['AN'] as $log) {
+                    $candidate_logs_data['AN'][] = [
+                        'registration_number' => $log['registration_number'] ?? 'N/A',
+                        'candidate_name' => $log['candidate_name'] ?? 'N/A',
+                    ];
+                }
+            }
+        
+            if (isset($candidateLogs['FN']) && $session->exam_sess_session == 'FN') {
+                $candidate_logs_data['FN'] = [];
+                // Split registration_number and candidate_name for FN session
+                foreach ($candidateLogs['FN'] as $log) {
+                    $candidate_logs_data['FN'][] = [
+                        'registration_number' => $log['registration_number'] ?? 'N/A',
+                        'candidate_name' => $log['candidate_name'] ?? 'N/A',
+                    ];
+                }
+            }
+        }
+        //  dd($candidate_logs_data);
+        // Process allocations (scribes and assistants)
+        if ($existingAllocations->isNotEmpty()) {
+            foreach ($existingAllocations as $allocation) {
+                // Decode scribes data
+                $scribesData = json_decode($allocation->scribes, true) ?? [];
+                $assistantsData = json_decode($allocation->assistants, true) ?? []; // Decode assistants data
+
+                // Process scribes data
+                foreach ($scribesData as $scribeData) {
+                    if (isset($scribeData['session'])) {
+                        $sessionType = $scribeData['session'];
+
+                        // Check session type: FN or AN
+                        if ($sessionType == 'FN' && $session->exam_sess_session == 'FN') {
+                            $scribes = Scribe::whereIn('scribe_id', $scribeData['scribes'])->get();
+                            foreach ($scribes as $scribe) {
+                                $scribes_type[] = [
+                                    'scribe_name' => $scribe->scribe_name,
+                                    'scribe_phone' => $scribe->scribe_phone,
+                                    'reg_no' => $scribeData['reg_no'] ?? 'Not Available',
+                                ];
+                            }
+                        } elseif ($sessionType == 'AN' && $session->exam_sess_session == 'AN') {
+                            $scribes = Scribe::whereIn('id', $scribeData['scribes'])->get();
+                            foreach ($scribes as $scribe) {
+                                $scribes_type[] = [
+                                    'scribe_name' => $scribe->scribe_name,
+                                    'scribe_phone' => $scribe->scribe_phone,
+                                    'reg_no' => $scribeData['reg_no'] ?? 'Not Available',
+                                ];
+                            }
+                        }
+                    }
+                }
+
+                // Process assistants data
+                foreach ($assistantsData as $assistantData) {
+                    if (isset($assistantData['session'])) {
+                        $sessionType = $assistantData['session'];
+
+                        // Check session type: FN or AN
+                        if ($sessionType == 'FN' && $session->exam_sess_session == 'FN') {
+                            $assistants = CIAssistant::whereIn('cia_id', $assistantData['assistants'])->get();
+                            foreach ($assistants as $assistant) {
+                                $assistants_type[] = [
+                                    'assistant_name' => $assistant->cia_name,
+                                    'assistant_phone' => $assistant->cia_phone,
+                                    'timestamp' => $assistantData['timestamp'] ?? 'Not Available',
+                                ];
+                            }
+                        } elseif ($sessionType == 'AN' && $session->exam_sess_session == 'AN') {
+                            $assistants = CIAssistant::whereIn('cia_id', $assistantData['assistants'])->get();
+                            foreach ($assistants as $assistant) {
+                                $assistants_type[] = [
+                                    'assistant_name' => $assistant->cia_name,
+                                    'assistant_phone' => $assistant->cia_phone,
+                                    'timestamp' => $assistantData['timestamp'] ?? 'Not Available',
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Retrieve session type (Objective or Descriptive)
+        $session_type = $session->exam_sess_type;
+
+        // Get confirmed halls for the session
+        $session_confirmedhalls = ExamConfirmedHalls::where('exam_id', $examId)
+            ->where('exam_session', $session->exam_sess_session)
+            ->where('exam_date', $session->exam_sess_date)
+            ->where('ci_id', $user->ci_id)
+            ->first();
+
+        $alloted_count = $session_confirmedhalls
+            ? ($session_type == 'Objective'
+                ? $session_confirmedhalls->alloted_count / 20
+                : $session_confirmedhalls->alloted_count / 10)
+            : 0;
+
+        // Retrieve invigilators, scribes, and assistants based on the venue
         $invigilator = Invigilator::where('invigilator_venue_id', $user->ci_venue_id)->get();
-    
+        $scribe = Scribe::where('scribe_venue_id', $user->ci_venue_id)->get();
+        $ci_assistant = CIAssistant::where('cia_venue_id', $user->ci_venue_id)->get();
+
         // Retrieve checklist sessions
         $type_sessions = CIChecklist::where('ci_checklist_type', 'Session')->get();
-    
+
         // Return the view with the data
-        return view('my_exam.CI.ci-exam-activity', compact('session', 'type_sessions', 'invigilator', 'session_type', 'session_confirmedhalls', 'alloted_count'));
+        return view('my_exam.CI.ci-exam-activity', compact(
+            'ci_assistant',
+            'session',
+            'type_sessions',
+            'invigilator',
+            'session_type',
+            'session_confirmedhalls',
+            'alloted_count',
+            'invigilators_type',
+            'scribes_type',
+            'assistants_type',
+            'scribe',
+            'candidate_logs_data', // Include candidate logs for both AN and FN
+            'ci_id'
+        ));
     }
-    
+
 
 
     public function mobileTeamTask($examId)

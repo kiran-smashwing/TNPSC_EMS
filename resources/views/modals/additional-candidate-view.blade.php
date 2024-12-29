@@ -16,29 +16,35 @@
                     <p class="fw-bold">Below is the list of added candidates:</p>
                     <!-- List of Added Candidates -->
                     <ul class="list-group">
-                        <li class="list-group-item">
-                            <strong>Reg No:</strong> 001 - <strong>Name:</strong> Arun
-                        </li>
-                        <li class="list-group-item">
-                            <strong>Reg No:</strong> 002 - <strong>Name:</strong> Bala
-                        </li>
-                        <li class="list-group-item">
-                            <strong>Reg No:</strong> 003 - <strong>Name:</strong> Chitra
-                        </li>
-                        <li class="list-group-item">
-                            <strong>Reg No:</strong> 004 - <strong>Name:</strong> Dinesh
-                        </li>
-                        <li class="list-group-item">
-                            <strong>Reg No:</strong> 005 - <strong>Name:</strong> Eswari
-                        </li>
-                        <!-- Add more candidates as needed -->
+                        <!-- Loop through AN session candidates -->
+                        @if (isset($candidate_logs_data['AN']) && count($candidate_logs_data['AN']) > 0)
+                            @foreach ($candidate_logs_data['AN'] as $log)
+                                <li class="list-group-item">
+                                    <strong>Reg No:</strong> {{ $log['registration_number'] }} -
+                                    <strong>Name:</strong> {{ $log['candidate_name'] }}
+                                </li>
+                            @endforeach
+                        @endif
+
+                        <!-- Loop through FN session candidates -->
+                        @if (isset($candidate_logs_data['FN']) && count($candidate_logs_data['FN']) > 0)
+                            @foreach ($candidate_logs_data['FN'] as $log)
+                                <li class="list-group-item">
+                                    <strong>Reg No:</strong> {{ $log['registration_number'] }} -
+                                    <strong>Name:</strong> {{ $log['candidate_name'] }}
+                                </li>
+                            @endforeach
+                        @endif
+
+                        <!-- If no candidates for both sessions -->
+                        @if (empty($candidate_logs_data['AN']) && empty($candidate_logs_data['FN']))
+                            <li class="list-group-item">No candidates available for either session.</li>
+                        @endif
                     </ul>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-
-            </div>
         </div>
+
+
     </div>
 </div>

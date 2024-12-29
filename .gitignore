@@ -29,10 +29,11 @@ app/storage/
 
 # Laravel 5 & Lumen specific
 # Ignore everything in public/storage
-public/storage/*
+public/*
 
 # But do not ignore public/storage/assets
 !public/storage/assets/
+!storage/app/public/assets/
 public/hot
 
 # Laravel 5 & Lumen specific with changed public path
@@ -52,3 +53,4 @@ storage/framework/views
 storage/dotenv-editor
 public/temp
 desktop.ini
+old-env

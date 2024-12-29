@@ -35,6 +35,8 @@ class MultiAuthMiddleware
             return redirect('/login');
         }
 
+        // Attach the authenticated user to the request
+        $request->merge(['auth_user' => $user]);
 
         return $next($request);
     }

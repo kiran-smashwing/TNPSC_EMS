@@ -228,6 +228,7 @@
                                                 <th>Time</th>
                                                 <th>Duration</th>
                                                 <th>Subject</th>
+                                                <th>Type</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -259,6 +260,11 @@
                                                         <input type="text" name="subjects[{{ $index }}][name]"
                                                             class="form-control"
                                                             value="{{ $exam_session->exam_sess_subject }}" disabled />
+                                                    </td>
+                                                    <td data-label="Type">
+                                                        <input type="text" name="subjects[{{ $index }}][type]"
+                                                            class="form-control"
+                                                            value="{{ $exam_session->exam_sess_type }}" disabled />
                                                     </td>
                                                 </tr>
                                             @endforeach

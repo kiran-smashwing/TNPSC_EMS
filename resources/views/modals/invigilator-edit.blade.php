@@ -1,16 +1,17 @@
 <!-- Invigilator Attendance and Allotment Modal -->
-<div class="modal fade modal-animate anim-blur" data-bs-backdrop="static" id="invigilatorSelectModal" tabindex="-1"
+<div class="modal fade modal-animate anim-blur" data-bs-backdrop="static" id="invigilatorEditModal" tabindex="-1"
     aria-labelledby="invigilatorSelectModalLabel" aria-hidden="true">
     <div class="modal-dialog ">
         <div class="modal-content">
-            <form id="invigilator-form" action="{{ route('save-invigilator.details') }}" method="POST">
+            <form id="invigilator-form" action="{{ route('update-invigilator.details', [$session->currentexam->exam_main_no, $session->exam_sess_date, $ci_id]) }}" method="POST">
                 @csrf
+                @method('PUT')
                 <input type="hidden" name="exam_id" value="{{ $session->currentexam->exam_main_no }}">
                 <input type="hidden" name="exam_sess_date" value="{{ $session->exam_sess_date }}">
                 <input type="hidden" name="exam_sess_session" value="{{ $session->exam_sess_session }}">
                 <div class="modal-header bg-primary">
                     <h5 class="modal-title text-primary" id="invigilatorSelectModalLabel">
-                        <i class="feather icon-users me-2"></i>Select Invigilator - Required
+                        <i class="feather icon-users me-2"></i>Edit Invigilator - Required
                         <span class="text-warning" id="alloted-count-display">{{ $alloted_count }}</span>
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
@@ -24,7 +25,8 @@
                                     multiple>
                                     <option value="">Select Invigilator</option>
                                     @foreach ($invigilator as $invigilatorItem)
-                                        <option value="{{ $invigilatorItem->invigilator_id }}">
+                                        <option value="{{ $invigilatorItem->invigilator_id }}"
+                                            @if (in_array($invigilatorItem->invigilator_id, old('invigilators', $invigilators_type))) selected @endif>
                                             {{ $invigilatorItem->invigilator_name }} -
                                             {{ $invigilatorItem->invigilator_phone }}
                                         </option>
@@ -41,6 +43,7 @@
                     </button>
                 </div>
             </form>
+
         </div>
     </div>
 </div>

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ExamAssignment extends Model
 {
-    protected $table = 'exam_assignments'; // Explicitly define the table name (optional if it follows naming conventions)
+    protected $table = 'ci_staff_allocation'; // Explicitly define the table name (optional if it follows naming conventions)
 
     // Define the fillable columns (columns you can mass-assign)
     protected $fillable = [

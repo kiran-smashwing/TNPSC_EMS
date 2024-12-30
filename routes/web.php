@@ -45,6 +45,9 @@ use App\Http\Controllers\CIPreliminaryCheckController;
 use App\Http\Controllers\ExamMaterialsRouteController;
 use App\Http\Controllers\ExamStaffAllotmentController;
 use App\Http\Controllers\ExamTrunkBoxOTLDataController;
+use App\Http\Controllers\QpBoxlogController;
+use App\Http\Controllers\CICandidateLogsController;
+use App\Http\Controllers\CIPaperReplacementsController;
 
 //PDF
 Route::get('/ci-consolidate-report', [CIConsolidateController::class, 'generateReport'])->name('download.report');
@@ -77,17 +80,17 @@ Route::get('/', function () {
 });
 // Authentication routes 
 Route::middleware(['guest'])->group(function () {
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
-Route::get('/sw-login', [AuthController::class, 'showAdminLogin'])->name('sw-login');
-Route::post('/sw-login', [AuthController::class, 'Adminlogin']);
-Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-Route::post('/register', [AuthController::class, 'register']);
-Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('forgot-password');
-Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail'])->name('send-reset-link-email');
-Route::get('password/reset/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
-Route::post('password/reset', [AuthController::class, 'resetPassword'])->name('password.update');
-Route::get('password/check-email', [AuthController::class, 'showCheckEmail'])->name('password.check-email');
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/sw-login', [AuthController::class, 'showAdminLogin'])->name('sw-login');
+    Route::post('/sw-login', [AuthController::class, 'Adminlogin']);
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('forgot-password');
+    Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail'])->name('send-reset-link-email');
+    Route::get('password/reset/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
+    Route::post('password/reset', [AuthController::class, 'resetPassword'])->name('password.update');
+    Route::get('password/check-email', [AuthController::class, 'showCheckEmail'])->name('password.check-email');
 });
 
 // Protected routes (require user to be logged in) 
@@ -374,12 +377,33 @@ Route::prefix('ci-meetings')->group(function () {
         Route::post('/update-adequacy-check', [CIMeetingController::class, 'updateAdequacyCheck'])->name('ci-meetings.updateAdequacyCheck');
     });
 });
+Route::prefix('qp-box-log')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::post('/qp-box-open', [QpBoxlogController::class, 'saveTime'])->name('qp-box-open.save-time');
+        Route::post('/qp-box-distribution', [QpBoxlogController::class, 'saveqpboxdistributiontimeTime'])->name('qp-box-distribution.save-time');
+    });
+});
+Route::prefix('ci-paper-replacements')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::post('/save-replacement-details', [CIPaperReplacementsController::class, 'saveReplacementDetails'])->name('save.replacement.details');
+    });
+});
+Route::prefix('ci-candidate-log')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::post('/ci-candidates-log', [CICandidateLogsController::class, 'saveAdditionalcandidates'])->name('ci-candidates-log.savecandidates');
+        Route::post('/ci-candidates-remarks', [CICandidateLogsController::class, 'saveRemarkcandidates'])->name('ci-candidates-remark.saveremarks');
+        Route::put('/ci-candidates-remarks-update', [CICandidateLogsController::class, 'updateRemarkCandidates'])->name('ci-candidates-remark.updateremarks');
+    });
+});
 Route::prefix('ci-checklist')->middleware(['auth.multi'])->group(function () {
     Route::post('/save', [CIPreliminaryCheckController::class, 'saveChecklist'])->name('ci-checklist.save'); // To save checklist
     Route::post('/ci-session-save', [CIPreliminaryCheckController::class, 'savesessionChecklist'])->name('ci-session-checklist.save'); // To save checklist
 });
 Route::prefix('ci-staffalloment')->middleware(['auth.multi'])->group(function () {
     Route::post('/save-invigilator-details', [ExamStaffAllotmentController::class, 'saveinvigilatoreDetails'])->name('save-invigilator.details');
+    Route::put('/update-invigilator-details/{examId}/{examDate}/{ciId}', [ExamStaffAllotmentController::class, 'updateInvigilatorDetails'])->name('update-invigilator.details');
+    Route::put('/ci-staffalloment/update-invigilator-details/{examId}/{examDate}/{ciId}', [ExamStaffAllotmentController::class, 'updateScribeDetails'])->name('update.scribe.details');
+    Route::put('/update-ci-assistant-details/{examId}/{examDate}/{ciId}', [ExamStaffAllotmentController::class, 'updateCIAssistantDetails'])->name('update.ci-assistant-details');
 });
 // Route::prefix('ci-meetings')->group(function () {
 //     Route::middleware(['auth.multi', 'role.permission:ci-meetings.index'])->group(function () {

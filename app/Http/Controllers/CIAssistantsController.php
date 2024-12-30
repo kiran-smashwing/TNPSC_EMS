@@ -83,9 +83,9 @@ class CIAssistantsController extends Controller
             'venue.integer' => 'Please select a valid venue',
         ];
         $validated = $request->validate([
-            'district' => 'required|integer', // Assuming you have a relation to district
-            'center' => 'required|integer',
-            'venue' => 'required|integer',
+            'district' => 'required|numeric', // Assuming you have a relation to district
+            'center' => 'required|numeric',
+            'venue' => 'required|numeric',
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:cheif_invigilator_assistant,cia_email',
             'phone' => 'required|string|max:15',

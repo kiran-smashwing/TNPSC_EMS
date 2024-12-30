@@ -52,6 +52,8 @@
     <!-- [Template CSS Files] -->
     <link rel="stylesheet" href="{{ asset('storage/assets/css/style.css') }}" id="main-style-link" />
     <link rel="stylesheet" href="{{ asset('storage/assets/css/style-preset.css') }}" />
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet" />
     <!-- [Page Specific CSS] end -->
     @stack('styles')
     <!-- [Page Specific CSS] end -->
@@ -72,7 +74,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color:  rgba(var(--bs-body-bg-rgb),1) !important;
+            background-color: rgba(var(--bs-body-bg-rgb), 1) !important;
             z-index: 9999;
             display: flex;
             justify-content: center;

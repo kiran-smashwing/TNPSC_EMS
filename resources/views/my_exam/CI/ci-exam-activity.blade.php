@@ -51,6 +51,36 @@
                                 </nav>
                             </div>
                         </div>
+                        @if (session('success'))
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                {{ session('success') }}
+                                @if (session('failed_csv_path'))
+                                    <br>
+                                    <a href="{{ asset('storage/' . session('failed_csv_path')) }}"
+                                        class="btn btn-link">Download Failed Rows</a>
+                                @endif
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                        @endif
+                        @if (session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                {{ session('error') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                        @endif
+                        @if ($errors->any())
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <ul class="mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                        @endif
 
                         <div class="card-body">
                             <ul class="list-unstyled task-list">
@@ -173,8 +203,8 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" data-pc-animate="just-me" data-bs-toggle="modal"
-                                                            data-bs-target="#sessionCheckListModel"
+                                                        <a href="#" data-pc-animate="just-me"
+                                                            data-bs-toggle="modal" data-bs-target="#sessionCheckListModel"
                                                             class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-info mx-1"></i>Verify</a>
                                                     </div>
@@ -240,11 +270,20 @@
                                                             data-bs-target="#invigilatorAllotmentModel"
                                                             class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" data-pc-animate="just-me"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#invigilatorSelectModal"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-plus mx-1"></i>Select</a>
+                                                        @if ($invigilators_type)
+                                                            <a href="#"data-pc-animate="just-me"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#invigilatorEditModal"
+                                                                class="btn btn-sm btn-light-info"><i
+                                                                    class="ti ti-edit f-20"></i>Edit</a>
+                                                        @else
+                                                            <a href="#" data-pc-animate="just-me"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#invigilatorSelectModal"
+                                                                class="me-2 btn btn-sm btn-light-info"><i
+                                                                    class="feather icon-plus mx-1"></i>Select</a>
+                                                        @endif
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -438,8 +477,6 @@
                                                             data-bs-toggle="modal" data-bs-target="#qpboxOpenTimeModal"
                                                             class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-clock mx-1"></i>Set Current Time</a>
-                                                        {{-- <a href="#" class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-aperture mx-1"></i>Scan</a> --}}
                                                     </div>
                                                 </div>
                                             </div>
@@ -513,7 +550,7 @@
                                         </div>
                                     </div>
                                 </li>
-                                <li class="task-list-item">
+                                {{-- <li class="task-list-item">
                                     <i class="task-icon bg-danger"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
@@ -529,7 +566,7 @@
 
                                                                 {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
+                                                                        3</a></li> -
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -545,7 +582,7 @@
                                                                         src="../assets/images/admin/p1.jpg" alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Piaf able
                                                                 </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
+                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
@@ -553,10 +590,10 @@
                                                                 </li>
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
+                                                                    28-07-2024 09:30 AM</li> --}}
+                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                </li> 
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -573,7 +610,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </li>
+                                </li> --}}
                                 <li class="task-list-item">
                                     <i class="task-icon bg-danger"></i>
                                     <div class="card ticket-card open-ticket">
@@ -625,13 +662,13 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
+                                                        {{-- <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
+                                                                class="feather icon-eye mx-1"></i>View</a> --}}
                                                         <a href="#" data-pc-animate="just-me"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#qpaperdistributiontime"
                                                             class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-plus mx-1"></i>Add</a>
+                                                                class="feather icon-plus mx-1"></i>Set Current Time</a>
                                                         {{-- <a href="#" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-plus mx-1"></i>Add</a> --}}
                                                     </div>
@@ -699,6 +736,10 @@
                                                             data-bs-toggle="modal" data-bs-target="#paperReplacementModal"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-plus mx-1"></i>Add</a>
+                                                        <a href="#" data-pc-animate="just-me"
+                                                            data-bs-toggle="modal" data-bs-target="#editReplacementModal"
+                                                            class="me-2 btn btn-sm btn-light-warning"><i
+                                                                class="feather icon-edit mx-1"></i>Edit</a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -765,7 +806,8 @@
                                                             data-bs-toggle="modal" data-bs-target="#candidateRemarksModal"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-plus mx-1"></i>Add</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-warning"><i
+                                                        <a href="#" data-pc-animate="just-me"
+                                                        data-bs-toggle="modal" data-bs-target="#candidateRemarkseditModal" class="me-2 btn btn-sm btn-light-warning"><i
                                                                 class="feather icon-edit mx-1"></i>Edit</a>
                                                     </div>
                                                 </div>
@@ -1101,8 +1143,9 @@
                     </div>
                 </div>
                 {{-- @include('modals.preliminary-checklist') --}}
-                 @include('modals.session-checklist')
-                 @include('modals.invigilator-select')
+                @include('modals.session-checklist')
+                @include('modals.invigilator-select')
+                @include('modals.invigilator-edit')
                 @include('modals.invigilator-allotment')
                 @include('modals.scribe-select')
                 @include('modals.scribe-allotment')
@@ -1116,8 +1159,10 @@
                 @include('modals.consolidate-certificate')
                 @include('modals.qp-ans-replacement')
                 @include('modals.qp-ans-replacement-view')
+                @include('modals.qp-ans-replacement-edit')
                 @include('modals.candidate-remarks')
                 @include('modals.candidate-remarks-view')
+                @include('modals.candidate-remarks-edit')
                 @include('modals.omr-remarks')
                 @include('modals.omr-remarks-view')
                 @include('modals.utilization-certificate')
@@ -1184,6 +1229,23 @@
                         shouldSort: false // Disable sorting of options
                     });
                 });
+            });
+        </script>
+
+        <script>
+            $('#qpboxOpenTimeModal').on('shown.bs.modal', function() {
+                // Get the current time
+                const currentTime = new Date().toLocaleTimeString(); // Format as HH:MM:SS
+
+                // Update the time display inside the modal
+                document.getElementById('timeDisplay').textContent = currentTime;
+            });
+            $('#qpaperdistributiontime').on('shown.bs.modal', function() {
+                // Get the current time
+                const currentTime = new Date().toLocaleTimeString(); // Format as HH:MM:SS
+
+                // Update the time display inside the modal
+                document.getElementById('timeDisplayss').textContent = currentTime;
             });
         </script>
 

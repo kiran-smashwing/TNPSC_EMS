@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DepartmentOfficial;
 use App\Models\ExamMaterialRoutes;
 use App\Models\ExamMaterialsData;
 use App\Models\ExamSession;
 use App\Models\MobileTeamStaffs;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Currentexam;
@@ -15,11 +17,23 @@ class ExamMaterialsRouteController extends Controller
     public function index(Request $request, $examId)
     {
         $user = $request->get('auth_user');
-        $district_code = $user->district_code;
-        // Initialize query builder with base query
-        $query = ExamMaterialRoutes::where('exam_id', $examId)
-            ->where('district_code', $district_code)
-            ->with('mobileteam');
+        // Get all mobile team staffs for the user's district br role based
+        $role = session('auth_role');
+        $district_code = null;
+        // chennai disitrict van duty staff route creation 
+        if (($role == 'headquarters' && $user->role->role_department == 'ID') || $user->district_code == '01') {
+            // Initialize query builder with base query
+            $district_code = '01';
+            $query = ExamMaterialRoutes::where('exam_id', $examId)
+                ->where('district_code', $district_code)
+                ->with('department_official');
+        } else {
+            // Initialize query builder with base query
+            $district_code = $user->district_code;
+            $query = ExamMaterialRoutes::where('exam_id', $examId)
+                ->where('district_code', $district_code)
+                ->with('mobileteam');
+        }
 
         // Apply filters conditionally
         if ($request->has('centerCode') && !empty($request->centerCode)) {
@@ -33,7 +47,6 @@ class ExamMaterialsRouteController extends Controller
 
         // Execute the query and fetch results
         $routes = $query->get();
-
 
         // Prepare data - Each center will be a separate row
         $routeData = [];
@@ -63,9 +76,10 @@ class ExamMaterialsRouteController extends Controller
                 'driver_license' => $route->driver_license,
                 'driver_phone' => $route->driver_phone,
                 'vehicle_no' => $route->vehicle_no,
-                'mobileteam' => $route->mobileteam,
+                'mobileteam' => (session('auth_role') == 'district' && $user->district_code != '01') ? $route->mobileteam : $route->department_official,
                 'halls' => $uniqueVenues,
                 'center_code' => $route->center_code,
+                'district_code' => $route->district_code,
                 'exam_date' => $route->exam_date,
             ];
         }
@@ -98,26 +112,39 @@ class ExamMaterialsRouteController extends Controller
             'centers' => $centers,
             // 'districts' => $districts,
             'examDates' => $examDates,
+            'user' => $user,
         ]);
     }
-
 
     public function createRoute(Request $request, $examId)
     {
         // Get authenticated user
         $user = $request->get('auth_user');
-        $district_code = $user->district_code;
-        $mobileTeam = MobileTeamStaffs::where('mobile_district_id', $district_code)->get();
+        // Get all mobile team staffs for the user's district br role based
+        $role = session('auth_role');
+        $district_code = null;
+        // dd($role);
+        // chennai disitrict van duty staff route creation 
+        if (($role == 'headquarters' && $user->role->role_department == 'ID') || $user->district_code == '01') {
+            $role = Role::where('role_name', 'Van Duty Staff')->first();
+            $mobileTeam = DepartmentOfficial::where('dept_off_role', $role->role_id)->get();
+            $district_code = '01';
+        } else {
+            // get mobile team staffs for the user's district br role based
+            $district_code = $user->district_code;
+            $mobileTeam = MobileTeamStaffs::where('mobile_district_id', $user->district_code)->get();
+        }
+
         //get center code for the user 
         $centers = ExamMaterialsData::where('exam_id', $examId)
-            ->where('district_code', $user->district_code)
+            ->where('district_code', $district_code)
             ->join('centers', 'exam_materials_data.center_code', '=', 'centers.center_code')
             ->groupBy('centers.center_code', 'centers.center_name')
             ->select('centers.center_name', 'centers.center_code')
             ->get();
         // Get all hall codes grouped by center code within the user's district
         $halls = ExamMaterialsData::where('exam_id', $examId)
-            ->where('district_code', $user->district_code)
+            ->where('district_code', $district_code)
             ->join('centers', 'exam_materials_data.center_code', '=', 'centers.center_code')
             ->groupBy('exam_materials_data.center_code', 'centers.center_name', 'exam_materials_data.hall_code', )
             ->select(
@@ -136,7 +163,7 @@ class ExamMaterialsRouteController extends Controller
         })->keys(); // Get only the keys (exam dates)
 
 
-        return view('my_exam.District.materials-route.create', compact('examId', 'mobileTeam', 'centers', 'halls', 'examDates'));
+        return view('my_exam.District.materials-route.create', compact('examId', 'mobileTeam', 'centers', 'halls', 'examDates', 'user'));
     }
 
     public function storeRoute(Request $request)
@@ -195,30 +222,42 @@ class ExamMaterialsRouteController extends Controller
             $route->mobile_team_staff = $validated['mobile_staff'];
             $route->center_code = $centerCode;
             // Convert array to JSON before saving
-            $route->hall_code = json_encode($centerHalls[$centerCode] ?? []);
-            $route->district_code = $user->district_code;
+            $route->hall_code = $centerHalls[$centerCode] ?? [];
+            $route->district_code = $role == 'department_official' ? '01' : $user->district_code;
             $route->save();
         }
 
         return redirect()->route('exam-materials-route.index', ['examId' => $validated['exam_id']]);
     }
+
     public function editRoute(Request $request, $Id)
     {
         // Get authenticated user
         $user = $request->get('auth_user');
-        $district_code = $user->district_code;
+        $district_code = null;
         $routes = ExamMaterialRoutes::where('id', $Id)->first();
-        $mobileTeam = MobileTeamStaffs::where('mobile_district_id', $district_code)->get();
+        $mobileTeam = null;
+        $role = session('auth_role');
+        // chennai disitrict van duty staff route creation
+        if (($role == 'headquarters' && $user->role->role_department == 'ID') || $user->district_code == '01') {
+            $role = Role::where('role_name', 'Van Duty Staff')->first();
+            $mobileTeam = DepartmentOfficial::where('dept_off_role', $role->role_id)->get();
+            $district_code = '01';
+        } else {
+            // get mobile team staffs for the user's district br role based
+            $district_code = $user->district_code;
+            $mobileTeam = MobileTeamStaffs::where('mobile_district_id', $user->district_code)->get();
+        }
         //get center code for the user 
         $centers = ExamMaterialsData::where('exam_id', $routes->exam_id)
-            ->where('district_code', $user->district_code)
+            ->where('district_code', $district_code)
             ->join('centers', 'exam_materials_data.center_code', '=', 'centers.center_code')
             ->groupBy('centers.center_code', 'centers.center_name')
             ->select('centers.center_name', 'centers.center_code')
             ->get();
         // Get all hall codes grouped by center code within the user's district
         $halls = ExamMaterialsData::where('exam_id', $routes->exam_id)
-            ->where('district_code', $user->district_code)
+            ->where('district_code', $district_code)
             ->join('centers', 'exam_materials_data.center_code', '=', 'centers.center_code')
             ->groupBy('exam_materials_data.center_code', 'centers.center_name', 'exam_materials_data.hall_code', )
             ->select(
@@ -236,7 +275,7 @@ class ExamMaterialsRouteController extends Controller
             return \Carbon\Carbon::parse($item->exam_sess_date)->format('d-m-Y');
         })->keys(); // Get only the keys (exam dates)
         // dd($centers);
-        return view('my_exam.District.materials-route.edit', compact('routes', 'mobileTeam', 'centers', 'halls', 'examDates'));
+        return view('my_exam.District.materials-route.edit', compact('routes', 'mobileTeam', 'centers', 'halls', 'examDates', 'user'));
 
     }
     public function updateRoute(Request $request, $id)
@@ -280,48 +319,54 @@ class ExamMaterialsRouteController extends Controller
             'center_code' => $validated['center_code'],
             'hall_code' => $validated['halls'],
         ];
-        // dd($updatedata);
-        // dd($request->all());
         $route->update($updatedata);
         return redirect()->route('exam-materials-route.index', ['examId' => $route->exam_id]);
     }
     public function viewRoute(Request $request, $Id)
     {
-        // Get authenticated user
-        $route = ExamMaterialRoutes::where('id', $Id)->with(['district', 'mobileTeam'])->first();
+
+        $user = $request->get('auth_user');
+        $role = session('auth_role');
+        if (($role == 'headquarters' && $user->role->role_department == 'ID') || $user->district_code == '01') {
+            // Get authenticated user
+            $route = ExamMaterialRoutes::where('id', $Id)->with(['district', 'department_official'])->first();
+        } else {
+            // Get authenticated user
+            $route = ExamMaterialRoutes::where('id', $Id)->with(['district', 'mobileTeam'])->first();
+        }
         $routeData = []; // Initialize the array to store individual hall rows
 
-            // Get halls array from JSON
-            $hallCodes = is_array($route->hall_code) ? $route->hall_code : json_decode($route->hall_code, true);
+        // Get halls array from JSON
+        $hallCodes = is_array($route->hall_code) ? $route->hall_code : json_decode($route->hall_code, true);
 
-            // Fetch venue data for all halls in this center
-            $halls = ExamMaterialsData::select('exam_materials_data.*', 'venue.venue_name as venue_name','venue.venue_address as venue_address')
-                ->join('venue', 'exam_materials_data.venue_code', '=', 'venue.venue_code')
-                ->where('exam_materials_data.exam_id', $route->exam_id)
-                ->where('exam_materials_data.district_code', $route->district_code)
-                ->where('exam_materials_data.center_code', $route->center_code)
-                ->whereIn('exam_materials_data.hall_code', $hallCodes)
-                ->get();
+        // Fetch venue data for all halls in this center
+        $halls = ExamMaterialsData::select('exam_materials_data.*', 'venue.venue_name as venue_name', 'venue.venue_address as venue_address')
+            ->join('venue', 'exam_materials_data.venue_code', '=', 'venue.venue_code')
+            ->where('exam_materials_data.exam_id', $route->exam_id)
+            ->where('exam_materials_data.district_code', $route->district_code)
+            ->where('exam_materials_data.center_code', $route->center_code)
+            ->whereIn('exam_materials_data.hall_code', $hallCodes)
+            ->get();
 
-            foreach ($halls as $key => $hall) {
-                // Create a unique key combining route number and hall code
-                $key =  $hall->hall_code;
+        foreach ($halls as $key => $hall) {
+            // Create a unique key combining route number and hall code
+            $key = $hall->hall_code;
 
-                $routeData[$key] = [
-                    'id' => $route->id,
-                    'route_no' => $route->route_no,
-                    'driver_name' => $route->driver_name,
-                    'driver_license' => $route->driver_license,
-                    'driver_phone' => $route->driver_phone,
-                    'vehicle_no' => $route->vehicle_no,
-                    'mobileteam' => $route->mobileteam,
-                    'hall_code' => $hall->hall_code,
-                    'venue_name' => $hall->venue_name,
-                    'venue_address' => $hall->venue_address,
-                    'center_code' => $route->center_code,
-                    'exam_date' => $route->exam_date,
-                ];
-            }
+            $routeData[$key] = [
+                'id' => $route->id,
+                'route_no' => $route->route_no,
+                'driver_name' => $route->driver_name,
+                'driver_license' => $route->driver_license,
+                'driver_phone' => $route->driver_phone,
+                'vehicle_no' => $route->vehicle_no,
+                'mobileteam' => $route->mobileteam,
+                'hall_code' => $hall->hall_code,
+                'venue_name' => $hall->venue_name,
+                'venue_address' => $hall->venue_address,
+                'center_code' => $route->center_code,
+                'exam_date' => $route->exam_date,
+            ];
+        }
         // dd($routeData);
         // Get current exam session details
         $session = ExamSession::where('exam_sess_mainid', $route->exam_id)
@@ -335,7 +380,8 @@ class ExamMaterialsRouteController extends Controller
             'route' => $route,
             'session' => $session,
             'mobileTeam' => $mobileTeam,
-            'routeData' => $routeData
+            'routeData' => $routeData,
+            'user' => $user,
         ])->render();
 
         $pdf = Browsershot::html($html)

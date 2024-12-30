@@ -154,13 +154,19 @@
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label">Mobile Staff<span
+                                                    <label class="form-label">{{ (session('auth_role') == 'district' && $user->district_code != '01') ? 'Mobile Team Staff' : 'Van Duty Staff' }}<span
                                                             class="text-danger">*</span></label>
                                                             <select class="form-control @error('mobile_staff') is-invalid @enderror" name="mobile_staff" required data-trigger id="choices-single-default">
                                                                 @foreach ($mobileTeam as $staff)
-                                                                    <option value="{{ $staff->mobile_id }}" {{ $routes->mobile_team_staff == $staff->id ? 'selected' : '' }}>
+                                                                @if (session('auth_role') == 'district' && $user->district_code != '01')
+                                                                <option value="{{ $staff->mobile_id }}" {{ $routes->mobile_team_staff == $staff->id ? 'selected' : '' }}>
                                                                         {{ $staff->mobile_name }}
                                                                     </option>
+                                                                @else
+                                                                <option value="{{ $staff->dept_off_id }}" {{ $routes->mobile_team_staff == $staff->dept_off_id ? 'selected' : '' }}>
+                                                                        {{ $staff->dept_off_name }}
+                                                                    </option>
+                                                                @endif
                                                                 @endforeach
                                                             </select>
                                                     @error('mobile_staff')

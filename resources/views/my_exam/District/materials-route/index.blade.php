@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                          <h2 class="mb-0"></h2>
-                        </div> -->
+                              <h2 class="mb-0"></h2>
+                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -215,14 +215,24 @@
                                         <th>Driver licenese no</th>
                                         <th>Driver mobile no</th>
                                         <th>Vehicle no</th>
-                                        <th>Mobile team staff</th>
-                                        <th>Mobile team mobile no</th>
+                                        @if (session('auth_role') == 'district' && $user->district_code != '01')
+                                            <th>Mobile team staff</th>
+                                            <th>Mobile team mobile no</th>
+                                        @else
+                                            <th>Department official</th>
+                                            <th>Department official mobile no</th>
+                                        @endif
+                                        {{-- <th>Mobile team staff</th>
+                                        <th>Mobile team mobile no</th> --}}
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
 
                                 <tbody>
                                     @foreach ($groupedRoutes as $route)
+                                        @php
+                                            // dd($route);
+                                        @endphp
                                         <tr>
                                             <td>{{ $route['route_no'] }}</td>
                                             <td>{{ $route['center_code'] }}</td>
@@ -232,14 +242,20 @@
                                             <td>{{ $route['driver_license'] }}</td>
                                             <td>{{ $route['driver_phone'] }}</td>
                                             <td>{{ $route['vehicle_no'] }}</td>
-                                            <td>{{ $route['mobileteam']->mobile_name ?? '' }}</td>
-                                            <td>{{ $route['mobileteam']->mobile_phone ?? '' }}</td>
+                                            @if (session('auth_role') == 'district' && $user->district_code != '01')
+                                            <td>{{ $route['mobileteam']->mobile_name ?? 'mobile-team' }} </td>
+                                                <td>{{ $route['mobileteam']->mobile_phone ?? 'mobile-team' }}</td>
+                                            @else
+                                                <td>{{ $route['mobileteam']->dept_off_name ?? '' }}</td>
+                                                <td>{{ $route['mobileteam']->dept_off_phone ?? '' }}</td>
+                                            @endif
                                             <td>
                                                 <a href="{{ route('exam-materials-route.edit', $route['id']) }}"
                                                     class="avtar avtar-xs btn-light-success"><i
                                                         class="ti ti-edit f-20"></i></a>
-                                                <a href="{{route('exam-materials-route.view', $route['id'])}}"  class="avtar avtar-xs btn-light-success"><i
-                                                    class="ti ti-eye  f-20"></i></a>
+                                                <a href="{{ route('exam-materials-route.view', $route['id']) }}"
+                                                    class="avtar avtar-xs btn-light-success"><i
+                                                        class="ti ti-eye  f-20"></i></a>
                                             </td>
                                         </tr>
                                     @endforeach

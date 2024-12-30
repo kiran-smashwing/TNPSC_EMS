@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CIMeetingQrcode;
 use App\Models\Currentexam;
+use App\Models\ExamTrunkBoxOTLData;
 use App\Models\Invigilator;
 use App\Models\ExamAuditLog;
 use App\Models\ExamSession;
@@ -65,8 +66,11 @@ class MyExamController extends Controller
         $examMaterialsUpdate = ExamAuditLog::where('exam_id', $examId)
             ->where('task_type', 'ed_exam_materials_qrcode_upload')
             ->first();
+        $examTrunkboxOTLData = ExamAuditLog::where('exam_id', $examId)
+        ->where('task_type', 'ed_exam_trunkbox_qr_otl_upload')
+        ->first();
 
-        return view('my_exam.task', compact('session', 'auditDetails', 'venueConsents', 'meetingCodeGen', 'examMaterialsUpdate'));
+        return view('my_exam.task', compact('session', 'auditDetails', 'venueConsents', 'meetingCodeGen', 'examMaterialsUpdate', 'examTrunkboxOTLData'));
     }
     public function MyTaskAction($examId)
     {
@@ -86,8 +90,6 @@ class MyExamController extends Controller
 
     public function centerTask()
     {
-
-
         return view('my_exam.center.task');
     }
     public function ciTask($examId)

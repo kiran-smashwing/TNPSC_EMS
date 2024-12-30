@@ -166,19 +166,28 @@
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label" for="mobile_staff">Mobile Staff<span
+                                                    <label class="form-label"
+                                                        for="mobile_staff">{{ (session('auth_role') == 'district' && $user->district_code != '01') ? 'Mobile Team Staff' : 'Van Duty Staff' }}<span
                                                             class="text-danger">*</span></label>
                                                     <select
                                                         class="form-control @error('mobile_staff') is-invalid @enderror"
                                                         name="mobile_staff" required data-trigger
                                                         id="choices-single-default">
-                                                        <option value="" selected disabled>Select Mobile Team Staff
+                                                        <option value="" selected disabled>Select
+                                                            {{ (session('auth_role') == 'district' && $user->district_code != '01') ? 'Mobile Team Staff' : 'Van Duty Staff' }}
                                                         </option>
                                                         @foreach ($mobileTeam as $mobile_staff)
-                                                            <option value="{{ $mobile_staff->mobile_id }}"
-                                                                @if (old('mobile_staff') == $mobile_staff->mobile_id) selected @endif>
-                                                                {{ $mobile_staff->mobile_name }}
-                                                            </option>
+                                                            @if (session('auth_role') == 'district' && $user->district_code != '01')
+                                                                <option value="{{ $mobile_staff->mobile_id }}"
+                                                                    @if (old('mobile_staff') == $mobile_staff->mobile_id) selected @endif>
+                                                                    {{ $mobile_staff->mobile_name }}
+                                                                </option>
+                                                            @else
+                                                                <option value="{{ $mobile_staff->dept_off_id }}"
+                                                                    @if (old('mobile_staff') == $mobile_staff->dept_off_id) selected @endif>
+                                                                    {{ $mobile_staff->dept_off_name }}
+                                                                </option>
+                                                            @endif
                                                         @endforeach
                                                     </select>
                                                     @error('mobile_staff')
@@ -190,8 +199,8 @@
                                                 <div class="mb-3">
                                                     <label class="form-label" for="centers">Center <span
                                                             class="text-danger">*</span></label>
-                                                    <select class="form-control @error('centers') is-invalid @enderror" id="centers"
-                                                        name="centers[]" multiple required>
+                                                    <select class="form-control @error('centers') is-invalid @enderror"
+                                                        id="centers" name="centers[]" multiple required>
                                                         <option value="">Select Center</option>
                                                         @foreach ($centers as $center)
                                                             <option value="{{ $center->center_code }}"
@@ -210,8 +219,8 @@
                                                 <div class="mb-3">
                                                     <label class="form-label" for="halls">Halls<span
                                                             class="text-danger">*</span></label>
-                                                    <select class="form-control @error('halls') is-invalid @enderror" id="halls-select" name="halls[]"
-                                                        multiple required></select>
+                                                    <select class="form-control @error('halls') is-invalid @enderror"
+                                                        id="halls-select" name="halls[]" multiple required></select>
                                                     @error('halls')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror

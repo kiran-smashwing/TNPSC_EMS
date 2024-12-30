@@ -151,15 +151,26 @@
                 <td><strong>Driver Mobile No:</strong> {{ $route->driver_phone }}</td>
             </tr>
             <tr style="border-bottom: 0px;">
-                <td><strong>Mobile Team Staff:</strong> {{ $route->mobileTeam->mobile_name }}</td>
-                <td colspan="2"><strong>Mobile Team Staff Mobile No:</strong> {{ $route->mobileTeam->mobile_phone }}
-                </td>
+                @if (session('auth_role') == 'district' && $user->district_code != '01')
+                <td><strong>Mobile Team Staff:</strong> {{ $route->mobileTeam->mobile_name ?? '' }}</td>
+                <td colspan="2"><strong>Mobile Team Staff Mobile No:</strong> {{ $route->mobileTeam->mobile_phone ?? '' }}</td>
+                @else
+                <td><strong>Van Duty Staff:</strong> {{ $route->department_official->dept_off_name ?? '' }}</td>
+                <td colspan="2"><strong>Van Duty Staff Mobile No:</strong> {{ $route->department_official->dept_off_phone ?? '' }}</td>
+                @endif
             </tr>
 
         </table>
         <table class="attendance-table">
             <thead>
                 <tr>
+                    <th >S.No</th>
+                    <th >Center <br> Code</th>
+                    <th >Hall <br> No</th>
+                    <th >Hall Name</th>
+                    <th >Address</th>
+                </tr>
+                {{-- <tr>
                     <th rowspan="2">S.No</th>
                     <th rowspan="2">Center <br> Code</th>
                     <th rowspan="2">Hall <br> No</th>
@@ -173,7 +184,7 @@
                     <th>Departure</th>
                     <th width="7%">Arrival</th>
                     <th>Departure</th>
-                </tr>
+                </tr> --}}
 
             </thead>
             <tbody>
@@ -187,10 +198,10 @@
                         <td>{{ $Data['hall_code'] }}</td>
                         <td>{{ $Data['venue_name'] }}</td>
                         <td>{{ $Data['venue_address'] }}</td>
-                        <td>10:30 AM</td>
+                        {{-- <td>10:30 AM</td>
                         <td>10:30 AM</td>
                         <td>10:45 AM</td>
-                        <td>10:45 AM</td>
+                        <td>10:45 AM</td> --}}
                     </tr>
                     @php
                         $i++;

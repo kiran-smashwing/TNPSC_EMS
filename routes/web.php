@@ -44,6 +44,7 @@ use App\Http\Controllers\Bundle_ReceivingReportController;
 use App\Http\Controllers\CIPreliminaryCheckController;
 use App\Http\Controllers\ExamMaterialsRouteController;
 use App\Http\Controllers\ExamStaffAllotmentController;
+use App\Http\Controllers\ExamTrunkBoxOTLDataController;
 
 //PDF
 Route::get('/ci-consolidate-report', [CIConsolidateController::class, 'generateReport'])->name('download.report');
@@ -397,9 +398,9 @@ Route::prefix('ci-staffalloment')->middleware(['auth.multi'])->group(function ()
 //ExamMaterialsController Route::prefix('exam-materials')->group(function(){
 Route::prefix('exam-materials')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
-        Route::get('/{examId}', [ExamMaterialsDataController::class, 'index'])->name('exam-materials.index');
         Route::get('/download-sample-csv', [ExamMaterialsDataController::class, 'downloadSampleCsv'])->name('exam-materials.download-sample-csv');
         Route::post('/upload', [ExamMaterialsDataController::class, 'uploadCsv'])->name('exam-materials.upload');
+        Route::get('/{examId}', [ExamMaterialsDataController::class, 'index'])->name('exam-materials.index');
     });
 });
 //ReceiveExamMaterialsController Route::prefix('receive-exam-materials')->group(function(){
@@ -430,6 +431,14 @@ Route::prefix('exam-materials-route')->group(function () {
         Route::get('/view/{Id}', [ExamMaterialsRouteController::class, 'viewRoute'])->name('exam-materials-route.view');
     });
 });
+//ReceiveExamMaterialsController Route::prefix('receive-exam-materials')->group(function(){
+    Route::prefix('exam-trunkbox-qr-otl-data')->group(function () {
+        Route::middleware(['auth.multi'])->group(function () {
+            Route::get('/download-sample-csv', [ExamTrunkBoxOTLDataController::class, 'downloadSampleCsv'])->name('exam-trunkbox-qr-otl-data.download-sample-csv');
+            Route::post('/upload', [ExamTrunkBoxOTLDataController::class, 'uploadCsv'])->name('exam-trunkbox-qr-otl-data.upload');
+            Route::get('/{examId}', [ExamTrunkBoxOTLDataController::class, 'index'])->name('exam-trunkbox-qr-otl-data.index');
+        });
+    });
 // Route::get('/run-function', [DataController::class, 'addData']);
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

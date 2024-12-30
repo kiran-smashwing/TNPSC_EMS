@@ -29,8 +29,8 @@ class ReceiveExamMaterialsController extends Controller
 
         $query = $role == 'district'
             ? ExamMaterialsData::where('exam_id', $examId)
-            ->where('district_code', $user->district_code)
-            ->whereIn('category', ['D1', 'D2'])
+                ->where('district_code', $user->district_code)
+                ->whereIn('category', ['D1', 'D2'])
             : ExamMaterialsData::where('exam_id', $examId);
         // Apply filters 
         if ($request->has('centerCode') && !empty($request->centerCode)) {
@@ -95,9 +95,17 @@ class ReceiveExamMaterialsController extends Controller
         ])->first();
 
         if (!$examMaterials) {
+            $examMaterials = ExamMaterialsData::where([
+                'exam_id' => $examId,
+                'qr_code' => $request->qr_code
+            ])
+                ->with('center')
+                ->with('district')
+                ->first();
+            $msg = "This Qr Code belongs to the following District : " . $examMaterials->district->district_name . " , Center : " . $examMaterials->center->center_name . " , Hall Code: " . $examMaterials->hall_code;
             return response()->json([
                 'status' => 'error',
-                'message' => 'QR code not found'
+                'message' => $msg
             ], 404);
         }
 
@@ -124,19 +132,19 @@ class ReceiveExamMaterialsController extends Controller
         ], 200);
     }
     /*
-    * HeadQuarters receive exam materials from the printer to all centers in chennai district instead of disitrict collectorate directly.
-    */
+     * HeadQuarters receive exam materials from the printer to all centers in chennai district instead of disitrict collectorate directly.
+     */
     public function printerToHQTreasury(Request $request, $examId)
     {
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
         $user = $guard ? $guard->user() : null;
-          
+
 
         $query = $role == 'headquarters' && $user->role->role_department == 'ED'
             ? ExamMaterialsData::where('exam_id', $examId)
-            ->where('district_code', '01')               //Only for Chennai District
-            ->whereIn('category', ['D1', 'D2'])
+                ->where('district_code', '01')               //Only for Chennai District
+                ->whereIn('category', ['D1', 'D2'])
             : ExamMaterialsData::where('exam_id', $examId);
         // Apply filters 
         if ($request->has('centerCode') && !empty($request->centerCode)) {
@@ -184,7 +192,7 @@ class ReceiveExamMaterialsController extends Controller
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
         $user = $guard ? $guard->user() : null;
-   
+
 
         // Check authorization
         if ($role !== 'headquarters' && $user->role->role_department !== 'ED' || !$user) {
@@ -202,9 +210,17 @@ class ReceiveExamMaterialsController extends Controller
         ])->first();
 
         if (!$examMaterials) {
+            $examMaterials = ExamMaterialsData::where([
+                'exam_id' => $examId,
+                'qr_code' => $request->qr_code
+            ])
+                ->with('center')
+                ->with('district')
+                ->first();
+            $msg = "This Qr Code belongs to the following District : " . $examMaterials->district->district_name . " , Center : " . $examMaterials->center->center_name . " , Hall Code: " . $examMaterials->hall_code;
             return response()->json([
                 'status' => 'error',
-                'message' => 'QR code not found'
+                'message' => $msg
             ], 404);
         }
 
@@ -296,9 +312,17 @@ class ReceiveExamMaterialsController extends Controller
         ])->first();
 
         if (!$examMaterials) {
+            $examMaterials = ExamMaterialsData::where([
+                'exam_id' => $examId,
+                'qr_code' => $request->qr_code
+            ])
+                ->with('center')
+                ->with('district')
+                ->first();
+            $msg = "This Qr Code belongs to the following District : " . $examMaterials->district->district_name . " , Center : " . $examMaterials->center->center_name . " , Hall Code: " . $examMaterials->hall_code;
             return response()->json([
                 'status' => 'error',
-                'message' => 'QR code not found'
+                'message' => $msg
             ], 404);
         }
         // Check if already scanned with a valid timestamp
@@ -380,7 +404,7 @@ class ReceiveExamMaterialsController extends Controller
 
         //get center name for 
 
-        return view('my_exam.ExamMaterialsData.center-to-mobileteam-materials', compact('examMaterials', 'examId', 'examDate', 'totalExamMaterials', 'totalScanned','centers'));
+        return view('my_exam.ExamMaterialsData.center-to-mobileteam-materials', compact('examMaterials', 'examId', 'examDate', 'totalExamMaterials', 'totalScanned', 'centers'));
     }
     public function scanMobileTeamExamMaterials($examId, Request $request)
     {
@@ -410,9 +434,17 @@ class ReceiveExamMaterialsController extends Controller
         ])->first();
 
         if (!$examMaterials) {
+            $examMaterials = ExamMaterialsData::where([
+                'exam_id' => $examId,
+                'qr_code' => $request->qr_code
+            ])
+                ->with('center')
+                ->with('district')
+                ->first();
+            $msg = "This Qr Code belongs to the following District : " . $examMaterials->district->district_name . " , Center : " . $examMaterials->center->center_name . " , Hall Code: " . $examMaterials->hall_code;
             return response()->json([
                 'status' => 'error',
-                'message' => 'QR code not found'
+                'message' => $msg
             ], 404);
         }
         // Check if already scanned with a valid timestamp
@@ -452,8 +484,8 @@ class ReceiveExamMaterialsController extends Controller
     }
 
     /*
-    *  Vanduty Staffreceive exam materials from the HeadQuarters to all centers in chennai district instead of mobile team.
-    */
+     *  Vanduty Staffreceive exam materials from the HeadQuarters to all centers in chennai district instead of mobile team.
+     */
     public function headQuartersToVanduty(Request $request, $examId, $examDate)
     {
         $role = session('auth_role');
@@ -463,7 +495,7 @@ class ReceiveExamMaterialsController extends Controller
 
         $query = $role == 'headquarters' && $user->role->role_name == 'Van Duty Staff'
             ? ExamMaterialsData::where('exam_id', $examId)
-                ->where('district_code', '01')    
+                ->where('district_code', '01')
                 ->where('mobile_team_id', $user->dept_off_id)
                 ->whereDate('exam_date', $examDate)
                 ->whereIn('category', ['D1', 'D2'])
@@ -498,7 +530,7 @@ class ReceiveExamMaterialsController extends Controller
 
         //get center name for 
 
-        return view('my_exam.ExamMaterialsData.hq-to-vandutystaff-materials', compact('examMaterials', 'examId', 'examDate', 'totalExamMaterials', 'totalScanned','centers'));
+        return view('my_exam.ExamMaterialsData.hq-to-vandutystaff-materials', compact('examMaterials', 'examId', 'examDate', 'totalExamMaterials', 'totalScanned', 'centers'));
     }
     public function scanVandutystaffExamMaterials($examId, Request $request)
     {
@@ -513,7 +545,7 @@ class ReceiveExamMaterialsController extends Controller
         $user = $guard ? $guard->user() : null;
 
         // Check authorization
-        if ($role !== 'headquarters' && $user->role->role_name !== 'Van Duty Staff'|| !$user) {
+        if ($role !== 'headquarters' && $user->role->role_name !== 'Van Duty Staff' || !$user) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'User not found or not authorized'
@@ -528,9 +560,17 @@ class ReceiveExamMaterialsController extends Controller
         ])->first();
 
         if (!$examMaterials) {
+            $examMaterials = ExamMaterialsData::where([
+                'exam_id' => $examId,
+                'qr_code' => $request->qr_code
+            ])
+                ->with('center')
+                ->with('district')
+                ->first();
+            $msg = "This Qr Code belongs to the following District : " . $examMaterials->district->district_name . " , Center : " . $examMaterials->center->center_name . " , Hall Code: " . $examMaterials->hall_code;
             return response()->json([
                 'status' => 'error',
-                'message' => 'QR code not found'
+                'message' => $msg
             ], 404);
         }
         // Check if already scanned with a valid timestamp
@@ -576,11 +616,11 @@ class ReceiveExamMaterialsController extends Controller
 
         $query = $role == 'ci'
             ? ExamMaterialsData::where('exam_id', $examId)
-            ->where('ci_id', $user->ci_id)
-            ->whereIn('category', ['D1', 'D2'])
-            ->whereDate('exam_date', $exam_date)
+                ->where('ci_id', $user->ci_id)
+                ->whereIn('category', ['D1', 'D2'])
+                ->whereDate('exam_date', $exam_date)
             : ExamMaterialsData::where('exam_id', $examId);
-     
+
         $examMaterials = $query
             ->with([
                 'examMaterialsScan'
@@ -589,7 +629,7 @@ class ReceiveExamMaterialsController extends Controller
             ->groupBy('exam_session');
         // dd($examMaterials);
 
-        return view('my_exam.ExamMaterialsData.mobileTeam-to-ci-materials', compact('examMaterials', 'examId', 'exam_date',));
+        return view('my_exam.ExamMaterialsData.mobileTeam-to-ci-materials', compact('examMaterials', 'examId', 'exam_date', ));
     }
 
     public function scanCIExamMaterials($examId, Request $request)
@@ -620,9 +660,17 @@ class ReceiveExamMaterialsController extends Controller
         ])->first();
 
         if (!$examMaterials) {
+            $examMaterials = ExamMaterialsData::where([
+                'exam_id' => $examId,
+                'qr_code' => $request->qr_code
+            ])
+                ->with('center')
+                ->with('district')
+                ->first();
+            $msg = "This Qr Code belongs to the following District : " . $examMaterials->district->district_name . " , Center : " . $examMaterials->center->center_name . " , Hall Code: " . $examMaterials->hall_code;
             return response()->json([
                 'status' => 'error',
-                'message' => 'QR code not found'
+                'message' => $msg
             ], 404);
         }
         // Check if already scanned with a valid timestamp
@@ -660,7 +708,5 @@ class ReceiveExamMaterialsController extends Controller
             'message' => 'QR code scanned successfully'
         ], 200);
     }
-
-
 
 }

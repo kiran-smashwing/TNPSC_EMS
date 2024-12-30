@@ -665,9 +665,9 @@
                                                     </div>
                                                     <div class="mt-2">
                                                         @hasPermission('upload-exam-materials-csv')
-                                                        <a href="{{ route('exam-materials.index', $session->exam_main_no) }}"
-                                                            class="me-2 btn btn-sm btn-light-primary m-2">
-                                                            <i class="feather icon-upload mx-1 "></i>Upload </a>
+                                                            <a href="{{ route('exam-materials.index', $session->exam_main_no) }}"
+                                                                class="me-2 btn btn-sm btn-light-primary m-2">
+                                                                <i class="feather icon-upload mx-1 "></i>Upload </a>
                                                         @endhasPermission
                                                         @if ($is_ed_qr_upload)
                                                             <a href="{{ $metadata->uploaded_csv_link }}"
@@ -714,7 +714,8 @@
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive Exam Materials From Printer<small
+                                                        <div class="h5 font-weight-bold">Receive Exam Materials From
+                                                            Printer<small
                                                                 class="badge bg-light-secondary ms-2">Received</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
@@ -782,7 +783,8 @@
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive Exam Materials From Printer<small
+                                                        <div class="h5 font-weight-bold">Receive Exam Materials From
+                                                            Printer<small
                                                                 class="badge bg-light-secondary ms-2">Received</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
@@ -961,6 +963,89 @@
                                         </div>
                                     </div>
                                 </li>
+                                @php
+                                    $is_ed_trunk_qr_upload = $examTrunkboxOTLData !== null ? true : false;
+                                    $metadata = is_string($examTrunkboxOTLData->metadata)
+                                        ? json_decode($examTrunkboxOTLData->metadata)
+                                        : (object) $examTrunkboxOTLData->metadata;
+                                @endphp
+                                <li class="task-list-item">
+                                    <i class="task-icon bg-danger"></i>
+                                    <div class="card ticket-card open-ticket">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-sm-auto mb-3 mb-sm-0">
+                                                    <div class="d-sm-inline-block d-flex align-items-center">
+                                                        <img class="media-object wid-60 img-radius"
+                                                            src="{{ asset('storage/assets/images/user/avatar-7.jpg') }}"
+                                                            alt="Generic placeholder image " />
+                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                            <ul
+                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                {{-- <li class="list-unstyled-item"><a href="#"
+                                                                    class="link-secondary">1 Ticket</a></li>
+                                                            <li class="list-unstyled-item"><a href="#"
+                                                                    class="link-danger"><i class="fas fa-heart"></i>
+                                                                    3</a></li> --}}
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="popup-trigger">
+                                                        <div class="h5 font-weight-bold">Update Trunk box and OTL
+                                                            Details<small
+                                                                class="badge bg-light-secondary ms-2">Updated</small>
+                                                        </div>
+                                                        <div class="help-sm-hidden">
+                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
+
+                                                                <li class="d-sm-inline-block d-block mt-1"><img
+                                                                        src="../assets/images/user/avatar-4.jpg"
+                                                                        alt=""
+                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
+                                                                    <b>{{ $is_ed_trunk_qr_upload ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
+                                                                </li>
+                                                                <li class="d-sm-inline-block d-block mt-1"><i
+                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                    {{ $is_ed_trunk_qr_upload ? \Carbon\Carbon::parse($examTrunkboxOTLData->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                </li>
+
+                                                            </ul>
+                                                        </div>
+                                                        <div class="h5 mt-3"><i
+                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                            {{ $is_ed_trunk_qr_upload ? $examTrunkboxOTLData->department : 'ED - Section Officer' }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        @hasPermission('upload-exam-materials-csv')
+                                                            <a href="{{ route('exam-trunkbox-qr-otl-data.index', $session->exam_main_no) }}"
+                                                                class="me-2 btn btn-sm btn-light-primary m-2">
+                                                                <i class="feather icon-upload mx-1 "></i>Upload </a>
+                                                        @endhasPermission
+                                                        @if ($is_ed_trunk_qr_upload)
+                                                            <a href="{{ $metadata->uploaded_csv_link }}"
+                                                                class="me-3 btn btn-sm btn-light-warning"><i
+                                                                    class="feather icon-download mx-1"></i>Download
+                                                            </a>
+                                                        @endif
+                                                        @hasPermission('upload-exam-materials-csv')
+                                                            @if (isset($metadata->failed_csv_link) &&
+                                                                    file_exists(storage_path('app/public/uploads/failed_csv_files/' . basename($metadata->failed_csv_link))))
+                                                                <a href="{{ $metadata->failed_csv_link }}"
+                                                                    class="me-3 btn btn-sm btn-light-danger">
+                                                                    <i class="feather icon-download mx-1"></i>Failed
+                                                                    Records
+                                                                </a>
+                                                            @endif
+                                                        @endhasPermission
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
                                 <li class="task-list-item">
                                     <i class="task-icon bg-danger"></i>
                                     <div class="card ticket-card open-ticket">
@@ -1025,70 +1110,72 @@
                                         </div>
                                     </div>
                                 </li>
-                                @if($session->exam_main_model == 'Major')
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-10.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
+                                @if ($session->exam_main_model == 'Major')
+                                    <li class="task-list-item">
+                                        <i class="task-icon bg-danger"></i>
+                                        <div class="card ticket-card open-ticket">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-sm-auto mb-3 mb-sm-0">
+                                                        <div class="d-sm-inline-block d-flex align-items-center">
+                                                            <img class="media-object wid-60 img-radius"
+                                                                src="{{ asset('storage/assets/images/user/avatar-10.jpg') }}"
+                                                                alt="Generic placeholder image " />
+                                                            <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                                <ul
+                                                                    class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                    {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-secondary">1 Ticket</a></li>
                                                                 <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
-                                                            </ul>
+                                                                </ul>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive Materials From District<small
-                                                                class="badge bg-light-secondary ms-2">received</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
+                                                    <div class="col">
+                                                        <div class="popup-trigger">
+                                                            <div class="h5 font-weight-bold">Receive Materials From
+                                                                District<small
+                                                                    class="badge bg-light-secondary ms-2">received</small>
+                                                            </div>
+                                                            <div class="help-sm-hidden">
+                                                                <ul class="list-unstyled mt-2 mb-0 text-muted">
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/admin/p1.jpg" alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Piaf able
                                                                 </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Ariyalur</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    27-07-2024 02:32 PM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
+                                                                    <li class="d-sm-inline-block d-block mt-1"><img
+                                                                            src="../assets/images/user/avatar-5.jpg"
+                                                                            alt=""
+                                                                            class="wid-20 rounded me-2 img-fluid" />Done by
+                                                                        <b>Ariyalur</b>
+                                                                    </li>
+                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                        27-07-2024 02:32 PM</li>
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
                                                                 </li> --}}
-                                                            </ul>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="h5 mt-3"><i
+                                                                    class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                Center</div>
                                                         </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Center</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="{{ route('receive-exam-materials.district-to-center',$session->exam_main_no) }}" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-info mx-1"></i>Verify </a>
-                                                        <a href="helpdesk-ticket-details.html"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-map mx-1"></i>View Route</a>
+                                                        <div class="mt-2">
+                                                            <a href="{{ route('receive-exam-materials.district-to-center', $session->exam_main_no) }}"
+                                                                class="me-2 btn btn-sm btn-light-primary"><i
+                                                                    class="feather icon-info mx-1"></i>Verify </a>
+                                                            <a href="helpdesk-ticket-details.html"
+                                                                class="me-2 btn btn-sm btn-light-info"><i
+                                                                    class="feather icon-map mx-1"></i>View Route</a>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </li>
+                                    </li>
                                 @endif
                                 <li class="task-list-item">
                                     <i class="task-icon bg-danger"></i>
@@ -1114,9 +1201,12 @@
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive Materials From {{$session->exam_main_model == 'Major' ? 'Sub
-                                                            Treasury' : 'Treasury' }} <small
-                                                                class="badge bg-light-secondary ms-2">received</small>
+                                                        <div class="h5 font-weight-bold">Receive Materials From
+                                                            {{ $session->exam_main_model == 'Major'
+                                                                ? 'Sub
+                                                                                                                        Treasury'
+                                                                : 'Treasury' }}
+                                                            <small class="badge bg-light-secondary ms-2">received</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
@@ -1317,7 +1407,7 @@
                                                                         src="../assets/images/admin/p1.jpg" alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Piaf able
                                                                 </li> --}}
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
+                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
@@ -1326,7 +1416,7 @@
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
                                                                     28-07-2024 09:30 AM</li> --}}
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
+                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
                                                                 </li> 
                                                             </ul>

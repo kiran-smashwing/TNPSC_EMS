@@ -56,4 +56,9 @@ class ExamMaterialRoutes extends Model
         return $this->belongsTo(MobileTeamStaffs::class, 'mobile_team_staff', 'mobile_id');
     }
 
+    public function department_official()
+    {
+        return $this->belongsTo(DepartmentOfficial::class, 'mobile_team_staff', 'dept_off_id');
+    }
+
 }

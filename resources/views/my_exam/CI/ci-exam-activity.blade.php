@@ -736,6 +736,10 @@
                                                             data-bs-toggle="modal" data-bs-target="#paperReplacementModal"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-plus mx-1"></i>Add</a>
+                                                        <a href="#" data-pc-animate="just-me"
+                                                            data-bs-toggle="modal" data-bs-target="#editReplacementModal"
+                                                            class="me-2 btn btn-sm btn-light-warning"><i
+                                                                class="feather icon-edit mx-1"></i>Edit</a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -802,7 +806,8 @@
                                                             data-bs-toggle="modal" data-bs-target="#candidateRemarksModal"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-plus mx-1"></i>Add</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-warning"><i
+                                                        <a href="#" data-pc-animate="just-me"
+                                                        data-bs-toggle="modal" data-bs-target="#candidateRemarkseditModal" class="me-2 btn btn-sm btn-light-warning"><i
                                                                 class="feather icon-edit mx-1"></i>Edit</a>
                                                     </div>
                                                 </div>
@@ -1154,8 +1159,10 @@
                 @include('modals.consolidate-certificate')
                 @include('modals.qp-ans-replacement')
                 @include('modals.qp-ans-replacement-view')
+                @include('modals.qp-ans-replacement-edit')
                 @include('modals.candidate-remarks')
                 @include('modals.candidate-remarks-view')
+                @include('modals.candidate-remarks-edit')
                 @include('modals.omr-remarks')
                 @include('modals.omr-remarks-view')
                 @include('modals.utilization-certificate')
@@ -1240,7 +1247,6 @@
                 // Update the time display inside the modal
                 document.getElementById('timeDisplayss').textContent = currentTime;
             });
-            
         </script>
 
 

@@ -390,6 +390,8 @@ Route::prefix('ci-paper-replacements')->group(function () {
 Route::prefix('ci-candidate-log')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::post('/ci-candidates-log', [CICandidateLogsController::class, 'saveAdditionalcandidates'])->name('ci-candidates-log.savecandidates');
+        Route::post('/ci-candidates-remarks', [CICandidateLogsController::class, 'saveRemarkcandidates'])->name('ci-candidates-remark.saveremarks');
+        Route::put('/ci-candidates-remarks-update', [CICandidateLogsController::class, 'updateRemarkCandidates'])->name('ci-candidates-remark.updateremarks');
     });
 });
 Route::prefix('ci-checklist')->middleware(['auth.multi'])->group(function () {

@@ -79,8 +79,7 @@ class MyExamController extends Controller
             return $this->ciTask($examId);
         } else if ($role == 'mobile_team_staffs') {
             return $this->mobileTeamTask($examId);
-        }
-        else {
+        } else {
             return $this->mobileTeamTask($examId);
         }
         // return abort(403, 'Unauthorized access');
@@ -136,6 +135,8 @@ class MyExamController extends Controller
         $scribes_type = [];
         $assistants_type = [];
         $candidate_logs_data = [];
+        $cipaperreplacement_data = [];
+        $candidate_remarks_data = []; // For storing remarks data
 
         // Retrieve allocation records
         $existingAllocations = DB::table('ci_staff_allocation')
@@ -147,16 +148,32 @@ class MyExamController extends Controller
         $ciCandidatelogs = DB::table('ci_candidate_logs')
             ->where('exam_id', $examId)
             ->where('ci_id', $user->ci_id)
-            ->first();  // Assuming there's only one entry per exam and CI
+            ->first();
 
-        // Decode candidate logs
+        $cipaperreplacement = DB::table('ci_paper_replacements')
+            ->where('exam_id', $examId)
+            ->where('ci_id', $user->ci_id)
+            ->get();
+
+        // Separate cipaperreplacement by session
+        foreach ($cipaperreplacement as $replacement) {
+            $sessionType = $replacement->exam_session; // Assuming 'exam_session' is a column in the table
+
+            // Only add the data, no session titles
+            if ($sessionType === 'FN' && $session->exam_sess_session == 'FN') {
+                $cipaperreplacement_data[] = $replacement;
+            } elseif ($sessionType === 'AN' && $session->exam_sess_session == 'AN') {
+                $cipaperreplacement_data[] = $replacement;
+            }
+        }
+
+        // Decode candidate logs and remarks
         if ($ciCandidatelogs) {
             $candidateLogs = json_decode($ciCandidatelogs->additional_details, true); // Assuming 'candidate_logs' is the JSON field
-        
+
             // Separate the candidate logs by session type
             if (isset($candidateLogs['AN']) && $session->exam_sess_session == 'AN') {
                 $candidate_logs_data['AN'] = [];
-                // Split registration_number and candidate_name for AN session
                 foreach ($candidateLogs['AN'] as $log) {
                     $candidate_logs_data['AN'][] = [
                         'registration_number' => $log['registration_number'] ?? 'N/A',
@@ -164,10 +181,9 @@ class MyExamController extends Controller
                     ];
                 }
             }
-        
+
             if (isset($candidateLogs['FN']) && $session->exam_sess_session == 'FN') {
                 $candidate_logs_data['FN'] = [];
-                // Split registration_number and candidate_name for FN session
                 foreach ($candidateLogs['FN'] as $log) {
                     $candidate_logs_data['FN'][] = [
                         'registration_number' => $log['registration_number'] ?? 'N/A',
@@ -175,8 +191,36 @@ class MyExamController extends Controller
                     ];
                 }
             }
+
+            // Decode candidate remarks
+            if (isset($ciCandidatelogs->candidate_remarks)) {
+                $candidateRemarks = json_decode($ciCandidatelogs->candidate_remarks, true);
+
+                // Separate the candidate remarks by session type (AN and FN)
+                if (isset($candidateRemarks['AN']) && $session->exam_sess_session == 'AN') {
+                    $candidate_remarks_data['AN'] = [];
+                    foreach ($candidateRemarks['AN'] as $remark) {
+                        $candidate_remarks_data['AN'][] = [
+                            'registration_number' => $remark['registration_number'] ?? 'N/A',
+                            // 'candidate_name' => $remark['candidate_name'] ?? 'N/A',
+                            'remark' => $remark['remark'] ?? 'N/A', // Add the remark field
+                        ];
+                    }
+                }
+
+                if (isset($candidateRemarks['FN']) && $session->exam_sess_session == 'FN') {
+                    $candidate_remarks_data['FN'] = [];
+                    foreach ($candidateRemarks['FN'] as $remark) {
+                        $candidate_remarks_data['FN'][] = [
+                            'registration_number' => $remark['registration_number'] ?? 'N/A',
+                            // 'candidate_name' => $remark['candidate_name'] ?? 'N/A',
+                            'remark' => $remark['remark'] ?? 'N/A', // Add the remark field
+                        ];
+                    }
+                }
+            }
         }
-        //  dd($candidate_logs_data);
+    //    dd($candidate_remarks_data);
         // Process allocations (scribes and assistants)
         if ($existingAllocations->isNotEmpty()) {
             foreach ($existingAllocations as $allocation) {
@@ -280,9 +324,13 @@ class MyExamController extends Controller
             'assistants_type',
             'scribe',
             'candidate_logs_data', // Include candidate logs for both AN and FN
+            'cipaperreplacement_data', // Separate FN and AN data
+            'candidate_remarks_data', // Include candidate remarks data
             'ci_id'
         ));
     }
+
+
 
 
 

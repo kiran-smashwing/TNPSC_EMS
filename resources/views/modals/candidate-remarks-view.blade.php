@@ -1,5 +1,6 @@
 <!-- Candidate Remarks View Modal -->
-<div class="modal fade modal-animate" data-bs-backdrop="static" id="candidateRemarksViewModal" tabindex="-1" aria-labelledby="candidateRemarksViewModalLabel" aria-hidden="true">
+<div class="modal fade modal-animate" data-bs-backdrop="static" id="candidateRemarksViewModal" tabindex="-1"
+    aria-labelledby="candidateRemarksViewModalLabel" aria-hidden="true">
     <div class="modal-dialog ">
         <div class="modal-content">
             <div class="modal-header bg-info">
@@ -19,26 +20,25 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Sample Row 1 -->
-                            <tr>
-                                <td>123456789</td>
-                                <td>Indulged in Malpractice</td>
-                            </tr>
-                            <!-- Sample Row 2 -->
-                            <tr>
-                                <td>987654321</td>
-                                <td>Used OMR of Another Candidate</td>
-                            </tr>
-                            <!-- Sample Row 3 -->
-                            <tr>
-                                <td>112233445</td>
-                                <td>Wrongly Seated</td>
-                            </tr>
-                            <!-- Add more rows as needed -->
+                            @if (isset($candidate_remarks_data) && !empty($candidate_remarks_data))
+                                @foreach ($candidate_remarks_data as $session => $remarks)
+                                    @foreach ($remarks as $remark)
+                                        <tr>
+                                            <td>{{ $remark['registration_number'] ?? 'N/A' }}</td>
+                                            <td>{{ $remark['remark'] ?? 'N/A' }}</td>
+                                        </tr>
+                                    @endforeach
+                                @endforeach
+                            @else
+                                <tr>
+                                    <td colspan="2" class="text-center">No remarks available</td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>
             </div>
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>

@@ -19,26 +19,28 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Sample Row 1 -->
-                            <tr>
-                                <td>123456789</td>
-                                <td>Used Non-Personalized OMR</td>
-                            </tr>
-                            <!-- Sample Row 2 -->
-                            <tr>
-                                <td>987654321</td>
-                                <td>Returned Blank OMR Sheet</td>
-                            </tr>
-                            <!-- Sample Row 3 -->
-                            <tr>
-                                <td>112233445</td>
-                                <td>Used Pencil in OMR Sheet</td>
-                            </tr>
-                            <!-- Add more rows as needed -->
+                            @if(isset($candidate_orm_remarks_data['AN']))
+                                @foreach($candidate_orm_remarks_data['AN'] as $remark)
+                                    <tr>
+                                        <td>{{ $remark['registration_number'] }}</td>
+                                        <td>{{ $remark['remark'] }}</td>
+                                    </tr>
+                                @endforeach
+                            @endif
+            
+                            @if(isset($candidate_orm_remarks_data['FN']))
+                                @foreach($candidate_orm_remarks_data['FN'] as $remark)
+                                    <tr>
+                                        <td>{{ $remark['registration_number'] }}</td>
+                                        <td>{{ $remark['remark'] }}</td>
+                                    </tr>
+                                @endforeach
+                            @endif
                         </tbody>
                     </table>
                 </div>
             </div>
+            
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>

@@ -393,11 +393,13 @@ Route::prefix('ci-candidate-log')->group(function () {
         Route::post('/ci-candidates-log', [CICandidateLogsController::class, 'saveAdditionalcandidates'])->name('ci-candidates-log.savecandidates');
         Route::post('/ci-candidates-remarks', [CICandidateLogsController::class, 'saveRemarkcandidates'])->name('ci-candidates-remark.saveremarks');
         Route::put('/ci-candidates-remarks-update', [CICandidateLogsController::class, 'updateRemarkCandidates'])->name('ci-candidates-remark.updateremarks');
+        Route::post('/ci-candidates-omrremarks', [CICandidateLogsController::class, 'saveOMRRemark'])->name('ci-candidates-omrremarks.saveomrremarks');
     });
 });
 Route::prefix('ci-checklist')->middleware(['auth.multi'])->group(function () {
     Route::post('/save', [CIPreliminaryCheckController::class, 'saveChecklist'])->name('ci-checklist.save'); // To save checklist
     Route::post('/ci-session-save', [CIPreliminaryCheckController::class, 'savesessionChecklist'])->name('ci-session-checklist.save'); // To save checklist
+    Route::post('/save-videography-checklist', [CIPreliminaryCheckController::class, 'saveVideographyChecklist'])->name('saveVideographyChecklist');
 });
 Route::prefix('ci-staffalloment')->middleware(['auth.multi'])->group(function () {
     Route::post('/save-invigilator-details', [ExamStaffAllotmentController::class, 'saveinvigilatoreDetails'])->name('save-invigilator.details');

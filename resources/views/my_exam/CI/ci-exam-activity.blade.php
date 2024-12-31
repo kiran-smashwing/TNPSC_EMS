@@ -736,10 +736,10 @@
                                                             data-bs-toggle="modal" data-bs-target="#paperReplacementModal"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-plus mx-1"></i>Add</a>
-                                                        <a href="#" data-pc-animate="just-me"
+                                                        {{-- <a href="#" data-pc-animate="just-me"
                                                             data-bs-toggle="modal" data-bs-target="#editReplacementModal"
                                                             class="me-2 btn btn-sm btn-light-warning"><i
-                                                                class="feather icon-edit mx-1"></i>Edit</a>
+                                                                class="feather icon-edit mx-1"></i>Edit</a> --}}
                                                     </div>
                                                 </div>
                                             </div>
@@ -867,7 +867,9 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
+                                                        <a href="#" data-pc-animate="just-me"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#countingpackagingvideographyview" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a>
                                                         <a href="#" data-pc-animate="just-me"
                                                             data-bs-toggle="modal"
@@ -1156,6 +1158,7 @@
                 @include('modals.additional-candidate-view')
                 @include('modals.qpaper-distribution-time')
                 @include('modals.counting-packaging-videography')
+                @include('modals.counting-packaging-videography-view')
                 @include('modals.consolidate-certificate')
                 @include('modals.qp-ans-replacement')
                 @include('modals.qp-ans-replacement-view')

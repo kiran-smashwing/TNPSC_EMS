@@ -69,8 +69,8 @@ class MyExamController extends Controller
             ->where('task_type', 'ed_exam_materials_qrcode_upload')
             ->first();
         $examTrunkboxOTLData = ExamAuditLog::where('exam_id', $examId)
-        ->where('task_type', 'ed_exam_trunkbox_qr_otl_upload')
-        ->first();
+            ->where('task_type', 'ed_exam_trunkbox_qr_otl_upload')
+            ->first();
 
         return view('my_exam.task', compact('session', 'auditDetails', 'venueConsents', 'meetingCodeGen', 'examMaterialsUpdate', 'examTrunkboxOTLData'));
     }
@@ -139,6 +139,9 @@ class MyExamController extends Controller
         $candidate_logs_data = [];
         $cipaperreplacement_data = [];
         $candidate_remarks_data = []; // For storing remarks data
+        $checklist_videography_data = [];
+        $candidate_orm_remarks_data = []; // For storing
+
 
         // Retrieve allocation records
         $existingAllocations = DB::table('ci_staff_allocation')
@@ -156,6 +159,55 @@ class MyExamController extends Controller
             ->where('exam_id', $examId)
             ->where('ci_id', $user->ci_id)
             ->get();
+
+
+        // Retrieve the checklist videography data
+        $checklistvideographyData = DB::table('ci_checklist_answers')
+            ->where('exam_id', $examId)
+            ->where('ci_id', $user->ci_id)
+            ->get();
+
+        // Initialize an array to hold all checklist data
+        
+
+        if ($checklistvideographyData->isNotEmpty()) {
+            // Loop through each checklist entry
+            foreach ($checklistvideographyData as $checklistAnswer) {
+                // Decode the 'videography_answer' JSON field
+                $videographyData = json_decode($checklistAnswer->videography_answer, true);
+
+                // Check if 'sessions' is set in the decoded data
+                if (isset($videographyData['sessions'])) {
+                    // Loop through the sessions
+                    foreach ($videographyData['sessions'] as $sessionData) {
+                        // Ensure session type (AN or FN) and match with the current session
+                        if (isset($sessionData['session'])) {
+                            // Check if the session matches the current session (AN or FN)
+                            if (($sessionData['session'] === 'FN' && $session->exam_sess_session == 'FN') ||
+                                ($sessionData['session'] === 'AN' && $session->exam_sess_session == 'AN')
+                            ) {
+
+                                // Add data to the checklist
+                                foreach ($sessionData['checklist'] as $checklistItem) {
+                                    $checklist_videography_data[] = [
+                                        'checklist_id' => $checklistItem['checklist_id'] ?? 'N/A',
+                                        'description' => $checklistItem['description'] ?? 'N/A',
+                                        'inspection_staff' => $checklistItem['inspection_staff'] ?? 'N/A',
+                                        'exam_date' => $sessionData['exam_date'] ?? 'N/A',
+                                        'timestamp' => $sessionData['timestamp'] ?? 'N/A',
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // After the loop, $checklist_videography_data will contain all the checklist data
+        // dd($checklist_videography_data);
+
+
 
         // Separate cipaperreplacement by session
         foreach ($cipaperreplacement as $replacement) {
@@ -221,8 +273,35 @@ class MyExamController extends Controller
                     }
                 }
             }
+            if (isset($ciCandidatelogs->omr_remarks)) {
+                $candidateomrRemarks = json_decode($ciCandidatelogs->omr_remarks, true);
+
+                // Separate the candidate remarks by session type (AN and FN)
+                if (isset($candidateomrRemarks['AN']) && $session->exam_sess_session == 'AN') {
+                    $candidate_orm_remarks_data['AN'] = [];
+                    foreach ($candidateomrRemarks['AN'] as $remark) {
+                        $candidate_orm_remarks_data['AN'][] = [
+                            'registration_number' => $remark['registration_number'] ?? 'N/A',
+                            // 'candidate_name' => $remark['candidate_name'] ?? 'N/A',
+                            'remark' => $remark['remark'] ?? 'N/A', // Add the remark field
+                        ];
+                    }
+                }
+
+                if (isset($candidateomrRemarks['FN']) && $session->exam_sess_session == 'FN') {
+                    $candidate_orm_remarks_data['FN'] = [];
+                    foreach ($candidateomrRemarks['FN'] as $remark) {
+                        $candidate_orm_remarks_data['FN'][] = [
+                            'registration_number' => $remark['registration_number'] ?? 'N/A',
+                            // 'candidate_name' => $remark['candidate_name'] ?? 'N/A',
+                            'remark' => $remark['remark'] ?? 'N/A', // Add the remark field
+                        ];
+                    }
+                }
+            }
         }
-    //    dd($candidate_remarks_data);
+        // dd($candidate_orm_remarks_data);
+        //    dd($candidate_remarks_data);
         // Process allocations (scribes and assistants)
         if ($existingAllocations->isNotEmpty()) {
             foreach ($existingAllocations as $allocation) {
@@ -325,9 +404,11 @@ class MyExamController extends Controller
             'scribes_type',
             'assistants_type',
             'scribe',
-            'candidate_logs_data', // Include candidate logs for both AN and FN
-            'cipaperreplacement_data', // Separate FN and AN data
-            'candidate_remarks_data', // Include candidate remarks data
+            'candidate_logs_data',
+            'cipaperreplacement_data',
+            'candidate_remarks_data',
+            'checklist_videography_data',
+            'candidate_orm_remarks_data',
             'ci_id'
         ));
     }

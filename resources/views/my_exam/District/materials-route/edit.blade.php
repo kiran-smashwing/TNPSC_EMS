@@ -154,21 +154,27 @@
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label">{{ (session('auth_role') == 'district' && $user->district_code != '01') ? 'Mobile Team Staff' : 'Van Duty Staff' }}<span
+                                                    <label
+                                                        class="form-label">{{ session('auth_role') == 'district' && $user->district_code != '01' ? 'Mobile Team Staff' : 'Van Duty Staff' }}<span
                                                             class="text-danger">*</span></label>
-                                                            <select class="form-control @error('mobile_staff') is-invalid @enderror" name="mobile_staff" required data-trigger id="choices-single-default">
-                                                                @foreach ($mobileTeam as $staff)
-                                                                @if (session('auth_role') == 'district' && $user->district_code != '01')
-                                                                <option value="{{ $staff->mobile_id }}" {{ $routes->mobile_team_staff == $staff->id ? 'selected' : '' }}>
-                                                                        {{ $staff->mobile_name }}
-                                                                    </option>
-                                                                @else
-                                                                <option value="{{ $staff->dept_off_id }}" {{ $routes->mobile_team_staff == $staff->dept_off_id ? 'selected' : '' }}>
-                                                                        {{ $staff->dept_off_name }}
-                                                                    </option>
-                                                                @endif
-                                                                @endforeach
-                                                            </select>
+                                                    <select
+                                                        class="form-control @error('mobile_staff') is-invalid @enderror"
+                                                        name="mobile_staff" required data-trigger
+                                                        id="choices-single-default">
+                                                        @foreach ($mobileTeam as $staff)
+                                                            @if (session('auth_role') == 'district' && $user->district_code != '01')
+                                                                <option value="{{ $staff->mobile_id }}"
+                                                                    {{ $routes->mobile_team_staff == $staff->id ? 'selected' : '' }}>
+                                                                    {{ $staff->mobile_name }}
+                                                                </option>
+                                                            @else
+                                                                <option value="{{ $staff->dept_off_id }}"
+                                                                    {{ $routes->mobile_team_staff == $staff->dept_off_id ? 'selected' : '' }}>
+                                                                    {{ $staff->dept_off_name }}
+                                                                </option>
+                                                            @endif
+                                                        @endforeach
+                                                    </select>
                                                     @error('mobile_staff')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -178,10 +184,11 @@
                                                 <div class="mb-3">
                                                     <label class="form-label">Center<span
                                                             class="text-danger">*</span></label>
-                                                    <select class="form-control" name="center_code" id="center_code">
+                                                    <select class="form-control" name="center_code[]" id="center_code"
+                                                        multiple>
                                                         @foreach ($centers as $center)
                                                             <option value="{{ $center->center_code }}"
-                                                                {{ $center->center_code == $routes->center_code ? 'selected' : '' }}>
+                                                                {{ in_array($center->center_code, json_decode($routes->center_code, true)) ? 'selected' : '' }}>
                                                                 {{ $center->center_name }}
                                                             </option>
                                                         @endforeach
@@ -226,13 +233,20 @@
             const hallsByCenter = @json($halls->groupBy('center_code'));
 
             // Get the currently selected halls from the route
-            const selectedHalls = @json(is_array($routes->hall_code) ? $routes->hall_code : explode(',', $routes->hall_code));
+            const selectedHalls = @json(is_array($routes->hall_code) ? $routes->hall_code : json_decode($routes->hall_code, true));
+
+            // Ensure selectedHalls is an array of hall codes
+            const selectedHallsArray = [];
+            for (const center in selectedHalls) {
+                selectedHallsArray.push(...selectedHalls[center]);
+            }
 
             // Initialize select elements with Choices.js
             const centerSelect = new Choices('#center_code', {
                 searchEnabled: true,
-                removeItemButton: false,
+                removeItemButton: true,
                 placeholder: true,
+                multiple: true,
                 placeholderValue: 'Select Center'
             });
 
@@ -244,33 +258,39 @@
                 multiple: true
             });
 
-            // Function to update halls based on selected center
-            function updateHalls(centerCode) {
-                const halls = hallsByCenter[centerCode] || [];
+            // Function to update halls based on selected centers
+            function updateHalls(centerCodes) {
+                let halls = [];
+
+                centerCodes.forEach(centerCode => {
+                    if (hallsByCenter[centerCode]) {
+                        halls = halls.concat(hallsByCenter[centerCode]);
+                    }
+                });
 
                 // Clear existing options
                 hallSelect.clearStore();
 
                 // Add new options
                 const choices = halls.map(hall => ({
-                    value: hall.hall_code,
-                    label: hall.hall_code,
-                    selected: selectedHalls.includes(hall.hall_code)
+                    value: hall.center_code+ ':' +hall.hall_code,
+                    label: hall.center_code+ ' - ' +hall.hall_code,
+                    selected: selectedHallsArray.includes(hall.hall_code)
                 }));
-
                 hallSelect.setChoices(choices, 'value', 'label', true);
             }
 
-            // Initial load of halls based on pre-selected center
-            const initialCenter = document.getElementById('center_code').value;
-            if (initialCenter) {
-                updateHalls(initialCenter);
+            // Initial load of halls based on pre-selected centers
+            const initialCenters = Array.from(document.getElementById('center_code').selectedOptions).map(option =>
+                option.value);
+            if (initialCenters.length) {
+                updateHalls(initialCenters);
             }
 
             // Update halls when center selection changes
             document.getElementById('center_code').addEventListener('change', function(e) {
-                const selectedCenter = e.target.value;
-                updateHalls(selectedCenter);
+                const selectedCenters = Array.from(e.target.selectedOptions).map(option => option.value);
+                updateHalls(selectedCenters);
             });
         });
     </script>

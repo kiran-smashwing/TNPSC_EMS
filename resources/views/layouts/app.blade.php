@@ -108,6 +108,7 @@
         }
     </style>
 </head>
+
 <!-- [Head] end -->
 <!-- [Body] Start -->
 
@@ -123,6 +124,11 @@
     </div>
     <!--Loader End -->
     @yield('content')
+    <!-- This is the install button for Android or supported browsers -->
+    <button hidden id="install-button"
+        style=" background-color: #258F6C; color: white; padding: 10px; border: none; cursor: pointer; position: fixed; bottom: 20px; right: 20px; z-index: 10000;">
+        Install App
+    </button>
     <script>
         // Get the base URL from the data attribute
         const baseUrl = document.querySelector('body').getAttribute('data-app-url');
@@ -231,6 +237,39 @@
             }
         });
     </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker
+                .register('{{ asset('storage/assets/js/service-worker.js') }}')
+                .then((registration) => {
+                    console.log('Service Worker Registered:', registration);
+                })
+                .catch((error) => {
+                    console.error('Service Worker Registration Failed:', error);
+                });
+        }
+    </script>
+    <script>
+        let installPrompt = null;
+        const installButton = document.querySelector("#install-button");
+
+        window.addEventListener("beforeinstallprompt", (event) => {
+            event.preventDefault();
+            installPrompt = event;
+            installButton.removeAttribute("hidden");
+        });
+
+        installButton.addEventListener("click", async () => {
+            if (!installPrompt) {
+                return;
+            }
+            const result = await installPrompt.prompt();
+            console.log(`Install prompt was: ${result.outcome}`);
+            installPrompt = null;
+            installButton.setAttribute("hidden", "");
+        });
+    </script>
+
     <!-- [Body] end -->
 </body>
 

@@ -18,18 +18,16 @@
                         <div class="col-12">
                             <!-- Each Hall Allocation Block -->
                             <div class="mb-4">
-                                <h6 class="text-primary mb-2">CI Assistants</h6>
+                                {{-- <h6 class="text-primary mb-2">CI Assistants</h6> --}}
 
                                 @if (!empty($assistants_type) && count($assistants_type) > 0)
                                     @foreach ($assistants_type as $index => $assistant)
-                                        <div class="card mb-2">
-                                            <div class="card-body">
+                                        
                                                 <div class="row">
                                                     <div class="col-md-12 mb-2">
                                                         <label
                                                             for="ciAssistant{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}"
                                                             class="form-label">
-                                                            CI Assistant:
                                                         </label>
                                                         <input type="text" class="form-control"
                                                             id="ciAssistant{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}"
@@ -37,8 +35,7 @@
                                                             readonly>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div>
+                                          
                                     @endforeach
                                 @else
                                     <div class="card">

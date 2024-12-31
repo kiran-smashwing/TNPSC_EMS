@@ -11,38 +11,57 @@
                     aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Static List of Added Candidates View -->
+                <!-- Static Table of Added Candidates View -->
                 <div class="card-body">
-                    <p class="fw-bold">Below is the list of added candidates:</p>
-                    <!-- List of Added Candidates -->
-                    <ul class="list-group">
-                        <!-- Loop through AN session candidates -->
-                        @if (isset($candidate_logs_data['AN']) && count($candidate_logs_data['AN']) > 0)
-                            @foreach ($candidate_logs_data['AN'] as $log)
-                                <li class="list-group-item">
-                                    <strong>Reg No:</strong> {{ $log['registration_number'] }} -
-                                    <strong>Name:</strong> {{ $log['candidate_name'] }}
-                                </li>
-                            @endforeach
-                        @endif
+                    {{-- <p class="fw-bold">Below is the list of added candidates:</p> --}}
+                    <!-- Table of Added Candidates -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Reg No</th>
+                                    <th>Name</th>
+                                    {{-- <th>Session</th> --}}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Loop through AN session candidates -->
+                                @if (isset($candidate_logs_data['AN']) && count($candidate_logs_data['AN']) > 0)
+                                    @foreach ($candidate_logs_data['AN'] as $log)
+                                        <tr>
+                                            <td>{{ $log['registration_number'] }}</td>
+                                            <td>{{ $log['candidate_name'] }}</td>
+                                            {{-- <td>AN</td> --}}
+                                        </tr>
+                                    @endforeach
+                                @endif
 
-                        <!-- Loop through FN session candidates -->
-                        @if (isset($candidate_logs_data['FN']) && count($candidate_logs_data['FN']) > 0)
-                            @foreach ($candidate_logs_data['FN'] as $log)
-                                <li class="list-group-item">
-                                    <strong>Reg No:</strong> {{ $log['registration_number'] }} -
-                                    <strong>Name:</strong> {{ $log['candidate_name'] }}
-                                </li>
-                            @endforeach
-                        @endif
+                                <!-- Loop through FN session candidates -->
+                                @if (isset($candidate_logs_data['FN']) && count($candidate_logs_data['FN']) > 0)
+                                    @foreach ($candidate_logs_data['FN'] as $log)
+                                        <tr>
+                                            <td>{{ $log['registration_number'] }}</td>
+                                            <td>{{ $log['candidate_name'] }}</td>
+                                            {{-- <td>FN</td> --}}
+                                        </tr>
+                                    @endforeach
+                                @endif
 
-                        <!-- If no candidates for both sessions -->
-                        @if (empty($candidate_logs_data['AN']) && empty($candidate_logs_data['FN']))
-                            <li class="list-group-item">No candidates available for either session.</li>
-                        @endif
-                    </ul>
+                                <!-- If no candidates for both sessions -->
+                                @if (
+                                    (empty($candidate_logs_data['AN']) || count($candidate_logs_data['AN']) === 0) &&
+                                        (empty($candidate_logs_data['FN']) || count($candidate_logs_data['FN']) === 0))
+                                    <tr>
+                                        <td colspan="3" class="text-center">No candidates available for either
+                                            session.</td>
+                                    </tr>
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+
         </div>
 
 

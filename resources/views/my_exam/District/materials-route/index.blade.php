@@ -222,8 +222,6 @@
                                             <th>Department official</th>
                                             <th>Department official mobile no</th>
                                         @endif
-                                        {{-- <th>Mobile team staff</th>
-                                        <th>Mobile team mobile no</th> --}}
                                         <th>Actions</th>
                                     </tr>
                                 </thead>

@@ -17,18 +17,16 @@ class ExamMaterialsRouteController extends Controller
     public function index(Request $request, $examId)
     {
         $user = $request->get('auth_user');
-        // Get all mobile team staffs for the user's district br role based
         $role = session('auth_role');
         $district_code = null;
-        // chennai disitrict van duty staff route creation 
+
+        // Chennai district van duty staff route creation 
         if (($role == 'headquarters' && $user->role->role_department == 'ID') || $user->district_code == '01') {
-            // Initialize query builder with base query
             $district_code = '01';
             $query = ExamMaterialRoutes::where('exam_id', $examId)
                 ->where('district_code', $district_code)
                 ->with('department_official');
         } else {
-            // Initialize query builder with base query
             $district_code = $user->district_code;
             $query = ExamMaterialRoutes::where('exam_id', $examId)
                 ->where('district_code', $district_code)
@@ -37,10 +35,9 @@ class ExamMaterialsRouteController extends Controller
 
         // Apply filters conditionally
         if ($request->has('centerCode') && !empty($request->centerCode)) {
-            $query->where('center_code', $request->centerCode);
+            $query->whereJsonContains('center_code', $request->centerCode);
         }
         if ($request->has('examDate') && !empty($request->examDate)) {
-            // Convert date from dd-mm-yyyy to yyyy-mm-dd
             $examDate = \DateTime::createFromFormat('d-m-Y', $request->examDate)->format('Y-m-d');
             $query->whereDate('exam_date', $examDate);
         }
@@ -48,28 +45,28 @@ class ExamMaterialsRouteController extends Controller
         // Execute the query and fetch results
         $routes = $query->get();
 
-        // Prepare data - Each center will be a separate row
+        // Prepare data without center-wise separation
         $routeData = [];
         foreach ($routes as $route) {
-            // Get halls array from JSON
-            $hallCodes = is_array($route->hall_code) ? $route->hall_code : json_decode($route->hall_code, true);
+            $centerCodes = is_string($route->center_code) ? json_decode($route->center_code, true) : $route->center_code;
+            $hallCodes = is_string($route->hall_code) ? json_decode($route->hall_code, true) : $route->hall_code;
 
-            // Fetch venue data for all halls in this center
-            $halls = ExamMaterialsData::select('exam_materials_data.*', 'venue.venue_name as venue_name')
-                ->join('venue', 'exam_materials_data.venue_code', '=', 'venue.venue_code')
-                ->where('exam_materials_data.exam_id', $examId)
-                ->where('exam_materials_data.district_code', $district_code)
-                ->where('exam_materials_data.center_code', $route->center_code)
-                ->whereIn('exam_materials_data.hall_code', $hallCodes)
-                ->get();
+            $uniqueVenues = [];
+            foreach ($centerCodes as $centerCode) {
+                $halls = isset($hallCodes[$centerCode]) ? $hallCodes[$centerCode] : [];
+                $venues = ExamMaterialsData::select('venue.venue_name')
+                    ->join('venue', 'exam_materials_data.venue_code', '=', 'venue.venue_code')
+                    ->where('exam_materials_data.exam_id', $examId)
+                    ->where('exam_materials_data.district_code', $district_code)
+                    ->where('exam_materials_data.center_code', $centerCode)
+                    ->whereIn('exam_materials_data.hall_code', $halls)
+                    ->pluck('venue.venue_name')
+                    ->toArray();
 
+                $uniqueVenues = array_merge($uniqueVenues, $venues);
+            }
 
-            $uniqueVenues = $halls->pluck('venue_name')->unique()->implode(', ');
-
-            // Create a unique key combining route number and center code
-            $key = $route->route_no . '-' . $route->center_code;
-
-            $routeData[$key] = [
+            $routeData[] = [
                 'id' => $route->id,
                 'route_no' => $route->route_no,
                 'driver_name' => $route->driver_name,
@@ -77,44 +74,36 @@ class ExamMaterialsRouteController extends Controller
                 'driver_phone' => $route->driver_phone,
                 'vehicle_no' => $route->vehicle_no,
                 'mobileteam' => (session('auth_role') == 'district' && $user->district_code != '01') ? $route->mobileteam : $route->department_official,
-                'halls' => $uniqueVenues,
-                'center_code' => $route->center_code,
+                'halls' => implode(', ', array_unique($uniqueVenues)),
+                'center_code' => implode(', ', $centerCodes),
                 'district_code' => $route->district_code,
                 'exam_date' => $route->exam_date,
             ];
         }
-        //get centers from table grouped and send to index
+
+        // Get centers from table grouped and send to index
         $centers = ExamMaterialRoutes::where('exam_id', $examId)
             ->where('district_code', $district_code)
             ->join('centers', 'exam_material_routes.center_code', '=', 'centers.center_code')
             ->groupBy('centers.center_code', 'centers.center_name')
             ->select('centers.center_name', 'centers.center_code')
             ->get();
-        //get districts from table grouped and send to index
-        // $districts = ExamMaterialRoutes::where('exam_id', $examId)
-        //     ->where('district_code', $district_code)
-        //     ->join('district', 'exam_material_routes.district_code', '=', 'district.district_code')
-        //     ->groupBy('district.district_code', 'district.district_name')
-        //     ->select('district.district_name')
-        //     ->get();
+
         // Get current exam session details
         $session = Currentexam::with('examsession')->where('exam_main_no', $examId)->first();
-        // Group exam sessions by date
         $examDates = $session->examsession->groupBy(function ($item) {
             return \Carbon\Carbon::parse($item->exam_sess_date)->format('d-m-Y');
-        })->keys(); // Get only the keys (exam dates)
-        // dd($centers);
-
+        })->keys();
 
         return view('my_exam.District.materials-route.index', [
             'examId' => $examId,
             'groupedRoutes' => $routeData,
             'centers' => $centers,
-            // 'districts' => $districts,
             'examDates' => $examDates,
             'user' => $user,
         ]);
     }
+
 
     public function createRoute(Request $request, $examId)
     {
@@ -196,7 +185,20 @@ class ExamMaterialsRouteController extends Controller
             'vehicle_no' => 'required',
             'mobile_staff' => 'required',
             'centers' => 'required|array',
-            'halls' => 'required|array',
+            'halls' => [
+                'required',
+                'array',
+                function ($attribute, $value, $fail) use ($request, $user) {
+                    $examDate = \DateTime::createFromFormat('d-m-Y', $request->exam_date)->format('Y-m-d');
+                    foreach ($value as $hall) {
+                        [$centerCode, $hallCode] = explode(':', $hall);
+                        $exists = ExamMaterialRoutes::where('exam_id', $request->exam_id)->whereDate('exam_date', $examDate)->where('mobile_team_staff', $request->mobile_staff)->where('district_code', session('auth_role') == 'department_official' ? '01' : $user->district_code)->whereJsonContains('hall_code->' . $centerCode, $hallCode)->exists();
+                        if ($exists) {
+                            $fail('The hall ' . $hallCode . ' for center ' . $centerCode . ' is already assigned.');
+                        }
+                    }
+                },
+            ],
         ]);
 
         // Group halls by center
@@ -208,24 +210,25 @@ class ExamMaterialsRouteController extends Controller
             }
             $centerHalls[$centerCode][] = $hallCode;
         }
-        // Create one row per center with its associated halls
-        foreach ($validated['centers'] as $centerCode) {
 
-            $route = new ExamMaterialRoutes();
-            $route->exam_id = $validated['exam_id'];
-            $route->exam_date = $validated['exam_date'];
-            $route->route_no = $validated['route_no'];
-            $route->driver_name = $validated['driver_name'];
-            $route->driver_license = $validated['driver_licence_no'];
-            $route->driver_phone = $validated['phone'];
-            $route->vehicle_no = $validated['vehicle_no'];
-            $route->mobile_team_staff = $validated['mobile_staff'];
-            $route->center_code = $centerCode;
-            // Convert array to JSON before saving
-            $route->hall_code = $centerHalls[$centerCode] ?? [];
-            $route->district_code = $role == 'department_official' ? '01' : $user->district_code;
-            $route->save();
-        }
+        // Create one row per center with its associated halls
+        // foreach ($validated['centers'] as $centerCode) {
+
+        $route = new ExamMaterialRoutes();
+        $route->exam_id = $validated['exam_id'];
+        $route->exam_date = $validated['exam_date'];
+        $route->route_no = $validated['route_no'];
+        $route->driver_name = $validated['driver_name'];
+        $route->driver_license = $validated['driver_licence_no'];
+        $route->driver_phone = $validated['phone'];
+        $route->vehicle_no = $validated['vehicle_no'];
+        $route->mobile_team_staff = $validated['mobile_staff'];
+        $route->center_code = json_encode($validated['centers']);
+        // Convert array to JSON before saving
+        $route->hall_code = $centerHalls ?? [];
+        $route->district_code = $role == 'department_official' ? '01' : $user->district_code;
+        $route->save();
+        // }
 
         return redirect()->route('exam-materials-route.index', ['examId' => $validated['exam_id']]);
     }
@@ -281,7 +284,7 @@ class ExamMaterialsRouteController extends Controller
     public function updateRoute(Request $request, $id)
     {
         $route = ExamMaterialRoutes::findOrFail($id);
-
+        $user = $request->get('auth_user');
         // Validate request
         $validated = $request->validate([
             'exam_date' => 'required',
@@ -304,12 +307,38 @@ class ExamMaterialsRouteController extends Controller
             'driver_phone' => 'required',
             'vehicle_no' => 'required',
             'mobile_staff' => 'required',
-            'center_code' => 'required',
-            'halls' => 'required|array',
+            'center_code' => 'required|array',
+            'halls' => [
+                'required',
+                'array',
+                function ($attribute, $value, $fail) use ($request, $route ,$user) {
+                    $examDate = \DateTime::createFromFormat('d-m-Y', $request->exam_date)->format('Y-m-d');
+                    foreach ($value as $hall) {
+                        [$centerCode, $hallCode] = explode(':', $hall);
+                        $exists = ExamMaterialRoutes::where('exam_id', $request->exam_id)->whereDate('exam_date', $examDate)->where('mobile_team_staff', $request->mobile_staff)->where('district_code', session('auth_role') == 'department_official' ? '01' :$user->district_code)->where('id', '!=', $route->id)
+                            // Exclude the current route 
+                            ->whereJsonContains('hall_code->' . $centerCode, $hallCode)->exists();
+                        if ($exists) {
+                            $fail('The hall ' . $hallCode . ' for center ' . $centerCode . ' is already assigned.');
+                        }
+                    }
+                },
+            ],
         ]);
-        // update the  database
-        $updatedata = [
-            'exam_date' => $validated['exam_date'],
+
+        // Group halls by center
+        $centerHalls = [];
+        foreach ($validated['halls'] as $hall) {
+            [$centerCode, $hallCode] = explode(':', $hall);
+            if (!isset($centerHalls[$centerCode])) {
+                $centerHalls[$centerCode] = [];
+            }
+            $centerHalls[$centerCode][] = $hallCode;
+        }
+
+        // Prepare data for update
+        $updatedData = [
+            'exam_date' => \DateTime::createFromFormat('d-m-Y', $validated['exam_date'])->format('Y-m-d'),
             'route_no' => $validated['route_no'],
             'driver_name' => $validated['driver_name'],
             'driver_license' => $validated['driver_licence_no'],
@@ -317,57 +346,65 @@ class ExamMaterialsRouteController extends Controller
             'vehicle_no' => $validated['vehicle_no'],
             'mobile_team_staff' => $validated['mobile_staff'],
             'center_code' => $validated['center_code'],
-            'hall_code' => $validated['halls'],
+            'hall_code' => $centerHalls,
         ];
-        $route->update($updatedata);
+
+        // Update the route in the database
+        $route->update($updatedData);
+
         return redirect()->route('exam-materials-route.index', ['examId' => $route->exam_id]);
     }
-    public function viewRoute(Request $request, $Id)
-    {
 
+    public function viewRoute(Request $request, $id)
+    {
         $user = $request->get('auth_user');
         $role = session('auth_role');
+
         if (($role == 'headquarters' && $user->role->role_department == 'ID') || $user->district_code == '01') {
-            // Get authenticated user
-            $route = ExamMaterialRoutes::where('id', $Id)->with(['district', 'department_official'])->first();
+            $route = ExamMaterialRoutes::where('id', $id)->with(['district', 'department_official'])->first();
         } else {
-            // Get authenticated user
-            $route = ExamMaterialRoutes::where('id', $Id)->with(['district', 'mobileTeam'])->first();
+            $route = ExamMaterialRoutes::where('id', $id)->with(['district', 'mobileTeam'])->first();
         }
-        $routeData = []; // Initialize the array to store individual hall rows
 
-        // Get halls array from JSON
-        $hallCodes = is_array($route->hall_code) ? $route->hall_code : json_decode($route->hall_code, true);
+        $routeData = [];
 
-        // Fetch venue data for all halls in this center
-        $halls = ExamMaterialsData::select('exam_materials_data.*', 'venue.venue_name as venue_name', 'venue.venue_address as venue_address')
-            ->join('venue', 'exam_materials_data.venue_code', '=', 'venue.venue_code')
-            ->where('exam_materials_data.exam_id', $route->exam_id)
-            ->where('exam_materials_data.district_code', $route->district_code)
-            ->where('exam_materials_data.center_code', $route->center_code)
-            ->whereIn('exam_materials_data.hall_code', $hallCodes)
-            ->get();
+        // Get center codes and halls array from JSON
+        $centerCodes = is_string($route->center_code) ? json_decode($route->center_code, true) : $route->center_code;
+        $hallCodes = is_string($route->hall_code) ? json_decode($route->hall_code, true) : $route->hall_code;
 
-        foreach ($halls as $key => $hall) {
-            // Create a unique key combining route number and hall code
-            $key = $hall->hall_code;
+        foreach ($centerCodes as $centerCode) {
+            $halls = isset($hallCodes[$centerCode]) ? $hallCodes[$centerCode] : [];
 
-            $routeData[$key] = [
-                'id' => $route->id,
-                'route_no' => $route->route_no,
-                'driver_name' => $route->driver_name,
-                'driver_license' => $route->driver_license,
-                'driver_phone' => $route->driver_phone,
-                'vehicle_no' => $route->vehicle_no,
-                'mobileteam' => $route->mobileteam,
-                'hall_code' => $hall->hall_code,
-                'venue_name' => $hall->venue_name,
-                'venue_address' => $hall->venue_address,
-                'center_code' => $route->center_code,
-                'exam_date' => $route->exam_date,
-            ];
+            // Fetch venue data for all halls in this center
+            $venueData = ExamMaterialsData::select('exam_materials_data.*', 'venue.venue_name as venue_name', 'venue.venue_address as venue_address')
+                ->join('venue', 'exam_materials_data.venue_code', '=', 'venue.venue_code')
+                ->where('exam_materials_data.exam_id', $route->exam_id)
+                ->where('exam_materials_data.district_code', $route->district_code)
+                ->where('exam_materials_data.center_code', $centerCode)
+                ->whereIn('exam_materials_data.hall_code', $halls)
+                ->get();
+
+            foreach ($venueData as $hall) {
+                // Create a unique key combining route number and hall code
+                $key = $hall->hall_code;
+
+                $routeData[$key] = [
+                    'id' => $route->id,
+                    'route_no' => $route->route_no,
+                    'driver_name' => $route->driver_name,
+                    'driver_license' => $route->driver_license,
+                    'driver_phone' => $route->driver_phone,
+                    'vehicle_no' => $route->vehicle_no,
+                    'mobileteam' => $route->mobileteam,
+                    'hall_code' => $hall->hall_code,
+                    'venue_name' => $hall->venue_name,
+                    'venue_address' => $hall->venue_address,
+                    'center_code' => $centerCode,
+                    'exam_date' => $route->exam_date,
+                ];
+            }
         }
-        // dd($routeData);
+
         // Get current exam session details
         $session = ExamSession::where('exam_sess_mainid', $route->exam_id)
             ->where('exam_sess_date', \Carbon\Carbon::parse($route->exam_date)->format('d-m-Y'))
@@ -399,7 +436,7 @@ class ExamMaterialsRouteController extends Controller
                 Page <span class="pageNumber"></span> of <span class="totalPages"></span>
             </div>
             <div style="position: absolute; bottom: 5mm; right: 10px; font-size: 10px;">
-                 IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . ' 
+                 IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . ' 
             </div>')
             ->setOption('preferCSSPageSize', true)
             ->setOption('printBackground', true)
@@ -413,5 +450,6 @@ class ExamMaterialsRouteController extends Controller
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
     }
+
 
 }

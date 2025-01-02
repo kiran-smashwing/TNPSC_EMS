@@ -48,6 +48,7 @@ use App\Http\Controllers\ExamTrunkBoxOTLDataController;
 use App\Http\Controllers\QpBoxlogController;
 use App\Http\Controllers\CICandidateLogsController;
 use App\Http\Controllers\CIPaperReplacementsController;
+use App\Http\Controllers\BundlePackagingController;
 
 //PDF
 Route::get('/ci-consolidate-report', [CIConsolidateController::class, 'generateReport'])->name('download.report');
@@ -427,6 +428,11 @@ Route::prefix('exam-materials')->group(function () {
         Route::get('/download-sample-csv', [ExamMaterialsDataController::class, 'downloadSampleCsv'])->name('exam-materials.download-sample-csv');
         Route::post('/upload', [ExamMaterialsDataController::class, 'uploadCsv'])->name('exam-materials.upload');
         Route::get('/{examId}', [ExamMaterialsDataController::class, 'index'])->name('exam-materials.index');
+    });
+});
+Route::prefix('bundle-packaging')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/ci-bundlepackaging/{examId}/{exam_date}', [BundlePackagingController::class, 'ciBundlepackagingView']) ->name('ci.bundlepackaging.view');
     });
 });
 //ReceiveExamMaterialsController Route::prefix('receive-exam-materials')->group(function(){

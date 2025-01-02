@@ -627,7 +627,6 @@ class ReceiveExamMaterialsController extends Controller
             ])
             ->get()
             ->groupBy('exam_session');
-        // dd($examMaterials);
 
         return view('my_exam.ExamMaterialsData.mobileTeam-to-ci-materials', compact('examMaterials', 'examId', 'exam_date', ));
     }

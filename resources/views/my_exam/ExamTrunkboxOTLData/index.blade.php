@@ -247,7 +247,7 @@
                                         <td>{{ $examMaterial->venue->venue_name }}</td>
                                         <td>{{ date('d-m-Y', strtotime($examMaterial->exam_date)) }}</td>
                                         <td>{{ $examMaterial->trunkbox_qr_code }}</td>
-                                        <td>{{ $examMaterial->otl_code }}</td>
+                                        <td>{{ implode(', ', json_decode($examMaterial->otl_code)) }}</td>
                                         <td>
                                             <a href="#" class="avtar avtar-xs btn-light-success">
                                                 <i class="ti ti-eye f-20"></i>

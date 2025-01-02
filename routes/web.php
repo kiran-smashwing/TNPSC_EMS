@@ -40,7 +40,7 @@ use App\Http\Controllers\ReceiveExamMaterialsController;
 use App\Http\Controllers\Qp_BookletController;
 use App\Http\Controllers\Omr_AccountController;
 use App\Http\Controllers\Expenditure_StatmentController;
-use App\Http\Controllers\Bundle_ReceivingReportController;
+use App\Http\Controllers\BundleReceivingReportController;
 use App\Http\Controllers\CIPreliminaryCheckController;
 use App\Http\Controllers\ExamMaterialsRouteController;
 use App\Http\Controllers\ExamStaffAllotmentController;
@@ -49,6 +49,7 @@ use App\Http\Controllers\QpBoxlogController;
 use App\Http\Controllers\CICandidateLogsController;
 use App\Http\Controllers\CIPaperReplacementsController;
 use App\Http\Controllers\BundlePackagingController;
+use App\Http\Controllers\ChartedVehicleRoutesController;
 
 //PDF
 Route::get('/ci-consolidate-report', [CIConsolidateController::class, 'generateReport'])->name('download.report');
@@ -72,7 +73,7 @@ Route::get('/omr-account', [Omr_AccountController::class, 'generateOmraccountRep
 // Expenditure_StatmentController
 Route::get('/expenditure-statment', [Expenditure_StatmentController::class, 'generateexpenditureReport'])->name('expenditure-statment.report');
 // Expenditure_StatmentController
-Route::get('/bundle-receiving', [Bundle_ReceivingReportController::class, 'generatebundlereceivingReport'])->name('bundle-receiving.report');
+Route::get('/bundle-receiving', [BundleReceivingReportController::class, 'generatebundlereceivingReport'])->name('bundle-receiving.report');
 
 
 // Public routes
@@ -422,6 +423,7 @@ Route::prefix('ci-staffalloment')->middleware(['auth.multi'])->group(function ()
 //             ->middleware('role.permission:ci-meetings.update-adequacy-check');
 //     });
 // });
+
 //ExamMaterialsController Route::prefix('exam-materials')->group(function(){
 Route::prefix('exam-materials')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
@@ -432,7 +434,9 @@ Route::prefix('exam-materials')->group(function () {
 });
 Route::prefix('bundle-packaging')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
-        Route::get('/ci-bundlepackaging/{examId}/{exam_date}', [BundlePackagingController::class, 'ciBundlepackagingView']) ->name('ci.bundlepackaging.view');
+        Route::get('/ci-bundlepackaging/{examId}/{exam_date}', [BundlePackagingController::class, 'ciBundlepackagingView'])->name('ci.bundlepackaging.view');
+        Route::get('/ci-to-mobileteam-bundle-packaging/{examId}/{examDate}', [BundlePackagingController::class, 'CItoMobileTeam'])->name('bundle-packaging.ci-to-mobileteam');
+        Route::get('/mobileteam-to-district-bundle-packaging/{examId}/{examDate}', [BundlePackagingController::class, 'MobileTeamtoDistrict'])->name('bundle-packaging.mobileteam-to-district');
     });
 });
 //ReceiveExamMaterialsController Route::prefix('receive-exam-materials')->group(function(){
@@ -463,6 +467,19 @@ Route::prefix('exam-materials-route')->group(function () {
         Route::get('/view/{Id}', [ExamMaterialsRouteController::class, 'viewRoute'])->name('exam-materials-route.view');
     });
 });
+
+//ChartedVehicleRoutesController Route::prefix('charted-vehicle-routes')->group(function(){
+Route::prefix('charted-vehicle-routes')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/{examId}', [ChartedVehicleRoutesController::class, 'index'])->name('charted-vehicle-routes.index');
+        Route::get('/create/{examId}', [ChartedVehicleRoutesController::class, 'createRoute'])->name('charted-vehicle-routes.create');
+        Route::get('/edit/{Id}', [ChartedVehicleRoutesController::class, 'editRoute'])->name('charted-vehicle-routes.edit');
+        Route::post('/store', [ChartedVehicleRoutesController::class, 'storeRoute'])->name('charted-vehicle-routes.store');
+        Route::put('/update/{Id}', [ChartedVehicleRoutesController::class, 'updateRoute'])->name('charted-vehicle-routes.update');
+        Route::get('/view/{Id}', [ChartedVehicleRoutesController::class, 'viewRoute'])->name('charted-vehicle-routes.view');
+    });
+});
+
 //ReceiveExamMaterialsController Route::prefix('receive-exam-materials')->group(function(){
     Route::prefix('exam-trunkbox-qr-otl-data')->group(function () {
         Route::middleware(['auth.multi'])->group(function () {

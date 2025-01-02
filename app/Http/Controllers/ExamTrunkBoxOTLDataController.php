@@ -29,14 +29,13 @@ class ExamTrunkBoxOTLDataController extends Controller
     {
         $header = ['Hall No', 'Trunk Box QR', 'OTL', 'Date'];
         $data = [
-            ['001', '0101121', '123456', '03-08-2024'],
+            ['001', '0101121', '123456,123457', '03-08-2024'],
             ['001', '0101122', '123456', '03-08-2024'],
-            ['001', '0101123', '123456', '03-08-2024'],
+            ['001', '0101123', '123456,34567,21345', '03-08-2024'],
             ['001', '0101124', '123456', '03-08-2024'],
-            ['001', '0101125', '123456', '03-08-2024'],
-            ['001', '0101126', '123456', '03-08-2024'],
+            ['001', '0101125', '123456,546743', '03-08-2024'],
+            ['001', '0101126', '123456,212345', '03-08-2024'],
         ];
-
         $callback = function () use ($header, $data) {
             $file = fopen('php://output', 'w');
             fputcsv($file, $header);
@@ -231,20 +230,21 @@ class ExamTrunkBoxOTLDataController extends Controller
             }
 
             $centerCode = $parsedData['center_code'];
-
+            // Split OTL codes by comma and encode as JSON 
+           // Split OTL codes by comma and encode as JSON 
+           $otlCodes = explode(',', trim($data[2]));
+            $otlCodes = json_encode($otlCodes);
             $examTrunkBoxOTLDuplicateData = ExamTrunkBoxOTLData::where('exam_id', $examId)
                 ->where('trunkbox_qr_code', trim($data[1]))
                 ->where('center_code', $centerCode)
                 ->where('hall_code', trim($data[0]))
-                ->where('otl_code', trim($data[2]))
+                ->where('otl_code', $otlCodes)
                 ->first();
 
             if ($examTrunkBoxOTLDuplicateData) {
                 $errorDetails = "Duplicate Entry found. Existing data - Trunk BOX QR Code: " . $data[1] . " - Exam ID: " . $examId . " - Exam TRUNK BOX OTL Data ID: " . $examTrunkBoxOTLDuplicateData;
                 throw new Exception($errorDetails);
             }
-
-
             $center = Center::where('center_code', $parsedData['center_code'])->first();
             if (!$center) {
                 $error = 'Center not found for the given QR code data.';
@@ -259,7 +259,7 @@ class ExamTrunkBoxOTLDataController extends Controller
                 ->where('hall_code', trim($data[0]))
                 ->where('exam_date', $examDate)
                 ->first();
-           
+
             if (!$hallConfirmed) {
                 $error = 'Hall not found for the given QR code data.';
                 throw new Exception($error);
@@ -269,11 +269,11 @@ class ExamTrunkBoxOTLDataController extends Controller
                 'exam_id' => $examId,
                 'district_code' => $center->center_district_id,
                 'center_code' => $parsedData['center_code'],
-                'hall_code' =>  $hallConfirmed->hall_code,
+                'hall_code' => $hallConfirmed->hall_code,
                 'venue_code' => $hallConfirmed->venue_code,
                 'exam_date' => $hallConfirmed->exam_date,
-                'trunkbox_qr_code' => trim($data[1]), 
-                'otl_code' => trim($data[2]),
+                'trunkbox_qr_code' => trim($data[1]),
+                'otl_code' => $otlCodes,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];

@@ -22,7 +22,7 @@ class BundlePackagingController extends Controller
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
         $user = $guard ? $guard->user() : null;
-    
+
         // Define the category mapping
         $categoryLabels = [
             'I1' => 'Bundle A1',
@@ -38,7 +38,7 @@ class BundlePackagingController extends Controller
             'R4' => 'Bundle II',
             'R5' => 'Bundle C',
         ];
-    
+
         $query = $role == 'ci'
             ? ExamMaterialsData::where('exam_id', $examId)
                 ->where('ci_id', $user->ci_id)
@@ -46,15 +46,15 @@ class BundlePackagingController extends Controller
                 ->whereDate('exam_date', $exam_date)
             : ExamMaterialsData::where('exam_id', $examId)
                 ->whereIn('category', array_keys($categoryLabels));
-    
-        $examMaterials = $query ->with(['examMaterialsScan'])->get();
-    
+
+        $examMaterials = $query->with(['examMaterialsScan'])->get();
+
         // Add label mapping to the data
         $examMaterials->each(function ($material) use ($categoryLabels) {
             $material->bundle_label = $categoryLabels[$material->category] ?? 'Unknown Bundle';
         });
-    // dd($examMaterials);
-        return view('my_exam.CI.bundlepackaging.index', compact('examMaterials', 'examId', 'exam_date'));
+        // dd($examMaterials);
+        return view('my_exam.BundlePackaging.ci-bundle-packaging', compact('examMaterials', 'examId', 'exam_date'));
     }
-    
+
 }

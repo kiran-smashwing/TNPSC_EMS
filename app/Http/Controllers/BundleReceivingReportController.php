@@ -5,7 +5,7 @@ use Spatie\Browsershot\Browsershot;
 
 use Illuminate\Http\Request;
 
-class Bundle_ReceivingReportController extends Controller
+class BundleReceivingReportController extends Controller
 {
     public function generatebundlereceivingReport()
     {

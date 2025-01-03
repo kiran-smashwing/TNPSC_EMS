@@ -17,7 +17,7 @@ class BundlePackagingController extends Controller
         //apply the auth middleware to the entire controller
         $this->middleware('auth.multi');
     }
-    public function ciBundlepackagingView(Request $request, $examId, $exam_date)
+    public function ciBundlepackagingView(Request $request, $examId, $exam_date,$exam_session)
     {
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
@@ -44,6 +44,7 @@ class BundlePackagingController extends Controller
                 ->where('ci_id', $user->ci_id)
                 ->whereIn('category', array_keys($categoryLabels))
                 ->whereDate('exam_date', $exam_date)
+                ->where('exam_session',$exam_session)
             : ExamMaterialsData::where('exam_id', $examId)
                 ->whereIn('category', array_keys($categoryLabels));
 

@@ -40,7 +40,7 @@ use App\Http\Controllers\ReceiveExamMaterialsController;
 use App\Http\Controllers\Qp_BookletController;
 use App\Http\Controllers\Omr_AccountController;
 use App\Http\Controllers\Expenditure_StatmentController;
-use App\Http\Controllers\Bundle_ReceivingReportController;
+use App\Http\Controllers\BundleReceivingReportController;
 use App\Http\Controllers\CIPreliminaryCheckController;
 use App\Http\Controllers\ExamMaterialsRouteController;
 use App\Http\Controllers\ExamStaffAllotmentController;
@@ -52,7 +52,6 @@ use App\Http\Controllers\BundlePackagingController;
 
 //PDF
 Route::get('/ci-consolidate-report', [CIConsolidateController::class, 'generateReport'])->name('download.report');
-Route::get('generate-utilization-certificate', [UtilityController::class, 'generateUtilizationCertificate'])->name('download.utilireport');
 //center_attenance_report
 Route::get('/attendance-report', [AttendanceReportController::class, 'generateAttendanceReport'])->name('download.attendanceReport');
 //district_attenance_report
@@ -72,7 +71,7 @@ Route::get('/omr-account', [Omr_AccountController::class, 'generateOmraccountRep
 // Expenditure_StatmentController
 Route::get('/expenditure-statment', [Expenditure_StatmentController::class, 'generateexpenditureReport'])->name('expenditure-statment.report');
 // Expenditure_StatmentController
-Route::get('/bundle-receiving', [Bundle_ReceivingReportController::class, 'generatebundlereceivingReport'])->name('bundle-receiving.report');
+Route::get('/bundle-receiving', [BundleReceivingReportController::class, 'generatebundlereceivingReport'])->name('bundle-receiving.report');
 
 
 // Public routes
@@ -378,6 +377,11 @@ Route::prefix('ci-meetings')->group(function () {
         Route::post('/update-adequacy-check', [CIMeetingController::class, 'updateAdequacyCheck'])->name('ci-meetings.updateAdequacyCheck');
     });
 });
+Route::prefix('ci-reports')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('generate-utilization-certificate/{examid}', [UtilityController::class, 'generateUtilizationCertificate'])->name('download.utilireport');
+    });
+});
 Route::prefix('qp-box-log')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::post('/qp-box-open', [QpBoxlogController::class, 'saveTime'])->name('qp-box-open.save-time');
@@ -401,6 +405,8 @@ Route::prefix('ci-checklist')->middleware(['auth.multi'])->group(function () {
     Route::post('/save', [CIPreliminaryCheckController::class, 'saveChecklist'])->name('ci-checklist.save'); // To save checklist
     Route::post('/ci-session-save', [CIPreliminaryCheckController::class, 'savesessionChecklist'])->name('ci-session-checklist.save'); // To save checklist
     Route::post('/save-videography-checklist', [CIPreliminaryCheckController::class, 'saveVideographyChecklist'])->name('saveVideographyChecklist');
+    Route::post('/save-consolidate-certificate', [CIPreliminaryCheckController::class, 'saveConsolidateCertificate'])->name('saveConsolidateCertificate');
+    Route::post('/save-utilization-certificate', [CIPreliminaryCheckController::class, 'saveUtilizationCertificate'])->name('saveUtilizationCertificate');
 });
 Route::prefix('ci-staffalloment')->middleware(['auth.multi'])->group(function () {
     Route::post('/save-invigilator-details', [ExamStaffAllotmentController::class, 'saveinvigilatoreDetails'])->name('save-invigilator.details');
@@ -432,7 +438,7 @@ Route::prefix('exam-materials')->group(function () {
 });
 Route::prefix('bundle-packaging')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
-        Route::get('/ci-bundlepackaging/{examId}/{exam_date}', [BundlePackagingController::class, 'ciBundlepackagingView']) ->name('ci.bundlepackaging.view');
+        Route::get('/ci-bundlepackaging/{examId}/{exam_date}/{exam_session}', [BundlePackagingController::class, 'ciBundlepackagingView']) ->name('ci.bundlepackaging.view');
     });
 });
 //ReceiveExamMaterialsController Route::prefix('receive-exam-materials')->group(function(){

@@ -102,7 +102,7 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="d-sm-flex align-items-center justify-content-between">
-                                <h5 class="mb-3 mb-sm-0">{{ $exam_date }}</h5>
+                                {{-- <h5 class="mb-3 mb-sm-0">{{ $exam_date }}</h5> --}}
                             </div>
                         </div>
                         <div class="card-body table-border-style">

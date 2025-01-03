@@ -126,6 +126,7 @@
             padding: 5px 10px;
             vertical-align: top;
         }
+
         .signature-column-1 {
             flex: 1;
             padding: 5px 10px;
@@ -166,6 +167,14 @@
             border-bottom: 1px solid #ddd;
         }
 
+        .underline {
+            text-decoration: underline;
+            text-decoration-color: #474545;
+            /* Change the color of the underline */
+            text-underline-offset: 3px;
+            /* Adjust the offset to add space to the underline */
+        }
+
         .name-space {
             flex-grow: 1;
             font-weight: 500;
@@ -176,6 +185,50 @@
             height: 80px;
             border: 1px solid #ddd;
             margin-top: 10px;
+        }
+
+        .flex-table {
+            display: flex;
+            flex-direction: column;
+            width: 99.5%;
+            border-collapse: collapse;
+            margin-bottom: 5px;
+            border: 1px solid #ddd;
+            /* Add border to the table */
+        }
+
+        .flex-row {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #ddd;
+            /* Add border to the rows */
+        }
+
+        .flex-cell {
+            flex: 1;
+            padding: 10px;
+            border-right: 1px solid #ddd;
+            /* Add border to the cells */
+            vertical-align: top;
+            text-align: left;
+        }
+
+        .flex-cell:last-child {
+            border-right: none;
+            /* Remove right border from the last cell */
+        }
+
+
+
+        .row-label {
+            /* background-color: #e3f1ee; */
+        }
+
+        .flex-header {
+            background-color: #e3f1ee;
+            font-weight: bold;
+            text-align: left;
         }
 
         @media print {
@@ -214,33 +267,39 @@
         </div>
         <p class="intro-text">
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Certified that the advance amount of
-            Rs. _____________________________________________ <br> (Rupees
-            ___________________________________________________) received from the Secretary, TNPSC, Chennai, has been
+            <span class="underline">&nbsp;&nbsp;{{ $amount ?? '_______________' }}&nbsp;&nbsp;</span>(Rupees <span
+                class="underline">&nbsp;&nbsp;{{ $amount_in_words ?? '__________________________' }}&nbsp;&nbsp;</span>) received from the
+            Secretary, TNPSC, Chennai, has been
             utilised towards the conduct of the written examination. The details of the examination and expenditure are
             outlined below:
         </p>
-        <table class="report-table">
-            <tr>
-                <th>1</th>
-                <td>Name of the Examination</td>
-                <td>Combined Civil Services Examination - I (Group-I Services) (04/2024)</td>
-            </tr>
-            <tr>
-                <th>2</th>
-                <td>Date of Examination</td>
-                <td>13-07-2024 (FN)</td>
-            </tr>
-            <tr>
-                <th>3</th>
-                <td>Name of the centre</td>
-                <td>Ranipet - 3501</td>
-            </tr>
-            <tr>
-                <th>4</th>
-                <td>Venue Name and Number</td>
-                <td>S.S.S. College of Arts, Science and Management - 006</td>
-            </tr>
-        </table>
+        <div class="flex-table">
+            <div class="flex-row">
+                <div class="flex-cell row-label" > <strong>Examination Name:</strong>
+                    {{ $exam_data->exam_main_name ?? 'N/A' }} </div>
+            </div>
+            <div class="flex-row">
+                <div class="flex-cell row-label-header" > <strong>Notification No:</strong>
+                    {{ $exam_data->exam_main_notification ?? 'N/A' }} </div>
+                <div class="flex-cell row-label-header" > <strong>Exam Service:</strong>
+                    {{ $exam_data->examservice->examservice_name ?? 'N/A' }} </div>
+            </div>
+            <div class="flex-row">
+                <div class="flex-cell row-label" style="width: 350px;"> <strong>Exam Date:</strong>
+                    {{ $formattedDatesString ?? 'N/A' }} </div>
+                <div class="flex-cell row-label"> <strong>District:</strong>
+                    {{ $user->district->district_name ? $user->district->district_name : 'N/A' }} </div>
+                <div class="flex-cell row-label"> <strong>Center:</strong>
+                    {{ $user->center->center_name ? $user->center->center_name . ' (' . $user->center->center_code . ')' : 'N/A' }}
+                </div>
+            </div>
+            <div class="flex-row">
+                <div class="flex-cell row-label"style="width: 150px; flex: 1.9;" > <strong>Hall Name:</strong>
+                    {{ $user->venue->venue_name ?? 'N/A' }} </div>
+                <div class="flex-cell row-label"> <strong>Hall Code:</strong>
+                    {{ $hall_code ?? 'N/A' }} </div>
+            </div>
+        </div>
 
         <p>The details of the expenditure incurred are as follows:</p>
 
@@ -253,55 +312,56 @@
             <tr>
                 <td>1</td>
                 <td>Remuneration (a) Chief Invigilators, Invigilators, Assisting Staff</td>
-                <td>13000.00</td>
+                <td>{{ $utility_answer['ciAmount'] ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <td>1.1</td>
                 <td>Remuneration (b) Sweeper, Sanitary Worker, Waterman</td>
-                <td>750.00</td>
+                <td>{{ $utility_answer['assistantStaffAmount'] ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <td>1.2</td>
                 <td>Remuneration (c) Police Personnel</td>
-                <td>300.00</td>
+                <td>{{ $utility_answer['policeAmount'] ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <td>1.3</td>
                 <td>Remuneration (d) Scribe(s)(if any)</td>
-                <td>500.00</td>
+                <td>{{ $utility_answer['scribeAmount'] ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <td>1.4</td>
                 <td>Remuneration (e) Inspection staff deputed by DRO / District Collector</td>
-                <td>500.00</td>
+                <td>{{ $utility_answer['inspectionStaffAmount'] ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <td>2</td>
                 <td>Stationery</td>
-                <td>600.00</td>
+                <td>{{ $utility_answer['stationeryAmount'] ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <td>3</td>
                 <td>Venue (Hall) Rent</td>
-                <td>1500.00</td>
+                <td>{{ $utility_answer['hallRentAmount'] ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <td colspan="2">TOTAL</td>
-                <td>17150.00</td>
+                <td>{{ $utility_answer['totalAmountSpent'] ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <td colspan="2">Amount Received</td>
-                <td>17150.00</td>
+                <td>{{ $utility_answer['amountReceived'] ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <td colspan="2">Amount Spent</td>
-                <td>17150.00</td>
+                <td>{{ $utility_answer['totalAmountSpent'] ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <td colspan="2">Balance Amount</td>
-                <td>0.00</td>
+                <td>{{ $utility_answer['balanceAmount'] ?? 'N/A' }}</td>
             </tr>
         </table>
+
 
         <div class="signature-container">
             <div class="signature-row">
@@ -312,22 +372,23 @@
                 <div class="signature-column-1">
                     <div class="signature-column signature-content">
                         <div class="signature-row-inline signature-top-bottom-inline">
-                            <div class="signature-label">Signature with Date : </div>
+                            <div class="signature-label">Signature with Date: </div>
                             <div class="empty-space"></div>
                         </div>
                         <div class="signature-row-inline signature-top-bottom-inline">
-                            <div class="signature-label">Name and Designation : </div>
-                            <div class="name-space">Dr. Sivakumar .K.V. & HOD</div>
+                            <div class="signature-label">Name and Designation: </div>
+                            <div class="name-space">
+                                {{ $user->ci_name && $user->ci_designation ? $user->ci_name . ' - ' . $user->ci_designation : 'N/A' }}
+                            </div>
                         </div>
                         <div class="signature-row-inline signature-top-bottom-inline">
-                            <div class="signature-label">Phone Number : </div>
-                            <div class="name-space">+91 9591234567</div>
+                            <div class="signature-label">Phone Number: </div>
+                            <div class="name-space">{{ $user->ci_phone ?? 'N/A' }}</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
 </body>
 

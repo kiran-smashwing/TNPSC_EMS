@@ -95,19 +95,69 @@ class MyExamController extends Controller
     }
     public function ciTask($examId)
     {
+        // Retrieve the current exam session
         $session = Currentexam::with('examsession')->where('exam_main_no', $examId)->first();
-
 
         if (!$session) {
             abort(404, 'Exam not found');
         }
+
+        // Get the role and user from the session
+        $role = session('auth_role');
+        $guard = $role ? Auth::guard($role) : null;
+        $user = $guard ? $guard->user() : null;
+
+        if (!$user) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $ci_id = $user->ci_id;
+
+        // Retrieve CI meeting data
+        $ci_meeting_Data = DB::table('ci_meeting_attendance')
+            ->where('exam_id', $examId)
+            ->where('ci_id', $ci_id)
+            ->get();
+
+        $adequacy_check_data = [];
+        $firstReceivedAmount = null;
+
+        if ($ci_meeting_Data->isNotEmpty()) {
+            // Loop through each meeting entry
+            foreach ($ci_meeting_Data as $meetingData) {
+                // Decode the 'adequacy_check' JSON field
+                $adequacyData = json_decode($meetingData->adequacy_check, true);
+
+                // Check if the required keys are present
+                if (isset($adequacyData['exam_id'])) {
+                    // Extract relevant data for the output
+                    $adequacy_check_data[] = [
+                        'exam_id' => $adequacyData['exam_id'] ?? 'N/A',
+                        'received_amount' => $adequacyData['received_amount'] ?? 'N/A',
+                        'received_packet' => $adequacyData['received_packet'] ?? 'N/A',
+                        'received_appointment_letter' => $adequacyData['received_appointment_letter'] ?? 'N/A',
+                    ];
+                }
+            }
+
+            // Extract 'received_amount' from the first item, if available
+            if (!empty($adequacy_check_data)) {
+                $firstReceivedAmount = $adequacy_check_data[0]['received_amount'] ?? null;
+            }
+        }
+
         // Group exam sessions by date
         $groupedSessions = $session->examsession->groupBy(function ($item) {
             return \Carbon\Carbon::parse($item->exam_sess_date)->format('d-m-Y');
         });
+
+        // Retrieve preliminary checklist
         $preliminary = CIChecklist::where('ci_checklist_type', 'Preliminary')->get();
-        return view('my_exam.CI.task', compact('session', 'groupedSessions', 'preliminary'));
+
+        // Pass all data to the view
+        return view('my_exam.CI.task', compact('session','groupedSessions','preliminary','adequacy_check_data','firstReceivedAmount'));
     }
+
     public function ciExamActivity($examId, $session)
     {
         // Retrieve the session details with related currentexam
@@ -168,7 +218,7 @@ class MyExamController extends Controller
             ->get();
 
         // Initialize an array to hold all checklist data
-        
+
 
         if ($checklistvideographyData->isNotEmpty()) {
             // Loop through each checklist entry
@@ -390,6 +440,8 @@ class MyExamController extends Controller
 
         // Retrieve checklist sessions
         $type_sessions = CIChecklist::where('ci_checklist_type', 'Session')->get();
+        $consolidate_data = CIChecklist::where('ci_checklist_type', 'Self Declaration')->get();
+        // dd($consolidate_data);
 
         // Return the view with the data
         return view('my_exam.CI.ci-exam-activity', compact(
@@ -409,6 +461,7 @@ class MyExamController extends Controller
             'candidate_remarks_data',
             'checklist_videography_data',
             'candidate_orm_remarks_data',
+            'consolidate_data',
             'ci_id'
         ));
     }

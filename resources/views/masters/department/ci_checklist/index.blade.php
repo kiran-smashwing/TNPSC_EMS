@@ -139,13 +139,15 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                      <h2 class="mb-0"></h2>
-                    </div> -->
+                                  <h2 class="mb-0"></h2>
+                                </div> -->
                         </div>
                     </div>
                 </div>
             </div>
-
+            @php
+                use Illuminate\Support\Str;
+            @endphp
             <div class="row">
                 <!-- [ basic-table ] start -->
                 <div class="col-xl-12">
@@ -182,7 +184,9 @@
                                             <td>{{ $ciChecklist->ci_checklist_type }}</td>
 
                                             <!-- Checklist Description -->
-                                            <td>{{ $ciChecklist->ci_checklist_description }}</td>
+                                            <td title="{{ $ciChecklist->ci_checklist_description }}">
+                                                {{ Str::limit($ciChecklist->ci_checklist_description, 100) }}
+                                            </td>
 
 
 

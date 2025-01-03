@@ -23,7 +23,7 @@
                             @else
                                 @foreach ($type_sessions as $item)
                                     <div class="form-check mb-2">
-                                        <input class="form-check-input input-primary checklist-checkbox"
+                                        <input class="form-check-input input-primary"
                                             name="checklist[{{ $item->ci_checklist_id }}]" type="checkbox"
                                             id="customCheck{{ $item->ci_checklist_id }}"
                                             data-checklist-id="{{ $item->ci_checklist_id }}"

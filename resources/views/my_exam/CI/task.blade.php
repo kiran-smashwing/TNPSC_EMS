@@ -395,7 +395,7 @@
                                                             data-bs-target="#utilizationCertificateModal"
                                                             class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-info mx-1"></i>Self declaration</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
+                                                        <a href="{{ route('download.utilireport', ['examid' => $anSession->exam_sess_mainid]) }}" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-download mx-1"></i>Download</a>
                                                     </div>
                                                 </div>

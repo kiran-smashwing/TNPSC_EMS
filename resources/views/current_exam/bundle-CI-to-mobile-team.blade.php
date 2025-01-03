@@ -162,7 +162,7 @@
                             <ul class="list-inline ms-auto  mb-0">
                            
                                 <li class="list-inline-item"><a href="#" class="badge bg-dark f-14">Received 40 / 100</a></li>
-                                <li class="list-inline-item"> <a href="{{route('collectorate.create')}}" class="btn btn-outline-success">Scan Now</a></li>
+                                <li class="list-inline-item"> <a href="#" class="btn btn-outline-success">Scan Now</a></li>
                             </ul>
                            
                         </div>

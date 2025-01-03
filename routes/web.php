@@ -477,6 +477,7 @@ Route::prefix('charted-vehicle-routes')->group(function () {
         Route::post('/store', [ChartedVehicleRoutesController::class, 'storeRoute'])->name('charted-vehicle-routes.store');
         Route::put('/update/{Id}', [ChartedVehicleRoutesController::class, 'updateRoute'])->name('charted-vehicle-routes.update');
         Route::get('/view/{Id}', [ChartedVehicleRoutesController::class, 'viewRoute'])->name('charted-vehicle-routes.view');
+        Route::post('/get-districts-for-exam', [ChartedVehicleRoutesController::class, 'getDistrictsForExamIDs'])->name('charted-vehicle-routes.get-districts-for-exam');
     });
 });
 

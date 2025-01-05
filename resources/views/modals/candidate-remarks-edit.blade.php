@@ -54,9 +54,9 @@
                                             <option value="Left Exam During Examination"
                                                 {{ isset($remark['remark']) && $remark['remark'] == 'Left Exam During Examination' ? 'selected' : '' }}>
                                                 Left Exam During Examination</option>
-                                            <option value="Used Scribe Assistance"
+                                            {{-- <option value="Used Scribe Assistance"
                                                 {{ isset($remark['remark']) && $remark['remark'] == 'Used Scribe Assistance' ? 'selected' : '' }}>
-                                                Used Scribe Assistance</option>
+                                                Used Scribe Assistance</option> --}}
                                         </select>
                                     </div>
 

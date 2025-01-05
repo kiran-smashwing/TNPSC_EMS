@@ -155,7 +155,7 @@ class MyExamController extends Controller
         $preliminary = CIChecklist::where('ci_checklist_type', 'Preliminary')->get();
 
         // Pass all data to the view
-        return view('my_exam.CI.task', compact('session','groupedSessions','preliminary','adequacy_check_data','firstReceivedAmount'));
+        return view('my_exam.CI.task', compact('session', 'groupedSessions', 'preliminary', 'adequacy_check_data', 'firstReceivedAmount'));
     }
 
     public function ciExamActivity($examId, $session)
@@ -253,12 +253,6 @@ class MyExamController extends Controller
                 }
             }
         }
-
-        // After the loop, $checklist_videography_data will contain all the checklist data
-        // dd($checklist_videography_data);
-
-
-
         // Separate cipaperreplacement by session
         foreach ($cipaperreplacement as $replacement) {
             $sessionType = $replacement->exam_session; // Assuming 'exam_session' is a column in the table
@@ -350,8 +344,6 @@ class MyExamController extends Controller
                 }
             }
         }
-        // dd($candidate_orm_remarks_data);
-        //    dd($candidate_remarks_data);
         // Process allocations (scribes and assistants)
         if ($existingAllocations->isNotEmpty()) {
             foreach ($existingAllocations as $allocation) {
@@ -360,33 +352,62 @@ class MyExamController extends Controller
                 $assistantsData = json_decode($allocation->assistants, true) ?? []; // Decode assistants data
 
                 // Process scribes data
+                // Process scribes data
                 foreach ($scribesData as $scribeData) {
                     if (isset($scribeData['session'])) {
                         $sessionType = $scribeData['session'];
 
                         // Check session type: FN or AN
                         if ($sessionType == 'FN' && $session->exam_sess_session == 'FN') {
-                            $scribes = Scribe::whereIn('scribe_id', $scribeData['scribes'])->get();
-                            foreach ($scribes as $scribe) {
-                                $scribes_type[] = [
-                                    'scribe_name' => $scribe->scribe_name,
-                                    'scribe_phone' => $scribe->scribe_phone,
-                                    'reg_no' => $scribeData['reg_no'] ?? 'Not Available',
-                                ];
+                            // Ensure 'data' key exists in the data
+                            if (isset($scribeData['data']) && is_array($scribeData['data'])) {
+                                foreach ($scribeData['data'] as $data) {
+                                    // Ensure 'scribe' key exists in the data
+                                    if (isset($data['scribe'])) {
+                                        $scribeId = $data['scribe'];  // Get scribe ID
+
+                                        // Fetch scribe based on the scribe_id (correct column)
+                                        $scribe = Scribe::where('scribe_id', $scribeId)->first();
+
+                                        // Add scribe details to the result
+                                        if ($scribe) {
+                                            $scribes_type[] = [
+                                                'scribe_name' => $scribe->scribe_name,
+                                                'scribe_phone' => $scribe->scribe_phone,
+                                                'reg_no' => $data['reg_no'] ?? 'Not Available',
+                                            ];
+                                        }
+                                    }
+                                }
                             }
                         } elseif ($sessionType == 'AN' && $session->exam_sess_session == 'AN') {
-                            $scribes = Scribe::whereIn('id', $scribeData['scribes'])->get();
-                            foreach ($scribes as $scribe) {
-                                $scribes_type[] = [
-                                    'scribe_name' => $scribe->scribe_name,
-                                    'scribe_phone' => $scribe->scribe_phone,
-                                    'reg_no' => $scribeData['reg_no'] ?? 'Not Available',
-                                ];
+                            // Ensure 'data' key exists in the data
+                            if (isset($scribeData['data']) && is_array($scribeData['data'])) {
+                                foreach ($scribeData['data'] as $data) {
+                                    // Ensure 'scribe' key exists in the data
+                                    if (isset($data['scribe'])) {
+                                        $scribeId = $data['scribe'];  // Get scribe ID
+
+                                        // Fetch scribe based on the scribe_id (correct column)
+                                        $scribe = Scribe::where('scribe_id', $scribeId)->first(); // Fixed column name
+
+                                        // Add scribe details to the result
+                                        if ($scribe) {
+                                            $scribes_type[] = [
+                                                'scribe_name' => $scribe->scribe_name,
+                                                'scribe_phone' => $scribe->scribe_phone,
+                                                'reg_no' => $data['reg_no'] ?? 'Not Available',
+                                            ];
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
 
+
+                // dd($scribes_type);
                 // Process assistants data
                 foreach ($assistantsData as $assistantData) {
                     if (isset($assistantData['session'])) {
@@ -416,7 +437,33 @@ class MyExamController extends Controller
                 }
             }
         }
+        // Retrieve the allocation data for the CI (Chief Invigilator)
+        $existingAllocation = DB::table('ci_staff_allocation')
+            ->where('exam_id', $examId)
+            ->where('ci_id', $user->ci_id)  // Ensure the user is checked as well
+            ->first();
 
+        if ($existingAllocation) {
+            // Decode the invigilators data (assuming it's stored as a JSON string)
+            $sessionData = json_decode($existingAllocation->invigilators, true);  // Convert JSON to array
+
+            // Loop through the session data to check session type (FN or AN)
+            foreach ($sessionData as $data) {
+                if (isset($data['session'])) {
+                    $sessionType = $data['session'];  // "FN" or "AN"
+
+                    // Check if the current session type matches the one stored in the database
+                    if ($sessionType == 'FN' && $session->exam_sess_session == 'FN') {
+                        // Handle logic for FN session
+                        $invigilators_type = $data['invigilators']; // Array of invigilator IDs for FN session
+                    } elseif ($sessionType == 'AN' && $session->exam_sess_session == 'AN') {
+                        // Handle logic for AN session
+                        $invigilators_type = $data['invigilators']; // Array of invigilator IDs for AN session
+                    }
+                }
+            }
+        }
+        //  dd($invigilators_type);
         // Retrieve session type (Objective or Descriptive)
         $session_type = $session->exam_sess_type;
 
@@ -435,6 +482,7 @@ class MyExamController extends Controller
 
         // Retrieve invigilators, scribes, and assistants based on the venue
         $invigilator = Invigilator::where('invigilator_venue_id', $user->ci_venue_id)->get();
+        // dd($invigilator);
         $scribe = Scribe::where('scribe_venue_id', $user->ci_venue_id)->get();
         $ci_assistant = CIAssistant::where('cia_venue_id', $user->ci_venue_id)->get();
 
@@ -465,10 +513,6 @@ class MyExamController extends Controller
             'ci_id'
         ));
     }
-
-
-
-
 
     public function mobileTeamTask($examId)
     {

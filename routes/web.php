@@ -381,6 +381,7 @@ Route::prefix('ci-meetings')->group(function () {
 Route::prefix('ci-reports')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::get('generate-utilization-certificate/{examid}', [UtilityController::class, 'generateUtilizationCertificate'])->name('download.utilireport');
+        Route::get('/ci-consolidate-report/{examId}/{exam_date}/{exam_session}', [CIConsolidateController::class, 'generateReport'])->name('download.report');
     });
 });
 Route::prefix('qp-box-log')->group(function () {
@@ -412,6 +413,7 @@ Route::prefix('ci-checklist')->middleware(['auth.multi'])->group(function () {
 Route::prefix('ci-staffalloment')->middleware(['auth.multi'])->group(function () {
     Route::post('/save-invigilator-details', [ExamStaffAllotmentController::class, 'saveinvigilatoreDetails'])->name('save-invigilator.details');
     Route::put('/update-invigilator-details/{examId}/{examDate}/{ciId}', [ExamStaffAllotmentController::class, 'updateInvigilatorDetails'])->name('update-invigilator.details');
+    // Route::put('/view-invigilator-allocate/{examId}/{examDate}', [ExamStaffAllotmentController::class, 'allocate'])->name('view-invigilator-allocate.savehallsallocate');
     Route::put('/ci-staffalloment/update-invigilator-details/{examId}/{examDate}/{ciId}', [ExamStaffAllotmentController::class, 'updateScribeDetails'])->name('update.scribe.details');
     Route::put('/update-ci-assistant-details/{examId}/{examDate}/{ciId}', [ExamStaffAllotmentController::class, 'updateCIAssistantDetails'])->name('update.ci-assistant-details');
 });

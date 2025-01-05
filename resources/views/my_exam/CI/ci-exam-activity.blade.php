@@ -265,7 +265,7 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" data-pc-animate="just-me"
+                                                        <a href="#" id="viewBtn" data-pc-animate="just-me"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#invigilatorAllotmentModel"
                                                             class="me-2 btn btn-sm btn-light-primary"><i
@@ -1067,10 +1067,11 @@
                                                     <div class="mt-2">
                                                         {{-- <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a> --}}
-                                                        <a  href="{{ route('ci.bundlepackaging.view', [
-                                                                'examId' => $session->currentexam->exam_main_no,
-                                                                'exam_date' => $session->exam_sess_date,'exam_session' =>$session->exam_sess_session
-                                                            ]) }}"
+                                                        <a href="{{ route('ci.bundlepackaging.view', [
+                                                            'examId' => $session->currentexam->exam_main_no,
+                                                            'exam_date' => $session->exam_sess_date,
+                                                            'exam_session' => $session->exam_sess_session,
+                                                        ]) }}"
                                                             class="me-2 btn btn-sm btn-light-primary">
                                                             <i class="feather icon-aperture mx-1"></i>Scan
                                                         </a>
@@ -1136,8 +1137,11 @@
                                                             data-bs-target="#consolidatecertificate"
                                                             class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-info mx-1"></i>verify</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-download mx-1"></i>Download</a>
+                                                        <a href="{{ route('download.report', ['examId' => $session->currentexam->exam_main_no, 'exam_date' => $session->exam_sess_date, 'exam_session' => $session->exam_sess_session]) }}"
+                                                            class="me-2 btn btn-sm btn-light-info">
+                                                            <i class="feather icon-download mx-1"></i>Download
+                                                        </a>
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -1175,7 +1179,7 @@
                 @include('modals.candidate-remarks-edit')
                 @include('modals.omr-remarks')
                 @include('modals.omr-remarks-view')
-                @include('modals.utilization-certificate')
+                {{-- @include('modals.utilization-certificate') --}}
             </div>
             <!-- [ Main Content ] end -->
         </div>

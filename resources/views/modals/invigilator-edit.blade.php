@@ -3,7 +3,9 @@
     aria-labelledby="invigilatorSelectModalLabel" aria-hidden="true">
     <div class="modal-dialog ">
         <div class="modal-content">
-            <form id="invigilator-form" action="{{ route('update-invigilator.details', [$session->currentexam->exam_main_no, $session->exam_sess_date, $ci_id]) }}" method="POST">
+            <form id="invigilator-form"
+                action="{{ route('update-invigilator.details', [$session->currentexam->exam_main_no, $session->exam_sess_date, $ci_id]) }}"
+                method="POST">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="exam_id" value="{{ $session->currentexam->exam_main_no }}">
@@ -21,12 +23,19 @@
                     <div class="row">
                         <div class="mb-4">
                             <div class="col-lg-12 col-md-11 col-sm-12">
+                                {{-- Flatten the invigilators_type array --}}
+                                @php
+                                    $flattenedInvigilators = collect($invigilators_type)
+                                        ->pluck('invigilators')
+                                        ->toArray();
+                                @endphp
+
                                 <select class="form-control" id="choices-multiple-default" name="invigilators[]"
                                     multiple>
                                     <option value="">Select Invigilator</option>
                                     @foreach ($invigilator as $invigilatorItem)
                                         <option value="{{ $invigilatorItem->invigilator_id }}"
-                                            @if (in_array($invigilatorItem->invigilator_id, old('invigilators', $invigilators_type))) selected @endif>
+                                            @if (in_array($invigilatorItem->invigilator_id, old('invigilators', $flattenedInvigilators))) selected @endif>
                                             {{ $invigilatorItem->invigilator_name }} -
                                             {{ $invigilatorItem->invigilator_phone }}
                                         </option>
@@ -35,6 +44,9 @@
                             </div>
                         </div>
                     </div>
+
+
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -52,14 +64,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             const allotedCountElement = document.getElementById('alloted-count-display');
             if (!allotedCountElement) {
-                console.error('Alloted count element not found.');
+                console.error('Allotted count element not found.');
                 return;
             }
 
             // Get the allotted count value
-            const allotedCount = parseInt(allotedCountElement.textContent.trim());
+            const allotedCount = parseInt(allotedCountElement.textContent.trim(), 10);
             if (isNaN(allotedCount)) {
-                console.error('Alloted count is not a valid number.');
+                console.error('Allotted count is not a valid number.');
                 return;
             }
 
@@ -71,6 +83,13 @@
                 return;
             }
 
+            // Identify pre-selected options
+            const preSelectedOptions = Array.from(dropdown.options).filter(option => option.selected && option
+                .value !== "");
+            const initialSelectedCount = preSelectedOptions.length;
+
+            console.log(`Initial Selected Count: ${initialSelectedCount}`);
+
             // Initialize Choices.js
             const multipleChoices = new Choices(dropdown, {
                 placeholder: true,
@@ -79,22 +98,22 @@
                 removeItemButton: true, // Enable remove item button
             });
 
-            // Function to handle selection count
-            window.checkSelection = function() {
+            // Disable dropdown if pre-selected options already match allotted count
+            dropdown.disabled = initialSelectedCount >= allotedCount;
+
+            // Function to handle selection count dynamically
+            const checkSelection = () => {
                 const selectedCount = multipleChoices.getValue(true).length;
                 console.log(`Selected Count: ${selectedCount}`);
 
-                // Disable dropdown if the selected count matches the allotted count
-                if (selectedCount >= allotedCount) {
-                    dropdown.disabled = true;
-                    console.log('Dropdown disabled');
-                } else {
-                    dropdown.disabled = false;
-                    console.log('Dropdown enabled');
-                }
+                // Enable/disable dropdown based on selected count
+                dropdown.disabled = selectedCount >= allotedCount;
             };
 
-            // Initial check in case of pre-selected options
+            // Attach change event listener to monitor selections
+            dropdown.addEventListener('change', checkSelection);
+
+            // Initial check to account for pre-selected options
             checkSelection();
         });
     </script>

@@ -32,7 +32,6 @@
                             <option value="Wrongly Seated">Wrongly Seated</option>
                             <option value="Used OMR of Another Candidate">Used OMR of Another Candidate</option>
                             <option value="Left Exam During Examination">Left Exam During Examination</option>
-                            <option value="Used Scribe Assistance">Used Scribe Assistance</option>
                         </select>
                     </div>
 

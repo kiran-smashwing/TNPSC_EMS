@@ -40,10 +40,18 @@ class ExamStaffAllotmentController extends Controller
 
         $timestamp = now()->toDateTimeString();
 
+        // Prepare the invigilators data in the required format
+        $formattedInvigilators = [];
+        if ($validated['invigilators']) {
+            foreach ($validated['invigilators'] as $invigilator) {
+                $formattedInvigilators[] = ['invigilators' => $invigilator];
+            }
+        }
+
         // Create the new session data structure
         $newSessionData = [
             'session' => $sessions,
-            'invigilators' => $validated['invigilators'],
+            'invigilators' => $formattedInvigilators,
             'timestamp' => $timestamp,
         ];
 
@@ -152,14 +160,11 @@ class ExamStaffAllotmentController extends Controller
         // Validate the incoming request data
         $validated = $request->validate([
             'exam_sess_session' => 'required|string', // The session for the exam
-            'scribes' => 'nullable|array', // The scribes array to be added
-            'reg_no' => 'nullable|array', // The scribes array to be added
+            'scribes' => 'required|array',            // Scribes array is required
+            'reg_no' => 'required|array',             // Registration numbers array is required
         ]);
 
-        // Dump the validated data to inspect it
-        //  dd('Validated Data:', $validated);
-
-        // Get the authenticated user
+        // Retrieve the authenticated user
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
         $user = $guard ? $guard->user() : null;
@@ -171,53 +176,44 @@ class ExamStaffAllotmentController extends Controller
         // Find the existing CI staff allocation record using exam_id, exam_date, and ci_id
         $staffAllocation = ExamAssignment::where([
             ['exam_id', '=', $examId],
-            ['exam_date', '=', $examDate],  // Use $examDate directly here
-            ['ci_id', '=', $ciId],          // Use $ciId directly here
+            ['exam_date', '=', $examDate],
+            ['ci_id', '=', $ciId],
         ])->first();
 
-        // Dump the staff allocation data to inspect it
-        // dd('Staff Allocation Data:', $staffAllocation);
-
-        // If the allocation doesn't exist, return an error
         if (!$staffAllocation) {
-            return back()->withErrors(['error' => 'Staff allocation not found']);
+            return back()->withErrors(['error' => 'Staff allocation not found.']);
         }
 
-        // Prepare the new session data to add
+        // Prepare new scribe data for the given session
         $newScribeData = [
-            'session' => $validated['exam_sess_session'],  // The session to be added
-            'scribes' => $validated['scribes'], // The scribes to be added
-            'reg_no'  => $validated['reg_no'],
-            'timestamp' => now()->toDateTimeString(),  // Record the timestamp of the update
+            'session' => $validated['exam_sess_session'],
+            'timestamp' => now()->toDateTimeString(),
+            'data' => []
         ];
 
-        // Dump the new scribe data to inspect it
-        // dd('New Scribe Data:', $newScribeData);
-
-        // Add the new scribe data to the existing scribes data
-        $existingData = $staffAllocation->scribes;
-
-        // Dump the existing scribes data to inspect it
-        // dd('Existing Scribes Data:', $existingData);
-
-        // If no existing scribes data, initialize it with the new data
-        if (is_null($existingData)) {
-            $existingData = [$newScribeData];
-        } else {
-            // If existing scribes data exists, add the new scribe data
-            $existingData[] = $newScribeData;
+        // Populate scribe data with reg_no and scribes
+        foreach ($validated['reg_no'] as $index => $regNo) {
+            $newScribeData['data'][] = [
+                'reg_no' => $regNo,
+                'scribe' => $validated['scribes'][$index] ?? null // Handle missing scribe index safely
+            ];
         }
 
-        // Dump the updated data before saving to inspect it
-        // dd('Updated Data Before Save:', $existingData);
+        // Add new scribe data to the existing data (if any)
+        $existingData = $staffAllocation->scribes ?: [];  // Assume the field is an array
+
+        // Add new data to the existing scribes
+        $existingData[] = $newScribeData;
 
         // Save the updated scribes data back to the record
-        $staffAllocation->scribes = $existingData;
+        $staffAllocation->scribes = $existingData; // Storing as an array or object directly
         $staffAllocation->save();
 
-        // Return a success message after updating
+        // Return a success message
         return redirect()->back()->with('success', 'Scribe details added successfully.');
     }
+
+
 
     public function updateCIAssistantDetails(Request $request, $examId, $examDate, $ciId)
     {

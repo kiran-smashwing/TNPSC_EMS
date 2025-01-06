@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'District Collectorate')
+@section('title', 'Charted Vehicle Routes')
 
 @section('content')
     @push('styles')
@@ -158,9 +158,9 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="d-sm-flex align-items-center justify-content-between">
-                                <h5 class="mb-3 mb-sm-0">Route View</h5>
+                                <h5 class="mb-3 mb-sm-0">Charted Vehicle Route View</h5>
                                 <div>
-                                    <a href="{{ route('charted-vehicle-routes.create', $examId) }}"
+                                    <a href="{{ route('charted-vehicle-routes.create') }}"
                                         class="btn btn-outline-success">Add Route</a>
                                 </div>
                             </div>
@@ -168,27 +168,17 @@
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
                             <form id="filterForm" class="mb-3" method="GET"
-                                action="{{ route('exam-materials-route.index', $examId) }}">
+                                action="#">
                                 <div class="filter-item">
                                     <select class="form-select" id="centerCodeFilter" name="centerCode">
                                         <option value="">Select Center</option>
-                                        @foreach ($centers as $center)
-                                            <option value="{{ $center->center_code }}"
-                                                {{ request('centerCode') == $center->center_code ? 'selected' : '' }}>
-                                                {{ $center->center_code }} - {{ $center->center_name }}
-                                            </option>
-                                        @endforeach
+                                      
                                     </select>
                                 </div>
                                 <div class="filter-item">
                                     <select class="form-select" id="examDateFilter" name="examDate">
                                         <option value="">Select Exam Date</option>
-                                        @foreach ($examDates as $examDate)
-                                            <option value="{{ $examDate }}"
-                                                {{ request('examDate') == $examDate ? 'selected' : '' }}>
-                                                {{ Carbon\Carbon::parse($examDate)->format('d-m-Y') }}
-                                            </option>
-                                        @endforeach
+                                       
                                     </select>
                                 </div>
                                 <div class="btn-container">
@@ -206,58 +196,36 @@
                                 width="100%">
                                 <thead>
                                     <tr>
-                                        <th>route no</th>
-                                        <th>Center code</th>
-                                        <th>Exam Date</th>
-                                        <th>Halls</th>
-                                        <th>Driver name</th>
-                                        <th>Driver licenese no</th>
-                                        <th>Driver mobile no</th>
-                                        <th>Vehicle no</th>
-                                        @if (session('auth_role') == 'district' && $user->district_code != '01')
-                                            <th>Mobile team staff</th>
-                                            <th>Mobile team mobile no</th>
-                                        @else
-                                            <th>Department official</th>
-                                            <th>Department official mobile no</th>
-                                        @endif
+                                        <th>Route no</th>
+                                        <th>Exam Notification</th>
+                                        <th>Vehicle No</th>
+                                        <th>OTL Locks</th>
+                                        <th>GPS Locks</th>
+                                        <th>District</th>                                        
                                         {{-- <th>Mobile team staff</th>
                                         <th>Mobile team mobile no</th> --}}
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-
                                 <tbody>
-                                    @foreach ($groupedRoutes as $route)
-                                        @php
-                                            // dd($route);
-                                        @endphp
-                                        <tr>
-                                            <td>{{ $route['route_no'] }}</td>
-                                            <td>{{ $route['center_code'] }}</td>
-                                            <td>{{ Carbon\Carbon::parse($route['exam_date'])->format('d-m-Y') }}</td>
-                                            <td>{{ $route['halls'] }}</td>
-                                            <td>{{ $route['driver_name'] }}</td>
-                                            <td>{{ $route['driver_license'] }}</td>
-                                            <td>{{ $route['driver_phone'] }}</td>
-                                            <td>{{ $route['vehicle_no'] }}</td>
-                                            @if (session('auth_role') == 'district' && $user->district_code != '01')
-                                            <td>{{ $route['mobileteam']->mobile_name ?? 'mobile-team' }} </td>
-                                                <td>{{ $route['mobileteam']->mobile_phone ?? 'mobile-team' }}</td>
-                                            @else
-                                                <td>{{ $route['mobileteam']->dept_off_name ?? '' }}</td>
-                                                <td>{{ $route['mobileteam']->dept_off_phone ?? '' }}</td>
-                                            @endif
-                                            <td>
-                                                <a href="{{ route('exam-materials-route.edit', $route['id']) }}"
-                                                    class="avtar avtar-xs btn-light-success"><i
-                                                        class="ti ti-edit f-20"></i></a>
-                                                <a href="{{ route('exam-materials-route.view', $route['id']) }}"
-                                                    class="avtar avtar-xs btn-light-success"><i
-                                                        class="ti ti-eye  f-20"></i></a>
-                                            </td>
-                                        </tr>
-                                    @endforeach
+                                        @foreach ($routes as $route)
+                                            <tr>
+                                                <td>{{ $route->route_no }}</td>
+                                                <td>{{ $route->exam_notifications }}</td>
+                                                <td>{{ $route->charted_vehicle_no }}</td>
+                                                <td>{{ is_array($route->otl_locks) ? implode(', ', $route->otl_locks) : $route->otl_locks }}</td>
+                                                <td>{{ is_array($route->gps_locks) ? implode(', ', $route->gps_locks) : $route->gps_locks }}</td>                                                
+                                                <td> {{ $route->district_codes }}</td>
+                                                <td>
+                                                    <a href="{{ route('charted-vehicle-routes.edit', $route['id']) }}"
+                                                        class="avtar avtar-xs btn-light-success"><i
+                                                            class="ti ti-edit f-20"></i></a>
+                                                    <a href="{{ route('charted-vehicle-routes.view', $route['id']) }}"
+                                                        class="avtar avtar-xs btn-light-success"><i
+                                                            class="ti ti-eye  f-20"></i></a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
                                 </tbody>
 
                             </table>

@@ -1164,7 +1164,7 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>view</a>
-                                                        <a href="{{ route('exam-materials-route.index', $session->exam_main_no) }}"
+                                                        <a href="{{ route('charted-vehicle-routes.index') }}"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-map mx-1"></i>Create Route</a>
 
@@ -2486,7 +2486,7 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-plus mx-1"></i>Add</a>
-                                                        <a href="{{ route('download.report') }}"
+                                                        <a href="#"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-download mx-1"></i>Download</a>
                                                     </div>
@@ -2549,7 +2549,7 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-plus mx-1"></i>Add</a>
-                                                        <a href="{{ route('download.utilireport') }}"
+                                                        <a href="#"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-download mx-1"></i>Download</a>
                                                     </div>

@@ -52,7 +52,6 @@ use App\Http\Controllers\BundlePackagingController;
 use App\Http\Controllers\ChartedVehicleRoutesController;
 
 //PDF
-Route::get('/ci-consolidate-report', [CIConsolidateController::class, 'generateReport'])->name('download.report');
 //center_attenance_report
 Route::get('/attendance-report', [AttendanceReportController::class, 'generateAttendanceReport'])->name('download.attendanceReport');
 //district_attenance_report
@@ -483,8 +482,8 @@ Route::prefix('exam-materials-route')->group(function () {
 //ChartedVehicleRoutesController Route::prefix('charted-vehicle-routes')->group(function(){
 Route::prefix('charted-vehicle-routes')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
-        Route::get('/{examId}', [ChartedVehicleRoutesController::class, 'index'])->name('charted-vehicle-routes.index');
-        Route::get('/create/{examId}', [ChartedVehicleRoutesController::class, 'createRoute'])->name('charted-vehicle-routes.create');
+        Route::get('/', [ChartedVehicleRoutesController::class, 'index'])->name('charted-vehicle-routes.index');
+        Route::get('/create', [ChartedVehicleRoutesController::class, 'createRoute'])->name('charted-vehicle-routes.create');
         Route::get('/edit/{Id}', [ChartedVehicleRoutesController::class, 'editRoute'])->name('charted-vehicle-routes.edit');
         Route::post('/store', [ChartedVehicleRoutesController::class, 'storeRoute'])->name('charted-vehicle-routes.store');
         Route::put('/update/{Id}', [ChartedVehicleRoutesController::class, 'updateRoute'])->name('charted-vehicle-routes.update');

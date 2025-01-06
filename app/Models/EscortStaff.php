@@ -9,6 +9,8 @@ class EscortStaff extends Model
 {
     use HasFactory;
 
+    protected $table = 'escort_staffs';
+
     protected $fillable = [
         'charted_vehicle_id',
         'district_code',
@@ -21,5 +23,10 @@ class EscortStaff extends Model
         'si_details' => 'json',
         'revenue_staff_details' => 'json'
     ];
+    
+    public function chartedVehicleRoute()
+    {
+        return $this->belongsTo(ChartedVehicleRoute::class, 'charted_vehicle_id', 'id');
+    }
 }
 

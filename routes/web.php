@@ -443,8 +443,6 @@ Route::prefix('bundle-packaging')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
 
         Route::get('/ci-bundlepackaging/{examId}/{exam_date}/{exam_session}', [BundlePackagingController::class, 'ciBundlepackagingView']) ->name('ci.bundlepackaging.view');
-
-        Route::get('/ci-bundlepackaging/{examId}/{exam_date}', [BundlePackagingController::class, 'ciBundlepackagingView'])->name('ci.bundlepackaging.view');
         Route::get('/ci-to-mobileteam-bundle-packaging/{examId}/{examDate}', [BundlePackagingController::class, 'CItoMobileTeam'])->name('bundle-packaging.ci-to-mobileteam');
         Route::get('/mobileteam-to-district-bundle-packaging/{examId}/{examDate}', [BundlePackagingController::class, 'MobileTeamtoDistrict'])->name('bundle-packaging.mobileteam-to-district');
 
@@ -489,6 +487,9 @@ Route::prefix('charted-vehicle-routes')->group(function () {
         Route::put('/update/{Id}', [ChartedVehicleRoutesController::class, 'updateRoute'])->name('charted-vehicle-routes.update');
         Route::get('/view/{Id}', [ChartedVehicleRoutesController::class, 'viewRoute'])->name('charted-vehicle-routes.view');
         Route::post('/get-districts-for-exam', [ChartedVehicleRoutesController::class, 'getDistrictsForExamIDs'])->name('charted-vehicle-routes.get-districts-for-exam');
+        Route::get('/downward-journey-routes', [ChartedVehicleRoutesController::class, 'downwardJourneyRoutes'])->name('charted-vehicle-routes.downward-journey-routes');
+        Route::get('/scan-trunk-boxes/{Id}', [ChartedVehicleRoutesController::class, 'scanTrunkboxes'])->name('scanTrunkboxes');
+
     });
 });
 

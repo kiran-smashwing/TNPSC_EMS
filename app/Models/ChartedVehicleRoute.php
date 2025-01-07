@@ -14,6 +14,7 @@ class ChartedVehicleRoute extends Model
         'exam_id',
         'charted_vehicle_no',
         'driver_details',
+        'otl_locks',
         'gps_locks',
         'pc_details',
         'escort_vehicle_details'

@@ -331,15 +331,14 @@
                                                                         name="escortstaffs[{{ $index }}][tnpsc_staff]"
                                                                         class="form-control" required>
                                                                         <option disabled>Select TNPSC Staff</option>
-                                                                        <option value="Staff1"
-                                                                            {{ $escortStaff->tnpsc_staff_id == 'Staff1' ? 'selected' : '' }}>
-                                                                            Staff1</option>
-                                                                        <option value="Staff2"
-                                                                            {{ $escortStaff->tnpsc_staff_id == 'Staff2' ? 'selected' : '' }}>
-                                                                            Staff2</option>
-                                                                        <option value="Staff3"
-                                                                            {{ $escortStaff->tnpsc_staff_id == 'Staff3' ? 'selected' : '' }}>
-                                                                            Staff3</option>
+                                                                        @foreach ($tnpscStaffs as $tnpscStaff)
+                                                                            <option
+                                                                                value="{{ $tnpscStaff->dept_off_id }}" {{ $tnpscStaff->dept_off_id == $escortStaff->tnpsc_staff_id ? 'selected' : '' }}>
+                                                                                {{ $tnpscStaff->dept_off_name }} -
+                                                                                {{ $tnpscStaff->role->role_department }}
+                                                                                {{ $tnpscStaff->role->role_name }}
+                                                                            </option>
+                                                                        @endforeach
                                                                     </select> </div>
                                                             </div>
                                                             <div class="col-sm-6">
@@ -477,9 +476,9 @@
                     select.innerHTML = '<option disabled>Select District</option>';
                     districts.forEach(district => {
                         const option = document.createElement('option');
-                        option.value = district.district_id;
+                        option.value = district.district_code;
                         option.textContent = district.district_name;
-                        if (district.district_id == selectedDistrict) {
+                        if (district.district_code == selectedDistrict) {
                             option.selected = true;
                         }
                         select.appendChild(option);

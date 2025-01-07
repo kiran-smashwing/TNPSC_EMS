@@ -3,9 +3,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DepartmentOfficial;
 use App\Models\ExamConfirmedHalls;
 use App\Models\ExamMaterialRoutes;
 use App\Models\ExamMaterialsData;
+use App\Models\ExamTrunkBoxOTLData;
 use Illuminate\Http\Request;
 use App\Models\ChartedVehicleRoute;
 use App\Models\EscortStaff;
@@ -36,8 +38,8 @@ class ChartedVehicleRoutesController extends Controller
     {
         // Get all exams available
         $exams = Currentexam::get();
-        // dd($districts);
-        return view('my_exam.Charted-Vehicle.create', compact('exams'));
+        $tnpscStaffs = DepartmentOfficial::get();
+        return view('my_exam.Charted-Vehicle.create', compact('exams', 'tnpscStaffs'));
     }
 
     public function storeRoute(Request $request)
@@ -107,45 +109,27 @@ class ChartedVehicleRoutesController extends Controller
     }
 
     public function editRoute(Request $request, $id)
-    {   
+    {
         $route = ChartedVehicleRoute::with('escortstaffs')->findOrFail($id);
-        // dd($route);
+        $tnpscStaffs = DepartmentOfficial::get();
         $exams = Currentexam::get();
-       return view('my_exam.Charted-Vehicle.edit', compact('route', 'exams'));
+        return view('my_exam.Charted-Vehicle.edit', compact('route', 'exams', 'tnpscStaffs'));
     }
     public function updateRoute(Request $request, $id)
     {
         $route = ChartedVehicleRoute::findOrFail($id);
 
-        $request->validate([
-            'route_no' => 'required|string|max:255',
-            'exam_id' => 'required|array',
-            'driver_name' => 'required|string|max:255',
-            'driver_licence_no' => 'required|string|max:255',
-            'phone' => 'required|string|max:255',
-            'vehicle_no' => 'required|string|max:255',
-            'otl_locks' => 'required|array',
-            'gps_lock' => 'required|array',
-            'police_constable' => 'required|string|max:255',
-            'police_constable_phone' => 'required|string|max:255',
-            'escort_vehicle_no' => 'required|string|max:255',
-            'escort_driver_name' => 'required|string|max:255',
-            'escort_driver_licence_no' => 'required|string|max:255',
-            'escort_driver_phone' => 'required|string|max:255',
-            'escortstaffs' => 'required|array'
-        ]);
-
         // Update route details
         $route->update([
             'route_no' => $request->route_no,
-            'exam_id' =>$request->exam_id,
+            'exam_id' => $request->exam_id,
             'charted_vehicle_no' => $request->vehicle_no,
             'driver_details' => [
                 'name' => $request->driver_name,
                 'licence_no' => $request->driver_licence_no,
                 'phone' => $request->phone
             ],
-            'gps_locks' =>$request->gps_lock,
+            'gps_locks' => $request->gps_locks,
             'otl_locks' => $request->otl_locks,
             'pc_details' => [
                 'name' => $request->police_constable,
@@ -182,11 +166,16 @@ class ChartedVehicleRoutesController extends Controller
             ]);
         }
 
-        return redirect()->route('exam-materials-route.index')->with('success', 'Charted Vehicle Route updated successfully.');
+        return redirect()->back()
+            ->with('success', 'Charted Vehicle Route updated successfully.');
     }
-    public function viewRoute(Request $request, $Id)
-    {
 
+    public function viewRoute(Request $request, $id)
+    {
+        $route = ChartedVehicleRoute::with('escortstaffs')->findOrFail($id);
+        $exams = Currentexam::get();
+        $tnpscStaffs = DepartmentOfficial::get();
+        return view('my_exam.Charted-Vehicle.view', compact('route', 'exams', 'tnpscStaffs'));
     }
     public function getDistrictsForExamIDs(Request $request)
     {
@@ -207,4 +196,57 @@ class ChartedVehicleRoutesController extends Controller
         return response()->json($response);
     }
 
+    public function downwardJourneyRoutes(Request $request)
+    {
+        $user = $request->get('auth_user');
+
+        // $routes = ChartedVehicleRoute::with(['escortstaffs'])->get();
+
+        $routes = ChartedVehicleRoute::with([
+            'escortstaffs' => function ($query) use ($user) {
+                $query->where('tnpsc_staff_id', $user->dept_off_id);
+            }
+        ])
+            ->whereHas('escortstaffs', function ($query) use ($user) {
+                $query->where('tnpsc_staff_id', $user->dept_off_id);
+            })
+            ->get();
+
+        // Fetching exam notifications 
+        foreach ($routes as $route) {
+            $examIds = $route->exam_id; // Assuming this is how you fetch the exam IDs array 
+            $exams = Currentexam::whereIn('exam_main_no', $examIds)->get();
+            $route->exam_notifications = $exams->pluck('exam_main_notification')->implode(', ');
+        }
+        // Fetching district codes 
+        foreach ($routes as $route) {
+            $districtCodes = $route->escortstaffs->pluck('district_code')->unique()->toArray();
+            $route->district_codes = implode(', ', $districtCodes);
+        }
+
+        return view('my_exam.Charted-Vehicle.downward-journey-routes', compact('routes'));
+    }
+    public function scanTrunkboxes(Request $request, $id)
+    {
+        $user = $request->get('auth_user');
+
+        // Fetch the route by ID and filter escortstaffs based on user
+        $route = ChartedVehicleRoute::where('id', $id) // Filter by charted_vehicle_id
+            ->with([
+                'escortstaffs' => function ($query) use ($user) {
+                    $query->where('tnpsc_staff_id', $user->dept_off_id);
+                }
+            ])
+            ->whereHas('escortstaffs', function ($query) use ($user) {
+                $query->where('tnpsc_staff_id', $user->dept_off_id);
+            })
+            ->first(); // Use first() since you're fetching by a specific ID
+        
+        // Fetching trunkbox data for this user
+        // $trunkboxData = ExamTrunkBoxOTLData::where()
+        // dd($route);
+        $exams = Currentexam::get();
+        $tnpscStaffs = DepartmentOfficial::get();
+        return view('my_exam.Charted-Vehicle.scan-trunkbox', compact('route', 'exams', 'tnpscStaffs'));
+    }
 }

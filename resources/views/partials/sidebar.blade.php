@@ -255,6 +255,27 @@
                 </a>
             </li>
             <li class="pc-item">
+                <a href="{{ route('charted-vehicle-routes.index') }}" class="pc-link">
+                    <span class="pc-micon">
+                        <svg class="pc-icon">
+                            <use xlink:href="#custom-data"></use>
+                        </svg>
+                    </span>
+                    <span class="pc-mtext">Charted Vehicle Routes</span>
+                </a>
+            </li>
+            <li class="pc-item">
+                <a href="{{ route('charted-vehicle-routes.downward-journey-routes') }}" class="pc-link">
+                    <span class="pc-micon">
+                        <svg class="pc-icon">
+                            <use xlink:href="#custom-fatrows"></use>
+                        </svg>
+                    </span>
+                    <span class="pc-mtext">Downward Journey Routes</span>
+                </a>
+            </li>
+
+            <li class="pc-item">
                 <a href="{{ route('completed-exam') }}" class="pc-link">
                     <span class="pc-micon">
                         <svg class="pc-icon">

@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\ExamMaterialsScan;
 use App\Models\ExamMaterialsData;
+use App\Models\Currentexam;
 use App\Services\ExamAuditService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-
 use Illuminate\Http\Request;
 
 class BundlePackagingController extends Controller
@@ -17,7 +17,7 @@ class BundlePackagingController extends Controller
         //apply the auth middleware to the entire controller
         $this->middleware('auth.multi');
     }
-    public function ciBundlepackagingView(Request $request, $examId, $exam_date,$exam_session)
+    public function ciBundlepackagingView(Request $request, $examId, $exam_date, $exam_session)
     {
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
@@ -25,15 +25,6 @@ class BundlePackagingController extends Controller
 
         // Define the category mapping
         $categoryLabels = [
-            'I1' => 'Bundle A1',
-            'I2' => 'Bundle A2',
-            'R1' => 'Bundle A',
-            'I3' => 'Bundle B1',
-            'I4' => 'Bundle B2',
-            'I5' => 'Bundle B3',
-            'I6' => 'Bundle B4',
-            'I7' => 'Bundle B5',
-            'R2' => 'Bundle B',
             'R3' => 'Bundle I',
             'R4' => 'Bundle II',
             'R5' => 'Bundle C',
@@ -44,7 +35,7 @@ class BundlePackagingController extends Controller
                 ->where('ci_id', $user->ci_id)
                 ->whereIn('category', array_keys($categoryLabels))
                 ->whereDate('exam_date', $exam_date)
-                ->where('exam_session',$exam_session)
+                ->where('exam_session', $exam_session)
             : ExamMaterialsData::where('exam_id', $examId)
                 ->whereIn('category', array_keys($categoryLabels));
 
@@ -66,15 +57,6 @@ class BundlePackagingController extends Controller
 
         // Define the category mapping
         $categoryLabels = [
-            'I1' => 'Bundle A1',
-            'I2' => 'Bundle A2',
-            'R1' => 'Bundle A',
-            'I3' => 'Bundle B1',
-            'I4' => 'Bundle B2',
-            'I5' => 'Bundle B3',
-            'I6' => 'Bundle B4',
-            'I7' => 'Bundle B5',
-            'R2' => 'Bundle B',
             'R3' => 'Bundle I',
             'R4' => 'Bundle II',
             'R5' => 'Bundle C',
@@ -130,24 +112,15 @@ class BundlePackagingController extends Controller
         });
         return view('my_exam.BundlePackaging.ci-to-mobileteam-bundle', compact('examMaterials', 'examId', 'examDate', 'totalExamMaterials', 'totalScanned', 'centers'));
     }
-    public function MobileTeamtoDistrict(Request $request, $examId, $examDate)
+    public function MobileTeamtoDistrict(Request $request, $examId)
     {
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
         $user = $guard ? $guard->user() : null;
-        $examDate = Carbon::parse($examDate)->format('Y-m-d');
+        // $examDate = Carbon::parse($examDate)->format('Y-m-d');
 
         // Define the category mapping
         $categoryLabels = [
-            'I1' => 'Bundle A1',
-            'I2' => 'Bundle A2',
-            'R1' => 'Bundle A',
-            'I3' => 'Bundle B1',
-            'I4' => 'Bundle B2',
-            'I5' => 'Bundle B3',
-            'I6' => 'Bundle B4',
-            'I7' => 'Bundle B5',
-            'R2' => 'Bundle B',
             'R3' => 'Bundle I',
             'R4' => 'Bundle II',
             'R5' => 'Bundle C',
@@ -155,8 +128,7 @@ class BundlePackagingController extends Controller
         $query = $role == 'district'
             ? ExamMaterialsData::where('exam_id', $examId)
                 ->where('district_code', $user->district_code)
-                ->whereDate('exam_date', $examDate)
-                ->whereIn('category', ['D1', 'D2'])
+                ->whereIn('category', array_keys($categoryLabels))
             : ExamMaterialsData::where('exam_id', $examId)
                 ->whereIn('category', array_keys($categoryLabels));
 
@@ -166,9 +138,6 @@ class BundlePackagingController extends Controller
         }
         if ($request->has('examDate') && !empty($request->examDate)) {
             $query->whereDate('exam_date', $request->examDate);
-        }
-        if ($request->has('examSession') && !empty($request->examSession)) {
-            $query->where('exam_session', $request->examSession);
         }
         $examMaterials = $query
             ->with([
@@ -181,8 +150,9 @@ class BundlePackagingController extends Controller
         $totalExamMaterials = $examMaterials->count();
         //total number of exam materials scanned by the user
         $totalScanned = $examMaterials->filter(function ($examMaterial) {
-            return $examMaterial->examMaterialsScan;
-        })->count();
+            return $examMaterial->examMaterialsScan &&
+            $examMaterial->examMaterialsScan->district_scanned_at;
+                })->count();
         //get center code for the user 
         $centers = ExamMaterialsData::where('exam_id', $examId)
             ->where('district_code', $user->district_code)
@@ -190,11 +160,65 @@ class BundlePackagingController extends Controller
             ->groupBy('centers.center_code', 'centers.center_name')
             ->select('centers.center_name', 'centers.center_code')
             ->get();
-
+        // Get current exam session details
+        $session = Currentexam::with('examsession')->where('exam_main_no', $examId)->first();
+        $examDates = $session->examsession->groupBy(function ($item) {
+            return Carbon::parse($item->exam_sess_date)->format('d-m-Y');
+        })->keys();
         // Add label mapping to the data
         $examMaterials->each(function ($material) use ($categoryLabels) {
             $material->bundle_label = $categoryLabels[$material->category] ?? 'Unknown Bundle';
         });
-        return view('my_exam.BundlePackaging.ci-to-mobileteam-bundle', compact('examMaterials', 'examId', 'examDate', 'totalExamMaterials', 'totalScanned', 'centers'));
+        return view('my_exam.BundlePackaging.mobileteam-to-disitrict-bundle', compact('examMaterials', 'examId', 'totalExamMaterials', 'totalScanned', 'centers', 'examDates'));
+    }
+    public function MobileTeamtoCenter(Request $request, $examId)
+    {
+        $role = session('auth_role');
+        $guard = $role ? Auth::guard($role) : null;
+        $user = $guard ? $guard->user() : null;
+        // $examDate = Carbon::parse($examDate)->format('Y-m-d');
+
+        // Define the category mapping
+        $categoryLabels = [
+            'R3' => 'Bundle I',
+            'R4' => 'Bundle II',
+            'R5' => 'Bundle C',
+        ];
+        $query = $role == 'district'
+            ? ExamMaterialsData::where('exam_id', $examId)
+                ->where('center_code', $user->center_code)
+                ->whereIn('category', array_keys($categoryLabels))
+            : ExamMaterialsData::where('exam_id', $examId)
+                ->whereIn('category', array_keys($categoryLabels));
+
+        // Apply filters 
+        if ($request->has('examDate') && !empty($request->examDate)) {
+            $query->whereDate('exam_date', $request->examDate);
+        }
+        $examMaterials = $query
+            ->with([
+                'center',
+                'examMaterialsScan'
+            ])
+            ->get();
+
+        //total number of exam materials found for this user
+        $totalExamMaterials = $examMaterials->count();
+        //total number of exam materials scanned by the user
+        $totalScanned = $examMaterials->filter(function ($examMaterial) {
+            return $examMaterial->examMaterialsScan &&
+                $examMaterial->examMaterialsScan->center_scanned_at;
+        })->count();
+
+        // Get current exam session details
+        $session = Currentexam::with('examsession')->where('exam_main_no', $examId)->first();
+        $examDates = $session->examsession->groupBy(function ($item) {
+            return Carbon::parse($item->exam_sess_date)->format('d-m-Y');
+        })->keys();
+        // Add label mapping to the data
+        $examMaterials->each(function ($material) use ($categoryLabels) {
+            $material->bundle_label = $categoryLabels[$material->category] ?? 'Unknown Bundle';
+        });
+        return view('my_exam.BundlePackaging.mobileteam-to-center-bundle', compact('examMaterials', 'examId', 'totalExamMaterials', 'totalScanned', 'examDates'));
     }
 }

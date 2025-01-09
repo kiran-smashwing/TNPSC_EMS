@@ -490,6 +490,7 @@ Route::prefix('charted-vehicle-routes')->group(function () {
         Route::post('/get-districts-for-exam', [ChartedVehicleRoutesController::class, 'getDistrictsForExamIDs'])->name('charted-vehicle-routes.get-districts-for-exam');
         Route::get('/downward-journey-routes', [ChartedVehicleRoutesController::class, 'downwardJourneyRoutes'])->name('charted-vehicle-routes.downward-journey-routes');
         Route::get('/scan-trunk-boxes/{Id}', [ChartedVehicleRoutesController::class, 'scanTrunkboxes'])->name('scanTrunkboxes');
+        Route::get('/generate-trunkbox-order/{Id}', [ChartedVehicleRoutesController::class, 'generateTrunkboxOrder'])->name('generateTrunkboxOrder');
     });
 });
 

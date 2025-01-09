@@ -11,6 +11,7 @@ use App\Models\ExamTrunkBoxOTLData;
 use Illuminate\Http\Request;
 use App\Models\ChartedVehicleRoute;
 use App\Models\EscortStaff;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Currentexam;
 class ChartedVehicleRoutesController extends Controller
@@ -230,23 +231,146 @@ class ChartedVehicleRoutesController extends Controller
     {
         $user = $request->get('auth_user');
 
-        // Fetch the route by ID and filter escortstaffs based on user
-        $route = ChartedVehicleRoute::where('id', $id) // Filter by charted_vehicle_id
-            ->with([
-                'escortstaffs' => function ($query) use ($user) {
-                    $query->where('tnpsc_staff_id', $user->dept_off_id);
-                }
-            ])
-            ->whereHas('escortstaffs', function ($query) use ($user) {
-                $query->where('tnpsc_staff_id', $user->dept_off_id);
-            })
-            ->first(); // Use first() since you're fetching by a specific ID
-        
-        // Fetching trunkbox data for this user
-        // $trunkboxData = ExamTrunkBoxOTLData::where()
-        // dd($route);
+        // Fetch the route with all escort staff for the given charted vehicle ID and user
+        $routes = DB::table('charted_vehicle_routes as cvr')
+            ->leftJoin('escort_staffs as es', 'cvr.id', '=', 'es.charted_vehicle_id')
+            ->select('cvr.*', 'es.district_code') // Select only required fields
+            ->where('cvr.id', $id) // Filter by charted vehicle route ID
+            ->where('es.tnpsc_staff_id', $user->dept_off_id) // Filter escortstaffs by user
+            ->get(); // Get all matching records
+
+        // Extract unique districts from the routes
+        $districtCodes = $routes->pluck('district_code')->unique();
+
+        // Decode exam IDs (assuming they are consistent across all routes)
+        $examIds = isset($routes[0]) ? json_decode($routes[0]->exam_id, true) : [];
+
+        // Ensure exam IDs are valid
+        if (!is_array($examIds)) {
+            $examIds = [];
+        }
+
+        // Fetch trunk boxes for all exam IDs and districts
+        $trunkBoxes = DB::table('exam_trunkbox_otl_data')
+            ->whereIn('exam_id', $examIds) // Match exam IDs
+            ->whereIn('district_code', $districtCodes) // Match district codes
+            ->get(); // Get all matching trunk boxes
+        // dd($trunkBoxes);
+
+
+
         $exams = Currentexam::get();
         $tnpscStaffs = DepartmentOfficial::get();
-        return view('my_exam.Charted-Vehicle.scan-trunkbox', compact('route', 'exams', 'tnpscStaffs'));
+        return view('my_exam.Charted-Vehicle.scan-trunkbox', compact('trunkBoxes', 'exams', 'tnpscStaffs'));
     }
+    public function generateTrunkboxOrder($id)
+    {
+        // Fetch the route with all escort staff for the given charted vehicle ID and user
+        $routes = DB::table('charted_vehicle_routes as cvr')
+            ->leftJoin('escort_staffs as es', 'cvr.id', '=', 'es.charted_vehicle_id')
+            ->select('cvr.*', 'es.district_code') // Select only required fields
+            ->where('cvr.id', $id) // Filter by charted vehicle route ID
+            ->get(); // Get all matching records
+
+        // Extract unique districts from the routes
+        $districtCodes = $routes->pluck('district_code')->unique();
+
+        // Decode exam IDs (assuming they are consistent across all routes)
+        $examIds = isset($routes[0]) ? json_decode($routes[0]->exam_id, true) : [];
+
+        // Ensure exam IDs are valid
+        if (!is_array($examIds)) {
+            $examIds = [];
+        }
+
+        // Fetch trunk boxes for all exam IDs and districts
+        $trunkBoxes = DB::table('exam_trunkbox_otl_data')
+            ->whereIn('exam_id', $examIds) // Match exam IDs
+            ->whereIn('district_code', $districtCodes) // Match district codes
+            ->get(); // Get all matching trunk boxes
+
+        // Group trunk boxes by center_id
+        $groupedByCenter = $trunkBoxes->groupBy('center_code');
+
+        // Sort centers numerically
+        $sortedCenters = $groupedByCenter->sortKeysUsing(function ($keyA, $keyB) {
+            return (int) $keyA <=> (int) $keyB;
+        });
+
+        // Initialize variables
+        $orderedTrunkBoxes = [];
+        $orderCounter = 1; // Start ordering from 1
+
+        foreach ($sortedCenters as $center => $trunkBoxes) {
+            // Randomize the order of trunk boxes within this center
+            $shuffledBoxes = $trunkBoxes->shuffle();
+
+            // Assign new order and append to orderedTrunkBoxes
+            foreach ($shuffledBoxes as $trunkBox) {
+                $trunkBox->load_order = $orderCounter++;
+                $orderedTrunkBoxes[] = (array) $trunkBox; // Convert to array for bulk insert/update
+            }
+        }
+
+        // Update the trunk boxes in the database
+        DB::table('exam_trunkbox_otl_data')
+            ->upsert($orderedTrunkBoxes, ['id'], ['load_order']);
+
+        // Prepare CSV data
+        $csvData = [];
+        $csvData[] = ['Center Code', 'District Code', 'Hall Code', 'Trunk Box Code', 'Load Order'];
+
+        foreach ($orderedTrunkBoxes as $box) {
+            $csvData[] = [
+                $box['center_code'] ?? '',
+                $box['district_code'] ?? '',
+                $box['hall_code'] ?? '',
+                $box['trunk_box_code'] ?? '',
+                $box['load_order'] ?? '',
+            ];
+        }
+
+        // File storage setup
+        $fileName = 'trunkbox_order_' . date('Y_m_d_H_i_s') . '.csv';
+        $filePath = storage_path("app/public/{$fileName}");
+
+        // Open the file for writing
+        $handle = fopen($filePath, 'w');
+
+        // Add column headers
+        fputcsv($handle, ['Load Order' ,'Center Code', 'District Code', 'Hall Code', 'Trunk Box Code' ]);
+
+        // Loop through the trunk boxes and write rows
+        foreach ($orderedTrunkBoxes as $box) {
+            // Prepare the row with tab prefixes to preserve formatting
+            $row = array_map(function ($value) {
+                return "\t" . $value; // Adding a tab to force Excel to treat as text
+            }, [
+                $box['load_order'],
+                $box['center_code'],
+                $box['district_code'],
+                $box['hall_code'],
+                $box['trunkbox_qr_code']
+            ]);
+
+            // Write the row to the CSV file
+            fputcsv($handle, $row);
+        }
+
+        // Close the file
+        fclose($handle);
+
+        // Cleanup old files in the public storage directory
+        $files = glob(storage_path('app/public/trunkbox_order_*.csv'));
+        $now = time();
+        foreach ($files as $file) {
+            if (filemtime($file) < $now - 3600) { // Files older than 1 hour
+                unlink($file);
+            }
+        }
+
+        // Return session with the link to the file
+        return redirect()->back()->with('success', 'Trunk boxes have been ordered successfully. <a href="' . asset("storage/{$fileName}") . '" target="_blank">Download CSV</a>');
+    }
+
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ExamMaterialsScan;
 use App\Models\ExamMaterialsData;
 use App\Models\Currentexam;
+use App\Models\ExamTrunkBoxOTLData;
 use App\Services\ExamAuditService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -151,8 +152,8 @@ class BundlePackagingController extends Controller
         //total number of exam materials scanned by the user
         $totalScanned = $examMaterials->filter(function ($examMaterial) {
             return $examMaterial->examMaterialsScan &&
-            $examMaterial->examMaterialsScan->district_scanned_at;
-                })->count();
+                $examMaterial->examMaterialsScan->district_scanned_at;
+        })->count();
         //get center code for the user 
         $centers = ExamMaterialsData::where('exam_id', $examId)
             ->where('district_code', $user->district_code)
@@ -170,6 +171,78 @@ class BundlePackagingController extends Controller
             $material->bundle_label = $categoryLabels[$material->category] ?? 'Unknown Bundle';
         });
         return view('my_exam.BundlePackaging.mobileteam-to-disitrict-bundle', compact('examMaterials', 'examId', 'totalExamMaterials', 'totalScanned', 'centers', 'examDates'));
+    }
+    public function scanDistrictExamMaterials($examId, Request $request)
+    {
+        // Validate request
+        $request->validate([
+            'qr_code' => 'required|string',
+        ]);
+
+        // Get authenticated user
+        $role = session('auth_role');
+        $guard = $role ? Auth::guard($role) : null;
+        $user = $guard ? $guard->user() : null;
+
+        // Check authorization
+        if ($role !== 'district' || !$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found or not authorized'
+            ], 403); // 403 is for authorization errors
+        }
+
+        // Find exam materials
+        $examMaterials = ExamMaterialsData::where([
+            'exam_id' => $examId,
+            'district_code' => $user->district_code,
+            'qr_code' => $request->qr_code
+        ])->first();
+
+        if (!$examMaterials) {
+            $examMaterials = ExamMaterialsData::where([
+                'exam_id' => $examId,
+                'qr_code' => $request->qr_code
+            ])
+                ->with('center')
+                ->with('district')
+                ->first();
+            $msg = "This Qr Code belongs to the following District : " . $examMaterials->district->district_name . " , Center : " . $examMaterials->center->center_name . " , Hall Code: " . $examMaterials->hall_code;
+            return response()->json([
+                'status' => 'error',
+                'message' => $msg
+            ], 404);
+        }
+        //find trunk box for this exm materials
+        $trunkBox = ExamTrunkBoxOTLData::where([
+            'exam_id' => $examId,
+            'district_code' => $user->district_code,
+            'center_code' => $examMaterials->center_code,
+            'hall_code' => $examMaterials->hall_code,
+        ])->first();
+            
+        // Check if already scanned
+        if (
+            ExamMaterialsScan::where([
+                'exam_material_id' => $examMaterials->id,
+            ])->exists()
+        ) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'QR code has already been scanned, Place this bundle in this trunk box: '.$trunkBox->trunkbox_qr_code .'',
+            ], 409);
+        }
+
+        // Create scan record
+        ExamMaterialsScan::create([
+            'exam_material_id' => $examMaterials->id,
+            'district_scanned_at' => now()
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'QR code scanned successfully, Place this bundle in this trunk box:'.$trunkBox->trunkbox_qr_code .'',
+        ], 200);
     }
     public function MobileTeamtoCenter(Request $request, $examId)
     {

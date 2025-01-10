@@ -446,7 +446,7 @@ Route::prefix('bundle-packaging')->group(function () {
         Route::get('/ci-to-mobileteam-bundle-packaging/{examId}/{examDate}', [BundlePackagingController::class, 'CItoMobileTeam'])->name('bundle-packaging.ci-to-mobileteam');
         Route::get('/mobileteam-to-district-bundle-packaging/{examId}', [BundlePackagingController::class, 'MobileTeamtoDistrict'])->name('bundle-packaging.mobileteam-to-district');
         Route::get('/mobileteam-to-center/{examId}', [BundlePackagingController::class, 'MobileTeamtoCenter'])->name('bundle-packaging.mobileteam-to-center');
-
+        Route::post('/scan-disitrct-exam-materials/{examId}', [BundlePackagingController::class, 'scanDistrictExamMaterials'])->name('bundle-packaging.scan-disitrct-exam-materials');
     });
 });
 //ReceiveExamMaterialsController Route::prefix('receive-exam-materials')->group(function(){
@@ -490,6 +490,7 @@ Route::prefix('charted-vehicle-routes')->group(function () {
         Route::post('/get-districts-for-exam', [ChartedVehicleRoutesController::class, 'getDistrictsForExamIDs'])->name('charted-vehicle-routes.get-districts-for-exam');
         Route::get('/downward-journey-routes', [ChartedVehicleRoutesController::class, 'downwardJourneyRoutes'])->name('charted-vehicle-routes.downward-journey-routes');
         Route::get('/scan-trunk-boxes/{Id}', [ChartedVehicleRoutesController::class, 'scanTrunkboxes'])->name('scanTrunkboxes');
+        Route::post('/scan-dept-staff-trunkboxes', [ChartedVehicleRoutesController::class, 'scanDeptStaffExamMaterials'])->name('charted-vehicle-routes.scan-dept-staff-trunkboxes');
         Route::get('/generate-trunkbox-order/{Id}', [ChartedVehicleRoutesController::class, 'generateTrunkboxOrder'])->name('generateTrunkboxOrder');
     });
 });

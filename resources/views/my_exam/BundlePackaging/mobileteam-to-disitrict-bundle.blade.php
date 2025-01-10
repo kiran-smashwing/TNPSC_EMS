@@ -265,7 +265,7 @@
                 const qrCodeModal = document.getElementById('qrCodeModal');
                 const modalInstance = bootstrap.Modal.getInstance(qrCodeModal);
                 modalInstance.hide();
-                fetch("{{ route('receive-exam-materials.scan-disitrct-exam-materials', $examId) }}", {
+                fetch("{{ route('bundle-packaging.scan-disitrct-exam-materials', $examId) }}", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -312,11 +312,11 @@
                     icon: iconType,
                     title: type.charAt(0).toUpperCase() + type.slice(1),
                     text: message,
-                    timer: 5000, // Hide after 5 seconds
+                    timer: 10000, // Hide after 10 seconds
                     didOpen: () => {
                         setTimeout(() => {
-                            Swal.close(); // Automatically close alert after 5 seconds
-                        }, 5000);
+                            Swal.close(); // Automatically close alert after 10 seconds
+                        }, 10000);
                     }
                 }).then((result) => {
                     window.location.reload(); // Reload the page when "OK" is clicked

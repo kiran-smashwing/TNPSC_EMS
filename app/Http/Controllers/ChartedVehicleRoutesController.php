@@ -8,6 +8,7 @@ use App\Models\ExamConfirmedHalls;
 use App\Models\ExamMaterialRoutes;
 use App\Models\ExamMaterialsData;
 use App\Models\ExamTrunkBoxOTLData;
+use App\Models\ExamTrunkBoxScan;
 use Illuminate\Http\Request;
 use App\Models\ChartedVehicleRoute;
 use App\Models\EscortStaff;
@@ -62,7 +63,6 @@ class ChartedVehicleRoutesController extends Controller
             'escort_driver_licence_no' => 'required|string|max:255',
             'escort_driver_phone' => 'required|string|max:255',
         ]);
-
         $chartedVehicleRoute = ChartedVehicleRoute::create([
             'route_no' => $request->route_no,
             'exam_id' => $request->exam_id,
@@ -105,7 +105,7 @@ class ChartedVehicleRoutesController extends Controller
             ]);
         }
 
-        return redirect()->route('exam-materials-route.store')
+        return redirect()->route('charted-vehicle-routes.index')
             ->with('success', 'Charted Vehicle Route created successfully.');
     }
 
@@ -167,7 +167,7 @@ class ChartedVehicleRoutesController extends Controller
             ]);
         }
 
-        return redirect()->back()
+        return redirect()->route('charted-vehicle-routes.index')
             ->with('success', 'Charted Vehicle Route updated successfully.');
     }
 
@@ -254,14 +254,85 @@ class ChartedVehicleRoutesController extends Controller
         $trunkBoxes = DB::table('exam_trunkbox_otl_data')
             ->whereIn('exam_id', $examIds) // Match exam IDs
             ->whereIn('district_code', $districtCodes) // Match district codes
+            ->orderBy('load_order') // Add ordering by load_order
             ->get(); // Get all matching trunk boxes
         // dd($trunkBoxes);
-
-
-
+        $myroute = ChartedVehicleRoute::where('id', $id)->first();
         $exams = Currentexam::get();
         $tnpscStaffs = DepartmentOfficial::get();
-        return view('my_exam.Charted-Vehicle.scan-trunkbox', compact('trunkBoxes', 'exams', 'tnpscStaffs'));
+        return view('my_exam.Charted-Vehicle.scan-trunkbox', compact('trunkBoxes', 'exams', 'tnpscStaffs','myroute'));
+    }
+    public function scanDeptStaffExamMaterials( Request $request)
+    {
+        // Validate request
+        $request->validate([
+            'qr_code' => 'required|string',
+        ]);
+        dd($request->all());
+
+        // Get authenticated user
+        $role = session('auth_role');
+        $guard = $role ? Auth::guard($role) : null;
+        $user = $guard ? $guard->user() : null;
+
+        // Check authorization
+        if ($role !== 'department_official' || !$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found or not authorized'
+            ], 403); // 403 is for authorization errors
+        }
+
+        // Find exam materials
+        $examMaterials = ExamTrunkBoxOTLData::where([
+            'exam_id' => $examId,
+            'trunkbox_qr_code' => $request->qr_code
+        ])->first();
+
+        if (!$examMaterials) {
+            $examMaterials = ExamMaterialsData::where([
+                'exam_id' => $examId,
+                'qr_code' => $request->qr_code
+            ])
+                ->with('center')
+                ->with('district')
+                ->first();
+            $msg = "This Qr Code belongs to the following District : " . $examMaterials->district->district_name . " , Center : " . $examMaterials->center->center_name . " , Hall Code: " . $examMaterials->hall_code;
+            return response()->json([
+                'status' => 'error',
+                'message' => $msg
+            ], 404);
+        }
+        //find trunk box for this exm materials
+        $trunkBox = ExamTrunkBoxOTLData::where([
+            'exam_id' => $examId,
+            'district_code' => $user->district_code,
+            'center_code' => $examMaterials->center_code,
+            'hall_code' => $examMaterials->hall_code,
+        ])->first();
+            
+        // Check if already scanned
+        if (
+            ExamTrunkBoxScan::where([
+                'exam_material_id' => $examMaterials->id,
+            ])->exists()
+        ) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'QR code has already been scanned, Place this bundle in this trunk box: '.$trunkBox->trunkbox_qr_code .'',
+            ], 409);
+        }
+
+        // Create scan record
+        ExamTrunkBoxScan::create([
+            'exam_material_id' => $examMaterials->id,
+            'district_scanned_at' => now()
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'QR code scanned successfully, Place this bundle in this trunk box:'.$trunkBox->trunkbox_qr_code .'',
+        ], 200);
     }
     public function generateTrunkboxOrder($id)
     {

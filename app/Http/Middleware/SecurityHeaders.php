@@ -33,16 +33,46 @@ class SecurityHeaders
         {
             return is_string($value) && preg_match('/^data:image\/(png|jpeg|jpg);base64,/', $value);
         }
-        foreach ($input as $value) {
-            // Check if the value is a base64 image
-            if (isBase64Image($value)) {
-                continue; // Skip pattern matching for base64 image inputs
+        /**
+         * Recursively check values for prohibited patterns.
+         *
+         * @param mixed $value
+         * @param array $patterns
+         */
+        function checkValue($value, $patterns)
+        {
+            if (is_array($value)) {
+                foreach ($value as $subValue) {
+                    checkValue($subValue, $patterns);
+                }
+                return;
             }
+
             foreach ($patterns as $pattern) {
                 if (is_string($value) && preg_match($pattern, $value)) {
                     abort(403, 'Forbidden');
                 }
             }
+        }
+
+        foreach ($input as $key => $value) {
+            // Decode JSON strings like exam_id and continue processing
+            $decodedValue = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $jsonDecoded = json_decode($decodedValue, true);
+
+            if (is_array($jsonDecoded)) {
+                // Skip direct checks if it's valid JSON; process recursively
+                checkValue($jsonDecoded, $patterns);
+                continue;
+            }
+
+            // Skip Base64 images
+            if (isBase64Image($value)) {
+                continue;
+            }
+
+            // Check plain values
+            checkValue($value, $patterns);
         }
 
         // Add security headers

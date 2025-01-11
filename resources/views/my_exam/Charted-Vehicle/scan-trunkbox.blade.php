@@ -138,8 +138,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                      <h2 class="mb-0"></h2>
-                                                    </div> -->
+                                                          <h2 class="mb-0"></h2>
+                                                        </div> -->
                         </div>
                     </div>
                 </div>
@@ -167,12 +167,11 @@
                         </div>
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
-                            <form id="filterForm" class="mb-3" method="GET"
-                                action="">
+                            <form id="filterForm" class="mb-3" method="GET" action="">
                                 <div class="filter-item">
                                     <select class="form-select" id="centerCodeFilter" name="centerCode">
                                         <option value="">Select Center</option>
-                                       
+
                                     </select>
                                 </div>
                                 <div class="filter-item">
@@ -224,12 +223,17 @@
                                             <td>{{ $trunkbox->hall_code }}</td>
                                             <td>{{ $trunkbox->exam_date }}</td>
                                             <td>{{ $trunkbox->trunkbox_qr_code }}</td>
-                                            <td>{{ $trunkbox->timeStamp ?? 'N/A' }}</td>
+                                            <td>
+                                                @if ( $trunkbox &&  $trunkbox->dept_off_scanned_at)
+                                                    {{ \Carbon\Carbon::parse($trunkbox->dept_off_scanned_at)->format('d-m-Y h:i:s') }}
+                                                @else
+                                                    No Scans
+                                                @endif
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
-
                         </div>
                     </div>
                 </div>
@@ -252,14 +256,15 @@
                 const qrCodeModal = document.getElementById('qrCodeModal');
                 const modalInstance = bootstrap.Modal.getInstance(qrCodeModal);
                 modalInstance.hide();
-                fetch(" ", {
+                fetch("{{ route('scanTrunkboxOrder') }}", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify({
-                            qr_code: data
+                            qr_code: data,
+                            exam_id: '{{ json_encode($myroute->exam_id) }}', // Replace with the actual exam_id value from $myroute->exam_id}}'
                         })
                     })
                     .then(response => response.json())

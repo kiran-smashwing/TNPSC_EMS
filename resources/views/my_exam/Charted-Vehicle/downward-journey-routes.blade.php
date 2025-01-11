@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                      <h2 class="mb-0"></h2>
-                                    </div> -->
+                              <h2 class="mb-0"></h2>
+                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -150,31 +150,9 @@
 
             <!-- [ Main Content ] start -->
             <div class="row">
-                <!-- [ basic-table ] start -->
-                @if (session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {!! session('success') !!}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
 
-                @if (session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
-
-                @if ($errors->any())
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <ul class="mb-0">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
+            </div>
+            <div class="row">
                 <!-- [ basic-table ] start -->
                 <div class="col-xl-12">
                     <div class="card">
@@ -189,17 +167,18 @@
                         </div>
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
-                            <form id="filterForm" class="mb-3" method="GET" action="#">
+                            <form id="filterForm" class="mb-3" method="GET"
+                                action="#">
                                 <div class="filter-item">
                                     <select class="form-select" id="centerCodeFilter" name="centerCode">
                                         <option value="">Select Center</option>
-
+                                      
                                     </select>
                                 </div>
                                 <div class="filter-item">
                                     <select class="form-select" id="examDateFilter" name="examDate">
                                         <option value="">Select Exam Date</option>
-
+                                       
                                     </select>
                                 </div>
                                 <div class="btn-container">
@@ -222,37 +201,31 @@
                                         <th>Vehicle No</th>
                                         <th>OTL Locks</th>
                                         <th>GPS Locks</th>
-                                        <th>District</th>
+                                        <th>District</th>                                        
                                         {{-- <th>Mobile team staff</th>
                                         <th>Mobile team mobile no</th> --}}
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($routes as $route)
-                                        <tr>
-                                            <td>{{ $route->route_no }}</td>
-                                            <td>{{ $route->exam_notifications }}</td>
-                                            <td>{{ $route->charted_vehicle_no }}</td>
-                                            <td>{{ is_array($route->otl_locks) ? implode(', ', $route->otl_locks) : $route->otl_locks }}
-                                            </td>
-                                            <td>{{ is_array($route->gps_locks) ? implode(', ', $route->gps_locks) : $route->gps_locks }}
-                                            </td>
-                                            <td> {{ $route->district_codes }}</td>
-                                            <td>
-                                                <a href="{{ route('charted-vehicle-routes.edit', $route['id']) }}"
-                                                    class="avtar avtar-xs btn-light-success"><i
-                                                        class="ti ti-edit f-20"></i></a>
-                                                <a href="{{ route('charted-vehicle-routes.view', $route['id']) }}"
-                                                    class="avtar avtar-xs btn-light-success"><i
-                                                        class="ti ti-eye  f-20"></i></a>
-                                                <a href="{{ route('generateTrunkboxOrder', $route['id']) }}"
-                                                    class="avtar avtar-xs btn-light-success"
-                                                    title="Generate Trunk Box Order"><i
-                                                        class="ti ti-grip-vertical f-20"></i></a>
-                                            </td>
-                                        </tr>
-                                    @endforeach
+                                        @foreach ($routes as $route)
+                                            <tr>
+                                                <td>{{ $route->route_no }}</td>
+                                                <td>{{ $route->exam_notifications }}</td>
+                                                <td>{{ $route->charted_vehicle_no }}</td>
+                                                <td>{{ is_array($route->otl_locks) ? implode(', ', $route->otl_locks) : $route->otl_locks }}</td>
+                                                <td>{{ is_array($route->gps_locks) ? implode(', ', $route->gps_locks) : $route->gps_locks }}</td>                                                
+                                                <td> {{ $route->district_codes }}</td>
+                                                <td>
+                                                    <a href="{{ route('charted-vehicle-routes.edit', $route['id']) }}"
+                                                        class="avtar avtar-xs btn-light-success"><i
+                                                            class="ti ti-edit f-20"></i></a>
+                                                    <a href="{{ route('scanTrunkboxes', $route['id']) }}"
+                                                        class="avtar avtar-xs btn-light-success"><i
+                                                            class="ti ti-checkbox  f-20"></i></a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
                                 </tbody>
 
                             </table>

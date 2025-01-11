@@ -113,7 +113,7 @@
 <!-- [Body] Start -->
 
 <body data-pc-preset="{{ env('THEME_PRESET', 'preset-8') }}" data-pc-sidebar-caption="true" data-pc-layout="vertical"
-    data-pc-direction="ltr" data-pc-theme_contrast="" data-pc-theme="" data-app-url="{{ url('/') }}">
+    data-pc-direction="ltr" data-pc-theme_contrast="" data-pc-theme="" data-app-url="{{ asset('/') }}">
     <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;">
         <!-- Toasts will be dynamically inserted here -->
     </div>

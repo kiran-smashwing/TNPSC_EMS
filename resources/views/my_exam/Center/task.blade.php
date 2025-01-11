@@ -252,7 +252,7 @@
                     </div>
                 </div>
                 @include('modals.printer-to-treasury')
-                @include('modals.ci-meetingcode-generate')
+                {{-- @include('modals.ci-meetingcode-generate') --}}
                 @include('modals.route-creation')
             </div>
             <!-- [ Main Content ] end -->

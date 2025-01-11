@@ -14,6 +14,7 @@ class ChartedVehicleRoute extends Model
         'exam_id',
         'charted_vehicle_no',
         'driver_details',
+        'otl_locks',
         'gps_locks',
         'pc_details',
         'escort_vehicle_details'
@@ -22,8 +23,15 @@ class ChartedVehicleRoute extends Model
     protected $casts = [
         'exam_id' => 'json',
         'driver_details' => 'json',
+        'otl_locks' => 'json',
         'gps_locks' => 'json',
         'pc_details' => 'json',
         'escort_vehicle_details' => 'json'
     ];
+
+    public function escortstaffs()
+    {
+        return $this->hasMany(EscortStaff::class, 'charted_vehicle_id');
+    }
+
 }

@@ -3,117 +3,50 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DepartmentOfficial;
 use App\Models\ExamConfirmedHalls;
 use App\Models\ExamMaterialRoutes;
 use App\Models\ExamMaterialsData;
+use App\Models\ExamTrunkBoxOTLData;
+use App\Models\ExamTrunkBoxScan;
 use Illuminate\Http\Request;
 use App\Models\ChartedVehicleRoute;
 use App\Models\EscortStaff;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Currentexam;
 class ChartedVehicleRoutesController extends Controller
 {
-    public function index(Request $request, $examId)
+    public function index(Request $request)
     {
+
         $user = $request->get('auth_user');
-        $role = session('auth_role');
-        $district_code = null;
-
-        // Chennai district van duty staff route creation 
-        if (($role == 'headquarters' && $user->role->role_department == 'ID') || $user->district_code == '01') {
-            $district_code = '01';
-            $query = ExamMaterialRoutes::where('exam_id', $examId)
-                ->where('district_code', $district_code)
-                ->with('department_official');
-        } else {
-            $district_code = $user->district_code;
-            $query = ExamMaterialRoutes::where('exam_id', $examId)
-                ->where('district_code', $district_code)
-                ->with('mobileteam');
-        }
-
-        // Apply filters conditionally
-        if ($request->has('centerCode') && !empty($request->centerCode)) {
-            $query->whereJsonContains('center_code', $request->centerCode);
-        }
-        if ($request->has('examDate') && !empty($request->examDate)) {
-            $examDate = \DateTime::createFromFormat('d-m-Y', $request->examDate)->format('Y-m-d');
-            $query->whereDate('exam_date', $examDate);
-        }
-
-        // Execute the query and fetch results
-        $routes = $query->get();
-
-        // Prepare data without center-wise separation
-        $routeData = [];
+        $routes = ChartedVehicleRoute::with(['escortstaffs'])->get();
+        // Fetching exam notifications 
         foreach ($routes as $route) {
-            $centerCodes = is_string($route->center_code) ? json_decode($route->center_code, true) : $route->center_code;
-            $hallCodes = is_string($route->hall_code) ? json_decode($route->hall_code, true) : $route->hall_code;
-
-            $uniqueVenues = [];
-            foreach ($centerCodes as $centerCode) {
-                $halls = isset($hallCodes[$centerCode]) ? $hallCodes[$centerCode] : [];
-                $venues = ExamMaterialsData::select('venue.venue_name')
-                    ->join('venue', 'exam_materials_data.venue_code', '=', 'venue.venue_code')
-                    ->where('exam_materials_data.exam_id', $examId)
-                    ->where('exam_materials_data.district_code', $district_code)
-                    ->where('exam_materials_data.center_code', $centerCode)
-                    ->whereIn('exam_materials_data.hall_code', $halls)
-                    ->pluck('venue.venue_name')
-                    ->toArray();
-
-                $uniqueVenues = array_merge($uniqueVenues, $venues);
-            }
-
-            $routeData[] = [
-                'id' => $route->id,
-                'route_no' => $route->route_no,
-                'driver_name' => $route->driver_name,
-                'driver_license' => $route->driver_license,
-                'driver_phone' => $route->driver_phone,
-                'vehicle_no' => $route->vehicle_no,
-                'mobileteam' => (session('auth_role') == 'district' && $user->district_code != '01') ? $route->mobileteam : $route->department_official,
-                'halls' => implode(', ', array_unique($uniqueVenues)),
-                'center_code' => implode(', ', $centerCodes),
-                'district_code' => $route->district_code,
-                'exam_date' => $route->exam_date,
-            ];
+            $examIds = $route->exam_id; // Assuming this is how you fetch the exam IDs array 
+            $exams = Currentexam::whereIn('exam_main_no', $examIds)->get();
+            $route->exam_notifications = $exams->pluck('exam_main_notification')->implode(', ');
         }
-
-        // Get centers from table grouped and send to index
-        $centers = ExamMaterialRoutes::where('exam_id', $examId)
-            ->where('district_code', $district_code)
-            ->join('centers', 'exam_material_routes.center_code', '=', 'centers.center_code')
-            ->groupBy('centers.center_code', 'centers.center_name')
-            ->select('centers.center_name', 'centers.center_code')
-            ->get();
-
-        // Get current exam session details
-        $session = Currentexam::with('examsession')->where('exam_main_no', $examId)->first();
-        $examDates = $session->examsession->groupBy(function ($item) {
-            return \Carbon\Carbon::parse($item->exam_sess_date)->format('d-m-Y');
-        })->keys();
-
-        return view('my_exam.Charted-Vehicle.index', [
-            'examId' => $examId,
-            'groupedRoutes' => $routeData,
-            'centers' => $centers,
-            'examDates' => $examDates,
-            'user' => $user,
-        ]);
+        // Fetching district codes 
+        foreach ($routes as $route) {
+            $districtCodes = $route->escortstaffs->pluck('district_code')->unique()->toArray();
+            $route->district_codes = implode(', ', $districtCodes);
+        }
+        return view('my_exam.Charted-Vehicle.index', compact('routes'));
     }
 
-    public function createRoute(Request $request, $examId)
+    public function createRoute(Request $request)
     {
         // Get all exams available
         $exams = Currentexam::get();
-        // dd($districts);
-        return view('my_exam.Charted-Vehicle.create',compact('exams'));
+        $tnpscStaffs = DepartmentOfficial::get();
+        return view('my_exam.Charted-Vehicle.create', compact('exams', 'tnpscStaffs'));
     }
 
     public function storeRoute(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
         $request->validate([
             'route_no' => 'required|string|max:255',
             'exam_id' => 'required|array',
@@ -130,71 +63,129 @@ class ChartedVehicleRoutesController extends Controller
             'escort_driver_licence_no' => 'required|string|max:255',
             'escort_driver_phone' => 'required|string|max:255',
         ]);
-
         $chartedVehicleRoute = ChartedVehicleRoute::create([
             'route_no' => $request->route_no,
-            'exam_id' => json_encode($request->exam_id),
+            'exam_id' => $request->exam_id,
             'charted_vehicle_no' => $request->vehicle_no,
-            'driver_details' => json_encode([
+            'driver_details' => [
                 'name' => $request->driver_name,
                 'licence_no' => $request->driver_licence_no,
                 'phone' => $request->phone
-            ]),
-            'gps_locks' => json_encode($request->gps_lock),
-            'pc_details' => json_encode([
+            ],
+            'otl_locks' => $request->otl_locks,
+            'gps_locks' => $request->gps_lock,
+            'pc_details' => [
                 'name' => $request->police_constable,
                 'phone' => $request->police_constable_phone,
                 'ifhrms_no' => $request->police_constable_ifhrms_no ?? null
-            ]),
-            'escort_vehicle_details' => json_encode([
+            ],
+            'escort_vehicle_details' => [
                 'vehicle_no' => $request->escort_vehicle_no,
                 'driver_name' => $request->escort_driver_name,
                 'driver_licence_no' => $request->escort_driver_licence_no,
                 'driver_phone' => $request->escort_driver_phone
-            ])
+            ]
         ]);
 
-        foreach ($request->subjects as $subject) {
+        foreach ($request->escortstaffs as $escortstaff) {
             EscortStaff::create([
                 'charted_vehicle_id' => $chartedVehicleRoute->id,
-                'district_code' => $subject['district'],
-                'tnpsc_staff_id' => $subject['tnpsc_staff'],
-                'si_details' => json_encode([
-                    'name' => $subject['si_name'],
-                    'phone' => $subject['si_phone'],
-                    'ifhrms_no' => $subject['si_ifhrms_no'] ?? null
-                ]),
-                'revenue_staff_details' => json_encode([
-                    'name' => $subject['revenue_staff_name'],
-                    'phone' => $subject['revenue_phone'],
-                    'ifhrms_no' => $subject['revenue_ifhrms_no'] ?? null
-                ])
+                'district_code' => $escortstaff['district'],
+                'tnpsc_staff_id' => $escortstaff['tnpsc_staff'],
+                'si_details' => [
+                    'name' => $escortstaff['si_name'],
+                    'phone' => $escortstaff['si_phone'],
+                    'ifhrms_no' => $escortstaff['si_ifhrms_no'] ?? null
+                ],
+                'revenue_staff_details' => [
+                    'name' => $escortstaff['revenue_staff_name'],
+                    'phone' => $escortstaff['revenue_phone'],
+                    'ifhrms_no' => $escortstaff['revenue_ifhrms_no'] ?? null
+                ]
             ]);
         }
 
-        return redirect()->route('exam-materials-route.store')
+        return redirect()->route('charted-vehicle-routes.index')
             ->with('success', 'Charted Vehicle Route created successfully.');
     }
 
-    public function editRoute(Request $request, $Id)
+    public function editRoute(Request $request, $id)
     {
-
+        $route = ChartedVehicleRoute::with('escortstaffs')->findOrFail($id);
+        $tnpscStaffs = DepartmentOfficial::get();
+        $exams = Currentexam::get();
+        return view('my_exam.Charted-Vehicle.edit', compact('route', 'exams', 'tnpscStaffs'));
     }
     public function updateRoute(Request $request, $id)
     {
+        $route = ChartedVehicleRoute::findOrFail($id);
 
+        // Update route details
+        $route->update([
+            'route_no' => $request->route_no,
+            'exam_id' => $request->exam_id,
+            'charted_vehicle_no' => $request->vehicle_no,
+            'driver_details' => [
+                'name' => $request->driver_name,
+                'licence_no' => $request->driver_licence_no,
+                'phone' => $request->phone
+            ],
+            'gps_locks' => $request->gps_locks,
+            'otl_locks' => $request->otl_locks,
+            'pc_details' => [
+                'name' => $request->police_constable,
+                'phone' => $request->police_constable_phone,
+                'ifhrms_no' => $request->police_constable_ifhrms_no ?? null
+            ],
+            'escort_vehicle_details' => [
+                'vehicle_no' => $request->escort_vehicle_no,
+                'driver_name' => $request->escort_driver_name,
+                'driver_licence_no' => $request->escort_driver_licence_no,
+                'driver_phone' => $request->escort_driver_phone
+            ]
+        ]);
+
+        // Delete existing escort staff
+        EscortStaff::where('charted_vehicle_id', $route->id)->delete();
+
+        // Create new escort staff
+        foreach ($request->escortstaffs as $staff) {
+            EscortStaff::create([
+                'charted_vehicle_id' => $route->id,
+                'district_code' => $staff['district'],
+                'tnpsc_staff_id' => $staff['tnpsc_staff'],
+                'si_details' => [
+                    'name' => $staff['si_name'],
+                    'phone' => $staff['si_phone'],
+                    'ifhrms_no' => $staff['si_ifhrms_no'] ?? null
+                ],
+                'revenue_staff_details' => [
+                    'name' => $staff['revenue_staff_name'],
+                    'phone' => $staff['revenue_phone'],
+                    'ifhrms_no' => $staff['revenue_ifhrms_no'] ?? null
+                ]
+            ]);
+        }
+
+        return redirect()->route('charted-vehicle-routes.index')
+            ->with('success', 'Charted Vehicle Route updated successfully.');
     }
-    public function viewRoute(Request $request, $Id)
+
+    public function viewRoute(Request $request, $id)
     {
-
+        $route = ChartedVehicleRoute::with('escortstaffs')->findOrFail($id);
+        $exams = Currentexam::get();
+        $tnpscStaffs = DepartmentOfficial::get();
+        return view('my_exam.Charted-Vehicle.view', compact('route', 'exams', 'tnpscStaffs'));
     }
-    public function getDistrictsForExamIDs(Request $request){
+    public function getDistrictsForExamIDs(Request $request)
+    {
         $examIds = $request->exam_ids;
         $districts = ExamConfirmedHalls::whereIn('exam_id', $examIds)
-                                        ->with('district')
-                                        ->get()
-                                        ->unique('district_id');
-    
+            ->with('district')
+            ->get()
+            ->unique('district_id');
+
         // Prepare the response data
         $response = $districts->map(function ($hall) {
             return [
@@ -202,8 +193,255 @@ class ChartedVehicleRoutesController extends Controller
                 'district_name' => $hall->district->district_name,
             ];
         });
-    
+
         return response()->json($response);
-    }    
+    }
+
+    public function downwardJourneyRoutes(Request $request)
+    {
+        $user = $request->get('auth_user');
+
+        // $routes = ChartedVehicleRoute::with(['escortstaffs'])->get();
+
+        $routes = ChartedVehicleRoute::with([
+            'escortstaffs' => function ($query) use ($user) {
+                $query->where('tnpsc_staff_id', $user->dept_off_id);
+            }
+        ])
+            ->whereHas('escortstaffs', function ($query) use ($user) {
+                $query->where('tnpsc_staff_id', $user->dept_off_id);
+            })
+            ->get();
+
+        // Fetching exam notifications 
+        foreach ($routes as $route) {
+            $examIds = $route->exam_id; // Assuming this is how you fetch the exam IDs array 
+            $exams = Currentexam::whereIn('exam_main_no', $examIds)->get();
+            $route->exam_notifications = $exams->pluck('exam_main_notification')->implode(', ');
+        }
+        // Fetching district codes 
+        foreach ($routes as $route) {
+            $districtCodes = $route->escortstaffs->pluck('district_code')->unique()->toArray();
+            $route->district_codes = implode(', ', $districtCodes);
+        }
+
+        return view('my_exam.Charted-Vehicle.downward-journey-routes', compact('routes'));
+    }
+    public function scanTrunkboxes(Request $request, $id)
+    {
+        $user = $request->get('auth_user');
+
+        // Fetch the route with all escort staff for the given charted vehicle ID and user
+        $routes = DB::table('charted_vehicle_routes as cvr')
+            ->leftJoin('escort_staffs as es', 'cvr.id', '=', 'es.charted_vehicle_id')
+            ->select('cvr.*', 'es.district_code') // Select only required fields
+            ->where('cvr.id', $id) // Filter by charted vehicle route ID
+            ->where('es.tnpsc_staff_id', $user->dept_off_id) // Filter escortstaffs by user
+            ->get(); // Get all matching records
+
+        // Extract unique districts from the routes
+        $districtCodes = $routes->pluck('district_code')->unique();
+
+        // Decode exam IDs (assuming they are consistent across all routes)
+        $examIds = isset($routes[0]) ? json_decode($routes[0]->exam_id, true) : [];
+
+        // Ensure exam IDs are valid
+        if (!is_array($examIds)) {
+            $examIds = [];
+        }
+
+        // Fetch trunk boxes for all exam IDs and districts
+        $trunkBoxes = DB::table('exam_trunkbox_otl_data')
+            ->whereIn('exam_id', $examIds) // Match exam IDs
+            ->whereIn('district_code', $districtCodes) // Match district codes
+            ->orderBy('load_order') // Add ordering by load_order
+            ->get(); // Get all matching trunk boxes
+        // dd($trunkBoxes);
+        $myroute = ChartedVehicleRoute::where('id', $id)->first();
+        $exams = Currentexam::get();
+        $tnpscStaffs = DepartmentOfficial::get();
+        return view('my_exam.Charted-Vehicle.scan-trunkbox', compact('trunkBoxes', 'exams', 'tnpscStaffs','myroute'));
+    }
+    public function scanDeptStaffExamMaterials( Request $request)
+    {
+        // Validate request
+        $request->validate([
+            'qr_code' => 'required|string',
+        ]);
+        dd($request->all());
+
+        // Get authenticated user
+        $role = session('auth_role');
+        $guard = $role ? Auth::guard($role) : null;
+        $user = $guard ? $guard->user() : null;
+
+        // Check authorization
+        if ($role !== 'department_official' || !$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found or not authorized'
+            ], 403); // 403 is for authorization errors
+        }
+
+        // Find exam materials
+        $examMaterials = ExamTrunkBoxOTLData::where([
+            'exam_id' => $examId,
+            'trunkbox_qr_code' => $request->qr_code
+        ])->first();
+
+        if (!$examMaterials) {
+            $examMaterials = ExamMaterialsData::where([
+                'exam_id' => $examId,
+                'qr_code' => $request->qr_code
+            ])
+                ->with('center')
+                ->with('district')
+                ->first();
+            $msg = "This Qr Code belongs to the following District : " . $examMaterials->district->district_name . " , Center : " . $examMaterials->center->center_name . " , Hall Code: " . $examMaterials->hall_code;
+            return response()->json([
+                'status' => 'error',
+                'message' => $msg
+            ], 404);
+        }
+        //find trunk box for this exm materials
+        $trunkBox = ExamTrunkBoxOTLData::where([
+            'exam_id' => $examId,
+            'district_code' => $user->district_code,
+            'center_code' => $examMaterials->center_code,
+            'hall_code' => $examMaterials->hall_code,
+        ])->first();
+            
+        // Check if already scanned
+        if (
+            ExamTrunkBoxScan::where([
+                'exam_material_id' => $examMaterials->id,
+            ])->exists()
+        ) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'QR code has already been scanned, Place this bundle in this trunk box: '.$trunkBox->trunkbox_qr_code .'',
+            ], 409);
+        }
+
+        // Create scan record
+        ExamTrunkBoxScan::create([
+            'exam_material_id' => $examMaterials->id,
+            'district_scanned_at' => now()
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'QR code scanned successfully, Place this bundle in this trunk box:'.$trunkBox->trunkbox_qr_code .'',
+        ], 200);
+    }
+    public function generateTrunkboxOrder($id)
+    {
+        // Fetch the route with all escort staff for the given charted vehicle ID and user
+        $routes = DB::table('charted_vehicle_routes as cvr')
+            ->leftJoin('escort_staffs as es', 'cvr.id', '=', 'es.charted_vehicle_id')
+            ->select('cvr.*', 'es.district_code') // Select only required fields
+            ->where('cvr.id', $id) // Filter by charted vehicle route ID
+            ->get(); // Get all matching records
+
+        // Extract unique districts from the routes
+        $districtCodes = $routes->pluck('district_code')->unique();
+
+        // Decode exam IDs (assuming they are consistent across all routes)
+        $examIds = isset($routes[0]) ? json_decode($routes[0]->exam_id, true) : [];
+
+        // Ensure exam IDs are valid
+        if (!is_array($examIds)) {
+            $examIds = [];
+        }
+
+        // Fetch trunk boxes for all exam IDs and districts
+        $trunkBoxes = DB::table('exam_trunkbox_otl_data')
+            ->whereIn('exam_id', $examIds) // Match exam IDs
+            ->whereIn('district_code', $districtCodes) // Match district codes
+            ->get(); // Get all matching trunk boxes
+
+        // Group trunk boxes by center_id
+        $groupedByCenter = $trunkBoxes->groupBy('center_code');
+
+        // Sort centers numerically
+        $sortedCenters = $groupedByCenter->sortKeysUsing(function ($keyA, $keyB) {
+            return (int) $keyA <=> (int) $keyB;
+        });
+
+        // Initialize variables
+        $orderedTrunkBoxes = [];
+        $orderCounter = 1; // Start ordering from 1
+
+        foreach ($sortedCenters as $center => $trunkBoxes) {
+            // Randomize the order of trunk boxes within this center
+            $shuffledBoxes = $trunkBoxes->shuffle();
+
+            // Assign new order and append to orderedTrunkBoxes
+            foreach ($shuffledBoxes as $trunkBox) {
+                $trunkBox->load_order = $orderCounter++;
+                $orderedTrunkBoxes[] = (array) $trunkBox; // Convert to array for bulk insert/update
+            }
+        }
+
+        // Update the trunk boxes in the database
+        DB::table('exam_trunkbox_otl_data')
+            ->upsert($orderedTrunkBoxes, ['id'], ['load_order']);
+
+        // Prepare CSV data
+        $csvData = [];
+        $csvData[] = ['Center Code', 'District Code', 'Hall Code', 'Trunk Box Code', 'Load Order'];
+
+        foreach ($orderedTrunkBoxes as $box) {
+            $csvData[] = [
+                $box['center_code'] ?? '',
+                $box['district_code'] ?? '',
+                $box['hall_code'] ?? '',
+                $box['trunk_box_code'] ?? '',
+                $box['load_order'] ?? '',
+            ];
+        }
+
+        // File storage setup
+        $fileName = 'trunkbox_order_' . date('Y_m_d_H_i_s') . '.csv';
+        $filePath = storage_path("app/public/{$fileName}");
+
+        // Open the file for writing
+        $handle = fopen($filePath, 'w');
+
+        // Add column headers
+        fputcsv($handle, ['Load Order' ,'Center Code', 'District Code', 'Hall Code', 'Trunk Box Code' ]);
+
+        // Loop through the trunk boxes and write rows
+        foreach ($orderedTrunkBoxes as $box) {
+            // Prepare the row with tab prefixes to preserve formatting
+            $row = array_map(function ($value) {
+                return "\t" . $value; // Adding a tab to force Excel to treat as text
+            }, [
+                $box['load_order'],
+                $box['center_code'],
+                $box['district_code'],
+                $box['hall_code'],
+                $box['trunkbox_qr_code']
+            ]);
+
+            // Write the row to the CSV file
+            fputcsv($handle, $row);
+        }
+
+        // Close the file
+        fclose($handle);
+
+        // Cleanup old files in the public storage directory
+        $files = glob(storage_path('app/public/trunkbox_order_*.csv'));
+        $now = time();
+        foreach ($files as $file) {
+            if (filemtime($file) < $now - 3600) { // Files older than 1 hour
+                unlink($file);
+            }
+        }
+
+        // Return session with the link to the file
+        return redirect()->back()->with('success', 'Trunk boxes have been ordered successfully. <a href="' . asset("storage/{$fileName}") . '" target="_blank">Download CSV</a>');
+    }
 
 }

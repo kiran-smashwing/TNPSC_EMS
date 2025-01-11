@@ -271,7 +271,7 @@
             <tr>
                 <td class="sno-column">5</td>
                 <td>Time of Receiving Examination Material</td>
-                <td>{{ '24-07-2022 07:25 AM' }}</td>
+                <td>{{ $scanTime }}</td>
             </tr>
             <tr>
                 <td class="sno-column">6</td>
@@ -343,7 +343,7 @@
             <tr>
                 <td class="sno-column">18</td>
                 <td>Time of packing OMR Answer Sheets and other examination materials</td>
-                <td>{{ 'BUNDLE II - 24-07-2022 10:38 AM, COVER B2 - 24-07-2022 10:50 AM, COVER B4 - 24-07-2022 10:51 AM, COVER A1 - 24-07-2022 01:22 PM, COVER A2 - 24-07-2022 01:22 PM, COVER A - 24-07-2022 01:24 PM, COVER B1 - 24-07-2022 01:36 PM, COVER B5 - 24-07-2022 01:37 PM, COVER B - 24-07-2022 01:38 PM, BUNDLE I - 24-07-2022 01:39 PM' }}
+                <td>{{ $finalString }}
                 </td>
             </tr>
             <tr>
@@ -376,29 +376,34 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>Actual allotted<br>200</td>
-                    <td>Total received<br>220</td>
-                    <td>Total received<br>210</td>
+                    <td>Actual allotted<br>{{ $session_confirmedhalls }}</td>
+                    <td>Total received <br>{{ ($copies['FN']['D1'] ?? 0) + ($copies['AN']['D1'] ?? 0) }}</td>
+                    <td>Total received <br>{{ ($copies['FN']['D2'] ?? 0) + ($copies['AN']['D2'] ?? 0) }}
+                    </td>
+                </tr>
+
+
+
+
+                <tr>
+                    <td>Additional<br>{{ $sessionDetails['count'] }}</td>
+                    <td>Distributed to candidates<br>{{ $attendanceData['present'] }}</td>
+                    <td>Distributed to candidates<br>{{ $attendanceData['present'] }}</td>
                 </tr>
                 <tr>
-                    <td>Additional<br>**</td>
-                    <td>Distributed to candidates<br>129</td>
-                    <td>Distributed to candidates<br>129</td>
+                    <td>Total<br>{{ $session_confirmedhalls }}</td>
+                    <td>Absent<br>{{ $attendanceData['absent'] }}</td>
+                    <td>Absent<br>{{ $attendanceData['absent'] }}</td>
                 </tr>
                 <tr>
-                    <td>Total<br>200</td>
-                    <td>Absent<br>71</td>
-                    <td>Absent<br>71</td>
-                </tr>
-                <tr>
-                    <td>Present<br>129</td>
+                    <td>Present<br>{{ $attendanceData['present'] }}</td>
                     <td>Defective<br>0</td>
                     <td>Defective<br>0</td>
                 </tr>
                 <tr>
-                    <td>Absent<br>71</td>
-                    <td>Balance Unused<br>91</td>
-                    <td>Balance Unused<br>81</td>
+                    <td>Absent<br>{{ $attendanceData['absent'] }}</td>
+                    <td>Balance Unused<br>{{ $balanceUnusedQuestionPapers }}</td>
+                    <td>Balance Unused<br>{{ $balanceUnusedOMR }}</td>
                 </tr>
                 <tr>
                     <td colspan="5"
@@ -531,13 +536,13 @@
                     covers supplied by the TNPSC.</td>
                 <td>
                     @php
-                    $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 21);
-                @endphp
-                <div
-                    class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                    {{-- Empty div to style as checkbox --}}
-                </div>
-                  
+                        $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 21);
+                    @endphp
+                    <div
+                        class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
+                        {{-- Empty div to style as checkbox --}}
+                    </div>
+
                 </td>
             </tr>
             <tr>
@@ -545,13 +550,13 @@
                 <td>Certified that no used or unused or Spare OMR Answer Sheet has been retained by me.</td>
                 <td>
                     @php
-                    $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 22);
-                @endphp
-                <div
-                    class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                    {{-- Empty div to style as checkbox --}}
-                </div>
-                   
+                        $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 22);
+                    @endphp
+                    <div
+                        class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
+                        {{-- Empty div to style as checkbox --}}
+                    </div>
+
                 </td>
             </tr>
             <tr>
@@ -559,13 +564,13 @@
                 <td>Certified that I was personally present during counting and packing of used OMR Answer Sheets.</td>
                 <td>
                     @php
-                    $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 23);
-                @endphp
-                <div
-                    class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                    {{-- Empty div to style as checkbox --}}
-                </div>
-                    
+                        $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 23);
+                    @endphp
+                    <div
+                        class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
+                        {{-- Empty div to style as checkbox --}}
+                    </div>
+
                 </td>
             </tr>
             <tr>
@@ -582,13 +587,13 @@
                 <td>Certified that the examination was conducted smoothly without any untoward incident.</td>
                 <td>
                     @php
-                    $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 24);
-                @endphp
-                <div
-                    class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                    {{-- Empty div to style as checkbox --}}
-                </div>
-                    
+                        $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 24);
+                    @endphp
+                    <div
+                        class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
+                        {{-- Empty div to style as checkbox --}}
+                    </div>
+
                 </td>
             </tr>
             {{-- <tr>
@@ -612,13 +617,13 @@
                 <td>Certified that Videographer has recorded the entire proceedings till sealing of Bundle-I.</td>
                 <td>
                     @php
-                    $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 25);
-                @endphp
-                <div
-                    class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                    {{-- Empty div to style as checkbox --}}
-                </div>
-                   
+                        $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 25);
+                    @endphp
+                    <div
+                        class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
+                        {{-- Empty div to style as checkbox --}}
+                    </div>
+
                 </td>
             </tr>
             <tr>
@@ -627,13 +632,13 @@
                     hall ticket.</td>
                 <td>
                     @php
-                    $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 26);
-                @endphp
-                <div
-                    class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                    {{-- Empty div to style as checkbox --}}
-                </div>
-                    
+                        $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 26);
+                    @endphp
+                    <div
+                        class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
+                        {{-- Empty div to style as checkbox --}}
+                    </div>
+
                 </td>
             </tr>
             <tr>
@@ -641,13 +646,13 @@
                 <td>Seating arrangements were made as per the room sketch.</td>
                 <td>
                     @php
-                    $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 27);
-                @endphp
-                <div
-                    class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                    {{-- Empty div to style as checkbox --}}
-                </div>
-                    
+                        $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 27);
+                    @endphp
+                    <div
+                        class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
+                        {{-- Empty div to style as checkbox --}}
+                    </div>
+
                 </td>
             </tr>
 
@@ -669,7 +674,9 @@
                     </div>
                     <div class="signature-row-inline signature-top-bottom-inline">
                         <div class="signature-label">Name and Designation : </div>
-                        <div class="name-space">{{ $user->ci_name && $user->ci_designation ? $user->ci_name . ' - ' . $user->ci_designation : 'N/A' }}</div>
+                        <div class="name-space">
+                            {{ $user->ci_name && $user->ci_designation ? $user->ci_name . ' - ' . $user->ci_designation : 'N/A' }}
+                        </div>
                     </div>
                     <div class="signature-row-inline signature-top-bottom-inline">
                         <div class="signature-label">Phone Number : </div>

@@ -267,6 +267,28 @@ class MyExamController extends Controller
 
         // Decode candidate logs and remarks
         if ($ciCandidatelogs) {
+            $candidateAttendance = json_decode($ciCandidatelogs->candidate_attendance, true); // Decode the `candidate_attendance` field
+
+            // Initialize attendance data arrays
+            $candidate_attendance_data = [
+                'absent' => $candidateAttendance['absent'] ?? 0,
+                'present' => $candidateAttendance['present'] ?? 0,
+                'alloted_count' => $candidateAttendance['alloted_count'] ?? 0,
+            ];
+
+            // Check if session type is AN or FN and assign the attendance data accordingly
+            if ($session->exam_sess_session == 'AN') {
+                $candidate_attendance_data['absent'] = $candidateAttendance['AN']['absent'] ?? 0;
+                $candidate_attendance_data['present'] = $candidateAttendance['AN']['present'] ?? 0;
+                $candidate_attendance_data['alloted_count'] = $candidateAttendance['AN']['alloted_count'] ?? 0;
+            }
+
+            if ($session->exam_sess_session == 'FN') {
+                $candidate_attendance_data['absent'] = $candidateAttendance['FN']['absent'] ?? 0;
+                $candidate_attendance_data['present'] = $candidateAttendance['FN']['present'] ?? 0;
+                $candidate_attendance_data['alloted_count'] = $candidateAttendance['FN']['alloted_count'] ?? 0;
+            }
+            // dd($candidate_attendance_data);
             $candidateLogs = json_decode($ciCandidatelogs->additional_details, true); // Assuming 'candidate_logs' is the JSON field
 
             // Separate the candidate logs by session type
@@ -510,6 +532,7 @@ class MyExamController extends Controller
             'checklist_videography_data',
             'candidate_orm_remarks_data',
             'consolidate_data',
+            'candidate_attendance_data',
             'ci_id'
         ));
     }

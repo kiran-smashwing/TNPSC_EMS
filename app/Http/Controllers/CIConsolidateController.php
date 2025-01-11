@@ -6,7 +6,10 @@ use App\Models\Scribe;
 use Illuminate\Support\Facades\DB;
 use App\Models\Currentexam;
 use Illuminate\Support\Facades\Auth;
+use App\Models\ExamConfirmedHalls;
 use Illuminate\Http\Request;
+use App\Models\ExamMaterialsScan;
+use App\Models\ExamMaterialsData;
 use Spatie\Browsershot\Browsershot;
 
 class CIConsolidateController extends Controller
@@ -50,6 +53,96 @@ class CIConsolidateController extends Controller
             ->where('hall_code', $hall_code)
             ->where('exam_date', $exam_date)
             ->first();
+        // Get the session-specific exam material based on the session type (FN or AN)
+        $examTime = ExamMaterialsData::where('exam_id', $examId)
+            ->where('ci_id', $user->ci_id)
+            ->whereIn('category', ['D1', 'D2'])
+            ->whereDate('exam_date', $exam_date)
+            ->where('exam_session', $exam_session_type) // Match based on FN or AN session
+            ->first(); // Get the first record
+        // Initialize variables for parsed data
+        $examData = ExamMaterialsData::where('exam_id', $examId)
+            ->where('ci_id', $user->ci_id)
+            ->whereIn('category', ['D1', 'D2'])
+            ->whereDate('exam_date', $exam_date)
+            ->where('exam_session', $exam_session_type) // Match based on FN or AN session
+            ->get(); // Fetch all matching records
+        // dd($examData);
+        // Check if the material and scan time exist
+        if ($examTime && $examTime->examMaterialsScan && $examTime->examMaterialsScan->ci_scanned_at) {
+            // Get the raw scan time from the database
+            $rawScanTime = $examTime->examMaterialsScan->ci_scanned_at;
+
+            // Output the raw scan time for debugging
+            // dd($rawScanTime);
+
+            // Parse and format the scan time to AM/PM format
+            $scanTime = \Carbon\Carbon::parse($rawScanTime)->format('h:i A');
+        } else {
+            $scanTime = null; // If no scan time, set to null
+        }
+
+        // Output the formatted scan time for debugging
+        // dd($scanTime); // Check the formatted time
+        // end of the scantime
+        $categoryLabels = [
+            'I1' => 'Bundle A1',
+            'I2' => 'Bundle A2',
+            'R1' => 'Bundle A',
+            'I3' => 'Bundle B1',
+            'I4' => 'Bundle B2',
+            'I5' => 'Bundle B3',
+            'I6' => 'Bundle B4',
+            'I7' => 'Bundle B5',
+            'R2' => 'Bundle B',
+            'R3' => 'Bundle I',
+            'R4' => 'Bundle II',
+            'R5' => 'Bundle C',
+        ];
+
+        // Query data based on the user's role
+        $query = ExamMaterialsData::where('exam_id', $examId)
+            ->when($role == 'ci', function ($query) use ($user, $categoryLabels, $exam_date, $exam_session) {
+                return $query->where('ci_id', $user->ci_id)
+                    ->whereIn('category', array_keys($categoryLabels))
+                    ->whereDate('exam_date', $exam_date)
+                    ->where('exam_session', $exam_session);
+            })
+            ->when($role != 'ci', function ($query) use ($categoryLabels) {
+                return $query->whereIn('category', array_keys($categoryLabels));
+            });
+
+        // Fetch the results
+        $examMaterials = $query->get();
+
+        // Prepare the categories to be displayed in the PDF
+        $pdfData = [];
+
+        // Loop through the exam materials to format the category and scan time
+        foreach ($examMaterials as $examTime) {
+            // Get the category name based on the category key
+            $categoryName = $categoryLabels[$examTime->category] ?? 'Unknown Category';
+
+            // Check if scan time exists and format it
+            if ($examTime->examMaterialsScan && $examTime->examMaterialsScan->ci_scanned_at) {
+                // Format time with AM/PM
+                $scanTimes = \Carbon\Carbon::parse($examTime->examMaterialsScan->ci_scanned_at)->format('h:i A');
+
+                // Add formatted data to pdfData array
+                $pdfData[] = [
+                    'category' => $categoryName,
+                    'scan_time' => $scanTimes,
+                ];
+            }
+        }
+
+        // Combine the category and scan time into a string with commas
+        $finalString = implode(', ', array_map(function ($item) {
+            return $item['category'] . ' - ' . $item['scan_time'];
+        }, $pdfData));
+
+        // Output the final string for PDF
+        // dd($finalString); // This will dump the combined string for debugging
 
         $orm_remarks = DB::table('ci_candidate_logs')
             ->where('exam_id', $examId)
@@ -58,19 +151,26 @@ class CIConsolidateController extends Controller
             ->where('hall_code', $hall_code)
             ->where('exam_date', $exam_date)
             ->first();
-        // dd($orm_remarks);
+        //  dd($orm_remarks);
         $ci_checklist_answer = DB::table('ci_checklist_answers')
             ->where('exam_id', $examId)
             ->where('ci_id', $user->ci_id)
             ->where('center_code', $user->ci_center_id)
             ->where('hall_code', $hall_code)
             ->first();
-        // dd($ci_checklist_answer);
+        //  dd($ci_checklist_answer);
         $scribe_allocation = DB::table('ci_staff_allocation')
             ->where('exam_id', $examId)
             ->where('ci_id', $user->ci_id)
             ->where('exam_date', $exam_date)
             ->first();
+        $session_confirmedhalls = ExamConfirmedHalls::where('exam_id', $examId)
+            ->where('exam_session', $exam_session_type)
+            ->where('exam_date', $exam_date)
+            ->where('ci_id', $user->ci_id)
+            ->pluck('alloted_count')
+            ->first();
+        //   dd($session_confirmedhalls);
         // Decode the 'scribes' JSON field
         $session = $exam_session_type;
 
@@ -124,21 +224,25 @@ class CIConsolidateController extends Controller
                 }
                 //  dd($checklist_consolidate_data);
                 $scribes_data = json_decode($scribe_allocation->scribes, true);
+
                 if ($scribes_data) {
                     $all_scribe_details = [];
 
-                    foreach ($scribes_data as $scribe) {
+                    foreach ($scribes_data as $session_data) {
                         // Check if the session matches the current $exam_session_type
-                        $current_session = $scribe['session']; // Default to FN if session is not provided
+                        $current_session = $session_data['session'];
 
                         if ($current_session !== $session) {
-                            continue; // Skip this scribe if the session doesn't match
+                            continue; // Skip this session if it doesn't match
                         }
 
-                        foreach ($scribe['scribes'] as $scribe_id) {
-                            $scribe_details = Scribe::find($scribe_id);
+                        if (isset($session_data['data'])) {
+                            foreach ($session_data['data'] as $scribe_entry) {
+                                $reg_no = $scribe_entry['reg_no'];
+                                $scribe_id = $scribe_entry['scribe'];
 
-                            foreach ($scribe['reg_no'] as $reg_no) {
+                                $scribe_details = Scribe::find($scribe_id);
+
                                 if ($scribe_details) {
                                     $all_scribe_details[] = $reg_no . ' (Scribe: ' . $scribe_details->scribe_name . '/' . $scribe_details->scribe_phone . ')';
                                 } else {
@@ -147,6 +251,7 @@ class CIConsolidateController extends Controller
                             }
                         }
                     }
+
                     // Combine details into a single string
                     $merged_scribes = !empty($all_scribe_details)
                         ? implode(', ', $all_scribe_details)
@@ -154,9 +259,98 @@ class CIConsolidateController extends Controller
                 } else {
                     $merged_scribes = 'No'; // Fallback if no data is available
                 }
+
+                // dd($merged_scribes);
+
                 // Decode the JSON for remarks
                 $omr_remarks = json_decode($orm_remarks->omr_remarks, true); // Convert to associative array
-                // Determine session (FN/AN)
+                $candidate_attendance = json_decode($orm_remarks->candidate_attendance, true); // Convert to associative array
+                $additional_details = json_decode($orm_remarks->additional_details, true); // Convert to associative array
+                //   dd($addtitional_details);
+                $sessionDetails = [
+                    'selectedSession' => 'No Matching Session',
+                    'detailsData' => [],
+                    'count' => 0,
+                ];
+                // Check if the session type matches and extract the data
+                if (isset($additional_details['FN']) && $exam_session_type === 'FN') {
+                    $sessionDetails = [
+                        'selectedSession' => 'FN',
+                        'detailsData' => $additional_details['FN'],
+                        'count' => count($additional_details['FN']), // Count the number of candidates in FN
+                    ];
+                    // Dump sessionDetails after FN check
+
+                } elseif (isset($additional_details['AN']) && $exam_session_type === 'AN') {
+                    $sessionDetails = [
+                        'selectedSession' => 'AN',
+                        'detailsData' => $additional_details['AN'],
+                        'count' => count($additional_details['AN']), // Count the number of candidates in AN
+                    ];
+                    // Dump sessionDetails after AN check
+
+                }
+                // Output the session details for debugging
+                //    dd($sessionDetails);
+                if (isset($candidate_attendance['FN']) && $exam_session_type === 'FN') {
+                    $selectedSession = 'FN';
+                    $attendanceData = $candidate_attendance['FN'];
+                } elseif (isset($candidate_attendance['AN']) && $exam_session_type === 'AN') {
+                    $selectedSession = 'AN';
+                    $attendanceData = $candidate_attendance['AN'];
+                } else {
+                    $selectedSession = 'No Matching Session';
+                    $attendanceData = [
+                        'absent' => 0,
+                        'present' => 0,
+                    ];
+                }
+                // Initialize the copies array for FN and AN
+                $copies = [
+                    'FN' => null,
+                    'AN' => null
+                ];
+
+                $copies = [];
+                // Loop through exam data to parse QR codes and categorize copies
+                foreach ($examData as $data) {
+                    // Parse the QR code
+                    $parsedQr = $this->parseQrCode($data->qr_code);
+
+                    // Check the session type and category
+                    if ($parsedQr) {
+                        $session = ($parsedQr['exam_session'] === 'FN') ? 'FN' : 'AN'; // Map session to FN/AN
+                        $category = $parsedQr['category'];
+
+                        // Collect copies based on session and category
+                        if (!isset($copies[$session])) {
+                            $copies[$session] = ['D1' => 0, 'D2' => 0];
+                        }
+                        if ($category === 'D1') {
+                            $copies[$session]['D1'] += $parsedQr['copies'] ?? 0;
+                        } elseif ($category === 'D2') {
+                            $copies[$session]['D2'] += $parsedQr['copies'] ?? 0;
+                        }
+                    }
+                }
+                // dd($copies);
+                // Determine the session dynamically (FN or AN)
+                $sessionType = $exam_session_type; // Default to FN if not provided
+
+                // Attendance data
+                $present = $attendanceData['present'] ?? 0; // Number of attendees present
+
+                // Initialize debug results
+                $debugResults = [
+                    'session_type' => $sessionType,
+                    'present' => $present,
+                ];
+
+                // Handle logic for both D1 and D2 for the session
+                $totalReceivedQuestionPapers = $copies[$sessionType]['D1'] ?? 0; // D1 for Question Papers
+                $totalReceivedOMR = $copies[$sessionType]['D2'] ?? 0;            // D2 for OMR Sheets
+                $balanceUnusedQuestionPapers = max(0, $totalReceivedQuestionPapers - $present); // Prevent negative result
+                $balanceUnusedOMR = max(0, $totalReceivedOMR - $present);                      // Prevent negative result
                 $remarks_data = [];
                 if (isset($omr_remarks['FN'])) {
                     $session = 'FN';
@@ -255,7 +449,7 @@ class CIConsolidateController extends Controller
                 // Pass data to the view
                 // return view('PDF.Reports.ci-consolidate-report', compact('exam_data', 'exam_session_type', 'exam_date', 'user', 'hall_code', 'qp_box_open_time', 'remarks_summary', 'candidate_remarks_summary', 'merged_scribes', 'checklist_videography_data','checklist_consolidate_data'));
 
-                $html = view('PDF.Reports.ci-consolidate-report', compact('exam_data', 'exam_session_type', 'exam_date', 'user', 'hall_code', 'qp_box_open_time', 'remarks_summary', 'candidate_remarks_summary', 'merged_scribes', 'checklist_videography_data','checklist_consolidate_data'))->render();
+                $html = view('PDF.Reports.ci-consolidate-report', compact('balanceUnusedOMR', 'balanceUnusedQuestionPapers', 'copies', 'exam_data', 'exam_session_type', 'exam_date', 'user', 'hall_code', 'qp_box_open_time', 'remarks_summary', 'candidate_remarks_summary', 'merged_scribes', 'checklist_videography_data', 'checklist_consolidate_data', 'session_confirmedhalls', 'sessionDetails', 'scanTime', 'attendanceData', 'finalString'))->render();
 
                 // Generate the PDF using Browsershot
                 $pdf = Browsershot::html($html)
@@ -290,5 +484,46 @@ class CIConsolidateController extends Controller
                     ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
             }
         }
+    }
+    private function parseQrCode($qrCodeString)
+    {
+        // Define patterns for all QR code categories
+        $patterns = [
+            'D1' => '/^D1(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})(?<copies>\d{3})(?<box_no>\d{1})OF(?<total_boxes>\d{1})$/',
+            'D2' => '/^D2(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})(?<copies>\d{3})$/',
+            'I1' => '/^I1(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
+            'I2' => '/^I2(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
+            'R1' => '/^R1(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
+            'I3' => '/^I3(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
+            'I4' => '/^I4(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
+            'I5' => '/^I5(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
+            'I6' => '/^I6(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
+            'I7' => '/^I7(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
+            'R2' => '/^R2(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
+            'R3' => '/^R3(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
+            'R4' => '/^R4(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
+            'R5' => '/^R5(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
+        ];
+
+        // Iterate through each pattern to match the QR code
+        foreach ($patterns as $category => $pattern) {
+            if (preg_match($pattern, $qrCodeString, $matches)) {
+                // Return parsed details
+                return [
+                    'category' => $category,                        // Category identifier (e.g., D1, D2)
+                    'notification_no' => $matches['notification_no'], // Notification number
+                    'exam_date' => $matches['day'],                 // Day or exam date
+                    'exam_session' => ($matches['session'] === 'F') ? 'FN' : 'AN', // Session (Forenoon/Afternoon)
+                    'center_code' => $matches['center_code'],       // Center code
+                    'hall_code' => $matches['venue_code'] ?? null,  // Venue code
+                    'copies' => (int)($matches['copies'] ?? 0),     // Copies
+                    'box_no' => $matches['box_no'] ?? null,         // Box number (if applicable)
+                    'total_boxes' => $matches['total_boxes'] ?? null, // Total boxes (if applicable)
+                ];
+            }
+        }
+
+        // Return null if no pattern matched
+        return null;
     }
 }

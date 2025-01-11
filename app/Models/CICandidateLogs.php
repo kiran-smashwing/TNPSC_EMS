@@ -20,11 +20,13 @@ class CIcandidateLogs extends Model
         'candidate_remarks',
         'ci_id',
         'omr_remarks',
+        'candidate_attendance',
     ];
 
     protected $casts = [
         'additional_details' => 'array',
         'candidate_remarks' => 'array',
         'omr_remarks' => 'array',
+        'candidate_attendance' => 'array',
     ];
 }

@@ -439,4 +439,108 @@ class CICandidateLogsController extends Controller
 
         return redirect()->back()->with('success', 'OMR Remarks saved successfully!');
     }
+
+    public function saveCandidateAttendance(Request $request)
+    {
+        // Validate the incoming request data
+        $validated = $request->validate([
+            'exam_id' => 'required|numeric',
+            'exam_sess_date' => 'required|date',
+            'exam_sess_session' => 'required|string',
+            'present' => 'nullable|array',
+            'absent' => 'nullable|array',
+            'alloted_count' => 'required|numeric',
+        ]);
+
+        // Extract exam details
+        $exam_date = $validated['exam_sess_date'];
+        $sessions = $validated['exam_sess_session']; // Session (FN/AN)
+
+        // Retrieve authenticated user and CI ID
+        $role = session('auth_role');
+        $guard = $role ? Auth::guard($role) : null;
+        $user = $guard ? $guard->user() : null;
+        $ci_id = $user ? $user->ci_id : null;
+
+        if (!$user || !$ci_id) {
+            return redirect()->back()->withErrors(['error' => 'Unable to retrieve the authenticated user.']);
+        }
+
+        $timestamp = now()->toDateTimeString(); // Current timestamp
+
+        // Query the 'exam_confirmed_halls' table to get center_code and hall_code
+        $examConfirmedHall = ExamConfirmedHalls::where('exam_id', $validated['exam_id'])
+            ->where('exam_date', $exam_date)
+            ->where('exam_session', $sessions)
+            ->where('ci_id', $ci_id)
+            ->first();
+
+        if (!$examConfirmedHall) {
+            return redirect()->back()->with('error', 'No matching record found.');
+        }
+
+        $centerCode = $examConfirmedHall->center_code;
+        $hallCode = $examConfirmedHall->hall_code;
+
+        // Check if attendance data already exists for this session (FN/AN)
+        $existingAttendance = CIcandidateLogs::where([
+            'exam_id' => $validated['exam_id'],
+            'center_code' => $centerCode,
+            'hall_code' => $hallCode,
+            'exam_date' => $exam_date,
+            'ci_id' => $ci_id,
+        ])->first();
+
+        if ($existingAttendance) {
+            // Check if attendance for the specific session already exists
+            $existingData = $existingAttendance->candidate_attendance ?? [];
+            if (isset($existingData[$sessions])) {
+                return redirect()->back()->withErrors([
+                    'error' => "Attendance for the $sessions session has already been recorded. No duplicate entries allowed.",
+                ]);
+            }
+        }
+
+        // Prepare attendance data
+        $attendanceData = [
+            $sessions => [
+                'present' => array_sum($validated['present'] ?? []), // Sum of all present values
+                'absent' => array_sum($validated['absent'] ?? []),   // Sum of all absent values
+                'alloted_count' => $validated['alloted_count'],
+                'timestamp' => $timestamp,
+            ],
+        ];
+
+        // Ensure present + absent matches the allotted count
+        if (($attendanceData[$sessions]['present'] + $attendanceData[$sessions]['absent']) != $validated['alloted_count']) {
+            return redirect()->back()->withErrors([
+                'error' => 'The sum of present and absent must equal the allotted count.',
+            ]);
+        }
+
+        if ($existingAttendance) {
+            // Merge new attendance data with existing records
+            $existingAttendanceData = $existingAttendance->candidate_attendance ?? [];
+            $existingAttendanceData = array_merge($existingAttendanceData, $attendanceData);
+
+            $existingAttendance->update([
+                'candidate_attendance' => $existingAttendanceData,
+                'updated_at' => $timestamp,
+            ]);
+        } else {
+            // Create a new attendance record if it doesn't exist
+            CIcandidateLogs::create([
+                'exam_id' => $validated['exam_id'],
+                'center_code' => $centerCode,
+                'hall_code' => $hallCode,
+                'exam_date' => $exam_date,
+                'ci_id' => $ci_id,
+                'candidate_attendance' => $attendanceData,
+                'created_at' => $timestamp,
+                'updated_at' => $timestamp,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Candidate attendance saved successfully!');
+    }
 }

@@ -220,7 +220,7 @@
                                                     <a href="{{ route('charted-vehicle-routes.edit', $route['id']) }}"
                                                         class="avtar avtar-xs btn-light-success"><i
                                                             class="ti ti-edit f-20"></i></a>
-                                                    <a href="{{ route('scanTrunkboxes', $route['id']) }}"
+                                                    <a href="{{ route('viewTrunkboxes', $route['id']) }}"
                                                         class="avtar avtar-xs btn-light-success"><i
                                                             class="ti ti-checkbox  f-20"></i></a>
                                                 </td>

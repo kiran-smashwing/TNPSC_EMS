@@ -312,12 +312,6 @@
                     icon: iconType,
                     title: type.charAt(0).toUpperCase() + type.slice(1),
                     text: message,
-                    timer: 10000, // Hide after 10 seconds
-                    didOpen: () => {
-                        setTimeout(() => {
-                            Swal.close(); // Automatically close alert after 10 seconds
-                        }, 10000);
-                    }
                 }).then((result) => {
                     window.location.reload(); // Reload the page when "OK" is clicked
                 });

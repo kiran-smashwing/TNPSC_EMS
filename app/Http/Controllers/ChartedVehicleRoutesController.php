@@ -111,62 +111,103 @@ class ChartedVehicleRoutesController extends Controller
 
     public function editRoute(Request $request, $id)
     {
-        $route = ChartedVehicleRoute::with('escortstaffs')->findOrFail($id);
+        $user = $request->get('auth_user');
+
+        if ($user->role->role_department == 'ID') {
+            $route = ChartedVehicleRoute::with('escortstaffs')->findOrFail($id);
+        } else {
+            $route = ChartedVehicleRoute::with([
+                'escortstaffs' => function ($query) use ($user) {
+                    $query->where('tnpsc_staff_id', $user->dept_off_id); // Filter escortstaffs where tnpsc_staff_id matches the user's ID
+                }
+            ])->where('id', $id)->first();
+        }
+
         $tnpscStaffs = DepartmentOfficial::get();
         $exams = Currentexam::get();
         return view('my_exam.Charted-Vehicle.edit', compact('route', 'exams', 'tnpscStaffs'));
     }
+
     public function updateRoute(Request $request, $id)
     {
         $route = ChartedVehicleRoute::findOrFail($id);
+        $user = $request->get('auth_user');
 
-        // Update route details
-        $route->update([
-            'route_no' => $request->route_no,
-            'exam_id' => $request->exam_id,
-            'charted_vehicle_no' => $request->vehicle_no,
-            'driver_details' => [
-                'name' => $request->driver_name,
-                'licence_no' => $request->driver_licence_no,
-                'phone' => $request->phone
-            ],
-            'gps_locks' => $request->gps_locks,
-            'otl_locks' => $request->otl_locks,
-            'pc_details' => [
-                'name' => $request->police_constable,
-                'phone' => $request->police_constable_phone,
-                'ifhrms_no' => $request->police_constable_ifhrms_no ?? null
-            ],
-            'escort_vehicle_details' => [
-                'vehicle_no' => $request->escort_vehicle_no,
-                'driver_name' => $request->escort_driver_name,
-                'driver_licence_no' => $request->escort_driver_licence_no,
-                'driver_phone' => $request->escort_driver_phone
-            ]
-        ]);
+        if ($user->role->role_department == 'ID') {
 
-        // Delete existing escort staff
-        EscortStaff::where('charted_vehicle_id', $route->id)->delete();
-
-        // Create new escort staff
-        foreach ($request->escortstaffs as $staff) {
-            EscortStaff::create([
-                'charted_vehicle_id' => $route->id,
-                'district_code' => $staff['district'],
-                'tnpsc_staff_id' => $staff['tnpsc_staff'],
-                'si_details' => [
-                    'name' => $staff['si_name'],
-                    'phone' => $staff['si_phone'],
-                    'ifhrms_no' => $staff['si_ifhrms_no'] ?? null
+            // Update route details
+            $route->update([
+                'route_no' => $request->route_no,
+                'exam_id' => $request->exam_id,
+                'charted_vehicle_no' => $request->vehicle_no,
+                'driver_details' => [
+                    'name' => $request->driver_name,
+                    'licence_no' => $request->driver_licence_no,
+                    'phone' => $request->phone
                 ],
-                'revenue_staff_details' => [
-                    'name' => $staff['revenue_staff_name'],
-                    'phone' => $staff['revenue_phone'],
-                    'ifhrms_no' => $staff['revenue_ifhrms_no'] ?? null
+                'gps_locks' => $request->gps_locks,
+                'otl_locks' => $request->otl_locks,
+                'pc_details' => [
+                    'name' => $request->police_constable,
+                    'phone' => $request->police_constable_phone,
+                    'ifhrms_no' => $request->police_constable_ifhrms_no ?? null
+                ],
+                'escort_vehicle_details' => [
+                    'vehicle_no' => $request->escort_vehicle_no,
+                    'driver_name' => $request->escort_driver_name,
+                    'driver_licence_no' => $request->escort_driver_licence_no,
+                    'driver_phone' => $request->escort_driver_phone
                 ]
             ]);
-        }
 
+            // Delete existing escort staff
+            EscortStaff::where('charted_vehicle_id', $route->id)->delete();
+
+            // Create new escort staff
+            foreach ($request->escortstaffs as $staff) {
+                EscortStaff::create([
+                    'charted_vehicle_id' => $route->id,
+                    'district_code' => $staff['district'],
+                    'tnpsc_staff_id' => $staff['tnpsc_staff'],
+                    'si_details' => [
+                        'name' => $staff['si_name'],
+                        'phone' => $staff['si_phone'],
+                        'ifhrms_no' => $staff['si_ifhrms_no'] ?? null
+                    ],
+                    'revenue_staff_details' => [
+                        'name' => $staff['revenue_staff_name'],
+                        'phone' => $staff['revenue_phone'],
+                        'ifhrms_no' => $staff['revenue_ifhrms_no'] ?? null
+                    ]
+                ]);
+            }
+        }
+        else {
+
+            // Update escort staff details only 
+            foreach ($request->escortstaffs as $staff) {
+                $escortstaff = EscortStaff::where('charted_vehicle_id', $route->id)
+                    ->where('tnpsc_staff_id', $user->dept_off_id) // Filter escortstaffs where tnpsc_staff_id matches the user's ID
+                    ->first();
+
+                if ($escortstaff) {
+                    $escortstaff->update([
+                        'district_code' => $staff['district'],
+                        'si_details' => [
+                            'name' => $staff['si_name'],
+                            'phone' => $staff['si_phone'],
+                            'ifhrms_no' => $staff['si_ifhrms_no'] ?? null
+                        ],
+                        'revenue_staff_details' => [
+                            'name' => $staff['revenue_staff_name'],
+                            'phone' => $staff['revenue_phone'],
+                            'ifhrms_no' => $staff['revenue_ifhrms_no'] ?? null
+                        ]
+                        ]);
+                }
+            }
+
+        }
         return redirect()->route('charted-vehicle-routes.index')
             ->with('success', 'Charted Vehicle Route updated successfully.');
     }
@@ -178,6 +219,7 @@ class ChartedVehicleRoutesController extends Controller
         $tnpscStaffs = DepartmentOfficial::get();
         return view('my_exam.Charted-Vehicle.view', compact('route', 'exams', 'tnpscStaffs'));
     }
+
     public function getDistrictsForExamIDs(Request $request)
     {
         $examIds = $request->exam_ids;
@@ -227,6 +269,7 @@ class ChartedVehicleRoutesController extends Controller
 
         return view('my_exam.Charted-Vehicle.downward-journey-routes', compact('routes'));
     }
+
     public function viewTrunkboxes(Request $request, $id)
     {
         $user = $request->get('auth_user');
@@ -257,13 +300,18 @@ class ChartedVehicleRoutesController extends Controller
             ->whereIn('e.district_code', $districtCodes) // Match district codes
             ->orderBy('e.load_order') // Add ordering by load_order
             ->get(); // Get all matching trunk boxes
-
-        // dd($trunkBoxes);
+        //total number of trunk boxes found for this user
+        $totalTrunkBoxes = $trunkBoxes->count();
+        // Total number of trunk boxes scanned by the user
+        $totalScanned = $trunkBoxes->filter(function ($examMaterial) {
+            return !is_null($examMaterial->dept_off_scanned_at); // Check if scanned_at is not null
+        })->count();
         $myroute = ChartedVehicleRoute::where('id', $id)->first();
         $exams = Currentexam::get();
         $tnpscStaffs = DepartmentOfficial::get();
-        return view('my_exam.Charted-Vehicle.scan-trunkbox', compact('trunkBoxes', 'exams', 'tnpscStaffs', 'myroute'));
+        return view('my_exam.Charted-Vehicle.scan-trunkbox', compact('trunkBoxes', 'exams', 'tnpscStaffs', 'myroute', 'totalTrunkBoxes', 'totalScanned'));
     }
+
     public function scanTrunkboxOrder(Request $request)
     {
         // Validate request
@@ -354,9 +402,6 @@ class ChartedVehicleRoutesController extends Controller
             'message' => 'QR code scanned successfully.',
         ], 200);
     }
-
-
-
 
     public function generateTrunkboxOrder($id)
     {

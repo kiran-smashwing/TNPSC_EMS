@@ -51,10 +51,7 @@ use App\Http\Controllers\CIPaperReplacementsController;
 use App\Http\Controllers\BundlePackagingController;
 use App\Http\Controllers\ChartedVehicleRoutesController;
 
-<<<<<<< HEAD
-=======
 //PDF
->>>>>>> 756c2d9fae864443d8608fb0a92ee259fcd0eb05
 //center_attenance_report
 Route::get('/attendance-report', [AttendanceReportController::class, 'generateAttendanceReport'])->name('download.attendanceReport');
 //district_attenance_report
@@ -445,12 +442,7 @@ Route::prefix('exam-materials')->group(function () {
 });
 Route::prefix('bundle-packaging')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
-<<<<<<< HEAD
         Route::get('/ci-bundlepackaging/{examId}/{exam_date}/{exam_session}', [BundlePackagingController::class, 'ciBundlepackagingView'])->name('ci.bundlepackaging.view');
-=======
-
-        Route::get('/ci-bundlepackaging/{examId}/{exam_date}/{exam_session}', [BundlePackagingController::class, 'ciBundlepackagingView']) ->name('ci.bundlepackaging.view');
->>>>>>> 756c2d9fae864443d8608fb0a92ee259fcd0eb05
         Route::get('/ci-to-mobileteam-bundle-packaging/{examId}/{examDate}', [BundlePackagingController::class, 'CItoMobileTeam'])->name('bundle-packaging.ci-to-mobileteam');
         Route::get('/mobileteam-to-district-bundle-packaging/{examId}', [BundlePackagingController::class, 'MobileTeamtoDistrict'])->name('bundle-packaging.mobileteam-to-district');
         Route::get('/mobileteam-to-center/{examId}', [BundlePackagingController::class, 'MobileTeamtoCenter'])->name('bundle-packaging.mobileteam-to-center');

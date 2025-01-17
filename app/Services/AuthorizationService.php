@@ -17,6 +17,9 @@ class AuthorizationService
             ],
             'ID' => [
                 'update-percentage',
+                'create-charted-vehicle-route',
+                'edit-charted-vehicle-route',
+                'create-escort-staff',
             ],
             'ED' => [
                 'upload-exam-materials-csv',

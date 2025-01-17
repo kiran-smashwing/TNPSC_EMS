@@ -1243,7 +1243,6 @@
                                                         <a href="helpdesk-ticket-details.html"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-map mx-1"></i>View Route</a>
-
                                                     </div>
                                                 </div>
                                             </div>
@@ -2789,8 +2788,7 @@
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive Exam Materials From
-                                                            VDS<small
+                                                        <div class="h5 font-weight-bold">Handover All Materials from Vehicle<small
                                                                 class="badge bg-light-secondary ms-2">Received</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
@@ -2815,9 +2813,8 @@
                                                         </div>
                                                         <div class="h5 mt-3"><i
                                                                 class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            HQ
-                                                            - Treasury Officer</div>
-
+                                                            ED / QD
+                                                            - Officer</div>
                                                     </div>
                                                     <div class="mt-2">
                                                         <a href="helpdesk-ticket-details.html"
@@ -2885,7 +2882,7 @@
                                                         </div>
                                                         <div class="h5 mt-3"><i
                                                                 class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            HQ
+                                                            ED 
                                                             - Admin Officer</div>
 
                                                     </div>
@@ -2902,7 +2899,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </li>
+                                </li> 
                             </ul>
                             {{-- <div class="text-end">
                       <a href="#!" class="b-b-primary text-primary">View Friend List</a>

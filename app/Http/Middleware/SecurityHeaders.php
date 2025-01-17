@@ -23,21 +23,17 @@ class SecurityHeaders
             '/\b(union\s+select|select\s+from|insert\s+into|update\s+\w+\s+set|delete\s+from|drop\s+table|create\s+table|alter\s+table|rename\s+table|truncate\s+table|load\s+data|call\s+\w+|declare\s+\w+|exec\s+\w+|execute\s+\w+)\b/i',
             '/(\b(and|or)\b\s+[^\s]+?\s*?=|--|#|\/\*|\*\/|;)/i'
         ];
+
         /**
          * Check if the given string is a base64 image.
-         *
-         * @param string $value
-         * @return bool
          */
         function isBase64Image($value)
         {
             return is_string($value) && preg_match('/^data:image\/(png|jpeg|jpg);base64,/', $value);
         }
+
         /**
          * Recursively check values for prohibited patterns.
-         *
-         * @param mixed $value
-         * @param array $patterns
          */
         function checkValue($value, $patterns)
         {
@@ -56,9 +52,15 @@ class SecurityHeaders
         }
 
         foreach ($input as $key => $value) {
-            // Decode JSON strings like exam_id and continue processing
-            $decodedValue = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            $jsonDecoded = json_decode($decodedValue, true);
+            if (is_string($value)) {
+                // Decode HTML entities only if the value is a string
+                $decodedValue = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $jsonDecoded = json_decode($decodedValue, true);
+            } else {
+                // Skip decoding if the value is not a string
+                $decodedValue = $value;
+                $jsonDecoded = is_array($value) ? $value : null;
+            }
 
             if (is_array($jsonDecoded)) {
                 // Skip direct checks if it's valid JSON; process recursively
@@ -72,7 +74,7 @@ class SecurityHeaders
             }
 
             // Check plain values
-            checkValue($value, $patterns);
+            checkValue($decodedValue, $patterns);
         }
 
         // Add security headers

@@ -158,8 +158,8 @@
                                 <ul class="list-inline ms-auto  mb-0">
 
                                     <li class="list-inline-item"><a href="#" class="badge bg-dark f-14">Received
-                                            {{ 21 }} /
-                                            {{ 222 }}</a></li>
+                                            {{ $totalScanned }} /
+                                            {{ $totalTrunkBoxes }}</a></li>
                                     {{-- <li class="list-inline-item"> <a href="{{route('collectorate.create')}}" class="btn btn-outline-success">Scan Now</a></li> --}}
                                 </ul>
 

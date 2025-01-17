@@ -69,7 +69,11 @@ class District extends Authenticatable
     }
     public function treasuryOfficers()
     {
-        return $this->hasMany(TreasuryOfficer::class, 'tre_off_district_id', 'district_id');
+        return $this->hasMany(TreasuryOfficer::class, 'tre_off_district_id', 'district_code');
+    }
+    public function venues()
+    {
+        return $this->hasMany(Venues::class,'venue_district_id', 'district_code');
     }
     public function centers()
     {
@@ -77,11 +81,10 @@ class District extends Authenticatable
     }
     public function mobileTeamStaffs()
     {
-        return $this->hasMany(MobileTeamStaffs::class, 'mobile_district_id', 'district_id');
+        return $this->hasMany(MobileTeamStaffs::class, 'mobile_district_id', 'district_code');
     }
     public function examCandidatesProjection()
     {
         return $this->hasMany(ExamCandidatesProjection::class, 'district_code', 'district_code');
     }
-
 }

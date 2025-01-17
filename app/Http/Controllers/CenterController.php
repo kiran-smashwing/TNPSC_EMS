@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Center;
+use App\Models\Venues;
 use App\Models\District;
 use Illuminate\Http\Request;
 use App\Services\ImageCompressService;
@@ -73,12 +74,12 @@ class CenterController extends Controller
             ->orderBy('district_name')
             ->get();
 
-        $centerCodes = Center::select('center_code','center_name','center_district_id')
+        $centerCodes = Center::select('center_code', 'center_name', 'center_district_id')
             ->whereNotNull('center_code')
             ->distinct()
             ->orderBy('center_name')
             ->get();
-        
+
 
         return compact('centers', 'districts', 'centerCodes');
     }
@@ -93,95 +94,95 @@ class CenterController extends Controller
     }
 
     public function store(Request $request)
-{
-    $validated = $request->validate([
-        'center_name' => 'required|string|max:255',
-        'center_code' => 'required|numeric|unique:centers',
-        'email' => 'required|email|unique:centers,center_email',
-        'phone' => 'required|string|max:15',
-        'alternate_phone' => 'nullable|string|max:15',
-        'password' => 'required|string|min:6',
-        'address' => 'required|string',
-        'longitude' => 'required|numeric',
-        'latitude' => 'required|numeric',
-        'cropped_image' => 'nullable|string'
-    ]);
-
-    try {
-        // Process the cropped image if present
-        if (!empty($validated['cropped_image'])) {
-            $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
-            $imageData = base64_decode($imageData);
-
-            if ($imageData === false) {
-                throw new \Exception('Base64 decode failed.');
-            }
-
-            $imageName = $validated['center_code'] . time() . '.png';
-            $imagePath = 'images/centers/' . $imageName;
-
-            $stored = Storage::disk('public')->put($imagePath, $imageData);
-
-            if (!$stored) {
-                throw new \Exception('Failed to save image to storage.');
-            }
-
-            $validated['image'] = $imagePath;
-        }
-
-        // Hash the password and generate a verification token
-        $validated['center_password'] = Hash::make($validated['password']);
-        $validated['verification_token'] = Str::random(64);
-
-        // Create the center record
-        $center = Center::create([
-            'center_name' => $validated['center_name'],
-            'center_code' => $validated['center_code'],
-            'center_email' => $validated['email'],
-            'center_phone' => $validated['phone'],
-            'center_alternate_phone' => $validated['alternate_phone'],
-            'center_password' => $validated['center_password'],
-            'center_address' => $validated['address'],
-            'center_longitude' => $validated['longitude'],
-            'center_latitude' => $validated['latitude'],
-            'center_image' => $validated['image'] ?? null,
-            'verification_token' => $validated['verification_token'],
+    {
+        $validated = $request->validate([
+            'center_name' => 'required|string|max:255',
+            'center_code' => 'required|numeric|unique:centers',
+            'email' => 'required|email|unique:centers,center_email',
+            'phone' => 'required|string|max:15',
+            'alternate_phone' => 'nullable|string|max:15',
+            'password' => 'required|string|min:6',
+            'address' => 'required|string',
+            'longitude' => 'required|numeric',
+            'latitude' => 'required|numeric',
+            'cropped_image' => 'nullable|string'
         ]);
 
-        // Log the creation with the audit logger
-        AuditLogger::log('Center Created', Center::class, $center->id, null, $center->toArray());
+        try {
+            // Process the cropped image if present
+            if (!empty($validated['cropped_image'])) {
+                $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
+                $imageData = base64_decode($imageData);
 
-        // Send the welcome email
-        Mail::send('email.center_created', [
-            'name' => $center->center_name,
-            'email' => $center->center_email,
-            'password' => $request->password, // Plain password for first login
-        ], function ($message) use ($center) {
-            $message->to($center->center_email)
-                ->subject('Welcome to Our Platform');
-        });
+                if ($imageData === false) {
+                    throw new \Exception('Base64 decode failed.');
+                }
 
-        // Send the email verification link
-        Mail::send('email.center_verification', [
-            'name' => $center->center_name,
-            'email' => $center->center_email,
-            'verification_link' => route('center.verifyEmail', ['token' => urlencode($center->verification_token)]),
-        ], function ($message) use ($center) {
-            $message->to($center->center_email)
-                ->subject('Verify Your Email Address');
-        });
+                $imageName = $validated['center_code'] . time() . '.png';
+                $imagePath = 'images/centers/' . $imageName;
 
-        // Redirect with success message
-        return redirect()->route('centers.index')
-            ->with('success', 'Center created successfully. Email verification link has been sent.');
-    } catch (\Exception $e) {
-        // Handle exceptions and show an error message
-        return back()->withInput()
-            ->with('error', 'Error creating center: ' . $e->getMessage());
+                $stored = Storage::disk('public')->put($imagePath, $imageData);
+
+                if (!$stored) {
+                    throw new \Exception('Failed to save image to storage.');
+                }
+
+                $validated['image'] = $imagePath;
+            }
+
+            // Hash the password and generate a verification token
+            $validated['center_password'] = Hash::make($validated['password']);
+            $validated['verification_token'] = Str::random(64);
+
+            // Create the center record
+            $center = Center::create([
+                'center_name' => $validated['center_name'],
+                'center_code' => $validated['center_code'],
+                'center_email' => $validated['email'],
+                'center_phone' => $validated['phone'],
+                'center_alternate_phone' => $validated['alternate_phone'],
+                'center_password' => $validated['center_password'],
+                'center_address' => $validated['address'],
+                'center_longitude' => $validated['longitude'],
+                'center_latitude' => $validated['latitude'],
+                'center_image' => $validated['image'] ?? null,
+                'verification_token' => $validated['verification_token'],
+            ]);
+
+            // Log the creation with the audit logger
+            AuditLogger::log('Center Created', Center::class, $center->id, null, $center->toArray());
+
+            // Send the welcome email
+            Mail::send('email.center_created', [
+                'name' => $center->center_name,
+                'email' => $center->center_email,
+                'password' => $request->password, // Plain password for first login
+            ], function ($message) use ($center) {
+                $message->to($center->center_email)
+                    ->subject('Welcome to Our Platform');
+            });
+
+            // Send the email verification link
+            Mail::send('email.center_verification', [
+                'name' => $center->center_name,
+                'email' => $center->center_email,
+                'verification_link' => route('center.verifyEmail', ['token' => urlencode($center->verification_token)]),
+            ], function ($message) use ($center) {
+                $message->to($center->center_email)
+                    ->subject('Verify Your Email Address');
+            });
+
+            // Redirect with success message
+            return redirect()->route('centers.index')
+                ->with('success', 'Center created successfully. Email verification link has been sent.');
+        } catch (\Exception $e) {
+            // Handle exceptions and show an error message
+            return back()->withInput()
+                ->with('error', 'Error creating center: ' . $e->getMessage());
+        }
     }
-}
 
-    
+
 
     public function verifyEmail($token)
     {
@@ -297,12 +298,12 @@ class CenterController extends Controller
 
             // Log district update with old and new values
             AuditLogger::log('Center Updated', Center::class, $center->center_id, $oldValues, $changedValues);
-                if (url()->previous() === route('centers.edit', $id)) {
-                    return redirect()->route('centers.index')
-                        ->with('success', 'Center updated successfully');
-                } else {
-                    return redirect()->back()->with('success', 'Center updated successfully');
-                }
+            if (url()->previous() === route('centers.edit', $id)) {
+                return redirect()->route('centers.index')
+                    ->with('success', 'Center updated successfully');
+            } else {
+                return redirect()->back()->with('success', 'Center updated successfully');
+            }
         } catch (\Exception $e) {
             return back()->withInput()
                 ->with('error', 'Error updating center: ' . $e->getMessage());
@@ -312,12 +313,17 @@ class CenterController extends Controller
 
     public function show($id)
     {
-        $center = Center::with(relations: 'district')->findOrFail($id);
+        // Find the center by ID and load the related district
+        $center = Center::with('district')->findOrFail($id);
 
+        // Count of centers, venues, and members related to the district
+        $centerCount = Center::where('center_district_id', $center->district_id)->count();
+        $venueCount = Venues::where('venue_district_id', $center->district_id)->count();
+        // $memberCount = Member::where('member_district_id', $center->district_id)->count();
         // Log view action
         AuditLogger::log('Center Viewed', Center::class, $center->center_id);
-
-        return view('masters.district.centers.show', compact('center'));
+        // Pass the counts to the view
+        return view('masters.district.centers.show', compact('center', 'centerCount', 'venueCount'));
     }
 
     public function destroy(Center $center)

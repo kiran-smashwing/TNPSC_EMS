@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\TreasuryOfficer;
+use App\Models\Center;
+use App\Models\Venues;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -167,7 +169,7 @@ class TreasuryOfficerController extends Controller
 
         return redirect()->route('treasury-officers.index')->with('success', 'Email verified successfully.');
     }
-     
+
 
     public function edit($id)
     {
@@ -264,13 +266,21 @@ class TreasuryOfficerController extends Controller
 
     public function show($id)
     {
-        $treasuryOfficer = TreasuryOfficer::with(relations: 'district')->findOrFail($id);
+        // Find the Treasury Officer by ID and load the related district
+        $treasuryOfficer = TreasuryOfficer::with('district')->findOrFail($id);
+
+        // Count of centers, venues, and members related to the district
+        $centerCount = Center::where('center_district_id', $treasuryOfficer->district_id)->count();
+        $venueCount = Venues::where('venue_district_id', $treasuryOfficer->district_id)->count();
+        
 
         // Log view action
         AuditLogger::log('Treasury Officer Viewed', TreasuryOfficer::class, $treasuryOfficer->tre_off_id);
 
-        return view('masters.district.treasury_Officers.show', compact('treasuryOfficer'));
+        // Pass the counts to the view
+        return view('masters.district.treasury_Officers.show', compact('treasuryOfficer', 'centerCount', 'venueCount'));
     }
+
 
     public function destroy($id)
     {

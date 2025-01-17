@@ -29,7 +29,15 @@
                             <div class="card">
                                 <div class="card-body position-relative">
                                     <div class="position-absolute end-0 top-0 p-3">
-                                        <span class="d-flex align-items-center"></span>
+                                        <span class="d-flex align-items-center">
+                                            <span class="me-2">E-mail</span>
+                                            <!-- Check the district_email_status -->
+                                            @if ($invigilator->district->district_email_status) <!-- Assuming $district contains the row data -->
+                                                <i class="ph-duotone ph-circle-wavy-check text-success"></i>
+                                            @else
+                                                <i class="ti ti-alert-circle text-danger f-18"></i>
+                                            @endif
+                                        </span>
                                     </div>
 
                                     <div class="text-center mt-3">
@@ -94,7 +102,15 @@
                             <div class="card">
                                 <div class="card-body position-relative">
                                     <div class="position-absolute end-0 top-0 p-3">
-                                        <span class="d-flex align-items-center"></span>
+                                        <span class="d-flex align-items-center">
+                                            <span class="me-2">E-mail</span>
+                                            <!-- Check the district_email_status -->
+                                            @if ($invigilator->venue->venue_email_status) <!-- Assuming $district contains the row data -->
+                                                <i class="ph-duotone ph-circle-wavy-check text-success"></i>
+                                            @else
+                                                <i class="ti ti-alert-circle text-danger f-18"></i>
+                                            @endif
+                                        </span>
                                     </div>
 
                                     <div class="text-center mt-3">
@@ -160,11 +176,13 @@
                                 <div class="card-body position-relative">
                                     <div class="position-absolute end-0 top-0 p-3">
                                         <span class="d-flex align-items-center">
-                                            <!-- Email Address -->
                                             <span class="me-2">E-mail</span>
-                                            <!-- Verified Icon -->
-                                            <i class="ph-duotone ph-circle-wavy-check text-success"></i>
-                                            <!-- Bootstrap Icon -->
+                                            <!-- Check the district_email_status -->
+                                            @if ($invigilator->invigilator_email_status) <!-- Assuming $district contains the row data -->
+                                                <i class="ph-duotone ph-circle-wavy-check text-success"></i>
+                                            @else
+                                                <i class="ti ti-alert-circle text-danger f-18"></i>
+                                            @endif
                                         </span>
                                     </div>
 

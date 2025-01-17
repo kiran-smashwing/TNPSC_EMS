@@ -30,11 +30,13 @@
                                 <div class="card-body position-relative">
                                     <div class="position-absolute end-0 top-0 p-3">
                                         <span class="d-flex align-items-center">
-                                            <!-- Email Address -->
                                             <span class="me-2">E-mail</span>
-                                            <!-- Verified Icon -->
-                                            <i class="ph-duotone ph-circle-wavy-check text-success"></i>
-                                            <!-- Bootstrap Icon -->
+                                            <!-- Check the district_email_status -->
+                                            @if ($official->dept_off_email_status) <!-- Assuming $district contains the row data -->
+                                                <i class="ph-duotone ph-circle-wavy-check text-success"></i>
+                                            @else
+                                                <i class="ti ti-alert-circle text-danger f-18"></i>
+                                            @endif
                                         </span>
                                     </div>
 

@@ -114,7 +114,7 @@
 
             @media (max-width: 421px) {
                 .btn-container {
-                    justify-content: center;
+                    /* justify-content: center; */
                 }
             }
         </style>
@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                          <h2 class="mb-0"></h2>
-                        </div> -->
+                              <h2 class="mb-0"></h2>
+                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -181,7 +181,8 @@
                             <div class="d-sm-flex align-items-center justify-content-between">
                                 <h5 class="mb-3 mb-sm-0">Mobile Team Staffs list</h5>
                                 <div>
-                                    <a href="{{ route('mobile-team-staffs.create') }}" class="btn btn-outline-success">Add Mobile
+                                    <a href="{{ route('mobile-team-staffs.create') }}" class="btn btn-outline-success">Add
+                                        Mobile
                                         Team Staffs</a>
                                 </div>
                             </div>
@@ -219,7 +220,8 @@
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                                 </div>
-                                <a href="{{ route('mobile-team-staffs.index') }}" class="btn btn-secondary">Reset Filters</a>
+                                <a href="{{ url()->current() }}" class="btn btn-secondary"><i
+                                        class="ti ti-refresh me-2"></i>Reset</a>
                             </form>
 
 
@@ -260,7 +262,7 @@
                                                     <h6 class="mb-0">{{ $team->mobile_name }}</h6>
                                                 </div>
                                             </td>
-                                            <td>{{ $team->mobile_district_id  }}</td>
+                                            <td>{{ $team->mobile_district_id }}</td>
                                             <!-- Displaying district name -->
                                             <td>{{ $team->mobile_email }}</td>
                                             <td>{{ $team->mobile_phone }}</td>
@@ -307,69 +309,73 @@
         @include('partials.datatable-export-js')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const toggleButtons = document.querySelectorAll('.status-toggle');
+                // Use event delegation to handle dynamically rendered buttons
+                document.body.addEventListener('click', function(e) {
+                    // Find the closest toggle button if the clicked element is within it
+                    const button = e.target.closest('.status-toggle');
+                    if (!button) return; // Exit if the click was not on a toggle button
 
-                toggleButtons.forEach(button => {
-                    button.addEventListener('click', function(e) {
-                        e.preventDefault();
+                    e.preventDefault(); // Prevent default behavior
 
-                        // Disable the button during processing
-                        this.classList.add('disabled');
+                    // Disable the button during processing
+                    button.classList.add('disabled');
 
-                        const mobileId = this.dataset.mobileId;
+                    // Get the mobile team staff ID from the data attribute
+                    const mobileId = button.dataset.mobileId;
 
-                        fetch(`{{ url('/') }}/mobile-team-staffs/${mobileId}/toggle-status`, {
-                                method: 'POST',
-                                headers: {
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                    'Accept': 'application/json',
-                                    'Content-Type': 'application/json'
-                                },
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    // Toggle classes
-                                    this.classList.toggle('btn-light-success');
-                                    this.classList.toggle('btn-light-danger');
+                    // Send the request to toggle the status
+                    fetch(`{{ url('/') }}/mobile-team-staffs/${mobileId}/toggle-status`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Toggle button classes to reflect the new status
+                                button.classList.toggle('btn-light-success');
+                                button.classList.toggle('btn-light-danger');
 
-                                    // Toggle icon
-                                    const icon = this.querySelector('i');
-                                    if (icon.classList.contains('ti-toggle-right')) {
-                                        icon.classList.remove('ti-toggle-right');
-                                        icon.classList.add('ti-toggle-left');
-                                    } else {
-                                        icon.classList.remove('ti-toggle-left');
-                                        icon.classList.add('ti-toggle-right');
-                                    }
-                                    // Show success notification
-                                    showNotification(
-                                        'Status Updated',
-                                        data.message || 'District status updated successfully',
-                                        'success'
-                                    );
+                                // Toggle the icon
+                                const icon = button.querySelector('i');
+                                if (icon.classList.contains('ti-toggle-right')) {
+                                    icon.classList.remove('ti-toggle-right');
+                                    icon.classList.add('ti-toggle-left');
                                 } else {
-                                    // Show error notification
-                                    showNotification(
-                                        'Update Failed',
-                                        data.message || 'Failed to update status',
-                                        'error'
-                                    );
+                                    icon.classList.remove('ti-toggle-left');
+                                    icon.classList.add('ti-toggle-right');
                                 }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
+
+                                // Show success notification
                                 showNotification(
-                                    'Error',
-                                    'An error occurred while updating status',
+                                    'Status Updated',
+                                    data.message || 'Mobile team staff status updated successfully',
+                                    'success'
+                                );
+                            } else {
+                                // Show error notification
+                                showNotification(
+                                    'Update Failed',
+                                    data.message || 'Failed to update status',
                                     'error'
                                 );
-                            })
-                            .finally(() => {
-                                // Re-enable the button
-                                this.classList.remove('disabled');
-                            });
-                    });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showNotification(
+                                'Error',
+                                'An error occurred while updating status',
+                                'error'
+                            );
+                        })
+                        .finally(() => {
+                            // Re-enable the button
+                            button.classList.remove('disabled');
+                        });
                 });
             });
         </script>

@@ -29,21 +29,26 @@
                                 <div class="card-body position-relative">
                                     <div class="position-absolute end-0 top-0 p-3">
                                         <span class="d-flex align-items-center">
-
                                             <span class="me-2">E-mail</span>
-
-                                            <i class="ph-duotone ph-circle-wavy-check text-success"></i>
-
+                                            <!-- Check the district_email_status -->
+                                            @if ($district->district_email_status)
+                                                <!-- Assuming $district contains the row data -->
+                                                <i class="ph-duotone ph-circle-wavy-check text-success"></i>
+                                            @else
+                                                <i class="ti ti-alert-circle text-danger f-18"></i>
+                                            @endif
                                         </span>
                                     </div>
 
+
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
-                                            <img alt="User image" src="{{ $district->district_image
-                                            ? asset('storage/' . $district->district_image)
-                                            : asset('storage/assets/images/user/collectorate.png') }}"
-                                            id="previewImage" alt="Cropped Preview"
-                                            class="rounded-circle img-fluid wid-70">
+                                            <img alt="User image"
+                                                src="{{ $district->district_image
+                                                    ? asset('storage/' . $district->district_image)
+                                                    : asset('storage/assets/images/user/collectorate.png') }}"
+                                                id="previewImage" alt="Cropped Preview"
+                                                class="rounded-circle img-fluid wid-70">
                                         </div>
                                         <h5 class="mb-0">{{ $district->district_name }} - {{ $district->district_code }}
                                         </h5>
@@ -51,11 +56,11 @@
                                         <hr class="my-3 border border-secondary-subtle">
                                         <div class="row g-3">
                                             <div class="col-4">
-                                                <h5 class="mb-0">86</h5>
+                                                <h5 class="mb-0">{{$centerCount}}</h5>
                                                 <small class="text-muted">Centers</small>
                                             </div>
                                             <div class="col-4 border border-top-0 border-bottom-0">
-                                                <h5 class="mb-0">40</h5>
+                                                <h5 class="mb-0">{{$venueCount}}</h5>
                                                 <small class="text-muted">Venues</small>
                                             </div>
                                             <div class="col-4">
@@ -147,5 +152,5 @@
     @include('partials.footer')
 
     @include('partials.theme')
-   
+
 @endsection

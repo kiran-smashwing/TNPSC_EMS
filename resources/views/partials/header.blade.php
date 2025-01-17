@@ -14,14 +14,14 @@
                     </a>
                 </li>
                 <li class="pc-h-item d-none d-md-inline-flex">
-                    <form class="form-search">
+                    {{-- <form class="form-search">
                         <i class="search-icon">
                             <svg class="pc-icon">
                                 <use xlink:href="#custom-search-normal-1"></use>
                             </svg>
                         </i>
                         <input type="search" class="form-control" placeholder="Ctrl + K" />
-                    </form>
+                    </form> --}}
                 </li>
             </ul>
         </div>
@@ -58,7 +58,7 @@
                 </li>
 
 
-                <li class="dropdown pc-h-item">
+                {{-- <li class="dropdown pc-h-item">
                     <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown" href="#"
                         role="button" aria-haspopup="false" aria-expanded="false">
                         <svg class="pc-icon">
@@ -170,7 +170,7 @@
                             <a href="#!" class="link-danger">Clear all Notifications</a>
                         </div>
                     </div>
-                </li>
+                </li> --}}
                 <li class="dropdown pc-h-item header-user-profile">
 
                     <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown" href="#"

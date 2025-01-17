@@ -496,13 +496,13 @@ Route::prefix('charted-vehicle-routes')->group(function () {
 });
 
 //ReceiveExamMaterialsController Route::prefix('receive-exam-materials')->group(function(){
-    Route::prefix('exam-trunkbox-qr-otl-data')->group(function () {
-        Route::middleware(['auth.multi'])->group(function () {
-            Route::get('/download-sample-csv', [ExamTrunkBoxOTLDataController::class, 'downloadSampleCsv'])->name('exam-trunkbox-qr-otl-data.download-sample-csv');
-            Route::post('/upload', [ExamTrunkBoxOTLDataController::class, 'uploadCsv'])->name('exam-trunkbox-qr-otl-data.upload');
-            Route::get('/{examId}', [ExamTrunkBoxOTLDataController::class, 'index'])->name('exam-trunkbox-qr-otl-data.index');
-        });
+Route::prefix('exam-trunkbox-qr-otl-data')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/download-sample-csv', [ExamTrunkBoxOTLDataController::class, 'downloadSampleCsv'])->name('exam-trunkbox-qr-otl-data.download-sample-csv');
+        Route::post('/upload', [ExamTrunkBoxOTLDataController::class, 'uploadCsv'])->name('exam-trunkbox-qr-otl-data.upload');
+        Route::get('/{examId}', [ExamTrunkBoxOTLDataController::class, 'index'])->name('exam-trunkbox-qr-otl-data.index');
     });
+});
 // Route::get('/run-function', [DataController::class, 'addData']);
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

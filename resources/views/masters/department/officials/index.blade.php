@@ -114,7 +114,7 @@
 
             @media (max-width: 421px) {
                 .btn-container {
-                    justify-content: center;
+                    /* justify-content: center; */
                 }
             }
         </style>

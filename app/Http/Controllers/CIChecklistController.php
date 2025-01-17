@@ -16,12 +16,13 @@ class CIChecklistController extends Controller
     }
     public function index()
     {
-        // Paginate the CiChecklist records (default 15 items per page)
-        $ciChecklists = CiChecklist::paginate(15);
+        // Retrieve all CiChecklist records without pagination
+        $ciChecklists = CiChecklist::all();
 
         // Pass the data to the view
         return view('masters.department.ci_checklist.index', compact('ciChecklists'));
     }
+
 
 
     public function create()

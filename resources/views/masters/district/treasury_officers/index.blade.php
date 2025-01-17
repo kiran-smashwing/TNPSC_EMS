@@ -114,7 +114,7 @@
 
             @media (max-width: 421px) {
                 .btn-container {
-                    justify-content: center;
+                    /* justify-content: center; */
                 }
             }
         </style>
@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                  <h2 class="mb-0"></h2>
-                                </div> -->
+                                      <h2 class="mb-0"></h2>
+                                    </div> -->
                         </div>
                     </div>
                 </div>
@@ -199,7 +199,7 @@
                                     </select>
                                 </div> --}}
                                 <div class="filter-item">
-                                    
+
                                     <select class="form-select" id="districtFilter" name="district">
                                         <option value="">Select District Name</option>
                                         @foreach ($districts as $district)
@@ -221,8 +221,10 @@
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                                 </div>
+                                <a href="{{ url()->current() }}" class="btn btn-secondary"><i
+                                        class="ti ti-refresh me-2"></i>Reset</a>
                                 <!-- Reset Filters Button -->
-                                <a href="{{ url()->current() }}" class="btn btn-secondary">Reset Filters</a>
+
                             </form>
 
 
@@ -310,17 +312,21 @@
         @include('partials.datatable-export-js')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const toggleButtons = document.querySelectorAll('.status-toggle');
+                // Use event delegation on the document or a parent container
+                document.body.addEventListener('click', function(e) {
+                    const button = e.target.closest(
+                    '.status-toggle'); // Check if the clicked element is the toggle button
 
-                toggleButtons.forEach(button => {
-                    button.addEventListener('click', function(e) {
-                        e.preventDefault();
+                    if (button) {
+                        e.preventDefault(); // Prevent default link behavior
 
                         // Disable the button during processing
-                        this.classList.add('disabled');
+                        button.classList.add('disabled');
 
-                        const officerId = this.dataset.officerId;
+                        // Get the officer ID from the data attribute
+                        const officerId = button.dataset.officerId;
 
+                        // Send the request to toggle the officer status
                         fetch(`{{ url('/') }}/treasury-officers/${officerId}/toggle-status`, {
                                 method: 'POST',
                                 headers: {
@@ -332,12 +338,12 @@
                             .then(response => response.json())
                             .then(data => {
                                 if (data.success) {
-                                    // Toggle classes
-                                    this.classList.toggle('btn-light-success');
-                                    this.classList.toggle('btn-light-danger');
+                                    // Toggle button classes
+                                    button.classList.toggle('btn-light-success');
+                                    button.classList.toggle('btn-light-danger');
 
-                                    // Toggle icon
-                                    const icon = this.querySelector('i');
+                                    // Toggle the icon
+                                    const icon = button.querySelector('i');
                                     if (icon.classList.contains('ti-toggle-right')) {
                                         icon.classList.remove('ti-toggle-right');
                                         icon.classList.add('ti-toggle-left');
@@ -345,11 +351,11 @@
                                         icon.classList.remove('ti-toggle-left');
                                         icon.classList.add('ti-toggle-right');
                                     }
+
                                     // Show success notification
                                     showNotification(
                                         'Status Updated',
-                                        data.message ||
-                                        'Treasury officer status updated successfully',
+                                        data.message || 'Treasury officer status updated successfully',
                                         'success'
                                     );
                                 } else {
@@ -371,9 +377,9 @@
                             })
                             .finally(() => {
                                 // Re-enable the button
-                                this.classList.remove('disabled');
+                                button.classList.remove('disabled');
                             });
-                    });
+                    }
                 });
             });
         </script>

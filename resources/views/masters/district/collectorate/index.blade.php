@@ -149,8 +149,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                          <h2 class="mb-0"></h2>
-                                        </div> -->
+                                              <h2 class="mb-0"></h2>
+                                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -199,7 +199,7 @@
                             </div>
                         </div>
                         <div class="card-body table-border-style">
-            
+
                             <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
                                 width="100%">
                                 <thead>
@@ -285,16 +285,20 @@
         @include('partials.datatable-export-js')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const toggleButtons = document.querySelectorAll('.status-toggle');
+                const tableContainer = document.querySelector(
+                'body'); // Use a static parent element, like the body or a wrapper
 
-                toggleButtons.forEach(button => {
-                    button.addEventListener('click', function(e) {
+                // Delegate the click event to dynamically handle all status-toggle buttons
+                tableContainer.addEventListener('click', function(e) {
+                    const button = e.target.closest('.status-toggle');
+
+                    if (button) {
                         e.preventDefault();
 
                         // Disable the button during processing
-                        this.classList.add('disabled');
+                        button.classList.add('disabled');
 
-                        const districtId = this.dataset.districtId;
+                        const districtId = button.dataset.districtId;
 
                         fetch(`{{ url('/') }}/district/${districtId}/toggle-status`, {
                                 method: 'POST',
@@ -308,11 +312,11 @@
                             .then(data => {
                                 if (data.success) {
                                     // Toggle classes
-                                    this.classList.toggle('btn-light-success');
-                                    this.classList.toggle('btn-light-danger');
+                                    button.classList.toggle('btn-light-success');
+                                    button.classList.toggle('btn-light-danger');
 
                                     // Toggle icon
-                                    const icon = this.querySelector('i');
+                                    const icon = button.querySelector('i');
                                     if (icon.classList.contains('ti-toggle-right')) {
                                         icon.classList.remove('ti-toggle-right');
                                         icon.classList.add('ti-toggle-left');
@@ -345,13 +349,14 @@
                             })
                             .finally(() => {
                                 // Re-enable the button
-                                this.classList.remove('disabled');
+                                button.classList.remove('disabled');
                             });
-                    });
+                    }
                 });
             });
         </script>
     @endpush
+
 
     @include('partials.theme')
 

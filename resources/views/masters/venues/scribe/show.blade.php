@@ -29,18 +29,26 @@
                             <div class="card">
                                 <div class="card-body position-relative">
                                     <div class="position-absolute end-0 top-0 p-3">
-                                        <span class="d-flex align-items-center"></span>
+                                        <span class="d-flex align-items-center">
+                                            <span class="me-2">E-mail</span>
+                                            <!-- Check the district_email_status -->
+                                            @if ($scribe->district->district_email_status) <!-- Assuming $district contains the row data -->
+                                                <i class="ph-duotone ph-circle-wavy-check text-success"></i>
+                                            @else
+                                                <i class="ti ti-alert-circle text-danger f-18"></i>
+                                            @endif
+                                        </span>
                                     </div>
 
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
                                             <img class="rounded-circle img-fluid wid-70"
-                                                src="{{ $district->district_image
-                                                    ? asset('storage/' . $district->district_image)
+                                                src="{{ $scribe->district->district_image
+                                                    ? asset('storage/' . $scribe->district->district_image)
                                                     : asset('storage/assets/images/user/collectorate.png') }}"
                                                 alt="District image" />
                                         </div>
-                                        <h5 class="mb-0">{{ $district->district_code }} - {{ $district->district_name }}
+                                        <h5 class="mb-0">{{ $scribe->district->district_code }} - {{ $scribe->district->district_name }}
                                         </h5>
                                         <p class="text-muted text-sm">District Collectorate</p>
                                         <hr class="my-3 border border-secondary-subtle" />
@@ -61,25 +69,25 @@
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">{{ $district->district_email }}</p>
+                                            <p class="mb-0">{{ $scribe->district->district_email }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">{{ $district->district_phone }}</p>
+                                            <p class="mb-0">{{ $scribe->district->district_phone }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone-plus me-2"></i>
-                                            <p class="mb-0">{{ $district->district_alternate_phone }}</p>
+                                            <p class="mb-0">{{ $scribe->district->district_alternate_phone }}</p>
                                         </div>
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">{{ $district->district_address }}</p>
+                                            <p class="mb-0">{{ $scribe->district->district_address }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100">
                                             <i class="ti ti-link me-2"></i>
                                             <a href="#" class="link-primary">
-                                                <p class="mb-0">{{ $district->district_website }}</p>
+                                                <p class="mb-0">{{ $scribe->district->district_website }}</p>
                                             </a>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
@@ -95,18 +103,25 @@
                             <div class="card">
                                 <div class="card-body position-relative">
                                     <div class="position-absolute end-0 top-0 p-3">
-                                        <span class="d-flex align-items-center"></span>
+                                        <span class="d-flex align-items-center">
+                                            <span class="me-2">E-mail</span>
+                                            <!-- Check the district_email_status -->
+                                            @if ($scribe->venue->venue_email_status) <!-- Assuming $district contains the row data -->
+                                                <i class="ph-duotone ph-circle-wavy-check text-success"></i>
+                                            @else
+                                                <i class="ti ti-alert-circle text-danger f-18"></i>
+                                            @endif
+                                        </span>
                                     </div>
-
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
                                             <img class="rounded-circle img-fluid wid-70"
-                                                src="{{ $venue->venue_image
-                                                    ? asset('storage/' . $venue->venue_image)
+                                                src="{{ $scribe->venue->venue_image
+                                                    ? asset('storage/' . $scribe->venue->venue_image)
                                                     : asset('storage/assets/images/user/collectorate.png') }}"
                                                 alt="Venue image" />
                                         </div>
-                                        <h5 class="mb-0">{{ $venue->venue_code }} - {{ $venue->venue_name }}</h5>
+                                        <h5 class="mb-0">{{ $scribe->venue->venue_code }} - {{ $scribe->venue->venue_name }}</h5>
                                         <p class="text-muted text-sm">Venues</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
@@ -126,29 +141,29 @@
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">{{ $venue->venue_email }}</p>
+                                            <p class="mb-0">{{ $scribe->venue->venue_email }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">{{ $venue->venue_phone }}</p>
+                                            <p class="mb-0">{{ $scribe->venue->venue_phone }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone-plus me-2"></i>
-                                            <p class="mb-0">{{ $venue->venue_alternative_phone }}</p>
+                                            <p class="mb-0">{{ $scribe->venue->venue_alternative_phone }}</p>
                                         </div>
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">{{ $venue->venue_address }}</p>
+                                            <p class="mb-0">{{ $scribe->venue->venue_address }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100">
                                             <i class="ti ti-link me-2"></i>
                                             <a href="#" class="link-primary">
-                                                <p class="mb-0">{{ $venue->venue_website }}</p>
+                                                <p class="mb-0">{{ $scribe->venue->venue_website }}</p>
                                             </a>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
-                                            <a href="#" onclick="openMap({{ $venue->venue_latitude }}, {{ $venue->venue_longitude }})"
+                                            <a href="#" onclick="openMap({{ $scribe->venue->venue_latitude }}, {{ $scribe->venue->venue_longitude }})"
                                                 class="btn btn-success d-inline-flex  justify-content-center"><i
                                                     class="ti ti-map-2 me-1"></i>View Location</a>
                                         </div>
@@ -161,11 +176,13 @@
                                 <div class="card-body position-relative">
                                     <div class="position-absolute end-0 top-0 p-3">
                                         <span class="d-flex align-items-center">
-                                            <!-- Email Address -->
                                             <span class="me-2">E-mail</span>
-                                            <!-- Verified Icon -->
-                                            <i class="ph-duotone ph-circle-wavy-check text-success"></i>
-                                            <!-- Bootstrap Icon -->
+                                            <!-- Check the district_email_status -->
+                                            @if ($scribe->scribe_email_status) <!-- Assuming $district contains the row data -->
+                                                <i class="ph-duotone ph-circle-wavy-check text-success"></i>
+                                            @else
+                                                <i class="ti ti-alert-circle text-danger f-18"></i>
+                                            @endif
                                         </span>
                                     </div>
 
@@ -198,7 +215,7 @@
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">{{ $center->center_code }} - {{ $center->center_name }}</p>
+                                            <p class="mb-0">{{ $scribe->center->center_code }} - {{ $scribe->center->center_name }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
@@ -210,7 +227,7 @@
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-building me-2"></i>
-                                            <p class="mb-0">{{ $venue->venue_name}}</p>
+                                            <p class="mb-0">{{ $scribe->venue->venue_name}}</p>
                                         </div>
                                     </div>
                                 </div>

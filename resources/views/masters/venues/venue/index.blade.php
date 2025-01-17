@@ -114,7 +114,7 @@
 
             @media (max-width: 421px) {
                 .btn-container {
-                    justify-content: center;
+                    /* justify-content: center; */
                 }
             }
         </style>
@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                  <h2 class="mb-0"></h2>
-                                                </div> -->
+                                                              <h2 class="mb-0"></h2>
+                                                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -223,7 +223,8 @@
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                                 </div>
                                 <!-- Reset Filters -->
-                                <a href="{{ route('venues.index') }}" class="btn btn-secondary">X</a>
+                                <a href="{{ url()->current() }}" class="btn btn-secondary"><i
+                                        class="ti ti-refresh me-2"></i>Reset</a>
 
                             </form>
 
@@ -291,6 +292,7 @@
                                                         class="ti ti-toggle-{{ $venue->venue_status ? 'right' : 'left' }} f-20"></i>
                                                 </a>
 
+
                                             </td>
                                         </tr>
                                     @endforeach
@@ -314,20 +316,22 @@
         @include('partials.datatable-export-js')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const toggleButtons = document.querySelectorAll('.status-toggle');
+                const tableContainer = document.querySelector('body'); // Parent element of all toggles
 
-                toggleButtons.forEach(button => {
-                    button.addEventListener('click', function(e) {
-                        e.preventDefault();
+                tableContainer.addEventListener('click', function(e) {
+                    const button = e.target.closest(
+                    '.status-toggle'); // Check if the clicked element is the toggle button
+
+                    if (button) {
+                        e.preventDefault(); // Prevent default behavior
 
                         // Disable the button during processing
-                        this.classList.add('disabled');
+                        button.classList.add('disabled');
 
-                        // Get the venue ID from the data attribute
-                        const venueId = this.dataset.venueId;
+                        // Get the venue ID
+                        const venueId = button.dataset.venueId;
 
-                        // Send the request to toggle the venue status
-                        fetch(`{{ url('/') }}/venues/${venueId}/toggle-status`, { // Adjust the URL for venues
+                        fetch(`{{ url('/') }}/venues/${venueId}/toggle-status`, {
                                 method: 'POST',
                                 headers: {
                                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -338,12 +342,12 @@
                             .then(response => response.json())
                             .then(data => {
                                 if (data.success) {
-                                    // Toggle button classes to reflect the new status
-                                    this.classList.toggle('btn-light-success');
-                                    this.classList.toggle('btn-light-danger');
+                                    // Toggle button classes
+                                    button.classList.toggle('btn-light-success');
+                                    button.classList.toggle('btn-light-danger');
 
                                     // Toggle icon
-                                    const icon = this.querySelector('i');
+                                    const icon = button.querySelector('i');
                                     if (icon.classList.contains('ti-toggle-right')) {
                                         icon.classList.remove('ti-toggle-right');
                                         icon.classList.add('ti-toggle-left');
@@ -377,16 +381,16 @@
                             })
                             .finally(() => {
                                 // Re-enable the button
-                                this.classList.remove('disabled');
+                                button.classList.remove('disabled');
                             });
-                    });
+                    }
                 });
             });
         </script>
         <script>
             // Full list of centers
             const allCenters = @json($centers);
-            
+
             // District dropdown change event
             $('#districtFilter').on('change', function() {
 

@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                      <h2 class="mb-0"></h2>
-                    </div> -->
+                          <h2 class="mb-0"></h2>
+                        </div> -->
                         </div>
                     </div>
                 </div>
@@ -201,9 +201,9 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($examServices as $key =>  $examService)
+                                    @foreach ($examServices as $key => $examService)
                                         <tr>
-                                            <td>{{ $key + 1  }}</td>
+                                            <td>{{ $key + 1 }}</td>
                                             <td>
                                                 <div class="flex-grow-1 ms-3">
                                                     <h6 class="mb-0">{{ $examService->examservice_name }}</h6>
@@ -237,19 +237,26 @@
         </div>
     </section>
     <!-- [ Main Content ] end -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const toggleButtons = document.querySelectorAll('.status-toggle');
 
-            toggleButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
+
+    @include('partials.footer')
+
+    @push('scripts')
+        @include('partials.datatable-export-js')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Use event delegation to handle clicks on .status-toggle buttons
+                document.body.addEventListener('click', function(e) {
+                    const button = e.target.closest('.status-toggle');
+                    if (!button) return; // Exit if the clicked element is not a .status-toggle button
+
+                    e.preventDefault(); // Prevent default link behavior
 
                     // Disable the button during processing
-                    this.classList.add('disabled');
+                    button.classList.add('disabled');
 
                     // Get the ExamService ID from the data attribute
-                    const examServiceId = this.dataset.examServiceId;
+                    const examServiceId = button.dataset.examServiceId;
 
                     // Send the request to toggle the status
                     fetch(`{{ url('/exam-services') }}/${examServiceId}/toggle-status`, {
@@ -258,17 +265,17 @@
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                                 'Accept': 'application/json',
                                 'Content-Type': 'application/json'
-                            },
+                            }
                         })
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
                                 // Toggle button classes
-                                this.classList.toggle('btn-light-success');
-                                this.classList.toggle('btn-light-danger');
+                                button.classList.toggle('btn-light-success');
+                                button.classList.toggle('btn-light-danger');
 
-                                // Toggle icon
-                                const icon = this.querySelector('i');
+                                // Toggle the icon inside the button
+                                const icon = button.querySelector('i');
                                 if (icon.classList.contains('ti-toggle-right')) {
                                     icon.classList.remove('ti-toggle-right');
                                     icon.classList.add('ti-toggle-left');
@@ -280,8 +287,7 @@
                                 // Show success notification
                                 showNotification(
                                     'Status Updated',
-                                    data.message ||
-                                    'Exam Service status updated successfully',
+                                    data.message || 'Exam Service status updated successfully',
                                     'success'
                                 );
                             } else {
@@ -303,17 +309,11 @@
                         })
                         .finally(() => {
                             // Re-enable the button
-                            this.classList.remove('disabled');
+                            button.classList.remove('disabled');
                         });
                 });
             });
-        });
-    </script>
-
-    @include('partials.footer')
-
-    @push('scripts')
-        @include('partials.datatable-export-js')
+        </script>
     @endpush
 
     @include('partials.theme')

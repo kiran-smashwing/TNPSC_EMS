@@ -34,10 +34,10 @@ class DistrictController extends Controller
         if ($request->filled('district')) {
             $districtsQuery->where('district_name', 'LIKE', '%' . $request->input('district') . '%');
         }
-        
-         // Fetch the filtered districts for the table, ordered by district code
+
+        // Fetch the filtered districts for the table, ordered by district code
         $districts = $districtsQuery->orderBy('district_code')->get();
-       
+
 
         return view('masters.district.collectorate.index', compact('districts', 'allDistricts'));
     }
@@ -257,12 +257,12 @@ class DistrictController extends Controller
 
             // Log district update with old and new values
             AuditLogger::log('District Updated', District::class, $district->district_id, $oldValues, $changedValues);
-                if (url()->previous() === route('district.edit', $id)) {
-                    return redirect()->route('district.index')
-                        ->with('success', 'District updated successfully');
-                } else {
-                    return redirect()->back()->with('success', 'District updated successfully');
-                }
+            if (url()->previous() === route('district.edit', $id)) {
+                return redirect()->route('district.index')
+                    ->with('success', 'District updated successfully');
+            } else {
+                return redirect()->back()->with('success', 'District updated successfully');
+            }
         } catch (\Exception $e) {
             return back()->withInput()
                 ->with('error', 'Error updating district: ' . $e->getMessage());
@@ -273,11 +273,12 @@ class DistrictController extends Controller
     public function show($id)
     {
         $district = District::findOrFail($id);
-
+        $centerCount = $district->centers()->count();  // Assuming 'centers' is a relationship in District model
+        $venueCount = $district->venues()->count();    // Assuming 'venues' is a relationship in District model
         // Log view action
         AuditLogger::log('District Viewed', District::class, $district->district_id);
 
-        return view('masters.district.collectorate.show', compact('district'));
+        return view('masters.district.collectorate.show', compact('district', 'centerCount', 'venueCount'));
     }
 
     public function destroy($id)

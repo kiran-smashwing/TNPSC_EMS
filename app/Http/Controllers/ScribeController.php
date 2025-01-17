@@ -247,16 +247,9 @@ class ScribeController extends Controller
 
     public function show($id)
     {
-        // Retrieve the Scribe record by ID, or fail if not found
-        $scribe = Scribe::findOrFail($id);
-
-        // Fetch related District, Venue, and Center records based on Scribe's foreign keys
-        $district = District::findOrFail($scribe->scribe_district_id);
-        $venue = Venues::findOrFail($scribe->scribe_venue_id);
-        $center = Center::findOrFail($scribe->scribe_center_id);
-
+        $scribe = Scribe::with(['district', 'venue', 'center'])->findOrFail($id);
         // Return the view with the Scribe and related data
-        return view('masters.venues.scribe.show', compact('scribe', 'district', 'venue', 'center'));
+        return view('masters.venues.scribe.show', compact('scribe'));
     }
 
     public function toggleStatus($id)

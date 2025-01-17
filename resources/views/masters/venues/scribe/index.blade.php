@@ -114,7 +114,7 @@
 
             @media (max-width: 421px) {
                 .btn-container {
-                    justify-content: center;
+                    /* justify-content: center; */
                 }
             }
         </style>
@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                      <h2 class="mb-0"></h2>
-                                    </div> -->
+                                              <h2 class="mb-0"></h2>
+                                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -196,13 +196,13 @@
                                     <select class="form-select" id="districtFilter" name="district">
                                         <option value="">Select District Name</option>
                                         @foreach ($districts as $district)
-                                            <option value="{{ $district->district_code }}"
-                                                {{ request('district') == $district->invigilator_district_id ? 'selected' : '' }}>
+                                            <option value="{{ $district->district_code }}">
                                                 {{ $district->district_name }}
                                             </option>
                                         @endforeach
                                     </select>
                                 </div>
+
 
                                 <!-- Center Filter -->
                                 <div class="filter-item">
@@ -217,11 +217,12 @@
                                         <option value="">Select Venue Name</option>
                                     </select>
                                 </div>
-                                 <!-- Apply Filters Button -->
+                                <!-- Apply Filters Button -->
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                                 </div>
-                                <a href="{{ route('scribes.index') }}" class="btn btn-secondary">X</a>
+                                <a href="{{ url()->current() }}" class="btn btn-secondary"><i
+                                        class="ti ti-refresh me-2"></i>Reset</a>
                             </form>
 
 
@@ -299,161 +300,163 @@
     @include('partials.footer')
 
     @push('scripts')
-    
         @include('partials.datatable-export-js')
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const toggleButtons = document.querySelectorAll('.status-toggle');
+                // Use event delegation to handle click events
+                document.body.addEventListener('click', function(e) {
+                    // Check if the clicked element is a .status-toggle button or inside it
+                    const button = e.target.closest('.status-toggle');
+                    if (!button) return; // Exit if the clicked element is not a status toggle button
 
-                toggleButtons.forEach(button => {
-                    button.addEventListener('click', function(e) {
-                        e.preventDefault();
+                    e.preventDefault(); // Prevent default action
 
-                        // Disable the button during processing
-                        this.classList.add('disabled');
+                    // Disable the button during processing
+                    button.classList.add('disabled');
 
-                        // Get the invigilator ID from the data attribute
-                        const scribeId = this.dataset.scribeId;
+                    // Get the scribe ID from the data attribute
+                    const scribeId = button.dataset.scribeId;
 
-                        // Send the request to toggle the invigilator status
-                        fetch(`{{ url('/') }}/scribes/${scribeId}/toggle-status`, {
-                                method: 'POST',
-                                headers: {
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                    'Accept': 'application/json',
-                                    'Content-Type': 'application/json'
-                                },
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    // Toggle button classes
-                                    this.classList.toggle('btn-light-success');
-                                    this.classList.toggle('btn-light-danger');
+                    // Send the request to toggle the scribe status
+                    fetch(`{{ url('/') }}/scribes/${scribeId}/toggle-status`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Toggle button classes
+                                button.classList.toggle('btn-light-success');
+                                button.classList.toggle('btn-light-danger');
 
-                                    // Toggle icon
-                                    const icon = this.querySelector('i');
-                                    if (icon.classList.contains('ti-toggle-right')) {
-                                        icon.classList.remove('ti-toggle-right');
-                                        icon.classList.add('ti-toggle-left');
-                                    } else {
-                                        icon.classList.remove('ti-toggle-left');
-                                        icon.classList.add('ti-toggle-right');
-                                    }
-
-                                    // Show success notification
-                                    showNotification(
-                                        'Status Updated',
-                                        data.message || 'Scribe status updated successfully',
-                                        'success'
-                                    );
+                                // Toggle the icon inside the button
+                                const icon = button.querySelector('i');
+                                if (icon.classList.contains('ti-toggle-right')) {
+                                    icon.classList.remove('ti-toggle-right');
+                                    icon.classList.add('ti-toggle-left');
                                 } else {
-                                    // Show error notification
-                                    showNotification(
-                                        'Update Failed',
-                                        data.message || 'Failed to update status',
-                                        'error'
-                                    );
+                                    icon.classList.remove('ti-toggle-left');
+                                    icon.classList.add('ti-toggle-right');
                                 }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
+
+                                // Show success notification
                                 showNotification(
-                                    'Error',
-                                    'An error occurred while updating status',
+                                    'Status Updated',
+                                    data.message || 'Scribe status updated successfully',
+                                    'success'
+                                );
+                            } else {
+                                // Show error notification
+                                showNotification(
+                                    'Update Failed',
+                                    data.message || 'Failed to update status',
                                     'error'
                                 );
-                            })
-                            .finally(() => {
-                                // Re-enable the button
-                                this.classList.remove('disabled');
-                            });
-                    });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showNotification(
+                                'Error',
+                                'An error occurred while updating status',
+                                'error'
+                            );
+                        })
+                        .finally(() => {
+                            // Re-enable the button
+                            button.classList.remove('disabled');
+                        });
                 });
             });
         </script>
+
+        <script>
+            // Check if jQuery is available
+            if (typeof jQuery === 'undefined') {
+                console.error('jQuery is not loaded. Please include it in your project.');
+            }
+            // Full list of centers
+            const allCenters = @json($centers);
+            // console.log(@json($districts));
+            // District filter change event
+            $('#districtFilter').on('change', function() {
+                const selectedDistrictCode = $(this).val();
+                // alert(selectedDistrictCode);
+                const centerDropdown = $('#centerFilter'); // Corrected to #centerFilter
+
+                // Clear previous options
+                centerDropdown.empty();
+                centerDropdown.append('<option value="">Select Center</option>');
+
+                // Filter centers based on selected district
+                const filteredCenters = allCenters.filter(center =>
+                    center.center_district_id == selectedDistrictCode
+                );
+
+                // Populate centers
+                filteredCenters.forEach(center => {
+                    const selected = "{{ request('center') }}" == center.center_code ? 'selected' : '';
+                    centerDropdown.append(
+                        `<option value="${center.center_code}" ${selected}>
+                           ${center.center_name}
+                       </option>`
+                    );
+                });
+            });
+
+            // Trigger change event on page load to handle old/existing selections
+            $(document).ready(function() {
+                const oldDistrict = "{{ request('district') }}";
+                if (oldDistrict) {
+                    $('#districtFilter').val(oldDistrict).trigger('change');
+                }
+            });
+        </script>
+
+        <script>
+            // Full list of venues
+            const allVenues = @json($venues);
+
+            // Center filter change event
+            $('#centerFilter').on('change', function() {
+                const selectedCenterCode = $(this).val();
+                const venueDropdown = $('#venueFilter'); // Corrected to #venueFilter
+
+                // Clear previous options
+                venueDropdown.empty();
+                venueDropdown.append('<option value="">Select Venue</option>');
+
+                // Filter venues based on selected center
+                const filteredVenues = allVenues.filter(venue =>
+                    venue.venue_center_id == selectedCenterCode
+                );
+
+                // Populate venues
+                filteredVenues.forEach(venue => {
+                    const selected = "{{ request('venue') }}" == venue.venue_code ? 'selected' : '';
+                    venueDropdown.append(
+                        `<option value="${venue.venue_code}" ${selected}>
+                           ${venue.venue_name}
+                       </option>`
+                    );
+                });
+            });
+
+            // Trigger change event on page load to handle old/existing selections
+            $(document).ready(function() {
+                const oldCenter = "{{ request('center') }}";
+                if (oldCenter) {
+                    $('#centerFilter').val(oldCenter).trigger('change');
+                }
+            });
+        </script>
     @endpush
-    <script>
-        // Check if jQuery is available
-        if (typeof jQuery === 'undefined') {
-            console.error('jQuery is not loaded. Please include it in your project.');
-        }
-        // Full list of centers
-        const allCenters = @json($centers);
-        // console.log(@json($districts));
-        // District filter change event
-        $('#districtFilter').on('change', function() {
-            const selectedDistrictCode = $(this).val();
-            // alert(selectedDistrictCode);
-            const centerDropdown = $('#centerFilter'); // Corrected to #centerFilter
 
-            // Clear previous options
-            centerDropdown.empty();
-            centerDropdown.append('<option value="">Select Center</option>');
-
-            // Filter centers based on selected district
-            const filteredCenters = allCenters.filter(center =>
-                center.center_district_id == selectedDistrictCode
-            );
-
-            // Populate centers
-            filteredCenters.forEach(center => {
-                const selected = "{{ request('center') }}" == center.center_code ? 'selected' : '';
-                centerDropdown.append(
-                    `<option value="${center.center_code}" ${selected}>
-                       ${center.center_name}
-                   </option>`
-                );
-            });
-        });
-
-        // Trigger change event on page load to handle old/existing selections
-        $(document).ready(function() {
-            const oldDistrict = "{{ request('district') }}";
-            if (oldDistrict) {
-                $('#districtFilter').val(oldDistrict).trigger('change');
-            }
-        });
-    </script>
-
-    <script>
-        // Full list of venues
-        const allVenues = @json($venues);
-
-        // Center filter change event
-        $('#centerFilter').on('change', function() {
-            const selectedCenterCode = $(this).val();
-            const venueDropdown = $('#venueFilter'); // Corrected to #venueFilter
-
-            // Clear previous options
-            venueDropdown.empty();
-            venueDropdown.append('<option value="">Select Venue</option>');
-
-            // Filter venues based on selected center
-            const filteredVenues = allVenues.filter(venue =>
-                venue.venue_center_id == selectedCenterCode
-            );
-
-            // Populate venues
-            filteredVenues.forEach(venue => {
-                const selected = "{{ request('venue') }}" == venue.venue_code ? 'selected' : '';
-                venueDropdown.append(
-                    `<option value="${venue.venue_code}" ${selected}>
-                       ${venue.venue_name}
-                   </option>`
-                );
-            });
-        });
-
-        // Trigger change event on page load to handle old/existing selections
-        $(document).ready(function() {
-            const oldCenter = "{{ request('center') }}";
-            if (oldCenter) {
-                $('#centerFilter').val(oldCenter).trigger('change');
-            }
-        });
-    </script>
     @include('partials.theme')
 
 

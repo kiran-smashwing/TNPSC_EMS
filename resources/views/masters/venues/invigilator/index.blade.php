@@ -114,7 +114,7 @@
 
             @media (max-width: 421px) {
                 .btn-container {
-                    justify-content: center;
+                    /* justify-content: center; */
                 }
             }
         </style>
@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                  <h2 class="mb-0"></h2>
-                                                </div> -->
+                                                          <h2 class="mb-0"></h2>
+                                                        </div> -->
                         </div>
                     </div>
                 </div>
@@ -197,13 +197,13 @@
                                     <select class="form-select" id="districtFilter" name="district">
                                         <option value="">Select District Name</option>
                                         @foreach ($districts as $district)
-                                            <option value="{{ $district->district_code }}"
-                                                {{ request('district') == $district->invigilator_district_id ? 'selected' : '' }}>
+                                            <option value="{{ $district->district_code }}">
                                                 {{ $district->district_name }}
                                             </option>
                                         @endforeach
                                     </select>
                                 </div>
+
 
                                 <!-- Center Filter -->
                                 <div class="filter-item">
@@ -225,7 +225,8 @@
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
 
                                 </div>
-                                <a href="{{ route('invigilators.index') }}" class="btn btn-secondary">X</a>
+                                <a href="{{ url()->current() }}" class="btn btn-secondary"><i
+                                        class="ti ti-refresh me-2"></i>Reset</a>
                             </form>
 
 
@@ -305,76 +306,77 @@
         @include('partials.datatable-export-js')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const toggleButtons = document.querySelectorAll('.status-toggle');
+                // Use event delegation to handle click events
+                document.body.addEventListener('click', function(e) {
+                    // Check if the clicked element is a .status-toggle button or inside it
+                    const button = e.target.closest('.status-toggle');
+                    if (!button) return; // Exit if the clicked element is not a status toggle button
 
-                toggleButtons.forEach(button => {
-                    button.addEventListener('click', function(e) {
-                        e.preventDefault();
+                    e.preventDefault(); // Prevent default action
 
-                        // Disable the button during processing
-                        this.classList.add('disabled');
+                    // Disable the button during processing
+                    button.classList.add('disabled');
 
-                        // Get the invigilator ID from the data attribute
-                        const invigilatorId = this.dataset.invigilatorId;
+                    // Get the invigilator ID from the data attribute
+                    const invigilatorId = button.dataset.invigilatorId;
 
-                        // Send the request to toggle the invigilator status
-                        fetch(`{{ url('/') }}/invigilators/${invigilatorId}/toggle-status`, {
-                                method: 'POST',
-                                headers: {
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                    'Accept': 'application/json',
-                                    'Content-Type': 'application/json'
-                                },
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    // Toggle button classes
-                                    this.classList.toggle('btn-light-success');
-                                    this.classList.toggle('btn-light-danger');
+                    // Send the request to toggle the invigilator status
+                    fetch(`{{ url('/') }}/invigilators/${invigilatorId}/toggle-status`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Toggle button classes
+                                button.classList.toggle('btn-light-success');
+                                button.classList.toggle('btn-light-danger');
 
-                                    // Toggle icon
-                                    const icon = this.querySelector('i');
-                                    if (icon.classList.contains('ti-toggle-right')) {
-                                        icon.classList.remove('ti-toggle-right');
-                                        icon.classList.add('ti-toggle-left');
-                                    } else {
-                                        icon.classList.remove('ti-toggle-left');
-                                        icon.classList.add('ti-toggle-right');
-                                    }
-
-                                    // Show success notification
-                                    showNotification(
-                                        'Status Updated',
-                                        data.message ||
-                                        'Invigilator status updated successfully',
-                                        'success'
-                                    );
+                                // Toggle the icon inside the button
+                                const icon = button.querySelector('i');
+                                if (icon.classList.contains('ti-toggle-right')) {
+                                    icon.classList.remove('ti-toggle-right');
+                                    icon.classList.add('ti-toggle-left');
                                 } else {
-                                    // Show error notification
-                                    showNotification(
-                                        'Update Failed',
-                                        data.message || 'Failed to update status',
-                                        'error'
-                                    );
+                                    icon.classList.remove('ti-toggle-left');
+                                    icon.classList.add('ti-toggle-right');
                                 }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
+
+                                // Show success notification
                                 showNotification(
-                                    'Error',
-                                    'An error occurred while updating status',
+                                    'Status Updated',
+                                    data.message || 'Invigilator status updated successfully',
+                                    'success'
+                                );
+                            } else {
+                                // Show error notification
+                                showNotification(
+                                    'Update Failed',
+                                    data.message || 'Failed to update status',
                                     'error'
                                 );
-                            })
-                            .finally(() => {
-                                // Re-enable the button
-                                this.classList.remove('disabled');
-                            });
-                    });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showNotification(
+                                'Error',
+                                'An error occurred while updating status',
+                                'error'
+                            );
+                        })
+                        .finally(() => {
+                            // Re-enable the button
+                            button.classList.remove('disabled');
+                        });
                 });
             });
         </script>
+
         <script>
             // Check if jQuery is available
             if (typeof jQuery === 'undefined') {

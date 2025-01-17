@@ -11,12 +11,13 @@
             <div class="card pc-user-card">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
-                      
-                    <div class="flex-shrink-0">
-                        <img src="{{ asset('storage/' . current_user()->profile_image) }}" alt="user-image" class="user-avtar wid-50 rounded-circle" />
-                    </div>
-                    
-                       <div class="flex-grow-1 ms-3 me-2">
+
+                        <div class="flex-shrink-0">
+                            <img src="{{ asset('storage/' . current_user()->profile_image) }}" alt="user-image"
+                                class="user-avtar wid-50 rounded-circle" />
+                        </div>
+
+                        <div class="flex-grow-1 ms-3 me-2">
                             {{-- Displaying the user's display name --}}
                             <h6 class="mb-0">{{ Str::limit(current_user()->display_name, 15, '...') }}</h6>
 
@@ -83,14 +84,13 @@
                                 <use xlink:href="#custom-data"></use>
                             </svg>
                         </span>
-                        <span class="pc-mtext">District Collectorate</span>
+                        <span class="pc-mtext">District Masters</span>
                         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                     </a>
                     <ul class="pc-submenu">
-                        <li class="pc-item"><a class="pc-link" href="{{ route('district.index') }}">District
-                                Collectorate</a>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('district.index') }}">District Collectorates </a>
                         </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('centers.index') }}">Centers</a></li>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('centers.index') }}">Centers (Taluks)</a></li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('treasury-officers.index') }}">Treasury
                                 Officers</a></li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('mobile-team-staffs.index') }}">Mobile
@@ -107,7 +107,7 @@
                             <use xlink:href="#custom-data"></use>
                         </svg>
                     </span>
-                    <span class="pc-mtext">Venues</span>
+                    <span class="pc-mtext">Venues Masters</span>
                     <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                 </a>
                 <ul class="pc-submenu">
@@ -118,7 +118,7 @@
                     </li>
                     <li class="pc-item"><a class="pc-link" href="{{ route('invigilators.index') }}">Invigilators </a>
                     </li>
-                    <li class="pc-item"><a class="pc-link" href="{{ route('scribes.index') }}">Scribe </a>
+                    <li class="pc-item"><a class="pc-link" href="{{ route('scribes.index') }}">Scribes </a>
                     </li>
                     <li class="pc-item"><a class="pc-link" href="{{ route('ci-assistant') }}">CI Assistants </a>
                     </li>
@@ -131,46 +131,19 @@
                             <use xlink:href="#custom-data"></use>
                         </svg>
                     </span>
-                    <span class="pc-mtext">Department</span>
+                    <span class="pc-mtext">Department Masters </span>
                     <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                 </a>
                 <ul class="pc-submenu">
-                    {{-- <li class="pc-item"  ><a class="pc-link"   href="{{ route('collectorate') }}"> District
-                                Collectorates</a></li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('centers.index') }}">Centers</a></li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('treasury') }}">Treasury Officers</a>
-                        </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('van_duty') }}">Mobile Team Staffs</a></li>
 
-                  <li class="pc-item"><a class="pc-link" href="{{ route('van_duty') }}">Van Duty Staffs</a>
-                        </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('escort_staff') }}">Escort Staffs</a></li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('incpection') }}">Inspection
-                                Officers</a></li> 
-                        <li class="pc-item"><a class="pc-link" href="{{ route('venues.index') }}">Venues</a></li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('cheif_invigilator') }}">Cheif Invigilators </a>
-                        </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('invigilators.index') }}">Invigilators </a>
-                        </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('scribes.index') }}">Scribe </a>
-                        </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('ci_assistants') }}">CI Assistants </a>
-                        </li> --}}
-                    <li class="pc-item"><a class="pc-link" href="{{ route('exam-services.index') }}">Examination
-                            Service</a>
+                    <li class="pc-item"><a class="pc-link" href="{{ route('exam-services.index') }}">Examination Services</a>
                     </li>
-                    {{-- <li class="pc-item"><a class="pc-link" href="">Subjects</a> --}}
+
             </li>
             <li class="pc-item"><a class="pc-link" href="{{ route('ci-checklist') }}">CI Checklist</a>
             </li>
-            {{--                         
-                        <li class="pc-item"><a class="pc-link" href="">CI Preliminary Checklist</a>
-                        </li>
-                        <li class="pc-item"><a class="pc-link" href="">CI Session Checklist</a>
-                        </li>
-                        <li class="pc-item"><a class="pc-link" href="">CI Self Declaration List</a>
-                        </li> --}}
-            <li class="pc-item"><a class="pc-link" href="{{ route('role') }}">Role</a>
+
+            <li class="pc-item"><a class="pc-link" href="{{ route('role') }}">Roles</a>
             </li>
             <li class="pc-item"><a class="pc-link" href="{{ route('department-officials.index') }}">Department
                     Officials</a>
@@ -205,7 +178,7 @@
                 </a>
             </li>
             <li class="pc-item">
-                <a href="{{ route('my-exam.ciTask',"20241126092207") }}" class="pc-link">
+                <a href="{{ route('my-exam.ciTask', '20241126092207') }}" class="pc-link">
                     <span class="pc-micon">
                         <svg class="pc-icon">
                             <use xlink:href="#custom-text-align-justify-center"></use>
@@ -245,7 +218,7 @@
                 </a>
             </li>
             <li class="pc-item">
-                <a href="{{ route('my-exam.mobileTeamTask',"20241126092207") }}" class="pc-link">
+                <a href="{{ route('my-exam.mobileTeamTask', '20241126092207') }}" class="pc-link">
                     <span class="pc-micon">
                         <svg class="pc-icon">
                             <use xlink:href="#custom-text-align-justify-center"></use>
@@ -346,10 +319,11 @@
                     <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                 </a>
                 <ul class="pc-submenu">
-                    <li class="pc-item"><a class="pc-link" href="{{route('ed.report')}}"> Exams
+                    <li class="pc-item"><a class="pc-link" href="{{ route('ed.report') }}"> Exams
                             Reports</a>
                     </li>
-                    <li class="pc-item"><a class="pc-link" href="{{route('expenditure-statment.report')}}"> Expenditure
+                    <li class="pc-item"><a class="pc-link" href="{{ route('expenditure-statment.report') }}">
+                            Expenditure
                             Statement</a>
                     </li>
                     <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> Inspection
@@ -358,13 +332,13 @@
                     <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> Meeting
                             Reports</a>
                     </li>
-                    <li class="pc-item"><a class="pc-link" href="{{route('qp_booklet.report')}}"> Question
+                    <li class="pc-item"><a class="pc-link" href="{{ route('qp_booklet.report') }}"> Question
                             Booklet Account</a>
                     </li>
-                    <li class="pc-item"><a class="pc-link" href="{{route('bundle-receiving.report')}}"> Receiving
+                    <li class="pc-item"><a class="pc-link" href="{{ route('bundle-receiving.report') }}"> Receiving
                             Bundle Reports</a>
                     </li>
-                    <li class="pc-item"><a class="pc-link" href="{{route('omr-account.report')}}"> OMR
+                    <li class="pc-item"><a class="pc-link" href="{{ route('omr-account.report') }}"> OMR
                             Account</a>
                     </li>
                     <li class="pc-item"><a class="pc-link" href="{{ route('attendance.report') }}">

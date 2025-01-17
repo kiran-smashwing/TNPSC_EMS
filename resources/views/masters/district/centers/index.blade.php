@@ -114,7 +114,7 @@
 
             @media (max-width: 421px) {
                 .btn-container {
-                    justify-content: center;
+                    /* justify-content: center; */
                 }
             }
         </style>
@@ -137,11 +137,11 @@
                 <div class="page-block">
                     <div class="row align-items-center">
 
-                        <div class="col-md-12">
+                        {{-- <div class="col-md-12">
                             <div class="page-header-title">
                                 <h2 class="mb-0">TNPSC Centers</h2>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>
@@ -192,18 +192,19 @@
                                     <select class="form-select" id="districtFilter" name="district">
                                         <option value="">Select District Name</option>
                                         @foreach ($districts as $district)
-                                            <option value="{{ $district->district_code }}" {{ request('district') == $district->district_code ? 'selected' : '' }}>
+                                            <option value="{{ $district->district_code }}"
+                                                {{ request('district') == $district->district_code ? 'selected' : '' }}>
                                                 {{ $district->district_name }}
                                             </option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="filter-item">
-                                    
-                             
+
+
                                     <select class="form-select" id="centerCodeFilter" name="centerCode">
                                         <option value="">Select Center Name</option>
-                                    
+
                                         {{-- @foreach ($centerCodes as $centerCode)
                                             <option value="{{ $centerCode->center_code }}"
                                                 {{ request('centerCode') == $centerCode->center_code ? 'selected' : '' }}>
@@ -214,12 +215,10 @@
                                 </div>
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
+
                                 </div>
-                                <div class="btn-container">
-                                    <button type="button" id="resetButton" class="btn btn-secondary d-flex align-items-center" onclick="window.location.href='{{ route('centers.index') }}'">
-                                        <i class="ti ti-refresh me-2"></i> Reset
-                                    </button>
-                                </div>
+                                <a href="{{ url()->current() }}" class="btn btn-secondary"><i
+                                        class="ti ti-refresh me-2"></i>Reset</a>
                             </form>
 
                             <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
@@ -238,9 +237,10 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($centers as $key => $center)
+                                    @foreach ($centers as $key => $center)
                                         <tr>
-                                            <td>{{ $key + 1 }}</td>                                            <td>
+                                            <td>{{ $key + 1 }}</td>
+                                            <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-shrink-0">
                                                         @if ($center->center_image)
@@ -305,19 +305,21 @@
 
     @push('scripts')
         @include('partials.datatable-export-js')
-       
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const toggleButtons = document.querySelectorAll('.status-toggle');
+                const tableContainer = document.querySelector(
+                'body'); // Replace with a specific parent container selector if available
 
-                toggleButtons.forEach(button => {
-                    button.addEventListener('click', function(e) {
+                tableContainer.addEventListener('click', function(e) {
+                    const button = e.target.closest('.status-toggle');
+
+                    if (button) {
                         e.preventDefault();
 
                         // Disable the button during processing
-                        this.classList.add('disabled');
+                        button.classList.add('disabled');
 
-                        const centerId = this.dataset.centerId;
+                        const centerId = button.dataset.centerId;
 
                         fetch(`{{ url('/') }}/centers/${centerId}/toggle-status`, {
                                 method: 'POST',
@@ -331,11 +333,11 @@
                             .then(data => {
                                 if (data.success) {
                                     // Toggle classes
-                                    this.classList.toggle('btn-light-success');
-                                    this.classList.toggle('btn-light-danger');
+                                    button.classList.toggle('btn-light-success');
+                                    button.classList.toggle('btn-light-danger');
 
                                     // Toggle icon
-                                    const icon = this.querySelector('i');
+                                    const icon = button.querySelector('i');
                                     if (icon.classList.contains('ti-toggle-right')) {
                                         icon.classList.remove('ti-toggle-right');
                                         icon.classList.add('ti-toggle-left');
@@ -368,53 +370,54 @@
                             })
                             .finally(() => {
                                 // Re-enable the button
-                                this.classList.remove('disabled');
+                                button.classList.remove('disabled');
                             });
-                    });
+                    }
                 });
             });
         </script>
-           
-    <script>
-        // Full list of centers
-        const allCenters = @json($centerCodes);
 
-        console.log(allCenters);
 
-        // District dropdown change event
-        $('#districtFilter').on('change', function() {
+        <script>
+            // Full list of centers
+            const allCenters = @json($centerCodes);
 
-            const selectedDistrictCode = $(this).val();
-            const centerDropdown = $('#centerCodeFilter');
+            console.log(allCenters);
 
-            // Clear previous options
-            centerDropdown.empty();
-            centerDropdown.append('<option value="">Select Center </option>');
+            // District dropdown change event
+            $('#districtFilter').on('change', function() {
 
-            // Filter centers based on selected district
-            const filteredCenters = allCenters.filter(center =>
-                center.center_district_id == selectedDistrictCode
-            );            
+                const selectedDistrictCode = $(this).val();
+                const centerDropdown = $('#centerCodeFilter');
 
-            // Populate centers
-            filteredCenters.forEach(center => {
-                const selected = "{{  request('centerCode') }}" == center.center_code ? 'selected' : '';
-                centerDropdown.append(
-                    `<option value="${center.center_code}" ${selected}>
+                // Clear previous options
+                centerDropdown.empty();
+                centerDropdown.append('<option value="">Select Center </option>');
+
+                // Filter centers based on selected district
+                const filteredCenters = allCenters.filter(center =>
+                    center.center_district_id == selectedDistrictCode
+                );
+
+                // Populate centers
+                filteredCenters.forEach(center => {
+                    const selected = "{{ request('centerCode') }}" == center.center_code ? 'selected' : '';
+                    centerDropdown.append(
+                        `<option value="${center.center_code}" ${selected}>
                         ${center.center_name}
                     </option>`
-                );
+                    );
+                });
             });
-        });
 
-        // Trigger change event on page load to handle old/existing selections
-        $(document).ready(function() {
+            // Trigger change event on page load to handle old/existing selections
+            $(document).ready(function() {
                 const oldDistrict = "{{ request('district') }}";
                 if (oldDistrict) {
                     $('#districtFilter').val(oldDistrict).trigger('change');
                 }
             });
-    </script>
+        </script>
     @endpush
     @include('partials.theme')
 

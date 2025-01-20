@@ -181,8 +181,7 @@ class ChartedVehicleRoutesController extends Controller
                     ]
                 ]);
             }
-        }
-        else {
+        } else {
 
             // Update escort staff details only 
             foreach ($request->escortstaffs as $staff) {
@@ -203,7 +202,7 @@ class ChartedVehicleRoutesController extends Controller
                             'phone' => $staff['revenue_phone'],
                             'ifhrms_no' => $staff['revenue_ifhrms_no'] ?? null
                         ]
-                        ]);
+                    ]);
                 }
             }
 
@@ -273,14 +272,17 @@ class ChartedVehicleRoutesController extends Controller
     public function viewTrunkboxes(Request $request, $id)
     {
         $user = $request->get('auth_user');
-
-        // Fetch the route with all escort staff for the given charted vehicle ID and user
-        $routes = DB::table('charted_vehicle_routes as cvr')
+        $query = DB::table('charted_vehicle_routes as cvr')
             ->leftJoin('escort_staffs as es', 'cvr.id', '=', 'es.charted_vehicle_id')
-            ->select('cvr.*', 'es.district_code') // Select only required fields
-            ->where('cvr.id', $id) // Filter by charted vehicle route ID
-            ->where('es.tnpsc_staff_id', $user->dept_off_id) // Filter escortstaffs by user
-            ->get(); // Get all matching records
+            ->select('cvr.*', 'es.district_code')
+            ->where('cvr.id', $id);
+        //TODO: update the user department to required 
+        if (!in_array($user->role->role_department, ['ED', 'QD'])) {
+            // Apply additional condition only if the user's department is not 'ID'
+            $query->where('es.tnpsc_staff_id', $user->dept_off_id);
+        }
+        // Execute the query
+        $routes = $query->get();
 
         // Extract unique districts from the routes
         $districtCodes = $routes->pluck('district_code')->unique();
@@ -293,23 +295,32 @@ class ChartedVehicleRoutesController extends Controller
             $examIds = [];
         }
 
-        // Fetch trunk boxes for all exam IDs and districts, along with scanned_at field
+        // Determine the order direction based on the role
+        $orderDirection = (in_array($user->role->role_department, ['ED', 'QD'])) ? 'desc' : 'asc';
+
+        // Fetch trunk boxes for all exam IDs and districts, with conditional ordering
         $trunkBoxes = DB::table('exam_trunkbox_otl_data as e')
             ->leftJoin('exam_trunkbox_scans as s', 'e.id', '=', 's.exam_trunkbox_id') // Join with scans table
             ->whereIn('e.exam_id', $examIds) // Match exam IDs
             ->whereIn('e.district_code', $districtCodes) // Match district codes
-            ->orderBy('e.load_order') // Add ordering by load_order
+            ->orderBy('e.load_order', $orderDirection) // Conditional order
             ->get(); // Get all matching trunk boxes
+
         //total number of trunk boxes found for this user
         $totalTrunkBoxes = $trunkBoxes->count();
         // Total number of trunk boxes scanned by the user
-        $totalScanned = $trunkBoxes->filter(function ($examMaterial) {
-            return !is_null($examMaterial->dept_off_scanned_at); // Check if scanned_at is not null
-        })->count();
+        $totalScanned = $trunkBoxes->filter(
+            fn($examMaterial) => !is_null(
+                value: $examMaterial->{
+                    in_array($user->role->role_department, ['ED', 'QD'])
+                    ? 'hq_scanned_at'
+                    : 'dept_off_scanned_at'
+                    }
+            )
+        )->count();
         $myroute = ChartedVehicleRoute::where('id', $id)->first();
-        $exams = Currentexam::get();
-        $tnpscStaffs = DepartmentOfficial::get();
-        return view('my_exam.Charted-Vehicle.scan-trunkbox', compact('trunkBoxes', 'exams', 'tnpscStaffs', 'myroute', 'totalTrunkBoxes', 'totalScanned'));
+
+        return view('my_exam.Charted-Vehicle.scan-trunkbox', compact('trunkBoxes', 'user', 'myroute', 'totalTrunkBoxes', 'totalScanned'));
     }
 
     public function scanTrunkboxOrder(Request $request)

@@ -2788,7 +2788,7 @@
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Handover All Materials from Vehicle<small
+                                                        <div class="h5 font-weight-bold">Receive All Materials from Charted Vehicle<small
                                                                 class="badge bg-light-secondary ms-2">Received</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
@@ -2822,7 +2822,7 @@
                                                             data-pc-animate="just-me" data-bs-toggle="modal"
                                                             data-bs-target="#animateModal"><i
                                                                 class="feather icon-eye mx-1 "></i>View </a>
-                                                        <a href="{{ route('current-exam.vdstotreasuryofficer') }}"
+                                                        <a href="{{ route('bundle-packaging.charted-vehicle-to-headquarters', $session->exam_main_no) }}"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-info mx-1"></i>Verify</a>
                                                         <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
@@ -2857,7 +2857,7 @@
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Scan Trunk Box<small
+                                                        <div class="h5 font-weight-bold">Verify All Materials and Memory Cards Handovered<small
                                                                 class="badge bg-light-secondary ms-2">Scanned</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
@@ -2882,16 +2882,18 @@
                                                         </div>
                                                         <div class="h5 mt-3"><i
                                                                 class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            ED 
+                                                            VMD 
                                                             - Admin Officer</div>
-
                                                     </div>
                                                     <div class="mt-2">
+                                                        <a href="{{ route('bundle-packaging.charted-vehicle-to-headquarters', $session->exam_main_no) }}"
+                                                            class="me-2 btn btn-sm btn-light-info"><i
+                                                                class="feather icon-info mx-1"></i>Verify</a>
                                                         <a href="helpdesk-ticket-details.html"
                                                             class="me-2 btn btn-sm btn-light-primary "
                                                             data-pc-animate="just-me" data-bs-toggle="modal"
-                                                            data-bs-target="#animateModal"><i
-                                                                class="feather icon-eye mx-1 "></i>View </a>
+                                                            data-bs-target="#verifyAllMaterialsHandovered"><i
+                                                                class="feather icon-info mx-1 "></i>Verify </a>
                                                         <a href="#" class="me-3 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-aperture mx-1"></i>Scan</a>
                                                     </div>
@@ -2916,6 +2918,7 @@
                 @include('modals.ci-meetingcode-generate')
                 {{-- @include('modals.invigilator-allotment') --}}
                 {{-- @include('modals.qpbox-opentime') --}}
+                @include('modals.verify-all-materials-handovered')
             </div>
             <!-- [ Main Content ] end -->
         </div>

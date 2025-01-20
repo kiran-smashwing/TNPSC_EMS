@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChartedVehicleRoute;
 use App\Models\ExamMaterialsScan;
 use App\Models\ExamMaterialsData;
 use App\Models\Currentexam;
 use App\Models\ExamTrunkBoxOTLData;
+use App\Models\ExamTrunkBoxScan;
 use App\Services\ExamAuditService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -220,7 +222,7 @@ class BundlePackagingController extends Controller
             'center_code' => $examMaterials->center_code,
             'hall_code' => $examMaterials->hall_code,
         ])->first();
-            
+
         // Check if already scanned
         if (
             ExamMaterialsScan::where([
@@ -229,7 +231,7 @@ class BundlePackagingController extends Controller
         ) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'QR code has already been scanned, Place this bundle in this trunk box: '.$trunkBox->trunkbox_qr_code .'',
+                'message' => 'QR code has already been scanned, Place this bundle in this trunk box: ' . $trunkBox->trunkbox_qr_code . '',
             ], 409);
         }
 
@@ -241,7 +243,7 @@ class BundlePackagingController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'QR code scanned successfully, Place this bundle in this trunk box:'.$trunkBox->trunkbox_qr_code .'',
+            'message' => 'QR code scanned successfully, Place this bundle in this trunk box:' . $trunkBox->trunkbox_qr_code . '',
         ], 200);
     }
     public function MobileTeamtoCenter(Request $request, $examId)
@@ -294,4 +296,88 @@ class BundlePackagingController extends Controller
         });
         return view('my_exam.BundlePackaging.mobileteam-to-center-bundle', compact('examMaterials', 'examId', 'totalExamMaterials', 'totalScanned', 'examDates'));
     }
+    public function chartedVehicletoHeadquarters(Request $request, $examId)
+    {
+        $user = $request->get('auth_user');
+
+        $routes = ChartedVehicleRoute::whereJsonContains('exam_id', $examId)->get();
+        // Fetching exam notifications 
+        foreach ($routes as $route) {
+            $examIds = $route->exam_id; // Assuming this is how you fetch the exam IDs array 
+            $exams = Currentexam::whereIn('exam_main_no', $examIds)->get();
+            $route->exam_notifications = $exams->pluck('exam_main_notification')->implode(', ');
+        }
+        // Fetching district codes 
+        foreach ($routes as $route) {
+            $districtCodes = $route->escortstaffs->pluck('district_code')->unique()->toArray();
+            $route->district_codes = implode(', ', $districtCodes);
+        }
+        return view('my_exam.BundlePackaging.vds-to-hq-bundle', compact('routes'));
+    }
+    public function scanHQExamMaterials(Request $request)
+    {
+        // Validate request
+        $request->validate([
+            'qr_code' => 'required|string',
+            'exam_id' => 'required|string',
+        ]);
+
+        // Decode exam_id from JSON string
+        $decodedExamIds = json_decode(htmlspecialchars_decode($request->exam_id), true);
+
+        // Ensure the decoded value is an array
+        if (!is_array($decodedExamIds)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid exam_id format'
+            ], 400);
+        }
+
+        // Find exam materials matching qr_code and exam_id values
+        $examMaterials = ExamTrunkBoxOTLData::where('trunkbox_qr_code', $request->qr_code)
+            ->whereIn('exam_id', $decodedExamIds)
+            ->first();
+
+        if (!$examMaterials) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'QR code not found for the provided exam IDs.'
+            ], 404);
+        }
+
+        // Get the next trunk box in reverse order (descending load_order)
+        $previousTrunkBox = ExamTrunkBoxOTLData::where('exam_id', $examMaterials->exam_id)
+            ->where('district_code', $examMaterials->district_code)
+            ->where('load_order', '>', $examMaterials->load_order) // Reverse order scanning
+            ->orderBy('load_order') // Ascending order for reverse processing
+            ->first();
+
+        // Check if the previous trunk box was scanned
+        if ($previousTrunkBox && !ExamTrunkBoxScan::where('exam_trunkbox_id', $previousTrunkBox->id)->exists()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Please scan trunk boxes in the correct order. The next trunk box has not been scanned yet.',
+            ], 400);
+        }
+
+        // Check if the current trunk box is already scanned
+        $existingScan = ExamTrunkBoxScan::where('exam_trunkbox_id', $examMaterials->id)->first();
+
+        if ($existingScan) {
+            // Update the existing record with new HQ scan timestamp
+            $existingScan->update(['hq_scanned_at' => now()]);
+        } else {
+            // Create a new scan record
+            ExamTrunkBoxScan::create([
+                'exam_trunkbox_id' => $examMaterials->id,
+                'hq_scanned_at' => now()
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'QR code scanned successfully.',
+        ], 200);
+    }
+
 }

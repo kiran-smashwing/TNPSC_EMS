@@ -21,6 +21,7 @@ class ExamTrunkBoxScan extends Model
    protected $fillable = [
        'exam_trunkbox_id', 
        'dept_off_scanned_at',
+       'hq_scanned_at',
    ];
 
    // Define the relationships

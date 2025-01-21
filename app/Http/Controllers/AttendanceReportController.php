@@ -1,12 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
-// use Barryvdh\Snappy\Facades\SnappyPdf;
 use Illuminate\Http\Request;
 use App\Models\Currentexam;
 use Spatie\Browsershot\Browsershot;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use App\Models\Center;
 use Illuminate\Support\Facades\Auth;
 use App\Models\District;

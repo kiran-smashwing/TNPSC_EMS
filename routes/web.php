@@ -449,6 +449,8 @@ Route::prefix('bundle-packaging')->group(function () {
         Route::post('/scan-disitrct-exam-materials/{examId}', [BundlePackagingController::class, 'scanDistrictExamMaterials'])->name('bundle-packaging.scan-disitrct-exam-materials');
         Route::get('/charted-vehicle-to-headquarters/{examId}', [BundlePackagingController::class, 'chartedVehicletoHeadquarters'])->name('bundle-packaging.charted-vehicle-to-headquarters');
         Route::post('/scan-hq-exam-materials', [BundlePackagingController::class, 'scanHQExamMaterials'])->name('bundle-packaging.scan-hq-exam-materials');
+        Route::post('/save-handover-details', [BundlePackagingController::class, 'saveHandoverDetails'])->name('bundle-packaging.save-handover-details');
+        Route::get('/report-handover-details/{id}', [BundlePackagingController::class, 'reportHandoverDetails'])->name('bundle-packaging.report-handover-details');
     });
 });
 //ReceiveExamMaterialsController Route::prefix('receive-exam-materials')->group(function(){

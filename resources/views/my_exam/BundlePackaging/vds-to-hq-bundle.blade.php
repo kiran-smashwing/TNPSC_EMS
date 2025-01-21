@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                              <h2 class="mb-0"></h2>
-                            </div> -->
+                                              <h2 class="mb-0"></h2>
+                                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -150,15 +150,36 @@
 
             <!-- [ Main Content ] start -->
             <div class="row">
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
 
-            </div>
-            <div class="row">
+                @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
                 <!-- [ basic-table ] start -->
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-header">
                             <div class="d-sm-flex align-items-center justify-content-between">
-                                <h5 class="mb-3 mb-sm-0">Charted Vehicle Route View</h5>
+                                <h5 class="mb-3 mb-sm-0">Vanduty Staff to Headquarters</h5>
                                 <div>
                                     <a href="{{ route('charted-vehicle-routes.create') }}"
                                         class="btn btn-outline-success">Add Route</a>
@@ -167,18 +188,17 @@
                         </div>
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
-                            <form id="filterForm" class="mb-3" method="GET"
-                                action="#">
+                            <form id="filterForm" class="mb-3" method="GET" action="#">
                                 <div class="filter-item">
                                     <select class="form-select" id="centerCodeFilter" name="centerCode">
                                         <option value="">Select Center</option>
-                                      
+
                                     </select>
                                 </div>
                                 <div class="filter-item">
                                     <select class="form-select" id="examDateFilter" name="examDate">
                                         <option value="">Select Exam Date</option>
-                                       
+
                                     </select>
                                 </div>
                                 <div class="btn-container">
@@ -201,33 +221,42 @@
                                         <th>Vehicle No</th>
                                         <th>OTL Locks</th>
                                         <th>GPS Locks</th>
-                                        <th>District</th>                                        
+                                        <th>District</th>
                                         {{-- <th>Mobile team staff</th>
                                         <th>Mobile team mobile no</th> --}}
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                        @foreach ($routes as $route)
-                                            <tr>
-                                                <td>{{ $route->route_no }}</td>
-                                                <td>{{ $route->exam_notifications }}</td>
-                                                <td>{{ $route->charted_vehicle_no }}</td>
-                                                <td>{{ is_array($route->otl_locks) ? implode(', ', $route->otl_locks) : $route->otl_locks }}</td>
-                                                <td>{{ is_array($route->gps_locks) ? implode(', ', $route->gps_locks) : $route->gps_locks }}</td>                                                
-                                                <td> {{ $route->district_codes }}</td>
-                                                <td>
-                                                    <a href="{{ route('charted-vehicle-routes.edit', $route['id']) }}"
-                                                        class="avtar avtar-xs btn-light-success"><i
-                                                            class="ti ti-edit f-20"></i></a>
-                                                    <a href="{{ route('viewTrunkboxes', $route['id']) }}"
-                                                        class="avtar avtar-xs btn-light-success"><i
-                                                            class="ti ti-checkbox  f-20"></i></a>
-                                                </td>
-                                            </tr>
-                                        @endforeach
+                                    @foreach ($routes as $route)
+                                        <tr>
+                                            <td>{{ $route->route_no }}</td>
+                                            <td>{{ $route->exam_notifications }}</td>
+                                            <td>{{ $route->charted_vehicle_no }}</td>
+                                            <td>{{ is_array($route->otl_locks) ? implode(', ', $route->otl_locks) : $route->otl_locks }}
+                                            </td>
+                                            <td>{{ is_array($route->gps_locks) ? implode(', ', $route->gps_locks) : $route->gps_locks }}
+                                            </td>
+                                            <td> {{ $route->district_codes }}</td>
+                                            <td>
+                                                <a href="{{ route('charted-vehicle-routes.edit', $route['id']) }}"
+                                                    class="avtar avtar-xs btn-light-success"><i
+                                                        class="ti ti-edit f-20"></i></a>
+                                                <a href="{{ route('viewTrunkboxes', $route['id']) }}"
+                                                    class="avtar avtar-xs btn-light-success"><i
+                                                        class="ti ti-checkbox  f-20"></i></a>
+                                                <a href="#" class="avtar avtar-xs btn-light-success"
+                                                    data-bs-toggle="modal" data-bs-target="#verifyAllMaterialsHandovered"
+                                                    data-route-id="{{ $route['id'] }}" onclick="setVehicleId(this)">
+                                                    <i class="ti ti-clipboard-check f-20"></i>
+                                                </a>
+                                                <a href="{{ route('bundle-packaging.report-handover-details', $route['id']) }}"
+                                                    class="avtar avtar-xs btn-light-success"><i
+                                                        class="ti ti-download f-20"></i></a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                 </tbody>
-
                             </table>
                         </div>
                     </div>
@@ -237,12 +266,15 @@
         </div>
         <!-- [ Main Content ] end -->
         </div>
+        @include('modals.verify-all-materials-handovered')
+
     </section>
     <!-- [ Main Content ] end -->
     @include('partials.footer')
 
     @push('scripts')
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="{{ asset('storage/assets/js/plugins/sweetalert2.all.min.js') }}"></script>
         @include('partials.datatable-export-js')
     @endpush
 

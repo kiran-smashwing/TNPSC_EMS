@@ -12,6 +12,7 @@ use App\Services\ExamAuditService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Spatie\Browsershot\Browsershot;
 
 class BundlePackagingController extends Controller
 {
@@ -378,6 +379,78 @@ class BundlePackagingController extends Controller
             'status' => 'success',
             'message' => 'QR code scanned successfully.',
         ], 200);
+    }
+    public function saveHandoverDetails(Request $request)
+    {
+        // Validate request data
+        $request->validate([
+            'vehicle_id' => 'required|exists:charted_vehicle_routes,id',
+            'memory_card_handovered' => 'sometimes|in:on',
+            'camera_handovered' => 'sometimes|in:on',
+            'confidential_material_offloaded' => 'sometimes|in:on',
+            'gps_lock_handovered' => 'sometimes|in:on',
+            'final_remarks' => 'nullable|string|max:500',
+        ]);
+
+        try {
+            // Find the vehicle record
+            $vehicle = ChartedVehicleRoute::findOrFail($request->vehicle_id);
+
+            // Prepare data, setting unchecked checkboxes to 'off'
+            $handoverDetails = [
+                'memory_card_handovered' => $request->has('memory_card_handovered') ? true : false,
+                'camera_handovered' => $request->has('camera_handovered') ? true : false,
+                'confidential_material_offloaded' => $request->has('confidential_material_offloaded') ? true : false,
+                'gps_lock_handovered' => $request->has('gps_lock_handovered') ? true : false,
+                'final_remarks' => $request->final_remarks ?? '',
+            ];
+
+            // Save data in JSON format
+            $vehicle->handover_verification_details = json_encode($handoverDetails);
+            $vehicle->save();
+
+            return back()->with('success', 'Handover details saved successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to save handover details. Please try again.');
+        }
+    }
+    public function reportHandoverDetails(Request $request ,$id)
+    {
+        $vehicles = ChartedVehicleRoute::where('id',$id)->with(['escortstaffs.district'])->first();
+        $exams = Currentexam::whereIn('exam_main_no', $vehicles->exam_id)->get();
+        // dd($vehicles->escortstaffs);
+        // return view('PDF.BundlePackaging.handover-verification',compact('vehicles','exams'));
+        $html = view('PDF.BundlePackaging.handover-verification',compact('vehicles','exams'))->render();
+        // $html = view('PDF.Reports.ci-utility-certificate')->render();
+        $pdf = Browsershot::html($html)
+            ->setOption('landscape', false)
+            ->setOption('margin', [
+                'top' => '10mm',
+                'right' => '10mm',
+                'bottom' => '10mm',
+                'left' => '10mm'
+            ])
+            ->setOption('displayHeaderFooter', true)
+            ->setOption('headerTemplate', '<div></div>')
+            ->setOption('footerTemplate', '
+            <div style="font-size:10px;width:100%;text-align:center;">
+                Page <span class="pageNumber"></span> of <span class="totalPages"></span>
+            </div>
+            <div style="position: absolute; bottom: 5mm; right: 10px; font-size: 10px;">
+                 IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . ' 
+            </div>')
+            ->setOption('preferCSSPageSize', true)
+            ->setOption('printBackground', true)
+            ->scale(1)
+            ->format('A4')
+            ->pdf();
+        // Define a unique filename for the report
+        $filename = '0101_chennai_attendance_reprot' . time() . '.pdf';
+
+        // Return the PDF as a response
+        return response($pdf)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
     }
 
 }

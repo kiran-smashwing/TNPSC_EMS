@@ -143,6 +143,7 @@
                                                             href="{{ route('receive-exam-materials.mobileTeam-to-ci-materials', [
                                                                 'examId' => $session->currentexam->exam_main_no,
                                                                 'exam_date' => $session->exam_sess_date,
+                                                                'exam_session' => $session->exam_sess_session,
                                                             ]) }}"
                                                             class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-aperture mx-1"></i>Scan</a>

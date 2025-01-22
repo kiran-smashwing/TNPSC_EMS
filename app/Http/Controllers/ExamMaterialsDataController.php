@@ -202,7 +202,7 @@ class ExamMaterialsDataController extends Controller
             'R4' => '/^R4(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
             'R5' => '/^R5(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
         ];
-
+        
         // Match against all patterns
         foreach ($patterns as $category => $pattern) {
             if (preg_match($pattern, $qrCodeString, $matches)) {

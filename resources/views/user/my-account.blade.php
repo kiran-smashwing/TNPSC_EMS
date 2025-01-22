@@ -959,12 +959,7 @@
     @push('scripts')
         <script src="{{ asset('storage/assets/js/plugins/croppr.min.js') }}"></script>
         <script src="{{ asset('storage/assets/js/pages/page-croper.js') }}"></script>
-        <script>
-            document.getElementById('triggerModal').addEventListener('click', function() {
-                var modal = new bootstrap.Modal(document.getElementById('cropperModal'));
-                modal.show();
-            });
-        </script>
+        
         <script>
             document.querySelector('.btn-success').addEventListener('click', function(e) {
                 e.preventDefault();

@@ -56,23 +56,28 @@ class SecurityHeaders
         }
 
         foreach ($input as $key => $value) {
-            // Decode JSON strings like exam_id and continue processing
-            $decodedValue = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            $jsonDecoded = json_decode($decodedValue, true);
+            // Check if the value is a string before decoding it
+            if (is_string($value)) {
+                $decodedValue = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $jsonDecoded = json_decode($decodedValue, true);
 
-            if (is_array($jsonDecoded)) {
-                // Skip direct checks if it's valid JSON; process recursively
-                checkValue($jsonDecoded, $patterns);
-                continue;
+                if (is_array($jsonDecoded)) {
+                    // Skip direct checks if it's valid JSON; process recursively
+                    checkValue($jsonDecoded, $patterns);
+                    continue;
+                }
+
+                // Skip Base64 images
+                if (isBase64Image($value)) {
+                    continue;
+                }
+
+                // Check plain values
+                checkValue($decodedValue, $patterns);
+            } else {
+                // If value is not a string, process recursively (for arrays)
+                checkValue($value, $patterns);
             }
-
-            // Skip Base64 images
-            if (isBase64Image($value)) {
-                continue;
-            }
-
-            // Check plain values
-            checkValue($value, $patterns);
         }
 
         // Add security headers
@@ -89,5 +94,4 @@ class SecurityHeaders
         $response->headers->set('Cache-Control', 'private, no-cache, must-revalidate');
         return $response;
     }
-
 }

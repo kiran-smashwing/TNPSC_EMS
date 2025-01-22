@@ -248,8 +248,14 @@ class ScribeController extends Controller
     public function show($id)
     {
         $scribe = Scribe::with(['district', 'venue', 'center'])->findOrFail($id);
+        $centerCount = $scribe->district->centers()->count();  // Assuming 'centers' is a relationship in District model
+        $venueCount = $scribe->district->venues()->count();
+        $staffCount = $scribe->district->treasuryOfficers()->count() + $scribe->district->mobileTeamStaffs()->count();
+        $ci_count = $scribe->venue->chiefinvigilator()->count();
+        $invigilator_count = $scribe->venue->invigilator()->count();
+        $cia_count = $scribe->venue->cia()->count();
         // Return the view with the Scribe and related data
-        return view('masters.venues.scribe.show', compact('scribe'));
+        return view('masters.venues.scribe.show', compact('scribe','centerCount', 'venueCount','staffCount','ci_count','invigilator_count','cia_count'));
     }
 
     public function toggleStatus($id)

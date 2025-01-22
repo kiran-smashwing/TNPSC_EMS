@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+
 class Center extends Authenticatable
 {
     use HasFactory;
@@ -67,5 +68,21 @@ class Center extends Authenticatable
     public function district()
     {
         return $this->belongsTo(District::class, 'center_district_id', 'district_code');
+    }
+    public function treasuryOfficers()
+    {
+        return $this->hasMany(TreasuryOfficer::class, 'tre_off_district_id', 'district_code');
+    }
+    public function venues()
+    {
+        return $this->hasMany(Venues::class, 'venue_district_id', 'district_code');
+    }
+    public function centers()
+    {
+        return $this->hasMany(Center::class, 'center_district_id', 'district_code');
+    }
+    public function mobileTeamStaffs()
+    {
+        return $this->hasMany(MobileTeamStaffs::class, 'mobile_district_id', 'district_code');
     }
 }

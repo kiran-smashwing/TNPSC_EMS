@@ -264,7 +264,7 @@
                                                     <h6 class="mb-0">{{ $officer->tre_off_name }}</h6>
                                                 </div>
                                             </td>
-                                            <td>{{ $officer->tre_off_district_id ?? 'N/A' }}</td>
+                                            <td>{{ $officer->district->district_name ?? 'N/A' }}</td>
                                             <td>{{ $officer->tre_off_email }}</td>
                                             <td>{{ $officer->tre_off_phone }}</td>
                                             <td class="text-center">

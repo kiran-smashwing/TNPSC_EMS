@@ -464,7 +464,7 @@ Route::prefix('receive-exam-materials')->group(function () {
         Route::post('/scan-mobile-team-exam-materials/{examId}', [ReceiveExamMaterialsController::class, 'scanMobileTeamExamMaterials'])->name('receive-exam-materials.scan-mobile-team-exam-materials');
         Route::get('/headquarters-to-vanduty/{examId}/{examDate}', [ReceiveExamMaterialsController::class, 'headquartersToVanDuty'])->name('receive-exam-materials.headquarters-to-vanduty');
         Route::post('/scan-vandutystaff-exam-materials/{examId}', [ReceiveExamMaterialsController::class, 'scanVandutystaffExamMaterials'])->name('receive-exam-materials.scan-vandutystaff-exam-materials');
-        Route::get('/receive-exam-materials/{examId}/{exam_date}', [ReceiveExamMaterialsController::class, 'ciReceiveMaterialsFromMobileTeam'])->name('receive-exam-materials.mobileTeam-to-ci-materials');
+        Route::get('/receive-exam-materials/{examId}/{exam_date}/{exam_session}', [ReceiveExamMaterialsController::class, 'ciReceiveMaterialsFromMobileTeam'])->name('receive-exam-materials.mobileTeam-to-ci-materials');
         Route::post('/scan-ci-exam-materials/{examId}', [ReceiveExamMaterialsController::class, 'scanCIExamMaterials'])->name('receive-exam-materials.scan-ci-exam-materials');
     });
 });

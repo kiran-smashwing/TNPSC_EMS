@@ -340,8 +340,15 @@ class VenuesController extends Controller
     {
         // Fetch the venue with its related district and center in one query using eager loading
         $venue = Venues::with(['district', 'center'])->findOrFail($id);
+        $centerCount = $venue->district->centers()->count();  // Assuming 'centers' is a relationship in District model
+        $venueCount = $venue->district->venues()->count();
+        $staffCount = $venue->district->treasuryOfficers()->count() + $venue->district->mobileTeamStaffs()->count();
+        $ci_count = $venue->chiefinvigilator()->count();
+        $invigilator_count = $venue->invigilator()->count();
+        $cia_count = $venue->cia()->count();
+        // dd($ci);
 
         // Return the view with venue, district, and center data
-        return view('masters.venues.venue.show', compact('venue'));
+        return view('masters.venues.venue.show', compact('venue','centerCount', 'venueCount','staffCount','ci_count','invigilator_count','cia_count'));
     }
 }

@@ -263,12 +263,12 @@ class MobileTeamStaffsController extends Controller
 
             // Log staff member update with old and new values (assuming you have a logging mechanism)
             AuditLogger::log('Mobile Team Staff Updated', MobileTeamStaffs::class, $staffMember->mobile_id, $oldValues, $changedValues);
-                if (url()->previous() === route('mobile-team-staffs.edit', $id)) {
-                    return redirect()->route('mobile-team-staffs.index')
-                        ->with('success', 'Mobile team staff updated successfully.');
-                } else {
-                    return redirect()->back()->with('success', 'Mobile team staff updated successfully.');
-                }
+            if (url()->previous() === route('mobile-team-staffs.edit', $id)) {
+                return redirect()->route('mobile-team-staffs.index')
+                    ->with('success', 'Mobile team staff updated successfully.');
+            } else {
+                return redirect()->back()->with('success', 'Mobile team staff updated successfully.');
+            }
         } catch (\Exception $e) {
             return back()->withInput()
                 ->with('error', 'Error updating mobile team staff: ' . $e->getMessage());
@@ -278,8 +278,11 @@ class MobileTeamStaffsController extends Controller
     {
 
         $team = MobileTeamStaffs::with('district')->findOrFail($id); // Ensure MobileTeam is the correct model
-        // dd($team);
-        return view('masters.district.mobile_team_staffs.show', compact('team'));
+        // Count of centers, venues, and members related to the district
+        $centerCount = $team->district->centers()->count();  // Assuming 'centers' is a relationship in District model
+        $venueCount = $team->district->venues()->count();
+        $staffCount = $team->district->treasuryOfficers()->count() + $team->district->mobileTeamStaffs()->count();
+        return view('masters.district.mobile_team_staffs.show', compact('team', 'centerCount', 'venueCount','staffCount'));
     }
     public function toggleStatus($id)
     {

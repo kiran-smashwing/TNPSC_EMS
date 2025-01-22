@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Center;
 use App\Models\Venues;
+use App\Models\TreasuryOfficer;
+use App\Models\MobileTeamStaffs;
 use App\Models\District;
 use Illuminate\Http\Request;
 use App\Services\ImageCompressService;
@@ -316,14 +318,14 @@ class CenterController extends Controller
         // Find the center by ID and load the related district
         $center = Center::with('district')->findOrFail($id);
 
-        // Count of centers, venues, and members related to the district
-        $centerCount = Center::where('center_district_id', $center->district_id)->count();
-        $venueCount = Venues::where('venue_district_id', $center->district_id)->count();
-        // $memberCount = Member::where('member_district_id', $center->district_id)->count();
+        $centerCount = $center->district->centers()->count();  // Assuming 'centers' is a relationship in District model
+        $venueCount = $center->district->venues()->count(); 
+        $staffCount = $center->district->treasuryOfficers()->count() + $center->district->mobileTeamStaffs()->count();
+        // dd( $center->treasuryOfficers);
         // Log view action
         AuditLogger::log('Center Viewed', Center::class, $center->center_id);
         // Pass the counts to the view
-        return view('masters.district.centers.show', compact('center', 'centerCount', 'venueCount'));
+        return view('masters.district.centers.show', compact('center', 'centerCount', 'venueCount','staffCount'));
     }
 
     public function destroy(Center $center)

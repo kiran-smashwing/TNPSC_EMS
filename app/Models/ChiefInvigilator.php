@@ -76,5 +76,17 @@ class ChiefInvigilator extends Authenticatable
     {
         return $this->belongsTo(Venues::class, 'ci_venue_id', 'venue_code');
     }
+    public function chiefinvigilator()
+    {
+        return $this->belongsTo(ChiefInvigilator::class, 'venue_code', 'ci_venue_id');
+    }
+    public function invigilator()
+    {
+        return $this->belongsTo(Invigilator::class, 'venue_code', 'invigilator_venue_id');
+    }
+    public function cia()
+    {
+        return $this->belongsTo(CIAssistant::class, 'venue_code', 'cia_venue_id');
+    }
 
 }

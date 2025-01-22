@@ -297,8 +297,14 @@ class InvigilatorsController extends Controller
     {
         // Fetch the invigilator with its related district, venue, and center using eager loading
         $invigilator = Invigilator::with(['district', 'venue', 'center'])->findOrFail($id);
+        $centerCount = $invigilator->district->centers()->count();  // Assuming 'centers' is a relationship in District model
+        $venueCount = $invigilator->district->venues()->count();
+        $staffCount = $invigilator->district->treasuryOfficers()->count() + $invigilator->district->mobileTeamStaffs()->count();
+        $ci_count = $invigilator->venue->chiefinvigilator()->count();
+        $invigilator_count = $invigilator->venue->invigilator()->count();
+        $cia_count = $invigilator->venue->cia()->count();
 
         // Return the view with the invigilator and its related data
-        return view('masters.venues.invigilator.show', compact('invigilator'));
+        return view('masters.venues.invigilator.show', compact('invigilator','centerCount', 'venueCount','staffCount','ci_count','invigilator_count','cia_count'));
     }
 }

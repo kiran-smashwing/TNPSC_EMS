@@ -270,15 +270,16 @@ class TreasuryOfficerController extends Controller
         $treasuryOfficer = TreasuryOfficer::with('district')->findOrFail($id);
 
         // Count of centers, venues, and members related to the district
-        $centerCount = Center::where('center_district_id', $treasuryOfficer->district_id)->count();
-        $venueCount = Venues::where('venue_district_id', $treasuryOfficer->district_id)->count();
+        $centerCount = $treasuryOfficer->district->centers()->count();  // Assuming 'centers' is a relationship in District model
+        $venueCount = $treasuryOfficer->district->venues()->count(); 
+        $staffCount = $treasuryOfficer->district->treasuryOfficers()->count() + $treasuryOfficer->district->mobileTeamStaffs()->count();
         
 
         // Log view action
         AuditLogger::log('Treasury Officer Viewed', TreasuryOfficer::class, $treasuryOfficer->tre_off_id);
 
         // Pass the counts to the view
-        return view('masters.district.treasury_Officers.show', compact('treasuryOfficer', 'centerCount', 'venueCount'));
+        return view('masters.district.treasury_Officers.show', compact('treasuryOfficer', 'centerCount', 'venueCount','staffCount'));
     }
 
 

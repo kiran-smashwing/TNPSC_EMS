@@ -104,36 +104,47 @@
         </div>
     </div>
 </div>
-    @push('scripts')
-        <script>
-            $(document).ready(function() {
-                // Event listener for checkbox changes
-                $('.checklist-checkbox').on('change', function() {
+@push('scripts')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(function() {
+            // Function to toggle dynamic fields
+            function toggleDynamicFields($checkbox) {
+                const checklistId = $checkbox.data('checklist-id');
+                const $dynamicFields = $('#dynamicFields' +
+                checklistId); // Removed the hyphen to match your HTML IDs
+
+                if ($checkbox.is(':checked')) {
+                    $dynamicFields.slideDown();
+                } else {
+                    $dynamicFields.slideUp();
+                }
+            }
+
+            // Event listener for checkbox changes
+            $(document).on('change', '.form-check-input',
+        function() { // Changed selector to match your checkbox class
+                toggleDynamicFields($(this));
+            });
+
+            // Initialize fields on page load
+            $('.form-check-input').each(function() {
+                // Check if the checkbox was previously checked (from old input)
+                if ($(this).is(':checked')) {
                     const checklistId = $(this).data('checklist-id');
-                    const isChecked = $(this).prop('checked');
-                    const dynamicFields = $('#dynamicFields' + checklistId);
+                    $('#dynamicFields' + checklistId).show();
+                }
+            });
 
-                    // Show/hide the dynamic fields based on checkbox state
-                    if (isChecked) {
-                        dynamicFields.show();
-                    } else {
-                        dynamicFields.hide();
-                    }
-                });
-
-                // Initially check the state of the checkboxes and show relevant fields
-                $('.checklist-checkbox').each(function() {
-                    const checklistId = $(this).data('checklist-id');
-                    const isChecked = $(this).prop('checked');
-                    const dynamicFields = $('#dynamicFields' + checklistId);
-
-                    // If checked, show the dynamic fields
-                    if (isChecked) {
-                        dynamicFields.show();
-                    } else {
-                        dynamicFields.hide();
+            // Optional: Handle modal show event to reinitialize fields
+            $('#sessionCheckListModel').on('shown.bs.modal', function() {
+                $('.form-check-input').each(function() {
+                    if ($(this).is(':checked')) {
+                        const checklistId = $(this).data('checklist-id');
+                        $('#dynamicFields' + checklistId).show();
                     }
                 });
             });
-        </script>
-    @endpush
+        });
+    </script>
+@endpush

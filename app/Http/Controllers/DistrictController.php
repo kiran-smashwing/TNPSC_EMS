@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\District;
+use App\Models\TreasuryOfficer;
+use App\Models\MobileTeamStaffs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Services\AuditLogger;
@@ -275,10 +277,12 @@ class DistrictController extends Controller
         $district = District::findOrFail($id);
         $centerCount = $district->centers()->count();  // Assuming 'centers' is a relationship in District model
         $venueCount = $district->venues()->count();    // Assuming 'venues' is a relationship in District model
+        $staffCount = $district->treasuryOfficers()->count() + $district->mobileTeamStaffs()->count();
+        
         // Log view action
         AuditLogger::log('District Viewed', District::class, $district->district_id);
 
-        return view('masters.district.collectorate.show', compact('district', 'centerCount', 'venueCount'));
+        return view('masters.district.collectorate.show', compact('district', 'centerCount', 'venueCount', 'staffCount'));
     }
 
     public function destroy($id)

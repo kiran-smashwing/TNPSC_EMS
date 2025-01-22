@@ -62,8 +62,10 @@
                                                 <small class="text-muted">Venues</small>
                                             </div>
                                             <div class="col-4">
-                                                <h5 class="mb-0">45</h5>
-                                                <small class="text-muted">Members</small>
+                                                <h5 class="mb-0">{{$staffCount}}</h5>
+                                                <small class="text-muted">Officers
+
+                                                </small>
                                             </div>
                                         </div>
                                         <hr class="my-3 border border-secondary-subtle">
@@ -128,7 +130,7 @@
                                         </h5>
                                         <p class="text-muted text-sm">Center</p>
                                         <hr class="my-3 border border-secondary-subtle">
-                                        <div class="row g-3">
+                                        {{-- <div class="row g-3">
                                             <div class="col-4">
                                                 <h5 class="mb-0">86</h5>
                                                 <small class="text-muted">Centers</small>
@@ -141,7 +143,7 @@
                                                 <h5 class="mb-0">45</h5>
                                                 <small class="text-muted">Members</small>
                                             </div>
-                                        </div>
+                                        </div> --}}
                                         <hr class="my-3 border border-secondary-subtle">
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
@@ -174,7 +176,7 @@
                         <div class="col-lg-4 col-xxl-6">
                             <div class="card">
                                 <div class="card-header">
-                                    <h5>Demo Videos</h5>
+                                    <h5>User Guide Video - Center (Taluks)</h5>
                                 </div>
                                 <div class="card-body pc-component">
                                     <div data-bs-ride="carousel" class="carousel slide carousel-fade"

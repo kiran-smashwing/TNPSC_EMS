@@ -279,7 +279,13 @@ class CIAssistantsController extends Controller
     {
         // Retrieve the CI Assistant record by ID, or fail if not found
         $ciAssistant = CIAssistant::with(['district', 'venue', 'center'])->findOrFail($id);
+        $centerCount = $ciAssistant->district->centers()->count();  // Assuming 'centers' is a relationship in District model
+        $venueCount = $ciAssistant->district->venues()->count();
+        $staffCount = $ciAssistant->district->treasuryOfficers()->count() + $ciAssistant->district->mobileTeamStaffs()->count();
+        $ci_count = $ciAssistant->venue->chiefinvigilator()->count();
+        $invigilator_count = $ciAssistant->venue->invigilator()->count();
+        $cia_count = $ciAssistant->venue->cia()->count();
         // Return the view with the CI Assistant and related data
-        return view('masters.venues.ci_assistants.show', compact('ciAssistant'));
+        return view('masters.venues.ci_assistants.show', compact('ciAssistant','centerCount', 'venueCount','staffCount','ci_count','invigilator_count','cia_count'));
     }
 }

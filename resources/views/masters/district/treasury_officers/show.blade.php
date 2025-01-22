@@ -60,15 +60,15 @@
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
                                             <div class="col-4">
-                                                <h5 class="mb-0">86</h5>
+                                                <h5 class="mb-0">{{$centerCount}}</h5>
                                                 <small class="text-muted">Centers</small>
                                             </div>
                                             <div class="col-4 border border-top-0 border-bottom-0">
-                                                <h5 class="mb-0">40</h5>
+                                                <h5 class="mb-0">{{$venueCount}}</h5>
                                                 <small class="text-muted">Venues</small>
                                             </div>
                                             <div class="col-4">
-                                                <h5 class="mb-0">45</h5>
+                                                <h5 class="mb-0">{{$staffCount}}</h5>
                                                 <small class="text-muted">Members</small>
                                             </div>
                                         </div>
@@ -189,7 +189,7 @@
                         <div class="col-lg-8 col-xxl-6">
                             <div class="card">
                                 <div class="card-header">
-                                    <h5>Demo Videos</h5>
+                                    <h5>User Guide Video - Treasury Officer</h5>
                                 </div>
                                 <div class="card-body pc-component">
                                     <div id="carouselExampleFade" class="carousel slide carousel-fade"

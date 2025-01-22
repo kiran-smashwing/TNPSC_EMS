@@ -262,7 +262,7 @@
                                                     <h6 class="mb-0">{{ $team->mobile_name }}</h6>
                                                 </div>
                                             </td>
-                                            <td>{{ $team->mobile_district_id }}</td>
+                                            <td>{{ $team->district->district_name }}</td>
                                             <!-- Displaying district name -->
                                             <td>{{ $team->mobile_email }}</td>
                                             <td>{{ $team->mobile_phone }}</td>

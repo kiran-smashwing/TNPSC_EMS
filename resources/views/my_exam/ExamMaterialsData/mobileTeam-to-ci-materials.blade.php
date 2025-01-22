@@ -33,10 +33,10 @@
                     {{-- <a href="#" class="">
                         <i class="feather icon-aperture mx-1"></i>Scan OR Code
                     </a> --}}
-                    <a href="#" class="me-2 btn btn-light-primary"  data-pc-animate="just-me"
-                    data-bs-toggle="modal" data-bs-target="#qrCodeModal">
-                    <i class="feather icon-aperture mx-1"></i>Scan OR Code 
-                </a>
+                    <a href="#" class="me-2 btn btn-light-primary" data-pc-animate="just-me" data-bs-toggle="modal"
+                        data-bs-target="#qrCodeModal">
+                        <i class="feather icon-aperture mx-1"></i>Scan OR Code
+                    </a>
                 </div>
             </div>
 
@@ -46,7 +46,7 @@
                         <div class="card">
                             <div class="card-header">
                                 <div class="d-sm-flex align-items-center justify-content-between">
-                                    <h5 class="mb-3 mb-sm-0">{{ $exam_date }} - {{ $session }}</h5>
+                                    <h5 class="mb-3 mb-sm-0">{{ $exam_date }}</h5>
                                 </div>
                             </div>
                             <div class="card-body table-border-style">
@@ -62,7 +62,43 @@
                                             @php $counter = 1; @endphp
                                             @foreach ($materials as $material)
                                                 @if ($material->category == 'D1')
-                                                    <!-- Adjust condition based on data -->
+                                                    <tr>
+                                                        <td>{{ $counter++ }}</td>
+                                                        <td>
+                                                            @if ($material->examMaterialsScan && !is_null($material->examMaterialsScan->ci_scanned_at))
+                                                                {{ \Carbon\Carbon::parse($material->examMaterialsScan->ci_scanned_at)->format('d-m-Y h:i:s') }}
+                                                            @else
+                                                                No Scans
+                                                            @endif
+                                                        </td>
+
+
+                                                    </tr>
+                                                    {{-- @php dd($material->examMaterialsScan->ci_scanned_at); @endphp <!-- Debugging the material object --> --}}
+                                                @endif
+                                            @endforeach
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-dark">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    @if ($exam_type->exam_sess_type === 'Objective')
+                                                        OMR Packet
+                                                    @elseif ($exam_type->exam_sess_type === 'Descriptive')
+                                                        Answer Packet
+                                                    @endif
+                                                </th>
+                                                <th>Timestamp</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @php $counter = 1; @endphp
+                                            @foreach ($materials as $material)
+                                                @if (in_array($material->category, ['D2', 'R1', 'R2']))
                                                     <tr>
                                                         <td>{{ $counter++ }}</td>
                                                         <td>
@@ -73,34 +109,6 @@
                                                             @endif
                                                         </td>
                                                     </tr>
-                                                @endif
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="table-responsive">
-                                    <table class="table table-dark">
-                                        <thead>
-                                            <tr>
-                                                <th>OMR Packet</th>
-                                                <th>Timestamp</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @php $counter = 1; @endphp
-                                            @foreach ($materials as $material)
-                                                @if ($material->category == 'D2')
-                                                    <!-- Adjust condition based on data -->
-                                                    <tr>
-                                                        <td>{{ $counter++ }}</td>
-                                                        <td>
-                                                            @if ($material->examMaterialsScan && $material->examMaterialsScan->ci_scanned_at)
-                                                                {{ \Carbon\Carbon::parse($material->examMaterialsScan->ci_scanned_at)->format('d-m-Y h:i:s') }}
-                                                            @else
-                                                                No Scans
-                                                            @endif
-                                                        </td>
-                                                     </tr>
                                                 @endif
                                             @endforeach
                                         </tbody>
@@ -181,7 +189,7 @@
                         }, 5000);
                     }
                 }).then((result) => {
-                        window.location.reload(); // Reload the page when "OK" is clicked
+                    window.location.reload(); // Reload the page when "OK" is clicked
                 });
             }
         </script>

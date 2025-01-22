@@ -341,8 +341,14 @@ class ChiefInvigilatorsController extends Controller
     public function show($id)
     {
         $chiefInvigilator = ChiefInvigilator::with(['district', 'venue', 'center'])->findOrFail($id);
+        $centerCount = $chiefInvigilator->district->centers()->count();  // Assuming 'centers' is a relationship in District model
+        $venueCount = $chiefInvigilator->district->venues()->count();
+        $staffCount = $chiefInvigilator->district->treasuryOfficers()->count() + $chiefInvigilator->district->mobileTeamStaffs()->count();
+        $ci_count = $chiefInvigilator->venue->chiefinvigilator()->count();
+        $invigilator_count = $chiefInvigilator->venue->invigilator()->count();
+        $cia_count = $chiefInvigilator->venue->cia()->count();
 
-        return view('masters.venues.chief_invigilator.show', compact('chiefInvigilator'));
+        return view('masters.venues.chief_invigilator.show', compact('chiefInvigilator','centerCount', 'venueCount','staffCount','ci_count','invigilator_count','cia_count'));
     }
 
     public function destroy($id)

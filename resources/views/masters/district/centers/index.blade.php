@@ -257,7 +257,7 @@
                                             </td>
                                             <td>{{ $center->center_name }}</td>
                                             <td>{{ $center->center_code }}</td>
-                                            <td>{{ $center->center_district_id }}</td>
+                                            <td>{{ $center->district->district_name }}</td>
                                             <td>{{ $center->center_email }}</td>
                                             <td>{{ $center->center_phone }}</td>
                                             <td class="text-center">

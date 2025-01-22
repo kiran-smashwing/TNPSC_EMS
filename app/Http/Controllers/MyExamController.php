@@ -191,6 +191,12 @@ class MyExamController extends Controller
         $candidate_remarks_data = []; // For storing remarks data
         $checklist_videography_data = [];
         $candidate_orm_remarks_data = []; // For storing
+        // Initialize attendance data arrays
+        $candidate_attendance_data = [
+            'absent' => $candidateAttendance['absent'] ?? 0,
+            'present' => $candidateAttendance['present'] ?? 0,
+            'alloted_count' => $candidateAttendance['alloted_count'] ?? 0,
+        ];
 
 
         // Retrieve allocation records
@@ -264,108 +270,81 @@ class MyExamController extends Controller
                 $cipaperreplacement_data[] = $replacement;
             }
         }
-
+        
         // Decode candidate logs and remarks
         if ($ciCandidatelogs) {
-            $candidateAttendance = json_decode($ciCandidatelogs->candidate_attendance, true); // Decode the `candidate_attendance` field
+            $candidateAttendance = $ciCandidatelogs->candidate_attendance
+                ? json_decode($ciCandidatelogs->candidate_attendance, true)
+                : []; // Decode the `candidate_attendance` field or initialize as an empty array
 
-            // Initialize attendance data arrays
-            $candidate_attendance_data = [
-                'absent' => $candidateAttendance['absent'] ?? 0,
-                'present' => $candidateAttendance['present'] ?? 0,
-                'alloted_count' => $candidateAttendance['alloted_count'] ?? 0,
-            ];
+
 
             // Check if session type is AN or FN and assign the attendance data accordingly
-            if ($session->exam_sess_session == 'AN') {
+            if ($session->exam_sess_session == 'AN' && isset($candidateAttendance['AN'])) {
                 $candidate_attendance_data['absent'] = $candidateAttendance['AN']['absent'] ?? 0;
                 $candidate_attendance_data['present'] = $candidateAttendance['AN']['present'] ?? 0;
                 $candidate_attendance_data['alloted_count'] = $candidateAttendance['AN']['alloted_count'] ?? 0;
             }
 
-            if ($session->exam_sess_session == 'FN') {
+            if ($session->exam_sess_session == 'FN' && isset($candidateAttendance['FN'])) {
                 $candidate_attendance_data['absent'] = $candidateAttendance['FN']['absent'] ?? 0;
                 $candidate_attendance_data['present'] = $candidateAttendance['FN']['present'] ?? 0;
                 $candidate_attendance_data['alloted_count'] = $candidateAttendance['FN']['alloted_count'] ?? 0;
             }
-            // dd($candidate_attendance_data);
-            $candidateLogs = json_decode($ciCandidatelogs->additional_details, true); // Assuming 'candidate_logs' is the JSON field
 
-            // Separate the candidate logs by session type
-            if (isset($candidateLogs['AN']) && $session->exam_sess_session == 'AN') {
-                $candidate_logs_data['AN'] = [];
-                foreach ($candidateLogs['AN'] as $log) {
-                    $candidate_logs_data['AN'][] = [
-                        'registration_number' => $log['registration_number'] ?? 'N/A',
-                        'candidate_name' => $log['candidate_name'] ?? 'N/A',
-                    ];
-                }
-            }
+            // Additional processing for logs, remarks, etc.
+            $candidateLogs = $ciCandidatelogs->additional_details
+                ? json_decode($ciCandidatelogs->additional_details, true)
+                : [];
 
-            if (isset($candidateLogs['FN']) && $session->exam_sess_session == 'FN') {
-                $candidate_logs_data['FN'] = [];
-                foreach ($candidateLogs['FN'] as $log) {
-                    $candidate_logs_data['FN'][] = [
-                        'registration_number' => $log['registration_number'] ?? 'N/A',
-                        'candidate_name' => $log['candidate_name'] ?? 'N/A',
-                    ];
-                }
-            }
+            $candidate_remarks_data = [];
+            $candidate_orm_remarks_data = [];
 
-            // Decode candidate remarks
-            if (isset($ciCandidatelogs->candidate_remarks)) {
+            if ($ciCandidatelogs->candidate_remarks) {
                 $candidateRemarks = json_decode($ciCandidatelogs->candidate_remarks, true);
 
-                // Separate the candidate remarks by session type (AN and FN)
                 if (isset($candidateRemarks['AN']) && $session->exam_sess_session == 'AN') {
-                    $candidate_remarks_data['AN'] = [];
                     foreach ($candidateRemarks['AN'] as $remark) {
                         $candidate_remarks_data['AN'][] = [
                             'registration_number' => $remark['registration_number'] ?? 'N/A',
-                            // 'candidate_name' => $remark['candidate_name'] ?? 'N/A',
-                            'remark' => $remark['remark'] ?? 'N/A', // Add the remark field
+                            'remark' => $remark['remark'] ?? 'N/A',
                         ];
                     }
                 }
 
                 if (isset($candidateRemarks['FN']) && $session->exam_sess_session == 'FN') {
-                    $candidate_remarks_data['FN'] = [];
                     foreach ($candidateRemarks['FN'] as $remark) {
                         $candidate_remarks_data['FN'][] = [
                             'registration_number' => $remark['registration_number'] ?? 'N/A',
-                            // 'candidate_name' => $remark['candidate_name'] ?? 'N/A',
-                            'remark' => $remark['remark'] ?? 'N/A', // Add the remark field
+                            'remark' => $remark['remark'] ?? 'N/A',
                         ];
                     }
                 }
             }
-            if (isset($ciCandidatelogs->omr_remarks)) {
+
+            if ($ciCandidatelogs->omr_remarks) {
                 $candidateomrRemarks = json_decode($ciCandidatelogs->omr_remarks, true);
 
-                // Separate the candidate remarks by session type (AN and FN)
                 if (isset($candidateomrRemarks['AN']) && $session->exam_sess_session == 'AN') {
-                    $candidate_orm_remarks_data['AN'] = [];
                     foreach ($candidateomrRemarks['AN'] as $remark) {
                         $candidate_orm_remarks_data['AN'][] = [
                             'registration_number' => $remark['registration_number'] ?? 'N/A',
-                            // 'candidate_name' => $remark['candidate_name'] ?? 'N/A',
-                            'remark' => $remark['remark'] ?? 'N/A', // Add the remark field
+                            'remark' => $remark['remark'] ?? 'N/A',
                         ];
                     }
                 }
 
                 if (isset($candidateomrRemarks['FN']) && $session->exam_sess_session == 'FN') {
-                    $candidate_orm_remarks_data['FN'] = [];
                     foreach ($candidateomrRemarks['FN'] as $remark) {
                         $candidate_orm_remarks_data['FN'][] = [
                             'registration_number' => $remark['registration_number'] ?? 'N/A',
-                            // 'candidate_name' => $remark['candidate_name'] ?? 'N/A',
-                            'remark' => $remark['remark'] ?? 'N/A', // Add the remark field
+                            'remark' => $remark['remark'] ?? 'N/A',
                         ];
                     }
                 }
             }
         }
+
         // Process allocations (scribes and assistants)
         if ($existingAllocations->isNotEmpty()) {
             foreach ($existingAllocations as $allocation) {

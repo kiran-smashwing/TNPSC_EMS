@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ExamMaterialsScan;
 use App\Models\ExamMaterialsData;
 use App\Services\ExamAuditService;
+use App\Models\ExamSession;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -29,8 +30,8 @@ class ReceiveExamMaterialsController extends Controller
 
         $query = $role == 'district'
             ? ExamMaterialsData::where('exam_id', $examId)
-                ->where('district_code', $user->district_code)
-                ->whereIn('category', ['D1', 'D2'])
+            ->where('district_code', $user->district_code)
+            ->whereIn('category', ['D1', 'D2'])
             : ExamMaterialsData::where('exam_id', $examId);
         // Apply filters 
         if ($request->has('centerCode') && !empty($request->centerCode)) {
@@ -143,8 +144,8 @@ class ReceiveExamMaterialsController extends Controller
 
         $query = $role == 'headquarters' && $user->role->role_department == 'ED'
             ? ExamMaterialsData::where('exam_id', $examId)
-                ->where('district_code', '01')               //Only for Chennai District
-                ->whereIn('category', ['D1', 'D2'])
+            ->where('district_code', '01')               //Only for Chennai District
+            ->whereIn('category', ['D1', 'D2'])
             : ExamMaterialsData::where('exam_id', $examId);
         // Apply filters 
         if ($request->has('centerCode') && !empty($request->centerCode)) {
@@ -256,8 +257,8 @@ class ReceiveExamMaterialsController extends Controller
 
         $query = $role == 'center'
             ? ExamMaterialsData::where('exam_id', $examId)
-                ->where('center_code', $user->center_code)
-                ->whereIn('category', ['D1', 'D2'])
+            ->where('center_code', $user->center_code)
+            ->whereIn('category', ['D1', 'D2'])
             : ExamMaterialsData::where('exam_id', $examId);
         // Apply filters 
         if ($request->has('examDate') && !empty($request->examDate)) {
@@ -370,9 +371,9 @@ class ReceiveExamMaterialsController extends Controller
 
         $query = $role == 'mobile_team_staffs'
             ? ExamMaterialsData::where('exam_id', $examId)
-                ->where('mobile_team_id', $user->mobile_id)
-                ->whereDate('exam_date', $examDate)
-                ->whereIn('category', ['D1', 'D2'])
+            ->where('mobile_team_id', $user->mobile_id)
+            ->whereDate('exam_date', $examDate)
+            ->whereIn('category', ['D1', 'D2'])
             : ExamMaterialsData::where('exam_id', $examId);
         // Apply filters 
         if ($request->has('centerCode') && !empty($request->centerCode)) {
@@ -495,10 +496,10 @@ class ReceiveExamMaterialsController extends Controller
 
         $query = $role == 'headquarters' && $user->role->role_name == 'Van Duty Staff'
             ? ExamMaterialsData::where('exam_id', $examId)
-                ->where('district_code', '01')
-                ->where('mobile_team_id', $user->dept_off_id)
-                ->whereDate('exam_date', $examDate)
-                ->whereIn('category', ['D1', 'D2'])
+            ->where('district_code', '01')
+            ->where('mobile_team_id', $user->dept_off_id)
+            ->whereDate('exam_date', $examDate)
+            ->whereIn('category', ['D1', 'D2'])
             : ExamMaterialsData::where('exam_id', $examId);
         // Apply filters 
         if ($request->has('centerCode') && !empty($request->centerCode)) {
@@ -608,28 +609,46 @@ class ReceiveExamMaterialsController extends Controller
             'message' => 'QR code scanned successfully'
         ], 200);
     }
-    public function ciReceiveMaterialsFromMobileTeam(Request $request, $examId, $exam_date)
+    public function ciReceiveMaterialsFromMobileTeam(Request $request, $examId, $exam_date, $exam_session)
     {
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
         $user = $guard ? $guard->user() : null;
 
+        // Query based on the role
         $query = $role == 'ci'
             ? ExamMaterialsData::where('exam_id', $examId)
-                ->where('ci_id', $user->ci_id)
-                ->whereIn('category', ['D1', 'D2'])
-                ->whereDate('exam_date', $exam_date)
-            : ExamMaterialsData::where('exam_id', $examId);
+            ->where('ci_id', $user->ci_id)
+            ->whereIn('category', ['D1', 'D2', 'R1', 'R2'])
+            ->whereDate('exam_date', $exam_date)
+            : ExamMaterialsData::where('exam_id', $examId)
+            ->whereDate('exam_date', $exam_date);
 
+        // Filter by session (FN/AN)
+        if ($exam_session == 'FN' || $exam_session == 'AN') {
+            $query->where('exam_session', $exam_session);
+        }
+
+        // Retrieve exam materials
         $examMaterials = $query
-            ->with([
-                'examMaterialsScan'
-            ])
+            ->with(['examMaterialsScan'])
             ->get()
             ->groupBy('exam_session');
 
-        return view('my_exam.ExamMaterialsData.mobileTeam-to-ci-materials', compact('examMaterials', 'examId', 'exam_date', ));
+        // Retrieve exam type
+        $exam_type = ExamSession::where([
+            'exam_sess_mainid' => $examId,
+            'exam_sess_date' => $exam_date,
+            'exam_sess_session' => $exam_session,
+        ])->first();
+
+        // Debug output (optional)
+        // dd($examMaterials);
+
+        // Return the view with data
+        return view('my_exam.ExamMaterialsData.mobileTeam-to-ci-materials', compact('exam_type', 'examMaterials', 'examId', 'exam_date'));
     }
+
 
     public function scanCIExamMaterials($examId, Request $request)
     {
@@ -707,5 +726,4 @@ class ReceiveExamMaterialsController extends Controller
             'message' => 'QR code scanned successfully'
         ], 200);
     }
-
 }

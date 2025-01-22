@@ -62,19 +62,23 @@ class SecurityHeaders
                 $jsonDecoded = is_array($value) ? $value : null;
             }
 
-            if (is_array($jsonDecoded)) {
-                // Skip direct checks if it's valid JSON; process recursively
-                checkValue($jsonDecoded, $patterns);
-                continue;
-            }
+                if (is_array($jsonDecoded)) {
+                    // Skip direct checks if it's valid JSON; process recursively
+                    checkValue($jsonDecoded, $patterns);
+                    continue;
+                }
 
-            // Skip Base64 images
-            if (isBase64Image($value)) {
-                continue;
-            }
+                // Skip Base64 images
+                if (isBase64Image($value)) {
+                    continue;
+                }
 
-            // Check plain values
-            checkValue($decodedValue, $patterns);
+                // Check plain values
+                checkValue($decodedValue, $patterns);
+            } else {
+                // If value is not a string, process recursively (for arrays)
+                checkValue($value, $patterns);
+            }
         }
 
         // Add security headers
@@ -91,5 +95,4 @@ class SecurityHeaders
         $response->headers->set('Cache-Control', 'private, no-cache, must-revalidate');
         return $response;
     }
-
 }

@@ -4,6 +4,14 @@
             <div class="card-body position-relative">
                 <div class="position-absolute end-0 top-0 p-3">
                     <span class="d-flex align-items-center">
+                        <span class="me-2">E-mail</span>
+                        <!-- Check the district_email_status -->
+                        @if ($treasuryOfficer->district->district_email_status)
+                            <!-- Assuming $district contains the row data -->
+                            <i class="ph-duotone ph-circle-wavy-check text-success"></i>
+                        @else
+                            <i class="ti ti-alert-circle text-danger f-18"></i>
+                        @endif
                     </span>
                 </div>
 
@@ -25,15 +33,15 @@
                     <hr class="my-3 border border-secondary-subtle" />
                     <div class="row g-3">
                         <div class="col-4">
-                            <h5 class="mb-0">86</h5>
+                            <h5 class="mb-0">{{ $centerCount }}</h5>
                             <small class="text-muted">Centers</small>
                         </div>
                         <div class="col-4 border border-top-0 border-bottom-0">
-                            <h5 class="mb-0">40</h5>
+                            <h5 class="mb-0">{{ $venueCount }}</h5>
                             <small class="text-muted">Venues</small>
                         </div>
                         <div class="col-4">
-                            <h5 class="mb-0">45</h5>
+                            <h5 class="mb-0">{{ $staffCount }}</h5>
                             <small class="text-muted">Members</small>
                         </div>
                     </div>
@@ -88,11 +96,14 @@
             <div class="card-body position-relative">
                 <div class="position-absolute end-0 top-0 p-3">
                     <span class="d-flex align-items-center">
-                        <!-- Email Address -->
                         <span class="me-2">E-mail</span>
-                        <!-- Verified Icon -->
-                        <i class="ph-duotone ph-circle-wavy-check text-success"></i>
-                        <!-- Bootstrap Icon -->
+                        <!-- Check the district_email_status -->
+                        @if ($treasuryOfficer->tre_off_email_status)
+                            <!-- Assuming $district contains the row data -->
+                            <i class="ph-duotone ph-circle-wavy-check text-success"></i>
+                        @else
+                            <i class="ti ti-alert-circle text-danger f-18"></i>
+                        @endif
                     </span>
                 </div>
 
@@ -108,20 +119,6 @@
                     <h5 class="mb-0">{{ $treasuryOfficer->tre_off_name }}</h5>
                     <p class="text-muted text-sm">{{ $treasuryOfficer->tre_off_designation }}</p>
                     <hr class="my-3 border border-secondary-subtle" />
-                    {{-- <div class="row g-3">
-              <div class="col-4">
-                <h5 class="mb-0">8</h5>
-                <small class="text-muted">Exams</small>
-              </div>
-              <div class="col-4 border border-top-0 border-bottom-0">
-                <h5 class="mb-0">40</h5>
-                <small class="text-muted">Venues</small>
-              </div>
-              <div class="col-4">
-                <h5 class="mb-0">45</h5>
-                <small class="text-muted">Members</small>
-              </div>
-            </div> --}}
                     <hr class="my-3 border border-secondary-subtle" />
                     <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                         <i class="ti ti-map-pin me-2"></i>
@@ -151,7 +148,7 @@
     <div class="col-lg-8 col-xxl-6">
         <div class="card">
             <div class="card-header">
-                <h5>Demo Videos</h5>
+                <h5>User Guide Video - Treasury Officer</h5>
             </div>
             <div class="card-body pc-component">
                 <div id="carouselExampleFade" class="carousel slide carousel-fade" data-bs-ride="carousel">

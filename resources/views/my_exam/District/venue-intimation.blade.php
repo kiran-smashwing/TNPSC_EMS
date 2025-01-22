@@ -122,7 +122,9 @@
                                                     {{ ceil($center->total_accommodation / 200) }}</a>
                                             </li>
                                             <li class="list-inline-item">
-                                                <a href="#" class="badge bg-success">Accepted 110</a>
+                                                <a href="#" class="badge bg-success">Accepted
+                                                    <span id="accepted-count">0</span>
+                                                </a>
                                             </li>
                                             <li class="list-inline-item"><a href="#" class="badge bg-info"> Selected
                                                     <span id="selected-venues">0</span> / <span
@@ -175,8 +177,9 @@
                                                                             @if ($venue->halls_count !== 0) disabled @endif>
                                                                             <option value="">No of Halls</option>
                                                                             @foreach (range(1, 5) as $hallCount)
-                                                                                <option value="{{ $hallCount * $candidatesCountForEachHall }}"
-                                                                                    @if ($venue->halls_count == $hallCount * $candidatesCountForEachHall ) selected @endif>
+                                                                                <option
+                                                                                    value="{{ $hallCount * $candidatesCountForEachHall }}"
+                                                                                    @if ($venue->halls_count == $hallCount * $candidatesCountForEachHall) selected @endif>
                                                                                     {{ $hallCount }} -
                                                                                     {{ $hallCount * $candidatesCountForEachHall }}
                                                                                 </option>
@@ -188,8 +191,7 @@
                                                                             <span
                                                                                 class="badge bg-light-warning">Waiting</span>
                                                                         @elseif ($venue->consent_status === 'requested')
-                                                                            <span class="badge bg-light-info">Email
-                                                                                Sent</span>
+                                                                            <span class="badge bg-light-info">Email Sent</span>
                                                                         @elseif ($venue->consent_status === 'accepted')
                                                                             <span
                                                                                 class="badge bg-light-success">Accepted</span>
@@ -201,252 +203,6 @@
                                                                 </tr>
                                                             @endforeach
                                                         @endforeach
-                                                        {{-- <tr>
-                                                            <td>
-                                                                <input class="form-check-input input-success"
-                                                                    type="checkbox" id="customCheckc3" checked="checked">
-                                                            </td>
-                                                            <!-- Editable Cell for Venue Name -->
-                                                            <td>
-                                                                <b>Gov Hr Sec School</b> <br> 2nd Cross Street
-                                                                Thiruvannamalai
-                                                            </td>
-
-                                                            <!-- Editable Cell for Email -->
-                                                            <td>
-                                                                thvgovschool@mail.in <br> 9234567890
-
-                                                            </td>
-
-                                                            <!-- Editable Cell for Phone -->
-
-                                                            <!-- Dropdown for Allocation Count -->
-                                                            <td>
-                                                                <select class="form-select" name="allocationCount">
-                                                                    <option value="">No of Halls</option>
-                                                                    <option value="200">1 - 200</option>
-                                                                    <option value="400">2 - 400</option>
-                                                                    <option value="600">3 - 600</option>
-                                                                    <option value="600">4 - 800</option>
-                                                                    <option value="600">5 - 1000</option>
-                                                                    <!-- Add more options as needed -->
-                                                                </select>
-                                                            </td>
-                                                            <td>
-                                                                <span class="badge bg-light-warning">Waiting</span>
-                                                            </td>
-                                                        </tr>
-                                                        <tr class="table-danger">
-                                                            <td>
-                                                                <input class="form-check-input input-success"
-                                                                    type="checkbox" id="customCheckc3" disabled>
-                                                            </td>
-                                                            <!-- Editable Cell for Venue Name -->
-                                                            <td>
-                                                                <b>Gov Hr Sec School</b> <br> 2nd Cross Street
-                                                                Thiruvannamalai
-                                                            </td>
-
-                                                            <!-- Editable Cell for Email -->
-                                                            <td>
-                                                                thvgovschool@mail.in <br> 9234567890
-
-                                                            </td>
-
-                                                            <!-- Editable Cell for Phone -->
-
-                                                            <!-- Dropdown for Allocation Count -->
-                                                            <td>
-                                                                <select class="form-select" name="allocationCount" disabled>
-                                                                    <option value="">No of Halls</option>
-                                                                    <option value="200">1 - 200</option>
-                                                                    <option value="400">2 - 400</option>
-                                                                    <option value="600">3 - 600</option>
-                                                                    <option value="600">4 - 800</option>
-                                                                    <option value="600">5 - 1000</option>
-                                                                    <!-- Add more options as needed -->
-                                                                </select>
-                                                            </td>
-                                                            <td>
-                                                                <span class="badge bg-light-danger">Denied</span>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>
-                                                                <input class="form-check-input input-success"
-                                                                    type="checkbox" id="customCheckc3" checked="checked">
-                                                            </td>
-                                                            <!-- Editable Cell for Venue Name -->
-                                                            <td>
-                                                                <b>Gov Hr Sec School</b> <br> 2nd Cross Street
-                                                                Thiruvannamalai
-                                                            </td>
-
-                                                            <!-- Editable Cell for Email -->
-                                                            <td>
-                                                                thvgovschool@mail.in <br> 9234567890
-
-                                                            </td>
-
-                                                            <!-- Editable Cell for Phone -->
-
-                                                            <!-- Dropdown for Allocation Count -->
-                                                            <td>
-                                                                <select class="form-select" name="allocationCount">
-                                                                    <option value="">No of Halls</option>
-                                                                    <option value="200">1 - 200</option>
-                                                                    <option value="400">2 - 400</option>
-                                                                    <option value="600">3 - 600</option>
-                                                                    <option value="600">4 - 800</option>
-                                                                    <option value="600">5 - 1000</option>
-                                                                    <!-- Add more options as needed -->
-                                                                </select>
-                                                            </td>
-                                                            <td>
-                                                                <span class="badge bg-light-success">Accepted</span>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>
-                                                                <input class="form-check-input input-success"
-                                                                    type="checkbox" id="customCheckc3" checked="checked">
-                                                            </td>
-                                                            <!-- Editable Cell for Venue Name -->
-                                                            <td>
-                                                                <b>Gov Hr Sec School</b> <br> 2nd Cross Street
-                                                                Thiruvannamalai
-                                                            </td>
-
-                                                            <!-- Editable Cell for Email -->
-                                                            <td>
-                                                                thvgovschool@mail.in <br> 9234567890
-
-                                                            </td>
-
-                                                            <!-- Editable Cell for Phone -->
-
-                                                            <!-- Dropdown for Allocation Count -->
-                                                            <td>
-                                                                <select class="form-select" name="allocationCount">
-                                                                    <option value="">No of Halls</option>
-                                                                    <option value="200">1 - 200</option>
-                                                                    <option value="400">2 - 400</option>
-                                                                    <option value="600">3 - 600</option>
-                                                                    <option value="600">4 - 800</option>
-                                                                    <option value="600">5 - 1000</option>
-                                                                    <!-- Add more options as needed -->
-                                                                </select>
-                                                            </td>
-                                                            <td>
-                                                                <span class="badge bg-light-success">Accepted</span>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>
-                                                                <input class="form-check-input input-success"
-                                                                    type="checkbox" id="customCheckc3" checked="checked">
-                                                            </td>
-                                                            <!-- Editable Cell for Venue Name -->
-                                                            <td>
-                                                                <b>Gov Hr Sec School</b> <br> 2nd Cross Street
-                                                                Thiruvannamalai
-                                                            </td>
-
-                                                            <!-- Editable Cell for Email -->
-                                                            <td>
-                                                                thvgovschool@mail.in <br> 9234567890
-
-                                                            </td>
-
-                                                            <!-- Editable Cell for Phone -->
-
-                                                            <!-- Dropdown for Allocation Count -->
-                                                            <td>
-                                                                <select class="form-select" name="allocationCount">
-                                                                    <option value="">No of Halls</option>
-                                                                    <option value="200">1 - 200</option>
-                                                                    <option value="400">2 - 400</option>
-                                                                    <option value="600">3 - 600</option>
-                                                                    <option value="600">4 - 800</option>
-                                                                    <option value="600">5 - 1000</option>
-                                                                    <!-- Add more options as needed -->
-                                                                </select>
-                                                            </td>
-                                                            <td>
-                                                                <span class="badge bg-light-danger">Denied</span>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>
-                                                                <input class="form-check-input input-success"
-                                                                    type="checkbox" id="customCheckc3" checked="checked">
-                                                            </td>
-                                                            <!-- Editable Cell for Venue Name -->
-                                                            <td>
-                                                                <b>Gov Hr Sec School</b> <br> 2nd Cross Street
-                                                                Thiruvannamalai
-                                                            </td>
-
-                                                            <!-- Editable Cell for Email -->
-                                                            <td>
-                                                                thvgovschool@mail.in <br> 9234567890
-
-                                                            </td>
-
-                                                            <!-- Editable Cell for Phone -->
-
-                                                            <!-- Dropdown for Allocation Count -->
-                                                            <td>
-                                                                <select class="form-select" name="allocationCount">
-                                                                    <option value="">No of Halls</option>
-                                                                    <option value="200">1 - 200</option>
-                                                                    <option value="400">2 - 400</option>
-                                                                    <option value="600">3 - 600</option>
-                                                                    <option value="600">4 - 800</option>
-                                                                    <option value="600">5 - 1000</option>
-                                                                    <!-- Add more options as needed -->
-                                                                </select>
-                                                            </td>
-                                                            <td>
-                                                                <span class="badge bg-light-danger">Denied</span>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>
-                                                                <input class="form-check-input input-success"
-                                                                    type="checkbox" id="customCheckc3" checked="checked">
-                                                            </td>
-                                                            <!-- Editable Cell for Venue Name -->
-                                                            <td>
-                                                                <b>Gov Hr Sec School</b> <br> 2nd Cross Street
-                                                                Thiruvannamalai
-                                                            </td>
-
-                                                            <!-- Editable Cell for Email -->
-                                                            <td>
-                                                                thvgovschool@mail.in <br> 9234567890
-
-                                                            </td>
-
-                                                            <!-- Editable Cell for Phone -->
-
-                                                            <!-- Dropdown for Allocation Count -->
-                                                            <td>
-                                                                <select class="form-select" name="allocationCount">
-                                                                    <option value="">No of Halls</option>
-                                                                    <option value="200">1 - 200</option>
-                                                                    <option value="400">2 - 400</option>
-                                                                    <option value="600">3 - 600</option>
-                                                                    <option value="600">4 - 800</option>
-                                                                    <option value="600">5 - 1000</option>
-                                                                    <!-- Add more options as needed -->
-                                                                </select>
-                                                            </td>
-                                                            <td>
-                                                                <span class="badge bg-light-danger">Denied</span>
-                                                            </td>
-                                                        </tr> --}}
-                                                        <!-- You can add more rows as needed -->
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -644,7 +400,11 @@
             $(document).ready(function() {
                 // Initially hide all venue rows
                 $('.venue-row').hide();
-
+                // Function to update accepted venues count
+                function updateAcceptedCount($centerVenues) {
+                    var acceptedCount = $centerVenues.find('td:contains("Accepted")').length;
+                    $('#accepted-count').text(acceptedCount);
+                }
                 // Handle center selection
                 $('.center-list-item').click(function() {
                     // Get the center code
@@ -660,7 +420,8 @@
                     // Show venues for selected center
                     var $centerVenues = $('.venue-row[data-center-code="' + centerCode + '"]');
                     $centerVenues.show();
-
+                    // Update accepted count for the selected center
+                    updateAcceptedCount($centerVenues);
                     // Update header information
                     updateCenterInfo($(this), $centerVenues);
                 });

@@ -52,8 +52,7 @@
                                                                             class="form-check-input input-success district-checkbox"
                                                                             type="checkbox"
                                                                             data-district-id="{{ $district['district_code'] }}"
-                                                                            data-district-code="{{ $district['district_code'] }}"
-                                                                            checked="checked">
+                                                                            data-district-code="{{ $district['district_code'] }}">
                                                                     </div>
                                                                     <div class="flex-grow-1 mx-2">
                                                                         <h6 class="mb-0">{{ $district['district_name'] }}
@@ -326,7 +325,7 @@
 
     @include('partials.footer')
     @push('scripts')
-    <script src="{{ asset('storage/assets/js/plugins/sweetalert2.all.min.js') }}"></script>
+        <script src="{{ asset('storage/assets/js/plugins/sweetalert2.all.min.js') }}"></script>
 
         <!-- [Page Specific JS] start -->
         <script>
@@ -359,48 +358,67 @@
                 };
                 console.log(payload);
 
-                fetch('{{ route('id-candidates.send-accommodation-email') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}' // CSRF token for security
-                        },
-                        body: JSON.stringify(payload)
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
+                $.ajax({
+                    url: '{{ route('id-candidates.send-accommodation-email') }}', // Your route
+                    method: 'POST',
+                    contentType: 'application/json',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}' // CSRF token for security
+                    },
+                    data: JSON.stringify(payload),
+                    beforeSend: function() {
+                        // Show loader before the request starts
+                        const loader = document.getElementById('loader');
+                        if (loader) {
+                            loader.style.removeProperty('display');
                         }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
+                    },
+                    success: function(response) {
+                        // Hide loader once the request completes
+                        const loader = document.getElementById('loader');
+                        if (loader) {
+                            loader.style.display = 'none';
+                        }
+
+                        if (response.success) {
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Success!',
-                                text: data.message,
+                                text: response.message,
                                 confirmButtonText: 'OK'
-                            }).then(() => {
-                                console.log('Logs:', data.logs); // Log email logs if needed
+                            }).then((result) => {
+                                window.location.reload(); // Reload the page when "OK" is clicked
                             });
                         } else {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error',
-                                text: data.error || 'Failed to send emails',
+                                text: response.error || 'Failed to send emails',
                                 confirmButtonText: 'Try Again'
+                            }).then((result) => {
+                                window.location.reload(); // Reload the page when "OK" is clicked
                             });
                         }
-                    })
-                    .catch(error => {
+                    },
+                    error: function(xhr) {
+                        // Hide loader in case of error
+                        const loader = document.getElementById('loader');
+                        if (loader) {
+                            loader.style.display = 'none';
+                        }
+
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
                             text: 'An error occurred while sending emails. Please try again later.',
                             confirmButtonText: 'Close'
+                        }).then((result) => {
+                            window.location.reload(); // Reload the page when "OK" is clicked
                         });
-                        console.error('Error:', error);
-                    });
+                        console.error('Error:', xhr.responseText);
+                    }
+                });
+
             }
 
             document.addEventListener('DOMContentLoaded', function() {

@@ -381,10 +381,6 @@
                     <td>Total received <br>{{ ($copies['FN']['D2'] ?? 0) + ($copies['AN']['D2'] ?? 0) }}
                     </td>
                 </tr>
-
-
-
-
                 <tr>
                     <td>Additional<br>{{ $sessionDetails['count'] }}</td>
                     <td>Distributed to candidates<br>{{ $attendanceData['present'] }}</td>

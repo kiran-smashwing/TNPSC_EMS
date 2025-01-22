@@ -69,6 +69,13 @@
                                     <div class="card-header">
                                         <h5>Route - <span class="text-primary">Edit</span></h5>
                                     </div>
+                                    @php
+                                        use App\Services\AuthorizationService;
+                                        $authService = app(AuthorizationService::class);
+                                        $role = session('auth_role');
+                                        $canEdit = $authService->hasPermission($role, 'create-charted-vehicle-route');
+
+                                    @endphp
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-sm-6">
@@ -88,7 +95,7 @@
                                                 <div class="mb-3">
                                                     <label class="form-label" for="exam_id">Exam<span
                                                             class="text-danger">*</span></label>
-                                                    <select class="form-control @error('exam_id') is-invalid @enderror"
+                                                    <select  {{$canEdit == false ? 'disabled' : ''}} class="form-control @error('exam_id') is-invalid @enderror"
                                                         id="exam_id" name="exam_id[]" multiple required>
                                                         <option value="">Select Exam</option>
                                                         @foreach ($exams as $exam)
@@ -165,7 +172,7 @@
                                                 <div class="mb-3">
                                                     <label class="form-label">OTL Locks <span
                                                             class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control" id="otl_locks"
+                                                    <input  {{$canEdit == false ? 'disabled' : ''}} type="text" class="form-control" id="otl_locks"
                                                         name="otl_locks[]" placeholder="OTL Locks"
                                                         value="{{ old('otl_locks', implode(',', $route->otl_locks ?? [])) }}">
                                                 </div>
@@ -174,7 +181,7 @@
                                                 <div class="mb-3">
                                                     <label class="form-label">GPS Lock <span
                                                             class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control" id="gps_lock"
+                                                    <input  {{$canEdit == false ? 'disabled' : ''}} type="text" class="form-control" id="gps_lock"
                                                         name="gps_locks[]" placeholder="GPS Lock"
                                                         value="{{ old('gps_locks', implode(',', $route->gps_locks ?? [])) }}">
                                                 </div>
@@ -300,7 +307,9 @@
                                 <div class="card">
                                     <div class="card-header d-flex justify-content-between align-items-center">
                                         <h5>Escort Duty Staff for Each District</h5>
+                                        @hasPermission('create-escort-staff')
                                         <button type="button" class="btn btn-success add-card">Add Staff</button>
+                                        @endhasPermission
                                     </div>
                                     <div class="card-body">
                                         <div id="escortstaffsContainer">
@@ -328,12 +337,13 @@
                                                             <div class="col-sm-6">
                                                                 <div class="mb-3"> <label class="form-label">TNPSC Staff
                                                                         <span class="text-danger">*</span></label> <select
+                                                                        {{$canEdit == false ? 'disabled' : ''}}
                                                                         name="escortstaffs[{{ $index }}][tnpsc_staff]"
                                                                         class="form-control" required>
                                                                         <option disabled>Select TNPSC Staff</option>
                                                                         @foreach ($tnpscStaffs as $tnpscStaff)
-                                                                            <option
-                                                                                value="{{ $tnpscStaff->dept_off_id }}" {{ $tnpscStaff->dept_off_id == $escortStaff->tnpsc_staff_id ? 'selected' : '' }}>
+                                                                            <option value="{{ $tnpscStaff->dept_off_id }}"
+                                                                                {{ $tnpscStaff->dept_off_id == $escortStaff->tnpsc_staff_id ? 'selected' : '' }}>
                                                                                 {{ $tnpscStaff->dept_off_name }} -
                                                                                 {{ $tnpscStaff->role->role_department }}
                                                                                 {{ $tnpscStaff->role->role_name }}
@@ -589,6 +599,22 @@
             });
         });
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const canEdit = {{ $canEdit ? 'true' : 'false' }};
+            if (!canEdit) {
+                // Get all inputs outside of escortstaffsContainer
+                const inputs = document.querySelectorAll(
+                    'input:not(#escortstaffsContainer input), select:not(#escortstaffsContainer select)');
 
+                inputs.forEach(input => {
+                    input.setAttribute('readonly', true);
+                    if (input.tagName === 'SELECT') {
+                        input.setAttribute('disabled', true);
+                    }
+                });
+            }
+        });
+    </script>
     @include('partials.theme')
 @endsection

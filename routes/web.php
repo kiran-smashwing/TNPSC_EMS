@@ -442,13 +442,15 @@ Route::prefix('exam-materials')->group(function () {
 });
 Route::prefix('bundle-packaging')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
-
-        Route::get('/ci-bundlepackaging/{examId}/{exam_date}/{exam_session}', [BundlePackagingController::class, 'ciBundlepackagingView'])->name('ci.bundlepackaging.view');
         Route::get('/ci-bundlepackaging/{examId}/{exam_date}/{exam_session}', [BundlePackagingController::class, 'ciBundlepackagingView'])->name('ci.bundlepackaging.view');
         Route::get('/ci-to-mobileteam-bundle-packaging/{examId}/{examDate}', [BundlePackagingController::class, 'CItoMobileTeam'])->name('bundle-packaging.ci-to-mobileteam');
         Route::get('/mobileteam-to-district-bundle-packaging/{examId}', [BundlePackagingController::class, 'MobileTeamtoDistrict'])->name('bundle-packaging.mobileteam-to-district');
         Route::get('/mobileteam-to-center/{examId}', [BundlePackagingController::class, 'MobileTeamtoCenter'])->name('bundle-packaging.mobileteam-to-center');
         Route::post('/scan-disitrct-exam-materials/{examId}', [BundlePackagingController::class, 'scanDistrictExamMaterials'])->name('bundle-packaging.scan-disitrct-exam-materials');
+        Route::get('/charted-vehicle-to-headquarters/{examId}', [BundlePackagingController::class, 'chartedVehicletoHeadquarters'])->name('bundle-packaging.charted-vehicle-to-headquarters');
+        Route::post('/scan-hq-exam-materials', [BundlePackagingController::class, 'scanHQExamMaterials'])->name('bundle-packaging.scan-hq-exam-materials');
+        Route::post('/save-handover-details', [BundlePackagingController::class, 'saveHandoverDetails'])->name('bundle-packaging.save-handover-details');
+        Route::get('/report-handover-details/{id}', [BundlePackagingController::class, 'reportHandoverDetails'])->name('bundle-packaging.report-handover-details');
     });
 });
 //ReceiveExamMaterialsController Route::prefix('receive-exam-materials')->group(function(){

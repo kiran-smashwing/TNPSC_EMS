@@ -28,5 +28,9 @@ class EscortStaff extends Model
     {
         return $this->belongsTo(ChartedVehicleRoute::class, 'charted_vehicle_id', 'id');
     }
+    public function district()
+    {
+        return $this->belongsTo(District::class, 'district_code', 'district_code');
+    }
 }
 

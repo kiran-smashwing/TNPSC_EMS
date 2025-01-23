@@ -270,7 +270,6 @@ class ExamMaterialsDataController extends Controller
      */
     private function validateExamMaterialsQRCSVRow($data, $examId, &$successfulInserts, &$failedRows)
     {
-        $examtype = $this->getExamType($examId);
         // Validate center code, name, date, session, and expected candidates
         if (!isset($data[0]) || !is_numeric($data[0])) {
             throw new Exception('Invalid or missing center code.');

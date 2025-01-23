@@ -85,15 +85,22 @@
                                                     <label class="form-label" for="district">District <span
                                                             class="text-danger">*</span></label>
                                                     <select class="form-control @error('district') is-invalid @enderror"
-                                                        id="district" name="district" required>
+                                                        id="district" name="district" required
+                                                        {{ session('auth_role') == 'venue' ? 'disabled' : '' }}>
                                                         <option value="">Select District Name</option>
                                                         @foreach ($districts as $district)
                                                             <option value="{{ $district->district_code }}"
+                                                                {{ isset($user) && $user->venue_district_id == $district->district_code ? 'selected' : '' }}
                                                                 {{ old('district') == $district->district_code ? 'selected' : '' }}>
                                                                 {{ $district->district_name }}
                                                             </option>
                                                         @endforeach
                                                     </select>
+                                                    @if (session('auth_role') == 'venue')
+                                                        <input type="hidden" name="district"
+                                                            value="{{ $user->venue_district_id }}">
+                                                    @endif
+
                                                     @error('district')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -105,10 +112,15 @@
                                                     <label class="form-label" for="center">Center <span
                                                             class="text-danger">*</span></label>
                                                     <select class="form-control @error('center') is-invalid @enderror"
-                                                        id="center" name="center" required>
+                                                        id="center" name="center" required
+                                                        {{ session('auth_role') == 'venue' ? 'disabled' : '' }}>
                                                         <option value="">Select Center Name</option>
                                                         <!-- Centers will be dynamically populated -->
                                                     </select>
+                                                    @if (session('auth_role') == 'venue')
+                                                        <input type="hidden" name="center"
+                                                            value="{{ $user->venue_center_id }}">
+                                                    @endif
                                                     @error('center')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -121,10 +133,14 @@
                                                     <label class="form-label" for="venue">Venue <span
                                                             class="text-danger">*</span></label>
                                                     <select class="form-control @error('venue') is-invalid @enderror"
-                                                        id="venue" name="venue" required>
+                                                        id="venue" name="venue" required
+                                                        {{ session('auth_role') == 'venue' ? 'disabled' : '' }}>
                                                         <option value="">Select Venue Name</option>
-                                                    <!-- Venues will be dynamically populated -->
+                                                        <!-- Venues will be dynamically populated -->
                                                     </select>
+                                                    @if (session('auth_role') == 'venue')
+                                                        <input type="hidden" name="venue" value="{{ $user->venue_code }}">
+                                                    @endif
                                                     @error('venue')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -247,18 +263,6 @@
     @push('scripts')
         <script src="{{ asset('storage/assets/js/plugins/croppr.min.js') }}"></script>
         <script src="{{ asset('storage/assets/js/pages/page-croper.js') }}"></script>
-
-        <script>
-            document.querySelector('.btn-get-location').addEventListener('click', function(e) {
-                e.preventDefault();
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(position => {
-                        document.getElementById('latitude').value = position.coords.latitude;
-                        document.getElementById('longitude').value = position.coords.longitude;
-                    });
-                }
-            });
-        </script>
         <script>
             // Full list of centers
             const allCenters = @json($centers);
@@ -280,8 +284,10 @@
                 // Populate centers
                 filteredCenters.forEach(center => {
                     const selected = "{{ old('center') }}" == center.center_code ? 'selected' : '';
+                    const selectedCenter = "{{ $user->venue_center_id }}" == center.center_code ? 'selected' :
+                        '';
                     centerDropdown.append(
-                        `<option value="${center.center_code}" ${selected}>
+                        `<option value="${center.center_code}" ${selected} ${selectedCenter} >
                             ${center.center_name}
                         </option>`
                     );
@@ -304,7 +310,6 @@
             $('#center').on('change', function() {
                 const selectedCenterCode = $(this).val();
                 const venueDropdown = $('#venue');
-
                 // Clear previous options
                 venueDropdown.empty();
                 venueDropdown.append('<option value="">Select Venue Name</option>');
@@ -317,8 +322,9 @@
                 // Populate venues
                 filteredVenues.forEach(venue => {
                     const selected = "{{ old('venue') }}" == venue.venue_code ? 'selected' : '';
+                    const selectedVenue = "{{ $user->venue_code }}" == venue.venue_code ? 'selected' : '';
                     venueDropdown.append(
-                        `<option value="${venue.venue_code}" ${selected}>
+                        `<option value="${venue.venue_code}" ${selected} ${selectedVenue}>
                             ${venue.venue_name}
                         </option>`
                     );
@@ -327,13 +333,11 @@
 
             // Trigger change event on page load to handle old/existing selections
             $(document).ready(function() {
-            const oldCenter = "{{ old('center', $chiefInvigilator->ci_center_id ?? '') }}";
-            if (oldCenter) {
-            $('#center').val(oldCenter).trigger('change');
-            
-    }
-});
-
+                const oldCenter = "{{ old('center', $user->venue_center_id ?? '') }}";
+                if (oldCenter) {
+                    $('#center').val(oldCenter).trigger('change');
+                }
+            });
         </script>
     @endpush
     @include('partials.theme')

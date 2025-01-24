@@ -69,23 +69,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            @endif
-
-                                            <!-- Police Constable Fields -->
-                                            @if (strpos($item->ci_checklist_description, 'police') !== false)
-                                                <div class="mt-3">
-                                                    <div class="row g-2">
-                                                        <div class="col-md-12">
-                                                            <label for="pcCount{{ $item->ci_checklist_id }}"
-                                                                class="form-label">PC Count</label>
-                                                            <input type="text"
-                                                                id="pcCount{{ $item->ci_checklist_id }}"
-                                                                name="pcCount[{{ $item->ci_checklist_id }}]"
-                                                                class="form-control" placeholder="Enter PC Count">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endif
+                                            @endif                                           
                                         </div>
                                     </div>
                                 @endforeach

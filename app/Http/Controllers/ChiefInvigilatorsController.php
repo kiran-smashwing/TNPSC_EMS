@@ -87,6 +87,7 @@ class ChiefInvigilatorsController extends Controller
 
             return view('masters.venues.chief_invigilator.create', compact('venues', 'centers', 'districts', 'user'));
         }
+     
 
         // Default case for non-venue users
         $venues = Venues::all();

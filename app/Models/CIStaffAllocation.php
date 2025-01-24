@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ExamAssignment extends Model
+class CIStaffAllocation extends Model
 {
     protected $table = 'ci_staff_allocation'; // Explicitly define the table name (optional if it follows naming conventions)
 

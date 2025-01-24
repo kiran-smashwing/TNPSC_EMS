@@ -195,6 +195,7 @@
                                                                 class="material-icons-two-tone f-16 me-1">apartment</i>
                                                             Chief Invigilator</div>
                                                     </div>
+                                                    <!-- TODO: disable the button after success full   -->
                                                     <div class="mt-2">
                                                         <a href="#" data-bs-toggle="modal"
                                                             data-bs-target="#preliminaryCheckListModel"

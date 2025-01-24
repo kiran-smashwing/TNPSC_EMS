@@ -45,11 +45,11 @@ class ScribeController extends Controller
 
         // Fetch unique district values from the same table
         $districts = District::all(); // Fetch all districts
-        
+
 
         // Fetch unique centers values from the same table
         $centers = center::all();  // Fetch all centers
-            
+
         // Fetch unique venues values from the same table
         $venues = venues::all();  // Fetch all venues
 
@@ -58,8 +58,32 @@ class ScribeController extends Controller
         return view('masters.venues.scribe.index', compact('scribes', 'districts', 'centers', 'venues'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
+        $role = session('auth_role');
+        $user = $request->get('auth_user');
+
+        if ($role == 'venue') {
+            // Ensure $user exists before accessing properties
+            if (!$user) {
+                return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);
+            }
+
+            $venues = Venues::where('venue_id', $user->venue_id)->get();
+            $centers = Center::where('center_code', $user->venue_center_id)->get();
+            $districts = District::where('district_code', $user->venue_district_id)->get();
+
+            return view('masters.venues.scribe.create', compact('districts', 'centers', 'venues'));
+        } else if ($role == 'ci') {
+            if (!$user) {
+                return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);
+            }
+            $venues = Venues::where('venue_code', $user->ci_venue_id)->get();
+            $centers = Center::where('center_code', $user->ci_center_id)->get();
+            $districts = District::where('district_code', $user->ci_district_id)->get();
+            return view('masters.venues.scribe.create', compact('districts', 'centers', 'venues'));
+        }
+
         // Fetch any necessary data to display in the form (e.g., venues, centers)
         $venues = Venues::all(); // Or use a filter if necessary
         $centers = Center::all(); // Same as above
@@ -121,14 +145,14 @@ class ScribeController extends Controller
 
             // Create a new Scribe record
             $scribe = Scribe::create([
-                'scribe_district_id'   => $validated['district'],
-                'scribe_center_id'     => $validated['center'],
-                'scribe_venue_id'      => $validated['venue'],
-                'scribe_name'          => $validated['name'],
-                'scribe_email'         => $validated['mail'],
-                'scribe_phone'         => $validated['phone'],
-                'scribe_designation'   => $validated['designation'],
-                'scribe_image'         => $validated['image'] ?? null  // Save image if available
+                'scribe_district_id' => $validated['district'],
+                'scribe_center_id' => $validated['center'],
+                'scribe_venue_id' => $validated['venue'],
+                'scribe_name' => $validated['name'],
+                'scribe_email' => $validated['mail'],
+                'scribe_phone' => $validated['phone'],
+                'scribe_designation' => $validated['designation'],
+                'scribe_image' => $validated['image'] ?? null  // Save image if available
             ]);
 
             // Log scribe creation
@@ -255,7 +279,7 @@ class ScribeController extends Controller
         $invigilator_count = $scribe->venue->invigilator()->count();
         $cia_count = $scribe->venue->cia()->count();
         // Return the view with the Scribe and related data
-        return view('masters.venues.scribe.show', compact('scribe','centerCount', 'venueCount','staffCount','ci_count','invigilator_count','cia_count'));
+        return view('masters.venues.scribe.show', compact('scribe', 'centerCount', 'venueCount', 'staffCount', 'ci_count', 'invigilator_count', 'cia_count'));
     }
 
     public function toggleStatus($id)

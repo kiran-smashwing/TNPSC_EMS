@@ -73,7 +73,6 @@ class CIPreliminaryCheckController extends Controller
             'exam_sess_session' => 'required|string',
             'checklist' => 'nullable|array',
             'inspectionStaff' => 'nullable|array',
-            'pcCount' => 'nullable|array',
         ]);
         
         // Find the existing record or create a new one
@@ -106,10 +105,7 @@ class CIPreliminaryCheckController extends Controller
                     ];
                 }
 
-                // Add dynamic fields for Police Constable Count (if provided)
-                if (isset($request->pcCount[$checklistId])) {
-                    $checklistItem['pc_count'] = $request->input("pcCount.{$checklistId}");
-                }
+              
 
                 // Add the checklist item to the data array
                 $checklistData[] = $checklistItem;

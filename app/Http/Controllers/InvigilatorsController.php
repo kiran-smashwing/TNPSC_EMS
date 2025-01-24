@@ -47,11 +47,11 @@ class InvigilatorsController extends Controller
         $invigilators = $query->orderBy('invigilator_name')->get();
         // Fetch unique district values from the same table
         $districts = District::all(); // Fetch all districts
-        
+
 
         // Fetch unique centers values from the same table
         $centers = center::all();  // Fetch all centers
-            
+
         // Fetch unique venues values from the same table
         $venues = venues::all();  // Fetch all venues
 
@@ -59,8 +59,31 @@ class InvigilatorsController extends Controller
         return view('masters.venues.invigilator.index', compact('invigilators', 'districts', 'centers', 'venues'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
+        $role = session('auth_role');
+        $user = $request->get('auth_user');
+
+        if ($role == 'venue') {
+            // Ensure $user exists before accessing properties
+            if (!$user) {
+                return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);
+            }
+
+            $venues = Venues::where('venue_id', $user->venue_id)->get();
+            $centers = Center::where('center_code', $user->venue_center_id)->get();
+            $districts = District::where('district_code', $user->venue_district_id)->get();
+
+            return view('masters.venues.invigilator.create', compact('venues', 'centers', 'districts'));
+        } else if ($role == 'ci') {
+            if (!$user) {
+                return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);
+            }
+            $venues = Venues::where('venue_code', $user->ci_venue_id)->get();
+            $centers = Center::where('center_code', $user->ci_center_id)->get();
+            $districts = District::where('district_code', $user->ci_district_id)->get();
+            return view('masters.venues.invigilator.create', compact('venues', 'centers', 'districts'));
+        }
         // Fetch any necessary data to display in the form (e.g., venues, centers)
         $venues = Venues::all(); // Or use a filter if necessary
         $centers = Center::all(); // Same as above
@@ -305,6 +328,6 @@ class InvigilatorsController extends Controller
         $cia_count = $invigilator->venue->cia()->count();
 
         // Return the view with the invigilator and its related data
-        return view('masters.venues.invigilator.show', compact('invigilator','centerCount', 'venueCount','staffCount','ci_count','invigilator_count','cia_count'));
+        return view('masters.venues.invigilator.show', compact('invigilator', 'centerCount', 'venueCount', 'staffCount', 'ci_count', 'invigilator_count', 'cia_count'));
     }
 }

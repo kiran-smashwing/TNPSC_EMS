@@ -61,21 +61,20 @@ class SecurityHeaders
                 $decodedValue = $value;
                 $jsonDecoded = is_array($value) ? $value : null;
             }
-
+        
             if (is_array($jsonDecoded)) {
                 // Skip direct checks if it's valid JSON; process recursively
                 checkValue($jsonDecoded, $patterns);
                 continue;
             }
-
             // Skip Base64 images
             if (isBase64Image($value)) {
                 continue;
             }
-
             // Check plain values
             checkValue($decodedValue, $patterns);
         }
+        
 
         // Add security headers
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');

@@ -58,7 +58,13 @@ class MyAccountController extends Controller
             $districts = District::all(); // Retrieve all districts
             $centers = Center::all(); // Retrieve all centers
             $venue = Venues::with(['district', 'center'])->findOrFail($userId);
-            return view('user.my-account', compact('venue', 'districts', 'centers', 'role'));
+            $centerCount = $venue->district->centers()->count();  // Assuming 'centers' is a relationship in District model
+            $venueCount = $venue->district->venues()->count();
+            $staffCount = $venue->district->treasuryOfficers()->count() + $venue->district->mobileTeamStaffs()->count();
+            $ci_count = $venue->chiefinvigilator()->count();
+            $invigilator_count = $venue->invigilator()->count();
+            $cia_count = $venue->cia()->count();
+            return view('user.my-account', compact('venue', 'districts', 'centers', 'role','centerCount', 'venueCount','staffCount','ci_count','invigilator_count','cia_count'));
         } elseif ($role == 'mobile_team_staffs') {
         } elseif ($role == 'headquarters') {
             $official = DepartmentOfficial::findOrFail($userId);

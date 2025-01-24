@@ -37,7 +37,7 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-sm-6 text-center mb-3">
+                        <div class="col-sm-12 text-center mb-3">
                             <div class="user-upload wid-75" data-pc-animate="just-me"
                                 data-bs-toggle="modal" data-bs-target="#cropperModal">
                                 <img src="{{ $district->district_image

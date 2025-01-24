@@ -32,10 +32,10 @@
 
             <!-- [ Main Content ] start -->
             <div class="row text-center mb-4">
-                <div class="">
-                    <a href="{{ route('qr-code-reader') }}" class="me-2 btn btn-light-primary"><i
-                            class="feather icon-aperture mx-1"></i>Scan OR Code</a>
-                </div>
+                <a href="#" class="btn btn-light-primary d-flex align-items-center mx-auto" style="width: 100px;"
+                    data-pc-animate="just-me" data-bs-toggle="modal" data-bs-target="#qrCodeModal">
+                    <i class="feather icon-aperture mx-1"></i>Scan
+                </a>
             </div>
             <div class="row justify-content-center">
                 <!-- [ basic-table ] start -->
@@ -157,6 +157,7 @@
         </div>
         <!-- [ Main Content ] end -->
         </div>
+        @include('modals.qr-code-modal')
 
     </section>
 
@@ -164,23 +165,40 @@
     @include('partials.footer')
 
     @push('scripts')
-        <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js')}}"></script>
-
-
+        @include('partials.datatable-export-js')
+        <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const qrCodeResult = localStorage.getItem('qrCodeResult');
-                if (qrCodeResult) {
-                    const result = JSON.parse(qrCodeResult);
-                    showAlert(result.type, result.message);
-                    localStorage.removeItem('qrCodeResult'); // Clear the result after showing
-                }
-            });
-        
+            function processQrCode(data) {
+                // Hide the modal using Bootstrap's modal method
+                const qrCodeModal = document.getElementById('qrCodeModal');
+                const modalInstance = bootstrap.Modal.getInstance(qrCodeModal);
+                modalInstance.hide();
+                fetch("{{ route('ci-meetings.attendance-QRcode-scan') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            qr_code: data
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        showAlert(data.status, data.message);
+                        $('#qrCodeModal').modal('hide'); // Close modal after successful scan
+                        // Update the total scanned and total exam materials count
+                    })
+                    .catch((error) => {
+                        showAlert(data.status, data.message);
+                        $('#qrCodeModal').modal('hide');
+                    });
+            }
+
             function showAlert(type, message) {
                 // Map the type to SweetAlert2's icon options
                 let iconType;
-                switch(type) {
+                switch (type) {
                     case 'success':
                         iconType = 'success';
                         break;
@@ -196,7 +214,7 @@
                     default:
                         iconType = 'info'; // Default to 'info' if type is unknown
                 }
-        
+
                 // Use SweetAlert2 to display the alert
                 Swal.fire({
                     icon: iconType,
@@ -208,10 +226,11 @@
                             Swal.close(); // Automatically close alert after 5 seconds
                         }, 5000);
                     }
+                }).then((result) => {
+                    window.location.reload(); // Reload the page when "OK" is clicked
                 });
             }
         </script>
-        
     @endpush
 
     @include('partials.theme')

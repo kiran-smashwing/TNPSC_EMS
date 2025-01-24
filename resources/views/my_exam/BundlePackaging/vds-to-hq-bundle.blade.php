@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                              <h2 class="mb-0"></h2>
-                                            </div> -->
+                                                  <h2 class="mb-0"></h2>
+                                                </div> -->
                         </div>
                     </div>
                 </div>
@@ -250,9 +250,11 @@
                                                     data-route-id="{{ $route['id'] }}" onclick="setVehicleId(this)">
                                                     <i class="ti ti-clipboard-check f-20"></i>
                                                 </a>
-                                                <a href="{{ route('bundle-packaging.report-handover-details', $route['id']) }}"
-                                                    class="avtar avtar-xs btn-light-success"><i
-                                                        class="ti ti-download f-20"></i></a>
+                                                @if (!empty($route->handover_verification_details))
+                                                    <a href="{{ route('bundle-packaging.report-handover-details', $route['id']) }}"
+                                                        class="avtar avtar-xs btn-light-success"><i
+                                                            class="ti ti-download f-20"></i></a>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach

@@ -222,8 +222,7 @@
                                                                 @endif
                                                                 @hasPermission('upload-candidates-csv')
                                                                     @if (isset(json_decode($audit->metadata)->failed_csv_link) &&
-                                                                            file_exists(storage_path(
-                                                                                    'app/public/uploads/failed_csv_files/' . basename(json_decode($audit->metadata)->failed_csv_link))))
+                                                                            file_exists(public_path(str_replace(url('/'), '', json_decode($audit->metadata)->failed_csv_link))))
                                                                         <a href="{{ json_decode($audit->metadata)->failed_csv_link }}"
                                                                             class="me-3 btn btn-sm btn-light-danger">
                                                                             <i class="feather icon-download mx-1"></i>Failed
@@ -613,10 +612,14 @@
                                     @endif
                                 @endforeach
                                 @php
-                                    $is_ed_qr_upload = $examMaterialsUpdate !== null ? true : false;
-                                    $metadata = is_string($examMaterialsUpdate->metadata)
-                                        ? json_decode($examMaterialsUpdate->metadata)
-                                        : (object) $examMaterialsUpdate->metadata;
+                                    $is_ed_qr_upload = $examMaterialsUpdate !== null;
+                                    $metadata = null;
+
+                                    if ($examMaterialsUpdate !== null) {
+                                        $metadata = is_string($examMaterialsUpdate->metadata)
+                                            ? json_decode($examMaterialsUpdate->metadata)
+                                            : (object) $examMaterialsUpdate->metadata;
+                                    }
                                 @endphp
                                 <li class="task-list-item">
                                     <i class="task-icon bg-primary"></i>
@@ -964,15 +967,15 @@
                                     </div>
                                 </li>
                                 @php
-                                $is_ed_trunk_qr_upload = $examTrunkboxOTLData !== null;
-                                
-                                $metadata = null;
-                                if ($examTrunkboxOTLData !== null) {
-                                    $metadata = is_string($examTrunkboxOTLData->metadata) 
-                                        ? json_decode($examTrunkboxOTLData->metadata) 
-                                        : (object) $examTrunkboxOTLData->metadata;
-                                }
-                            @endphp
+                                    $is_ed_trunk_qr_upload = $examTrunkboxOTLData !== null;
+
+                                    $metadata = null;
+                                    if ($examTrunkboxOTLData !== null) {
+                                        $metadata = is_string($examTrunkboxOTLData->metadata)
+                                            ? json_decode($examTrunkboxOTLData->metadata)
+                                            : (object) $examTrunkboxOTLData->metadata;
+                                    }
+                                @endphp
                                 <li class="task-list-item">
                                     <i class="task-icon bg-danger"></i>
                                     <div class="card ticket-card open-ticket">
@@ -1114,7 +1117,7 @@
                                         </div>
                                     </div>
                                 </li>
-                               
+
                                 @if ($session->exam_main_model == 'Major')
                                     <li class="task-list-item">
                                         <i class="task-icon bg-danger"></i>
@@ -1209,7 +1212,7 @@
                                                         <div class="h5 font-weight-bold">Receive Materials From
                                                             {{ $session->exam_main_model == 'Major'
                                                                 ? 'Sub
-                                                                                                                        Treasury'
+                                                                                                                                                                                                                                                Treasury'
                                                                 : 'Treasury' }}
                                                             <small class="badge bg-light-secondary ms-2">received</small>
                                                         </div>
@@ -2426,8 +2429,7 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-plus mx-1"></i>Add</a>
-                                                        <a href="#"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
+                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-download mx-1"></i>Download</a>
                                                     </div>
                                                 </div>
@@ -2489,8 +2491,7 @@
                                                     <div class="mt-2">
                                                         <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-plus mx-1"></i>Add</a>
-                                                        <a href="#"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
+                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-download mx-1"></i>Download</a>
                                                     </div>
                                                 </div>
@@ -2656,7 +2657,8 @@
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive Materials From Mobile Team<small
+                                                        <div class="h5 font-weight-bold">Receive Materials From Mobile
+                                                            Team<small
                                                                 class="badge bg-light-secondary ms-2">received</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
@@ -2685,7 +2687,7 @@
                                                             Center</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="{{ route('bundle-packaging.mobileteam-to-center', $session->exam_main_no ) }}"
+                                                        <a href="{{ route('bundle-packaging.mobileteam-to-center', $session->exam_main_no) }}"
                                                             class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-info mx-1"></i>Verify </a>
                                                         <a href="helpdesk-ticket-details.html"
@@ -2722,8 +2724,8 @@
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive Materials From   {{ $session->exam_main_model == 'Major'
-                                                            ? 'Sub Treasury' : 'Mobile Team' }}<small
+                                                        <div class="h5 font-weight-bold">Receive Materials From
+                                                            {{ $session->exam_main_model == 'Major' ? 'Sub Treasury' : 'Mobile Team' }}<small
                                                                 class="badge bg-light-secondary ms-2">received</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
@@ -2752,7 +2754,7 @@
                                                             District</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="{{ route('bundle-packaging.mobileteam-to-district', $session->exam_main_no ) }}"
+                                                        <a href="{{ route('bundle-packaging.mobileteam-to-district', $session->exam_main_no) }}"
                                                             class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-info mx-1"></i>Verify </a>
                                                         <a href="helpdesk-ticket-details.html"
@@ -2788,7 +2790,8 @@
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive All Materials from Charted Vehicle<small
+                                                        <div class="h5 font-weight-bold">Receive All Materials from
+                                                            Charted Vehicle<small
                                                                 class="badge bg-light-secondary ms-2">Received</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
@@ -2857,7 +2860,8 @@
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Verify All Materials and Memory Cards Handovered<small
+                                                        <div class="h5 font-weight-bold">Verify All Materials and Memory
+                                                            Cards Handovered<small
                                                                 class="badge bg-light-secondary ms-2">Scanned</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
@@ -2882,7 +2886,7 @@
                                                         </div>
                                                         <div class="h5 mt-3"><i
                                                                 class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            VMD 
+                                                            VMD
                                                             - Admin Officer</div>
                                                     </div>
                                                     <div class="mt-2">
@@ -2901,7 +2905,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </li> 
+                                </li>
                             </ul>
                             {{-- <div class="text-end">
                       <a href="#!" class="b-b-primary text-primary">View Friend List</a>

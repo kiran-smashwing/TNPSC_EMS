@@ -67,12 +67,10 @@ class SecurityHeaders
                 checkValue($jsonDecoded, $patterns);
                 continue;
             }
-        
             // Skip Base64 images
             if (isBase64Image($value)) {
                 continue;
             }
-        
             // Check plain values
             checkValue($decodedValue, $patterns);
         }

@@ -102,7 +102,7 @@ class IDCandidatesController extends Controller
         // Retrieve the updated candidate counts for the given exam ID
         $candidates = DB::table('exam_candidates_projection')
             ->where('exam_id', $examId)
-            ->get(['center_code', 'center_name', 'exam_date', 'session', 'expected_candidates', 'accommodation_required', 'increment_percentage']);
+            ->get(['center_code', 'exam_date', 'session', 'expected_candidates', 'accommodation_required', 'increment_percentage']);
 
         if ($candidates->isEmpty()) {
             return redirect()->back()->with('error', 'No data found for the given exam ID.');
@@ -111,12 +111,11 @@ class IDCandidatesController extends Controller
         // Create a CSV file
         $filename = "updated_{$candidates[0]->increment_percentage}_counts_exam_{$examId}.csv";
         $handle = fopen($filename, 'w');
-        fputcsv($handle, ['Center Code', 'Center Name', 'Date', 'Session', 'Count', 'Accommodation Required']);
+        fputcsv($handle, ['Center Code', 'Date', 'Session', 'Count', 'Accommodation Required']);
 
         foreach ($candidates as $candidate) {
             fputcsv($handle, [
                 $candidate->center_code,
-                $candidate->center_name,
                 $candidate->exam_date,
                 $candidate->session,
                 $candidate->expected_candidates,
@@ -227,9 +226,9 @@ class IDCandidatesController extends Controller
                 ->where('exam_id', $examId)
                 ->where('district_code', $districtCode)
                 ->sum('accommodation_required');
-
+            //todo: update the static email to district email  $district->district_email,
             // Send the email notification
-            Mail::to($district->district_email)->send(new AccommodationNotification($exam, $districtCode, $totalCandidates));
+            Mail::to('kiran@smashwing.com')->send(new AccommodationNotification($exam, $districtCode, $totalCandidates));
 
             // Add district-specific log to the consolidated array
             $emailLogs[] = [
@@ -245,11 +244,6 @@ class IDCandidatesController extends Controller
             return response()->json(['error' => 'No emails were sent.'], 400);
         }
 
-        // Prepare metadata for the audit log
-        $metadata = [
-            'email_logs' => $emailLogs,
-            'exam_id' => $examId,
-        ];
 
         // Log the email operation
         $existingLog = $this->auditService->findLog([
@@ -258,13 +252,41 @@ class IDCandidatesController extends Controller
         ]);
 
         if ($existingLog) {
+            // Decode existing metadata and merge new logs
+            $existingMetadata = $existingLog->metadata;
+
+            if (isset($existingMetadata['email_logs']) && is_array($existingMetadata['email_logs'])) {
+                // Merge new email logs with existing ones based on district_code
+                foreach ($emailLogs as $newLog) {
+                    $index = array_search($newLog['district_code'], array_column($existingMetadata['email_logs'], 'district_code'));
+
+                    if ($index !== false) {
+                        // Replace existing log with the new one
+                        $existingMetadata['email_logs'][$index] = $newLog;
+                    } else {
+                        // Add new entry if not already present
+                        $existingMetadata['email_logs'][] = $newLog;
+                    }
+                }
+            } else {
+                // If no existing logs, set with the new logs
+                $existingMetadata['email_logs'] = $emailLogs;
+            }
+
+            // Update existing log with merged metadata
             $this->auditService->updateLog(
                 logId: $existingLog->id,
-                metadata: $metadata,
+                metadata: $existingMetadata,
                 afterState: $exam->toArray(),
                 description: 'Updated accommodation email notifications.'
             );
         } else {
+            // Prepare metadata for new audit log
+            $metadata = [
+                'exam_id' => $examId,
+                'email_logs' => $emailLogs,
+            ];
+
             $this->auditService->log(
                 examId: $examId,
                 actionType: 'sent',
@@ -445,20 +467,20 @@ class IDCandidatesController extends Controller
             $ci = ChiefInvigilator::where('ci_venue_id', $hall->venue_code)->where('ci_id', $hall->ci_id)->first() ?? null;
             // Format the data for CSV export
             $csvData[] = [
-                'Hall Code' => $hall->hall_code ,
+                'Hall Code' => $hall->hall_code,
                 'CenterCode & Name' => $hall->center_code . ' - ' . $hall->centername,
                 'Hall Name' => $hall->venue->venue_name,
                 'Address' => $hall->venue->venue_address,
                 'Phone' => $hall->venue->venue_phone,
                 'GOVT OR PVT' => $hall->venue->venue_category,
-                'DIST. FROM COLL.'=>$hall->venue->venue_treasury_office,
-                'DIST. FROM RLWY/BUS STN'=>$hall->venue->venue_distance_railway,
+                'DIST. FROM COLL.' => $hall->venue->venue_treasury_office,
+                'DIST. FROM RLWY/BUS STN' => $hall->venue->venue_distance_railway,
                 'CI NAME & ADDRESS' => $ci->ci_name . ' - ' . $ci->ci_phone,
-                'CI PHONE' => $ci->ci_phone ,
+                'CI PHONE' => $ci->ci_phone,
                 'CI EMAIL' => $ci->ci_email,
                 'EXAM DATE' => $hall->exam_date,
                 'EXAM SESSION' => $hall->exam_session,
-                'GPS_COORD' => $hall->venue->venue_latitude . ',' . $hall->venue->venue_longitude ,
+                'GPS_COORD' => $hall->venue->venue_latitude . ',' . $hall->venue->venue_longitude,
             ];
         }
 

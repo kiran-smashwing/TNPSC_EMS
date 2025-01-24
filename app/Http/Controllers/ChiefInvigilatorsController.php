@@ -30,6 +30,11 @@ class ChiefInvigilatorsController extends Controller
     {
         // Start the query for ChiefInvigilator
         $query = ChiefInvigilator::query();
+        $role = session('auth_role');
+        if ($role == 'venue') {
+            $user = $request->get('auth_user');
+            $query->where('ci_venue_id', $user->venue_code);
+        }
 
         // Filter by district if selected
         if ($request->filled('district')) {
@@ -65,17 +70,30 @@ class ChiefInvigilatorsController extends Controller
         return view('masters.venues.chief_invigilator.index', compact('chiefInvigilator', 'districts', 'centers', 'venues'));
     }
 
-
-
-
-
-    public function create()
+    public function create(Request $request)
     {
-        $venues = Venues::all(); // Retrieve all venues
-        $centers = Center::all(); // Retrieve all centers
-        $districts = District::all(); // Retrieve all districts
+        $role = session('auth_role');
+        $user = $request->get('auth_user');
 
-        return view('masters.venues.chief_invigilator.create', compact('venues', 'centers', 'districts'));
+        if ($role == 'venue') {
+            // Ensure $user exists before accessing properties
+            if (!$user) {
+                return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);
+            }
+
+            $venues = Venues::where('venue_id', $user->venue_id)->get();
+            $centers = Center::where('center_code', $user->venue_center_id)->get();
+            $districts = District::where('district_code', $user->venue_district_id)->get();
+
+            return view('masters.venues.chief_invigilator.create', compact('venues', 'centers', 'districts', 'user'));
+        }
+
+        // Default case for non-venue users
+        $venues = Venues::all();
+        $centers = Center::all();
+        $districts = District::all();
+
+        return view('masters.venues.chief_invigilator.create', compact('venues', 'centers', 'districts'))->with('user', $user ?? null);
     }
 
     public function store(Request $request)
@@ -327,12 +345,12 @@ class ChiefInvigilatorsController extends Controller
             $oldValues = array_intersect_key($oldValues, $changedValues);
             // Log district update with old and new values
             AuditLogger::log('Chief Invigilator Updated', ChiefInvigilator::class, $chiefInvigilator->ci_id, $oldValues, $changedValues);
-                if (url()->previous() === route('chief-invigilators.edit', $id)) {
-                    return redirect()->route('chief-invigilators.index')
-                        ->with('success', 'Chief Invigilator updated successfully');
-                } else {
-                    return redirect()->back()->with('success', 'Chief Invigilator updated successfully');
-                }
+            if (url()->previous() === route('chief-invigilators.edit', $id)) {
+                return redirect()->route('chief-invigilators.index')
+                    ->with('success', 'Chief Invigilator updated successfully');
+            } else {
+                return redirect()->back()->with('success', 'Chief Invigilator updated successfully');
+            }
         } catch (\Exception $e) {
             return back()->withInput()
                 ->with('error', 'Error updating Chief Invigilator: ' . $e->getMessage());
@@ -348,7 +366,7 @@ class ChiefInvigilatorsController extends Controller
         $invigilator_count = $chiefInvigilator->venue->invigilator()->count();
         $cia_count = $chiefInvigilator->venue->cia()->count();
 
-        return view('masters.venues.chief_invigilator.show', compact('chiefInvigilator','centerCount', 'venueCount','staffCount','ci_count','invigilator_count','cia_count'));
+        return view('masters.venues.chief_invigilator.show', compact('chiefInvigilator', 'centerCount', 'venueCount', 'staffCount', 'ci_count', 'invigilator_count', 'cia_count'));
     }
 
     public function destroy($id)

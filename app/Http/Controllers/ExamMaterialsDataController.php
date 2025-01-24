@@ -23,7 +23,7 @@ class ExamMaterialsDataController extends Controller
     }
     public function index($examId)
     {
-        $examMaterials = ExamMaterialsData::where('exam_id', $examId)->with(['district','center', 'venue'])->get();
+        $examMaterials = ExamMaterialsData::where('exam_id', $examId)->with(['district', 'center', 'venue'])->get();
         return view('my_exam.ExamMaterialsData.index', compact('examMaterials', 'examId'));
     }
 
@@ -162,7 +162,7 @@ class ExamMaterialsDataController extends Controller
             $failedCsvPath = $examId . '_ed_exam_materials_qr_failed_rows_' . time() . '.csv';
             $filePath = storage_path('app/public/uploads/failed_csv_files/' . $failedCsvPath);
             $fp = fopen($filePath, 'w');
-            fputcsv($fp, [ 'Hall Code','Center Code', 'QR Code', 'Error']);
+            fputcsv($fp, ['Hall Code', 'Center Code', 'QR Code', 'Error']);
             foreach ($failedRows as $row) {
                 // Format `center_code` as a string to preserve leading zeros
                 $row[0] = sprintf('="%s"', $row[0]);
@@ -191,7 +191,10 @@ class ExamMaterialsDataController extends Controller
             'D2' => '/^D2(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})(?<copies>\d{3})$/',
             'I1' => '/^I1(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
             'I2' => '/^I2(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
-            'R1' => '/^R1(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
+            'R1' => [
+                '/^R1(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})(?<box_no>\d{1})OF(?<total_boxes>\d{1})$/',
+                '/^R1(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/'
+            ],
             'I3' => '/^I3(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
             'I4' => '/^I4(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
             'I5' => '/^I5(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
@@ -201,22 +204,51 @@ class ExamMaterialsDataController extends Controller
             'R3' => '/^R3(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
             'R4' => '/^R4(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
             'R5' => '/^R5(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
+            'R6' => '/^R6(?<notification_no>\d{6})(?<day>\d{2})(?<session>[FA])(?<center_code>\d{4})(?<venue_code>\d{3})$/',
         ];
-        
-        // Match against all patterns
+
+        // Handle patterns with multiple formats (like R1)
         foreach ($patterns as $category => $pattern) {
-            if (preg_match($pattern, $qrCodeString, $matches)) {
-                return [
-                    'category' => $category,
-                    'notification_no' => $matches['notification_no'],
-                    'exam_date' => $matches['day'], // Assuming day is the exam date
-                    'exam_session' => $matches['session'],
-                    'center_code' => $matches['center_code'],
-                    'hall_code' => $matches['venue_code'] ?? null,
-                ];
+            if (is_array($pattern)) {
+                foreach ($pattern as $subPattern) {
+                    if (preg_match($subPattern, $qrCodeString, $matches)) {
+                        $result = [
+                            'category' => $category,
+                            'notification_no' => $matches['notification_no'],
+                            'exam_date' => $matches['day'],
+                            'exam_session' => $matches['session'],
+                            'center_code' => $matches['center_code'],
+                            'hall_code' => $matches['venue_code']
+                        ];
+
+                        if (isset($matches['box_no']) && isset($matches['total_boxes'])) {
+                            $result['box_no'] = $matches['box_no'];
+                            $result['total_boxes'] = $matches['total_boxes'];
+                        }
+
+                        return $result;
+                    }
+                }
+            } else {
+                if (preg_match($pattern, $qrCodeString, $matches)) {
+                    $result = [
+                        'category' => $category,
+                        'notification_no' => $matches['notification_no'],
+                        'exam_date' => $matches['day'],
+                        'exam_session' => $matches['session'],
+                        'center_code' => $matches['center_code'],
+                        'hall_code' => $matches['venue_code']
+                    ];
+
+                    if (isset($matches['box_no']) && isset($matches['total_boxes'])) {
+                        $result['box_no'] = $matches['box_no'];
+                        $result['total_boxes'] = $matches['total_boxes'];
+                    }
+
+                    return $result;
+                }
             }
         }
-
         return null; // No pattern matched
     }
     /**
@@ -238,7 +270,6 @@ class ExamMaterialsDataController extends Controller
      */
     private function validateExamMaterialsQRCSVRow($data, $examId, &$successfulInserts, &$failedRows)
     {
-
         // Validate center code, name, date, session, and expected candidates
         if (!isset($data[0]) || !is_numeric($data[0])) {
             throw new Exception('Invalid or missing center code.');

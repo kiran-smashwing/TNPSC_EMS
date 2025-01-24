@@ -445,7 +445,7 @@ class BundlePackagingController extends Controller
             ->format('A4')
             ->pdf();
         // Define a unique filename for the report
-        $filename = '0101_chennai_attendance_reprot' . time() . '.pdf';
+        $filename = $vehicles->route_no.'_verify_materials_handover_reprot' . time() . '.pdf';
 
         // Return the PDF as a response
         return response($pdf)

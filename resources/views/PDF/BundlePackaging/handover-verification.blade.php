@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CI Meeting QR Code</title>
+    <title>Verify Handover of Exam Materials</title>
     <style>
         html,
         body {
@@ -99,47 +99,30 @@
             padding: 20px;
         }
 
-        .qr-code {
-            width: 200px;
-            height: 200px;
-            margin-bottom: 10px;
+        .report-table {
+            width: 99.9%;
+            /* Set table width to 100% to ensure full width */
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            /* Ensure borders are considered in width */
         }
 
-        .qr-code-label {
+        .report-table th,
+        .report-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            vertical-align: top;
+        }
+
+        .report-table th {
+            background-color: #e3f1ee;
+            text-align: left;
             font-weight: bold;
-            font-size: 12pt;
         }
 
-        .footer-instructions {
-            background-color: #E3F1EE;
-            /* background-color: #d7ffde; */
-            padding: 15px;
-            margin-top: 20px;
-            border-top: 2px solid #000;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .footer-qr-codes {
-            display: flex;
-            gap: 20px;
-            margin-right: 20px;
-        }
-
-        .footer-qr-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .footer-qr-image {
-            width: 140px;
-            height: 140px;
-        }
-
-        .footer-instructions-text {
-            flex-grow: 1;
+        .sno-column {
+            width: 5%;
             text-align: center;
         }
 
@@ -156,19 +139,6 @@
 
             body {
                 zoom: 0.8;
-            }
-
-            .footer-instructions {
-                break-inside: avoid;
-                page-break-inside: avoid;
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                width: 100%;
-                margin: 0;
-                padding: 15px;
-                box-sizing: border-box;
             }
         }
     </style>
@@ -188,7 +158,7 @@
         </div>
 
         <div class="meeting-title">
-            <h2>Verify Handover of Materials</h2>
+            <h2>Verify Handover of Exam Materials | Route No - {{ $vehicles->route_no }}</h2>
         </div>
         @foreach ($exams as $exam)
             <div class="content-section">
@@ -205,38 +175,53 @@
             $districtNames = implode(', ', $districts);
         @endphp
         <div class="content-section">
-            <p><strong>Districts:</strong> {{ $districtNames }}</p>
+            <p><strong>Districts:</strong> {{ $districtNames }}<br>
+                <strong>Vehicle Number:</strong> {{ $vehicles->charted_vehicle_no }}<br>
+                <strong>Driver Name:</strong> {{  $vehicles->driver_details['name'] }} |
+                <strong>Driver Contact:</strong> {{  $vehicles->driver_details['phone'] }}|
+                <strong>Driver License:</strong> {{  $vehicles->driver_details['licence_no'] }} <br>
+                <strong>Police Name:</strong> {{ $vehicles->pc_details['name'] }} |
+                <strong>Police Contact:</strong> {{ $vehicles->pc_details['phone'] }} |
+                <strong>Police IFHRMS No :</strong> {{ $vehicles->pc_details['ifhrms_no'] }} <br>
+            </p>
         </div>
         <div class="center-container">
-            <table border="1" cellspacing="0" cellpadding="8" width="100%" style="border-collapse: collapse; text-align: left;">
-                <thead style="background-color: #E3F1EE;">
-                    <tr>
-                        <th>#</th>
-                        <th>Escort Staff Name</th>
-                        <th>District</th>
-                        <th>Final Remarks</th>
-                        <th>Camera Handovered</th>
-                        <th>GPS Lock Handovered</th>
-                        <th>Memory Card Handovered</th>
-                        <th>Confidential Material Offloaded</th>
-                    </tr>
-                </thead>
-                <tbody>
-                        @php
-                            $verificationDetails = json_decode($vehicles->handover_verification_details, true);
-                        @endphp
-                        <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $staff->district->district_name ?? 'N/A' }}</td>
-                            <td>{{ $verificationDetails['final_remarks'] ?? 'N/A' }}</td>
-                            <td>{{ $verificationDetails['camera_handovered'] ? 'Yes' : 'No' }}</td>
-                            <td>{{ $verificationDetails['gps_lock_handovered'] ? 'Yes' : 'No' }}</td>
-                            <td>{{ $verificationDetails['memory_card_handovered'] ? 'Yes' : 'No' }}</td>
-                            <td>{{ $verificationDetails['confidential_material_offloaded'] ? 'Yes' : 'No' }}</td>
-                        </tr>
-                </tbody>
+            @php
+                $verificationDetails = json_decode($vehicles->handover_verification_details, true);
+            @endphp
+            <table class="report-table">
+                <tr>
+                    <th class="sno-column">S.No.</th>
+                    <th width="40%">Details</th>
+                    <th>Information</th>
+                </tr>
+                <tr>
+                    <td class="sno-column">1</td>
+                    <td>Has the camera been handed over from the vehicle?</td>
+                    <td>{{ $verificationDetails['camera_handovered'] ? 'Yes' : 'No' }}</td>
+                </tr>
+                <tr>
+                    <td class="sno-column">2</td>
+                    <td>Has the GPS lock been handed over from the vehicle?</td>
+                    <td>{{ $verificationDetails['gps_lock_handovered'] ? 'Yes' : 'No' }}</td>
+                </tr>
+                <tr>
+                    <td class="sno-column">3</td>
+                    <td>Has the memory card been handed over from the vehicle?</td>
+                    <td>{{ $verificationDetails['memory_card_handovered'] ? 'Yes' : 'No' }}</td>
+                </tr>
+                <tr>
+                    <td class="sno-column">4</td>
+                    <td>Has the confidential material been offloaded from the vehicle?</td>
+                    <td>{{ $verificationDetails['confidential_material_offloaded'] ? 'Yes' : 'No' }}</td>
+                </tr>
+                <tr>
+                    <td class="sno-column">5</td>
+                    <td>Final remarks regarding the handover process</td>
+                    <td>{{ $verificationDetails['final_remarks'] ?? 'N/A' }}</td>
+                </tr>
             </table>
-        </div>        
+        </div>
 
     </div>
 </body>

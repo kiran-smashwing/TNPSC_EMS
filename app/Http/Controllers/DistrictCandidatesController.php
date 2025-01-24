@@ -187,7 +187,7 @@ class DistrictCandidatesController extends Controller
     {
         // Fetch venue details
         $venue = Venues::findOrFail($venueId);
-
+        //TODO:Update the static mail to venue mail 
         // Prepare and send email
         Mail::to("kiran@smashwing.com")->send(new VenueConsentMail($venue, $examId));
     }

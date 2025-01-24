@@ -161,12 +161,11 @@ class APDCandidatesController extends Controller
             'created_at' => $currentTime,
             'updated_at' => $currentTime,
         ];
-
-        if ($exam->exam_main_model === "Major") {
-            $center = Center::where('center_code', $data[0])->first();
-            if (!$center) {
-                throw new \Exception('Center code not found.');
-            }
+        $center = Center::where('center_code', $data[0])->first();
+        if (!$center) {
+            throw new \Exception('Center code not found.');
+        }
+          
             $insertData += [
                 'center_code' => $center->center_code,
                 'district_code' => $center->district->district_code ?? null,
@@ -174,17 +173,6 @@ class APDCandidatesController extends Controller
                 'session' => $data[2],
                 'expected_candidates' => $data[3],
             ];
-        } elseif ($exam->exam_main_model === "Minor") {
-            $insertData += [
-                'center_code' => $data[0],
-                'district_code' => $data[0],
-                'exam_date' => \Carbon\Carbon::createFromFormat('d-m-Y', $data[1])->format('Y-m-d'),
-                'session' => $data[2],
-                'expected_candidates' => $data[3],
-            ];
-        } else {
-            throw new \Exception('Invalid exam model.');
-        }
 
         \DB::table($table)->insert($insertData);
         $successfulInserts++;

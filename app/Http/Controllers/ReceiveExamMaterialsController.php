@@ -30,8 +30,8 @@ class ReceiveExamMaterialsController extends Controller
 
         $query = $role == 'district'
             ? ExamMaterialsData::where('exam_id', $examId)
-            ->where('district_code', $user->district_code)
-            ->whereIn('category', ['D1', 'D2'])
+                ->where('district_code', $user->district_code)
+                ->whereIn('category', ['D1', 'D2'])
             : ExamMaterialsData::where('exam_id', $examId);
         // Apply filters 
         if ($request->has('centerCode') && !empty($request->centerCode)) {
@@ -141,11 +141,10 @@ class ReceiveExamMaterialsController extends Controller
         $guard = $role ? Auth::guard($role) : null;
         $user = $guard ? $guard->user() : null;
 
-
         $query = $role == 'headquarters' && $user->role->role_department == 'ED'
             ? ExamMaterialsData::where('exam_id', $examId)
-            ->where('district_code', '01')               //Only for Chennai District
-            ->whereIn('category', ['D1', 'D2'])
+                ->where('district_code', '01')               //Only for Chennai District
+                ->whereIn('category', ['D1', 'D2'])
             : ExamMaterialsData::where('exam_id', $examId);
         // Apply filters 
         if ($request->has('centerCode') && !empty($request->centerCode)) {
@@ -196,12 +195,17 @@ class ReceiveExamMaterialsController extends Controller
 
 
         // Check authorization
-        if ($role !== 'headquarters' && $user->role->role_department !== 'ED' || !$user) {
+        if (
+            $role !== 'headquarters' &&
+            (!isset($user->role) || $user->role->role_department !== 'ED') ||
+            !$user
+        ) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'User not found or not authorized'
             ], 403); // 403 is for authorization errors
         }
+
 
         // Find exam materials
         $examMaterials = ExamMaterialsData::where([
@@ -257,8 +261,8 @@ class ReceiveExamMaterialsController extends Controller
 
         $query = $role == 'center'
             ? ExamMaterialsData::where('exam_id', $examId)
-            ->where('center_code', $user->center_code)
-            ->whereIn('category', ['D1', 'D2'])
+                ->where('center_code', $user->center_code)
+                ->whereIn('category', ['D1', 'D2'])
             : ExamMaterialsData::where('exam_id', $examId);
         // Apply filters 
         if ($request->has('examDate') && !empty($request->examDate)) {
@@ -371,9 +375,9 @@ class ReceiveExamMaterialsController extends Controller
 
         $query = $role == 'mobile_team_staffs'
             ? ExamMaterialsData::where('exam_id', $examId)
-            ->where('mobile_team_id', $user->mobile_id)
-            ->whereDate('exam_date', $examDate)
-            ->whereIn('category', ['D1', 'D2'])
+                ->where('mobile_team_id', $user->mobile_id)
+                ->whereDate('exam_date', $examDate)
+                ->whereIn('category', ['D1', 'D2'])
             : ExamMaterialsData::where('exam_id', $examId);
         // Apply filters 
         if ($request->has('centerCode') && !empty($request->centerCode)) {
@@ -496,10 +500,10 @@ class ReceiveExamMaterialsController extends Controller
 
         $query = $role == 'headquarters' && $user->role->role_name == 'Van Duty Staff'
             ? ExamMaterialsData::where('exam_id', $examId)
-            ->where('district_code', '01')
-            ->where('mobile_team_id', $user->dept_off_id)
-            ->whereDate('exam_date', $examDate)
-            ->whereIn('category', ['D1', 'D2'])
+                ->where('district_code', '01')
+                ->where('mobile_team_id', $user->dept_off_id)
+                ->whereDate('exam_date', $examDate)
+                ->whereIn('category', ['D1', 'D2'])
             : ExamMaterialsData::where('exam_id', $examId);
         // Apply filters 
         if ($request->has('centerCode') && !empty($request->centerCode)) {
@@ -618,11 +622,11 @@ class ReceiveExamMaterialsController extends Controller
         // Query based on the role
         $query = $role == 'ci'
             ? ExamMaterialsData::where('exam_id', $examId)
-            ->where('ci_id', $user->ci_id)
-            ->whereIn('category', ['D1', 'D2', 'R1', 'R2'])
-            ->whereDate('exam_date', $exam_date)
+                ->where('ci_id', $user->ci_id)
+                ->whereIn('category', ['D1', 'D2', 'R1', 'R2'])
+                ->whereDate('exam_date', $exam_date)
             : ExamMaterialsData::where('exam_id', $examId)
-            ->whereDate('exam_date', $exam_date);
+                ->whereDate('exam_date', $exam_date);
 
         // Filter by session (FN/AN)
         if ($exam_session == 'FN' || $exam_session == 'AN') {

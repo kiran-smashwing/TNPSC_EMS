@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ExamAssignment;
+use App\Models\CIStaffAllocation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -56,33 +56,33 @@ class ExamStaffAllotmentController extends Controller
         ];
 
         // Find existing record or create new one
-        $examAssignment = ExamAssignment::firstOrNew([
+        $CIStaffAllocation = CIStaffAllocation::firstOrNew([
             'exam_id' => $validated['exam_id'],
             'exam_date' => $exam_date,
             'ci_id' => $user->ci_id,
         ]);
 
         // Handle existing invigilators data
-        if ($examAssignment->exists && $examAssignment->invigilators) {
+        if ($CIStaffAllocation->exists && $CIStaffAllocation->invigilators) {
             // If existing data is not an array, convert it to array
-            $existingData = is_array($examAssignment->invigilators)
-                ? $examAssignment->invigilators
-                : [$examAssignment->invigilators];
+            $existingData = is_array($CIStaffAllocation->invigilators)
+                ? $CIStaffAllocation->invigilators
+                : [$CIStaffAllocation->invigilators];
 
             // Append new session data to existing data
             $existingData[] = $newSessionData;
-            $examAssignment->invigilators = $existingData;
+            $CIStaffAllocation->invigilators = $existingData;
         } else {
             // If no existing data, initialize with the new session data
-            $examAssignment->invigilators = [$newSessionData];
+            $CIStaffAllocation->invigilators = [$newSessionData];
         }
 
         // Set or update created_at timestamp
-        if (!$examAssignment->exists) {
-            $examAssignment->created_at = now();
+        if (!$CIStaffAllocation->exists) {
+            $CIStaffAllocation->created_at = now();
         }
 
-        $examAssignment->save();
+        $CIStaffAllocation->save();
 
         return redirect()->back()->with('success', 'Invigilators Added successfully.');
     }
@@ -106,19 +106,19 @@ class ExamStaffAllotmentController extends Controller
         }
 
         // Find the existing exam assignment record
-        $examAssignment = ExamAssignment::where([
+        $CIStaffAllocation = CIStaffAllocation::where([
             ['exam_id', '=', $examId],
             ['exam_date', '=', $validated['exam_sess_date']],
             ['ci_id', '=', $user->ci_id]
         ])->first();
 
         // If the assignment doesn't exist, return an error
-        if (!$examAssignment) {
+        if (!$CIStaffAllocation) {
             return back()->withErrors(['error' => 'Assignment not found']);
         }
 
         // Dump and Die to view the existing invigilators (old data)
-        // dd('Old Data:', $examAssignment->invigilators);
+        // dd('Old Data:', $CIStaffAllocation->invigilators);
 
         // Prepare the new session data
         $newSessionData = [
@@ -128,7 +128,7 @@ class ExamStaffAllotmentController extends Controller
         ];
 
         // Update the invigilators data (replace or append as needed)
-        $existingData = $examAssignment->invigilators;
+        $existingData = $CIStaffAllocation->invigilators;
 
         // If there's existing data, update it
         if (is_array($existingData)) {
@@ -147,8 +147,8 @@ class ExamStaffAllotmentController extends Controller
         // dd('New Data:', $existingData);
 
         // Save the updated invigilators data
-        $examAssignment->invigilators = $existingData;
-        $examAssignment->save();
+        $CIStaffAllocation->invigilators = $existingData;
+        $CIStaffAllocation->save();
 
         return redirect()->back()->with('success', 'Invigilator details updated successfully.');
         // return redirect()->route('exam.details', ['examId' => $examId])
@@ -174,7 +174,7 @@ class ExamStaffAllotmentController extends Controller
         }
 
         // Find the existing CI staff allocation record using exam_id, exam_date, and ci_id
-        $staffAllocation = ExamAssignment::where([
+        $staffAllocation = CIStaffAllocation::where([
             ['exam_id', '=', $examId],
             ['exam_date', '=', $examDate],
             ['ci_id', '=', $ciId],
@@ -236,7 +236,7 @@ class ExamStaffAllotmentController extends Controller
             }
 
             // Find the existing CI staff allocation record
-            $staffAllocation = ExamAssignment::where([
+            $staffAllocation = CIStaffAllocation::where([
                 ['exam_id', '=', $examId],
                 ['exam_date', '=', $examDate],
                 ['ci_id', '=', $ciId],

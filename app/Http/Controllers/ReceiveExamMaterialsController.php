@@ -623,7 +623,7 @@ class ReceiveExamMaterialsController extends Controller
         $query = $role == 'ci'
             ? ExamMaterialsData::where('exam_id', $examId)
                 ->where('ci_id', $user->ci_id)
-                ->whereIn('category', ['D1', 'D2', 'R1', 'R2'])
+                ->whereIn('category', ['D1', 'D2'])
                 ->whereDate('exam_date', $exam_date)
             : ExamMaterialsData::where('exam_id', $examId)
                 ->whereDate('exam_date', $exam_date);
@@ -647,7 +647,7 @@ class ReceiveExamMaterialsController extends Controller
         ])->first();
 
         // Debug output (optional)
-        // dd($examMaterials);
+        // dd($exam_type);
 
         // Return the view with data
         return view('my_exam.ExamMaterialsData.mobileTeam-to-ci-materials', compact('exam_type', 'examMaterials', 'examId', 'exam_date'));

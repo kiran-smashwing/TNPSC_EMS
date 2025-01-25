@@ -519,11 +519,9 @@
                                         </div>
                                     </div>
                                 </li>
-                                @foreach ($auditDetails as $audit)
                                     @php
                                         $is_apd_upload = $audit->task_type == 'apd_finalize_halls_upload';
                                     @endphp
-                                    @if ($is_apd_upload)
                                         <li class="task-list-item">
                                             <i class="task-icon bg-primary"></i>
                                             <div class="card ticket-card open-ticket">
@@ -609,8 +607,6 @@
                                                     </div>
                                                 </div>
                                         </li>
-                                    @endif
-                                @endforeach
                                 @php
                                     $is_ed_qr_upload = $examMaterialsUpdate !== null;
                                     $metadata = null;

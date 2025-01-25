@@ -50,37 +50,39 @@
                                 </div>
                             </div>
                             <div class="card-body table-border-style">
-                                <div class="table-responsive">
-                                    <table class="table table-dark">
-                                        <thead>
-                                            <tr>
-                                                <th>QP Box</th>
-                                                <th>Timestamp</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @php $counter = 1; @endphp
-                                            @foreach ($materials as $material)
-                                                @if ($material->category == 'D1')
-                                                    <tr>
-                                                        <td>{{ $counter++ }}</td>
-                                                        <td>
-                                                            @if ($material->examMaterialsScan && !is_null($material->examMaterialsScan->ci_scanned_at))
-                                                                {{ \Carbon\Carbon::parse($material->examMaterialsScan->ci_scanned_at)->format('d-m-Y h:i:s') }}
-                                                            @else
-                                                                No Scans
-                                                            @endif
-                                                        </td>
+                                @if ($exam_type->exam_sess_type === 'Objective')
+                                    <div class="table-responsive">
+                                        <table class="table table-dark">
+                                            <thead>
+                                                <tr>
+                                                    <th>QP Box</th>
+                                                    <th>Timestamp</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @php $counter = 1; @endphp
+                                                @foreach ($materials as $material)
+                                                    @if ($material->category == 'D1')
+                                                        <tr>
+                                                            <td>{{ $counter++ }}</td>
+                                                            <td>
+                                                                @if ($material->examMaterialsScan && !is_null($material->examMaterialsScan->ci_scanned_at))
+                                                                    {{ \Carbon\Carbon::parse($material->examMaterialsScan->ci_scanned_at)->format('d-m-Y h:i:s') }}
+                                                                @else
+                                                                    No Scans
+                                                                @endif
+                                                            </td>
 
 
-                                                    </tr>
-                                                    {{-- @php dd($material->examMaterialsScan->ci_scanned_at); @endphp <!-- Debugging the material object --> --}}
-                                                @endif
-                                            @endforeach
+                                                        </tr>
+                                                        {{-- @php dd($material->examMaterialsScan->ci_scanned_at); @endphp <!-- Debugging the material object --> --}}
+                                                    @endif
+                                                @endforeach
 
-                                        </tbody>
-                                    </table>
-                                </div>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @endif
                                 <div class="table-responsive">
                                     <table class="table table-dark">
                                         <thead>
@@ -89,16 +91,20 @@
                                                     @if ($exam_type->exam_sess_type === 'Objective')
                                                         OMR Packet
                                                     @elseif ($exam_type->exam_sess_type === 'Descriptive')
-                                                        Answer Packet
+                                                        Answer Booklet
                                                     @endif
                                                 </th>
                                                 <th>Timestamp</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @php $counter = 1; @endphp
+                                            @php
+                                                $counter = 1;
+                                                $allowedCategory =
+                                                    $exam_type->exam_sess_type === 'Objective' ? 'D2' : 'D1';
+                                            @endphp
                                             @foreach ($materials as $material)
-                                                @if (in_array($material->category, ['D2', 'R1', 'R2']))
+                                                @if ($material->category === $allowedCategory)
                                                     <tr>
                                                         <td>{{ $counter++ }}</td>
                                                         <td>

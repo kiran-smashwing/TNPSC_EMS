@@ -480,6 +480,7 @@ class MyExamController extends Controller
                 ? $session_confirmedhalls->alloted_count / 20
                 : $session_confirmedhalls->alloted_count / 10)
             : 0;
+        
 
         // Retrieve invigilators, scribes, and assistants based on the venue
         $invigilator = Invigilator::where('invigilator_venue_id', $user->ci_venue_id)->get();

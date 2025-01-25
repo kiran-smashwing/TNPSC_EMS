@@ -34,6 +34,7 @@ class CIConsolidateController extends Controller
         $exam_data = Currentexam::with('examservice')
             ->where('exam_main_no', $examId)
             ->first();
+        //   dd($exam_data); 
         if (!$exam_data) {
             abort(404, 'Exam data not found.');
         }
@@ -41,10 +42,11 @@ class CIConsolidateController extends Controller
             ->where('exam_id', $examId)
             ->where('district_code', $user->ci_district_id)
             ->where('center_code', $user->ci_center_id)
-            ->where('venue_code', $user->ci_venue_id)
+            // ->where('venue_code', $user->ci_venue_id)
             ->where('ci_id', $user->ci_id)
             ->pluck('hall_code')
             ->first();
+            // dd($hall_code);
         //CI-Qp box Log to get this all data
         $qp_box_timing = DB::table('ci_qp_box_log')
             ->where('exam_id', $examId)
@@ -53,6 +55,7 @@ class CIConsolidateController extends Controller
             ->where('hall_code', $hall_code)
             ->where('exam_date', $exam_date)
             ->first();
+            // dd($qp_box_timing);
         // Get the session-specific exam material based on the session type (FN or AN)
         $examTime = ExamMaterialsData::where('exam_id', $examId)
             ->where('ci_id', $user->ci_id)
@@ -60,6 +63,7 @@ class CIConsolidateController extends Controller
             ->whereDate('exam_date', $exam_date)
             ->where('exam_session', $exam_session_type) // Match based on FN or AN session
             ->first(); // Get the first record
+            // dd($examTime);
         // Initialize variables for parsed data
         $examData = ExamMaterialsData::where('exam_id', $examId)
             ->where('ci_id', $user->ci_id)
@@ -114,10 +118,10 @@ class CIConsolidateController extends Controller
 
         // Fetch the results
         $examMaterials = $query->get();
-
+        
         // Prepare the categories to be displayed in the PDF
         $pdfData = [];
-
+        // dd($pdfData);
         // Loop through the exam materials to format the category and scan time
         foreach ($examMaterials as $examTime) {
             // Get the category name based on the category key

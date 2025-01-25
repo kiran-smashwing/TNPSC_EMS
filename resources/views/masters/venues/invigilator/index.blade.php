@@ -262,7 +262,7 @@
                                             </td>
 
                                             <td>{{ $invigilator->invigilator_name }}</td>
-                                            <td>{{ $invigilator->invigilator_venue_id }}</td>
+                                            <td>{{ $invigilator->venue->venue_name }}</td>
                                             <td>{{ $invigilator->invigilator_email }}</td>
                                             <td>{{ $invigilator->invigilator_phone }}</td>
 

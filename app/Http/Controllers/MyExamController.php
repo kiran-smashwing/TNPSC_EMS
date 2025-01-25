@@ -485,6 +485,7 @@ class MyExamController extends Controller
         $invigilator = Invigilator::where('invigilator_venue_id', $user->ci_venue_id)->get();
         // dd($invigilator);
         $scribe = Scribe::where('scribe_venue_id', $user->ci_venue_id)->get();
+        // dd($user->ci_venue_id);
         $ci_assistant = CIAssistant::where('cia_venue_id', $user->ci_venue_id)->get();
 
         // Retrieve checklist sessions

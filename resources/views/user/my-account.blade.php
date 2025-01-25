@@ -202,7 +202,7 @@
                                         <div class="card-footer text-end btn-page">
                                             <button type="button" class="btn btn-outline-secondary"
                                                 onclick="window.location.href='{{ url()->previous() }}'">Cancel</button>
-                                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                                            <button type="submit" class="btn btn-primary">Update Password</button>
                                         </div>
                                     </form>
                                 </div>

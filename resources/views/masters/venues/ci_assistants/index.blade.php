@@ -264,7 +264,7 @@
                                                     <h6 class="mb-0">{{ $assistant->cia_name }}</h6>
                                                 </div>
                                             </td>
-                                            <td>{{ $assistant->cia_venue_id ?? 'N/A' }}</td>
+                                            <td>{{ $assistant->venue->venue_name ?? 'N/A' }}</td>
                                             <td>{{ $assistant->cia_email }}</td>
                                             <td>{{ $assistant->cia_phone }}</td>
                                             <td>

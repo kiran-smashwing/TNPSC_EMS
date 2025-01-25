@@ -262,7 +262,7 @@
                                                     <h6 class="mb-0">{{ $scribe->scribe_name }}</h6>
                                                 </div>
                                             </td>
-                                            <td>{{ $scribe->scribe_venue_id }}</td>
+                                            <td>{{ $scribe->venue->venue_name }}</td>
                                             <td>{{ $scribe->scribe_email }}</td>
                                             <td>{{ $scribe->scribe_phone }}</td>
                                             <td>

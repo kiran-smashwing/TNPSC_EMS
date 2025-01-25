@@ -101,7 +101,7 @@
 
                             <div class="card-footer text-end btn-page">
                                 <div class="btn btn-outline-secondary">Cancel</div>
-                                <button type="submit" class="btn btn-primary">Update</button>
+                                <button type="submit" class="btn btn-primary">Update Password</button>
                             </div>
                         </form>
                     </div>

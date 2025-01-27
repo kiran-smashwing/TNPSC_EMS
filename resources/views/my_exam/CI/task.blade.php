@@ -269,12 +269,12 @@
                                                                 });
                                                             @endphp
                                                             @if ($fnSession)
-                                                                <a href="{{ route('my-exam.ciExamActivity', ['examid' => $fnSession->exam_sess_mainid, 'session' => $fnSession->exam_sess_session]) }}"
+                                                                <a href="{{ route('my-exam.ciExamActivity', ['examid' => $fnSession->exam_sess_mainid, 'session' => $fnSession->exam_session_id]) }}"
                                                                     class="me-2 btn btn-sm btn-light-primary"><i
                                                                         class="feather icon-disc mx-1"></i>FN - Session</a>
                                                             @endif
                                                             @if ($anSession)
-                                                                <a href="{{ route('my-exam.ciExamActivity', ['examid' => $anSession->exam_sess_mainid, 'session' => $anSession->exam_sess_session]) }}"
+                                                                <a href="{{ route('my-exam.ciExamActivity', ['examid' => $anSession->exam_sess_mainid, 'session' => $anSession->exam_session_id]) }}"
                                                                     class="me-2 btn btn-sm btn-light-info"><i
                                                                         class="feather icon-disc mx-1"></i>AN - Session</a>
                                                             @endif

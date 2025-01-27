@@ -6,6 +6,7 @@ use App\Models\ChartedVehicleRoute;
 use App\Models\ExamMaterialsScan;
 use App\Models\ExamMaterialsData;
 use App\Models\Currentexam;
+use App\Models\ExamSession;
 use App\Models\ExamTrunkBoxOTLData;
 use App\Models\ExamTrunkBoxScan;
 use App\Services\ExamAuditService;
@@ -28,23 +29,36 @@ class BundlePackagingController extends Controller
         $user = $guard ? $guard->user() : null;
 
         // Define the category mapping
-        $categoryLabels = [
-            'R3' => 'Bundle I',
-            'R4' => 'Bundle II',
-            'R5' => 'Bundle C',
-        ];
-
+        $exam_session = ExamSession::where('exam_sess_mainid', $examId)
+            ->where('exam_sess_date', $exam_date)
+            ->where('exam_sess_session', $exam_session)
+            ->first();
+        if ($exam_session->exam_sess_type == 'Descriptive') {
+            $categoryLabels = [
+                'R1' => 'Bundle IA',
+                'R2' => 'Bundle IB',
+                'R3' => 'Bundle II',
+                'R4' => 'Bundle III',
+                'R5' => 'Bundle IV',
+                'R6' => 'Cover C',
+            ];
+        } else {
+            $categoryLabels = [
+                'R3' => 'Bundle I',
+                'R4' => 'Bundle II',
+                'R5' => 'Bundle C',
+            ];
+        }
         $query = $role == 'ci'
             ? ExamMaterialsData::where('exam_id', $examId)
                 ->where('ci_id', $user->ci_id)
                 ->whereIn('category', array_keys($categoryLabels))
                 ->whereDate('exam_date', $exam_date)
-                ->where('exam_session', $exam_session)
+                ->where('exam_session', $exam_session->exam_sess_session)
             : ExamMaterialsData::where('exam_id', $examId)
                 ->whereIn('category', array_keys($categoryLabels));
-
-        $examMaterials = $query->with(['examMaterialsScan'])->get();
-
+        
+        $examMaterials = $query->with(relations: ['examMaterialsScan'])->get();
         // Add label mapping to the data
         $examMaterials->each(function ($material) use ($categoryLabels) {
             $material->bundle_label = $categoryLabels[$material->category] ?? 'Unknown Bundle';
@@ -414,13 +428,13 @@ class BundlePackagingController extends Controller
             return back()->with('error', 'Failed to save handover details. Please try again.');
         }
     }
-    public function reportHandoverDetails(Request $request ,$id)
+    public function reportHandoverDetails(Request $request, $id)
     {
-        $vehicles = ChartedVehicleRoute::where('id',$id)->with(['escortstaffs.district'])->first();
+        $vehicles = ChartedVehicleRoute::where('id', $id)->with(['escortstaffs.district'])->first();
         $exams = Currentexam::whereIn('exam_main_no', $vehicles->exam_id)->get();
         // dd($vehicles->escortstaffs);
         // return view('PDF.BundlePackaging.handover-verification',compact('vehicles','exams'));
-        $html = view('PDF.BundlePackaging.handover-verification',compact('vehicles','exams'))->render();
+        $html = view('PDF.BundlePackaging.handover-verification', compact('vehicles', 'exams'))->render();
         // $html = view('PDF.Reports.ci-utility-certificate')->render();
         $pdf = Browsershot::html($html)
             ->setOption('landscape', false)
@@ -445,7 +459,7 @@ class BundlePackagingController extends Controller
             ->format('A4')
             ->pdf();
         // Define a unique filename for the report
-        $filename = $vehicles->route_no.'_verify_materials_handover_reprot' . time() . '.pdf';
+        $filename = $vehicles->route_no . '_verify_materials_handover_reprot' . time() . '.pdf';
 
         // Return the PDF as a response
         return response($pdf)

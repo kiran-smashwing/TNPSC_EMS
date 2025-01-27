@@ -25,34 +25,98 @@ class VenuesController extends Controller
 
     public function index(Request $request)
     {
-        // Start the query for venues
-        $query = Venues::query()->select(['venue_id', 'venue_image', 'venue_name','venue_district_id', 'venue_center_id','venue_email','venue_phone','venue_email_status']);
 
-        // Apply filter by district if selected
+        // Load necessary columns for dropdowns
+        $districts = District::select(['district_code', 'district_name'])->get();
+        $centers = Center::select(['center_code', 'center_name'])->get();
+
+        return view('masters.venues.venue.index', compact( 'districts', 'centers'));
+    }
+
+
+    public function getVenuesJson(Request $request)
+    {
+        $query = Venues::query()
+            ->select([
+                'venue_id',
+                'venue_image',
+                'venue_name',
+                'venue_district_id',
+                'venue_center_id',
+                'venue_email',
+                'venue_phone',
+                'venue_email_status',
+                'venue_status'
+            ])
+            ->with([
+                'district:district_code,district_name',
+                'center:center_code,center_name'
+            ]);
+
+        // Apply filters
         if ($request->filled('district')) {
             $query->where('venue_district_id', $request->input('district'));
         }
 
-        // Apply filter by center if selected
         if ($request->filled('center')) {
             $query->where('venue_center_id', $request->input('center'));
         }
 
-        // Fetch filtered venues without pagination
-        // Fetch filtered venues, ordered by venue name
-        $venues = $query->orderBy('venue_code')->get();
+        // Handle global search
+        // Handle global search
+        if ($request->has('search') && !empty($request->input('search.value'))) {
+            $searchValue = strtolower($request->input('search.value'));
+            $query->where(function ($q) use ($searchValue) {
+                $q->whereRaw('LOWER(venue_name) LIKE ?', ["%{$searchValue}%"])
+                    ->orWhereRaw('LOWER(venue_email) LIKE ?', ["%{$searchValue}%"])
+                    ->orWhereRaw('LOWER(venue_phone) LIKE ?', ["%{$searchValue}%"])
+                    ->orWhereHas('district', function ($query) use ($searchValue) {
+                        $query->whereRaw('LOWER(district_name) LIKE ?', ["%{$searchValue}%"]);
+                    })
+                    ->orWhereHas('center', function ($query) use ($searchValue) {
+                        $query->whereRaw('LOWER(center_name) LIKE ?', ["%{$searchValue}%"]);
+                    });
+            });
+        }
 
+        // Get total and filtered counts
+        $totalRecords = Venues::count();
+        $filteredRecords = $query->count();
 
-        // Fetch unique district values from the same table
-        $districts = District::all(); // Fetch all districts
+        // Apply pagination
+        $start = $request->input('start', 0);
+        $length = $request->input('length', 10);
+        $query->skip($start)->take($length);
 
-        // Fetch unique center values from the same table
-        $centers = center::all(); // Fetch all venues
+        // Apply ordering
+        $order = $request->input('order.0');
+        if ($order) {
+            $columnIndex = $order['column'];
+            $columnDir = $order['dir'];
+            $columns = $request->input('columns');
+            $columnName = $columns[$columnIndex]['name'];
 
-        return view('masters.venues.venue.index', compact('venues', 'districts', 'centers'));
+            if (in_array($columnName, ['district.district_name', 'center.center_name'])) {
+                // Handle relationship sorting
+                $relation = explode('.', $columnName)[0];
+                $field = explode('.', $columnName)[1];
+                $query->join($relation, "venues.venue_{$relation}_id", '=', "{$relation}.{$relation}_code")
+                    ->orderBy($columnName, $columnDir);
+            } else {
+                $query->orderBy($columnName, $columnDir);
+            }
+        }
+
+        // Get results
+        $venues = $query->get();
+
+        return response()->json([
+            'draw' => intval($request->input('draw')),
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
+            'data' => $venues
+        ]);
     }
-
-
 
     public function create()
     {
@@ -349,6 +413,6 @@ class VenuesController extends Controller
         // dd($ci);
 
         // Return the view with venue, district, and center data
-        return view('masters.venues.venue.show', compact('venue','centerCount', 'venueCount','staffCount','ci_count','invigilator_count','cia_count'));
+        return view('masters.venues.venue.show', compact('venue', 'centerCount', 'venueCount', 'staffCount', 'ci_count', 'invigilator_count', 'cia_count'));
     }
 }

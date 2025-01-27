@@ -235,6 +235,7 @@ Route::prefix('mobile-team-staffs')->group(function () {
 Route::prefix('venues')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::get('/', action: [VenuesController::class, 'index'])->name('venues.index');
+        Route::get('/json', [VenuesController::class, 'getVenuesJson'])->name('venues.json');
         Route::get('/create', [VenuesController::class, 'create'])->name('venues.create');
         Route::post('/', [VenuesController::class, 'store'])->name('venues.store');
         Route::get('/{id}/edit', [VenuesController::class, 'edit'])->name('venues.edit');
@@ -277,6 +278,7 @@ Route::prefix('scribes')->group(function () {
 Route::prefix('chief-invigilators')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::get('/', [ChiefInvigilatorsController::class, 'index'])->name('chief-invigilators.index');
+        // Route::get('/json', [ChiefInvigilatorsController::class, 'getChiefInvigilatorsJson'])->name('chief-invigilators.json');
         Route::get('/create', [ChiefInvigilatorsController::class, 'create'])->name('chief-invigilators.create');
         Route::post('/', [ChiefInvigilatorsController::class, 'store'])->name('chief-invigilators.store');
         Route::get('/{id}/edit', [ChiefInvigilatorsController::class, 'edit'])->name('chief-invigilators.edit');

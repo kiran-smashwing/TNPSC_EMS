@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                              <h2 class="mb-0"></h2>
-                                                            </div> -->
+                                                                                  <h2 class="mb-0"></h2>
+                                                                                </div> -->
                         </div>
                     </div>
                 </div>
@@ -187,16 +187,7 @@
                             </div>
                         </div>
                         <div class="card-body table-border-style">
-                            <!-- Filter options -->
                             <form id="filterForm" class="mb-3">
-                                {{-- <div class="filter-item">
-                                    <select class="form-select" id="roleFilter" name="role">
-                                        <option value="">Select Role</option>
-                                        <option value="AD">AD</option>
-                                        <option value="Manager">Manager</option>
-                                        <option value="Staff">Staff</option>
-                                    </select>
-                                </div> --}}
                                 <div class="filter-item">
                                     <select class="form-select" id="districtFilter" name="district">
                                         <option value="">Select District Name</option>
@@ -211,25 +202,22 @@
                                 <div class="filter-item">
                                     <select class="form-select" id="centerCodeFilter" name="center">
                                         <option value="">Select Center name</option>
-                                        {{-- @foreach ($centers as $center)
-                                        <option value="{{ $center->venue_center_code }}"
-                                            {{ request('center') == $center->venue_center_code ? 'selected' : '' }}>
-                                            {{ $center->center_name }}
-                                        </option>
-                                    @endforeach --}}
+                                        @foreach ($centers as $center)
+                                            <option value="{{ $center->center_code }}"
+                                                {{ request('center') == $center->center_code ? 'selected' : '' }}>
+                                                {{ $center->center_name }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                                 </div>
-                                <!-- Reset Filters -->
                                 <a href="{{ url()->current() }}" class="btn btn-secondary"><i
                                         class="ti ti-refresh me-2"></i>Reset</a>
-
                             </form>
 
-
-                            <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
+                            <table id="venuesTable" class="display table table-striped table-hover dt-responsive nowrap"
                                 width="100%">
                                 <thead>
                                     <tr>
@@ -238,67 +226,15 @@
                                         <th>Name</th>
                                         <th>District</th>
                                         <th>Center</th>
-                                        <th>E-mail</th>
+                                        <th>Email</th>
                                         <th>Phone</th>
-                                        <th>E-mail status</th>
+                                        <th>Email Status</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach ($venues as $venue)
-                                        <tr>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="flex-shrink-0">
-                                                        @if ($venue->venue_image)
-                                                            <img src="{{ asset('storage/' . $venue->venue_image) }}"
-                                                                alt="district image" class="img-radius wid-40">
-                                                        @else
-                                                            <img src="{{ asset('storage/assets/images/user/venue.png') }}"
-                                                                alt="default image" class="img-radius wid-40">
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </td>
-
-                                            <td>{{ $venue->venue_name }}</td>
-                                            <td>{{ $venue->district->district_name ?? 'N/A' }}</td>
-                                            <td>{{ $venue->center->center_name ?? 'N/A' }}</td>
-                                            <td>{{ $venue->venue_email }}</td>
-                                            <td>{{ $venue->venue_phone }}</td>
-                                            <td class="text-center">
-                                                @if ($venue->venue_email_status)
-                                                    <i class="ti ti-circle-check text-success f-18"></i>
-                                                @else
-                                                    <i class="ti ti-alert-circle text-danger f-18"></i>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                <a href="{{ route('venues.show', $venue->venue_id) }}"
-                                                    class="avtar avtar-xs btn-light-success">
-                                                    <i class="ti ti-eye f-20"></i>
-                                                </a>
-                                                <a href="{{ route('venues.edit', $venue->venue_id) }}"
-                                                    class="avtar avtar-xs btn-light-success">
-                                                    <i class="ti ti-edit f-20"></i>
-                                                </a>
-
-                                                <a href="#"
-                                                    class="avtar avtar-xs status-toggle {{ $venue->venue_status ? 'btn-light-success' : 'btn-light-danger' }}"
-                                                    data-venue-id="{{ $venue->venue_id }}"
-                                                    title="Change Status (Active or Inactive)">
-                                                    <i
-                                                        class="ti ti-toggle-{{ $venue->venue_status ? 'right' : 'left' }} f-20"></i>
-                                                </a>
-
-
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
                             </table>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -320,7 +256,7 @@
 
                 tableContainer.addEventListener('click', function(e) {
                     const button = e.target.closest(
-                    '.status-toggle'); // Check if the clicked element is the toggle button
+                        '.status-toggle'); // Check if the clicked element is the toggle button
 
                     if (button) {
                         e.preventDefault(); // Prevent default behavior
@@ -423,6 +359,104 @@
                 if (oldDistrict) {
                     $('#districtFilter').val(oldDistrict).trigger('change');
                 }
+            });
+        </script>
+        <script>
+            $(document).ready(function() {
+                let table = $('#venuesTable').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: '{{ route('venues.json') }}',
+                        data: function(d) {
+                            d.district = $('#districtFilter').val();
+                            d.center = $('#centerCodeFilter').val();
+                        }
+                    },
+                    columns: [{
+                            data: null,
+                            name: 'index',
+                            render: function(data, type, row, meta) {
+                                return meta.row + meta.settings._iDisplayStart + 1;
+                            }
+                        },
+                        {
+                            data: 'venue_image',
+                            name: 'venue_image',
+                            render: function(data, type, row) {
+                                if (data) {
+                                    return `<img src="{{ asset('storage/') }}/${data}" alt="image" class="img-radius wid-40"/>`;
+                                }
+                                return `<img src="{{ asset('storage/assets/images/user/venue.png') }}" alt="default image" class="img-radius wid-40"/>`;
+                            }
+                        },
+                        {
+                            data: 'venue_name',
+                            name: 'venue_name'
+                        },
+                        {
+                            data: 'district.district_name',
+                            name: 'district.district_name',
+                            defaultContent: 'N/A'
+                        },
+                        {
+                            data: 'center.center_name',
+                            name: 'center.center_name',
+                            defaultContent: 'N/A'
+                        },
+                        {
+                            data: 'venue_email',
+                            name: 'venue_email'
+                        },
+                        {
+                            data: 'venue_phone',
+                            name: 'venue_phone'
+                        },
+                        {
+                            data: 'venue_email_status',
+                            name: 'venue_email_status',
+                            render: function(data) {
+                                return data ?
+                                    '<i class="ti ti-circle-check text-success f-18"></i>' :
+                                    '<i class="ti ti-alert-circle text-danger f-18"></i>';
+                            }
+                        },
+                        {
+                            data: 'venue_id',
+                            render: function(data) {
+                                return `
+                                    <a href="/venues/${data}" class="avtar avtar-xs btn-light-success">
+                                        <i class="ti ti-eye f-20"></i>
+                                    </a>
+                                    <a href="/venues/${data}/edit" class="avtar avtar-xs btn-light-success">
+                                        <i class="ti ti-edit f-20"></i>
+                                    </a>`;
+                            }
+                        }
+                    ],
+                    order: [
+                        [2, 'asc']
+                    ],
+                    responsive: true,
+                    searching: true,
+                    search: {
+                        return: true
+                    }
+                });
+
+                // Apply filters
+                $('#filterForm').on('submit', function(e) {
+                    e.preventDefault();
+                    table.draw();
+                });
+
+                // Reset filters
+                $('.btn-secondary').on('click', function() {
+                    $('#districtFilter').val('');
+                    $('#centerCodeFilter').val('');
+                    $('#searchBox').val('');
+                    table.search('').draw();
+                });
             });
         </script>
     @endpush

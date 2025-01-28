@@ -28,7 +28,6 @@ class CIConsolidateController extends Controller
             abort(403, 'Unauthorized action.');
         }
         $exam_session_type = $exam_session;
-        $exam_date = $exam_date;
         // dd($exam_date);
         // Retrieve the exam data
         $exam_data = Currentexam::with('examservice')
@@ -452,6 +451,7 @@ class CIConsolidateController extends Controller
                 }
                 // Pass data to the view
                 // return view('PDF.Reports.ci-consolidate-report', compact('exam_data', 'exam_session_type', 'exam_date', 'user', 'hall_code', 'qp_box_open_time', 'remarks_summary', 'candidate_remarks_summary', 'merged_scribes', 'checklist_videography_data','checklist_consolidate_data'));
+                // return view('PDF.Reports.ci-consolidate-report', compact('balanceUnusedOMR', 'balanceUnusedQuestionPapers', 'copies', 'exam_data', 'exam_session_type', 'exam_date', 'user', 'hall_code', 'qp_box_open_time', 'remarks_summary', 'candidate_remarks_summary', 'merged_scribes', 'checklist_videography_data', 'checklist_consolidate_data', 'session_confirmedhalls', 'sessionDetails', 'scanTime', 'attendanceData', 'finalString'));
 
                 $html = view('PDF.Reports.ci-consolidate-report', compact('balanceUnusedOMR', 'balanceUnusedQuestionPapers', 'copies', 'exam_data', 'exam_session_type', 'exam_date', 'user', 'hall_code', 'qp_box_open_time', 'remarks_summary', 'candidate_remarks_summary', 'merged_scribes', 'checklist_videography_data', 'checklist_consolidate_data', 'session_confirmedhalls', 'sessionDetails', 'scanTime', 'attendanceData', 'finalString'))->render();
 

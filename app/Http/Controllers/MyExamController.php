@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\CIChecklist;
 use App\Models\ExamConfirmedHalls;
 use App\Models\Scribe;
+use Carbon\Carbon;
 
 class MyExamController extends Controller
 {
@@ -147,10 +148,14 @@ class MyExamController extends Controller
         }
 
         // Group exam sessions by date
-        $groupedSessions = $session->examsession->groupBy(function ($item) {
-            return \Carbon\Carbon::parse($item->exam_sess_date)->format('d-m-Y');
-        });
-
+        // Group and sort exam sessions by date
+        $groupedSessions = $session->examsession
+            ->sortBy(function ($item) {
+                return Carbon::parse($item->exam_sess_date)->timestamp;
+            })
+            ->groupBy(function ($item) {
+                return Carbon::parse($item->exam_sess_date)->format('d-m-Y');
+            });
         // Retrieve preliminary checklist
         $preliminary = CIChecklist::where('ci_checklist_type', 'Preliminary')->get();
 
@@ -163,7 +168,7 @@ class MyExamController extends Controller
         // Retrieve the session details with related currentexam
         $session = ExamSession::with('currentexam')
             ->where('exam_sess_mainid', $examId)
-            ->where('exam_sess_session', $session)
+            ->where('exam_session_id', $session)
             ->first();
 
         // Check if session is found
@@ -239,7 +244,8 @@ class MyExamController extends Controller
                         // Ensure session type (AN or FN) and match with the current session
                         if (isset($sessionData['session'])) {
                             // Check if the session matches the current session (AN or FN)
-                            if (($sessionData['session'] === 'FN' && $session->exam_sess_session == 'FN') ||
+                            if (
+                                ($sessionData['session'] === 'FN' && $session->exam_sess_session == 'FN') ||
                                 ($sessionData['session'] === 'AN' && $session->exam_sess_session == 'AN')
                             ) {
 
@@ -270,7 +276,7 @@ class MyExamController extends Controller
                 $cipaperreplacement_data[] = $replacement;
             }
         }
-        
+
         // Decode candidate logs and remarks
         if ($ciCandidatelogs) {
             $candidateAttendance = $ciCandidatelogs->candidate_attendance
@@ -480,7 +486,7 @@ class MyExamController extends Controller
                 ? $session_confirmedhalls->alloted_count / 20
                 : $session_confirmedhalls->alloted_count / 10)
             : 0;
-        
+
 
         // Retrieve invigilators, scribes, and assistants based on the venue
         $invigilator = Invigilator::where('invigilator_venue_id', $user->ci_venue_id)->get();
@@ -527,7 +533,7 @@ class MyExamController extends Controller
         }
         // Group exam sessions by date
         $groupedSessions = $session->examsession->groupBy(function ($item) {
-            return \Carbon\Carbon::parse($item->exam_sess_date)->format('d-m-Y');
+            return Carbon::parse($item->exam_sess_date)->format('d-m-Y');
         });
         // Fetch the audit details for the exam
         $auditDetails = DB::table('exam_audit_logs')

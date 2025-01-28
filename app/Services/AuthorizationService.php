@@ -20,6 +20,7 @@ class AuthorizationService
                 'create-charted-vehicle-route',
                 'edit-charted-vehicle-route',
                 'create-escort-staff',
+                'create-exam-materails-route',
             ],
             'ED' => [
                 'upload-exam-materials-csv',
@@ -37,6 +38,14 @@ class AuthorizationService
             'receive-exam-materials',
             'scan-exam-materials',
             'showVenueIntimationForm',
+            'receive-exam-materials-from-printer',
+            'create-ci-meetings',
+            'download-meeting-qr',
+            'create-exam-materails-route',
+            'receive-bundle-from-mobile-team',
+        ],
+        'center' => [
+           'download-meeting-qr',
         ],
         // Add other roles and their permissions
     ];

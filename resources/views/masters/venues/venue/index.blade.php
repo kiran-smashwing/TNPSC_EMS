@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                                                  <h2 class="mb-0"></h2>
-                                                                                </div> -->
+                                                                                                      <h2 class="mb-0"></h2>
+                                                                                                    </div> -->
                         </div>
                     </div>
                 </div>
@@ -422,17 +422,25 @@
                             }
                         },
                         {
-                            data: 'venue_id',
+                            data: null, // Access multiple fields
                             render: function(data) {
                                 return `
-                                    <a href="/venues/${data}" class="avtar avtar-xs btn-light-success">
-                                        <i class="ti ti-eye f-20"></i>
-                                    </a>
-                                    <a href="/venues/${data}/edit" class="avtar avtar-xs btn-light-success">
-                                        <i class="ti ti-edit f-20"></i>
-                                    </a>`;
+        <a href="{{ route('venues.show', ':id') }}" class="avtar avtar-xs btn-light-success">
+            <i class="ti ti-eye f-20"></i>
+        </a>
+        <a href="{{ route('venues.edit', ':id') }}" class="avtar avtar-xs btn-light-success">
+            <i class="ti ti-edit f-20"></i>
+        </a>
+        <a href="#"
+            class="avtar avtar-xs status-toggle ${data.venue_status ? 'btn-light-success' : 'btn-light-danger'}"
+            data-venue-id="${data.venue_id}"
+            title="Change Status (Active or Inactive)">
+            <i class="ti ti-toggle-${data.venue_status ? 'right' : 'left'} f-20"></i>
+        </a>
+        `.replace(/:id/g, data.venue_id);
                             }
                         }
+
                     ],
                     order: [
                         [2, 'asc']

@@ -278,7 +278,7 @@ Route::prefix('scribes')->group(function () {
 Route::prefix('chief-invigilators')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::get('/', [ChiefInvigilatorsController::class, 'index'])->name('chief-invigilators.index');
-        // Route::get('/json', [ChiefInvigilatorsController::class, 'getChiefInvigilatorsJson'])->name('chief-invigilators.json');
+        Route::get('/json', [ChiefInvigilatorsController::class, 'getChiefInvigilatorsJson'])->name('chief-invigilators.json');
         Route::get('/create', [ChiefInvigilatorsController::class, 'create'])->name('chief-invigilators.create');
         Route::post('/', [ChiefInvigilatorsController::class, 'store'])->name('chief-invigilators.store');
         Route::get('/{id}/edit', [ChiefInvigilatorsController::class, 'edit'])->name('chief-invigilators.edit');

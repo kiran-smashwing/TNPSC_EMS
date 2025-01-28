@@ -146,431 +146,66 @@
                                         </li>
                                     @endif
                                 @endforeach
-                                @foreach ($auditDetails as $audit)
-                                    @php
-                                        $is_apd_upload = $audit->task_type == 'apd_expected_candidates_upload';
-                                    @endphp
-                                    @if ($is_apd_upload || count($auditDetails) == 1)
-                                        <li class="task-list-item">
-                                            <i class="task-icon bg-primary"></i>
-                                            <div class="card ticket-card open-ticket">
-                                                <div class="card-body">
-                                                    <div class="row">
-                                                        <div class="col-sm-auto mb-3 mb-sm-0">
-                                                            <div class="d-sm-inline-block d-flex align-items-center">
-                                                                <img class="media-object wid-60 img-radius"
-                                                                    src="{{ asset('storage/assets/images/user/avatar-6.jpg') }}"
-                                                                    alt="Generic placeholder image " />
-                                                                <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                                    <ul
-                                                                        class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col">
-                                                            <div class="popup-trigger">
-                                                                <div class="h5 font-weight-bold">Tentative Candidates CSV
-                                                                    <small
-                                                                        class="badge bg-light-secondary ms-2">uploaded</small>
-                                                                </div>
-                                                                <div class="help-sm-hidden">
-                                                                    <ul class="list-unstyled mt-2 mb-0 text-muted">
-
-                                                                        <li class="d-sm-inline-block d-block mt-1"><img
-                                                                                src="../assets/images/user/avatar-5.jpg"
-                                                                                alt=""
-                                                                                class="wid-20 rounded me-2 img-fluid" />Done
-                                                                            by
-                                                                            <b>{{ $is_apd_upload ? json_decode($audit->metadata)->user_name ?? '' : ' Unknown ' }}</b>
-                                                                        </li>
-                                                                        <li class="d-sm-inline-block d-block mt-1"><i
-                                                                                class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                            {{ $is_apd_upload ? \Carbon\Carbon::parse($audit->updated_at)->format('d-m-Y h:i A') : ' ' }}
-                                                                        </li>
-
-                                                                    </ul>
-                                                                </div>
-                                                                <div class="h5 mt-3"><i
-                                                                        class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                    {{ $is_apd_upload ? $audit->department : 'APD - Section Officer' }}
-                                                                </div>
-                                                            </div>
-                                                            <div class="mt-2">
-                                                                @hasPermission('upload-candidates-csv')
-                                                                    @if (isset(json_decode($audit->metadata)->uploaded_csv_link))
-                                                                        <a href="#"
-                                                                            class="me-2 btn btn-sm btn-light-info"
-                                                                            data-pc-animate="just-me" data-bs-toggle="modal"
-                                                                            data-bs-target="#animateModal"><i
-                                                                                class="feather icon-edit mx-1"></i>Edit
-                                                                        </a>
-                                                                    @else
-                                                                        <a href="#"
-                                                                            class="me-2 btn btn-sm btn-light-primary m-2"
-                                                                            data-pc-animate="just-me" data-bs-toggle="modal"
-                                                                            data-bs-target="#animateModal"><i
-                                                                                class="feather icon-upload mx-1 "></i>Upload
-                                                                        </a>
-                                                                    @endif
-                                                                @endhasPermission
-                                                                @if ($is_apd_upload)
-                                                                    <a href="{{ json_decode($audit->metadata)->uploaded_csv_link }}"
-                                                                        class="me-3 btn btn-sm btn-light-warning"><i
-                                                                            class="feather icon-download mx-1"></i>Download
-                                                                    </a>
-                                                                @endif
-                                                                @hasPermission('upload-candidates-csv')
-                                                                    @if (isset(json_decode($audit->metadata)->failed_csv_link) &&
-                                                                            file_exists(public_path(str_replace(url('/'), '', json_decode($audit->metadata)->failed_csv_link))))
-                                                                        <a href="{{ json_decode($audit->metadata)->failed_csv_link }}"
-                                                                            class="me-3 btn btn-sm btn-light-danger">
-                                                                            <i class="feather icon-download mx-1"></i>Failed
-                                                                            Records
-                                                                        </a>
-                                                                    @endif
-                                                                @endhasPermission
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    @endif
-                                @endforeach
-                                @foreach ($auditDetails as $audit)
-                                    @php
-                                        $is_id_updated = $audit->task_type == 'id_candidates_update_percentage';
-                                    @endphp
-                                    @if ($is_id_updated || count($auditDetails) == 2)
-                                        <li class="task-list-item">
-                                            <i class="task-icon bg-danger"></i>
-                                            <div class="card ticket-card open-ticket">
-                                                <div class="card-body">
-                                                    <div class="row">
-                                                        <div class="col-sm-auto mb-3 mb-sm-0">
-                                                            <div class="d-sm-inline-block d-flex align-items-center">
-                                                                <img class="media-object wid-60 img-radius"
-                                                                    src="{{ asset('storage/assets/images/user/avatar-9.jpg') }}"
-                                                                    alt="Generic placeholder image " />
-                                                                <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                                    <ul
-                                                                        class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col">
-                                                            <div class="popup-trigger">
-                                                                <div class="h5 font-weight-bold">Increase Candidates Count
-                                                                    <small
-                                                                        class="badge bg-light-secondary ms-2">updated</small>
-                                                                </div>
-                                                                <div class="help-sm-hidden">
-                                                                    <ul class="list-unstyled mt-2 mb-0 text-muted">
-
-                                                                        <li class="d-sm-inline-block d-block mt-1"><img
-                                                                                src="../assets/images/user/avatar-5.jpg"
-                                                                                alt=""
-                                                                                class="wid-20 rounded me-2 img-fluid" />Done
-                                                                            by
-                                                                            <b>{{ $is_id_updated ? json_decode($audit->metadata)->user_name : 'Unknown' }}</b>
-                                                                        </li>
-                                                                        <li class="d-sm-inline-block d-block mt-1"><i
-                                                                                class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                            {{ $is_id_updated ? \Carbon\Carbon::parse($audit->updated_at)->format('d-m-Y h:i A') : '' }}
-                                                                        </li>
-
-                                                                    </ul>
-                                                                </div>
-                                                                <div class="h5 mt-3"><i
-                                                                        class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                    {{ $is_id_updated ? $audit->department : 'ID - Section Officer' }}
-                                                                </div>
-                                                            </div>
-                                                            <div class="mt-2">
-                                                                @hasPermission('update-percentage')
-                                                                    <a href="#" data-pc-animate="just-me"
-                                                                        data-bs-toggle="modal"
-                                                                        data-bs-target="#increaseCandiadteModal"
-                                                                        class="me-2 btn btn-sm btn-light-primary m-2"><i
-                                                                            class="feather icon-chevrons-up mx-1"></i>Increase
-                                                                        Count</a>
-                                                                @endhasPermission
-                                                                @if ($is_id_updated)
-                                                                    <a href="{{ route('id-candidates.download-updated-count-csv', $session->exam_main_no) }}"
-                                                                        class="me-2 btn btn-sm btn-light-info m-2"><i
-                                                                            class="feather icon-download mx-1"></i>Download
-                                                                        CSV</a>
-                                                                @endif
-                                                                @hasPermission('update-percentage')
-                                                                    <a href="{{ route('id-candidates.intimateCollectorate', $session->exam_main_no) }}"
-                                                                        class="me-3 btn btn-sm btn-light-warning m-2"><i
-                                                                            class="feather icon-navigation mx-1"></i>Send
-                                                                        Intimation</a>
-                                                                @endhasPermission
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </li>
+                                @if (session('auth_role') == 'headquarters')
+                                    @foreach ($auditDetails as $audit)
                                         @php
-                                            break;
+                                            $is_apd_upload = $audit->task_type == 'apd_expected_candidates_upload';
                                         @endphp
-                                    @endif
-                                @endforeach
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-warning"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-7.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 Ticket</a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Select Venues<small
-                                                                class="badge bg-light-secondary ms-2">selected</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Ariyalur</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    24-07-2024 01:23 PM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            District Collectorate</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary m-2"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
-                                                        @hasPermission('showVenueIntimationForm')
-                                                            <a target="_blank"
-                                                                href="{{ route('district-candidates.showVenueIntimationForm', $session->exam_main_no) }}"
-                                                                class="me-2 btn btn-sm btn-light-info"><i
-                                                                    class="feather icon-check-circle mx-1"></i>Select
-                                                                Venues</a>
-                                                            <a href="#" data-pc-animate="blur" data-bs-toggle="modal"
-                                                                data-bs-target="#sendConsentMailModel"
-                                                                class="me-3 btn btn-sm btn-light-warning"><i
-                                                                    class="feather icon-navigation mx-1"></i>Send
-                                                                Intimation</a>
-                                                        @endhasPermission
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-success"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-2.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 Ticket</a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Give Consent & Assign CI<small
-                                                                class="badge bg-light-secondary ms-2">{{ $venueConsents->consent_status ?? '' }}</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>{{ $venueConsents->venueName ?? 'venue' }}</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    {{ \Carbon\Carbon::parse($venueConsents->updated_at ?? '')->format('d-m-Y h:i A') }}
-                                                                </li>
-
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Venue</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        @if (isset($venueConsents->consent_status))
-                                                            <a href="{{ route('venues.show-venue-consent', $session->exam_main_no) }}"
-                                                                class="me-2 btn btn-sm btn-light-primary m-2"><i
-                                                                    class="feather icon-eye mx-1"></i>View</a>
-                                                        @endif
-                                                        @if (isset($venueConsents->consent_status) && $venueConsents->consent_status == 'requested')
-                                                            <a href="{{ route('venues.venue-consent', $session->exam_main_no) }}"
-                                                                class="me-2 btn btn-sm btn-light-info"><i
-                                                                    class="feather icon-check-circle mx-1"></i>Add Hall</a>
-                                                        @endif
-                                                        @if (isset($venueConsents->consent_status) && $venueConsents->consent_status == 'accepted')
-                                                            <a href="{{ route('venues.venue-consent', $session->exam_main_no) }}"
-                                                                class="me-3 btn btn-sm btn-light-warning"><i
-                                                                    class="feather icon-edit mx-1"></i>Edit Hall</a>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-9.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Confirm Venues <small
-                                                                class="badge bg-light-secondary ms-2">confirmed</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Mythili</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    23-07-2024 05:00 PM</li>
-
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            ID
-                                                            -Section Officer</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a target="_blank"
-                                                            href="{{ route('id-candidates.show-venue-confirmation-form', $session->exam_main_no) }}"
-                                                            class="me-2 btn btn-sm btn-light-primary m-2"><i
-                                                                class="feather icon-eye mx-1"></i>Review Venues</a>
-                                                        <a href="{{ route('id-candidates.export-confirmed-halls', $session->exam_main_no) }}"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-download mx-1"></i>Download CSV</a>
-
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                    @php
-                                        $is_apd_upload = $audit->task_type == 'apd_finalize_halls_upload';
-                                    @endphp
-                                        <li class="task-list-item">
-                                            <i class="task-icon bg-primary"></i>
-                                            <div class="card ticket-card open-ticket">
-                                                <div class="card-body">
-                                                    <div class="row">
-                                                        <div class="col-sm-auto mb-3 mb-sm-0">
-                                                            <div class="d-sm-inline-block d-flex align-items-center">
-                                                                <img class="media-object wid-60 img-radius"
-                                                                    src="{{ asset('storage/assets/images/user/avatar-6.jpg') }}"
-                                                                    alt="Generic placeholder image " />
-                                                                <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                                    <ul
-                                                                        class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                    </ul>
+                                        @if ($is_apd_upload || count($auditDetails) == 1)
+                                            <li class="task-list-item">
+                                                <i class="task-icon bg-primary"></i>
+                                                <div class="card ticket-card open-ticket">
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="col-sm-auto mb-3 mb-sm-0">
+                                                                <div class="d-sm-inline-block d-flex align-items-center">
+                                                                    <img class="media-object wid-60 img-radius"
+                                                                        src="{{ asset('storage/assets/images/user/avatar-6.jpg') }}"
+                                                                        alt="Generic placeholder image " />
+                                                                    <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                                        <ul
+                                                                            class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                        </ul>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                        <div class="col">
-                                                            <div class="popup-trigger">
-                                                                <div class="h5 font-weight-bold">Finalize Exam Halls<small
-                                                                        class="badge bg-light-secondary ms-2">uploaded</small>
-                                                                </div>
-                                                                <div class="help-sm-hidden">
-                                                                    <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                        <li class="d-sm-inline-block d-block mt-1"><img
-                                                                                src="../assets/images/user/avatar-5.jpg"
-                                                                                alt=""
-                                                                                class="wid-20 rounded me-2 img-fluid" />Done
-                                                                            by
-                                                                            <b>{{ $is_apd_upload ? json_decode($audit->metadata)->user_name ?? '' : ' Unknown ' }}</b>
-                                                                        </li>
-                                                                        <li class="d-sm-inline-block d-block mt-1"><i
-                                                                                class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                            {{ $is_apd_upload ? \Carbon\Carbon::parse($audit->updated_at)->format('d-m-Y h:i A') : ' ' }}
-                                                                        </li>
-                                                                    </ul>
-                                                                </div>
-                                                                <div class="h5 mt-3"><i
-                                                                        class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                    {{ $is_apd_upload ? $audit->department : 'APD - Section Officer' }}
+                                                            <div class="col">
+                                                                <div class="popup-trigger">
+                                                                    <div class="h5 font-weight-bold">Tentative Candidates
+                                                                        CSV
+                                                                        <small
+                                                                            class="badge bg-light-secondary ms-2">uploaded</small>
+                                                                    </div>
+                                                                    <div class="help-sm-hidden">
+                                                                        <ul class="list-unstyled mt-2 mb-0 text-muted">
+
+                                                                            <li class="d-sm-inline-block d-block mt-1"><img
+                                                                                    src="../assets/images/user/avatar-5.jpg"
+                                                                                    alt=""
+                                                                                    class="wid-20 rounded me-2 img-fluid" />Done
+                                                                                by
+                                                                                <b>{{ $is_apd_upload ? json_decode($audit->metadata)->user_name ?? '' : ' Unknown ' }}</b>
+                                                                            </li>
+                                                                            <li class="d-sm-inline-block d-block mt-1"><i
+                                                                                    class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                                {{ $is_apd_upload ? \Carbon\Carbon::parse($audit->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                            </li>
+
+                                                                        </ul>
+                                                                    </div>
+                                                                    <div class="h5 mt-3"><i
+                                                                            class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                        {{ $is_apd_upload ? $audit->department : 'APD - Section Officer' }}
+                                                                    </div>
                                                                 </div>
                                                                 <div class="mt-2">
-                                                                    @hasPermission('finalize-csv')
+                                                                    @hasPermission('upload-candidates-csv')
                                                                         @if (isset(json_decode($audit->metadata)->uploaded_csv_link))
                                                                             <a href="#"
                                                                                 class="me-2 btn btn-sm btn-light-info"
                                                                                 data-pc-animate="just-me"
                                                                                 data-bs-toggle="modal"
-                                                                                data-bs-target="#apdFinalizeCandidate"><i
+                                                                                data-bs-target="#animateModal"><i
                                                                                     class="feather icon-edit mx-1"></i>Edit
                                                                             </a>
                                                                         @else
@@ -578,7 +213,7 @@
                                                                                 class="me-2 btn btn-sm btn-light-primary m-2"
                                                                                 data-pc-animate="just-me"
                                                                                 data-bs-toggle="modal"
-                                                                                data-bs-target="#apdFinalizeCandidate"><i
+                                                                                data-bs-target="#animateModal"><i
                                                                                     class="feather icon-upload mx-1 "></i>Upload
                                                                             </a>
                                                                         @endif
@@ -589,10 +224,9 @@
                                                                                 class="feather icon-download mx-1"></i>Download
                                                                         </a>
                                                                     @endif
-                                                                    @hasPermission('finalize-csv')
+                                                                    @hasPermission('upload-candidates-csv')
                                                                         @if (isset(json_decode($audit->metadata)->failed_csv_link) &&
-                                                                                file_exists(storage_path(
-                                                                                        'app/public/uploads/failed_csv_files/' . basename(json_decode($audit->metadata)->failed_csv_link))))
+                                                                                file_exists(public_path(str_replace(url('/'), '', json_decode($audit->metadata)->failed_csv_link))))
                                                                             <a href="{{ json_decode($audit->metadata)->failed_csv_link }}"
                                                                                 class="me-3 btn btn-sm btn-light-danger">
                                                                                 <i
@@ -606,515 +240,843 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                        </li>
-                                @php
-                                    $is_ed_qr_upload = $examMaterialsUpdate !== null;
-                                    $metadata = null;
+                                            </li>
+                                        @endif
+                                    @endforeach
+                                    @foreach ($auditDetails as $audit)
+                                        @php
+                                            $is_id_updated = $audit->task_type == 'id_candidates_update_percentage';
+                                        @endphp
+                                        @if ($is_id_updated || count($auditDetails) == 2)
+                                            <li class="task-list-item">
+                                                <i class="task-icon bg-danger"></i>
+                                                <div class="card ticket-card open-ticket">
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="col-sm-auto mb-3 mb-sm-0">
+                                                                <div class="d-sm-inline-block d-flex align-items-center">
+                                                                    <img class="media-object wid-60 img-radius"
+                                                                        src="{{ asset('storage/assets/images/user/avatar-9.jpg') }}"
+                                                                        alt="Generic placeholder image " />
+                                                                    <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                                        <ul
+                                                                            class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                        </ul>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col">
+                                                                <div class="popup-trigger">
+                                                                    <div class="h5 font-weight-bold">Increase Candidates
+                                                                        Count
+                                                                        <small
+                                                                            class="badge bg-light-secondary ms-2">updated</small>
+                                                                    </div>
+                                                                    <div class="help-sm-hidden">
+                                                                        <ul class="list-unstyled mt-2 mb-0 text-muted">
 
-                                    if ($examMaterialsUpdate !== null) {
-                                        $metadata = is_string($examMaterialsUpdate->metadata)
-                                            ? json_decode($examMaterialsUpdate->metadata)
-                                            : (object) $examMaterialsUpdate->metadata;
-                                    }
-                                @endphp
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-primary"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-3.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                            <li class="d-sm-inline-block d-block mt-1"><img
+                                                                                    src="../assets/images/user/avatar-5.jpg"
+                                                                                    alt=""
+                                                                                    class="wid-20 rounded me-2 img-fluid" />Done
+                                                                                by
+                                                                                <b>{{ $is_id_updated ? json_decode($audit->metadata)->user_name : 'Unknown' }}</b>
+                                                                            </li>
+                                                                            <li class="d-sm-inline-block d-block mt-1"><i
+                                                                                    class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                                {{ $is_id_updated ? \Carbon\Carbon::parse($audit->updated_at)->format('d-m-Y h:i A') : '' }}
+                                                                            </li>
 
-                                                            </ul>
+                                                                        </ul>
+                                                                    </div>
+                                                                    <div class="h5 mt-3"><i
+                                                                            class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                        {{ $is_id_updated ? $audit->department : 'ID - Section Officer' }}
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mt-2">
+                                                                    @hasPermission('update-percentage')
+                                                                        <a href="#" data-pc-animate="just-me"
+                                                                            data-bs-toggle="modal"
+                                                                            data-bs-target="#increaseCandiadteModal"
+                                                                            class="me-2 btn btn-sm btn-light-primary m-2"><i
+                                                                                class="feather icon-chevrons-up mx-1"></i>Increase
+                                                                            Count</a>
+                                                                    @endhasPermission
+                                                                    @if ($is_id_updated)
+                                                                        <a href="{{ route('id-candidates.download-updated-count-csv', $session->exam_main_no) }}"
+                                                                            class="me-2 btn btn-sm btn-light-info m-2"><i
+                                                                                class="feather icon-download mx-1"></i>Download
+                                                                            CSV</a>
+                                                                    @endif
+                                                                    @hasPermission('update-percentage')
+                                                                        <a href="{{ route('id-candidates.intimateCollectorate', $session->exam_main_no) }}"
+                                                                            class="me-3 btn btn-sm btn-light-warning m-2"><i
+                                                                                class="feather icon-navigation mx-1"></i>Send
+                                                                            Intimation</a>
+                                                                    @endhasPermission
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Update Exam Materials
-                                                            Details<small
-                                                                class="badge bg-light-secondary ms-2">Updated</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-4.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>{{ $is_ed_qr_upload ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    {{ $is_ed_qr_upload ? \Carbon\Carbon::parse($examMaterialsUpdate->updated_at)->format('d-m-Y h:i A') : ' ' }}
-                                                                </li>
-
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            {{ $is_ed_qr_upload ? $examMaterialsUpdate->department : 'ED - Section Officer' }}
+                                            </li>
+                                            @php
+                                                break;
+                                            @endphp
+                                        @endif
+                                    @endforeach
+                                @endif
+                                @hasPermission('showVenueIntimationForm')
+                                    <li class="task-list-item">
+                                        <i class="task-icon bg-warning"></i>
+                                        <div class="card ticket-card open-ticket">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-sm-auto mb-3 mb-sm-0">
+                                                        <div class="d-sm-inline-block d-flex align-items-center">
+                                                            <img class="media-object wid-60 img-radius"
+                                                                src="{{ asset('storage/assets/images/user/avatar-7.jpg') }}"
+                                                                alt="Generic placeholder image " />
+                                                            <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                                <ul
+                                                                    class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                    {{-- <li class="list-unstyled-item"><a href="#"
+                                                                        class="link-secondary">1 Ticket</a></li>
+                                                                <li class="list-unstyled-item"><a href="#"
+                                                                        class="link-danger"><i class="fas fa-heart"></i>
+                                                                        3</a></li> --}}
+                                                                </ul>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div class="mt-2">
-                                                        @hasPermission('upload-exam-materials-csv')
-                                                            <a href="{{ route('exam-materials.index', $session->exam_main_no) }}"
-                                                                class="me-2 btn btn-sm btn-light-primary m-2">
-                                                                <i class="feather icon-upload mx-1 "></i>Upload </a>
-                                                        @endhasPermission
-                                                        @if ($is_ed_qr_upload)
-                                                            <a href="{{ $metadata->uploaded_csv_link }}"
-                                                                class="me-3 btn btn-sm btn-light-warning"><i
-                                                                    class="feather icon-download mx-1"></i>Download
-                                                            </a>
-                                                        @endif
-                                                        @hasPermission('upload-exam-materials-csv')
-                                                            @if (isset($metadata->failed_csv_link) &&
-                                                                    file_exists(storage_path('app/public/uploads/failed_csv_files/' . basename($metadata->failed_csv_link))))
-                                                                <a href="{{ $metadata->failed_csv_link }}"
-                                                                    class="me-3 btn btn-sm btn-light-danger">
-                                                                    <i class="feather icon-download mx-1"></i>Failed
-                                                                    Records
+                                                    <div class="col">
+                                                        <div class="popup-trigger">
+                                                            <div class="h5 font-weight-bold">Select Venues<small
+                                                                    class="badge bg-light-secondary ms-2">selected</small>
+                                                            </div>
+                                                            <div class="help-sm-hidden">
+                                                                <ul class="list-unstyled mt-2 mb-0 text-muted">
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><img
+                                                                        src="../assets/images/admin/p1.jpg" alt=""
+                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
+                                                                </li> --}}
+                                                                    <li class="d-sm-inline-block d-block mt-1"><img
+                                                                            src="../assets/images/user/avatar-5.jpg"
+                                                                            alt=""
+                                                                            class="wid-20 rounded me-2 img-fluid" />Done by
+                                                                        <b>Ariyalur</b>
+                                                                    </li>
+                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                        24-07-2024 01:23 PM</li>
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><i
+                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
+                                                                </li> --}}
+                                                                </ul>
+                                                            </div>
+                                                            <div class="h5 mt-3"><i
+                                                                    class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                District Collectorate</div>
+                                                        </div>
+                                                        <div class="mt-2">
+                                                            @hasPermission('showVenueIntimationForm')
+                                                                <a target="_blank"
+                                                                    href="{{ route('district-candidates.showVenueIntimationForm', $session->exam_main_no) }}"
+                                                                    class="me-2 btn btn-sm btn-light-info"><i
+                                                                        class="feather icon-check-circle mx-1"></i>Select
+                                                                    Venues</a>
+                                                                <a href="#" data-pc-animate="blur" data-bs-toggle="modal"
+                                                                    data-bs-target="#sendConsentMailModel"
+                                                                    class="me-3 btn btn-sm btn-light-warning"><i
+                                                                        class="feather icon-navigation mx-1"></i>Send
+                                                                    Intimation</a>
+                                                            @endhasPermission
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                @endhasPermission
+                                @if (session('auth_role') == 'venue')
+                                    <li class="task-list-item">
+                                        <i class="task-icon bg-success"></i>
+                                        <div class="card ticket-card open-ticket">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-sm-auto mb-3 mb-sm-0">
+                                                        <div class="d-sm-inline-block d-flex align-items-center">
+                                                            <img class="media-object wid-60 img-radius"
+                                                                src="{{ asset('storage/assets/images/user/avatar-2.jpg') }}"
+                                                                alt="Generic placeholder image " />
+                                                            <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                                <ul
+                                                                    class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                    {{-- <li class="list-unstyled-item"><a href="#"
+                                                                        class="link-secondary">1 Ticket</a></li>
+                                                                <li class="list-unstyled-item"><a href="#"
+                                                                        class="link-danger"><i class="fas fa-heart"></i>
+                                                                        3</a></li> --}}
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="popup-trigger">
+                                                            <div class="h5 font-weight-bold">Give Consent & Assign CI<small
+                                                                    class="badge bg-light-secondary ms-2">{{ $venueConsents->consent_status ?? '' }}</small>
+                                                            </div>
+                                                            <div class="help-sm-hidden">
+                                                                <ul class="list-unstyled mt-2 mb-0 text-muted">
+
+                                                                    <li class="d-sm-inline-block d-block mt-1"><img
+                                                                            src="../assets/images/user/avatar-5.jpg"
+                                                                            alt=""
+                                                                            class="wid-20 rounded me-2 img-fluid" />Done by
+                                                                        <b>{{ $venueConsents->venueName ?? 'venue' }}</b>
+                                                                    </li>
+                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                        {{ \Carbon\Carbon::parse($venueConsents->updated_at ?? '')->format('d-m-Y h:i A') }}
+                                                                    </li>
+
+                                                                </ul>
+                                                            </div>
+                                                            <div class="h5 mt-3"><i
+                                                                    class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                Venue</div>
+                                                        </div>
+                                                        <div class="mt-2">
+                                                            @if (isset($venueConsents->consent_status))
+                                                                <a href="{{ route('venues.show-venue-consent', $session->exam_main_no) }}"
+                                                                    class="me-2 btn btn-sm btn-light-primary m-2"><i
+                                                                        class="feather icon-eye mx-1"></i>View</a>
+                                                            @endif
+                                                            @if (isset($venueConsents->consent_status) && $venueConsents->consent_status == 'requested')
+                                                                <a href="{{ route('venues.venue-consent', $session->exam_main_no) }}"
+                                                                    class="me-2 btn btn-sm btn-light-info"><i
+                                                                        class="feather icon-check-circle mx-1"></i>Add
+                                                                    Hall</a>
+                                                            @endif
+                                                            @if (isset($venueConsents->consent_status) && $venueConsents->consent_status == 'accepted')
+                                                                <a href="{{ route('venues.venue-consent', $session->exam_main_no) }}"
+                                                                    class="me-3 btn btn-sm btn-light-warning"><i
+                                                                        class="feather icon-edit mx-1"></i>Edit Hall</a>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                @endif
+                                @if (session('auth_role') == 'headquarters')
+                                    <li class="task-list-item">
+                                        <i class="task-icon bg-danger"></i>
+                                        <div class="card ticket-card open-ticket">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-sm-auto mb-3 mb-sm-0">
+                                                        <div class="d-sm-inline-block d-flex align-items-center">
+                                                            <img class="media-object wid-60 img-radius"
+                                                                src="{{ asset('storage/assets/images/user/avatar-9.jpg') }}"
+                                                                alt="Generic placeholder image " />
+                                                            <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                                <ul
+                                                                    class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="popup-trigger">
+                                                            <div class="h5 font-weight-bold">Confirm Venues <small
+                                                                    class="badge bg-light-secondary ms-2">confirmed</small>
+                                                            </div>
+                                                            <div class="help-sm-hidden">
+                                                                <ul class="list-unstyled mt-2 mb-0 text-muted">
+
+                                                                    <li class="d-sm-inline-block d-block mt-1"><img
+                                                                            src="../assets/images/user/avatar-5.jpg"
+                                                                            alt=""
+                                                                            class="wid-20 rounded me-2 img-fluid" />Done by
+                                                                        <b>Mythili</b>
+                                                                    </li>
+                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                        23-07-2024 05:00 PM</li>
+
+                                                                </ul>
+                                                            </div>
+                                                            <div class="h5 mt-3"><i
+                                                                    class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                ID
+                                                                -Section Officer</div>
+                                                        </div>
+                                                        <div class="mt-2">
+                                                            <a target="_blank"
+                                                                href="{{ route('id-candidates.show-venue-confirmation-form', $session->exam_main_no) }}"
+                                                                class="me-2 btn btn-sm btn-light-primary m-2"><i
+                                                                    class="feather icon-eye mx-1"></i>Review Venues</a>
+                                                            <a href="{{ route('id-candidates.export-confirmed-halls', $session->exam_main_no) }}"
+                                                                class="me-2 btn btn-sm btn-light-info"><i
+                                                                    class="feather icon-download mx-1"></i>Download CSV</a>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    @php
+                                        $is_apd_upload = $audit->task_type == 'apd_finalize_halls_upload';
+                                    @endphp
+                                    <li class="task-list-item">
+                                        <i class="task-icon bg-primary"></i>
+                                        <div class="card ticket-card open-ticket">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-sm-auto mb-3 mb-sm-0">
+                                                        <div class="d-sm-inline-block d-flex align-items-center">
+                                                            <img class="media-object wid-60 img-radius"
+                                                                src="{{ asset('storage/assets/images/user/avatar-6.jpg') }}"
+                                                                alt="Generic placeholder image " />
+                                                            <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                                <ul
+                                                                    class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="popup-trigger">
+                                                            <div class="h5 font-weight-bold">Finalize Exam Halls<small
+                                                                    class="badge bg-light-secondary ms-2">uploaded</small>
+                                                            </div>
+                                                            <div class="help-sm-hidden">
+                                                                <ul class="list-unstyled mt-2 mb-0 text-muted">
+                                                                    <li class="d-sm-inline-block d-block mt-1"><img
+                                                                            src="../assets/images/user/avatar-5.jpg"
+                                                                            alt=""
+                                                                            class="wid-20 rounded me-2 img-fluid" />Done
+                                                                        by
+                                                                        <b>{{ $is_apd_upload ? json_decode($audit->metadata)->user_name ?? '' : ' Unknown ' }}</b>
+                                                                    </li>
+                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                        {{ $is_apd_upload ? \Carbon\Carbon::parse($audit->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="h5 mt-3"><i
+                                                                    class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                {{ $is_apd_upload ? $audit->department : 'APD - Section Officer' }}
+                                                            </div>
+                                                            <div class="mt-2">
+                                                                @hasPermission('finalize-csv')
+                                                                    @if (isset(json_decode($audit->metadata)->uploaded_csv_link))
+                                                                        <a href="#"
+                                                                            class="me-2 btn btn-sm btn-light-info"
+                                                                            data-pc-animate="just-me" data-bs-toggle="modal"
+                                                                            data-bs-target="#apdFinalizeCandidate"><i
+                                                                                class="feather icon-edit mx-1"></i>Edit
+                                                                        </a>
+                                                                    @else
+                                                                        <a href="#"
+                                                                            class="me-2 btn btn-sm btn-light-primary m-2"
+                                                                            data-pc-animate="just-me" data-bs-toggle="modal"
+                                                                            data-bs-target="#apdFinalizeCandidate"><i
+                                                                                class="feather icon-upload mx-1 "></i>Upload
+                                                                        </a>
+                                                                    @endif
+                                                                @endhasPermission
+                                                                @if ($is_apd_upload)
+                                                                    <a href="{{ json_decode($audit->metadata)->uploaded_csv_link }}"
+                                                                        class="me-3 btn btn-sm btn-light-warning"><i
+                                                                            class="feather icon-download mx-1"></i>Download
+                                                                    </a>
+                                                                @endif
+                                                                @hasPermission('finalize-csv')
+                                                                    @if (isset(json_decode($audit->metadata)->failed_csv_link) &&
+                                                                            file_exists(storage_path(
+                                                                                    'app/public/uploads/failed_csv_files/' . basename(json_decode($audit->metadata)->failed_csv_link))))
+                                                                        <a href="{{ json_decode($audit->metadata)->failed_csv_link }}"
+                                                                            class="me-3 btn btn-sm btn-light-danger">
+                                                                            <i class="feather icon-download mx-1"></i>Failed
+                                                                            Records
+                                                                        </a>
+                                                                    @endif
+                                                                @endhasPermission
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                    </li>
+                                    @php
+                                        $is_ed_qr_upload = $examMaterialsUpdate !== null;
+                                        $metadata = null;
+
+                                        if ($examMaterialsUpdate !== null) {
+                                            $metadata = is_string($examMaterialsUpdate->metadata)
+                                                ? json_decode($examMaterialsUpdate->metadata)
+                                                : (object) $examMaterialsUpdate->metadata;
+                                        }
+                                    @endphp
+                                    <li class="task-list-item">
+                                        <i class="task-icon bg-primary"></i>
+                                        <div class="card ticket-card open-ticket">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-sm-auto mb-3 mb-sm-0">
+                                                        <div class="d-sm-inline-block d-flex align-items-center">
+                                                            <img class="media-object wid-60 img-radius"
+                                                                src="{{ asset('storage/assets/images/user/avatar-3.jpg') }}"
+                                                                alt="Generic placeholder image " />
+                                                            <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                                <ul
+                                                                    class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="popup-trigger">
+                                                            <div class="h5 font-weight-bold">Update Exam Materials
+                                                                Details<small
+                                                                    class="badge bg-light-secondary ms-2">Updated</small>
+                                                            </div>
+                                                            <div class="help-sm-hidden">
+                                                                <ul class="list-unstyled mt-2 mb-0 text-muted">
+
+                                                                    <li class="d-sm-inline-block d-block mt-1"><img
+                                                                            src="../assets/images/user/avatar-4.jpg"
+                                                                            alt=""
+                                                                            class="wid-20 rounded me-2 img-fluid" />Done by
+                                                                        <b>{{ $is_ed_qr_upload ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
+                                                                    </li>
+                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                        {{ $is_ed_qr_upload ? \Carbon\Carbon::parse($examMaterialsUpdate->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                    </li>
+
+                                                                </ul>
+                                                            </div>
+                                                            <div class="h5 mt-3"><i
+                                                                    class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                {{ $is_ed_qr_upload ? $examMaterialsUpdate->department : 'ED - Section Officer' }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="mt-2">
+                                                            @hasPermission('upload-exam-materials-csv')
+                                                                <a href="{{ route('exam-materials.index', $session->exam_main_no) }}"
+                                                                    class="me-2 btn btn-sm btn-light-primary m-2">
+                                                                    <i class="feather icon-upload mx-1 "></i>Upload </a>
+                                                            @endhasPermission
+                                                            @if ($is_ed_qr_upload)
+                                                                <a href="{{ $metadata->uploaded_csv_link }}"
+                                                                    class="me-3 btn btn-sm btn-light-warning"><i
+                                                                        class="feather icon-download mx-1"></i>Download
                                                                 </a>
                                                             @endif
-                                                        @endhasPermission
+                                                            @hasPermission('upload-exam-materials-csv')
+                                                                @if (isset($metadata->failed_csv_link) &&
+                                                                        file_exists(storage_path('app/public/uploads/failed_csv_files/' . basename($metadata->failed_csv_link))))
+                                                                    <a href="{{ $metadata->failed_csv_link }}"
+                                                                        class="me-3 btn btn-sm btn-light-danger">
+                                                                        <i class="feather icon-download mx-1"></i>Failed
+                                                                        Records
+                                                                    </a>
+                                                                @endif
+                                                            @endhasPermission
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-primary"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-3.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
+                                    </li>
+                                @endif
+                                @hasPermission('receive-exam-materials-from-printer')
+                                    <li class="task-list-item">
+                                        <i class="task-icon bg-primary"></i>
+                                        <div class="card ticket-card open-ticket">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-sm-auto mb-3 mb-sm-0">
+                                                        <div class="d-sm-inline-block d-flex align-items-center">
+                                                            <img class="media-object wid-60 img-radius"
+                                                                src="{{ asset('storage/assets/images/user/avatar-3.jpg') }}"
+                                                                alt="Generic placeholder image " />
+                                                            <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                                <ul
+                                                                    class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                    {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-secondary">1 Ticket</a></li>
                                                                 <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
-                                                            </ul>
+                                                                </ul>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive Exam Materials From
-                                                            Printer<small
-                                                                class="badge bg-light-secondary ms-2">Received</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"
+                                                    <div class="col">
+                                                        <div class="popup-trigger">
+                                                            <div class="h5 font-weight-bold">Receive Exam Materials From
+                                                                Printer<small
+                                                                    class="badge bg-light-secondary ms-2">Received</small>
+                                                            </div>
+                                                            <div class="help-sm-hidden">
+                                                                <ul class="list-unstyled mt-2 mb-0 text-muted">
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"
                                                     ><img src="../assets/images/admin/p1.jpg" alt="" class="wid-20 rounded me-2 img-fluid" /></li
                                                   > --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-4.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Anbezhili</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>25-07-2024
-                                                                    10:05 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"
+                                                                    <li class="d-sm-inline-block d-block mt-1"><img
+                                                                            src="../assets/images/user/avatar-4.jpg"
+                                                                            alt=""
+                                                                            class="wid-20 rounded me-2 img-fluid" />Done by
+                                                                        <b>Anbezhili</b>
+                                                                    </li>
+                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>25-07-2024
+                                                                        10:05 AM</li>
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"
                                                     ><i class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
                                                   </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            District Collectorate</div>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="h5 mt-3"><i
+                                                                    class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                District Collectorate</div>
 
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="helpdesk-ticket-details.html"
-                                                            class="me-2 btn btn-sm btn-light-primary "
-                                                            data-pc-animate="just-me" data-bs-toggle="modal"
-                                                            data-bs-target="#animateModal"><i
-                                                                class="feather icon-eye mx-1 "></i>View </a>
-                                                        <a href="{{ route('receive-exam-materials.printer-to-disitrict-treasury', $session->exam_main_no) }}"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-info mx-1"></i>Verify</a>
-                                                        <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
-                                                                class="feather icon-edit mx-1"></i>Edit </a>
+                                                        </div>
+                                                        <div class="mt-2">
+                                                            <a href="helpdesk-ticket-details.html"
+                                                                class="me-2 btn btn-sm btn-light-primary "
+                                                                data-pc-animate="just-me" data-bs-toggle="modal"
+                                                                data-bs-target="#animateModal"><i
+                                                                    class="feather icon-eye mx-1 "></i>View </a>
+                                                            <a href="{{ route('receive-exam-materials.printer-to-disitrict-treasury', $session->exam_main_no) }}"
+                                                                class="me-2 btn btn-sm btn-light-info"><i
+                                                                    class="feather icon-info mx-1"></i>Verify</a>
+                                                            <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
+                                                                    class="feather icon-edit mx-1"></i>Edit </a>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-primary"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-3.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
+                                    </li>
+                                @endhasPermission
+                                @if (session('auth_role') == 'headquarters')
+                                    <li class="task-list-item">
+                                        <i class="task-icon bg-primary"></i>
+                                        <div class="card ticket-card open-ticket">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-sm-auto mb-3 mb-sm-0">
+                                                        <div class="d-sm-inline-block d-flex align-items-center">
+                                                            <img class="media-object wid-60 img-radius"
+                                                                src="{{ asset('storage/assets/images/user/avatar-3.jpg') }}"
+                                                                alt="Generic placeholder image " />
+                                                            <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                                <ul
+                                                                    class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                    {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-secondary">1 Ticket</a></li>
                                                                 <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
-                                                            </ul>
+                                                                </ul>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive Exam Materials From
-                                                            Printer<small
-                                                                class="badge bg-light-secondary ms-2">Received</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"
+                                                    <div class="col">
+                                                        <div class="popup-trigger">
+                                                            <div class="h5 font-weight-bold">Receive Exam Materials From
+                                                                Printer<small
+                                                                    class="badge bg-light-secondary ms-2">Received</small>
+                                                            </div>
+                                                            <div class="help-sm-hidden">
+                                                                <ul class="list-unstyled mt-2 mb-0 text-muted">
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"
                                                     ><img src="../assets/images/admin/p1.jpg" alt="" class="wid-20 rounded me-2 img-fluid" /></li
                                                   > --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-4.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Anbezhili</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>25-07-2024
-                                                                    10:05 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"
+                                                                    <li class="d-sm-inline-block d-block mt-1"><img
+                                                                            src="../assets/images/user/avatar-4.jpg"
+                                                                            alt=""
+                                                                            class="wid-20 rounded me-2 img-fluid" />Done by
+                                                                        <b>Anbezhili</b>
+                                                                    </li>
+                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>25-07-2024
+                                                                        10:05 AM</li>
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"
                                                     ><i class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
                                                   </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            ED - Section Officer</div>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="h5 mt-3"><i
+                                                                    class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                ED - Section Officer</div>
 
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="helpdesk-ticket-details.html"
-                                                            class="me-2 btn btn-sm btn-light-primary "
-                                                            data-pc-animate="just-me" data-bs-toggle="modal"
-                                                            data-bs-target="#animateModal"><i
-                                                                class="feather icon-eye mx-1 "></i>View </a>
-                                                        <a href="{{ route('receive-exam-materials.printer-to-hq-treasury', $session->exam_main_no) }}"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-info mx-1"></i>Verify</a>
-                                                        <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
-                                                                class="feather icon-edit mx-1"></i>Edit </a>
+                                                        </div>
+                                                        <div class="mt-2">
+                                                            <a href="helpdesk-ticket-details.html"
+                                                                class="me-2 btn btn-sm btn-light-primary "
+                                                                data-pc-animate="just-me" data-bs-toggle="modal"
+                                                                data-bs-target="#animateModal"><i
+                                                                    class="feather icon-eye mx-1 "></i>View </a>
+                                                            <a href="{{ route('receive-exam-materials.printer-to-hq-treasury', $session->exam_main_no) }}"
+                                                                class="me-2 btn btn-sm btn-light-info"><i
+                                                                    class="feather icon-info mx-1"></i>Verify</a>
+                                                            <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
+                                                                    class="feather icon-edit mx-1"></i>Edit </a>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-7.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
+                                    </li>
+                                @endif
+                                @if (session('auth_role') == 'district' || session('auth_role') == 'center')
+                                    <li class="task-list-item">
+                                        <i class="task-icon bg-danger"></i>
+                                        <div class="card ticket-card open-ticket">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-sm-auto mb-3 mb-sm-0">
+                                                        <div class="d-sm-inline-block d-flex align-items-center">
+                                                            <img class="media-object wid-60 img-radius"
+                                                                src="{{ asset('storage/assets/images/user/avatar-7.jpg') }}"
+                                                                alt="Generic placeholder image " />
+                                                            <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                                <ul
+                                                                    class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                    {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-secondary">1 Ticket</a></li>
                                                                 <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
-                                                            </ul>
+                                                                </ul>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Create CI Meeting<small
-                                                                class="badge bg-light-secondary ms-2">
-                                                                {{ $meetingCodeGen ? ($meetingCodeGen->user ? 'generated' : 'not generated') : 'generated' }}</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
+                                                    <div class="col">
+                                                        <div class="popup-trigger">
+                                                            <div class="h5 font-weight-bold">Create CI Meeting<small
+                                                                    class="badge bg-light-secondary ms-2">
+                                                                    {{ $meetingCodeGen ? ($meetingCodeGen->user ? 'generated' : 'not generated') : 'generated' }}</small>
+                                                            </div>
+                                                            <div class="help-sm-hidden">
+                                                                <ul class="list-unstyled mt-2 mb-0 text-muted">
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/admin/p1.jpg" alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Piaf able
                                                                 </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>{{ $meetingCodeGen ? $meetingCodeGen->user->district_name : 'District' }}</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    {{ $meetingCodeGen ? \Carbon\Carbon::parse($meetingCodeGen->created_at)->format('d-m-Y h:i A') : ' ' }}
-                                                                </li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
+                                                                    <li class="d-sm-inline-block d-block mt-1"><img
+                                                                            src="../assets/images/user/avatar-5.jpg"
+                                                                            alt=""
+                                                                            class="wid-20 rounded me-2 img-fluid" />Done by
+                                                                        <b>{{ $meetingCodeGen ? $meetingCodeGen->user->district_name : 'District' }}</b>
+                                                                    </li>
+                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                        {{ $meetingCodeGen ? \Carbon\Carbon::parse($meetingCodeGen->created_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                    </li>
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
                                                                 </li> --}}
-                                                            </ul>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="h5 mt-3"><i
+                                                                    class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                District Collectorate</div>
                                                         </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            District Collectorate</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" data-pc-animate="just-me"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#ciMeetingCodeGenerateModal"
-                                                            class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-grid mx-1"></i>Generate</a>
-                                                        <a href="{{ $meetingCodeGen ? route('district-candidates.generatePdf', ['qrCodeId' => $meetingCodeGen->id]) : '#' }}"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-download mx-1"></i>Download</a>
-                                                        <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
-                                                                class="feather icon-navigation mx-1"></i>Send
-                                                            Intimation</a>
+                                                        <div class="mt-2">
+                                                            @hasPermission('create-ci-meetings')
+                                                            <a href="#" data-pc-animate="just-me"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#ciMeetingCodeGenerateModal"
+                                                                class="me-2 btn btn-sm btn-light-primary"><i
+                                                                    class="feather icon-grid mx-1"></i>Generate</a>
+                                                            @endhasPermission
+                                                            @hasPermission('download-meeting-qr')
+                                                            <a href="{{ $meetingCodeGen ? route('district-candidates.generatePdf', ['qrCodeId' => $meetingCodeGen->id]) : '#' }}"
+                                                                class="me-2 btn btn-sm btn-light-info"><i
+                                                                    class="feather icon-download mx-1"></i>Download</a>
+                                                            @endhasPermission
+                                                            @hasPermission('create-ci-meetings')
+                                                            <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
+                                                                    class="feather icon-navigation mx-1"></i>Send
+                                                                Intimation</a>
+                                                            @endhasPermission
 
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 Ticket</a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Attendence - CI Meeting<small
-                                                                class="badge bg-light-secondary ms-2">attended</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    26-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-aperture mx-1"></i>Scan</a>
-                                                        <a href="helpdesk-ticket-details.html"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-list mx-1"></i>Adequacy Check</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                @php
-                                    $is_ed_trunk_qr_upload = $examTrunkboxOTLData !== null;
+                                    </li>
+                                @endif
+                                @if (session('auth_role') == 'headquarters')
 
-                                    $metadata = null;
-                                    if ($examTrunkboxOTLData !== null) {
-                                        $metadata = is_string($examTrunkboxOTLData->metadata)
-                                            ? json_decode($examTrunkboxOTLData->metadata)
-                                            : (object) $examTrunkboxOTLData->metadata;
-                                    }
-                                @endphp
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-7.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
+                                    @php
+                                        $is_ed_trunk_qr_upload = $examTrunkboxOTLData !== null;
+
+                                        $metadata = null;
+                                        if ($examTrunkboxOTLData !== null) {
+                                            $metadata = is_string($examTrunkboxOTLData->metadata)
+                                                ? json_decode($examTrunkboxOTLData->metadata)
+                                                : (object) $examTrunkboxOTLData->metadata;
+                                        }
+                                    @endphp
+                                    <li class="task-list-item">
+                                        <i class="task-icon bg-danger"></i>
+                                        <div class="card ticket-card open-ticket">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-sm-auto mb-3 mb-sm-0">
+                                                        <div class="d-sm-inline-block d-flex align-items-center">
+                                                            <img class="media-object wid-60 img-radius"
+                                                                src="{{ asset('storage/assets/images/user/avatar-7.jpg') }}"
+                                                                alt="Generic placeholder image " />
+                                                            <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                                <ul
+                                                                    class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                    {{-- <li class="list-unstyled-item"><a href="#"
                                                                     class="link-secondary">1 Ticket</a></li>
                                                             <li class="list-unstyled-item"><a href="#"
                                                                     class="link-danger"><i class="fas fa-heart"></i>
                                                                     3</a></li> --}}
-                                                            </ul>
+                                                                </ul>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Update Trunk box and OTL
-                                                            Details<small
-                                                                class="badge bg-light-secondary ms-2">Updated</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
+                                                    <div class="col">
+                                                        <div class="popup-trigger">
+                                                            <div class="h5 font-weight-bold">Update Trunk box and OTL
+                                                                Details<small
+                                                                    class="badge bg-light-secondary ms-2">Updated</small>
+                                                            </div>
+                                                            <div class="help-sm-hidden">
+                                                                <ul class="list-unstyled mt-2 mb-0 text-muted">
 
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-4.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>{{ $is_ed_trunk_qr_upload ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    {{ $is_ed_trunk_qr_upload ? \Carbon\Carbon::parse($examTrunkboxOTLData->updated_at)->format('d-m-Y h:i A') : ' ' }}
-                                                                </li>
+                                                                    <li class="d-sm-inline-block d-block mt-1"><img
+                                                                            src="../assets/images/user/avatar-4.jpg"
+                                                                            alt=""
+                                                                            class="wid-20 rounded me-2 img-fluid" />Done by
+                                                                        <b>{{ $is_ed_trunk_qr_upload ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
+                                                                    </li>
+                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                        {{ $is_ed_trunk_qr_upload ? \Carbon\Carbon::parse($examTrunkboxOTLData->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                    </li>
 
-                                                            </ul>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="h5 mt-3"><i
+                                                                    class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                {{ $is_ed_trunk_qr_upload ? $examTrunkboxOTLData->department : 'ED - Section Officer' }}
+                                                            </div>
                                                         </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            {{ $is_ed_trunk_qr_upload ? $examTrunkboxOTLData->department : 'ED - Section Officer' }}
-                                                        </div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        @hasPermission('upload-exam-materials-csv')
-                                                            <a href="{{ route('exam-trunkbox-qr-otl-data.index', $session->exam_main_no) }}"
-                                                                class="me-2 btn btn-sm btn-light-primary m-2">
-                                                                <i class="feather icon-upload mx-1 "></i>Upload </a>
-                                                        @endhasPermission
-                                                        @if ($is_ed_trunk_qr_upload)
-                                                            <a href="{{ $metadata->uploaded_csv_link }}"
-                                                                class="me-3 btn btn-sm btn-light-warning"><i
-                                                                    class="feather icon-download mx-1"></i>Download
-                                                            </a>
-                                                        @endif
-                                                        @hasPermission('upload-exam-materials-csv')
-                                                            @if (isset($metadata->failed_csv_link) &&
-                                                                    file_exists(storage_path('app/public/uploads/failed_csv_files/' . basename($metadata->failed_csv_link))))
-                                                                <a href="{{ $metadata->failed_csv_link }}"
-                                                                    class="me-3 btn btn-sm btn-light-danger">
-                                                                    <i class="feather icon-download mx-1"></i>Failed
-                                                                    Records
+                                                        <div class="mt-2">
+                                                            @hasPermission('upload-exam-materials-csv')
+                                                                <a href="{{ route('exam-trunkbox-qr-otl-data.index', $session->exam_main_no) }}"
+                                                                    class="me-2 btn btn-sm btn-light-primary m-2">
+                                                                    <i class="feather icon-upload mx-1 "></i>Upload </a>
+                                                            @endhasPermission
+                                                            @if ($is_ed_trunk_qr_upload)
+                                                                <a href="{{ $metadata->uploaded_csv_link }}"
+                                                                    class="me-3 btn btn-sm btn-light-warning"><i
+                                                                        class="feather icon-download mx-1"></i>Download
                                                                 </a>
                                                             @endif
-                                                        @endhasPermission
+                                                            @hasPermission('upload-exam-materials-csv')
+                                                                @if (isset($metadata->failed_csv_link) &&
+                                                                        file_exists(storage_path('app/public/uploads/failed_csv_files/' . basename($metadata->failed_csv_link))))
+                                                                    <a href="{{ $metadata->failed_csv_link }}"
+                                                                        class="me-3 btn btn-sm btn-light-danger">
+                                                                        <i class="feather icon-download mx-1"></i>Failed
+                                                                        Records
+                                                                    </a>
+                                                                @endif
+                                                            @endhasPermission
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-7.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
+                                    </li>
+                                @endif
+                                @hasPermission('create-exam-materails-route')
+                                    <li class="task-list-item">
+                                        <i class="task-icon bg-danger"></i>
+                                        <div class="card ticket-card open-ticket">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-sm-auto mb-3 mb-sm-0">
+                                                        <div class="d-sm-inline-block d-flex align-items-center">
+                                                            <img class="media-object wid-60 img-radius"
+                                                                src="{{ asset('storage/assets/images/user/avatar-7.jpg') }}"
+                                                                alt="Generic placeholder image " />
+                                                            <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                                <ul
+                                                                    class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                    {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-secondary">1 Ticket</a></li>
                                                                 <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
-                                                            </ul>
+                                                                </ul>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Route Creation<small
-                                                                class="badge bg-light-secondary ms-2">created</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
+                                                    <div class="col">
+                                                        <div class="popup-trigger">
+                                                            <div class="h5 font-weight-bold">Route Creation<small
+                                                                    class="badge bg-light-secondary ms-2">created</small>
+                                                            </div>
+                                                            <div class="help-sm-hidden">
+                                                                <ul class="list-unstyled mt-2 mb-0 text-muted">
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/admin/p1.jpg" alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Piaf able
                                                                 </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Ariyalur</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    26-07-2024 01:12 PM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
+                                                                    <li class="d-sm-inline-block d-block mt-1"><img
+                                                                            src="../assets/images/user/avatar-5.jpg"
+                                                                            alt=""
+                                                                            class="wid-20 rounded me-2 img-fluid" />Done by
+                                                                        <b>Ariyalur</b>
+                                                                    </li>
+                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                        26-07-2024 01:12 PM</li>
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
                                                                 </li> --}}
-                                                            </ul>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="h5 mt-3"><i
+                                                                    class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                District Collectorate</div>
                                                         </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            District Collectorate</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>view</a>
-                                                        <a href="{{ route('exam-materials-route.index', $session->exam_main_no) }}"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-map mx-1"></i>Create Route</a>
+                                                        <div class="mt-2">
+                                                            <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
+                                                                    class="feather icon-eye mx-1"></i>view</a>
+                                                            <a href="{{ route('exam-materials-route.index', $session->exam_main_no) }}"
+                                                                class="me-2 btn btn-sm btn-light-info"><i
+                                                                    class="feather icon-map mx-1"></i>Create Route</a>
 
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </li>
-
-                                @if ($session->exam_main_model == 'Major')
+                                    </li>
+                                @endhasPermission
+                                @if ($session->exam_main_model == 'Major' && session('auth_role') == 'center')
                                     <li class="task-list-item">
                                         <i class="task-icon bg-danger"></i>
                                         <div class="card ticket-card open-ticket">
@@ -1181,1454 +1143,144 @@
                                         </div>
                                     </li>
                                 @endif
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-10.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
+                                @if (session('auth_role') == 'headquarters')
+                                    <li class="task-list-item">
+                                        <i class="task-icon bg-danger"></i>
+                                        <div class="card ticket-card open-ticket">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-sm-auto mb-3 mb-sm-0">
+                                                        <div class="d-sm-inline-block d-flex align-items-center">
+                                                            <img class="media-object wid-60 img-radius"
+                                                                src="{{ asset('storage/assets/images/user/avatar-1.jpg') }}"
+                                                                alt="Generic placeholder image " />
+                                                            <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                                <ul
+                                                                    class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                    {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-secondary">1 Ticket</a></li>
                                                                 <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
-                                                            </ul>
+                                                                </ul>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive Materials From
-                                                            {{ $session->exam_main_model == 'Major'
-                                                                ? 'Sub
-                                                                                                                                                                                                                                                Treasury'
-                                                                : 'Treasury' }}
-                                                            <small class="badge bg-light-secondary ms-2">received</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
+                                                    <div class="col">
+                                                        <div class="popup-trigger">
+                                                            <div class="h5 font-weight-bold">Receive Materials From
+                                                                Treasury<small
+                                                                    class="badge bg-light-secondary ms-2">received</small>
+                                                            </div>
+                                                            <div class="help-sm-hidden">
+                                                                <ul class="list-unstyled mt-2 mb-0 text-muted">
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/admin/p1.jpg" alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Piaf able
                                                                 </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Iniya</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    27-07-2024 02:32 PM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
+                                                                    <li class="d-sm-inline-block d-block mt-1"><img
+                                                                            src="../assets/images/user/avatar-5.jpg"
+                                                                            alt=""
+                                                                            class="wid-20 rounded me-2 img-fluid" />Done by
+                                                                        <b>Prabakaran</b>
+                                                                    </li>
+                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                        27-07-2024 02:32 PM</li>
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
                                                                 </li> --}}
-                                                            </ul>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="h5 mt-3"><i
+                                                                    class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                HQ - Van Duty Staff</div>
                                                         </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            DC - Mobile Team</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-info mx-1"></i>Verify </a>
-                                                        <a href="helpdesk-ticket-details.html"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-map mx-1"></i>View Route</a>
+                                                        <div class="mt-2">
+                                                            <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
+                                                                    class="feather icon-info mx-1"></i>Verify </a>
+                                                            <a href="helpdesk-ticket-details.html"
+                                                                class="me-2 btn btn-sm btn-light-info"><i
+                                                                    class="feather icon-map mx-1"></i>View Route</a>
+
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-1.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
+                                    </li>
+                                @endif
+                                @if (session('auth_role') == 'headquarters')
+                                    <li class="task-list-item">
+                                        <i class="task-icon bg-danger"></i>
+                                        <div class="card ticket-card open-ticket">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-sm-auto mb-3 mb-sm-0">
+                                                        <div class="d-sm-inline-block d-flex align-items-center">
+                                                            <img class="media-object wid-60 img-radius"
+                                                                src="{{ asset('storage/assets/images/user/avatar-1.jpg') }}"
+                                                                alt="Generic placeholder image " />
+                                                            <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                                <ul
+                                                                    class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                    {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-secondary">1 Ticket</a></li>
                                                                 <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
-                                                            </ul>
+                                                                </ul>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive Materials From
-                                                            Treasury<small
-                                                                class="badge bg-light-secondary ms-2">received</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
+                                                    <div class="col">
+                                                        <div class="popup-trigger">
+                                                            <div class="h5 font-weight-bold">Receive Materials From Cheif
+                                                                Invigilator<small
+                                                                    class="badge bg-light-secondary ms-2">received</small>
+                                                            </div>
+                                                            <div class="help-sm-hidden">
+                                                                <ul class="list-unstyled mt-2 mb-0 text-muted">
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/admin/p1.jpg" alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Piaf able
                                                                 </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Prabakaran</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    27-07-2024 02:32 PM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
+                                                                    <li class="d-sm-inline-block d-block mt-1"><img
+                                                                            src="../assets/images/user/avatar-5.jpg"
+                                                                            alt=""
+                                                                            class="wid-20 rounded me-2 img-fluid" />Done
+                                                                        by
+                                                                        <b>Iniya</b>
+                                                                    </li>
+                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                        27-07-2024 02:32 PM</li>
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
                                                                 </li> --}}
-                                                            </ul>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="h5 mt-3"><i
+                                                                    class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                HQ - Van Duty Staff</div>
                                                         </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            HQ - Van Duty Staff</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-info mx-1"></i>Verify </a>
-                                                        <a href="helpdesk-ticket-details.html"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-map mx-1"></i>View Route</a>
-
+                                                        <div class="mt-2">
+                                                            <a href="{{ route('current-exam.vandutyBundlePackagingverfiy') }}"
+                                                                class="me-2 btn btn-sm btn-light-primary"><i
+                                                                    class="feather icon-info mx-1"></i>Verify </a>
+                                                            <a href="helpdesk-ticket-details.html"
+                                                                class="me-2 btn btn-sm btn-light-info"><i
+                                                                    class="feather icon-map mx-1"></i>View Route</a>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">4 - QP </a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 - OMR </a></li>
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive Materials From Mobile
-                                                            Team<small
-                                                                class="badge bg-light-secondary ms-2">received</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a target="_blank"
-                                                            href="{{ route('current-exam.ciReceiveMaterials') }}"
-                                                            class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-aperture mx-1"></i>Scan</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                {{-- <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Preliminary Check<small
-                                                                class="badge bg-light-secondary ms-2">checked</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li> --}}
-                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> 
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" data-bs-toggle="modal"
-                                                            data-bs-target="#preliminaryCheckListModel"
-                                                            data-pc-animate="just-me"
-                                                            class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-info mx-1"></i>Verify</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li> --}}
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">FN - Session<small
-                                                                class="badge bg-light-secondary ms-2">completed</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-edit mx-1"></i>Update Exam
-                                                            Activites</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Session Check<small
-                                                                class="badge bg-light-secondary ms-2">checked</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" data-pc-animate="just-me"
-                                                            data-bs-toggle="modal" data-bs-target="#sessionCheckListModel"
-                                                            class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-info mx-1"></i>Verify</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Invigilator Attendence /
-                                                            Allotment<small
-                                                                class="badge bg-light-secondary ms-2">allotted</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        {{-- <a href="#"  data-bs-toggle="modal" data-bs-target="#invigilatorAllotmentModel" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a> --}}
-                                                        <a href="#" data-bs-toggle="modal"
-                                                            data-bs-target="#invigilatorSelectModal"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-plus mx-1"></i>Add</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Scribe Attendence <small
-                                                                class="badge bg-light-secondary ms-2">attended</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-plus mx-1"></i>Add</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">CI Assistants Attendence
-                                                            <small class="badge bg-light-secondary ms-2">attended</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-plus mx-1"></i>Add</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">QP Box Open Time <small
-                                                                class="badge bg-light-secondary ms-2">scanned</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" data-bs-toggle="modal"
-                                                            data-bs-target="#questionPaperScanModal"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-aperture mx-1"></i>Scan</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Additional Candidiate<small
-                                                                class="badge bg-light-secondary ms-2">added</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-plus mx-1"></i>Add</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Candidiate Subject
-                                                            Change<small
-                                                                class="badge bg-light-secondary ms-2">changed</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-plus mx-1"></i>Add</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Q-paper distribution time
-                                                            <small class="badge bg-light-secondary ms-2">added</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" data-bs-toggle="modal"
-                                                            data-bs-target="#distributionTimeModal"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-plus mx-1"></i>Add</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Replacemnt of Q-paper<small
-                                                                class="badge bg-light-secondary ms-2">replaced</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-plus mx-1"></i>Add</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Remarks of Candidiate <small
-                                                                class="badge bg-light-secondary ms-2">remarked</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-plus mx-1"></i>Add</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-warning"><i
-                                                                class="feather icon-edit mx-1"></i>Edit</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Counting / Packaging
-                                                            Videography
-                                                            <small
-                                                                class="badge bg-light-secondary ms-2">videographed</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done
-                                                                    by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-info mx-1"></i>Verify</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Exam Rooms / Seat Arrangment
-                                                            Videography <small
-                                                                class="badge bg-light-secondary ms-2">videographed</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done
-                                                                    by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-info mx-1"></i>Verify</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">OMR Remarks<small
-                                                                class="badge bg-light-secondary ms-2">remarked</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done
-                                                                    by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-plus mx-1"></i>Add</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Scan Bundle Packaging <small
-                                                                class="badge bg-light-secondary ms-2">scanned</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done
-                                                                    by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-aperture mx-1"></i>Scan</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Consolidate Certificate
-                                                            <small class="badge bg-light-secondary ms-2">completed</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done
-                                                                    by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-plus mx-1"></i>Add</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-download mx-1"></i>Download</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Utility Certificate <small
-                                                                class="badge bg-light-secondary ms-2">completed</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done
-                                                                    by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-plus mx-1"></i>Add</a>
-                                                        <a href="#" class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-download mx-1"></i>Download</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-10.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 Ticket</a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive Materials From Cheif
-                                                            Invigilator<small
-                                                                class="badge bg-light-secondary ms-2">received</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done
-                                                                    by
-                                                                    <b>Iniya</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    27-07-2024 02:32 PM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            DC - Mobile Team</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="{{ route('current-exam.bundlePackagingverfiy') }}"
-                                                            class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-info mx-1"></i>Verify </a>
-                                                        <a href="helpdesk-ticket-details.html"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-map mx-1"></i>View Route</a>
-
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-1.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 Ticket</a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive Materials From Cheif
-                                                            Invigilator<small
-                                                                class="badge bg-light-secondary ms-2">received</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done
-                                                                    by
-                                                                    <b>Iniya</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    27-07-2024 02:32 PM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            HQ - Van Duty Staff</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="{{ route('current-exam.vandutyBundlePackagingverfiy') }}"
-                                                            class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-info mx-1"></i>Verify </a>
-                                                        <a href="helpdesk-ticket-details.html"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-map mx-1"></i>View Route</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
+                                    </li>
+                                @endif
                                 {{-- @if ($session->exam_main_model == 'Major') --}}
+                                @if ($session->exam_main_model == 'Major' && session('auth_role') == 'center')
+
                                 <li class="task-list-item">
                                     <i class="task-icon bg-danger"></i>
                                     <div class="card ticket-card open-ticket">
@@ -2695,213 +1347,219 @@
                                         </div>
                                     </div>
                                 </li>
+                                @endif
                                 {{-- @endif --}}
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-1.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
+                                @hasPermission('receive-bundle-from-mobile-team')
+                                    <li class="task-list-item">
+                                        <i class="task-icon bg-danger"></i>
+                                        <div class="card ticket-card open-ticket">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-sm-auto mb-3 mb-sm-0">
+                                                        <div class="d-sm-inline-block d-flex align-items-center">
+                                                            <img class="media-object wid-60 img-radius"
+                                                                src="{{ asset('storage/assets/images/user/avatar-1.jpg') }}"
+                                                                alt="Generic placeholder image " />
+                                                            <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                                <ul
+                                                                    class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                    {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-secondary">1 Ticket</a></li>
                                                                 <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
-                                                            </ul>
+                                                                </ul>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive Materials From
-                                                            {{ $session->exam_main_model == 'Major' ? 'Sub Treasury' : 'Mobile Team' }}<small
-                                                                class="badge bg-light-secondary ms-2">received</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
+                                                    <div class="col">
+                                                        <div class="popup-trigger">
+                                                            <div class="h5 font-weight-bold">Receive Materials From
+                                                                {{ $session->exam_main_model == 'Major' ? 'Sub Treasury' : 'Mobile Team' }}<small
+                                                                    class="badge bg-light-secondary ms-2">received</small>
+                                                            </div>
+                                                            <div class="help-sm-hidden">
+                                                                <ul class="list-unstyled mt-2 mb-0 text-muted">
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/admin/p1.jpg" alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Piaf able
                                                                 </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done
-                                                                    by
-                                                                    <b>Iniya</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    27-07-2024 02:32 PM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
+                                                                    <li class="d-sm-inline-block d-block mt-1"><img
+                                                                            src="../assets/images/user/avatar-5.jpg"
+                                                                            alt=""
+                                                                            class="wid-20 rounded me-2 img-fluid" />Done
+                                                                        by
+                                                                        <b>Iniya</b>
+                                                                    </li>
+                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                        27-07-2024 02:32 PM</li>
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
                                                                 </li> --}}
-                                                            </ul>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="h5 mt-3"><i
+                                                                    class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                District Collectorate</div>
                                                         </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            District</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="{{ route('bundle-packaging.mobileteam-to-district', $session->exam_main_no) }}"
-                                                            class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-info mx-1"></i>Verify </a>
-                                                        <a href="helpdesk-ticket-details.html"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-map mx-1"></i>View Route</a>
+                                                        <div class="mt-2">
+                                                            <a href="{{ route('bundle-packaging.mobileteam-to-district', $session->exam_main_no) }}"
+                                                                class="me-2 btn btn-sm btn-light-primary"><i
+                                                                    class="feather icon-info mx-1"></i>Verify </a>
+                                                            <a href="helpdesk-ticket-details.html"
+                                                                class="me-2 btn btn-sm btn-light-info"><i
+                                                                    class="feather icon-map mx-1"></i>View Route</a>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-primary"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-3.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
+                                    </li>
+                                @endhasPermission
+                                @if (session('auth_role') == 'headquarters')
+                                    <li class="task-list-item">
+                                        <i class="task-icon bg-primary"></i>
+                                        <div class="card ticket-card open-ticket">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-sm-auto mb-3 mb-sm-0">
+                                                        <div class="d-sm-inline-block d-flex align-items-center">
+                                                            <img class="media-object wid-60 img-radius"
+                                                                src="{{ asset('storage/assets/images/user/avatar-3.jpg') }}"
+                                                                alt="Generic placeholder image " />
+                                                            <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                                <ul
+                                                                    class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                    {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-secondary">1 Ticket</a></li>
                                                                 <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
-                                                            </ul>
+                                                                </ul>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Receive All Materials from
-                                                            Charted Vehicle<small
-                                                                class="badge bg-light-secondary ms-2">Received</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"
+                                                    <div class="col">
+                                                        <div class="popup-trigger">
+                                                            <div class="h5 font-weight-bold">Receive All Materials from
+                                                                Charted Vehicle<small
+                                                                    class="badge bg-light-secondary ms-2">Received</small>
+                                                            </div>
+                                                            <div class="help-sm-hidden">
+                                                                <ul class="list-unstyled mt-2 mb-0 text-muted">
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"
                                                     ><img src="../assets/images/admin/p1.jpg" alt="" class="wid-20 rounded me-2 img-fluid" /></li
                                                   > --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-4.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done
-                                                                    by
-                                                                    <b>Anbezhili</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>25-07-2024
-                                                                    10:05 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"
+                                                                    <li class="d-sm-inline-block d-block mt-1"><img
+                                                                            src="../assets/images/user/avatar-4.jpg"
+                                                                            alt=""
+                                                                            class="wid-20 rounded me-2 img-fluid" />Done
+                                                                        by
+                                                                        <b>Anbezhili</b>
+                                                                    </li>
+                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>25-07-2024
+                                                                        10:05 AM</li>
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"
                                                     ><i class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
                                                   </li> --}}
-                                                            </ul>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="h5 mt-3"><i
+                                                                    class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                ED / QD
+                                                                - Officer</div>
                                                         </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            ED / QD
-                                                            - Officer</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="helpdesk-ticket-details.html"
-                                                            class="me-2 btn btn-sm btn-light-primary "
-                                                            data-pc-animate="just-me" data-bs-toggle="modal"
-                                                            data-bs-target="#animateModal"><i
-                                                                class="feather icon-eye mx-1 "></i>View </a>
-                                                        <a href="{{ route('bundle-packaging.charted-vehicle-to-headquarters', $session->exam_main_no) }}"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-info mx-1"></i>Verify</a>
-                                                        <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
-                                                                class="feather icon-edit mx-1"></i>Edit </a>
+                                                        <div class="mt-2">
+                                                            <a href="helpdesk-ticket-details.html"
+                                                                class="me-2 btn btn-sm btn-light-primary "
+                                                                data-pc-animate="just-me" data-bs-toggle="modal"
+                                                                data-bs-target="#animateModal"><i
+                                                                    class="feather icon-eye mx-1 "></i>View </a>
+                                                            <a href="{{ route('bundle-packaging.charted-vehicle-to-headquarters', $session->exam_main_no) }}"
+                                                                class="me-2 btn btn-sm btn-light-info"><i
+                                                                    class="feather icon-info mx-1"></i>Verify</a>
+                                                            <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
+                                                                    class="feather icon-edit mx-1"></i>Edit </a>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </li>
-                                <li class="task-list-item">
-                                    <i class="task-icon bg-primary"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-3.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
+                                    </li>
+                                    <li class="task-list-item">
+                                        <i class="task-icon bg-primary"></i>
+                                        <div class="card ticket-card open-ticket">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-sm-auto mb-3 mb-sm-0">
+                                                        <div class="d-sm-inline-block d-flex align-items-center">
+                                                            <img class="media-object wid-60 img-radius"
+                                                                src="{{ asset('storage/assets/images/user/avatar-3.jpg') }}"
+                                                                alt="Generic placeholder image " />
+                                                            <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                                <ul
+                                                                    class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                    {{-- <li class="list-unstyled-item"><a href="#"
                                                                         class="link-secondary">1 Ticket</a></li>
                                                                 <li class="list-unstyled-item"><a href="#"
                                                                         class="link-danger"><i class="fas fa-heart"></i>
                                                                         3</a></li> --}}
-                                                            </ul>
+                                                                </ul>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Verify All Materials and Memory
-                                                            Cards Handovered<small
-                                                                class="badge bg-light-secondary ms-2">Scanned</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"
+                                                    <div class="col">
+                                                        <div class="popup-trigger">
+                                                            <div class="h5 font-weight-bold">Verify All Materials and
+                                                                Memory
+                                                                Cards Handovered<small
+                                                                    class="badge bg-light-secondary ms-2">Scanned</small>
+                                                            </div>
+                                                            <div class="help-sm-hidden">
+                                                                <ul class="list-unstyled mt-2 mb-0 text-muted">
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"
                                                     ><img src="../assets/images/admin/p1.jpg" alt="" class="wid-20 rounded me-2 img-fluid" /></li
                                                   > --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-4.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done
-                                                                    by
-                                                                    <b>Anbezhili</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>25-07-2024
-                                                                    10:05 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"
+                                                                    <li class="d-sm-inline-block d-block mt-1"><img
+                                                                            src="../assets/images/user/avatar-4.jpg"
+                                                                            alt=""
+                                                                            class="wid-20 rounded me-2 img-fluid" />Done
+                                                                        by
+                                                                        <b>Anbezhili</b>
+                                                                    </li>
+                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>25-07-2024
+                                                                        10:05 AM</li>
+                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"
                                                     ><i class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
                                                   </li> --}}
-                                                            </ul>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="h5 mt-3"><i
+                                                                    class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                VMD
+                                                                - Admin Officer</div>
                                                         </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            VMD
-                                                            - Admin Officer</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="{{ route('bundle-packaging.charted-vehicle-to-headquarters', $session->exam_main_no) }}"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-info mx-1"></i>Verify</a>
-                                                        <a href="helpdesk-ticket-details.html"
-                                                            class="me-2 btn btn-sm btn-light-primary "
-                                                            data-pc-animate="just-me" data-bs-toggle="modal"
-                                                            data-bs-target="#verifyAllMaterialsHandovered"><i
-                                                                class="feather icon-info mx-1 "></i>Verify </a>
-                                                        <a href="#" class="me-3 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-aperture mx-1"></i>Scan</a>
+                                                        <div class="mt-2">
+                                                            <a href="{{ route('bundle-packaging.charted-vehicle-to-headquarters', $session->exam_main_no) }}"
+                                                                class="me-2 btn btn-sm btn-light-info"><i
+                                                                    class="feather icon-info mx-1"></i>Verify</a>
+                                                            <a href="helpdesk-ticket-details.html"
+                                                                class="me-2 btn btn-sm btn-light-primary "
+                                                                data-pc-animate="just-me" data-bs-toggle="modal"
+                                                                data-bs-target="#verifyAllMaterialsHandovered"><i
+                                                                    class="feather icon-info mx-1 "></i>Verify </a>
+                                                            <a href="#" class="me-3 btn btn-sm btn-light-info"><i
+                                                                    class="feather icon-aperture mx-1"></i>Scan</a>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </li>
+                                    </li>
+                                @endif
                             </ul>
                             {{-- <div class="text-end">
                       <a href="#!" class="b-b-primary text-primary">View Friend List</a>

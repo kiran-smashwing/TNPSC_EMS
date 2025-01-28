@@ -100,7 +100,7 @@
                                 <img alt="User image"
                                     src="{{ $center->center_image
                                         ? asset('storage/' . $center->center_image)
-                                        : asset('storage/assets/images/user/collectorate.png') }}"
+                                        : asset('storage/assets/images/user/center.png') }}"
                                     id="previewImage" alt="Cropped Preview" class="rounded-circle img-fluid wid-70">
                             </div>
                             <h5 class="mb-0">{{ $center->center_name }} - {{ $center->center_code }}

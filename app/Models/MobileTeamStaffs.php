@@ -54,7 +54,7 @@ class MobileTeamStaffs extends Authenticatable
             return $this->mobile_image;
         }
 
-        return '/assets/images/user/avatar-5.jpg';
+        return '/assets/images/user/avatar-4.jpg';
     }
 
     public function getAuthPassword()

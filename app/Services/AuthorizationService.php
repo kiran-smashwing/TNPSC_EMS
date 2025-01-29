@@ -21,6 +21,11 @@ class AuthorizationService
                 'edit-charted-vehicle-route',
                 'create-escort-staff',
                 'create-exam-materails-route',
+                'view-all-districts',
+                'district-masters',
+                'venues-masters',
+                'view-all-venue',
+                'departments-masters',
             ],
             'ED' => [
                 'upload-exam-materials-csv',
@@ -34,6 +39,9 @@ class AuthorizationService
             'ci-meetings.ind',
             'ci-meetings.attendance-QRcode-scan'
         ],
+        'venue' => [
+            'venues-masters',
+        ],
         'district' => [
             'receive-exam-materials',
             'scan-exam-materials',
@@ -43,6 +51,9 @@ class AuthorizationService
             'download-meeting-qr',
             'create-exam-materails-route',
             'receive-bundle-from-mobile-team',
+            'district-masters',
+            'view-all-center',
+            
         ],
         'center' => [
            'download-meeting-qr',

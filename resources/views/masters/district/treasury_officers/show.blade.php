@@ -31,86 +31,90 @@
                                     <div class="position-absolute end-0 top-0 p-3">
                                         <span class="d-flex align-items-center">
                                             <span class="me-2">E-mail</span>
-                                            <!-- Check the district_email_status -->
-                                            @if ($treasuryOfficer->district->district_email_status) <!-- Assuming $district contains the row data -->
-                                                <i class="ph-duotone ph-circle-wavy-check text-success"></i>
+                                            <!-- Check if district exists before accessing district_email_status -->
+                                            @if ($treasuryOfficer->district)
+                                                @if ($treasuryOfficer->district->district_email_status)
+                                                    <i class="ph-duotone ph-circle-wavy-check text-success"></i>
+                                                @else
+                                                    <i class="ti ti-alert-circle text-danger f-18"></i>
+                                                @endif
                                             @else
-                                                <i class="ti ti-alert-circle text-danger f-18"></i>
+                                            <i class="ti ti-alert-circle text-danger f-18"></i>
                                             @endif
                                         </span>
+
                                     </div>
-                                    
-                    
+
+
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
-                                            <img 
-                                            alt="User image" 
-                                            src="{{ $treasuryOfficer->district && $treasuryOfficer->district->district_image
-                                                ? asset('storage/' . $treasuryOfficer->district->district_image)
-                                                : asset('storage/assets/images/user/collectorate.png') }}" 
-                                            id="previewImage" 
-                                            class="rounded-circle img-fluid wid-70">
-                                        
+                                            <img alt="User image"
+                                                src="{{ $treasuryOfficer->district && $treasuryOfficer->district->district_image
+                                                    ? asset('storage/' . $treasuryOfficer->district->district_image)
+                                                    : asset('storage/assets/images/user/collectorate.png') }}"
+                                                id="previewImage" class="rounded-circle img-fluid wid-70">
+
                                         </div>
-                                        <h5 class="mb-0">{{ $treasuryOfficer->district 
-                                            ? $treasuryOfficer->district->district_name . ' - ' . $treasuryOfficer->district->district_code 
-                                            : 'N/A' }}
+                                        <h5 class="mb-0">
+                                            {{ $treasuryOfficer->district
+                                                ? $treasuryOfficer->district->district_name . ' - ' . $treasuryOfficer->district->district_code
+                                                : 'N/A' }}
                                         </h5>
-                                            <p class="text-muted text-sm">District Collectorate</p>
+                                        <p class="text-muted text-sm">District Collectorate</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
                                             <div class="col-4">
-                                                <h5 class="mb-0">{{$centerCount}}</h5>
+                                                <h5 class="mb-0">{{ $centerCount }}</h5>
                                                 <small class="text-muted">Centers</small>
                                             </div>
                                             <div class="col-4 border border-top-0 border-bottom-0">
-                                                <h5 class="mb-0">{{$venueCount}}</h5>
+                                                <h5 class="mb-0">{{ $venueCount }}</h5>
                                                 <small class="text-muted">Venues</small>
                                             </div>
                                             <div class="col-4">
-                                                <h5 class="mb-0">{{$staffCount}}</h5>
+                                                <h5 class="mb-0">{{ $staffCount }}</h5>
                                                 <small class="text-muted">Members</small>
                                             </div>
                                         </div>
                                         <hr class="my-3 border border-secondary-subtle">
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">{{ $treasuryOfficer->district 
-                                                ? $treasuryOfficer->district->district_email 
-                                                : 'N/A' }}</p>
+                                            <p class="mb-0">
+                                                {{ $treasuryOfficer->district ? $treasuryOfficer->district->district_email : 'N/A' }}
+                                            </p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">{{ $treasuryOfficer->district 
-                                                ? $treasuryOfficer->district->district_phone 
-                                                : 'N/A' }}</p>
+                                            <p class="mb-0">
+                                                {{ $treasuryOfficer->district ? $treasuryOfficer->district->district_phone : 'N/A' }}
+                                            </p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone-plus me-2"></i>
-                                            <p class="mb-0">{{ $treasuryOfficer->district 
-                                                ? $treasuryOfficer->district->district_alternate_phone 
-                                                : 'N/A' }}</p>
+                                            <p class="mb-0">
+                                                {{ $treasuryOfficer->district ? $treasuryOfficer->district->district_alternate_phone : 'N/A' }}
+                                            </p>
                                         </div>
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">{{ $treasuryOfficer->district 
-                                                ? $treasuryOfficer->district->district_address 
-                                                : 'N/A' }}</p>
+                                            <p class="mb-0">
+                                                {{ $treasuryOfficer->district ? $treasuryOfficer->district->district_address : 'N/A' }}
+                                            </p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100">
                                             <i class="ti ti-link me-2"></i>
                                             <a class="link-primary" href="#">
-                                                <p class="mb-0">{{ $treasuryOfficer->district 
-                                                    ? $treasuryOfficer->district->district_website 
-                                                    : 'N/A' }}</p>
+                                                <p class="mb-0">
+                                                    {{ $treasuryOfficer->district ? $treasuryOfficer->district->district_website : 'N/A' }}
+                                                </p>
                                             </a>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-center mt-2 w-100">
                                             <a class="btn btn-success d-inline-flex  justify-content-center" href="#"
-                                                onclick="openMap({{ $treasuryOfficer->district 
-                        ? $treasuryOfficer->district->district_latitude . ', ' . $treasuryOfficer->district->district_longitude 
-                        : 'N/A' }}
+                                                onclick="openMap({{ $treasuryOfficer->district
+                                                    ? $treasuryOfficer->district->district_latitude . ', ' . $treasuryOfficer->district->district_longitude
+                                                    : 'N/A' }}
                     )">
                                                 <i class="ti ti-map-2 me-1"></i>View Location
                                             </a>
@@ -126,26 +130,28 @@
                                         <span class="d-flex align-items-center">
                                             <span class="me-2">E-mail</span>
                                             <!-- Check the district_email_status -->
-                                            @if ($treasuryOfficer->tre_off_email_status) <!-- Assuming $district contains the row data -->
+                                            @if ($treasuryOfficer->tre_off_email_status)
+                                                <!-- Assuming $district contains the row data -->
                                                 <i class="ph-duotone ph-circle-wavy-check text-success"></i>
                                             @else
                                                 <i class="ti ti-alert-circle text-danger f-18"></i>
                                             @endif
                                         </span>
                                     </div>
-                                    
-                    
+
+
                                     <div class="text-center mt-3">
                                         <div class="chat-avtar d-inline-flex mx-auto">
-                                            <img alt="User image" src="{{ $treasuryOfficer->tre_off_image
-                                            ? asset('storage/' . $treasuryOfficer->tre_off_image)
-                                            : asset('storage/assets/images/user/avatar-4.jpg') }}"
-                                            id="previewImage" alt="Cropped Preview"
-                                            class="rounded-circle img-fluid wid-70">
-                                           
+                                            <img alt="User image"
+                                                src="{{ $treasuryOfficer->tre_off_image
+                                                    ? asset('storage/' . $treasuryOfficer->tre_off_image)
+                                                    : asset('storage/assets/images/user/avatar-4.jpg') }}"
+                                                id="previewImage" alt="Cropped Preview"
+                                                class="rounded-circle img-fluid wid-70">
+
                                         </div>
-                                        <h5 class="mb-0">{{$treasuryOfficer->tre_off_name}}</h5>
-                                        <p class="text-muted text-sm">{{$treasuryOfficer->tre_off_designation}}</p>
+                                        <h5 class="mb-0">{{ $treasuryOfficer->tre_off_name }}</h5>
+                                        <p class="text-muted text-sm">{{ $treasuryOfficer->tre_off_designation }}</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         {{-- <div class="row g-3">
                                   <div class="col-4">
@@ -165,27 +171,29 @@
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">{{ $treasuryOfficer->district 
-                                                ? $treasuryOfficer->district->district_code . ' - ' . $treasuryOfficer->district->district_name 
-                                                : 'N/A' }}</p>
+                                            <p class="mb-0">
+                                                {{ $treasuryOfficer->district
+                                                    ? $treasuryOfficer->district->district_code . ' - ' . $treasuryOfficer->district->district_name
+                                                    : 'N/A' }}
+                                            </p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
-                                            <p class="mb-0">{{$treasuryOfficer->tre_off_email}}</p>
+                                            <p class="mb-0">{{ $treasuryOfficer->tre_off_email }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
-                                            <p class="mb-0">{{$treasuryOfficer->tre_off_phone}}</p>
+                                            <p class="mb-0">{{ $treasuryOfficer->tre_off_phone }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-barcode me-2"></i>
-                                            <p class="mb-0">{{$treasuryOfficer->tre_off_employeeid}}</p>
+                                            <p class="mb-0">{{ $treasuryOfficer->tre_off_employeeid }}</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    
+
                         <div class="col-lg-8 col-xxl-6">
                             <div class="card">
                                 <div class="card-header">
@@ -213,8 +221,8 @@
         </div>
     </div>
 
-        @include('partials.footer')
+    @include('partials.footer')
 
-        @include('partials.theme')
+    @include('partials.theme')
 
-    @endsection
+@endsection

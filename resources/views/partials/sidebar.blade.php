@@ -88,15 +88,14 @@
                         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                     </a>
                     <ul class="pc-submenu">
-                        <li class="pc-item"><a class="pc-link" href="{{ route('district.index') }}">District Collectorates </a>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('district.index') }}">District
+                                Collectorates </a></li>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('centers.index') }}">Centers (Taluks)</a>
                         </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('centers.index') }}">Centers (Taluks)</a></li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('treasury-officers.index') }}">Treasury
                                 Officers</a></li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('mobile-team-staffs.index') }}">Mobile
                                 Team Staffs</a></li>
-                        {{-- <li class="pc-item"><a class="pc-link" href="{{ route('escort_staff') }}">Escort Staffs</a></li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('incpection') }}">Inspection Officers</a> --}}
                 </li>
             </ul>
             </li>
@@ -136,7 +135,8 @@
                 </a>
                 <ul class="pc-submenu">
 
-                    <li class="pc-item"><a class="pc-link" href="{{ route('exam-services.index') }}">Examination Services</a>
+                    <li class="pc-item"><a class="pc-link" href="{{ route('exam-services.index') }}">Examination
+                            Services</a>
                     </li>
 
             </li>
@@ -197,7 +197,7 @@
                     <span class="pc-mtext">CI - Meeting</span>
                 </a>
             </li>
-            <li class="pc-item">
+            {{-- <li class="pc-item">
                 <a href="{{ route('current-exam.districtTask') }}" class="pc-link">
                     <span class="pc-micon">
                         <svg class="pc-icon">
@@ -206,7 +206,7 @@
                     </span>
                     <span class="pc-mtext">District - Current Exams</span>
                 </a>
-            </li>
+            </li> --}}
             <li class="pc-item">
                 <a href="{{ route('my-exam.centerexamTask') }}" class="pc-link">
                     <span class="pc-micon">
@@ -217,7 +217,7 @@
                     <span class="pc-mtext">Center - Current Exams</span>
                 </a>
             </li>
-            <li class="pc-item">
+            {{-- <li class="pc-item">
                 <a href="{{ route('my-exam.mobileTeamTask', '20241126092207') }}" class="pc-link">
                     <span class="pc-micon">
                         <svg class="pc-icon">
@@ -226,7 +226,7 @@
                     </span>
                     <span class="pc-mtext">MobileTeam - Current Exams</span>
                 </a>
-            </li>
+            </li> --}}
             <li class="pc-item">
                 <a href="{{ route('charted-vehicle-routes.index') }}" class="pc-link">
                     <span class="pc-micon">
@@ -257,7 +257,7 @@
                     </span>
                     <span class="pc-mtext">Completed Exams</span></a>
             </li>
-            <li class="pc-item">
+            {{-- <li class="pc-item">
                 <a href="../widget/w_chart.html" class="pc-link">
                     <span class="pc-micon">
                         <svg class="pc-icon">
@@ -265,43 +265,7 @@
                         </svg>
                     </span>
                     <span class="pc-mtext">QR Code Generation</span></a>
-            </li>
-            {{-- <li class="pc-item">
-                    <a href="../widget/w_chart.html" class="pc-link">
-                        <span class="pc-micon">
-                            <svg class="pc-icon">
-                                <use xlink:href="#custom-document-filter"></use>
-                            </svg>
-                        </span>
-                        <span class="pc-mtext">Confirm Venues</span></a>
-                </li>
-                <li class="pc-item">
-                    <a href="../widget/w_chart.html" class="pc-link">
-                        <span class="pc-micon">
-                            <svg class="pc-icon">
-                                <use xlink:href="#custom-text-align-justify-center"></use>
-                            </svg>
-                        </span>
-                        <span class="pc-mtext">Pre Examination</span></a>
-                </li>
-                <li class="pc-item">
-                    <a href="../widget/w_chart.html" class="pc-link">
-                        <span class="pc-micon">
-                            <svg class="pc-icon">
-                                <use xlink:href="#custom-text-align-justify-center"></use>
-                            </svg>
-                        </span>
-                        <span class="pc-mtext">Post Examination</span></a>
-                </li> --}}
-            {{-- <li class="pc-item">
-                    <a href="../widget/w_chart.html" class="pc-link">
-                        <span class="pc-micon">
-                            <svg class="pc-icon">
-                                <use xlink:href="#custom-24-support"></use>
-                            </svg>
-                        </span>
-                        <span class="pc-mtext">Day of Examination</span></a>
-                </li> --}}
+            </li> --}}
             <li class="pc-item pc-caption">
                 <label>Reports</label>
                 <svg class="pc-icon">
@@ -319,16 +283,16 @@
                     <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                 </a>
                 <ul class="pc-submenu">
-                    <li class="pc-item"><a class="pc-link" href="{{ route('ed.report') }}"> Exams
+                    {{-- <li class="pc-item"><a class="pc-link" href="{{ route('ed.report') }}"> Exams
                             Reports</a>
-                    </li>
+                    </li> --}}
                     <li class="pc-item"><a class="pc-link" href="{{ route('expenditure-statment.report') }}">
                             Expenditure
                             Statement</a>
                     </li>
-                    <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> Inspection
+                    {{-- <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> Inspection
                             staff Report</a>
-                    </li>
+                    </li> --}}
                     <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> Meeting
                             Reports</a>
                     </li>

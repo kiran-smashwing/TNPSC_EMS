@@ -150,8 +150,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                                      <h2 class="mb-0"></h2>
-                                                                    </div> -->
+                                                                                  <h2 class="mb-0"></h2>
+                                                                                </div> -->
                         </div>
                     </div>
                 </div>
@@ -250,7 +250,7 @@
                             </form>
 
 
-                            <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
+                            <table id="centersTable" class="display table table-striped table-hover dt-responsive nowrap"
                                 width="100%">
                                 <thead>
                                     <tr>
@@ -263,57 +263,6 @@
                                         <th>Action</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach ($chiefInvigilator as $key => $chiefInvigilator)
-                                        <tr>
-                                            <td>{{ $key + 1 }}</td>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="flex-shrink-0">
-                                                        @if ($chiefInvigilator->ci_image)
-                                                            <img src="{{ asset('storage/' . $chiefInvigilator->ci_image) }}"
-                                                                alt="district image" class="img-radius wid-40">
-                                                        @else
-                                                            <img src="{{ asset('storage/assets/images/user/avatar-4.jpg') }}"
-                                                                alt="default image" class="img-radius wid-40">
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class="flex-grow-1 ms-3">
-                                                    <h6 class="mb-0">{{ $chiefInvigilator->ci_name }}</h6>
-                                                </div>
-                                            </td>
-                                            <td>{{ $chiefInvigilator->ci_email }}</td>
-                                            <td>{{ $chiefInvigilator->ci_phone }}</td>
-                                            <td class="text-center">
-                                                @if ($chiefInvigilator->ci_email_status)
-                                                    <i class="ti ti-circle-check text-success f-18"></i>
-                                                @else
-                                                    <i class="ti ti-alert-circle text-danger f-18"></i>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                <a href="{{ route('chief-invigilators.show', $chiefInvigilator->ci_id) }}"
-                                                    class="avtar avtar-xs btn-light-success">
-                                                    <i class="ti ti-eye f-20"></i>
-                                                </a>
-                                                <a href="{{ route('chief-invigilators.edit', $chiefInvigilator->ci_id) }}"
-                                                    class="avtar avtar-xs btn-light-success">
-                                                    <i class="ti ti-edit f-20"></i>
-                                                </a>
-                                                <a href="#"
-                                                    class="avtar avtar-xs status-toggle {{ $chiefInvigilator->ci_status ? 'btn-light-success' : 'btn-light-danger' }}"
-                                                    data-ci-id="{{ $chiefInvigilator->ci_id }}"
-                                                    title="Change Status (Active or Inactive)">
-                                                    <i
-                                                        class="ti ti-toggle-{{ $chiefInvigilator->ci_status ? 'right' : 'left' }} f-20"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -331,7 +280,6 @@
 
     @push('scripts')
         @include('partials.datatable-export-js')
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 // Use event delegation for dynamically loaded or paginated buttons
@@ -483,6 +431,115 @@
                 if (oldCenter) {
                     $('#centerFilter').val(oldCenter).trigger('change');
                 }
+            });
+        </script>
+        <script>
+            $(document).ready(function() {
+                let table = $('#centersTable').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: '{{ route('chief-invigilators.json') }}',
+                        data: function(d) {
+                            d.district = $('#districtFilter').val();
+                            d.center = $('#centerFilter').val();
+                            d.venue = $('#venueFilter').val();
+                        }
+                    },
+                    columns: [{
+                            data: null,
+                            name: 'index',
+                            render: function(data, type, row, meta) {
+                                return meta.row + meta.settings._iDisplayStart + 1;
+                            }
+                        },
+                        {
+                            data: 'ci_image',
+                            name: 'ci_image',
+                            render: function(data, type, row) {
+                                if (data) {
+                                    return `<div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <img src="{{ asset('storage/') }}/${data}" alt="ci image" class="img-radius wid-40"/>
+                            </div>
+                        </div>`;
+                                }
+                                return `<div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <img src="{{ asset('storage/assets/images/user/avatar-4.jpg') }}" alt="default image" class="img-radius wid-40"/>
+                        </div>
+                    </div>`;
+                            }
+                        },
+                        {
+                            data: 'ci_name',
+                            name: 'ci_name',
+                            render: function(data) {
+                                return `<div class="flex-grow-1 ms-3">
+                        <h6 class="mb-0">${data}</h6>
+                    </div>`;
+                            }
+                        },
+                        {
+                            data: 'ci_email',
+                            name: 'ci_email'
+                        },
+                        {
+                            data: 'ci_phone',
+                            name: 'ci_phone'
+                        },
+                        {
+                            data: 'ci_email_status',
+                            name: 'ci_email_status',
+                            render: function(data) {
+                                return data ?
+                                    '<i class="ti ti-circle-check text-success f-18"></i>' :
+                                    '<i class="ti ti-alert-circle text-danger f-18"></i>';
+                            }
+                        },
+                        {
+                            data: null, // Allows access to all fields in the row
+                            render: function(data, type, row) {
+                                return `
+                                <a href="{{ route('chief-invigilators.show', ':id') }}" class="avtar avtar-xs btn-light-success">
+                                    <i class="ti ti-eye f-20"></i>
+                                </a>
+                                <a href="{{ route('chief-invigilators.edit', ':id') }}" class="avtar avtar-xs btn-light-success">
+                                    <i class="ti ti-edit f-20"></i>
+                                </a>
+                                <a href="#"
+                                    class="avtar avtar-xs status-toggle ${row.ci_status ? 'btn-light-success' : 'btn-light-danger'}"
+                                    data-ci-id="${row.ci_id}" title="Change Status (Active or Inactive)">
+                                    <i class="ti ti-toggle-${row.ci_status ? 'right' : 'left'} f-20"></i>
+                                </a>
+                                `.replace(/:id/g, row.ci_id);
+                            }
+                        }
+
+                    ],
+                    order: [
+                        [2, 'asc']
+                    ],
+                    responsive: true,
+                    searching: true,
+                    search: {
+                        return: true
+                    }
+                });
+
+                // Apply filters
+                $('#filterForm').on('submit', function(e) {
+                    e.preventDefault();
+                    table.draw();
+                });
+
+                // Reset filters
+                $('.btn-secondary').on('click', function() {
+                    $('#districtFilter').val('');
+                    $('#centerFilter').val('');
+                    $('#venueFilter').val('');
+                    table.search('').draw();
+                });
             });
         </script>
     @endpush

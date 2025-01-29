@@ -28,46 +28,90 @@ class ChiefInvigilatorsController extends Controller
 
     public function index(Request $request)
     {
-        // Start the query for ChiefInvigilator
-        $query = ChiefInvigilator::query();
+        // Get only the districts for the filter dropdown
+        $districts = District::orderBy('district_name')->get();
+
+        // Get centers and venues if needed for initial filter dropdowns
+        $centers = Center::orderBy('center_name')->get();
+        $venues = Venues::orderBy('venue_name')->get();
+
+        return view('masters.venues.chief_invigilator.index', compact('districts', 'centers', 'venues'));
+    }
+
+    // Add new method for JSON response
+    public function getChiefInvigilatorsJson(Request $request)
+    {
+        $query = ChiefInvigilator::query()
+            ->select([
+                'ci_id',
+                'ci_name',
+                'ci_email',
+                'ci_phone',
+                'ci_image',
+                'ci_email_status',
+                'ci_status',
+                'ci_district_id',
+                'ci_center_id',
+                'ci_venue_id'
+            ]);
+
+        // Apply role-based filter
         $role = session('auth_role');
         if ($role == 'venue') {
             $user = $request->get('auth_user');
             $query->where('ci_venue_id', $user->venue_code);
         }
 
-        // Filter by district if selected
+        // Apply filters
         if ($request->filled('district')) {
             $query->where('ci_district_id', $request->input('district'));
         }
 
-        // Filter by center if selected
         if ($request->filled('center')) {
             $query->where('ci_center_id', $request->input('center'));
         }
 
-        // Filter by venue if selected
         if ($request->filled('venue')) {
             $query->where('ci_venue_id', $request->input('venue'));
         }
 
-        // Fetch the filtered data with pagination
-        $chiefInvigilator = $query->orderBy('ci_name')->get();
-        // dd($chiefInvigilator);
+        // Handle global search
+        if ($request->has('search') && !empty($request->input('search.value'))) {
+            $searchValue = strtolower($request->input('search.value'));
+            $query->where(function ($q) use ($searchValue) {
+                $q->whereRaw('LOWER(ci_name) LIKE ?', ["%{$searchValue}%"])
+                    ->orWhereRaw('LOWER(ci_email) LIKE ?', ["%{$searchValue}%"])
+                    ->orWhereRaw('LOWER(ci_phone) LIKE ?', ["%{$searchValue}%"]);
+            });
+        }
 
-        // Fetch unique district values from the same table
-        $districts = District::all(); // Fetch all districts
+        // Get total and filtered counts
+        $totalRecords = $query->count();
+        $filteredRecords = $query->count();
 
+        // Apply pagination
+        $start = $request->input('start', 0);
+        $length = $request->input('length', 10);
+        $query->skip($start)->take($length);
 
-        // Fetch unique centers values from the same table
-        $centers = center::all();  // Fetch all centers
+        // Apply ordering
+        $order = $request->input('order.0');
+        if ($order) {
+            $columnIndex = $order['column'];
+            $columnDir = $order['dir'];
+            $columns = $request->input('columns');
+            $columnName = $columns[$columnIndex]['name'];
+            $query->orderBy($columnName, $columnDir);
+        }
 
-        // Fetch unique venues values from the same table
-        $venues = venues::all();  // Fetch all venues
+        $chiefInvigilators = $query->get();
 
-
-        // Return the view with data
-        return view('masters.venues.chief_invigilator.index', compact('chiefInvigilator', 'districts', 'centers', 'venues'));
+        return response()->json([
+            'draw' => intval($request->input('draw')),
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
+            'data' => $chiefInvigilators
+        ]);
     }
 
     public function create(Request $request)
@@ -87,7 +131,7 @@ class ChiefInvigilatorsController extends Controller
 
             return view('masters.venues.chief_invigilator.create', compact('venues', 'centers', 'districts', 'user'));
         }
-     
+
 
         // Default case for non-venue users
         $venues = Venues::all();

@@ -28,15 +28,20 @@ class CenterController extends Controller
     }
     public function index(Request $request)
     {
-        // Get the filtered centers and options in a single method
-        $data = $this->getFilteredData($request);
+        // Get the authenticated user's role from the session
+        $role = session('auth_role');
+        // Get the filtered centers and options
+        $data = $this->getFilteredData($request, $role);
 
         return view('masters.district.centers.index', $data);
     }
-
-    private function getFilteredData(Request $request)
+    private function getFilteredData(Request $request, $role)
     {
+        // dd();
         // Build the centers query with eager loading
+         $user_details = $request->get('auth_user');
+        // $user_district_code  = $user_details->district_code;
+        // dd($user_district_code);
         $centersQuery = Center::query()
             ->select([
                 'centers.center_id',
@@ -54,7 +59,19 @@ class CenterController extends Controller
                 $query->select('district_id', 'district_code', 'district_name');
             }]);
 
-        // Apply filters
+        // Apply role-based filtering
+        if ($role == 'district') {
+            // Get district code from session or request
+            $districtCode = $user_details->district_code; // Assuming district code is stored in session
+            // dd($districtCode);
+            if ($districtCode) {
+                $centersQuery->where('centers.center_district_id', $districtCode);
+            }
+        } elseif ($role == 'id') {
+            // Show all centers (no filtering applied)
+        }
+
+        // Apply additional filters from request
         if ($request->filled('district')) {
             $centersQuery->where('centers.center_district_id', $request->district);
         }
@@ -82,9 +99,9 @@ class CenterController extends Controller
             ->orderBy('center_name')
             ->get();
 
-
         return compact('centers', 'districts', 'centerCodes');
     }
+
 
 
 
@@ -319,13 +336,13 @@ class CenterController extends Controller
         $center = Center::with('district')->findOrFail($id);
 
         $centerCount = $center->district->centers()->count();  // Assuming 'centers' is a relationship in District model
-        $venueCount = $center->district->venues()->count(); 
+        $venueCount = $center->district->venues()->count();
         $staffCount = $center->district->treasuryOfficers()->count() + $center->district->mobileTeamStaffs()->count();
         // dd( $center->treasuryOfficers);
         // Log view action
         AuditLogger::log('Center Viewed', Center::class, $center->center_id);
         // Pass the counts to the view
-        return view('masters.district.centers.show', compact('center', 'centerCount', 'venueCount','staffCount'));
+        return view('masters.district.centers.show', compact('center', 'centerCount', 'venueCount', 'staffCount'));
     }
 
     public function destroy(Center $center)

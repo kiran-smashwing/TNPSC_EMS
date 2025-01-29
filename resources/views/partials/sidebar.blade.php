@@ -77,6 +77,62 @@
                 <li class="pc-item pc-caption">
                     <label>Masters</label>
                 </li>
+                @hasPermission('district-masters')
+                    <li class="pc-item pc-hasmenu">
+                        <a href="#!" class="pc-link">
+                            <span class="pc-micon">
+                                <svg class="pc-icon">
+                                    <use xlink:href="#custom-data"></use>
+                                </svg>
+                            </span>
+                            <span class="pc-mtext">District Masters</span>
+                            <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+                        </a>
+                        <ul class="pc-submenu">
+                            @hasPermission('view-all-districts')
+                                <li class="pc-item"><a class="pc-link" href="{{ route('district.index') }}">District
+                                        Collectorates </a></li>
+                            @endhasPermission
+                           <li class="pc-item"><a class="pc-link" href="{{ route('centers.index') }}">Centers (Taluks)</a>
+                            </li>
+                            <li class="pc-item"><a class="pc-link" href="{{ route('treasury-officers.index') }}">Treasury
+                                    Officers</a></li>
+                            <li class="pc-item"><a class="pc-link" href="{{ route('mobile-team-staffs.index') }}">Mobile
+                                    Team Staffs</a></li>
+                        </ul>
+                    </li>
+
+                @endhasPermission
+                @hasPermission('venues-masters')
+                    <li class="pc-item pc-hasmenu">
+                        <a class="pc-link">
+                            <span class="pc-micon">
+                                <svg class="pc-icon">
+                                    <use xlink:href="#custom-data"></use>
+                                </svg>
+                            </span>
+                            <span class="pc-mtext">Venues Masters</span>
+                            <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+                        </a>
+                        <ul class="pc-submenu">
+                            @hasPermission('view-all-venue')
+                                <li class="pc-item"><a class="pc-link" href="{{ route('venues.index') }}">Venues</a>
+                                </li>
+                            @endhasPermission
+                            <li class="pc-item"><a class="pc-link" href="{{ route('chief-invigilators.index') }}">Cheif
+                                    Invigilators </a>
+                            </li>
+                            <li class="pc-item"><a class="pc-link" href="{{ route('invigilators.index') }}">Invigilators
+                                </a>
+                            </li>
+                            <li class="pc-item"><a class="pc-link" href="{{ route('scribes.index') }}">Scribes </a>
+                            </li>
+                            <li class="pc-item"><a class="pc-link" href="{{ route('ci-assistant') }}">CI Assistants </a>
+                            </li>
+                        </ul>
+                    </li>
+                @endhasPermission
+                @hasPermission('departments-masters')
                 <li class="pc-item pc-hasmenu">
                     <a href="#!" class="pc-link">
                         <span class="pc-micon">
@@ -84,120 +140,75 @@
                                 <use xlink:href="#custom-data"></use>
                             </svg>
                         </span>
-                        <span class="pc-mtext">District Masters</span>
+                        <span class="pc-mtext">Department Masters </span>
                         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                     </a>
                     <ul class="pc-submenu">
-                        <li class="pc-item"><a class="pc-link" href="{{ route('district.index') }}">District Collectorates </a>
+
+                        <li class="pc-item"><a class="pc-link" href="{{ route('exam-services.index') }}">Examination
+                                Services</a>
                         </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('centers.index') }}">Centers (Taluks)</a></li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('treasury-officers.index') }}">Treasury
-                                Officers</a></li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('mobile-team-staffs.index') }}">Mobile
-                                Team Staffs</a></li>
-                        {{-- <li class="pc-item"><a class="pc-link" href="{{ route('escort_staff') }}">Escort Staffs</a></li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('incpection') }}">Inspection Officers</a> --}}
+
+
+                        <li class="pc-item"><a class="pc-link" href="{{ route('ci-checklist') }}">CI Checklist</a>
+                        </li>
+
+                        <li class="pc-item"><a class="pc-link" href="{{ route('role') }}">Roles</a>
+                        </li>
+                        <li class="pc-item"><a class="pc-link"
+                                href="{{ route('department-officials.index') }}">Department
+                                Officials</a>
+                        </li>
+                    </ul>
                 </li>
-            </ul>
-            </li>
-            <li class="pc-item pc-hasmenu">
-                <a class="pc-link">
-                    <span class="pc-micon">
-                        <svg class="pc-icon">
-                            <use xlink:href="#custom-data"></use>
-                        </svg>
-                    </span>
-                    <span class="pc-mtext">Venues Masters</span>
-                    <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
-                </a>
-                <ul class="pc-submenu">
-                    <li class="pc-item"><a class="pc-link" href="{{ route('venues.index') }}">Venues</a>
-                    </li>
-                    <li class="pc-item"><a class="pc-link" href="{{ route('chief-invigilators.index') }}">Cheif
-                            Invigilators </a>
-                    </li>
-                    <li class="pc-item"><a class="pc-link" href="{{ route('invigilators.index') }}">Invigilators </a>
-                    </li>
-                    <li class="pc-item"><a class="pc-link" href="{{ route('scribes.index') }}">Scribes </a>
-                    </li>
-                    <li class="pc-item"><a class="pc-link" href="{{ route('ci-assistant') }}">CI Assistants </a>
-                    </li>
-                </ul>
-            </li>
-            <li class="pc-item pc-hasmenu">
-                <a href="#!" class="pc-link">
-                    <span class="pc-micon">
-                        <svg class="pc-icon">
-                            <use xlink:href="#custom-data"></use>
-                        </svg>
-                    </span>
-                    <span class="pc-mtext">Department Masters </span>
-                    <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
-                </a>
-                <ul class="pc-submenu">
-
-                    <li class="pc-item"><a class="pc-link" href="{{ route('exam-services.index') }}">Examination Services</a>
-                    </li>
-
-            </li>
-            <li class="pc-item"><a class="pc-link" href="{{ route('ci-checklist') }}">CI Checklist</a>
-            </li>
-
-            <li class="pc-item"><a class="pc-link" href="{{ route('role') }}">Roles</a>
-            </li>
-            <li class="pc-item"><a class="pc-link" href="{{ route('department-officials.index') }}">Department
-                    Officials</a>
-            </li>
-            </ul>
-            </li>
-
-            <li class="pc-item pc-caption">
-                <label>Exams</label>
-                <svg class="pc-icon">
-                    <use xlink:href="#custom-presentation-chart"></use>
-                </svg>
-            </li>
-            <li class="pc-item">
-                <a href="{{ route('my-exam.index') }}" class="pc-link">
-                    <span class="pc-micon">
-                        <svg class="pc-icon">
-                            <use xlink:href="#custom-text-align-justify-center"></use>
-                        </svg>
-                    </span>
-                    <span class="pc-mtext">My Exams</span>
-                </a>
-            </li>
-            <li class="pc-item">
-                <a href="{{ route('current-exam.index') }}" class="pc-link">
-                    <span class="pc-micon">
-                        <svg class="pc-icon">
-                            <use xlink:href="#custom-text-align-justify-center"></use>
-                        </svg>
-                    </span>
-                    <span class="pc-mtext">Current Exams</span>
-                </a>
-            </li>
-            <li class="pc-item">
-                <a href="{{ route('my-exam.ciTask', '20241126092207') }}" class="pc-link">
-                    <span class="pc-micon">
-                        <svg class="pc-icon">
-                            <use xlink:href="#custom-text-align-justify-center"></use>
-                        </svg>
-                    </span>
-                    <span class="pc-mtext">CI - Current Exams</span>
-                </a>
-            </li>
-            <li class="pc-item">
-                <a href="{{ route('current-exam.ciMeeting') }}" class="pc-link">
-                    <span class="pc-micon">
-                        <svg class="pc-icon">
-                            <use xlink:href="#custom-text-align-justify-center"></use>
-                        </svg>
-                    </span>
-                    <span class="pc-mtext">CI - Meeting</span>
-                </a>
-            </li>
-            <li class="pc-item">
+                @endhasPermission
+                <li class="pc-item pc-caption">
+                    <label>Exams</label>
+                    <svg class="pc-icon">
+                        <use xlink:href="#custom-presentation-chart"></use>
+                    </svg>
+                </li>
+                <li class="pc-item">
+                    <a href="{{ route('my-exam.index') }}" class="pc-link">
+                        <span class="pc-micon">
+                            <svg class="pc-icon">
+                                <use xlink:href="#custom-text-align-justify-center"></use>
+                            </svg>
+                        </span>
+                        <span class="pc-mtext">My Exams</span>
+                    </a>
+                </li>
+                <li class="pc-item">
+                    <a href="{{ route('current-exam.index') }}" class="pc-link">
+                        <span class="pc-micon">
+                            <svg class="pc-icon">
+                                <use xlink:href="#custom-text-align-justify-center"></use>
+                            </svg>
+                        </span>
+                        <span class="pc-mtext">Current Exams</span>
+                    </a>
+                </li>
+                <li class="pc-item">
+                    <a href="{{ route('my-exam.ciTask', '20241126092207') }}" class="pc-link">
+                        <span class="pc-micon">
+                            <svg class="pc-icon">
+                                <use xlink:href="#custom-text-align-justify-center"></use>
+                            </svg>
+                        </span>
+                        <span class="pc-mtext">CI - Current Exams</span>
+                    </a>
+                </li>
+                <li class="pc-item">
+                    <a href="{{ route('current-exam.ciMeeting') }}" class="pc-link">
+                        <span class="pc-micon">
+                            <svg class="pc-icon">
+                                <use xlink:href="#custom-text-align-justify-center"></use>
+                            </svg>
+                        </span>
+                        <span class="pc-mtext">CI - Meeting</span>
+                    </a>
+                </li>
+                {{-- <li class="pc-item">
                 <a href="{{ route('current-exam.districtTask') }}" class="pc-link">
                     <span class="pc-micon">
                         <svg class="pc-icon">
@@ -206,18 +217,18 @@
                     </span>
                     <span class="pc-mtext">District - Current Exams</span>
                 </a>
-            </li>
-            <li class="pc-item">
-                <a href="{{ route('my-exam.centerexamTask') }}" class="pc-link">
-                    <span class="pc-micon">
-                        <svg class="pc-icon">
-                            <use xlink:href="#custom-text-align-justify-center"></use>
-                        </svg>
-                    </span>
-                    <span class="pc-mtext">Center - Current Exams</span>
-                </a>
-            </li>
-            <li class="pc-item">
+            </li> --}}
+                <li class="pc-item">
+                    <a href="{{ route('my-exam.centerexamTask') }}" class="pc-link">
+                        <span class="pc-micon">
+                            <svg class="pc-icon">
+                                <use xlink:href="#custom-text-align-justify-center"></use>
+                            </svg>
+                        </span>
+                        <span class="pc-mtext">Center - Current Exams</span>
+                    </a>
+                </li>
+                {{-- <li class="pc-item">
                 <a href="{{ route('my-exam.mobileTeamTask', '20241126092207') }}" class="pc-link">
                     <span class="pc-micon">
                         <svg class="pc-icon">
@@ -226,38 +237,38 @@
                     </span>
                     <span class="pc-mtext">MobileTeam - Current Exams</span>
                 </a>
-            </li>
-            <li class="pc-item">
-                <a href="{{ route('charted-vehicle-routes.index') }}" class="pc-link">
-                    <span class="pc-micon">
-                        <svg class="pc-icon">
-                            <use xlink:href="#custom-data"></use>
-                        </svg>
-                    </span>
-                    <span class="pc-mtext">Charted Vehicle Routes</span>
-                </a>
-            </li>
-            <li class="pc-item">
-                <a href="{{ route('charted-vehicle-routes.downward-journey-routes') }}" class="pc-link">
-                    <span class="pc-micon">
-                        <svg class="pc-icon">
-                            <use xlink:href="#custom-fatrows"></use>
-                        </svg>
-                    </span>
-                    <span class="pc-mtext">Downward Journey Routes</span>
-                </a>
-            </li>
+            </li> --}}
+                <li class="pc-item">
+                    <a href="{{ route('charted-vehicle-routes.index') }}" class="pc-link">
+                        <span class="pc-micon">
+                            <svg class="pc-icon">
+                                <use xlink:href="#custom-data"></use>
+                            </svg>
+                        </span>
+                        <span class="pc-mtext">Charted Vehicle Routes</span>
+                    </a>
+                </li>
+                <li class="pc-item">
+                    <a href="{{ route('charted-vehicle-routes.downward-journey-routes') }}" class="pc-link">
+                        <span class="pc-micon">
+                            <svg class="pc-icon">
+                                <use xlink:href="#custom-fatrows"></use>
+                            </svg>
+                        </span>
+                        <span class="pc-mtext">Downward Journey Routes</span>
+                    </a>
+                </li>
 
-            <li class="pc-item">
-                <a href="{{ route('completed-exam') }}" class="pc-link">
-                    <span class="pc-micon">
-                        <svg class="pc-icon">
-                            <use xlink:href="#custom-presentation-chart"></use>
-                        </svg>
-                    </span>
-                    <span class="pc-mtext">Completed Exams</span></a>
-            </li>
-            <li class="pc-item">
+                <li class="pc-item">
+                    <a href="{{ route('completed-exam') }}" class="pc-link">
+                        <span class="pc-micon">
+                            <svg class="pc-icon">
+                                <use xlink:href="#custom-presentation-chart"></use>
+                            </svg>
+                        </span>
+                        <span class="pc-mtext">Completed Exams</span></a>
+                </li>
+                {{-- <li class="pc-item">
                 <a href="../widget/w_chart.html" class="pc-link">
                     <span class="pc-micon">
                         <svg class="pc-icon">
@@ -265,96 +276,61 @@
                         </svg>
                     </span>
                     <span class="pc-mtext">QR Code Generation</span></a>
-            </li>
-            {{-- <li class="pc-item">
-                    <a href="../widget/w_chart.html" class="pc-link">
-                        <span class="pc-micon">
-                            <svg class="pc-icon">
-                                <use xlink:href="#custom-document-filter"></use>
-                            </svg>
-                        </span>
-                        <span class="pc-mtext">Confirm Venues</span></a>
+            </li> --}}
+                <li class="pc-item pc-caption">
+                    <label>Reports</label>
+                    <svg class="pc-icon">
+                        <use xlink:href="#custom-layer"></use>
+                    </svg>
                 </li>
-                <li class="pc-item">
-                    <a href="../widget/w_chart.html" class="pc-link">
+                <li class="pc-item pc-hasmenu">
+                    <a href="#!" class="pc-link">
                         <span class="pc-micon">
                             <svg class="pc-icon">
-                                <use xlink:href="#custom-text-align-justify-center"></use>
+                                <use xlink:href="#custom-layer"></use>
                             </svg>
                         </span>
-                        <span class="pc-mtext">Pre Examination</span></a>
-                </li>
-                <li class="pc-item">
-                    <a href="../widget/w_chart.html" class="pc-link">
-                        <span class="pc-micon">
-                            <svg class="pc-icon">
-                                <use xlink:href="#custom-text-align-justify-center"></use>
-                            </svg>
-                        </span>
-                        <span class="pc-mtext">Post Examination</span></a>
-                </li> --}}
-            {{-- <li class="pc-item">
-                    <a href="../widget/w_chart.html" class="pc-link">
-                        <span class="pc-micon">
-                            <svg class="pc-icon">
-                                <use xlink:href="#custom-24-support"></use>
-                            </svg>
-                        </span>
-                        <span class="pc-mtext">Day of Examination</span></a>
-                </li> --}}
-            <li class="pc-item pc-caption">
-                <label>Reports</label>
-                <svg class="pc-icon">
-                    <use xlink:href="#custom-layer"></use>
-                </svg>
-            </li>
-            <li class="pc-item pc-hasmenu">
-                <a href="#!" class="pc-link">
-                    <span class="pc-micon">
-                        <svg class="pc-icon">
-                            <use xlink:href="#custom-layer"></use>
-                        </svg>
-                    </span>
-                    <span class="pc-mtext">Reports Generation</span>
-                    <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
-                </a>
-                <ul class="pc-submenu">
-                    <li class="pc-item"><a class="pc-link" href="{{ route('ed.report') }}"> Exams
+                        <span class="pc-mtext">Reports Generation</span>
+                        <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+                    </a>
+                    <ul class="pc-submenu">
+                        {{-- <li class="pc-item"><a class="pc-link" href="{{ route('ed.report') }}"> Exams
                             Reports</a>
-                    </li>
-                    <li class="pc-item"><a class="pc-link" href="{{ route('expenditure-statment.report') }}">
-                            Expenditure
-                            Statement</a>
-                    </li>
-                    <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> Inspection
+                    </li> --}}
+                        <li class="pc-item"><a class="pc-link" href="{{ route('expenditure-statment.report') }}">
+                                Expenditure
+                                Statement</a>
+                        </li>
+                        {{-- <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> Inspection
                             staff Report</a>
-                    </li>
-                    <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> Meeting
-                            Reports</a>
-                    </li>
-                    <li class="pc-item"><a class="pc-link" href="{{ route('qp_booklet.report') }}"> Question
-                            Booklet Account</a>
-                    </li>
-                    <li class="pc-item"><a class="pc-link" href="{{ route('bundle-receiving.report') }}"> Receiving
-                            Bundle Reports</a>
-                    </li>
-                    <li class="pc-item"><a class="pc-link" href="{{ route('omr-account.report') }}"> OMR
-                            Account</a>
-                    </li>
-                    <li class="pc-item"><a class="pc-link" href="{{ route('attendance.report') }}">
-                            Attendance
-                            Reports</a>
-                    </li>
-                </ul>
-            </li>
+                    </li> --}}
+                        <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> Meeting
+                                Reports</a>
+                        </li>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('qp_booklet.report') }}"> Question
+                                Booklet Account</a>
+                        </li>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('bundle-receiving.report') }}">
+                                Receiving
+                                Bundle Reports</a>
+                        </li>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('omr-account.report') }}"> OMR
+                                Account</a>
+                        </li>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('attendance.report') }}">
+                                Attendance
+                                Reports</a>
+                        </li>
+                    </ul>
+                </li>
 
-            {{-- <li class="pc-item pc-caption">
+                {{-- <li class="pc-item pc-caption">
                     <label> Users</label>
                     <svg class="pc-icon">
                         <use xlink:href="#custom-profile-2user-outline"></use>
                     </svg>
                 </li> --}}
-            {{-- <li class="pc-item pc-hasmenu">
+                {{-- <li class="pc-item pc-hasmenu">
                     <a href="#!" class="pc-link"><span class="pc-micon">
                             <svg class="pc-icon">
                                 <use xlink:href="#custom-profile-2user-outline"></use>
@@ -366,26 +342,26 @@
                         <li class="pc-item"><a class="pc-link" href="../elements/icon-custom.html">Users</a></li>
                     </ul>
                 </li> --}}
-            <li class="pc-item pc-caption">
-                <label> Email</label>
-                <svg class="pc-icon">
-                    <use xlink:href="#custom-sms"></use>
-                </svg>
-            </li>
-            <li class="pc-item pc-hasmenu">
-                <a href="#!" class="pc-link"><span class="pc-micon">
-                        <svg class="pc-icon">
-                            <use xlink:href="#custom-sms"></use>
-                        </svg> </span><span class="pc-mtext">Email Template</span><span class="pc-arrow"><i
-                            data-feather="chevron-right"></i></span></a>
-                <ul class="pc-submenu">
-                    <li class="pc-item"><a class="pc-link" href="../elements/icon-feather.html">ID to
-                            Collectorate </a></li>
+                <li class="pc-item pc-caption">
+                    <label> Email</label>
+                    <svg class="pc-icon">
+                        <use xlink:href="#custom-sms"></use>
+                    </svg>
+                </li>
+                <li class="pc-item pc-hasmenu">
+                    <a href="#!" class="pc-link"><span class="pc-micon">
+                            <svg class="pc-icon">
+                                <use xlink:href="#custom-sms"></use>
+                            </svg> </span><span class="pc-mtext">Email Template</span><span class="pc-arrow"><i
+                                data-feather="chevron-right"></i></span></a>
+                    <ul class="pc-submenu">
+                        <li class="pc-item"><a class="pc-link" href="../elements/icon-feather.html">ID to
+                                Collectorate </a></li>
 
-                    <li class="pc-item"><a class="pc-link" href="../elements/icon-custom.html">Center to Venue
-                        </a></li>
-                </ul>
-            </li>
+                        <li class="pc-item"><a class="pc-link" href="../elements/icon-custom.html">Center to Venue
+                            </a></li>
+                    </ul>
+                </li>
             </ul>
         </div>
     </div>

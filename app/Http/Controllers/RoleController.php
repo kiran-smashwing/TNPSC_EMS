@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DepartmentOfficial;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use App\Services\AuditLogger;
@@ -12,12 +13,13 @@ class RoleController extends Controller
     public function index()
     {
         $roles = Role::all(); // Retrieve all roles from the database
-        return view('masters.department.roles.index', compact('roles'));
+        return view('masters.department.roles.index', compact('roles' ));
     }
 
     public function create()
     {
-        return view('masters.department.roles.create');
+        $departmentOfficials = DepartmentOfficial::all();
+        return view('masters.department.roles.create',compact('departmentOfficials'));
     }
 
     public function store(Request $request)
@@ -26,18 +28,17 @@ class RoleController extends Controller
         $request->validate([
             'role_name' => 'required|string|max:255',
             'role_department' => 'required|string|max:255',
+            'department_officer'=> 'required|numeric|exists:department_officer,dept_off_id',
         ]);
-
         try {
-            // Create the new role
-            $role = Role::create([
-                'role_name' => $request->role_name,
-                'role_department' => $request->role_department,
-                'role_createdat' => now(),
-            ]);
-
-            // Log the creation action in the audit log
-            AuditLogger::log('Role Created', Role::class, $role->role_id, null, $role->toArray());
+            // update role to department officer
+            $departmentOfficial = DepartmentOfficial::findOrFail($request->department_officer);
+            $departmentOfficial->dept_off_department = $request->role_department;
+            $departmentOfficial->dept_off_role = $request->role_name;
+            $departmentOfficial->save();
+    
+            // Log the role assigned action in the audit log with the role and department name.
+            AuditLogger::log('Role Assigned', DepartmentOfficial::class, $departmentOfficial->dept_off_id, null, $departmentOfficial->toArray());
 
             // Redirect with success message
             return redirect()->route('role')->with('success', 'Role created successfully.');

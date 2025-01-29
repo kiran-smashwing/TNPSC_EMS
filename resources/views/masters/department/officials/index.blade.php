@@ -234,8 +234,8 @@
                                                     <h6 class="mb-0">{{ $official->dept_off_name }}</h6>
                                                 </div>
                                             </td>
-                                            <td>{{ $official->role->role_name }}</td>
-                                            <td>{{ $official->role->role_department }}</td>
+                                            <td>{{ $official->role->role_name ?? 'N/A'}}</td>
+                                            <td>{{ $official->role->role_department ?? 'N/A' }}</td>
                                             <td>{{ $official->dept_off_email }}</td>
                                             <td>{{ $official->dept_off_phone }}</td>
                                             <td class="text-center">

@@ -67,7 +67,7 @@
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-man me-2"></i>
-                                            <p class="mb-0">{{ $roles->role_department }} - {{ $roles->role_name }}</p>
+                                            <p class="mb-0">{{ $roles->role_department ?? 'N/A' }} - {{ $roles->role_name ?? 'N/A' }}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>

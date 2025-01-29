@@ -83,11 +83,12 @@
                                                         <label for="imageUpload" class="img-avtar-upload"></label>
                                                     </div>
                                                 </div>
-                                                <div class="col-sm-6">
+                                                {{-- <div class="col-sm-6">
                                                     <div class="mb-3">
                                                         <label class="form-label" for="role">Role <span
                                                                 class="text-danger">*</span></label>
-                                                        <select class="form-control @error('role') is-invalid @enderror" id="role" name="role" required>
+                                                        <select class="form-control @error('role') is-invalid @enderror"
+                                                            id="role" name="role" required>
                                                             <option>Select Role</option>
                                                             @foreach ($roles as $role)
                                                                 <option value="{{ $role->role_id }}">
@@ -99,14 +100,14 @@
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
                                                     </div>
-                                                </div>
-
+                                                </div> --}}
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
                                                         <label class="form-label">Name <span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control @error('name') is-invalid @enderror" id="name"
-                                                            name="name" placeholder="Nanmaran" required>
+                                                        <input type="text"
+                                                            class="form-control @error('name') is-invalid @enderror"
+                                                            id="name" name="name" placeholder="Nanmaran" required>
                                                         @error('name')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -116,8 +117,10 @@
                                                     <div class="mb-3">
                                                         <label class="form-label" for="employee_id">Employee ID <span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control @error('employee_id') is-invalid @enderror" id="employee_id"
-                                                            name="employee_id" placeholder="EMP1234" required>
+                                                        <input type="text"
+                                                            class="form-control @error('employee_id') is-invalid @enderror"
+                                                            id="employee_id" name="employee_id" placeholder="35040009851 (IFHRMS No)"
+                                                            required>
                                                         @error('employee_id')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -127,8 +130,10 @@
                                                     <div class="mb-3">
                                                         <label class="form-label" for="designation">Designation <span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control @error('designation') is-invalid @enderror" id="designation"
-                                                            name="designation" placeholder="Thasildar" required>
+                                                        <input type="text"
+                                                            class="form-control @error('designation') is-invalid @enderror"
+                                                            id="designation" name="designation" placeholder="Thasildar"
+                                                            required>
                                                         @error('designation')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -138,8 +143,10 @@
                                                     <div class="mb-3">
                                                         <label class="form-label">Email<span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="email" class="form-control @error('email') is-invalid @enderror" id="email"
-                                                            name="email" placeholder="ceochn@***.in" required>
+                                                        <input type="email"
+                                                            class="form-control @error('email') is-invalid @enderror"
+                                                            id="email" name="email" placeholder="ceochn@***.in"
+                                                            required>
                                                         @error('email')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -149,8 +156,10 @@
                                                     <div class="mb-3">
                                                         <label class="form-label" for="phone">Phone<span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="tel" class="form-control @error('phone') is-invalid @enderror" id="phone"
-                                                            name="phone" placeholder="9434***1212" required>
+                                                        <input type="tel"
+                                                            class="form-control @error('phone') is-invalid @enderror"
+                                                            id="phone" name="phone" placeholder="9434***1212"
+                                                            required>
                                                         @error('phone')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -160,8 +169,9 @@
                                                     <div class="mb-3">
                                                         <label class="form-label"for="password">Password<span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="password" class="form-control @error('password') is-invalid @enderror" id="password"
-                                                            name="password" required placeholder="******">
+                                                        <input type="password"
+                                                            class="form-control @error('password') is-invalid @enderror"
+                                                            id="password" name="password" required placeholder="******">
                                                         @error('password')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -172,7 +182,8 @@
                                     </div>
                                 </div>
                                 <div class="col-12 text-end btn-page">
-                                    <a href="{{ route('department-officials.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                                    <a href="{{ route('department-officials.index') }}"
+                                        class="btn btn-outline-secondary">Cancel</a>
                                     <button type="submit" class="btn btn-primary">Create</button>
                                 </div>
                             </div>

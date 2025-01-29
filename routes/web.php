@@ -332,7 +332,6 @@ Route::prefix('current-exam')->group(function () {
 Route::prefix('my-exam')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::get('/exam-task', action: [MyExamController::class, 'index'])->name('my-exam.index');
-        Route::get('/my-task-action/{examid}', action: [MyExamController::class, 'MyTaskAction'])->name('my-exam.task-action');
         Route::get('/center', action: [MyExamController::class, 'centerTask'])->name('my-exam.centerexamTask');
         Route::get('/mobile-team/{examid}', action: [MyExamController::class, 'mobileTeamTask'])->name('my-exam.mobileTeamTask');
         Route::get('/ci-task/{examid}', action: [MyExamController::class, 'ciTask'])->name('my-exam.ciTask');

@@ -49,69 +49,67 @@ class DepartmentOfficialsController extends Controller
             'role.required' => 'Please select a role.',
             'role.integer' => 'Please select a valid role.',
         ];
-    
+
         // Validate the incoming request
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'designation' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:15',
-            'role' => 'required|integer',
+            // 'role' => 'required|integer',
             'employee_id' => 'required|string|max:255',
             'email' => 'required|email|unique:department_officer,dept_off_email',
             'password' => 'required|string|min:6',
             'cropped_image' => 'nullable|string',
         ], $messages);
-    
+
         try {
             // Handle image upload
             if (!empty($validated['cropped_image'])) {
                 $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $validated['cropped_image']);
                 $imageData = base64_decode($imageData);
-    
+
                 if ($imageData === false) {
                     throw new \Exception('Base64 decode failed.');
                 }
-    
+
                 $imageName = $validated['email'] . time() . '.png';
                 $imagePath = 'images/dept_officials/' . $imageName;
-    
+
                 // Store the image
                 $stored = Storage::disk('public')->put($imagePath, $imageData);
                 if (!$stored) {
                     throw new \Exception('Failed to save image to storage.');
                 }
-    
+
                 $validated['image'] = $imagePath;
             }
-    
+
             // Hash the password and generate verification token
             $validated['dept_off_password'] = Hash::make($validated['password']);
             $validated['verification_token'] = Str::random(64);
-    
+
             // Create the department officer record
             $official = DepartmentOfficial::create([
                 'dept_off_name' => $validated['name'],
                 'dept_off_designation' => $validated['designation'],
                 'dept_off_phone' => $validated['phone'],
-                'dept_off_role' => $validated['role'],
                 'dept_off_emp_id' => $validated['employee_id'],
                 'dept_off_email' => $validated['email'],
                 'dept_off_password' => $validated['dept_off_password'], // Hashed password
                 'dept_off_image' => $validated['image'] ?? null,
                 'verification_token' => $validated['verification_token'], // Verification token
             ]);
-    
+
             // Send welcome email
             Mail::send('email.department_official_created', [
                 'name' => $official->dept_off_name,
                 'email' => $official->dept_off_email,
-                'role' => $official->role,
                 'password' => $request->password, // Plain password for first login
             ], function ($message) use ($official) {
                 $message->to($official->dept_off_email)
                     ->subject('Welcome to the System');
             });
-    
+
             // Send email verification link
             Mail::send('email.department_official_verification', [
                 'name' => $official->dept_off_name,
@@ -121,10 +119,10 @@ class DepartmentOfficialsController extends Controller
                 $message->to($official->dept_off_email)
                     ->subject('Verify Your Email Address');
             });
-    
+
             // Log the creation action
             AuditLogger::log('Department Official Created', DepartmentOfficial::class, $official->dept_off_emp_id, null, $official->toArray());
-    
+
             // Redirect with success message
             return redirect()->route('department-officials.index')
                 ->with('success', 'Department official added successfully. Email verification link sent.');
@@ -135,7 +133,7 @@ class DepartmentOfficialsController extends Controller
                 ->with('error', 'There was an issue creating the department official: ' . $e->getMessage());
         }
     }
-    
+
 
     public function verifyEmail($token)
     {
@@ -161,8 +159,6 @@ class DepartmentOfficialsController extends Controller
     }
 
 
-
-
     public function edit($id)
     {
         $official = DepartmentOfficial::findOrFail($id);
@@ -184,7 +180,7 @@ class DepartmentOfficialsController extends Controller
             'name' => 'required|string|max:255',
             'employee_id' => 'required|string|max:20',
             'designation' => 'nullable|string|max:100',
-            'role' => 'required|integer',
+            // 'role' => 'required|integer',
             'phone' => 'nullable|string|max:20',
             'email' => 'required|email|max:255|unique:department_officer,dept_off_email,' . $id . ',dept_off_id',
             'cropped_image' => 'nullable|string', // Base64 encoded string for image
@@ -224,7 +220,7 @@ class DepartmentOfficialsController extends Controller
                 'dept_off_name' => $validated['name'],
                 'dept_off_emp_id' => $validated['employee_id'],
                 'dept_off_designation' => $validated['designation'],
-                'dept_off_role' => $validated['role'],
+                // 'dept_off_role' => $validated['role'],
                 'dept_off_phone' => $validated['phone'],
                 'dept_off_email' => $validated['email'],
                 'dept_off_password' => $validated['dept_off_password'] ?? $official->dept_off_password
@@ -285,14 +281,16 @@ class DepartmentOfficialsController extends Controller
     }
 
 
-
     public function show($id)
     {
         // Find the department official by their ID
         $official = DepartmentOfficial::findOrFail($id);
-        $roles = Role::findOrFail($official->dept_off_role);
+
+        // Check if dept_off_role is null
+        $roles = $official->dept_off_role ? Role::findOrFail($official->dept_off_role) : null;
 
         // Pass the department official data to the view
         return view('masters.department.officials.show', compact('official', 'roles'));
     }
+
 }

@@ -86,7 +86,7 @@
                                                     <label for="imageUpload" class="img-avtar-upload"></label>
                                                 </div>
                                             </div>
-                                            <div class="col-sm-6">
+                                            {{-- <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="role">Role <span
                                                             class="text-danger">*</span></label>
@@ -103,7 +103,7 @@
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>
-                                            </div>
+                                            </div> --}}
 
                                             <div class="col-sm-6">
                                                 <div class="mb-3">

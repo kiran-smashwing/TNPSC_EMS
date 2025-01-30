@@ -151,12 +151,12 @@
                                                     <select class="form-control @error('role_name') is-invalid @enderror"
                                                         id="role_name" name="role_name" required>
                                                         <option selected disabled>Select Role</option>
-                                                        <option value="SO">Section Officer</option>
-                                                        <option value="US">Under Seceratory</option>
-                                                        <option value="JS">Joint Seceratory</option>
-                                                        <option value="DS">Deputy Seceratory</option>
-                                                        <option value="SEC">Seceratory</option>
-                                                        <option value="COE">Controller of Examination</option>
+                                                        <option value="Section Officer">Section Officer</option>
+                                                        <option value="Under Seceratory">Under Seceratory</option>
+                                                        <option value="Joint Seceratory">Joint Seceratory</option>
+                                                        <option value="Deputy Seceratory">Deputy Seceratory</option>
+                                                        <option value="Seceratory">Seceratory</option>
+                                                        <option value="Controller of Examination">Controller of Examination</option>
                                                     </select>
                                                     @error('role_name')
                                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -184,7 +184,6 @@
                                                     @enderror
                                                 </div>
                                             </div>
-
                                             <div class="col-12 text-end btn-page">
                                                 <a href="{{ route('role') }}" class="btn btn-outline-secondary">Cancel</a>
                                                 <button type="submit" class="btn btn-primary">Create</button>

@@ -12,79 +12,99 @@ class RoleController extends Controller
 {
     public function index()
     {
-        $roles = Role::all(); // Retrieve all roles from the database
-        return view('masters.department.roles.index', compact('roles' ));
+        $roles = Role::with('department_officer')->get(); // Retrieve all roles from the database
+        return view('masters.department.roles.index', compact('roles'));
     }
 
     public function create()
     {
         $departmentOfficials = DepartmentOfficial::all();
-        return view('masters.department.roles.create',compact('departmentOfficials'));
+        return view('masters.department.roles.create', compact('departmentOfficials'));
     }
 
     public function store(Request $request)
     {
-        // Validate the incoming request data
         $request->validate([
             'role_name' => 'required|string|max:255',
             'role_department' => 'required|string|max:255',
-            'department_officer'=> 'required|numeric|exists:department_officer,dept_off_id',
+            'department_officer' => 'required|numeric|exists:department_officer,dept_off_id',
         ]);
+
         try {
-            // update role to department officer
+            // Check if role with the same department exists
+            $existingRole = Role::where('role_department', $request->role_department)
+                ->where('role_name', $request->role_name)
+                ->first();
+
+            if ($existingRole) {
+                $roleId = $existingRole->role_id;
+            } else {
+                // Create new role if it doesn't exist
+                $newRole = Role::create([
+                    'role_name' => $request->role_name,
+                    'role_department' => $request->role_department,
+                    'role_createdat' => now(),
+                ]);
+                $roleId = $newRole->role_id;
+
+                // Log the creation of new role
+                AuditLogger::log('Role Created', Role::class, $roleId, null, $newRole->toArray());
+            }
+
+            // Update department officer with the role
             $departmentOfficial = DepartmentOfficial::findOrFail($request->department_officer);
-            $departmentOfficial->dept_off_department = $request->role_department;
-            $departmentOfficial->dept_off_role = $request->role_name;
+            $departmentOfficial->dept_off_role = $roleId;
             $departmentOfficial->save();
-    
-            // Log the role assigned action in the audit log with the role and department name.
+
+            // Log the role assignment
             AuditLogger::log('Role Assigned', DepartmentOfficial::class, $departmentOfficial->dept_off_id, null, $departmentOfficial->toArray());
 
-            // Redirect with success message
-            return redirect()->route('role')->with('success', 'Role created successfully.');
+            return redirect()->route('role')->with('success', 'Role created and assigned successfully.');
         } catch (\Exception $e) {
-            // Send the error message to the session and show it in the view
-            return redirect()->back()->with('error', 'There was an issue creating the role: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'There was an issue creating/assigning the role: ' . $e->getMessage());
         }
     }
-
-
 
     public function edit($id)
     {
         $role = Role::findOrFail($id);
-        return view('masters.department.roles.edit', compact('role'));
+        $departmentOfficials = DepartmentOfficial::all();
+        return view('masters.department.roles.edit', compact('role', 'departmentOfficials'));
     }
 
     public function update(Request $request, $id)
     {
         try {
-            // Find the role by ID (this will automatically return 404 if the role is not found)
-            $role = Role::findOrFail($id);
-
             // Validate the incoming request data
             $request->validate([
                 'role_department' => 'required|string|max:255',
                 'role_name' => 'required|string|max:255',
+                'department_officer' => 'required|numeric|exists:department_officer,dept_off_id',
             ]);
 
-            // Update the role with new data
-            $role->update([
-                'role_department' => $request->role_department,
-                'role_name' => $request->role_name,
-            ]);
+            // Find the current department officer with this role_id
+            $currentOfficer = DepartmentOfficial::where('dept_off_role', $id)->first();
+            if ($currentOfficer) {
+                // Remove role assignment from current officer
+                $currentOfficer->dept_off_role = null;
+                $currentOfficer->save();
+                // Log the role removal
+                AuditLogger::log('Role Removed', DepartmentOfficial::class, $currentOfficer->dept_off_id, null, $currentOfficer->toArray());
+            }
 
-            // Log the update action in the audit log
-            AuditLogger::log('Role Updated', Role::class, $role->role_id, null, $role->toArray());
+            // Assign role to new officer
+            $newOfficer = DepartmentOfficial::findOrFail($request->department_officer);
+            $newOfficer->dept_off_role = $id;
+            $newOfficer->save();
 
-            // Redirect with success message
-            return redirect()->route('role')->with('success', 'Role updated successfully.');
+            // Log the role reassignment
+            AuditLogger::log('Role Reassigned', DepartmentOfficial::class, $newOfficer->dept_off_id, null, $newOfficer->toArray());
+
+            return redirect()->route('role')->with('success', 'Role reassigned successfully.');
         } catch (\Exception $e) {
-            // Send the error message to the session and show it in the view
-            return redirect()->back()->with('error', 'There was an issue updating the role: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'There was an issue reassigning the role: ' . $e->getMessage());
         }
     }
-
 
 
 

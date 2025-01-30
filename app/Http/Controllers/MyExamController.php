@@ -55,14 +55,17 @@ class MyExamController extends Controller
             // if user role is venue user
             $venueConsents = null;
             $meetingCodeGen = null;
+            $sendExamVenueConsent = null;
             if ($role == 'venue') {
                 $venueConsents = ExamVenueConsent::where('exam_id', $examId)
                     ->where('venue_id', $user->venue_id)
                     ->first();
-                $venueConsents->venueName = $user->venue_name;
                 if (!$venueConsents) {
                     abort(404, 'Venue consent not found');
                 }
+                $venueConsents->venueName = $user->venue_name;
+                $venueConsents->profile_image = $user->venue_image;
+
             } else if ($role == 'district') {
                 $meetingCodeGen = CIMeetingQrcode::where('exam_id', $examId)
                     ->where('district_code', $user->district_code)
@@ -71,7 +74,20 @@ class MyExamController extends Controller
                     $meetingCodeGen->user = $user;
                 }
             }
-            $examMaterialsUpdate = null;
+
+            //Fetch Activity Logs
+            $expectedCandidatesUpload = ExamAuditLog::where('exam_id', $examId)
+                ->where('task_type', 'apd_expected_candidates_upload')
+                ->first();
+            $candidatesCountIncrease = ExamAuditLog::where('exam_id', $examId)
+                ->where('task_type', 'id_candidates_update_percentage')
+                ->first();
+            if ($role == 'district') {
+                $sendExamVenueConsent = ExamAuditLog::where('exam_id', $examId)
+                    ->where('task_type', 'exam_venue_consent')
+                    ->where('user_id', $user->district_id)
+                    ->first();
+            }
             $examMaterialsUpdate = ExamAuditLog::where('exam_id', $examId)
                 ->where('task_type', 'ed_exam_materials_qrcode_upload')
                 ->first();
@@ -79,7 +95,7 @@ class MyExamController extends Controller
                 ->where('task_type', 'ed_exam_trunkbox_qr_otl_upload')
                 ->first();
 
-            return view('my_exam.task', compact('session', 'auditDetails', 'venueConsents', 'meetingCodeGen', 'examMaterialsUpdate', 'examTrunkboxOTLData'));
+            return view('my_exam.task', compact('session', 'auditDetails', 'sendExamVenueConsent', 'venueConsents', 'meetingCodeGen', 'expectedCandidatesUpload', 'candidatesCountIncrease', 'examMaterialsUpdate', 'examTrunkboxOTLData'));
         }
     }
 

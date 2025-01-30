@@ -36,7 +36,6 @@
                                     <div class="chat-user_list">
                                         <div class="card overflow-hidden">
                                             <div class="card-header">
-
                                                 <h5 class="">{{ $user->district_name }}<span
                                                         class="me-2 btn btn-sm bg-light-primary ">{{ $totalCentersFromProjection }}/{{ $totalCenters }}</span>
                                                 </h5>
@@ -57,6 +56,7 @@
                                                                             {{ ceil($center->total_accommodation / 200) }}
                                                                         </span>
                                                                     </div>
+                                                                    <p hidden id="requested"> {{ ceil($center->total_accommodation / 200) }}</p>
                                                                     <div
                                                                         class="chat-avtar text-md text-warning f-w-400 fs-5">
                                                                         {{ $center->center_code }}
@@ -89,7 +89,6 @@
                                                         <i class="ti ti-mail-forward " style="font-size: 19px;"></i>
                                                         <span>Send Mail </span>
                                                     </a>
-
                                                 </div>
                                             </div>
                                         </div>
@@ -113,13 +112,12 @@
                                                     <i class="ti ti-menu-2 f-18"></i>
                                                 </a>
                                             </li>
-
                                         </ul>
-
                                         <ul class="list-inline ms-auto me-auto mb-0 fs-5 ">
                                             <li class="list-inline-item">
                                                 <a href="#" class="badge bg-dark ">Requested
-                                                    {{ ceil($center->total_accommodation / 200) }}</a>
+                                                    <span id="requested-count">0</span>
+                                                </a>
                                             </li>
                                             <li class="list-inline-item">
                                                 <a href="#" class="badge bg-success">Accepted
@@ -191,7 +189,8 @@
                                                                             <span
                                                                                 class="badge bg-light-warning">Waiting</span>
                                                                         @elseif ($venue->consent_status === 'requested')
-                                                                            <span class="badge bg-light-info">Email Sent</span>
+                                                                            <span class="badge bg-light-info">Email
+                                                                                Sent</span>
                                                                         @elseif ($venue->consent_status === 'accepted')
                                                                             <span
                                                                                 class="badge bg-light-success">Accepted</span>
@@ -437,14 +436,17 @@
                     var centerCode = centerElement.data('center-code');
                     var requiredHalls = centerElement.find('.required-halls').text();
                     var totalVenues = $centerVenues.length;
+                    var requestedCount = centerElement.find('#requested').text();
 
                     $('#selected-center-name').text(centerName);
                     $('#selected-center-code').text(centerCode);
                     $('#required-halls').text(requiredHalls);
                     $('#total-venues').text(totalVenues);
+                    $('#requested-count').text(requestedCount);
 
                     // Reset and update selected venues count
                     updateSelectedVenuesCount();
+
                 }
 
                 function updateSelectedVenuesCount() {

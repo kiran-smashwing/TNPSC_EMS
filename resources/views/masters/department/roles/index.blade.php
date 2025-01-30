@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                  <h2 class="mb-0"></h2>
-                </div> -->
+                      <h2 class="mb-0"></h2>
+                    </div> -->
                         </div>
                     </div>
                 </div>
@@ -149,32 +149,32 @@
 
 
             <!-- [ Main Content ] start -->
-           
+
             <div class="row">
                 @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
 
-            @if (session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
+                @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
 
-            @if ($errors->any())
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <ul class="mb-0">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
                 <!-- [ basic-table ] start -->
                 <div class="col-xl-12">
                     <div class="card">
@@ -194,26 +194,29 @@
                                         <th>#</th>
                                         <th>Department</th>
                                         <th>Role</th>
+                                        <th>Officer</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($roles as $role)
+                                    @foreach ($roles as $role)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $role->role_department }}</td>
                                             <td>
                                                 <div class="flex-grow-1 ms-3">
-                                                    <h6 class="mb-0">{{ $role->role_name}}</h6>
+                                                    <h6 class="mb-0">{{ $role->role_name }}</h6>
                                                 </div>
                                             </td>
+                                            <td>{{ $role->department_officer->dept_off_name ?? 'N/A'}}</td>
                                             <td>
                                                 <!-- View Button -->
                                                 {{-- <a href="{{ route('roles.show', $role->role_id) }}" class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-eye f-20"></i>
                                                 </a> --}}
                                                 <!-- Edit Button -->
-                                                <a href="{{ route('roles.edit', $role->role_id) }}" class="avtar avtar-xs btn-light-success">
+                                                <a href="{{ route('roles.edit', $role->role_id) }}"
+                                                    class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-edit f-20"></i>
                                                 </a>
                                                 <!-- Delete Button -->

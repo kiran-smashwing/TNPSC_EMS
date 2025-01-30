@@ -23,4 +23,9 @@ class Role extends Model
     protected $casts = [
         'role_createdat' => 'datetime',
     ];
+
+    public function department_officer()
+    {
+        return $this->belongsTo(DepartmentOfficial::class, 'role_id', 'dept_off_role');
+    }
 }

@@ -7,25 +7,34 @@ class AuthorizationService
     private $rolePermissions = [
         'headquarters' => [
             'RND' => [
-                'current-exam.create',
-                'current-exam.store',
-                'current-exam.edit',
+                'Section Officer' => [
+                    'current-exam.create',
+                    'current-exam.store',
+                    'current-exam.edit',
+                ],
             ],
             'APD' => [
-                'upload-candidates-csv',
-                'finalize-csv',
+                'Section Officer' => [
+                    'upload-candidates-csv',
+                    'download-expected-candidates',
+                    'finalize-csv',
+                ],
             ],
             'ID' => [
-                'update-percentage',
-                'create-charted-vehicle-route',
-                'edit-charted-vehicle-route',
-                'create-escort-staff',
-                'create-exam-materails-route',
-                'view-all-districts',
-                'district-masters',
-                'venues-masters',
-                'view-all-venue',
-                'departments-masters',
+                'Section Officer' => [
+                    'download-expected-candidates',
+                    'update-percentage',
+                    'download-candidates-count-updated',
+                    'create-charted-vehicle-route',
+                    'edit-charted-vehicle-route',
+                    'create-escort-staff',
+                    'create-exam-materails-route',
+                    'view-all-districts',
+                    'district-masters',
+                    'venues-masters',
+                    'view-all-venue',
+                    'departments-masters',
+                ],
             ],
             'ED' => [
                 'upload-exam-materials-csv',
@@ -53,10 +62,10 @@ class AuthorizationService
             'receive-bundle-from-mobile-team',
             'district-masters',
             'view-all-center',
-            
+
         ],
         'center' => [
-           'download-meeting-qr',
+            'download-meeting-qr',
         ],
         // Add other roles and their permissions
     ];
@@ -67,7 +76,7 @@ class AuthorizationService
         if ($role === 'sw-admin') {
             return true; // sw-admin has access to everything
         }
-        
+
         // Check if user is logged in through any guard
         if (!isset($this->rolePermissions[$role])) {
             return false;
@@ -76,7 +85,8 @@ class AuthorizationService
         if ($role === 'headquarters') {
             $user = auth()->guard('headquarters')->user();
             $department = $user->role->role_department;
-            return collect($this->rolePermissions[$role][$department] ?? [])
+            $dept_role = $user->role->role_name;
+            return collect($this->rolePermissions[$role][$department][$dept_role] ?? [])
                 ->contains(function ($allowedPermission) use ($permission) {
                     return \Illuminate\Support\Str::is($allowedPermission, $permission);
                 });

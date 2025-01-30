@@ -25,6 +25,9 @@ class AuthorizationService
                 'district-masters',
                 'venues-masters',
                 'view-all-venue',
+                'center-filters',
+                'treasury-officers-filter',
+                'mobile-team-staffs-filter',
                 'departments-masters',
             ],
             'ED' => [

@@ -25,10 +25,20 @@ class InvigilatorsController extends Controller
 
     public function index(Request $request)
     {
+        // Get user details
+        $role = session('auth_role');
+        $user_details = $request->get('auth_user');
+        $user_venue_code = $user_details->venue_code ?? null;
+        // dd($user_details);
         // Start the query for Invigilators
         $query = Invigilator::query();
 
-        // Apply filter by district if selected
+        // If the user has a district_code, show only their district's data
+        if (!empty($user_venue_code)) {
+            $query->where('invigilator_venue_id', $user_venue_code);
+        }
+
+        // Apply filter by district if selected (overrides auto district filter)
         if ($request->filled('district')) {
             $query->where('invigilator_district_id', $request->input('district'));
         }
@@ -43,21 +53,22 @@ class InvigilatorsController extends Controller
             $query->where('invigilator_venue_id', $request->input('venue'));
         }
 
-        // Fetch filtered invigilators with pagination
+        // Fetch filtered invigilators
         $invigilators = $query->orderBy('invigilator_name')->get();
-        // Fetch unique district values from the same table
-        $districts = District::all(); // Fetch all districts
 
+        // Fetch all districts (for dropdown)
+        $districts = District::all();
 
-        // Fetch unique centers values from the same table
-        $centers = center::all();  // Fetch all centers
+        // Fetch all centers (for dropdown)
+        $centers = Center::all();
 
-        // Fetch unique venues values from the same table
-        $venues = venues::all();  // Fetch all venues
+        // Fetch all venues (for dropdown)
+        $venues = Venues::all();
 
         // Return the view with the necessary data
         return view('masters.venues.invigilator.index', compact('invigilators', 'districts', 'centers', 'venues'));
     }
+
 
     public function create(Request $request)
     {
@@ -74,7 +85,7 @@ class InvigilatorsController extends Controller
             $centers = Center::where('center_code', $user->venue_center_id)->get();
             $districts = District::where('district_code', $user->venue_district_id)->get();
 
-            return view('masters.venues.invigilator.create', compact('venues', 'centers', 'districts'));
+            return view('masters.venues.invigilator.create', compact('venues', 'centers', 'districts', 'user'));
         } else if ($role == 'ci') {
             if (!$user) {
                 return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);

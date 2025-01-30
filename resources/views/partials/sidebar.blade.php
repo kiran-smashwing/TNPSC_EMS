@@ -168,7 +168,7 @@
                         <use xlink:href="#custom-presentation-chart"></use>
                     </svg>
                 </li>
-                <li class="pc-item">
+                {{-- <li class="pc-item">
                     <a href="{{ route('my-exam.index') }}" class="pc-link">
                         <span class="pc-micon">
                             <svg class="pc-icon">
@@ -177,7 +177,7 @@
                         </span>
                         <span class="pc-mtext">My Exams</span>
                     </a>
-                </li>
+                </li> --}}
                 <li class="pc-item">
                     <a href="{{ route('current-exam.index') }}" class="pc-link">
                         <span class="pc-micon">
@@ -188,7 +188,7 @@
                         <span class="pc-mtext">Current Exams</span>
                     </a>
                 </li>
-                <li class="pc-item">
+                {{-- <li class="pc-item">
                     <a href="{{ route('my-exam.ciTask', '20241126092207') }}" class="pc-link">
                         <span class="pc-micon">
                             <svg class="pc-icon">
@@ -197,8 +197,8 @@
                         </span>
                         <span class="pc-mtext">CI - Current Exams</span>
                     </a>
-                </li>
-                <li class="pc-item">
+                </li> --}}
+                {{-- <li class="pc-item">
                     <a href="{{ route('current-exam.ciMeeting') }}" class="pc-link">
                         <span class="pc-micon">
                             <svg class="pc-icon">
@@ -207,7 +207,7 @@
                         </span>
                         <span class="pc-mtext">CI - Meeting</span>
                     </a>
-                </li>
+                </li> --}}
                 {{-- <li class="pc-item">
                 <a href="{{ route('current-exam.districtTask') }}" class="pc-link">
                     <span class="pc-micon">
@@ -218,7 +218,7 @@
                     <span class="pc-mtext">District - Current Exams</span>
                 </a>
             </li> --}}
-                <li class="pc-item">
+                {{-- <li class="pc-item">
                     <a href="{{ route('my-exam.centerexamTask') }}" class="pc-link">
                         <span class="pc-micon">
                             <svg class="pc-icon">
@@ -227,7 +227,7 @@
                         </span>
                         <span class="pc-mtext">Center - Current Exams</span>
                     </a>
-                </li>
+                </li> --}}
                 {{-- <li class="pc-item">
                 <a href="{{ route('my-exam.mobileTeamTask', '20241126092207') }}" class="pc-link">
                     <span class="pc-micon">
@@ -304,10 +304,24 @@
                         {{-- <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> Inspection
                             staff Report</a>
                     </li> --}}
-                        <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> Meeting
-                                Reports</a>
+                        <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">CI Meeting
+                                Reports Attendance</a>
                         </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('qp_booklet.report') }}"> Question
+                        <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">Exam Material Discrepancy</a>
+                        </li>
+                        <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">Candidate Attendance</a>
+                        </li>
+                        <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">Emergency Alarm Notification</a>
+                        </li>
+                        <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">Emergency Alarm Notification</a>
+                        </li>
+                        <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">Replacement of OMR/QCA</a>
+                        </li>
+                        <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">Candidate Remarks</a>
+                        </li>
+                        <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">Consolidate Statement </a>
+                        </li>
+                        {{-- <li class="pc-item"><a class="pc-link" href="{{ route('qp_booklet.report') }}"> Question
                                 Booklet Account</a>
                         </li>
                         <li class="pc-item"><a class="pc-link" href="{{ route('bundle-receiving.report') }}">
@@ -320,7 +334,7 @@
                         <li class="pc-item"><a class="pc-link" href="{{ route('attendance.report') }}">
                                 Attendance
                                 Reports</a>
-                        </li>
+                        </li> --}}
                     </ul>
                 </li>
 

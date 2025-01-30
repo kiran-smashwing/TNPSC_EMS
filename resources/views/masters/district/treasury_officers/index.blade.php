@@ -189,6 +189,7 @@
                         </div>
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
+                            @hasPermission('treasury-officers-filter')
                             <form id="filterForm" class="mb-3">
                                 {{-- <div class="filter-item">
                                     <select class="form-select" id="roleFilter" name="role">
@@ -204,7 +205,7 @@
                                         <option value="">Select District Name</option>
                                         @foreach ($districts as $district)
                                             <option value="{{ $district->tre_off_district_id }}"
-                                                {{ request('district') == $district->tre_off_district_id ? 'selected' : '' }}>
+                                                {{ request('district') == $district->tre_off_district_id }}>
                                                 {{ $district->district_name }}
                                             </option>
                                         @endforeach
@@ -226,7 +227,7 @@
                                 <!-- Reset Filters Button -->
 
                             </form>
-
+                            @endhasPermission
 
                             <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
                                 width="100%">

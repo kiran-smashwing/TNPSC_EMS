@@ -201,6 +201,7 @@
 
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
+                            @if(session('auth_role')=='headquarters')
                             <form id="filterForm" class="mb-3">
                                 {{-- District Filter --}}
                                 <div class="filter-item">
@@ -229,6 +230,7 @@
                                 </div>
 
                                 {{-- Venue Filter --}}
+                                
                                 <div class="filter-item">
                                     <select class="form-select" id="venueFilter" name="venue">
                                         <option value="">Select Venue</option>
@@ -240,7 +242,7 @@
                                         @endforeach --}}
                                     </select>
                                 </div>
-
+                           
 
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
@@ -248,6 +250,7 @@
                                 <a href="{{ url()->current() }}" class="btn btn-secondary"><i
                                         class="ti ti-refresh me-2"></i>Reset</a>
                             </form>
+                            @endif
 
 
                             <table id="centersTable" class="display table table-striped table-hover dt-responsive nowrap"

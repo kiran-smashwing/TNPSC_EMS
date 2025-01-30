@@ -23,41 +23,44 @@ class CIAssistantsController extends Controller
     }
 
     public function index(Request $request)
-    {
-        // Start the query for CIAssistants
-        $query = CIAssistant::query();
+{
+    // Retrieve user details
+    $role = session('auth_role');
+    $user_details = $request->get('auth_user');
+    $user_venue_code = $user_details->venue_code ?? null;
+    // Start query for CIAssistants with related District, Center, and Venue
+    $query = CIAssistant::with(['district', 'center', 'venue']);
 
-        // Apply filter by district if selected
-        if ($request->filled('district')) {
-            $query->where('cia_district_id', $request->input('district'));
-        }
-
-        // Apply filter by center if selected
-        if ($request->filled('center')) {
-            $query->where('cia_center_id', $request->input('center'));
-        }
-
-        // Apply filter by venue if selected
-        if ($request->filled('venue')) {
-            $query->where('cia_venue_id', $request->input('venue'));
-        }
-
-        // Fetch filtered CIAssistants with pagination
-        $ciAssistants = $query->get();
-
-        // Fetch unique district values from the same table
-        $districts = District::all(); // Fetch all districts
-
-
-        // Fetch unique centers values from the same table
-        $centers = center::all();  // Fetch all centers
-
-        // Fetch unique venues values from the same table
-        $venues = venues::all();  // Fetch all venues
-
-        // Return the view with the necessary data
-        return view('masters.venues.ci_assistants.index', compact('ciAssistants', 'districts', 'centers', 'venues'));
+    // Apply default user-based filtering
+    if (!empty($user_venue_code)) {
+        $query->where('cia_venue_id', $user_venue_code);
     }
+
+    // Apply filters based on request input
+    if ($request->filled('district')) {
+        $query->where('cia_district_id', $request->input('district'));
+    }
+
+    if ($request->filled('center')) {
+        $query->where('cia_center_id', $request->input('center'));
+    }
+
+    if ($request->filled('venue')) {
+        $query->where('cia_venue_id', $request->input('venue'));
+    }
+
+    // Fetch filtered CIAssistants with pagination
+    $ciAssistants = $query->orderBy('cia_name')->paginate(10);
+
+    // Fetch all districts, centers, and venues
+    $districts = District::all();
+    $centers = Center::all();
+    $venues = Venues::all();
+
+    // Return the view with data
+    return view('masters.venues.ci_assistants.index', compact('ciAssistants', 'districts', 'centers', 'venues'));
+}
+
 
 
 
@@ -92,7 +95,7 @@ class CIAssistantsController extends Controller
         $centers = Center::all(); // Retrieves all centers
         $districts = District::all(); // Retrieves all districts
 
-        return view('masters.venues.ci_assistants.create', data: compact('districts', 'centers', 'venues'));
+        return view('masters.venues.ci_assistants.create', data: compact('districts', 'centers', 'venues','user'));
     }
 
     public function store(Request $request)

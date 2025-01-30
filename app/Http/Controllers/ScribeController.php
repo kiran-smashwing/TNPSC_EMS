@@ -24,18 +24,30 @@ class ScribeController extends Controller
 
     public function index(Request $request)
     {
-        // Start query for Scribe with related District, Center, and Venue
+        // Get user details
+        $role = session('auth_role');
+        $user_details = $request->get('auth_user');
+        $user_venue_code = $user_details->venue_code ?? null;
+
+        // Start the query for Scribes with relationships
         $query = Scribe::with(['district', 'center', 'venue']);
 
-        // Apply filters based on the request
+        // If the user has a venue_code, show only their venue's data
+        if (!empty($user_venue_code)) {
+            $query->where('scribe_venue_id', $user_venue_code);
+        }
+
+        // Apply filter by district if selected (overrides auto venue filter)
         if ($request->filled('district')) {
             $query->where('scribe_district_id', $request->input('district'));
         }
 
+        // Apply filter by center if selected
         if ($request->filled('center')) {
             $query->where('scribe_center_id', $request->input('center'));
         }
 
+        // Apply filter by venue if selected
         if ($request->filled('venue')) {
             $query->where('scribe_venue_id', $request->input('venue'));
         }
@@ -43,20 +55,19 @@ class ScribeController extends Controller
         // Fetch filtered scribes
         $scribes = $query->orderBy('scribe_name')->get();
 
-        // Fetch unique district values from the same table
-        $districts = District::all(); // Fetch all districts
+        // Fetch all districts (for dropdown)
+        $districts = District::all();
 
+        // Fetch all centers (for dropdown)
+        $centers = Center::all();
 
-        // Fetch unique centers values from the same table
-        $centers = center::all();  // Fetch all centers
+        // Fetch all venues (for dropdown)
+        $venues = Venues::all();
 
-        // Fetch unique venues values from the same table
-        $venues = venues::all();  // Fetch all venues
-
-
-        // Return view with the filtered scribes and filter data
+        // Return the view with the necessary data
         return view('masters.venues.scribe.index', compact('scribes', 'districts', 'centers', 'venues'));
     }
+
 
     public function create(Request $request)
     {
@@ -73,7 +84,7 @@ class ScribeController extends Controller
             $centers = Center::where('center_code', $user->venue_center_id)->get();
             $districts = District::where('district_code', $user->venue_district_id)->get();
 
-            return view('masters.venues.scribe.create', compact('districts', 'centers', 'venues'));
+            return view('masters.venues.scribe.create', compact('districts', 'centers', 'venues','user'));
         } else if ($role == 'ci') {
             if (!$user) {
                 return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);

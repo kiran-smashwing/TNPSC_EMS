@@ -27,23 +27,28 @@ class TreasuryOfficerController extends Controller
 
     public function index(Request $request)
     {
+        // Get user details
+        $role = session('auth_role');
+        $user_details = $request->get('auth_user');
+        $user_district_code = $user_details->district_code ?? null;
+
         // Start the query for Treasury Officers with the district relationship
         $query = TreasuryOfficer::with('district');
 
-        // Filter by district if a district is selected
-        if ($request->filled('district')) {
-            // Apply filter using the correct column `tre_off_district_id`
-            $query->where('tre_off_district_id', $request->input('district'));
+        // If the user has a district_code, only show data for that district
+        if (!empty($user_district_code)) {
+            $query->where('tre_off_district_id', $user_district_code);
         }
 
-        // Fetch filtered Treasury Officers
+        // Fetch Treasury Officers based on the above logic
         $treasuryOfficers = $query->orderBy('tre_off_name')->get();
 
-        // Fetch unique district values from the same table
-        $districts = District::all(); // Fetch all districts
+        // Fetch all districts (for dropdown or display purposes)
+        $districts = District::all();
 
         return view('masters.district.treasury_Officers.index', compact('treasuryOfficers', 'districts'));
     }
+
 
 
     public function create()
@@ -271,15 +276,15 @@ class TreasuryOfficerController extends Controller
 
         // Count of centers, venues, and members related to the district
         $centerCount = $treasuryOfficer->district->centers()->count();  // Assuming 'centers' is a relationship in District model
-        $venueCount = $treasuryOfficer->district->venues()->count(); 
+        $venueCount = $treasuryOfficer->district->venues()->count();
         $staffCount = $treasuryOfficer->district->treasuryOfficers()->count() + $treasuryOfficer->district->mobileTeamStaffs()->count();
-        
+
 
         // Log view action
         AuditLogger::log('Treasury Officer Viewed', TreasuryOfficer::class, $treasuryOfficer->tre_off_id);
 
         // Pass the counts to the view
-        return view('masters.district.treasury_Officers.show', compact('treasuryOfficer', 'centerCount', 'venueCount','staffCount'));
+        return view('masters.district.treasury_Officers.show', compact('treasuryOfficer', 'centerCount', 'venueCount', 'staffCount'));
     }
 
 

@@ -94,7 +94,7 @@
                                                         <label class="form-label" for="district">District<span
                                                                 class="text-danger">*</span></label>
                                                         <select class="form-control @error('district') is-invalid @enderror"
-                                                            id="district" name="district" required>
+                                                            id="district" name="district" required {{ session('auth_role') == 'venue' ? 'disabled' : '' }}>
                                                             <option value="">Select District</option>
                                                             @foreach ($districts as $district)
                                                                 <option value="{{ $district->district_code }}"
@@ -115,7 +115,7 @@
                                                     <label class="form-label" for="center">Center<span
                                                             class="text-danger">*</span></label>
                                                     <select class="form-control @error('center') is-invalid @enderror"
-                                                        id="center" name="center" required>
+                                                        id="center" name="center" required {{ session('auth_role') == 'venue' ? 'disabled' : '' }}>
                                                         <option value="">Select Center</option>
                                                     <!-- Centers will be dynamically populated -->    
                                                     </select>
@@ -130,7 +130,7 @@
                                                     <label class="form-label" for="venue">Venue<span
                                                             class="text-danger">*</span></label>
                                                     <select class="form-control @error('venue') is-invalid @enderror"
-                                                        id="venue" name="venue" required>
+                                                        id="venue" name="venue" required {{ session('auth_role') == 'venue' ? 'disabled' : '' }}>
                                                         <option value="">Select Venue</option>
                                                     <!-- Venues will be dynamically populated -->   
                                                     </select>

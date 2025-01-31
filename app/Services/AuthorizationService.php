@@ -18,6 +18,8 @@ class AuthorizationService
                     'upload-candidates-csv',
                     'download-expected-candidates',
                     'finalize-csv',
+                    'downlaodConfirmedExamHalls',
+                    'download-finalized-halls-csv',
                 ],
             ],
             'ID' => [
@@ -34,13 +36,18 @@ class AuthorizationService
                     'venues-masters',
                     'view-all-venue',
                     'center-filters',
-                'treasury-officers-filter',
-                'mobile-team-staffs-filter',
-                'departments-masters',
+                    'treasury-officers-filter',
+                    'mobile-team-staffs-filter',
+                    'departments-masters',
+                    'confirmExamVenueHalls',
+                    'downlaodConfirmedExamHalls',
                 ],
             ],
             'ED' => [
-                'upload-exam-materials-csv',
+                'Section Officer' => [
+                    'upload-exam-materials-csv',
+                    'download-exam-materials-uploaded',
+                ],
             ],
             'ADMIN' => [
                 'ci-meetings.*',
@@ -66,6 +73,9 @@ class AuthorizationService
             'district-masters',
             'view-all-center',
 
+        ],
+        'treasury' => [
+            'receive-exam-materials-from-printer',
         ],
         'center' => [
             'download-meeting-qr',

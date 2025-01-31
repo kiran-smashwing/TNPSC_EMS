@@ -88,14 +88,23 @@ class MyExamController extends Controller
                     ->where('user_id', $user->district_id)
                     ->first();
             }
+            $examVenueHallConfirmation = ExamAuditLog::where('exam_id', $examId)
+                ->where('task_type', 'exam_venue_hall_confirmation')
+                ->first();
+            $apdFinalizeHallsUpload = ExamAuditLog::where('exam_id', $examId)
+                ->where('task_type', 'apd_finalize_halls_upload')
+                ->first();
             $examMaterialsUpdate = ExamAuditLog::where('exam_id', $examId)
                 ->where('task_type', 'ed_exam_materials_qrcode_upload')
+                ->first();
+            $receiveMaterialsPrinterToDistrict = ExamAuditLog::where('exam_id', $examId)
+                ->where('task_type', 'receive_materials_printer_to_disitrct_treasury')
                 ->first();
             $examTrunkboxOTLData = ExamAuditLog::where('exam_id', $examId)
                 ->where('task_type', 'ed_exam_trunkbox_qr_otl_upload')
                 ->first();
 
-            return view('my_exam.task', compact('session', 'auditDetails', 'sendExamVenueConsent', 'venueConsents', 'meetingCodeGen', 'expectedCandidatesUpload', 'candidatesCountIncrease', 'examMaterialsUpdate', 'examTrunkboxOTLData'));
+            return view('my_exam.task', compact('session', 'auditDetails', 'sendExamVenueConsent', 'venueConsents', 'meetingCodeGen', 'expectedCandidatesUpload', 'candidatesCountIncrease','examVenueHallConfirmation','apdFinalizeHallsUpload','examMaterialsUpdate','receiveMaterialsPrinterToDistrict', 'examTrunkboxOTLData'));
         }
     }
 

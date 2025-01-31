@@ -424,7 +424,7 @@
                                                                     </li>
                                                                     <li class="d-sm-inline-block d-block mt-1"><i
                                                                             class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                        {{ $is_venue_consent_sent ? \Carbon\Carbon::parse($expectedCandidatesUpload->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                        {{ $is_venue_consent_sent ? \Carbon\Carbon::parse($sendExamVenueConsent->updated_at)->format('d-m-Y h:i A') : ' ' }}
                                                                     </li>
                                                                 </ul>
                                                             </div>
@@ -461,12 +461,15 @@
                                                 : asset('storage/assets/images/user/venue.png');
                                         // Set dynamic badge text and color
                                         $uploadStatus = $venueConsents ? 'Updated' : 'Pending';
-                                        $badgeClass = $venueConsents->consent_status == 'accepted' ? 'bg-light-secondary' : 'bg-danger';
+                                        $badgeClass =
+                                            $venueConsents->consent_status == 'accepted'
+                                                ? 'bg-light-secondary'
+                                                : 'bg-danger';
 
                                     @endphp
                                     <li class="task-list-item">
                                         <i
-                                        class="task-icon {{ $venueConsents->consent_status == 'accepted' ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
+                                            class="task-icon {{ $venueConsents->consent_status == 'accepted' ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                         <div class="card ticket-card open-ticket">
                                             <div class="card-body">
                                                 <div class="row">
@@ -531,15 +534,39 @@
                                     </li>
                                 @endif
                                 @if (session('auth_role') == 'headquarters')
+                                    @php
+                                        $is_halls_confirmed = $examVenueHallConfirmation !== null;
+
+                                        $metadata = null;
+                                        if ($examVenueHallConfirmation !== null) {
+                                            $metadata = is_string($examVenueHallConfirmation->metadata)
+                                                ? json_decode($examVenueHallConfirmation->metadata)
+                                                : (object) $examVenueHallConfirmation->metadata;
+                                            $examVenueHallConfirmation = (object) $examVenueHallConfirmation;
+                                        }
+
+                                        $user = $is_halls_confirmed
+                                            ? App\Models\DepartmentOfficial::find($examVenueHallConfirmation->user_id)
+                                            : null;
+                                        $profileImage =
+                                            $user && !empty($user->profile_image)
+                                                ? asset('storage/' . $user->profile_image)
+                                                : asset('storage/assets/images/user/avatar-9.jpg');
+                                        // Set dynamic badge text and color
+                                        $uploadStatus = $is_halls_confirmed ? 'Confirmed' : 'Pending';
+                                        $badgeClass = $is_halls_confirmed ? 'bg-light-secondary' : 'bg-danger';
+
+                                    @endphp
                                     <li class="task-list-item">
-                                        <i class="task-icon bg-danger"></i>
+                                        <i
+                                            class="task-icon {{ $is_halls_confirmed ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                         <div class="card ticket-card open-ticket">
                                             <div class="card-body">
                                                 <div class="row">
                                                     <div class="col-sm-auto mb-3 mb-sm-0">
                                                         <div class="d-sm-inline-block d-flex align-items-center">
-                                                            <img class="media-object wid-60 img-radius"
-                                                                src="{{ asset('storage/assets/images/user/avatar-9.jpg') }}"
+                                                            <img loading="lazy" class="media-object wid-60 img-radius"
+                                                                src="{{ $profileImage }}"
                                                                 alt="Generic placeholder image " />
                                                             <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                                 <ul
@@ -552,7 +579,7 @@
                                                     <div class="col">
                                                         <div class="popup-trigger">
                                                             <div class="h5 font-weight-bold">Confirm Venues <small
-                                                                    class="badge bg-light-secondary ms-2">confirmed</small>
+                                                                    class="badge {{ $badgeClass }} ms-2">{{ $uploadStatus }}</small>
                                                             </div>
                                                             <div class="help-sm-hidden">
                                                                 <ul class="list-unstyled mt-2 mb-0 text-muted">
@@ -561,12 +588,12 @@
                                                                             src="../assets/images/user/avatar-5.jpg"
                                                                             alt=""
                                                                             class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                        <b>Mythili</b>
+                                                                        <b>{{ $is_halls_confirmed ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
                                                                     </li>
                                                                     <li class="d-sm-inline-block d-block mt-1"><i
                                                                             class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                        23-07-2024 05:00 PM</li>
-
+                                                                        {{ $is_halls_confirmed ? \Carbon\Carbon::parse($examVenueHallConfirmation->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                    </li>
                                                                 </ul>
                                                             </div>
                                                             <div class="h5 mt-3"><i
@@ -575,14 +602,17 @@
                                                                 -Section Officer</div>
                                                         </div>
                                                         <div class="mt-2">
-                                                            <a target="_blank"
-                                                                href="{{ route('id-candidates.show-venue-confirmation-form', $session->exam_main_no) }}"
-                                                                class="me-2 btn btn-sm btn-light-primary m-2"><i
-                                                                    class="feather icon-eye mx-1"></i>Review Venues</a>
-                                                            <a href="{{ route('id-candidates.export-confirmed-halls', $session->exam_main_no) }}"
-                                                                class="me-2 btn btn-sm btn-light-info"><i
-                                                                    class="feather icon-download mx-1"></i>Download CSV</a>
-
+                                                            @hasPermission('confirmExamVenueHalls')
+                                                                <a target="_blank"
+                                                                    href="{{ route('id-candidates.show-venue-confirmation-form', $session->exam_main_no) }}"
+                                                                    class="me-2 btn btn-sm btn-light-primary m-2"><i
+                                                                        class="feather icon-eye mx-1"></i>Review Venues</a>
+                                                            @endhasPermission
+                                                            @hasPermission('downlaodConfirmedExamHalls')
+                                                                <a href="{{ route('id-candidates.export-confirmed-halls', $session->exam_main_no) }}"
+                                                                    class="me-2 btn btn-sm btn-light-info"><i
+                                                                        class="feather icon-download mx-1"></i>Download CSV</a>
+                                                            @endhasPermission
                                                         </div>
                                                     </div>
                                                 </div>
@@ -590,17 +620,40 @@
                                         </div>
                                     </li>
                                     @php
-                                        $is_apd_upload = $audit->task_type == 'apd_finalize_halls_upload';
+                                        $is_finalize_halls_upload = $audit->task_type == 'apd_finalize_halls_upload';
+                                    @endphp
+                                    @php
+                                        $is_finalize_halls_upload = $apdFinalizeHallsUpload !== null;
+
+                                        $metadata = null;
+                                        if ($apdFinalizeHallsUpload !== null) {
+                                            $metadata = is_string($apdFinalizeHallsUpload->metadata)
+                                                ? json_decode($apdFinalizeHallsUpload->metadata)
+                                                : (object) $apdFinalizeHallsUpload->metadata;
+                                            $apdFinalizeHallsUpload = (object) $apdFinalizeHallsUpload;
+                                        }
+                                        $user = $is_finalize_halls_upload
+                                            ? App\Models\DepartmentOfficial::find($apdFinalizeHallsUpload->user_id)
+                                            : null;
+                                        $profileImage =
+                                            $user && !empty($user->profile_image)
+                                                ? asset('storage/' . $user->profile_image)
+                                                : asset('storage/assets/images/user/avatar-1.jpg');
+                                        // Set dynamic badge text and color
+                                        $uploadStatus = $is_finalize_halls_upload ? 'Uploaded' : 'Pending';
+                                        $badgeClass = $is_finalize_halls_upload ? 'bg-light-secondary' : 'bg-danger';
+
                                     @endphp
                                     <li class="task-list-item">
-                                        <i class="task-icon bg-primary"></i>
+                                        <i
+                                            class="task-icon {{ $is_finalize_halls_upload ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                         <div class="card ticket-card open-ticket">
                                             <div class="card-body">
                                                 <div class="row">
                                                     <div class="col-sm-auto mb-3 mb-sm-0">
                                                         <div class="d-sm-inline-block d-flex align-items-center">
-                                                            <img class="media-object wid-60 img-radius"
-                                                                src="{{ asset('storage/assets/images/user/avatar-6.jpg') }}"
+                                                            <img loading="lazy" class="media-object wid-60 img-radius"
+                                                                src="{{ $profileImage }}"
                                                                 alt="Generic placeholder image " />
                                                             <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                                 <ul
@@ -611,8 +664,9 @@
                                                     </div>
                                                     <div class="col">
                                                         <div class="popup-trigger">
-                                                            <div class="h5 font-weight-bold">Finalize Exam Halls<small
-                                                                    class="badge bg-light-secondary ms-2">uploaded</small>
+                                                            <div class="h5 font-weight-bold">Finalize Exam Halls
+                                                                <small
+                                                                    class="badge {{ $badgeClass }} ms-2">{{ $uploadStatus }}</small>
                                                             </div>
                                                             <div class="help-sm-hidden">
                                                                 <ul class="list-unstyled mt-2 mb-0 text-muted">
@@ -621,21 +675,21 @@
                                                                             alt=""
                                                                             class="wid-20 rounded me-2 img-fluid" />Done
                                                                         by
-                                                                        <b>{{ $is_apd_upload ? json_decode($audit->metadata)->user_name ?? '' : ' Unknown ' }}</b>
+                                                                        <b>{{ $is_finalize_halls_upload ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
                                                                     </li>
                                                                     <li class="d-sm-inline-block d-block mt-1"><i
                                                                             class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                        {{ $is_apd_upload ? \Carbon\Carbon::parse($audit->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                        {{ $is_finalize_halls_upload ? \Carbon\Carbon::parse($apdFinalizeHallsUpload->updated_at)->format('d-m-Y h:i A') : ' ' }}
                                                                     </li>
                                                                 </ul>
                                                             </div>
                                                             <div class="h5 mt-3"><i
                                                                     class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                {{ $is_apd_upload ? $audit->department : 'APD - Section Officer' }}
+                                                                {{ $is_finalize_halls_upload ? $apdFinalizeHallsUpload->department : 'APD - Section Officer' }}
                                                             </div>
                                                             <div class="mt-2">
                                                                 @hasPermission('finalize-csv')
-                                                                    @if (isset(json_decode($audit->metadata)->uploaded_csv_link))
+                                                                    @if (isset($metadata->uploaded_csv_link))
                                                                         <a href="#"
                                                                             class="me-2 btn btn-sm btn-light-info"
                                                                             data-pc-animate="just-me" data-bs-toggle="modal"
@@ -651,17 +705,18 @@
                                                                         </a>
                                                                     @endif
                                                                 @endhasPermission
-                                                                @if ($is_apd_upload)
-                                                                    <a href="{{ json_decode($audit->metadata)->uploaded_csv_link }}"
-                                                                        class="me-3 btn btn-sm btn-light-warning"><i
-                                                                            class="feather icon-download mx-1"></i>Download
-                                                                    </a>
-                                                                @endif
+                                                                @hasPermission('download-finalized-halls-csv')
+                                                                    @if ($is_apd_upload)
+                                                                        <a href="{{ $metadata->uploaded_csv_link }}"
+                                                                            class="me-3 btn btn-sm btn-light-warning"><i
+                                                                                class="feather icon-download mx-1"></i>Download
+                                                                        </a>
+                                                                    @endif
+                                                                @endhasPermission
                                                                 @hasPermission('finalize-csv')
-                                                                    @if (isset(json_decode($audit->metadata)->failed_csv_link) &&
-                                                                            file_exists(storage_path(
-                                                                                    'app/public/uploads/failed_csv_files/' . basename(json_decode($audit->metadata)->failed_csv_link))))
-                                                                        <a href="{{ json_decode($audit->metadata)->failed_csv_link }}"
+                                                                    @if (isset($metadata->failed_csv_link) &&
+                                                                            file_exists(public_path(str_replace(url('/'), '', $metadata->failed_csv_link))))
+                                                                        <a href="{{ $metadata->failed_csv_link }}"
                                                                             class="me-3 btn btn-sm btn-light-danger">
                                                                             <i class="feather icon-download mx-1"></i>Failed
                                                                             Records
@@ -677,22 +732,33 @@
                                     @php
                                         $is_ed_qr_upload = $examMaterialsUpdate !== null;
                                         $metadata = null;
-
                                         if ($examMaterialsUpdate !== null) {
                                             $metadata = is_string($examMaterialsUpdate->metadata)
                                                 ? json_decode($examMaterialsUpdate->metadata)
                                                 : (object) $examMaterialsUpdate->metadata;
+                                            $examMaterialsUpdate = (object) $examMaterialsUpdate;
                                         }
+                                        $user = $is_ed_qr_upload
+                                            ? App\Models\DepartmentOfficial::find($examMaterialsUpdate->user_id)
+                                            : null;
+                                        $profileImage =
+                                            $user && !empty($user->profile_image)
+                                                ? asset('storage/' . $user->profile_image)
+                                                : asset('storage/assets/images/user/avatar-3.jpg');
+                                        // Set dynamic badge text and color
+                                        $uploadStatus = $is_ed_qr_upload ? 'Uploaded' : 'Pending';
+                                        $badgeClass = $is_ed_qr_upload ? 'bg-light-secondary' : 'bg-danger';
                                     @endphp
                                     <li class="task-list-item">
-                                        <i class="task-icon bg-primary"></i>
+                                        <i
+                                            class="task-icon {{ $is_ed_qr_upload ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                         <div class="card ticket-card open-ticket">
                                             <div class="card-body">
                                                 <div class="row">
                                                     <div class="col-sm-auto mb-3 mb-sm-0">
                                                         <div class="d-sm-inline-block d-flex align-items-center">
-                                                            <img class="media-object wid-60 img-radius"
-                                                                src="{{ asset('storage/assets/images/user/avatar-3.jpg') }}"
+                                                            <img loading="lazy" class="media-object wid-60 img-radius"
+                                                                src="{{ $profileImage }}"
                                                                 alt="Generic placeholder image " />
                                                             <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                                 <ul
@@ -705,8 +771,9 @@
                                                     <div class="col">
                                                         <div class="popup-trigger">
                                                             <div class="h5 font-weight-bold">Update Exam Materials
-                                                                Details<small
-                                                                    class="badge bg-light-secondary ms-2">Updated</small>
+                                                                Details
+                                                                <small
+                                                                    class="badge {{ $badgeClass }} ms-2">{{ $uploadStatus }}</small>
                                                             </div>
                                                             <div class="help-sm-hidden">
                                                                 <ul class="list-unstyled mt-2 mb-0 text-muted">
@@ -714,7 +781,8 @@
                                                                     <li class="d-sm-inline-block d-block mt-1"><img
                                                                             src="../assets/images/user/avatar-4.jpg"
                                                                             alt=""
-                                                                            class="wid-20 rounded me-2 img-fluid" />Done by
+                                                                            class="wid-20 rounded me-2 img-fluid" /> Done
+                                                                        by
                                                                         <b>{{ $is_ed_qr_upload ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
                                                                     </li>
                                                                     <li class="d-sm-inline-block d-block mt-1"><i
@@ -735,15 +803,17 @@
                                                                     class="me-2 btn btn-sm btn-light-primary m-2">
                                                                     <i class="feather icon-upload mx-1 "></i>Upload </a>
                                                             @endhasPermission
-                                                            @if ($is_ed_qr_upload)
-                                                                <a href="{{ $metadata->uploaded_csv_link }}"
-                                                                    class="me-3 btn btn-sm btn-light-warning"><i
-                                                                        class="feather icon-download mx-1"></i>Download
-                                                                </a>
-                                                            @endif
+                                                            @hasPermission('download-exam-materials-uploaded')
+                                                                @if ($is_ed_qr_upload)
+                                                                    <a href="{{ $metadata->uploaded_csv_link }}"
+                                                                        class="me-3 btn btn-sm btn-light-warning"><i
+                                                                            class="feather icon-download mx-1"></i>Download
+                                                                    </a>
+                                                                @endif
+                                                            @endhasPermission
                                                             @hasPermission('upload-exam-materials-csv')
                                                                 @if (isset($metadata->failed_csv_link) &&
-                                                                        file_exists(storage_path('app/public/uploads/failed_csv_files/' . basename($metadata->failed_csv_link))))
+                                                                        file_exists(public_path(str_replace(url('/'), '', $metadata->failed_csv_link))))
                                                                     <a href="{{ $metadata->failed_csv_link }}"
                                                                         class="me-3 btn btn-sm btn-light-danger">
                                                                         <i class="feather icon-download mx-1"></i>Failed
@@ -758,24 +828,46 @@
                                     </li>
                                 @endif
                                 @hasPermission('receive-exam-materials-from-printer')
+                                    @php
+                                        $is_received_printer_to_district = $receiveMaterialsPrinterToDistrict !== null;
+
+                                        $metadata = null;
+                                        if ($receiveMaterialsPrinterToDistrict !== null) {
+                                            $metadata = is_string($receiveMaterialsPrinterToDistrict->metadata)
+                                                ? json_decode($receiveMaterialsPrinterToDistrict->metadata)
+                                                : (object) $receiveMaterialsPrinterToDistrict->metadata;
+                                            $receiveMaterialsPrinterToDistrict = (object) $receiveMaterialsPrinterToDistrict;
+                                        }
+
+                                        $user = $is_received_printer_to_district
+                                            ? App\Models\TreasuryOfficer::find(
+                                                $receiveMaterialsPrinterToDistrict->user_id,
+                                            )
+                                            : null;
+                                        $profileImage =
+                                            $user && !empty($user->profile_image)
+                                                ? asset('storage/' . $user->profile_image)
+                                                : asset('storage/assets/images/user/avatar-3.jpg');
+                                        // Set dynamic badge text and color
+                                        $uploadStatus = $is_received_printer_to_district ? 'Received' : 'Pending';
+                                        $badgeClass = $is_received_printer_to_district
+                                            ? 'bg-light-secondary'
+                                            : 'bg-danger';
+
+                                    @endphp
                                     <li class="task-list-item">
-                                        <i class="task-icon bg-primary"></i>
+                                        <i
+                                            class="task-icon {{ $is_received_printer_to_district ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                         <div class="card ticket-card open-ticket">
                                             <div class="card-body">
                                                 <div class="row">
                                                     <div class="col-sm-auto mb-3 mb-sm-0">
                                                         <div class="d-sm-inline-block d-flex align-items-center">
-                                                            <img class="media-object wid-60 img-radius"
-                                                                src="{{ asset('storage/assets/images/user/avatar-3.jpg') }}"
-                                                                alt="Generic placeholder image " />
+                                                            <img loading="lazy" class="media-object wid-60 img-radius"
+                                                                src="{{ $profileImage }}" alt="Generic placeholder image " />
                                                             <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                                 <ul
                                                                     class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                    {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 Ticket</a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                                 </ul>
                                                             </div>
                                                         </div>
@@ -783,44 +875,33 @@
                                                     <div class="col">
                                                         <div class="popup-trigger">
                                                             <div class="h5 font-weight-bold">Receive Exam Materials From
-                                                                Printer<small
-                                                                    class="badge bg-light-secondary ms-2">Received</small>
+                                                                Printer
+                                                                <small
+                                                                    class="badge {{ $badgeClass }} ms-2">{{ $uploadStatus }}</small>
                                                             </div>
                                                             <div class="help-sm-hidden">
                                                                 <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"
-                                                    ><img src="../assets/images/admin/p1.jpg" alt="" class="wid-20 rounded me-2 img-fluid" /></li
-                                                  > --}}
+                                                                  
                                                                     <li class="d-sm-inline-block d-block mt-1"><img
                                                                             src="../assets/images/user/avatar-4.jpg"
                                                                             alt=""
                                                                             class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                        <b>Anbezhili</b>
+                                                                            <b>{{ $is_received_printer_to_district ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
+                                                                        </li>
+                                                                        <li class="d-sm-inline-block d-block mt-1"><i
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                        {{ $is_received_printer_to_district ? \Carbon\Carbon::parse($receiveMaterialsPrinterToDistrict->updated_at)->format('d-m-Y h:i A') : ' ' }}
                                                                     </li>
-                                                                    <li class="d-sm-inline-block d-block mt-1"><i
-                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>25-07-2024
-                                                                        10:05 AM</li>
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"
-                                                    ><i class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                  </li> --}}
                                                                 </ul>
                                                             </div>
                                                             <div class="h5 mt-3"><i
                                                                     class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                District Collectorate</div>
-
+                                                                District - Treasury</div>
                                                         </div>
                                                         <div class="mt-2">
-                                                            <a href="helpdesk-ticket-details.html"
-                                                                class="me-2 btn btn-sm btn-light-primary "
-                                                                data-pc-animate="just-me" data-bs-toggle="modal"
-                                                                data-bs-target="#animateModal"><i
-                                                                    class="feather icon-eye mx-1 "></i>View </a>
                                                             <a href="{{ route('receive-exam-materials.printer-to-disitrict-treasury', $session->exam_main_no) }}"
                                                                 class="me-2 btn btn-sm btn-light-info"><i
                                                                     class="feather icon-info mx-1"></i>Verify</a>
-                                                            <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
-                                                                    class="feather icon-edit mx-1"></i>Edit </a>
                                                         </div>
                                                     </div>
                                                 </div>

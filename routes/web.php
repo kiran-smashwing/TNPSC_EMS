@@ -203,6 +203,7 @@ Route::prefix('treasury-officers')->group(function () {
         Route::get('/{id}', [TreasuryOfficerController::class, 'show'])->name('treasury-officers.show');
         Route::post('/{id}/toggle-status', [TreasuryOfficerController::class, 'toggleStatus'])->name('treasury-officers.toggle-status');
         Route::delete('/{id}', [TreasuryOfficerController::class, 'destroy'])->name('treasury-officers.destroy');
+        Route::get('/verify-email/{token}', [TreasuryOfficerController::class,'verifyEmail'])->name('treasury-officer.verifyEmail');
     });
 });
 //centers Route::prefix('centers')->group(function () {

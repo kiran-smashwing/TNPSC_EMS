@@ -368,12 +368,17 @@ class IDCandidatesController extends Controller
             return redirect()->back()->with('error', 'Invalid venue data.');
         }
         // Process each venue
+        $confirmedInRequest = 0; // Track venues confirmed in this request
         foreach ($venuesData as $venueInfo) {
             // Extract venue details
             $venueId = $venueInfo['venue_id'];
             $order = $venueInfo['order'];
             $isChecked = $venueInfo['checked'];
 
+            // Count confirmed venues in this request
+            if ($isChecked) {
+                $confirmedInRequest++;
+            }
             // Find the existing venue consent record
             $confirmedVenue = ExamVenueConsent::where('exam_id', $examId)
                 ->where('venue_id', $venueId)
@@ -442,6 +447,58 @@ class IDCandidatesController extends Controller
 
                 }
             }
+        }
+        // Audit Logging
+        $confirmedVenues = ExamVenueConsent::where('exam_id', $examId)
+            ->where('is_confirmed', true)
+            ->orderBy('order_by_id', 'asc')
+            ->get()
+            ->map(function ($venue) {
+                return [
+                    'venue_id' => $venue->venue_id,
+                    'order' => $venue->order_by_id,
+                ];
+            })
+            ->toArray();
+
+        $currentUser = current_user();
+        $userName = $currentUser ? $currentUser->display_name : 'Unknown';
+        $metadata = ['user_name' => $userName];
+
+        $existingLog = $this->auditService->findLog([
+            'exam_id' => $examId,
+            'task_type' => 'exam_venue_hall_confirmation',
+            'action_type' => 'confirmed',
+        ]);
+
+        $totalConfirmed = count($confirmedVenues);
+        $description = $confirmedInRequest > 0
+            ? "Confirmed {$confirmedInRequest} venues (Total: {$totalConfirmed})"
+            : "Updated venue order (Total: {$totalConfirmed})";
+
+        if ($existingLog) {
+            $this->auditService->updateLog(
+                logId: $existingLog->id,
+                metadata: $metadata,
+                afterState: [
+                    'venues' => $confirmedVenues,
+                    'total_confirmed' => $totalConfirmed
+                ],
+                description: $description
+            );
+        } else {
+            $this->auditService->log(
+                examId: $examId,
+                actionType: 'confirmed',
+                taskType: 'exam_venue_hall_confirmation',
+                beforeState: null,
+                afterState: [
+                    'venues' => $confirmedVenues,
+                    'total_confirmed' => $totalConfirmed
+                ],
+                description: $description,
+                metadata: $metadata
+            );
         }
 
         // Redirect back to the confirmation form with success message

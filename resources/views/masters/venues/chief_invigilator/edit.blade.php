@@ -94,7 +94,7 @@
                                                                 class="text-danger">*</span></label>
                                                         <select class="form-control @error('district') is-invalid @enderror"
                                                             id="district" name="district" required
-                                                            {{ session('auth_role') == 'venue' ? 'disabled' : '' }}>
+                                                            {{ session('auth_role') == 'venue' ? 'disabled' : '' }} >
                                                             <option value="">Select District</option>
                                                             @foreach ($districts as $district)
                                                                 <option value="{{ $district->district_code }}"

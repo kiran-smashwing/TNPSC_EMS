@@ -187,6 +187,7 @@
                         </div>
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
+                            @hasPermission('center-filters')
                             <form id="filterForm" method="GET" action="{{ route('centers.index') }}" class="mb-3">
                                 <div class="filter-item">
                                     <select class="form-select" id="districtFilter" name="district">
@@ -199,7 +200,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="filter-item">
+                                {{-- <div class="filter-item">
 
 
                                     <select class="form-select" id="centerCodeFilter" name="centerCode">
@@ -210,9 +211,9 @@
                                                 {{ request('centerCode') == $centerCode->center_code ? 'selected' : '' }}>
                                                 {{ $centerCode->center_name}} 
                                             </option>
-                                        @endforeach --}}
+                                        @endforeach
                                     </select>
-                                </div>
+                                </div> --}}
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
 
@@ -220,7 +221,7 @@
                                 <a href="{{ url()->current() }}" class="btn btn-secondary"><i
                                         class="ti ti-refresh me-2"></i>Reset</a>
                             </form>
-
+                            @endhasPermission
                             <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
                                 style="width: 100%">
                                 <thead>

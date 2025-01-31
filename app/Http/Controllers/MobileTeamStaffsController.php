@@ -25,22 +25,28 @@ class MobileTeamStaffsController extends Controller
 
     public function index(Request $request)
     {
+        // Get user details
+        $role = session('auth_role');
+        $user_details = $request->get('auth_user');
+        $user_district_code = $user_details->district_code ?? null;
+
         // Start the query for MobileTeamStaffs with the district relationship
         $query = MobileTeamStaffs::with('district');
 
-        // Filter by district if a district is selected
-        if ($request->filled('district')) {
-            $query->where('mobile_district_id', $request->input('district')); // Adjust the column as per your table schema
+        // If the user has a district_code, show only their district's data
+        if (!empty($user_district_code)) {
+            $query->where('mobile_district_id', $user_district_code);
         }
 
-        // Fetch filtered MobileTeamStaffs with pagination
+        // Fetch the Mobile Team Staffs based on the above logic
         $mobileTeams = $query->orderBy('mobile_name')->get();
 
-        // Fetch unique district values from the same table
-        $districts = District::all(); // Fetch all districts
+        // Fetch all districts (for dropdown or display purposes)
+        $districts = District::all();
 
         return view('masters.district.mobile_team_staffs.index', compact('mobileTeams', 'districts'));
     }
+
 
 
     public function create()
@@ -282,7 +288,7 @@ class MobileTeamStaffsController extends Controller
         $centerCount = $team->district->centers()->count();  // Assuming 'centers' is a relationship in District model
         $venueCount = $team->district->venues()->count();
         $staffCount = $team->district->treasuryOfficers()->count() + $team->district->mobileTeamStaffs()->count();
-        return view('masters.district.mobile_team_staffs.show', compact('team', 'centerCount', 'venueCount','staffCount'));
+        return view('masters.district.mobile_team_staffs.show', compact('team', 'centerCount', 'venueCount', 'staffCount'));
     }
     public function toggleStatus($id)
     {

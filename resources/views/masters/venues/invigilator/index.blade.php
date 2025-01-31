@@ -190,6 +190,7 @@
                         </div>
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
+                            @if(session('auth_role')=='headquarters')
                             <form id="filterForm" class="mb-3">
                                 {{-- District Filter --}}
                                 <!-- District Filter -->
@@ -228,7 +229,7 @@
                                 <a href="{{ url()->current() }}" class="btn btn-secondary"><i
                                         class="ti ti-refresh me-2"></i>Reset</a>
                             </form>
-
+                            @endif
 
                             <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
                                 width="100%">

@@ -81,13 +81,13 @@
                                                         <label for="imageUpload" class="img-avtar-upload"></label>
                                                     </div>
                                                 </div>
-                                                 <!-- District Dropdown -->
+                                                <!-- District Dropdown -->
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
                                                         <label class="form-label" for="district">District<span
                                                                 class="text-danger">*</span></label>
-                                                        <select class="form-control @error('district') is-invalid @enderror" id="district" name="district"
-                                                            required>
+                                                        <select class="form-control @error('district') is-invalid @enderror"
+                                                            id="district" name="district" required>
                                                             <option value="">Select District Name</option>
                                                             @foreach ($districts as $district)
                                                                 <option value="{{ $district->district_code }}">
@@ -104,9 +104,10 @@
                                                     <div class="mb-3">
                                                         <label class="form-label" for="center">Center<span
                                                                 class="text-danger">*</span></label>
-                                                        <select class="form-control @error('center') is-invalid @enderror" id="center" name="center" required>
+                                                        <select class="form-control @error('center') is-invalid @enderror"
+                                                            id="center" name="center" required>
                                                             <option value="">Select Center Name</option>
-                                                        <!-- Centers will be dynamically populated -->    
+                                                            <!-- Centers will be dynamically populated -->
                                                         </select>
                                                         @error('center')
                                                             <div class="invalid-feedback">{{ $message }}</div>
@@ -118,9 +119,10 @@
                                                     <div class="mb-3">
                                                         <label class="form-label" for="venue">Venue<span
                                                                 class="text-danger">*</span></label>
-                                                        <select class="form-control @error('venue') is-invalid @enderror" id="venue" name="venue" required>
+                                                        <select class="form-control @error('venue') is-invalid @enderror"
+                                                            id="venue" name="venue" required>
                                                             <option value="">Select Venue Name</option>
-                                                        <!-- Venues will be dynamically populated -->    
+                                                            <!-- Venues will be dynamically populated -->
                                                         </select>
                                                         @error('venue')
                                                             <div class="invalid-feedback">{{ $message }}</div>
@@ -131,8 +133,9 @@
                                                     <div class="mb-3">
                                                         <label class="form-label" for="name">Name <span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control @error('name') is-invalid @enderror" id="name"
-                                                            name="name" placeholder="Malarvizhi" required>
+                                                        <input type="text"
+                                                            class="form-control @error('name') is-invalid @enderror"
+                                                            id="name" name="name" placeholder="Malarvizhi" required>
                                                         @error('name')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -142,8 +145,10 @@
                                                     <div class="mb-3">
                                                         <label class="form-label">Email<span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="email" class="form-control @error('email') is-invalid @enderror" id="email"
-                                                            name="email" placeholder="malarvizhi@***.in" required>
+                                                        <input type="email"
+                                                            class="form-control @error('email') is-invalid @enderror"
+                                                            id="email" name="email" placeholder="malarvizhi@***.in"
+                                                            required>
                                                         @error('email')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -153,8 +158,10 @@
                                                     <div class="mb-3">
                                                         <label class="form-label" for="phone">Phone<span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="tel" class="form-control @error('phone') is-invalid @enderror" id="phone"
-                                                            name="phone" placeholder="9434***1212" required>
+                                                        <input type="tel"
+                                                            class="form-control @error('phone') is-invalid @enderror"
+                                                            id="phone" name="phone" placeholder="9434***1212"
+                                                            required>
                                                         @error('phone')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -164,8 +171,10 @@
                                                     <div class="mb-3">
                                                         <label class="form-label" for="designation">Designation <span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control @error('designation') is-invalid @enderror" id="designation"
-                                                            name="designation" placeholder="Asst Professor" required>
+                                                        <input type="text"
+                                                            class="form-control @error('designation') is-invalid @enderror"
+                                                            id="designation" name="designation"
+                                                            placeholder="Asst Professor" required>
                                                         @error('designation')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -201,64 +210,91 @@
             });
         </script>
         <script>
-            // Full list of centers
-            const allCenters = @json($centers);
+            $(document).ready(function() {
+                // Full list of centers and venues
+                const allCenters = @json($centers);
+                const allVenues = @json($venues);
 
-            // District dropdown change event
-            $('#district').on('change', function() {
-                const selectedDistrictCode = $(this).val();
-                const centerDropdown = $('#center');
+                // Function to populate centers based on selected district
+                function populateCenters(districtId, selectedCenter = '') {
+                    const centerDropdown = $('#center');
+                    centerDropdown.empty().append('<option value="">Select Center Name</option>');
 
-                // Clear previous options
-                centerDropdown.empty();
-                centerDropdown.append('<option value="">Select Center Name</option>');
+                    if (!districtId) return; // Ensure valid district selection
 
-                // Filter centers based on selected district
-                const filteredCenters = allCenters.filter(center =>
-                    center.center_district_id == selectedDistrictCode
-                );
+                    const filteredCenters = allCenters.filter(center => center.center_district_id == districtId);
 
-                // Populate centers
-                filteredCenters.forEach(center => {
-                    const selected = "{{ old('center') }}" == center.center_code ? 'selected' : '';
-                    centerDropdown.append(
-                        `<option value="${center.center_code}" ${selected}>
+                    filteredCenters.forEach(center => {
+                        const isSelected =
+                            ("{{ old('center') }}" == center.center_code || selectedCenter == center
+                                .center_code) ?
+                            'selected' : '';
+                        centerDropdown.append(
+                            `<option value="${center.center_code}" ${isSelected}>
                             ${center.center_name}
                         </option>`
-                    );
-                });
-            });
+                        );
+                    });
 
-        </script>
-        <script>
-            // Full list of venues
-            const allVenues = @json($venues);
+                    if (selectedCenter) {
+                        centerDropdown.val(selectedCenter).trigger('change');
+                    }
+                }
 
-            // Center dropdown change event
-            $('#center').on('change', function() {
-                const selectedCenterCode = $(this).val();
-                const venueDropdown = $('#venue');
+                // Function to populate venues based on selected center
+                function populateVenues(centerId, selectedVenue = '') {
+                    const venueDropdown = $('#venue');
+                    venueDropdown.empty().append('<option value="">Select Venue Name</option>');
 
-                // Clear previous options
-                venueDropdown.empty();
-                venueDropdown.append('<option value="">Select Venue Name</option>');
+                    if (!centerId) return; // Ensure valid center selection
 
-                // Filter venues based on selected center
-                const filteredVenues = allVenues.filter(venue =>
-                    venue.venue_center_id == selectedCenterCode
-                );
+                    const filteredVenues = allVenues.filter(venue => venue.venue_center_id == centerId);
 
-                // Populate venues
-                filteredVenues.forEach(venue => {
-                    const selected = "{{ old('venue') }}" == venue.venue_code ? 'selected' : '';
-                    venueDropdown.append(
-                        `<option value="${venue.venue_code}" ${selected}>
+                    filteredVenues.forEach(venue => {
+                        const isSelected =
+                            ("{{ old('venue') }}" == venue.venue_code || selectedVenue == venue.venue_code) ?
+                            'selected' : '';
+                        venueDropdown.append(
+                            `<option value="${venue.venue_code}" ${isSelected}>
                             ${venue.venue_name}
                         </option>`
-                    );
-                });
-            });
+                        );
+                    });
 
+                    if (selectedVenue) {
+                        venueDropdown.val(selectedVenue);
+                    }
+                }
+
+                // District dropdown change event
+                $('#district').on('change', function() {
+                    const selectedDistrict = $(this).val();
+                    populateCenters(selectedDistrict);
+                });
+
+                // Center dropdown change event
+                $('#center').on('change', function() {
+                    const selectedCenter = $(this).val();
+                    populateVenues(selectedCenter);
+                });
+
+                // Load old/existing selections on page load
+                const oldDistrict = "{{ old('district', $user->venue_district_id ?? '') }}";
+                const oldCenter = "{{ old('center', $user->venue_center_id ?? '') }}";
+                const oldVenue = "{{ old('venue', $user->venue_code ?? '') }}";
+
+                if (oldDistrict) {
+                    $('#district').val(oldDistrict);
+                    populateCenters(oldDistrict, oldCenter);
+                }
+
+                // Ensure the venue loads only after centers are populated
+                setTimeout(() => {
+                    if (oldCenter) {
+                        populateVenues(oldCenter, oldVenue);
+                    }
+                }, 300);
+            });
         </script>
     @endpush
 

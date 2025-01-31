@@ -33,7 +33,10 @@ class AuthorizationService
                     'district-masters',
                     'venues-masters',
                     'view-all-venue',
-                    'departments-masters',
+                    'center-filters',
+                'treasury-officers-filter',
+                'mobile-team-staffs-filter',
+                'departments-masters',
                 ],
             ],
             'ED' => [

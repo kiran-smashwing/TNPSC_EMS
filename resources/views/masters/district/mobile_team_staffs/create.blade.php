@@ -59,16 +59,26 @@
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="mb-3">
-                                            <label class="form-label" for="district">District<span
+                                            <label class="form-label" for="district">District <span
                                                     class="text-danger">*</span></label>
                                             <select class="form-control @error('district') is-invalid @enderror"
-                                                id="district" name="district" required>
-                                                <option>Select District</option>
+                                                id="district" name="district" required
+                                                {{ session('auth_role') == 'district' ? 'disabled' : '' }}>
+                                                <option value="">Select District</option>
                                                 @foreach ($districts as $district)
-                                                    <option value="{{ $district->district_code }}">
-                                                        {{ $district->district_name }}</option>
+                                                    <option value="{{ $district->district_code }}"
+                                                        {{ isset($user) && $user->district_code == $district->district_code ? 'selected' : '' }}
+                                                        {{ old('district') == $district->district_code ? 'selected' : '' }}>
+                                                        {{ $district->district_name }}
+                                                    </option>
                                                 @endforeach
                                             </select>
+
+                                            @if (session('auth_role') == 'district')
+                                                <input type="hidden" name="district"
+                                                    value="{{ $user->district_code ?? '' }}">
+                                            @endif
+
                                             @error('district')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -115,8 +125,9 @@
                                     <div class="col-sm-6">
                                         <div class="mb-3">
                                             <label class="form-label">Email<span class="text-danger">*</span></label>
-                                            <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                                id="email" name="email" placeholder="ceochn@***.in" required
+                                            <input type="email"
+                                                class="form-control @error('email') is-invalid @enderror" id="email"
+                                                name="email" placeholder="ceochn@***.in" required
                                                 value="{{ old('email') }}">
                                             @error('email')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -149,17 +160,17 @@
                                         </div>
                                     </div>
                                 </div>
-               
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 text-end btn-page">
+                        <a href="{{ route('mobile-team-staffs.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Create</button>
+                    </div>
+                </form>
             </div>
         </div>
-    </div>
-    <div class="col-12 text-end btn-page">
-        <a href="{{ route('mobile-team-staffs.index') }}" class="btn btn-outline-secondary">Cancel</a>
-        <button type="submit" class="btn btn-primary">Create</button>
-    </div>
-    </form>
-    </div>
-    </div>
     </div>
     </div>
     </div>

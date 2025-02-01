@@ -80,7 +80,7 @@ class CIAssistantsController extends Controller
             $centers = Center::where('center_code', $user->venue_center_id)->get();
             $districts = District::where('district_code', $user->venue_district_id)->get();
 
-            return view('masters.venues.ci_assistants.create', data: compact('districts', 'centers', 'venues'));
+            return view('masters.venues.ci_assistants.create', data: compact('districts', 'centers', 'venues','user'));
         } else if ($role == 'ci') {
             if (!$user) {
                 return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);
@@ -88,14 +88,14 @@ class CIAssistantsController extends Controller
             $venues = Venues::where('venue_code', $user->ci_venue_id)->get();
             $centers = Center::where('center_code', $user->ci_center_id)->get();
             $districts = District::where('district_code', $user->ci_district_id)->get();
-            return view('masters.venues.ci_assistants.create', data: compact('districts', 'centers', 'venues'));
+            return view('masters.venues.ci_assistants.create', data: compact('districts', 'centers', 'venues','user'));
         }
         // Fetch necessary data for CI Assistants form (venues, centers, districts)
         $venues = Venues::all(); // Retrieves all venues
         $centers = Center::all(); // Retrieves all centers
         $districts = District::all(); // Retrieves all districts
 
-        return view('masters.venues.ci_assistants.create', data: compact('districts', 'centers', 'venues','user'));
+        return view('masters.venues.ci_assistants.create', data: compact('districts', 'centers', 'venues'));
     }
 
     public function store(Request $request)

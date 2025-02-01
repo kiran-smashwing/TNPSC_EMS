@@ -84,7 +84,7 @@
                                                     <label class="form-label" for="district_id">District <span
                                                             class="text-danger">*</span></label>
                                                     <select class="form-control @error('district') is-invalid @enderror"
-                                                        id="district" name="district" required>
+                                                        id="district" name="district" required {{ session('auth_role') == 'district' ? 'disabled' : '' }}>
                                                         <option>Select District</option>
                                                         @foreach ($districts as $district)
                                                             <option value="{{ $district->district_code }}"
@@ -93,6 +93,10 @@
                                                             </option>
                                                         @endforeach
                                                     </select>
+                                                    @if (session('auth_role') == 'district')
+                                                    <input type="hidden" name="district"
+                                                        value="{{ $center->center_district_id ?? '' }}">
+                                                @endif
                                                     @error('district')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror

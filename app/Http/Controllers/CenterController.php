@@ -39,7 +39,7 @@ class CenterController extends Controller
     {
         // dd();
         // Build the centers query with eager loading
-         $user_details = $request->get('auth_user');
+        $user_details = $request->get('auth_user');
         // $user_district_code  = $user_details->district_code;
         // dd($user_district_code);
         $centersQuery = Center::query()
@@ -106,11 +106,28 @@ class CenterController extends Controller
 
 
 
-    public function create()
+    public function create(Request $request)
     {
+        $role = session('auth_role');
+        $user = $request->get('auth_user');
+        // $user_district_code = $user->district_code;
+        // dd($user_district_code);
+        // dd($user);
+        if ($role == 'district') {
+            if (!$user) {
+                return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);
+            }
+
+            $districts = District::where('district_code', $user->district_code)->get();
+            return view('masters.district.centers.create', compact('districts','user'));
+        }
+
+        // Default case: Fetch all districts and centers
         $districts = District::all();
         return view('masters.district.centers.create', compact('districts'));
     }
+
+
 
     public function store(Request $request)
     {

@@ -92,7 +92,7 @@ class ScribeController extends Controller
             $venues = Venues::where('venue_code', $user->ci_venue_id)->get();
             $centers = Center::where('center_code', $user->ci_center_id)->get();
             $districts = District::where('district_code', $user->ci_district_id)->get();
-            return view('masters.venues.scribe.create', compact('districts', 'centers', 'venues'));
+            return view('masters.venues.scribe.create', compact('districts', 'centers', 'venues','user'));
         }
 
         // Fetch any necessary data to display in the form (e.g., venues, centers)

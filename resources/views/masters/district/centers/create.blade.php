@@ -84,26 +84,40 @@
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label" for="district">District<span
+                                                    <label class="form-label" for="district">District <span
                                                             class="text-danger">*</span></label>
-                                                    <select class="form-control @error('district') is-invalid @enderror" id="district" name="district" required>
-                                                        <option>Select District</option>
+                                                    <select class="form-control @error('district') is-invalid @enderror"
+                                                        id="district" name="district" required
+                                                        {{ session('auth_role') == 'district' ? 'disabled' : '' }}>
+                                                        <option value="">Select District</option>
                                                         @foreach ($districts as $district)
-                                                            <option value="{{ $district->district_code }}">
-                                                                {{ $district->district_name }}</option>
+                                                            <option value="{{ $district->district_code }}"
+                                                                {{ isset($user) && $user->district_code == $district->district_code ? 'selected' : '' }}
+                                                                {{ old('district') == $district->district_code ? 'selected' : '' }}>
+                                                                {{ $district->district_name }}
+                                                            </option>
                                                         @endforeach
                                                     </select>
+
+                                                    @if (session('auth_role') == 'district')
+                                                        <input type="hidden" name="district"
+                                                            value="{{ $user->district_code ?? '' }}">
+                                                    @endif
+
                                                     @error('district')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
+
+
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Name <span
                                                             class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control @error('center_name') is-invalid @enderror" id="center_name"
-                                                        name="center_name" placeholder="Alandur" required>
+                                                    <input type="text"
+                                                        class="form-control @error('center_name') is-invalid @enderror"
+                                                        id="center_name" name="center_name" placeholder="Alandur" required>
                                                     @error('center_name')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -113,8 +127,9 @@
                                                 <div class="mb-3">
                                                     <label class="form-label ">Code<span
                                                             class="text-danger">*</span></label>
-                                                    <input type="number" class="form-control no-arrows @error('center_code') is-invalid @enderror" id="center_code"
-                                                        name="center_code" placeholder="0102" required>
+                                                    <input type="number"
+                                                        class="form-control no-arrows @error('center_code') is-invalid @enderror"
+                                                        id="center_code" name="center_code" placeholder="0102" required>
                                                     @error('center_code')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -124,8 +139,10 @@
                                                 <div class="mb-3">
                                                     <label class="form-label">Email <span
                                                             class="text-danger">*</span></label>
-                                                    <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email"
-                                                        placeholder="example@domain.com" required>
+                                                    <input type="email"
+                                                        class="form-control @error('email') is-invalid @enderror"
+                                                        id="email" name="email" placeholder="example@domain.com"
+                                                        required>
                                                     @error('email')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -135,8 +152,10 @@
                                                 <div class="mb-3">
                                                     <label class="form-label">Phone <span
                                                             class="text-danger">*</span></label>
-                                                    <input type="tel" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone"
-                                                        placeholder="123-456-7890" required>
+                                                    <input type="tel"
+                                                        class="form-control @error('phone') is-invalid @enderror"
+                                                        id="phone" name="phone" placeholder="123-456-7890"
+                                                        required>
                                                     @error('phone')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -145,8 +164,10 @@
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Alternate Phone</label>
-                                                    <input type="tel" class="form-control @error('alternate_phone') is-invalid @enderror" id="alternate_phone"
-                                                        name="alternate_phone" placeholder="123-456-7890">
+                                                    <input type="tel"
+                                                        class="form-control @error('alternate_phone') is-invalid @enderror"
+                                                        id="alternate_phone" name="alternate_phone"
+                                                        placeholder="123-456-7890">
                                                     @error('alternate_phone')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -156,8 +177,10 @@
                                                 <div class="mb-3">
                                                     <label class="form-label">Password <span
                                                             class="text-danger">*</span></label>
-                                                    <input type="password" class="form-control @error('password') is-invalid @enderror" id="password"
-                                                        name="password" placeholder="Enter password" required>
+                                                    <input type="password"
+                                                        class="form-control @error('password') is-invalid @enderror"
+                                                        id="password" name="password" placeholder="Enter password"
+                                                        required>
                                                     @error('password')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -187,7 +210,8 @@
                                                 <div class="mb-3">
                                                     <label class="form-label" for="longitude">Longitude<span
                                                             class="text-danger">*</span></label>
-                                                    <input type="number" step="any" class="form-control @error('longitude') is-invalid @enderror"
+                                                    <input type="number" step="any"
+                                                        class="form-control @error('longitude') is-invalid @enderror"
                                                         id="longitude" name="longitude" placeholder="11.2312312312312">
                                                     @error('longitude')
                                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -198,7 +222,8 @@
                                                 <div class="mb-3">
                                                     <label class="form-label" for="latitude">Latitude<span
                                                             class="text-danger">*</span></label>
-                                                    <input type="number" step="any" class="form-control @error('latitude') is-invalid @enderror"
+                                                    <input type="number" step="any"
+                                                        class="form-control @error('latitude') is-invalid @enderror"
                                                         id="latitude" name="latitude" placeholder="11.2312312312312">
                                                     @error('latitude')
                                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -249,6 +274,14 @@
                 }
             });
         </script>
+        {{-- <script>
+            $(document).ready(function() {
+                const oldDistrict = "{{ old('district', $user->district_code ?? '') }}";
+                if (oldDistrict) {
+                    $('#district').val(oldDistrict).trigger('change');
+                }
+            });
+        </script> --}}
     @endpush
     @include('partials.theme')
 

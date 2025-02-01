@@ -88,16 +88,26 @@
                                                     <div class="mb-3">
                                                         <label class="form-label" for="district">District <span
                                                                 class="text-danger">*</span></label>
-                                                        <select class="form-control" id="district"
-                                                            name="district" required>
+                                                        <select class="form-control @error('district') is-invalid @enderror"
+                                                            id="district" name="district" required
+                                                            {{ session('auth_role') == 'district' ? 'disabled' : '' }}>
                                                             <option value="">Select District</option>
                                                             @foreach ($districts as $district)
-                                                                <option value="{{ $district->district_code }}">
-                                                                    {{ $district->district_name }}</option>
+                                                                <option value="{{ $district->district_code }}"
+                                                                    {{ isset($user) && $user->district_code == $district->district_code ? 'selected' : '' }}
+                                                                    {{ old('district') == $district->district_code ? 'selected' : '' }}>
+                                                                    {{ $district->district_name }}
+                                                                </option>
                                                             @endforeach
                                                         </select>
+
+                                                        @if (session('auth_role') == 'district')
+                                                            <input type="hidden" name="district"
+                                                                value="{{ $user->district_code ?? '' }}">
+                                                        @endif
+
                                                         @error('district')
-                                                            <span class="text-danger">{{ $message }}</span>
+                                                            <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
                                                     </div>
                                                 </div>

@@ -68,7 +68,7 @@
                         <span class="pc-badge">2</span>
                     </a>
                     <ul class="pc-submenu">
-                        <li class="pc-item"><a class="pc-link" href="../dashboard/index.html">Default</a></li>
+                        <li class="pc-item"><a class="pc-link" href={{route('dashboard')}}>Default</a></li>
                         <li class="pc-item"><a class="pc-link" href="../dashboard/analytics.html">Analytics</a></li>
                         <li class="pc-item"><a class="pc-link" href="../dashboard/finance.html">Finance</a></li>
                     </ul>
@@ -119,9 +119,11 @@
                                 <li class="pc-item"><a class="pc-link" href="{{ route('venues.index') }}">Venues</a>
                                 </li>
                             @endhasPermission
+                            @hasPermission('view-all-chief-invigilators')
                             <li class="pc-item"><a class="pc-link" href="{{ route('chief-invigilators.index') }}">Cheif
                                     Invigilators </a>
                             </li>
+                            @endhasPermission
                             <li class="pc-item"><a class="pc-link" href="{{ route('invigilators.index') }}">Invigilators
                                 </a>
                             </li>
@@ -319,7 +321,7 @@
                         </li>
                         <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">Candidate Remarks</a>
                         </li>
-                        <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">Consolidate Statement </a>
+                        <li class="pc-item"><a class="pc-link" href="{{ route('attendance.report') }}">Consolidate Statement </a>
                         </li>
                         {{-- <li class="pc-item"><a class="pc-link" href="{{ route('qp_booklet.report') }}"> Question
                                 Booklet Account</a>

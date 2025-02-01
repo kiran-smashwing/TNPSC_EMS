@@ -49,8 +49,28 @@ class MobileTeamStaffsController extends Controller
 
 
 
-    public function create()
+    // public function create()
+    // {
+    //     $districts = District::all();
+    //     return view('masters.district.mobile_team_staffs.create', compact('districts'));
+    // }
+    public function create(Request $request)
     {
+        $role = session('auth_role');
+        $user = $request->get('auth_user');
+        // $user_district_code = $user->district_code;
+        // dd($user_district_code);
+        // dd($user);
+        if ($role == 'district') {
+            if (!$user) {
+                return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);
+            }
+
+            $districts = District::where('district_code', $user->district_code)->get();
+            return view('masters.district.mobile_team_staffs.create', compact('districts','user'));
+        }
+
+        // Default case: Fetch all districts and centers
         $districts = District::all();
         return view('masters.district.mobile_team_staffs.create', compact('districts'));
     }

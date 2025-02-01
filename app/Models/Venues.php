@@ -61,6 +61,14 @@ class Venues extends Authenticatable
     {
         return $this->venue_name; // or whatever field you use for the name
     }
+    public function getDistrictCodeAttribute()
+    {
+        return $this->venue_district_id; // or whatever field you use for the name
+    }
+    public function getCenterCodeAttribute()
+    {
+        return $this->venue_center_id; // or whatever field you use for the name
+    }
     public function getEmailDisplayAttribute()
     {
         return !empty($this->venue_email) ? $this->venue_email : 'No email available';

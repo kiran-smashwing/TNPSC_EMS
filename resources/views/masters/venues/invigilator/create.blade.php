@@ -82,42 +82,50 @@
                                                     </div>
                                                 </div>
                                                 <!-- District Dropdown -->
+                                               
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="district">District<span
+                                                        <label class="form-label" for="district">District <span
                                                                 class="text-danger">*</span></label>
                                                         <select class="form-control @error('district') is-invalid @enderror"
-                                                            id="district" name="district"  required
-                                                            {{ session('auth_role') == 'venue' ? 'disabled' : '' }}>
+                                                            id="district" name="district" required
+                                                            {{ session('auth_role') == 'venue' || session('auth_role') == 'ci' ? 'disabled' : '' }}>
                                                             <option value="">Select District Name</option>
                                                             @foreach ($districts as $district)
-                                                                <option value="{{ $district->district_code }}">
-                                                                    {{ $district->district_name }}</option>
+                                                                <option value="{{ $district->district_code }}"
+                                                                    {{ isset($user) && $user->district_code == $district->district_code ? 'selected' : '' }}
+                                                                    {{ old('district') == $district->district_code ? 'selected' : '' }}>
+                                                                    {{ $district->district_name }}
+                                                                </option>
                                                             @endforeach
                                                         </select>
-                                                        @if (session('auth_role') == 'venue')
-                                                        <input type="hidden" name="district"
-                                                            value="{{ $user->venue_district_id }}">
-                                                    @endif
+
+                                                        @if (session('auth_role') == 'venue' || session('auth_role') == 'ci')
+                                                            <input type="hidden" name="district"
+                                                                value="{{ $user->district_code }}">
+                                                        @endif
+
                                                         @error('district')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
                                                     </div>
                                                 </div>
+
                                                 <!-- Center Dropdown -->
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
                                                         <label class="form-label" for="center">Center<span
                                                                 class="text-danger">*</span></label>
                                                         <select class="form-control @error('center') is-invalid @enderror"
-                                                            id="center" name="center" required {{ session('auth_role') == 'venue' ? 'disabled' : '' }}>
+                                                            id="center" name="center" required
+                                                            {{ session('auth_role') == 'venue' || session('auth_role') == 'ci' ? 'disabled' : '' }}>
                                                             <option value="">Select Center Name</option>
                                                             <!-- Centers will be dynamically populated -->
                                                         </select>
-                                                        @if (session('auth_role') == 'venue')
-                                                        <input type="hidden" name="center"
-                                                            value="{{ $user->venue_center_id }}">
-                                                    @endif
+                                                        @if (session('auth_role') == 'venue' || session('auth_role') == 'ci')
+                                                            <input type="hidden" name="center"
+                                                                value="{{ $user->center_code }}">
+                                                        @endif
                                                         @error('center')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -129,13 +137,15 @@
                                                         <label class="form-label" for="venue">Venue<span
                                                                 class="text-danger">*</span></label>
                                                         <select class="form-control @error('venue') is-invalid @enderror"
-                                                            id="venue" name="venue" required {{ session('auth_role') == 'venue' ? 'disabled' : '' }}>
+                                                            id="venue" name="venue" required
+                                                            {{ session('auth_role') == 'venue' || session('auth_role') == 'ci' ? 'disabled' : '' }}>
                                                             <option value="">Select Venue Name</option>
                                                             <!-- Venues will be dynamically populated -->
                                                         </select>
-                                                        @if (session('auth_role') == 'venue')
-                                                        <input type="hidden" name="venue" value="{{ $user->venue_code }}">
-                                                    @endif
+                                                        @if (session('auth_role') == 'venue' || session('auth_role') == 'ci')
+                                                            <input type="hidden" name="venue"
+                                                                value="{{ $user->venue_code }}">
+                                                        @endif
                                                         @error('venue')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -149,7 +159,8 @@
                                                                 class="text-danger">*</span></label>
                                                         <input type="text"
                                                             class="form-control @error('name') is-invalid @enderror"
-                                                            id="name" name="name" placeholder="Malarvizhi" required>
+                                                            id="name" name="name" placeholder="Malarvizhi"
+                                                            required>
                                                         @error('name')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -245,7 +256,7 @@
                 // Populate centers
                 filteredCenters.forEach(center => {
                     const selected = "{{ old('center') }}" == center.center_code ? 'selected' : '';
-                    const selectedCenter = "{{ $user->venue_center_id }}" == center.center_code ? 'selected' :
+                    const selectedCenter = "{{ $user->center_code }}" == center.center_code ? 'selected' :
                         '';
                     centerDropdown.append(
                         `<option value="${center.center_code}" ${selected} ${selectedCenter}>
@@ -257,7 +268,7 @@
 
             // Trigger change event on page load to handle old/existing selections
             $(document).ready(function() {
-                const oldDistrict = "{{ old('district', $user->venue_district_id ?? '') }}";
+                const oldDistrict = "{{ old('district', $user->district_code ?? '') }}";
                 if (oldDistrict) {
                     $('#district').val(oldDistrict).trigger('change');
                 }
@@ -295,7 +306,7 @@
 
             // Trigger change event on page load to handle old/existing selections
             $(document).ready(function() {
-                const oldCenter = "{{ old('center', $user->venue_center_id ?? '') }}";
+                const oldCenter = "{{ old('center', $user->center_code ?? '') }}";
                 if (oldCenter) {
                     $('#center').val(oldCenter).trigger('change');
                 }

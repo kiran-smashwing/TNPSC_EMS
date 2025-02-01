@@ -489,9 +489,6 @@
             var chart = new ApexCharts(document.querySelector('#overview-product-graph'), options8);
             chart.render();
         </script>
-
-        <!-- Bootstrap JS (For Dropdown) -->
-        {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> --}}
     @endpush
 
     @include('partials.theme')

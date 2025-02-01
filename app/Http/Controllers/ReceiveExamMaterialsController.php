@@ -132,7 +132,10 @@ class ReceiveExamMaterialsController extends Controller
         // Audit Logging
         $currentUser = current_user();
         $userName = $currentUser ? $currentUser->display_name : 'Unknown';
-        $metadata = ['user_name' => $userName];
+        $metadata = [
+            'user_name' => $userName,
+            'district_code' => $currentUser->tre_off_district_id,
+        ];
 
         $examMaterialDetails = [
             'qr_code' => $request->qr_code,
@@ -147,6 +150,7 @@ class ReceiveExamMaterialsController extends Controller
             'exam_id' => $examId,
             'task_type' => 'receive_materials_printer_to_disitrct_treasury',
             'action_type' => 'qr_scan',
+            'user_id' => $user->tre_off_id
         ]);
 
         if ($existingLog) {
@@ -200,7 +204,7 @@ class ReceiveExamMaterialsController extends Controller
         $guard = $role ? Auth::guard($role) : null;
         $user = $guard ? $guard->user() : null;
 
-        $query = $role == 'headquarters' && $user->role->role_department == 'ED'
+        $query = $role == 'headquarters' && $user->role->role_department == 'QD'
             ? ExamMaterialsData::where('exam_id', $examId)
                 ->where('district_code', '01')               //Only for Chennai District
                 ->whereIn('category', ['D1', 'D2'])
@@ -252,11 +256,10 @@ class ReceiveExamMaterialsController extends Controller
         $guard = $role ? Auth::guard($role) : null;
         $user = $guard ? $guard->user() : null;
 
-
         // Check authorization
         if (
             $role !== 'headquarters' &&
-            (!isset($user->role) || $user->role->role_department !== 'ED') ||
+            (!isset($user->role) || $user->role->role_department !== 'QD') ||
             !$user
         ) {
             return response()->json([
@@ -264,8 +267,6 @@ class ReceiveExamMaterialsController extends Controller
                 'message' => 'User not found or not authorized'
             ], 403); // 403 is for authorization errors
         }
-
-
         // Find exam materials
         $examMaterials = ExamMaterialsData::where([
             'exam_id' => $examId,
@@ -300,12 +301,68 @@ class ReceiveExamMaterialsController extends Controller
             ], 409);
         }
 
-        // Create scan record
+        // Create scan record in district scanned at because QD Receives Materials for Chennai District Instead of chennai district collectrate.  
         ExamMaterialsScan::create([
             'exam_material_id' => $examMaterials->id,
             'district_scanned_at' => now()
         ]);
+        // Audit Logging
+        $currentUser = current_user();
+        $userName = $currentUser ? $currentUser->display_name : 'Unknown';
+        $metadata = ['user_name' => $userName];
 
+        $examMaterialDetails = [
+            'qr_code' => $request->qr_code,
+            'district' => $examMaterials->district->district_name,
+            'center' => $examMaterials->center->center_name,
+            'hall_code' => $examMaterials->hall_code,
+            'scan_time' => now()->toDateTimeString()
+        ];
+
+        // Check existing log
+        $existingLog = $this->auditService->findLog([
+            'exam_id' => $examId,
+            'task_type' => 'receive_materials_printer_to_hq',
+            'action_type' => 'qr_scan',
+        ]);
+
+        if ($existingLog) {
+            // Update existing log
+            $existingScans = $existingLog->after_state['scanned_codes'] ?? [];
+            $firstScan = $existingScans[0] ?? null; // Keep the first scan
+
+            // Update with first and current scan only
+            $updatedScans = [
+                $firstScan,
+                $examMaterialDetails // Current scan becomes the last scan
+            ];
+
+            $totalScans = ($existingLog->after_state['total_scanned'] ?? 0) + 1;
+
+            $this->auditService->updateLog(
+                logId: $existingLog->id,
+                metadata: $metadata,
+                afterState: [
+                    'scanned_codes' => $updatedScans,
+                    'total_scanned' => $totalScans
+                ],
+                description: "Scanned QR code: {$request->qr_code} (Total scanned: $totalScans)"
+            );
+        } else {
+            // Create new log for first scan
+            $this->auditService->log(
+                examId: $examId,
+                actionType: 'qr_scan',
+                taskType: 'receive_materials_printer_to_hq',
+                beforeState: null,
+                afterState: [
+                    'scanned_codes' => [$examMaterialDetails],
+                    'total_scanned' => 1
+                ],
+                description: "Initial QR code scan: {$request->qr_code}",
+                metadata: $metadata
+            );
+        }
         return response()->json([
             'status' => 'success',
             'message' => 'QR code scanned successfully'

@@ -45,8 +45,16 @@ class AuthorizationService
             ],
             'ED' => [
                 'Section Officer' => [
+                   
+                ],
+            ],
+            'QD' => [
+                'Section Officer' => [
                     'upload-exam-materials-csv',
                     'download-exam-materials-uploaded',
+                    'receive-materials-printer-to-hq',
+                    'upload-trunk-box-otl-csv',
+                    'download-trunk-box-otl-csv',
                 ],
             ],
             'ADMIN' => [
@@ -72,7 +80,6 @@ class AuthorizationService
             'receive-bundle-from-mobile-team',
             'district-masters',
             'view-all-center',
-
         ],
         'treasury' => [
             'receive-exam-materials-from-printer',

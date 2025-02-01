@@ -89,7 +89,7 @@ class ExamMaterialsDataController extends Controller
         $rows = array_map('str_getcsv', explode("\n", $originalContent));
         // Define the path and pattern for existing files
         $uploadedFilePath = 'uploads/csv_files/';
-        $pattern = storage_path('app/public/' . $uploadedFilePath . 'ED_EXAM_MATERIALS_QR' . $examId . '_uploaded_*');
+        $pattern = storage_path('app/public/' . $uploadedFilePath . 'QD_EXAM_MATERIALS_QR' . $examId . '_uploaded_*');
         // Find and delete existing files
         $existingFiles = glob($pattern);
         foreach ($existingFiles as $existingFile) {
@@ -99,7 +99,7 @@ class ExamMaterialsDataController extends Controller
         }
         // Create new file with preserved formatting
         $uploadedFilePath = 'uploads/csv_files/';
-        $uploadedFileName = 'ED_EXAM_MATERIALS_QR' . $examId . '_uploaded_' . time() . '.csv';
+        $uploadedFileName = 'QD_EXAM_MATERIALS_QR' . $examId . '_uploaded_' . time() . '.csv';
         $fullPath = storage_path('app/public/' . $uploadedFilePath . $uploadedFileName);
         // Ensure directory exists
         if (!file_exists(dirname($fullPath))) {
@@ -159,7 +159,7 @@ class ExamMaterialsDataController extends Controller
         // Handle failed rows and generate a CSV file for them
         $failedCsvPath = null;
         if (!empty($failedRows)) {
-            $failedCsvPath = $examId . '_ed_exam_materials_qr_failed_rows_' . time() . '.csv';
+            $failedCsvPath = $examId . '_qd_exam_materials_qr_failed_rows_' . time() . '.csv';
             $filePath = storage_path('app/public/uploads/failed_csv_files/' . $failedCsvPath);
             $fp = fopen($filePath, 'w');
             fputcsv($fp, ['Hall Code', 'Center Code', 'QR Code', 'Error']);
@@ -256,7 +256,7 @@ class ExamMaterialsDataController extends Controller
      */
     private function deleteExamMaterialsQROldFailedFiles($examId)
     {
-        $failedCsvFiles = glob(storage_path('app/public/uploads/failed_csv_files/' . $examId . '_ed_exam_materials_qr_failed_rows_*.csv'));
+        $failedCsvFiles = glob(storage_path('app/public/uploads/failed_csv_files/' . $examId . '_qd_exam_materials_qr_failed_rows_*.csv'));
 
         // Loop through and delete old failed CSV files
         foreach ($failedCsvFiles as $file) {
@@ -383,7 +383,7 @@ class ExamMaterialsDataController extends Controller
         // Check if a log already exists for this exam and task type
         $existingLog = $this->auditService->findLog([
             'exam_id' => $examId,
-            'task_type' => 'ed_exam_materials_qrcode_upload',
+            'task_type' => 'qd_exam_materials_qrcode_upload',
         ]);
 
         if ($existingLog) {
@@ -392,16 +392,16 @@ class ExamMaterialsDataController extends Controller
                 logId: $existingLog->id,
                 metadata: $metadata,
                 afterState: null,
-                description: 'Updated ED Exam Metarial QR Code '
+                description: 'Updated QD Exam Metarial QR Code '
             );
         } else {
             // Create a new log entry
             $this->auditService->log(
                 examId: $examId,
                 actionType: 'uploaded',
-                taskType: 'ed_exam_materials_qrcode_upload',
+                taskType: 'qd_exam_materials_qrcode_upload',
                 afterState: null,
-                description: 'Uploaded ED Exam Metarial QR Code CSV',
+                description: 'Uploaded QD Exam Metarial QR Code CSV',
                 metadata: $metadata
             );
         }

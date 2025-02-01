@@ -42,6 +42,10 @@ class DepartmentOfficial extends Authenticatable
     {
         return $this->dept_off_name; // or whatever field you use for the name
     }
+    public function getDistrictCodeAttribute()
+    {
+        return $this->dept_off_district_id;
+    }
     public function getEmailDisplayAttribute()
     {
         return !empty($this->dept_off_email) ? $this->dept_off_email : 'No email available';

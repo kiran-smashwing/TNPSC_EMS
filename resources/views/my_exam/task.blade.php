@@ -730,7 +730,7 @@
                                             </div>
                                     </li>
                                     @php
-                                        $is_ed_qr_upload = $examMaterialsUpdate !== null;
+                                        $is_qd_qr_upload = $examMaterialsUpdate !== null;
                                         $metadata = null;
                                         if ($examMaterialsUpdate !== null) {
                                             $metadata = is_string($examMaterialsUpdate->metadata)
@@ -738,7 +738,7 @@
                                                 : (object) $examMaterialsUpdate->metadata;
                                             $examMaterialsUpdate = (object) $examMaterialsUpdate;
                                         }
-                                        $user = $is_ed_qr_upload
+                                        $user = $is_qd_qr_upload
                                             ? App\Models\DepartmentOfficial::find($examMaterialsUpdate->user_id)
                                             : null;
                                         $profileImage =
@@ -746,12 +746,12 @@
                                                 ? asset('storage/' . $user->profile_image)
                                                 : asset('storage/assets/images/user/avatar-3.jpg');
                                         // Set dynamic badge text and color
-                                        $uploadStatus = $is_ed_qr_upload ? 'Uploaded' : 'Pending';
-                                        $badgeClass = $is_ed_qr_upload ? 'bg-light-secondary' : 'bg-danger';
+                                        $uploadStatus = $is_qd_qr_upload ? 'Uploaded' : 'Pending';
+                                        $badgeClass = $is_qd_qr_upload ? 'bg-light-secondary' : 'bg-danger';
                                     @endphp
                                     <li class="task-list-item">
                                         <i
-                                            class="task-icon {{ $is_ed_qr_upload ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
+                                            class="task-icon {{ $is_qd_qr_upload ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                         <div class="card ticket-card open-ticket">
                                             <div class="card-body">
                                                 <div class="row">
@@ -783,18 +783,18 @@
                                                                             alt=""
                                                                             class="wid-20 rounded me-2 img-fluid" /> Done
                                                                         by
-                                                                        <b>{{ $is_ed_qr_upload ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
+                                                                        <b>{{ $is_qd_qr_upload ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
                                                                     </li>
                                                                     <li class="d-sm-inline-block d-block mt-1"><i
                                                                             class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                        {{ $is_ed_qr_upload ? \Carbon\Carbon::parse($examMaterialsUpdate->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                        {{ $is_qd_qr_upload ? \Carbon\Carbon::parse($examMaterialsUpdate->updated_at)->format('d-m-Y h:i A') : ' ' }}
                                                                     </li>
 
                                                                 </ul>
                                                             </div>
                                                             <div class="h5 mt-3"><i
                                                                     class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                {{ $is_ed_qr_upload ? $examMaterialsUpdate->department : 'ED - Section Officer' }}
+                                                                {{ $is_qd_qr_upload ? $examMaterialsUpdate->department : 'QD - Section Officer' }}
                                                             </div>
                                                         </div>
                                                         <div class="mt-2">
@@ -804,7 +804,7 @@
                                                                     <i class="feather icon-upload mx-1 "></i>Upload </a>
                                                             @endhasPermission
                                                             @hasPermission('download-exam-materials-uploaded')
-                                                                @if ($is_ed_qr_upload)
+                                                                @if ($is_qd_qr_upload)
                                                                     <a href="{{ $metadata->uploaded_csv_link }}"
                                                                         class="me-3 btn btn-sm btn-light-warning"><i
                                                                             class="feather icon-download mx-1"></i>Download
@@ -853,7 +853,6 @@
                                         $badgeClass = $is_received_printer_to_district
                                             ? 'bg-light-secondary'
                                             : 'bg-danger';
-
                                     @endphp
                                     <li class="task-list-item">
                                         <i
@@ -881,14 +880,14 @@
                                                             </div>
                                                             <div class="help-sm-hidden">
                                                                 <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                  
+
                                                                     <li class="d-sm-inline-block d-block mt-1"><img
                                                                             src="../assets/images/user/avatar-4.jpg"
                                                                             alt=""
                                                                             class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                            <b>{{ $is_received_printer_to_district ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
-                                                                        </li>
-                                                                        <li class="d-sm-inline-block d-block mt-1"><i
+                                                                        <b>{{ $is_received_printer_to_district ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
+                                                                    </li>
+                                                                    <li class="d-sm-inline-block d-block mt-1"><i
                                                                             class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
                                                                         {{ $is_received_printer_to_district ? \Carbon\Carbon::parse($receiveMaterialsPrinterToDistrict->updated_at)->format('d-m-Y h:i A') : ' ' }}
                                                                     </li>
@@ -910,15 +909,36 @@
                                     </li>
                                 @endhasPermission
                                 @if (session('auth_role') == 'headquarters')
+                                    @php
+                                        $is_received_printer_to_hq = $receiveMaterialsPrinterToHQ !== null;
+                                        $metadata = null;
+                                        if ($receiveMaterialsPrinterToHQ !== null) {
+                                            $metadata = is_string($receiveMaterialsPrinterToHQ->metadata)
+                                                ? json_decode($receiveMaterialsPrinterToHQ->metadata)
+                                                : (object) $receiveMaterialsPrinterToHQ->metadata;
+                                            $receiveMaterialsPrinterToHQ = (object) $receiveMaterialsPrinterToHQ;
+                                        }
+                                        $user = $is_received_printer_to_hq
+                                            ? App\Models\TreasuryOfficer::find($receiveMaterialsPrinterToHQ->user_id)
+                                            : null;
+                                        $profileImage =
+                                            $user && !empty($user->profile_image)
+                                                ? asset('storage/' . $user->profile_image)
+                                                : asset('storage/assets/images/user/avatar-3.jpg');
+                                        // Set dynamic badge text and color
+                                        $uploadStatus = $is_received_printer_to_hq ? 'Received' : 'Pending';
+                                        $badgeClass = $is_received_printer_to_hq ? 'bg-light-secondary' : 'bg-danger';
+                                    @endphp
                                     <li class="task-list-item">
-                                        <i class="task-icon bg-primary"></i>
+                                        <i
+                                            class="task-icon {{ $is_received_printer_to_hq ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                         <div class="card ticket-card open-ticket">
                                             <div class="card-body">
                                                 <div class="row">
                                                     <div class="col-sm-auto mb-3 mb-sm-0">
                                                         <div class="d-sm-inline-block d-flex align-items-center">
-                                                            <img class="media-object wid-60 img-radius"
-                                                                src="{{ asset('storage/assets/images/user/avatar-3.jpg') }}"
+                                                            <img loading="lazy" class="media-object wid-60 img-radius"
+                                                                src="{{ $profileImage }}"
                                                                 alt="Generic placeholder image " />
                                                             <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                                 <ul
@@ -935,44 +955,35 @@
                                                     <div class="col">
                                                         <div class="popup-trigger">
                                                             <div class="h5 font-weight-bold">Receive Exam Materials From
-                                                                Printer<small
-                                                                    class="badge bg-light-secondary ms-2">Received</small>
+                                                                Printer
+                                                                <small
+                                                                    class="badge {{ $badgeClass }} ms-2">{{ $uploadStatus }}</small>
                                                             </div>
                                                             <div class="help-sm-hidden">
                                                                 <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"
-                                                    ><img src="../assets/images/admin/p1.jpg" alt="" class="wid-20 rounded me-2 img-fluid" /></li
-                                                  > --}}
                                                                     <li class="d-sm-inline-block d-block mt-1"><img
                                                                             src="../assets/images/user/avatar-4.jpg"
                                                                             alt=""
                                                                             class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                        <b>Anbezhili</b>
+                                                                        <b>{{ $is_received_printer_to_hq ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
                                                                     </li>
                                                                     <li class="d-sm-inline-block d-block mt-1"><i
-                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>25-07-2024
-                                                                        10:05 AM</li>
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"
-                                                    ><i class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                  </li> --}}
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                        {{ $is_received_printer_to_hq ? \Carbon\Carbon::parse($receiveMaterialsPrinterToHQ->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                    </li>
                                                                 </ul>
                                                             </div>
                                                             <div class="h5 mt-3"><i
                                                                     class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                ED - Section Officer</div>
-
+                                                                {{ $is_received_printer_to_hq ? $receiveMaterialsPrinterToHQ->department : 'ED - Section Officer' }}
+                                                            </div>
                                                         </div>
                                                         <div class="mt-2">
-                                                            <a href="helpdesk-ticket-details.html"
-                                                                class="me-2 btn btn-sm btn-light-primary "
-                                                                data-pc-animate="just-me" data-bs-toggle="modal"
-                                                                data-bs-target="#animateModal"><i
-                                                                    class="feather icon-eye mx-1 "></i>View </a>
-                                                            <a href="{{ route('receive-exam-materials.printer-to-hq-treasury', $session->exam_main_no) }}"
-                                                                class="me-2 btn btn-sm btn-light-info"><i
-                                                                    class="feather icon-info mx-1"></i>Verify</a>
-                                                            <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
-                                                                    class="feather icon-edit mx-1"></i>Edit </a>
+                                                            @hasPermission('receive-materials-printer-to-hq')
+                                                                <a href="{{ route('receive-exam-materials.printer-to-hq-treasury', $session->exam_main_no) }}"
+                                                                    class="me-2 btn btn-sm btn-light-info"><i
+                                                                        class="feather icon-info mx-1"></i>Verify</a>
+                                                            @endhasPermission
                                                         </div>
                                                     </div>
                                                 </div>
@@ -981,53 +992,61 @@
                                     </li>
                                 @endif
                                 @if (session('auth_role') == 'district' || session('auth_role') == 'center')
+                                    @php
+                                        $is_meeting_qr_created = $meetingCodeGen !== null;
+                                        $user = $is_meeting_qr_created
+                                            ? App\Models\District::where(
+                                                'district_code',
+                                                $meetingCodeGen->district_code,
+                                            )->first()
+                                            : null;
+                                        $profileImage =
+                                            $user && !empty($user->profile_image)
+                                                ? asset('storage/' . $user->profile_image)
+                                                : asset('storage/assets/images/user/avatar-7.jpg');
+                                        // Set dynamic badge text and color
+                                        $uploadStatus = $is_meeting_qr_created ? 'Generated' : 'Pending';
+                                        $badgeClass = $is_meeting_qr_created ? 'bg-light-secondary' : 'bg-danger';
+                                    @endphp
                                     <li class="task-list-item">
-                                        <i class="task-icon bg-danger"></i>
+                                        <i
+                                            class="task-icon {{ $is_meeting_qr_created ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                         <div class="card ticket-card open-ticket">
                                             <div class="card-body">
                                                 <div class="row">
                                                     <div class="col-sm-auto mb-3 mb-sm-0">
                                                         <div class="d-sm-inline-block d-flex align-items-center">
-                                                            <img class="media-object wid-60 img-radius"
-                                                                src="{{ asset('storage/assets/images/user/avatar-7.jpg') }}"
+                                                            <img loading="lazy" class="media-object wid-60 img-radius"
+                                                                src="{{ $profileImage }}"
                                                                 alt="Generic placeholder image " />
                                                             <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                                 <ul
                                                                     class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                    {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 Ticket</a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
+
                                                                 </ul>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div class="col">
                                                         <div class="popup-trigger">
-                                                            <div class="h5 font-weight-bold">Create CI Meeting<small
-                                                                    class="badge bg-light-secondary ms-2">
-                                                                    {{ $meetingCodeGen ? ($meetingCodeGen->user ? 'generated' : 'not generated') : 'generated' }}</small>
+                                                            <div class="h5 font-weight-bold">Create CI Meeting
+                                                                <small class="badge {{ $badgeClass }} ms-2">
+                                                                    {{ $uploadStatus }}</small>
                                                             </div>
                                                             <div class="help-sm-hidden">
                                                                 <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
+
                                                                     <li class="d-sm-inline-block d-block mt-1"><img
                                                                             src="../assets/images/user/avatar-5.jpg"
                                                                             alt=""
-                                                                            class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                        <b>{{ $meetingCodeGen ? $meetingCodeGen->user->district_name : 'District' }}</b>
+                                                                            class="wid-20 rounded me-2 img-fluid" />Done
+                                                                        by
+                                                                        <b>{{ $is_meeting_qr_created ? $user->district_name : 'District' }}</b>
                                                                     </li>
                                                                     <li class="d-sm-inline-block d-block mt-1"><i
                                                                             class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                        {{ $meetingCodeGen ? \Carbon\Carbon::parse($meetingCodeGen->created_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                        {{ $is_meeting_qr_created ? \Carbon\Carbon::parse($meetingCodeGen->created_at)->format('d-m-Y h:i A') : ' ' }}
                                                                     </li>
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
                                                                 </ul>
                                                             </div>
                                                             <div class="h5 mt-3"><i
@@ -1061,35 +1080,42 @@
                                     </li>
                                 @endif
                                 @if (session('auth_role') == 'headquarters')
-
                                     @php
-                                        $is_ed_trunk_qr_upload = $examTrunkboxOTLData !== null;
+                                        $is_qd_trunk_qr_upload = $examTrunkboxOTLData !== null;
 
                                         $metadata = null;
                                         if ($examTrunkboxOTLData !== null) {
                                             $metadata = is_string($examTrunkboxOTLData->metadata)
                                                 ? json_decode($examTrunkboxOTLData->metadata)
                                                 : (object) $examTrunkboxOTLData->metadata;
+                                            $examTrunkboxOTLData = (object) $examTrunkboxOTLData;
                                         }
+                                        $user = $is_qd_trunk_qr_upload
+                                            ? App\Models\DepartmentOfficial::find($examTrunkboxOTLData->user_id)
+                                            : null;
+                                        $profileImage =
+                                            $user && !empty($user->profile_image)
+                                                ? asset('storage/' . $user->profile_image)
+                                                : asset('storage/assets/images/user/avatar-7.jpg');
+                                        // Set dynamic badge text and color
+                                        $uploadStatus = $is_qd_trunk_qr_upload ? 'Uploaded' : 'Pending';
+                                        $badgeClass = $is_qd_trunk_qr_upload ? 'bg-light-secondary' : 'bg-danger';
                                     @endphp
                                     <li class="task-list-item">
-                                        <i class="task-icon bg-danger"></i>
+                                        <i
+                                            class="task-icon {{ $is_qd_trunk_qr_upload ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                         <div class="card ticket-card open-ticket">
                                             <div class="card-body">
                                                 <div class="row">
                                                     <div class="col-sm-auto mb-3 mb-sm-0">
                                                         <div class="d-sm-inline-block d-flex align-items-center">
-                                                            <img class="media-object wid-60 img-radius"
-                                                                src="{{ asset('storage/assets/images/user/avatar-7.jpg') }}"
+                                                            <img loading="lazy" class="media-object wid-60 img-radius"
+                                                                src="{{ $profileImage }}"
                                                                 alt="Generic placeholder image " />
                                                             <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                                 <ul
                                                                     class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                    {{-- <li class="list-unstyled-item"><a href="#"
-                                                                    class="link-secondary">1 Ticket</a></li>
-                                                            <li class="list-unstyled-item"><a href="#"
-                                                                    class="link-danger"><i class="fas fa-heart"></i>
-                                                                    3</a></li> --}}
+
                                                                 </ul>
                                                             </div>
                                                         </div>
@@ -1097,8 +1123,9 @@
                                                     <div class="col">
                                                         <div class="popup-trigger">
                                                             <div class="h5 font-weight-bold">Update Trunk box and OTL
-                                                                Details<small
-                                                                    class="badge bg-light-secondary ms-2">Updated</small>
+                                                                Details
+                                                                <small
+                                                                    class="badge {{ $badgeClass }} ms-2">{{ $uploadStatus }}</small>
                                                             </div>
                                                             <div class="help-sm-hidden">
                                                                 <ul class="list-unstyled mt-2 mb-0 text-muted">
@@ -1107,35 +1134,37 @@
                                                                             src="../assets/images/user/avatar-4.jpg"
                                                                             alt=""
                                                                             class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                        <b>{{ $is_ed_trunk_qr_upload ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
+                                                                        <b>{{ $is_qd_trunk_qr_upload ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
                                                                     </li>
                                                                     <li class="d-sm-inline-block d-block mt-1"><i
                                                                             class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                        {{ $is_ed_trunk_qr_upload ? \Carbon\Carbon::parse($examTrunkboxOTLData->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                        {{ $is_qd_trunk_qr_upload ? \Carbon\Carbon::parse($examTrunkboxOTLData->updated_at)->format('d-m-Y h:i A') : ' ' }}
                                                                     </li>
 
                                                                 </ul>
                                                             </div>
                                                             <div class="h5 mt-3"><i
                                                                     class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                {{ $is_ed_trunk_qr_upload ? $examTrunkboxOTLData->department : 'ED - Section Officer' }}
+                                                                {{ $is_qd_trunk_qr_upload ? $examTrunkboxOTLData->department : 'QD - Section Officer' }}
                                                             </div>
                                                         </div>
                                                         <div class="mt-2">
-                                                            @hasPermission('upload-exam-materials-csv')
+                                                            @hasPermission('upload-trunk-box-otl-csv')
                                                                 <a href="{{ route('exam-trunkbox-qr-otl-data.index', $session->exam_main_no) }}"
                                                                     class="me-2 btn btn-sm btn-light-primary m-2">
                                                                     <i class="feather icon-upload mx-1 "></i>Upload </a>
                                                             @endhasPermission
-                                                            @if ($is_ed_trunk_qr_upload)
-                                                                <a href="{{ $metadata->uploaded_csv_link }}"
-                                                                    class="me-3 btn btn-sm btn-light-warning"><i
-                                                                        class="feather icon-download mx-1"></i>Download
-                                                                </a>
-                                                            @endif
-                                                            @hasPermission('upload-exam-materials-csv')
+                                                            @hasPermission('download-trunk-box-otl-csv')
+                                                                @if ($is_qd_trunk_qr_upload)
+                                                                    <a href="{{ $metadata->uploaded_csv_link }}"
+                                                                        class="me-3 btn btn-sm btn-light-warning"><i
+                                                                            class="feather icon-download mx-1"></i>Download
+                                                                    </a>
+                                                                @endif
+                                                            @endhasPermission
+                                                            @hasPermission('upload-trunk-box-otl-csv')
                                                                 @if (isset($metadata->failed_csv_link) &&
-                                                                        file_exists(storage_path('app/public/uploads/failed_csv_files/' . basename($metadata->failed_csv_link))))
+                                                                        file_exists(public_path(str_replace(url('/'), '', $metadata->failed_csv_link))))
                                                                     <a href="{{ $metadata->failed_csv_link }}"
                                                                         class="me-3 btn btn-sm btn-light-danger">
                                                                         <i class="feather icon-download mx-1"></i>Failed
@@ -1151,51 +1180,60 @@
                                     </li>
                                 @endif
                                 @hasPermission('create-exam-materails-route')
+                                    @php
+                                        $is_exam_routes_created = $examRoutesCreated !== null;
+                                        $user = $is_exam_routes_created
+                                            ? App\Models\District::where(
+                                                'district_code',
+                                                $examRoutesCreated->district_code,
+                                            )->first()
+                                            : null;
+                                        $profileImage =
+                                            $user && !empty($user->profile_image)
+                                                ? asset('storage/' . $user->profile_image)
+                                                : asset('storage/assets/images/user/avatar-7.jpg');
+                                        // Set dynamic badge text and color
+                                        $uploadStatus = $is_exam_routes_created ? 'Created' : 'Pending';
+                                        $badgeClass = $is_exam_routes_created ? 'bg-light-secondary' : 'bg-danger';
+                                    @endphp
                                     <li class="task-list-item">
-                                        <i class="task-icon bg-danger"></i>
+                                        <i
+                                            class="task-icon {{ $is_exam_routes_created ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                         <div class="card ticket-card open-ticket">
                                             <div class="card-body">
                                                 <div class="row">
                                                     <div class="col-sm-auto mb-3 mb-sm-0">
                                                         <div class="d-sm-inline-block d-flex align-items-center">
-                                                            <img class="media-object wid-60 img-radius"
-                                                                src="{{ asset('storage/assets/images/user/avatar-7.jpg') }}"
+                                                            <img loading="lazy" class="media-object wid-60 img-radius"
+                                                                src="{{ $profileImage }}"
                                                                 alt="Generic placeholder image " />
                                                             <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                                 <ul
                                                                     class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                    {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 Ticket</a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                                 </ul>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div class="col">
                                                         <div class="popup-trigger">
-                                                            <div class="h5 font-weight-bold">Route Creation<small
-                                                                    class="badge bg-light-secondary ms-2">created</small>
+                                                            <div class="h5 font-weight-bold">Route Creation
+                                                                <small class="badge {{ $badgeClass }} ms-2">
+                                                                    {{ $uploadStatus }}</small>
                                                             </div>
                                                             <div class="help-sm-hidden">
                                                                 <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
                                                                     <li class="d-sm-inline-block d-block mt-1"><img
                                                                             src="../assets/images/user/avatar-5.jpg"
                                                                             alt=""
-                                                                            class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                        <b>Ariyalur</b>
+                                                                            class="wid-20 rounded me-2 img-fluid" />Done
+                                                                        by
+                                                                        <b>{{ $is_exam_routes_created ? $user->district_name : 'District' }}</b>
                                                                     </li>
                                                                     <li class="d-sm-inline-block d-block mt-1"><i
-                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                        26-07-2024 01:12 PM</li>
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                    {{ $is_exam_routes_created ? \Carbon\Carbon::parse($examRoutesCreated->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                </li>
+
                                                                 </ul>
                                                             </div>
                                                             <div class="h5 mt-3"><i
@@ -1203,12 +1241,9 @@
                                                                 District Collectorate</div>
                                                         </div>
                                                         <div class="mt-2">
-                                                            <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                    class="feather icon-eye mx-1"></i>view</a>
                                                             <a href="{{ route('exam-materials-route.index', $session->exam_main_no) }}"
                                                                 class="me-2 btn btn-sm btn-light-info"><i
                                                                     class="feather icon-map mx-1"></i>Create Route</a>
-
                                                         </div>
                                                     </div>
                                                 </div>

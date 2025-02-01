@@ -48,6 +48,18 @@ class ChiefInvigilator extends Authenticatable
     {
         return $this->ci_name; // or whatever field you use for the name
     }
+    public function getDistrictCodeAttribute()
+    {
+        return $this->ci_district_id; // or whatever field you use for the name
+    }
+    public function getCenterCodeAttribute()
+    {
+        return $this->ci_center_id; // or whatever field you use for the name
+    }
+    public function getVenueCodeAttribute()
+    {
+        return $this->ci_venue_id; // or whatever field you use for the name
+    }
     public function getEmailDisplayAttribute()
     {
         return !empty($this->ci_email) ? $this->ci_email : 'No email available';

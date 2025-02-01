@@ -94,7 +94,7 @@
                                                                 class="text-danger">*</span></label>
                                                         <select class="form-control @error('district') is-invalid @enderror"
                                                             id="district" name="district" required
-                                                            {{ session('auth_role') == 'venue' ? 'disabled' : '' }} >
+                                                            {{ session('auth_role') == 'venue' || session('auth_role') == 'ci' ? 'disabled' : '' }} >
                                                             <option value="">Select District</option>
                                                             @foreach ($districts as $district)
                                                                 <option value="{{ $district->district_code }}"
@@ -103,6 +103,10 @@
                                                                 </option>
                                                             @endforeach
                                                         </select>
+                                                        @if (session('auth_role') == 'venue' || session('auth_role') == 'ci')
+                                                        <input type="hidden" name="district"
+                                                            value="{{ $chiefInvigilator->ci_district_id }}">
+                                                    @endif
                                                         @error('district')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -115,10 +119,14 @@
                                                                 class="text-danger">*</span></label>
                                                         <select class="form-control @error('center') is-invalid @enderror"
                                                             id="center" name="center" required
-                                                            {{ session('auth_role') == 'venue' ? 'disabled' : '' }}>
+                                                            {{ session('auth_role') == 'venue'|| session('auth_role') == 'ci' ? 'disabled' : '' }}>
                                                             <option value="">Select Center</option>
                                                             <!-- Centers will be dynamically populated -->
                                                         </select>
+                                                        @if (session('auth_role') == 'venue' || session('auth_role') == 'ci')
+                                                        <input type="hidden" name="center"
+                                                            value="{{ $chiefInvigilator->ci_center_id }}">
+                                                    @endif
                                                         @error('center')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -131,10 +139,14 @@
                                                                 class="text-danger">*</span></label>
                                                         <select class="form-control @error('venue') is-invalid @enderror"
                                                             id="venue" name="venue" required
-                                                            {{ session('auth_role') == 'venue' ? 'disabled' : '' }}>
+                                                            {{ session('auth_role') == 'venue' || session('auth_role') == 'ci' ? 'disabled' : '' }}>
                                                             <option value="">Select Venue</option>
                                                             <!-- Venues will be dynamically populated -->
                                                         </select>
+                                                        @if (session('auth_role') == 'venue' || session('auth_role') == 'ci')
+                                                        <input type="hidden" name="venue"
+                                                            value="{{ $chiefInvigilator->ci_venue_id }}">
+                                                    @endif
                                                         @error('venue')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror

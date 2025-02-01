@@ -32,6 +32,7 @@ class AuthorizationService
                     'create-escort-staff',
                     'create-exam-materails-route',
                     'view-all-districts',
+                    'view-all-chief-invigilators',
                     'district-masters',
                     'venues-masters',
                     'view-all-venue',
@@ -56,10 +57,12 @@ class AuthorizationService
         ],
         'ci' => [
             'ci-meetings.ind',
-            'ci-meetings.attendance-QRcode-scan'
+            'ci-meetings.attendance-QRcode-scan',
+            'venues-masters',
         ],
         'venue' => [
             'venues-masters',
+            'view-all-chief-invigilators',
         ],
         'district' => [
             'receive-exam-materials',

@@ -48,12 +48,24 @@ class TreasuryOfficerController extends Controller
 
         return view('masters.district.treasury_Officers.index', compact('treasuryOfficers', 'districts'));
     }
-
-
-
-    public function create()
+    public function create(Request $request)
     {
-        $districts = District::all(); // Fetch all districts
+        $role = session('auth_role');
+        $user = $request->get('auth_user');
+        // $user_district_code = $user->district_code;
+        // dd($user_district_code);
+        // dd($user);
+        if ($role == 'district') {
+            if (!$user) {
+                return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);
+            }
+
+            $districts = District::where('district_code', $user->district_code)->get();
+            return view('masters.district.treasury_Officers.create', compact('districts','user'));
+        }
+
+        // Default case: Fetch all districts and centers
+        $districts = District::all();
         return view('masters.district.treasury_Officers.create', compact('districts'));
     }
 

@@ -93,7 +93,7 @@ class InvigilatorsController extends Controller
             $venues = Venues::where('venue_code', $user->ci_venue_id)->get();
             $centers = Center::where('center_code', $user->ci_center_id)->get();
             $districts = District::where('district_code', $user->ci_district_id)->get();
-            return view('masters.venues.invigilator.create', compact('venues', 'centers', 'districts'));
+            return view('masters.venues.invigilator.create', compact('venues', 'centers', 'districts', 'user'));
         }
         // Fetch any necessary data to display in the form (e.g., venues, centers)
         $venues = Venues::all(); // Or use a filter if necessary

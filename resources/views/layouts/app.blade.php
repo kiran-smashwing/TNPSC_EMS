@@ -35,6 +35,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('storage/assets/images/favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('storage/assets/images/favicon-16x16.png') }}">
     <link rel="manifest" href="{{ asset('storage/assets/site.webmanifest') }}">
+    {{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"> --}}
     <!-- [Font] Family -->
     <link rel="stylesheet" href="{{ asset('storage/assets/fonts/inter/inter.css') }}" id="main-font-link" />
 
@@ -139,7 +140,11 @@
     <script src="{{ asset('storage/assets/js/fonts/custom-font.js') }}"></script>
     <script src="{{ asset('storage/assets/js/pcoded.js') }}"></script>
     <script src="{{ asset('storage/assets/js/plugins/feather.min.js') }}"></script>
+    <script src="{{ asset('storage/assets/js/pages/dashboard-analytics.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    {{-- <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script> --}}
+    
+
 
     <script>
         var savedTheme = localStorage.getItem('theme') || 'light';

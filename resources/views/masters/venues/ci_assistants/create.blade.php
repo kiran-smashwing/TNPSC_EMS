@@ -84,16 +84,26 @@
                                                 <!-- District Dropdown -->
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="district">District<span
+                                                        <label class="form-label" for="district">District <span
                                                                 class="text-danger">*</span></label>
                                                         <select class="form-control @error('district') is-invalid @enderror"
-                                                            id="district" name="district" required>
+                                                            id="district" name="district" required
+                                                            {{ session('auth_role') == 'venue' || session('auth_role') == 'ci' ? 'disabled' : '' }}>
                                                             <option value="">Select District Name</option>
                                                             @foreach ($districts as $district)
-                                                                <option value="{{ $district->district_code }}">
-                                                                    {{ $district->district_name }}</option>
+                                                                <option value="{{ $district->district_code }}"
+                                                                    {{ isset($user) && $user->district_code == $district->district_code ? 'selected' : '' }}
+                                                                    {{ old('district') == $district->district_code ? 'selected' : '' }}>
+                                                                    {{ $district->district_name }}
+                                                                </option>
                                                             @endforeach
                                                         </select>
+
+                                                        @if (session('auth_role') == 'venue' || session('auth_role') == 'ci')
+                                                            <input type="hidden" name="district"
+                                                                value="{{ $user->district_code }}">
+                                                        @endif
+
                                                         @error('district')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -105,25 +115,36 @@
                                                         <label class="form-label" for="center">Center<span
                                                                 class="text-danger">*</span></label>
                                                         <select class="form-control @error('center') is-invalid @enderror"
-                                                            id="center" name="center" required>
+                                                            id="center" name="center" required
+                                                            {{ session('auth_role') == 'venue' || session('auth_role') == 'ci' ? 'disabled' : '' }}>
                                                             <option value="">Select Center Name</option>
                                                             <!-- Centers will be dynamically populated -->
                                                         </select>
+                                                        @if (session('auth_role') == 'venue' || session('auth_role') == 'ci')
+                                                            <input type="hidden" name="center"
+                                                                value="{{ $user->center_code }}">
+                                                        @endif
                                                         @error('center')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
                                                     </div>
                                                 </div>
+
                                                 <!-- Venue Dropdown -->
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
                                                         <label class="form-label" for="venue">Venue<span
                                                                 class="text-danger">*</span></label>
                                                         <select class="form-control @error('venue') is-invalid @enderror"
-                                                            id="venue" name="venue" required>
+                                                            id="venue" name="venue" required
+                                                            {{ session('auth_role') == 'venue' || session('auth_role') == 'ci' ? 'disabled' : '' }}>
                                                             <option value="">Select Venue Name</option>
                                                             <!-- Venues will be dynamically populated -->
                                                         </select>
+                                                        @if (session('auth_role') == 'venue' || session('auth_role') == 'ci')
+                                                            <input type="hidden" name="venue"
+                                                                value="{{ $user->venue_code }}">
+                                                        @endif
                                                         @error('venue')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -135,7 +156,8 @@
                                                                 class="text-danger">*</span></label>
                                                         <input type="text"
                                                             class="form-control @error('name') is-invalid @enderror"
-                                                            id="name" name="name" placeholder="Malarvizhi" required>
+                                                            id="name" name="name" placeholder="Malarvizhi"
+                                                            required>
                                                         @error('name')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -215,85 +237,73 @@
                 const allCenters = @json($centers);
                 const allVenues = @json($venues);
 
-                // Function to populate centers based on selected district
-                function populateCenters(districtId, selectedCenter = '') {
-                    const centerDropdown = $('#center');
-                    centerDropdown.empty().append('<option value="">Select Center Name</option>');
-
-                    if (!districtId) return; // Ensure valid district selection
-
-                    const filteredCenters = allCenters.filter(center => center.center_district_id == districtId);
-
-                    filteredCenters.forEach(center => {
-                        const isSelected =
-                            ("{{ old('center') }}" == center.center_code || selectedCenter == center
-                                .center_code) ?
-                            'selected' : '';
-                        centerDropdown.append(
-                            `<option value="${center.center_code}" ${isSelected}>
-                            ${center.center_name}
-                        </option>`
-                        );
-                    });
-
-                    if (selectedCenter) {
-                        centerDropdown.val(selectedCenter).trigger('change');
-                    }
-                }
-
-                // Function to populate venues based on selected center
-                function populateVenues(centerId, selectedVenue = '') {
-                    const venueDropdown = $('#venue');
-                    venueDropdown.empty().append('<option value="">Select Venue Name</option>');
-
-                    if (!centerId) return; // Ensure valid center selection
-
-                    const filteredVenues = allVenues.filter(venue => venue.venue_center_id == centerId);
-
-                    filteredVenues.forEach(venue => {
-                        const isSelected =
-                            ("{{ old('venue') }}" == venue.venue_code || selectedVenue == venue.venue_code) ?
-                            'selected' : '';
-                        venueDropdown.append(
-                            `<option value="${venue.venue_code}" ${isSelected}>
-                            ${venue.venue_name}
-                        </option>`
-                        );
-                    });
-
-                    if (selectedVenue) {
-                        venueDropdown.val(selectedVenue);
-                    }
-                }
-
                 // District dropdown change event
                 $('#district').on('change', function() {
-                    const selectedDistrict = $(this).val();
-                    populateCenters(selectedDistrict);
+                    const selectedDistrictCode = $(this).val();
+                    const centerDropdown = $('#center');
+
+                    // Clear previous options
+                    centerDropdown.empty().append('<option value="">Select Center Name</option>');
+
+                    // Filter centers based on selected district
+                    const filteredCenters = allCenters.filter(center =>
+                        center.center_district_id == selectedDistrictCode
+                    );
+
+                    // Populate centers
+                    filteredCenters.forEach(center => {
+                        const selectedOld = "{{ old('center') }}" == center.center_code ? 'selected' :
+                            '';
+                        const selectedUser = "{{ $user->center_code ?? '' }}" == center
+                            .center_code ? 'selected' : '';
+                        centerDropdown.append(
+                            `<option value="${center.center_code}" ${selectedOld} ${selectedUser}>
+                                ${center.center_name}
+                            </option>`
+                        );
+                    });
+
+                    // Trigger change event to reset venues when district changes
+                    $('#center').trigger('change');
                 });
 
                 // Center dropdown change event
                 $('#center').on('change', function() {
-                    const selectedCenter = $(this).val();
-                    populateVenues(selectedCenter);
+                    const selectedCenterCode = $(this).val();
+                    const venueDropdown = $('#venue');
+
+                    // Clear previous options
+                    venueDropdown.empty().append('<option value="">Select Venue Name</option>');
+
+                    // Filter venues based on selected center
+                    const filteredVenues = allVenues.filter(venue =>
+                        venue.venue_center_id == selectedCenterCode
+                    );
+
+                    // Populate venues
+                    filteredVenues.forEach(venue => {
+                        const selectedOld = "{{ old('venue') }}" == venue.venue_code ? 'selected' :
+                            '';
+                        const selectedUser = "{{ $user->venue_code ?? '' }}" == venue.venue_code ?
+                            'selected' : '';
+                        venueDropdown.append(
+                            `<option value="${venue.venue_code}" ${selectedOld} ${selectedUser}>
+                                ${venue.venue_name}
+                            </option>`
+                        );
+                    });
                 });
 
-                // Load old/existing selections on page load
-                const oldDistrict = "{{ old('district', $user->venue_district_id ?? '') }}";
-                const oldCenter = "{{ old('center', $user->venue_center_id ?? '') }}";
-                const oldVenue = "{{ old('venue', $user->venue_code ?? '') }}";
-
+                // Trigger change event on page load to handle old/existing selections
+                const oldDistrict = "{{ old('district', $user->district_code ?? '') }}";
                 if (oldDistrict) {
-                    $('#district').val(oldDistrict);
-                    populateCenters(oldDistrict, oldCenter);
+                    $('#district').val(oldDistrict).trigger('change');
                 }
 
-                // Ensure the venue loads only after centers are populated
-                setTimeout(() => {
-                    if (oldCenter) {
-                        populateVenues(oldCenter, oldVenue);
-                    }
-                }, 300);
+                const oldCenter = "{{ old('center', $user->center_code ?? '') }}";
+                if (oldCenter) {
+                    $('#center').val(oldCenter).trigger('change');
+                }
             });
         </script>
     @endpush

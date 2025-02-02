@@ -65,12 +65,11 @@
                         </span>
                         <span class="pc-mtext">Dashboard</span>
                         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
-                        <span class="pc-badge">2</span>
                     </a>
                     <ul class="pc-submenu">
                         <li class="pc-item"><a class="pc-link" href={{route('dashboard')}}>Default</a></li>
-                        <li class="pc-item"><a class="pc-link" href="../dashboard/analytics.html">Analytics</a></li>
-                        <li class="pc-item"><a class="pc-link" href="../dashboard/finance.html">Finance</a></li>
+                        {{-- <li class="pc-item"><a class="pc-link" href="../dashboard/analytics.html">Analytics</a></li>
+                        <li class="pc-item"><a class="pc-link" href="../dashboard/finance.html">Finance</a></li> --}}
                     </ul>
                 </li>
 
@@ -257,7 +256,7 @@
                                 <use xlink:href="#custom-fatrows"></use>
                             </svg>
                         </span>
-                        <span class="pc-mtext">Downward Journey Routes</span>
+                        <span class="pc-mtext"></span>CV Downward Updates
                     </a>
                 </li>
 
@@ -268,23 +267,32 @@
                                 <use xlink:href="#custom-presentation-chart"></use>
                             </svg>
                         </span>
-                        <span class="pc-mtext">Completed Exams</span></a>
+                        <span class="pc-mtext"></span>Completed Exams</a>
                 </li>
-                {{-- <li class="pc-item">
-                <a href="../widget/w_chart.html" class="pc-link">
-                    <span class="pc-micon">
-                        <svg class="pc-icon">
-                            <use xlink:href="#custom-password-check"></use>
-                        </svg>
-                    </span>
-                    <span class="pc-mtext">QR Code Generation</span></a>
-            </li> --}}
                 <li class="pc-item pc-caption">
                     <label>Reports</label>
                     <svg class="pc-icon">
                         <use xlink:href="#custom-layer"></use>
                     </svg>
                 </li>
+                <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">Emergency Alarm Notifications</a>
+                </li>
+                <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">Exam Materials Discrepancy</a>
+                </li>
+                <li class="pc-item"><a class="pc-link" href="{{ route('attendance.report') }}">Candidate Attendance</a>
+                </li>
+                
+                <li class="pc-item"><a class="pc-link" href="{{route('omr-account.report')}}">Replacement of OMR/QCA</a>
+                </li>
+                <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">Candidate Remarks</a>
+                </li>
+                <li class="pc-item"><a class="pc-link" href="#">Consolidated Statement </a>
+                </li>
+                    <li class="pc-item"><a class="pc-link" href="{{ route('expenditure-statment.report') }}">Expenditure Statement</a>
+                    </li>
+                    <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">CI Meeting
+                             Attendance</a>
+                    </li>
                 <li class="pc-item pc-hasmenu">
                     <a href="#!" class="pc-link">
                         <span class="pc-micon">
@@ -292,72 +300,33 @@
                                 <use xlink:href="#custom-layer"></use>
                             </svg>
                         </span>
-                        <span class="pc-mtext">Reports Generation</span>
+                        <span class="pc-mtext">OMR/QCA Delivered</span>
                         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                     </a>
                     <ul class="pc-submenu">
-                        {{-- <li class="pc-item"><a class="pc-link" href="{{ route('ed.report') }}"> Exams
-                            Reports</a>
-                    </li> --}}
-                        <li class="pc-item"><a class="pc-link" href="{{ route('expenditure-statment.report') }}">
-                                Expenditure
-                                Statement</a>
-                        </li>
-                        {{-- <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html"> Inspection
-                            staff Report</a>
-                    </li> --}}
-                        <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">CI Meeting
-                                Reports Attendance</a>
-                        </li>
-                        <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">Exam Material Discrepancy</a>
-                        </li>
-                        <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">Candidate Attendance</a>
-                        </li>
-                        <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">Emergency Alarm Notification</a>
-                        </li>
-                        <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">Emergency Alarm Notification</a>
-                        </li>
-                        <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">Replacement of OMR/QCA</a>
-                        </li>
-                        <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">Candidate Remarks</a>
-                        </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('attendance.report') }}">Consolidate Statement </a>
-                        </li>
-                        {{-- <li class="pc-item"><a class="pc-link" href="{{ route('qp_booklet.report') }}"> Question
-                                Booklet Account</a>
-                        </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('bundle-receiving.report') }}">
-                                Receiving
-                                Bundle Reports</a>
-                        </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('omr-account.report') }}"> OMR
-                                Account</a>
-                        </li>
-                        <li class="pc-item"><a class="pc-link" href="{{ route('attendance.report') }}">
-                                Attendance
-                                Reports</a>
-                        </li> --}}
+                        <li class="pc-item"><a class="pc-link" href="#"> Print to District Treasury</a></li>
+                        <li class="pc-item"><a class="pc-link" href="#"> District Treasury to Sub Treasury</a></li>
+                        <li class="pc-item"><a class="pc-link" href="#">Sub Treasury to Mobile Team</a></li>
+                        <li class="pc-item"><a class="pc-link" href="#"> Mobile Team to Chief Invigilator</a> </li>
                     </ul>
                 </li>
 
-                {{-- <li class="pc-item pc-caption">
-                    <label> Users</label>
-                    <svg class="pc-icon">
-                        <use xlink:href="#custom-profile-2user-outline"></use>
-                    </svg>
-                </li> --}}
-                {{-- <li class="pc-item pc-hasmenu">
-                    <a href="#!" class="pc-link"><span class="pc-micon">
+                <li class="pc-item pc-hasmenu">
+                    <a href="#!" class="pc-link">
+                        <span class="pc-micon">
                             <svg class="pc-icon">
-                                <use xlink:href="#custom-profile-2user-outline"></use>
-                            </svg> </span><span class="pc-mtext"> Users Management</span><span class="pc-arrow"><i
-                                data-feather="chevron-right"></i></span></a>
+                                <use xlink:href="#custom-layer"></use>
+                            </svg>
+                        </span>
+                        <span class="pc-mtext">Bundle Collection</span>
+                        <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+                    </a>
                     <ul class="pc-submenu">
-                        <li class="pc-item"><a class="pc-link" href="../elements/icon-feather.html">Role</a></li>
-
-                        <li class="pc-item"><a class="pc-link" href="../elements/icon-custom.html">Users</a></li>
+                        <li class="pc-item"><a class="pc-link" href="#"> Chief Invigilator to Moible Team</a></li>
+                        <li class="pc-item"><a class="pc-link" href="#"> Mobile Team to Sub Treasury </a></li>
+                        <li class="pc-item"><a class="pc-link" href="#">Sub Treasury to District Treasury</a></li>
                     </ul>
-                </li> --}}
+                </li>
                 <li class="pc-item pc-caption">
                     <label> Email</label>
                     <svg class="pc-icon">

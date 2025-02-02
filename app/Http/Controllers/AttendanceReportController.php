@@ -36,8 +36,6 @@ class AttendanceReportController extends Controller
 
         // Get the user based on the guard
         $user = $guard ? $guard->user() : null;
-
-        // Check if user exists and fetch district and center codes
         $districtCodeFromSession = $user ? $user->district_code : null; // Assuming district_code is in the user table
         $centerCodeFromSession = $user ? $user->center_code : null; // Assuming center_code is in the user table or retrieved through a relationship
 
@@ -78,17 +76,6 @@ class AttendanceReportController extends Controller
             ->select('exam_sess_session')
             ->distinct()
             ->pluck('exam_sess_session');
-
-        // Log data to the Laravel log file (storage/logs/laravel.log)
-        // Log::info('Dropdown Data:', [
-        //     'user' => $user,
-        //     'districts' => $districts,
-        //     'centers' => $centers,
-        //     'examDates' => $examDates,
-        //     'sessions' => $sessions,
-        //     'centerCodeFromSession' => $centerCodeFromSession
-        // ]);
-
         // Return data with logic applied based on roles
         return response()->json([
             'user' => $user,

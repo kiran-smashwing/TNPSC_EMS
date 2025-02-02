@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Candidate Attendance')
+@section('title', 'Replacement of OMR/QCA')
 
 @section('content')
     @push('styles')
@@ -32,7 +32,7 @@
                     <div class="row align-items-center">
                         <div class="col-md-12">
                             <div class="page-header-title">
-                                <h2 class="mb-0">Candidate Attendance</h2>
+                                <h2 class="mb-0">Replacement of OMR/QCA</h2>
                             </div>
                         </div>
                     </div>
@@ -70,7 +70,7 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-header">
-                            <h5>Filter Candidate Attendance</h5>
+                            <h5>Filter Replacement of OMR/QCA</h5>
                         </div>
                         <div class="card-body">
                             <form action="#" method="GET" id="filterForm">
@@ -106,7 +106,7 @@
                                             <option value="" selected>Select District</option>
                                         </select>
                                     </div>
-
+                                    {{-- @if (!Auth::guard('headquarters')->check()) style="display: none;" @endif --}}
                                     <!-- Center Dropdown -->
                                     <div class="col-md-4 mb-3" id="center-container">
                                         <label for="center" class="form-label">Center</label>
@@ -115,7 +115,9 @@
                                         </select>
                                     </div>
 
-
+                                    {{-- @if (Auth::guard('district')->check()) style="display: block;" 
+                                        @elseif(Auth::guard('center')->check()) style="display: none;" 
+                                        @else style="display: block;" @endif --}}
 
                                 </div>
 

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Candidate Attendance')
+@section('title', 'Expenditure Statement')
 
 @section('content')
     @push('styles')
@@ -32,7 +32,7 @@
                     <div class="row align-items-center">
                         <div class="col-md-12">
                             <div class="page-header-title">
-                                <h2 class="mb-0">Candidate Attendance</h2>
+                                <h2 class="mb-0">Expenditure Statement</h2>
                             </div>
                         </div>
                     </div>
@@ -70,7 +70,7 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-header">
-                            <h5>Filter Candidate Attendance</h5>
+                            <h5>Filter Expenditure Statement</h5>
                         </div>
                         <div class="card-body">
                             <form action="#" method="GET" id="filterForm">
@@ -83,7 +83,7 @@
                                             class="form-control" placeholder="Enter Notification No" />
                                     </div>
                                     <!-- Exam Date -->
-                                    <div class="col-md-4 mb-3">
+                                    {{-- <div class="col-md-4 mb-3">
                                         <label for="exam_date" class="form-label">Exam Date</label>
                                         <select name="exam_date" id="exam_date" class="form-control">
                                             <option value="" selected>Select Exam Date</option>
@@ -96,7 +96,7 @@
                                         <select name="session" id="session" class="form-control">
                                             <option value="" selected>Select Session</option>
                                         </select>
-                                    </div>
+                                    </div> --}}
 
                                     <!-- District -->
                                     <!-- District Dropdown -->
@@ -114,9 +114,6 @@
                                             <option value="" selected>Select Center</option>
                                         </select>
                                     </div>
-
-
-
                                 </div>
 
                                 <!-- Submit Button -->

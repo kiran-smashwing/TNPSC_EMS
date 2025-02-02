@@ -60,6 +60,8 @@ Route::get('/attendance-report-district', [AttendanceReportController::class, 'g
 Route::get('/attendance-report-overall', [AttendanceReportController::class, 'generateAttendanceReportOverall'])->name('download.attendanceReportoverall');
 //attendance-report
 Route::get('/attendance-report', [AttendanceReportController::class, 'index'])->name('attendance.report');
+Route::get('/expenditure-statment', [Expenditure_StatmentController::class, 'index'])->name('expenditure-statment.report');
+Route::get('/omr-account', [Omr_AccountController::class, 'index'])->name('omr-account.report');
 Route::get('/api/get-dropdown-data', [AttendanceReportController::class, 'getDropdownData'])->name('attendance.dropdown');
 // Route::get('/attendance-report/filter', [AttendanceReportController::class, 'filterAttendanceReport'])->name('attendance-report.filter');
 Route::get('/ed-report', [EDController::class, 'generateEDReport'])->name('ed.report');
@@ -67,9 +69,9 @@ Route::get('/vehicel-report', [Vehicle_SecurityController::class, 'generateVehic
 // Qp_bookletcontroller
 Route::get('/qp-booklet', [Qp_BookletController::class, 'generateQpbookletReport'])->name('qp_booklet.report');
 // Qp_bookletcontroller
-Route::get('/omr-account', [Omr_AccountController::class, 'generateOmraccountReport'])->name('omr-account.report');
+// Route::get('/omr-account', [Omr_AccountController::class, 'generateOmraccountReport'])->name('omr-account.report');
 // Expenditure_StatmentController
-Route::get('/expenditure-statment', [Expenditure_StatmentController::class, 'generateexpenditureReport'])->name('expenditure-statment.report');
+// Route::get('/expenditure-statment', [Expenditure_StatmentController::class, 'generateexpenditureReport'])->name('expenditure-statment.report');
 // Expenditure_StatmentController
 Route::get('/bundle-receiving', [BundleReceivingReportController::class, 'generatebundlereceivingReport'])->name('bundle-receiving.report');
 

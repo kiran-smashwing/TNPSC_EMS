@@ -135,6 +135,7 @@ class DistrictCandidatesController extends Controller
         $existingLog = $this->auditService->findLog([
             'exam_id' => $request->exam_id,
             'task_type' => 'exam_venue_consent',
+            'user_id' => $user->district_id,
             'action_type' => 'email_sent',
         ]);
 

@@ -303,7 +303,7 @@ class ExamTrunkBoxOTLDataController extends Controller
         // Check if a log already exists for this exam and task type
         $existingLog = $this->auditService->findLog([
             'exam_id' => $examId,
-            'task_type' => 'ed_exam_trunkbox_qr_otl_upload',
+            'task_type' => 'exam_trunkbox_qr_otl_upload',
         ]);
 
         if ($existingLog) {
@@ -319,7 +319,7 @@ class ExamTrunkBoxOTLDataController extends Controller
             $this->auditService->log(
                 examId: $examId,
                 actionType: 'uploaded',
-                taskType: 'ed_exam_trunkbox_qr_otl_upload',
+                taskType: 'exam_trunkbox_qr_otl_upload',
                 afterState: null,
                 description: 'Updated ED Exam Trunkbox QR & OTL Code ',
                 metadata: $metadata

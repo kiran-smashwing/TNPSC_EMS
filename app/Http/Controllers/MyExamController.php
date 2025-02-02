@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CIMeetingQrcode;
 use App\Models\Currentexam;
+use App\Models\ExamMaterialRoutes;
 use App\Models\ExamTrunkBoxOTLData;
 use App\Models\CIAssistant;
 use App\Models\Invigilator;
@@ -56,6 +57,7 @@ class MyExamController extends Controller
             $venueConsents = null;
             $meetingCodeGen = null;
             $sendExamVenueConsent = null;
+            $receiveMaterialsPrinterToDistrict = null;
             if ($role == 'venue') {
                 $venueConsents = ExamVenueConsent::where('exam_id', $examId)
                     ->where('venue_id', $user->venue_id)
@@ -66,7 +68,7 @@ class MyExamController extends Controller
                 $venueConsents->venueName = $user->venue_name;
                 $venueConsents->profile_image = $user->venue_image;
 
-            } else if ($role == 'district') {
+            } else if ($role == 'district' || $role == 'center') {
                 $meetingCodeGen = CIMeetingQrcode::where('exam_id', $examId)
                     ->where('district_code', $user->district_code)
                     ->first();
@@ -88,6 +90,10 @@ class MyExamController extends Controller
                     ->where('user_id', $user->district_id)
                     ->first();
             }
+            $examRoutesCreated = ExamMaterialRoutes::where('exam_id', $examId)
+                ->where('district_code', $user->district_code)
+                ->latest('updated_at') // Fetch the most recently updated record
+                ->first();
             $examVenueHallConfirmation = ExamAuditLog::where('exam_id', $examId)
                 ->where('task_type', 'exam_venue_hall_confirmation')
                 ->first();
@@ -95,16 +101,27 @@ class MyExamController extends Controller
                 ->where('task_type', 'apd_finalize_halls_upload')
                 ->first();
             $examMaterialsUpdate = ExamAuditLog::where('exam_id', $examId)
-                ->where('task_type', 'ed_exam_materials_qrcode_upload')
+                ->where('task_type', 'qd_exam_materials_qrcode_upload')
                 ->first();
-            $receiveMaterialsPrinterToDistrict = ExamAuditLog::where('exam_id', $examId)
-                ->where('task_type', 'receive_materials_printer_to_disitrct_treasury')
+            if ($role == 'treasury') {
+                $receiveMaterialsPrinterToDistrict = ExamAuditLog::where('exam_id', $examId)
+                    ->where('task_type', 'receive_materials_printer_to_disitrct_treasury')
+                    ->where('user_id', $user->tre_off_id)
+                    ->first();
+            } else {
+                $receiveMaterialsPrinterToDistrict = ExamAuditLog::where('exam_id', $examId)
+                    ->where('task_type', 'receive_materials_printer_to_disitrct_treasury')
+                    ->whereJsonContains('metadata->district_code', $user->district_code)
+                    ->first();
+            }
+            $receiveMaterialsPrinterToHQ = ExamAuditLog::where('exam_id', $examId)
+                ->where('task_type', 'receive_materials_printer_to_hq')
                 ->first();
             $examTrunkboxOTLData = ExamAuditLog::where('exam_id', $examId)
-                ->where('task_type', 'ed_exam_trunkbox_qr_otl_upload')
+                ->where('task_type', 'exam_trunkbox_qr_otl_upload')
                 ->first();
 
-            return view('my_exam.task', compact('session', 'auditDetails', 'sendExamVenueConsent', 'venueConsents', 'meetingCodeGen', 'expectedCandidatesUpload', 'candidatesCountIncrease','examVenueHallConfirmation','apdFinalizeHallsUpload','examMaterialsUpdate','receiveMaterialsPrinterToDistrict', 'examTrunkboxOTLData'));
+            return view('my_exam.task', compact('session', 'auditDetails', 'sendExamVenueConsent', 'venueConsents', 'meetingCodeGen', 'expectedCandidatesUpload', 'candidatesCountIncrease', 'examVenueHallConfirmation', 'apdFinalizeHallsUpload', 'examMaterialsUpdate', 'receiveMaterialsPrinterToDistrict', 'receiveMaterialsPrinterToHQ', 'examTrunkboxOTLData','examRoutesCreated'));
         }
     }
 

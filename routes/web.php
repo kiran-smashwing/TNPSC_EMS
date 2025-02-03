@@ -49,7 +49,12 @@ use App\Http\Controllers\QpBoxlogController;
 use App\Http\Controllers\CICandidateLogsController;
 use App\Http\Controllers\CIPaperReplacementsController;
 use App\Http\Controllers\BundlePackagingController;
+use App\Http\Controllers\CiMeetingAttendanceController;
+use App\Http\Controllers\ConsolidatedStatementController;
 use App\Http\Controllers\ChartedVehicleRoutesController;
+use App\Http\Controllers\CandidateRemarksController;
+use App\Http\Controllers\ExamMaterialsDiscrepancyController;
+use App\Http\Controllers\EmergencyAlarmNotificationsController;
 
 //PDF
 //center_attenance_report
@@ -59,9 +64,6 @@ Route::get('/attendance-report-district', [AttendanceReportController::class, 'g
 //Overall_attenance_report
 Route::get('/attendance-report-overall', [AttendanceReportController::class, 'generateAttendanceReportOverall'])->name('download.attendanceReportoverall');
 //attendance-report
-Route::get('/attendance-report', [AttendanceReportController::class, 'index'])->name('attendance.report');
-Route::get('/expenditure-statment', [Expenditure_StatmentController::class, 'index'])->name('expenditure-statment.report');
-Route::get('/omr-account', [Omr_AccountController::class, 'index'])->name('omr-account.report');
 Route::get('/api/get-dropdown-data', [AttendanceReportController::class, 'getDropdownData'])->name('attendance.dropdown');
 // Route::get('/attendance-report/filter', [AttendanceReportController::class, 'filterAttendanceReport'])->name('attendance-report.filter');
 Route::get('/ed-report', [EDController::class, 'generateEDReport'])->name('ed.report');
@@ -181,6 +183,18 @@ Route::get('mobile-team/verify/{token}', [MobileTeamStaffsController::class, 've
 Route::get('chief-invigilator/verify/{token}', [ChiefInvigilatorsController::class, 'verifyEmail'])->name('chief-invigilator.verifyEmail');
 Route::get('/treasury-officers/verify-email/{token}', [TreasuryOfficerController::class, 'verifyEmail'])->name('treasury-officers.verifyEmail');
 //District Route::prefix('district')->group(function () {
+Route::prefix('report')->group(function () {
+    // Route::middleware(['auth.multi'])->group(function () {
+        Route::get('/attendance-report', [AttendanceReportController::class, 'index'])->name('attendance.report');
+        Route::get('/expenditure-statment', [Expenditure_StatmentController::class, 'index'])->name('expenditure-statment.report');
+        Route::get('/omr-account', [Omr_AccountController::class, 'index'])->name('omr-account.report');
+        Route::get('/ci-attendace', [CiMeetingAttendanceController::class, 'index'])->name('ci-attendace.report');
+        Route::get('/consolidated-statement', [ConsolidatedStatementController::class, 'index'])->name('consolidated-statement.report');
+        Route::get('/candidate-remarks', [CandidateRemarksController::class, 'index'])->name('candidate-remarks.report');
+        Route::get('/exam-material-discrepancy', [ExamMaterialsDiscrepancyController::class, 'index'])->name('exam-material-discrepancy.report');
+        Route::get('/emergency-alarm-notification', [EmergencyAlarmNotificationsController::class, 'index'])->name('emergency-alarm-notification.report');
+    // });
+});
 Route::prefix('district')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::get('/', [DistrictController::class, 'index'])->name('district.index');
@@ -205,7 +219,7 @@ Route::prefix('treasury-officers')->group(function () {
         Route::get('/{id}', [TreasuryOfficerController::class, 'show'])->name('treasury-officers.show');
         Route::post('/{id}/toggle-status', [TreasuryOfficerController::class, 'toggleStatus'])->name('treasury-officers.toggle-status');
         Route::delete('/{id}', [TreasuryOfficerController::class, 'destroy'])->name('treasury-officers.destroy');
-        Route::get('/verify-email/{token}', [TreasuryOfficerController::class,'verifyEmail'])->name('treasury-officer.verifyEmail');
+        Route::get('/verify-email/{token}', [TreasuryOfficerController::class, 'verifyEmail'])->name('treasury-officer.verifyEmail');
     });
 });
 //centers Route::prefix('centers')->group(function () {

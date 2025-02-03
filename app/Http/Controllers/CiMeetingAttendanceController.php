@@ -1,23 +1,22 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Currentexam;
 use Spatie\Browsershot\Browsershot;
+use App\Models\Currentexam;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Center;
 use Illuminate\Support\Facades\Auth;
 use App\Models\District;
 
-use Illuminate\Http\Request;
-
-class Expenditure_StatmentController extends Controller
+class CiMeetingAttendanceController extends Controller
 {
     public function index()
     {
         $districts = District::all(); // Fetch all districts
         // Fetch unique center values from the same table
         $centers = center::all(); // Fetch all venues
-        return view('view_report.expenditure_report.index', compact('districts', 'centers')); // Path matches the file created
+        return view('view_report.ci_meeting_report.index', compact('districts', 'centers')); // Path matches the file created
     }
     public function getDropdownData(Request $request)
     {
@@ -86,19 +85,17 @@ class Expenditure_StatmentController extends Controller
             'centerCodeFromSession' => $centerCodeFromSession,
         ]);
     }
-    public function generateexpenditureReport()
+    public function generateCIMeetingReport()
     {
 
-        $data = [];
-        $html = view('PDF.Reports.expenditure-report')->render();
-        // $html = view('PDF.Reports.ci-utility-certificate')->render();
+        $html = view('PDF.Reports.ci-meeting-report')->render();
         $pdf = Browsershot::html($html)
-            ->setOption('landscape', false)
+            ->setOption('landscape', true)
             ->setOption('margin', [
-                'top' => '10mm',
-                'right' => '10mm',
-                'bottom' => '10mm',
-                'left' => '10mm'
+                'top' => '4mm',
+                'right' => '4mm',
+                'bottom' => '8mm',
+                'left' => '4mm'
             ])
             ->setOption('displayHeaderFooter', true)
             ->setOption('headerTemplate', '<div></div>')
@@ -114,10 +111,8 @@ class Expenditure_StatmentController extends Controller
             ->scale(1)
             ->format('A4')
             ->pdf();
-        // Define a unique filename for the report
-        $filename = 'expenditure_reprot' . time() . '.pdf';
+        $filename = 'ci-meeting-attendance-report' . time() . '.pdf';
 
-        // Return the PDF as a response
         return response($pdf)
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="' . $filename . '"');

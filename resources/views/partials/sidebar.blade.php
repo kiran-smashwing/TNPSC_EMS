@@ -72,10 +72,11 @@
                         <li class="pc-item"><a class="pc-link" href="../dashboard/finance.html">Finance</a></li> --}}
                     </ul>
                 </li>
-
+               @hasPremission('heading')
                 <li class="pc-item pc-caption">
                     <label>Masters</label>
                 </li>
+                @endhasPermission
                 @hasPermission('district-masters')
                     <li class="pc-item pc-hasmenu">
                         <a href="#!" class="pc-link">
@@ -275,23 +276,22 @@
                         <use xlink:href="#custom-layer"></use>
                     </svg>
                 </li>
-                <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">Emergency Alarm Notifications</a>
+                <li class="pc-item"><a class="pc-link" href="{{route('emergency-alarm-notification.report')}}">Emergency Alarm Notifications</a>
                 </li>
-                <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">Exam Materials Discrepancy</a>
+                <li class="pc-item"><a class="pc-link" href="{{route('exam-material-discrepancy.report')}}">Exam Materials Discrepancy</a>
                 </li>
                 <li class="pc-item"><a class="pc-link" href="{{ route('attendance.report') }}">Candidate Attendance</a>
                 </li>
                 
                 <li class="pc-item"><a class="pc-link" href="{{route('omr-account.report')}}">Replacement of OMR/QCA</a>
                 </li>
-                <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">Candidate Remarks</a>
+                <li class="pc-item"><a class="pc-link" href="{{route('candidate-remarks.report')}}">Candidate Remarks</a>
                 </li>
-                <li class="pc-item"><a class="pc-link" href="#">Consolidated Statement </a>
+                <li class="pc-item"><a class="pc-link" href="{{route('consolidated-statement.report')}}">Consolidated Statement </a>
                 </li>
                     <li class="pc-item"><a class="pc-link" href="{{ route('expenditure-statment.report') }}">Expenditure Statement</a>
                     </li>
-                    <li class="pc-item"><a class="pc-link" href="../admins/course-dashboard.html">CI Meeting
-                             Attendance</a>
+                    <li class="pc-item"><a class="pc-link" href="{{route('ci-attendace.report')}}">CI Meeting Attendance</a>
                     </li>
                 <li class="pc-item pc-hasmenu">
                     <a href="#!" class="pc-link">

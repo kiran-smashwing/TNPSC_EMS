@@ -42,6 +42,7 @@ class AuthorizationService
                     'departments-masters',
                     'confirmExamVenueHalls',
                     'downlaodConfirmedExamHalls',
+                    'heading',
                 ],
             ],
             'ED' => [
@@ -67,9 +68,11 @@ class AuthorizationService
             'ci-meetings.ind',
             'ci-meetings.attendance-QRcode-scan',
             'venues-masters',
+            'heading',
         ],
         'venue' => [
             'venues-masters',
+            'heading',
             'view-all-chief-invigilators',
         ],
         'district' => [
@@ -82,6 +85,7 @@ class AuthorizationService
             'create-exam-materails-route',
             'receive-bundle-from-mobile-team',
             'district-masters',
+            'heading',
             'view-all-center',
         ],
         'treasury' => [

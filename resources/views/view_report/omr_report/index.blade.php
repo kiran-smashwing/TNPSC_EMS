@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Candidate Attendance')
+@section('title', 'Replacement of OMR/QCA')
 
 @section('content')
     @push('styles')
@@ -32,7 +32,7 @@
                     <div class="row align-items-center">
                         <div class="col-md-12">
                             <div class="page-header-title">
-                                <h2 class="mb-0">Candidate Attendance</h2>
+                                <h2 class="mb-0">Replacement of OMR/QCA</h2>
                             </div>
                         </div>
                     </div>
@@ -70,7 +70,7 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-header">
-                            <h5>Filter Candidate Attendance</h5>
+                            <h5>Filter Replacement of OMR/QCA</h5>
                         </div>
                         <div class="card-body">
                             <form action="#" method="GET" id="filterForm">
@@ -98,9 +98,18 @@
                                         </select>
                                     </div>
 
-                                    <!-- District -->
+                                    <div class="col-md-4 mb-3">
+                                        <label for="category" class="form-label">Category</label>
+                                        <select name="category" id="category" class="form-control">
+                                            <option value="" selected>Select</option>
+                                            <option value="all">All</option>
+                                            <option value="district">District</option>
+                                            <option value="center">Center</option>
+                                        </select>
+                                    </div>
+
                                     <!-- District Dropdown -->
-                                    <div class="col-md-4 mb-3" id="district-container">
+                                    <div class="col-md-4 mb-3" id="district-container" style="display: none;">
                                         <label for="district" class="form-label">District</label>
                                         <select name="district" id="district" class="form-control">
                                             <option value="" selected>Select District</option>
@@ -108,7 +117,7 @@
                                     </div>
 
                                     <!-- Center Dropdown -->
-                                    <div class="col-md-4 mb-3" id="center-container">
+                                    <div class="col-md-4 mb-3" id="center-container" style="display: none;">
                                         <label for="center" class="form-label">Center</label>
                                         <select name="center" id="center" class="form-control">
                                             <option value="" selected>Select Center</option>
@@ -152,12 +161,12 @@
                             return response.json();
                         })
                         .then(data => {
-                            console.log(data.user); // Debugging: Log user info
-                            console.log(data.districts); // Debugging: Log user info
-                            console.log(data.centers); // Debugging: Log user info
-                            console.log(data.examDates); // Debugging: Log user info
-                            console.log(data.sessions); // Debugging: Log user info
-                            console.log(data.centerCodeFromSession); // Debugging: Log user info
+                            // console.log(data.user); 
+                            //console.log(data.districts);
+                            // console.log(data.centers); 
+                            // console.log(data.examDates); 
+                            //console.log(data.sessions); 
+                            //console.log(data.centerCodeFromSession);
 
                             // Populate districts
                             const districtSelect = document.getElementById('district');
@@ -250,6 +259,24 @@
                 const oldDistrict = "{{ request('district') }}";
                 if (oldDistrict) {
                     $('#district').val(oldDistrict).trigger('change');
+                }
+            });
+        </script>
+        <script>
+            document.getElementById('category').addEventListener('change', function() {
+                let category = this.value;
+                let districtContainer = document.getElementById('district-container');
+                let centerContainer = document.getElementById('center-container');
+
+                if (category === "all" || category === "") {
+                    districtContainer.style.display = "none";
+                    centerContainer.style.display = "none";
+                } else if (category === "district") {
+                    districtContainer.style.display = "block";
+                    centerContainer.style.display = "none";
+                } else if (category === "center") {
+                    districtContainer.style.display = "block";
+                    centerContainer.style.display = "block";
                 }
             });
         </script>

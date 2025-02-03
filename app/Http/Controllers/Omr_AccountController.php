@@ -17,7 +17,7 @@ class Omr_AccountController extends Controller
         $districts = District::all(); // Fetch all districts
         // Fetch unique center values from the same table
         $centers = center::all(); // Fetch all venues
-        return view('masters.omr_report.index', compact('districts', 'centers')); // Path matches the file created
+        return view('view_report.omr_report.index', compact('districts', 'centers')); // Path matches the file created
     }
     public function getDropdownData(Request $request)
     {

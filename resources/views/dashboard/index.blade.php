@@ -342,7 +342,7 @@
                 },
                 labels: ['CBT Exams', 'Objective & Descriptive Exams', 'Descriptive Exams', 'Objective Exams'],
                 series: [25, 25, 30, 20],
-                colors: ['#2ca87f', '#199f73', '#212529', '#212529'],
+                colors: ['#2ca87f', '#199f73', '#FFC022', '#FF3E3E'],
                 fill: {
                     opacity: [0.4, 0.6, 0.8, 1]
                 },

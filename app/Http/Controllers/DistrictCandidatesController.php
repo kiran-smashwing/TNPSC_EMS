@@ -383,37 +383,6 @@ class DistrictCandidatesController extends Controller
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
     }
-    public function generateCIMeetingReport()
-    {
-
-        $html = view('PDF.Reports.ci-meeting-report')->render();
-        $pdf = Browsershot::html($html)
-            ->setOption('landscape', true)
-            ->setOption('margin', [
-                'top' => '4mm',
-                'right' => '4mm',
-                'bottom' => '8mm',
-                'left' => '4mm'
-            ])
-            ->setOption('displayHeaderFooter', true)
-            ->setOption('headerTemplate', '<div></div>')
-            ->setOption('footerTemplate', '
-            <div style="font-size:10px;width:100%;text-align:center;">
-                Page <span class="pageNumber"></span> of <span class="totalPages"></span>
-            </div>
-            <div style="position: absolute; bottom: 5mm; right: 10px; font-size: 10px;">
-                 IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . ' 
-            </div>')
-            ->setOption('preferCSSPageSize', true)
-            ->setOption('printBackground', true)
-            ->scale(1)
-            ->format('A4')
-            ->pdf();
-        $filename = 'ci-meeting-attendance-report' . time() . '.pdf';
-
-        return response($pdf)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
-    }
+    
 
 }

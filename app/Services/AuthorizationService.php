@@ -43,11 +43,12 @@ class AuthorizationService
                     'confirmExamVenueHalls',
                     'downlaodConfirmedExamHalls',
                     'heading',
+                    'create-exam-materials-route',
                 ],
             ],
             'ED' => [
                 'Section Officer' => [
-                   
+
                 ],
             ],
             'QD' => [
@@ -87,9 +88,11 @@ class AuthorizationService
             'district-masters',
             'heading',
             'view-all-center',
+            'create-exam-materials-route',
         ],
         'treasury' => [
             'receive-exam-materials-from-printer',
+            'receive-bundle-from-mobile-team',
         ],
         'center' => [
             'download-meeting-qr',
@@ -111,12 +114,20 @@ class AuthorizationService
 
         if ($role === 'headquarters') {
             $user = auth()->guard('headquarters')->user();
-            $department = $user->role->role_department;
-            $dept_role = $user->role->role_name;
-            return collect($this->rolePermissions[$role][$department][$dept_role] ?? [])
-                ->contains(function ($allowedPermission) use ($permission) {
-                    return \Illuminate\Support\Str::is($allowedPermission, $permission);
-                });
+
+            // Check if the user has a role
+            if ($user && $user->role) {
+                $department = $user->role->role_department;
+                $dept_role = $user->role->role_name;
+
+                return collect($this->rolePermissions[$role][$department][$dept_role] ?? [])
+                    ->contains(function ($allowedPermission) use ($permission) {
+                        return \Illuminate\Support\Str::is($allowedPermission, $permission);
+                    });
+            }
+
+            // If the user doesn't have a role, return false or handle accordingly
+            return false;
         }
 
         return collect($this->rolePermissions[$role])

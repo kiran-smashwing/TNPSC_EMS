@@ -17,6 +17,7 @@ use App\Models\CIChecklist;
 use App\Models\ExamConfirmedHalls;
 use App\Models\Scribe;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class MyExamController extends Controller
 {
@@ -31,12 +32,14 @@ class MyExamController extends Controller
         $exams = Currentexam::all(); // Fetch all exams with their related exam sessions
         return view('my_exam.index', compact('exams')); // Pass the exam to
     }
-    public function task($examId)
+    public function task(Request $request, $examId)
     {
         $role = session('auth_role');
+        $guard = $role ? Auth::guard($role) : null;
+        $user = $guard ? $guard->user() : null;
         if ($role == 'ci') {
             return $this->ciTask($examId);
-        } else if ($role == 'mobile_team_staffs') {
+        } else if ($role == 'mobile_team_staffs' || ($role == 'headquarters' && $user->custom_role == 'VDS')) {
             return $this->mobileTeamTask($examId);
         } else {
             $session = Currentexam::with('examsession')->where('exam_main_no', $examId)->first();
@@ -50,14 +53,14 @@ class MyExamController extends Controller
                 ->orderBy('created_at', 'asc')
                 ->get();
             //get exam venue consent data from venue id
-            $role = session('auth_role');
-            $guard = $role ? Auth::guard($role) : null;
-            $user = $guard ? $guard->user() : null;
+
             // if user role is venue user
             $venueConsents = null;
             $meetingCodeGen = null;
             $sendExamVenueConsent = null;
             $receiveMaterialsPrinterToDistrict = null;
+            $receiveMaterialsDistrictToCenter = null;
+            $receiveMaterialsMobileteamToCenter = null;
             if ($role == 'venue') {
                 $venueConsents = ExamVenueConsent::where('exam_id', $examId)
                     ->where('venue_id', $user->venue_id)
@@ -84,15 +87,9 @@ class MyExamController extends Controller
             $candidatesCountIncrease = ExamAuditLog::where('exam_id', $examId)
                 ->where('task_type', 'id_candidates_update_percentage')
                 ->first();
-            if ($role == 'district') {
-                $sendExamVenueConsent = ExamAuditLog::where('exam_id', $examId)
-                    ->where('task_type', 'exam_venue_consent')
-                    ->where('user_id', $user->district_id)
-                    ->first();
-            }
-            $examRoutesCreated = ExamMaterialRoutes::where('exam_id', $examId)
-                ->where('district_code', $user->district_code)
-                ->latest('updated_at') // Fetch the most recently updated record
+
+            $examRoutesCreated = ExamAuditLog::where('exam_id', $examId)
+                ->where('task_type', 'exam_material_routes_created')
                 ->first();
             $examVenueHallConfirmation = ExamAuditLog::where('exam_id', $examId)
                 ->where('task_type', 'exam_venue_hall_confirmation')
@@ -108,10 +105,39 @@ class MyExamController extends Controller
                     ->where('task_type', 'receive_materials_printer_to_disitrct_treasury')
                     ->where('user_id', $user->tre_off_id)
                     ->first();
+                $receiveBundleToDistrict = ExamAuditLog::where('exam_id', $examId)
+                    ->where('task_type', 'receive_bundle_to_disitrct_treasury')
+                    ->where('user_id', $user->tre_off_id)
+                    ->first();
+
             } else {
                 $receiveMaterialsPrinterToDistrict = ExamAuditLog::where('exam_id', $examId)
                     ->where('task_type', 'receive_materials_printer_to_disitrct_treasury')
                     ->whereJsonContains('metadata->district_code', $user->district_code)
+                    ->first();
+                $receiveBundleToDistrict = ExamAuditLog::where('exam_id', $examId)
+                    ->where('task_type', 'receive_bundle_to_disitrct_treasury')
+                    ->whereJsonContains('metadata->district_code', $user->district_code)
+                    ->first();
+            }
+            if ($role == 'center') {
+                $receiveMaterialsDistrictToCenter = ExamAuditLog::where('exam_id', $examId)
+                    ->where('task_type', 'receive_materials_disitrct_to_center')
+                    ->where('user_id', $user->center_id)
+                    ->first();
+                $receiveMaterialsMobileteamToCenter = ExamAuditLog::where('exam_id', $examId)
+                    ->where('task_type', 'receive_bundle_to_center')
+                    ->where('user_id', $user->center_id)
+                    ->first();
+            }
+            if ($role == 'district') {
+                $sendExamVenueConsent = ExamAuditLog::where('exam_id', $examId)
+                    ->where('task_type', 'exam_venue_consent')
+                    ->where('user_id', $user->district_id)
+                    ->first();
+                $examRoutesCreated = ExamMaterialRoutes::where('exam_id', $examId)
+                    ->where('district_code', $user->district_code)
+                    ->latest('updated_at') // Fetch the most recently updated record
                     ->first();
             }
             $receiveMaterialsPrinterToHQ = ExamAuditLog::where('exam_id', $examId)
@@ -120,8 +146,8 @@ class MyExamController extends Controller
             $examTrunkboxOTLData = ExamAuditLog::where('exam_id', $examId)
                 ->where('task_type', 'exam_trunkbox_qr_otl_upload')
                 ->first();
-
-            return view('my_exam.task', compact('session', 'auditDetails', 'sendExamVenueConsent', 'venueConsents', 'meetingCodeGen', 'expectedCandidatesUpload', 'candidatesCountIncrease', 'examVenueHallConfirmation', 'apdFinalizeHallsUpload', 'examMaterialsUpdate', 'receiveMaterialsPrinterToDistrict', 'receiveMaterialsPrinterToHQ', 'examTrunkboxOTLData','examRoutesCreated'));
+            $current_user = $request->get('auth_user');
+            return view('my_exam.task', compact('current_user', 'session', 'auditDetails', 'sendExamVenueConsent', 'venueConsents', 'meetingCodeGen', 'expectedCandidatesUpload', 'candidatesCountIncrease', 'examVenueHallConfirmation', 'apdFinalizeHallsUpload', 'examMaterialsUpdate', 'receiveMaterialsPrinterToDistrict', 'receiveMaterialsPrinterToHQ', 'examTrunkboxOTLData', 'examRoutesCreated', 'receiveMaterialsDistrictToCenter', 'receiveMaterialsMobileteamToCenter','receiveBundleToDistrict'));
         }
     }
 

@@ -12,8 +12,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Currentexam;
 use Spatie\Browsershot\Browsershot;
+use App\Services\ExamAuditService;
 class ExamMaterialsRouteController extends Controller
 {
+    protected $auditService;
+
+    public function __construct(ExamAuditService $auditService)
+    {
+        //apply the auth middleware to the entire controller
+        $this->middleware('auth.multi');
+        $this->auditService = $auditService;
+    }
     public function index(Request $request, $examId)
     {
         $user = $request->get('auth_user');
@@ -116,7 +125,10 @@ class ExamMaterialsRouteController extends Controller
         // chennai disitrict van duty staff route creation 
         if (($role == 'headquarters' && $user->role->role_department == 'ID') || $user->district_code == '01') {
             $role = Role::where('role_name', 'Van Duty Staff')->first();
-            $mobileTeam = DepartmentOfficial::where('dept_off_role', $role->role_id)->get();
+            $mobileTeam = DepartmentOfficial::where(function ($query) {
+                $query->where('dept_off_role', '')
+                    ->orWhereNull('dept_off_role');
+            })->get();
             $district_code = '01';
         } else {
             // get mobile team staffs for the user's district br role based
@@ -192,7 +204,7 @@ class ExamMaterialsRouteController extends Controller
                     $examDate = \DateTime::createFromFormat('d-m-Y', $request->exam_date)->format('Y-m-d');
                     foreach ($value as $hall) {
                         [$centerCode, $hallCode] = explode(':', $hall);
-                        $exists = ExamMaterialRoutes::where('exam_id', $request->exam_id)->whereDate('exam_date', $examDate)->where('mobile_team_staff', $request->mobile_staff)->where('district_code', session('auth_role') == 'department_official' ? '01' : $user->district_code)->whereJsonContains('hall_code->' . $centerCode, $hallCode)->exists();
+                        $exists = ExamMaterialRoutes::where('exam_id', $request->exam_id)->whereDate('exam_date', $examDate)->where('mobile_team_staff', $request->mobile_staff)->where('district_code', session('auth_role') == 'headquarters' ? '01' : $user->district_code)->whereJsonContains('hall_code->' . $centerCode, $hallCode)->exists();
                         if ($exists) {
                             $fail('The hall ' . $hallCode . ' for center ' . $centerCode . ' is already assigned.');
                         }
@@ -226,8 +238,14 @@ class ExamMaterialsRouteController extends Controller
         $route->center_code = json_encode($validated['centers']);
         // Convert array to JSON before saving
         $route->hall_code = $centerHalls ?? [];
-        $route->district_code = $role == 'department_official' ? '01' : $user->district_code;
+        $route->district_code = $role == 'headquarters' ? '01' : $user->district_code;
         $route->save();
+        //update the departmetofficals role to VDS role
+         if ($role == 'headquarters') {
+            $departmentOfficial = DepartmentOfficial::findOrFail($validated['mobile_staff']);
+            $departmentOfficial->custom_role = 'VDS';
+            $departmentOfficial->save();
+        }
         // }
         //update the mobileteam for the exam materials data for centers and halls which are assigned 
         $validated['centers'] = json_decode($route->center_code);
@@ -247,6 +265,39 @@ class ExamMaterialsRouteController extends Controller
         foreach ($examMaterialsData as $data) {
             $data->mobile_team_id = $validated['mobile_staff'];
             $data->save();
+        }
+        // Audit Logging - Creation with consolidation
+        $currentUser = current_user();
+        $userName = $currentUser ? $currentUser->display_name : 'Unknown';
+
+        // Try to find existing audit log for this exam and user for route creation
+        $existingLog = $this->auditService->findLog([
+            'exam_id' => $validated['exam_id'],
+            'task_type' => 'exam_material_routes_created',
+            'user_id' => $role == 'headquarters' && $user->role->role_department == 'ID' ? $user->dept_off_id : $user->district_id,
+        ]);
+        if ($existingLog) {
+            // If log exists, update it by adding new route ID
+            $existingRouteIds = $existingLog->afterState['route_ids'] ?? [];
+            $updatedRouteIds = array_merge($existingRouteIds, [$route->route_no]);
+
+            $this->auditService->updateLog(
+                $existingLog->id,
+                afterState: ['route_ids' => $updatedRouteIds],
+                description: "Created " . count($updatedRouteIds) . " routes",
+                metadata: ['user_name' => $userName]
+            );
+        } else {
+            // If no log exists, create new one
+            $this->auditService->log(
+                examId: $validated['exam_id'],
+                actionType: 'routes_created',
+                taskType: 'exam_material_routes_created',
+                beforeState: null,
+                afterState: ['route_ids' => [$route->route_no]],
+                description: "Created new route",
+                metadata: ['user_name' => $userName]
+            );
         }
         return redirect()->route('exam-materials-route.index', ['examId' => $validated['exam_id']]);
     }
@@ -333,7 +384,7 @@ class ExamMaterialsRouteController extends Controller
                     $examDate = \DateTime::createFromFormat('d-m-Y', $request->exam_date)->format('Y-m-d');
                     foreach ($value as $hall) {
                         [$centerCode, $hallCode] = explode(':', $hall);
-                        $exists = ExamMaterialRoutes::where('exam_id', $request->exam_id)->whereDate('exam_date', $examDate)->where('mobile_team_staff', $request->mobile_staff)->where('district_code', session('auth_role') == 'department_official' ? '01' : $user->district_code)->where('id', '!=', $route->id)
+                        $exists = ExamMaterialRoutes::where('exam_id', $request->exam_id)->whereDate('exam_date', $examDate)->where('mobile_team_staff', $request->mobile_staff)->where('district_code', session('auth_role') == 'headquarters' ? '01' : $user->district_code)->where('id', '!=', $route->id)
                             // Exclude the current route 
                             ->whereJsonContains('hall_code->' . $centerCode, $hallCode)->exists();
                         if ($exists) {

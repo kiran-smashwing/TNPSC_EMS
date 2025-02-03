@@ -150,7 +150,7 @@ class ReceiveExamMaterialsController extends Controller
             'exam_id' => $examId,
             'task_type' => 'receive_materials_printer_to_disitrct_treasury',
             'action_type' => 'qr_scan',
-            'user_id' => $user->tre_off_id
+            'user_id' => $user->tre_off_id,
         ]);
 
         if ($existingLog) {
@@ -475,7 +475,71 @@ class ReceiveExamMaterialsController extends Controller
                 'center_scanned_at' => now()
             ]);
         }
+        // Audit Logging
+        $currentUser = current_user();
+        $userName = $currentUser ? $currentUser->display_name : 'Unknown';
+        $metadata = [
+            'user_name' => $userName,
+            'district_code' => $currentUser->center_district_id,
+        ];
 
+        $tasktype = in_array($examMaterials->category, ['D1', 'D2']) 
+        ? 'receive_materials_disitrct_to_center' 
+        : 'receive_bundle_to_center';
+
+        $examMaterialDetails = [
+            'qr_code' => $request->qr_code,
+            'district' => $examMaterials->district->district_name,
+            'center' => $examMaterials->center->center_name,
+            'hall_code' => $examMaterials->hall_code,
+            'scan_time' => now()->toDateTimeString()
+        ];
+
+        // Check existing log
+        $existingLog = $this->auditService->findLog([
+            'exam_id' => $examId,
+            'task_type' => $tasktype,
+            'action_type' => 'qr_scan',
+            'user_id' => $user->center_id,
+        ]);
+
+        if ($existingLog) {
+            // Update existing log
+            $existingScans = $existingLog->after_state['scanned_codes'] ?? [];
+            $firstScan = $existingScans[0] ?? null; // Keep the first scan
+
+            // Update with first and current scan only
+            $updatedScans = [
+                $firstScan,
+                $examMaterialDetails // Current scan becomes the last scan
+            ];
+
+            $totalScans = ($existingLog->after_state['total_scanned'] ?? 0) + 1;
+
+            $this->auditService->updateLog(
+                logId: $existingLog->id,
+                metadata: $metadata,
+                afterState: [
+                    'scanned_codes' => $updatedScans,
+                    'total_scanned' => $totalScans
+                ],
+                description: "Scanned QR code: {$request->qr_code} (Total scanned: $totalScans)"
+            );
+        } else {
+            // Create new log for first scan
+            $this->auditService->log(
+                examId: $examId,
+                actionType: 'qr_scan',
+                taskType: $tasktype,
+                beforeState: null,
+                afterState: [
+                    'scanned_codes' => [$examMaterialDetails],
+                    'total_scanned' => 1
+                ],
+                description: "Initial QR code scan: {$request->qr_code}",
+                metadata: $metadata
+            );
+        }
         return response()->json([
             'status' => 'success',
             'message' => 'QR code scanned successfully'

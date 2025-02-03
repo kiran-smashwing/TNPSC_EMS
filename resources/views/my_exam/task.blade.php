@@ -152,7 +152,8 @@
                                         </li>
                                     @endif
                                 @endforeach
-                                @if (session('auth_role') == 'headquarters')
+
+                                @if (session('auth_role') == 'headquarters' && $current_user->custom_role != 'VDS')
                                     @php
                                         $is_apd_upload = $expectedCandidatesUpload !== null;
 
@@ -533,7 +534,7 @@
                                         </div>
                                     </li>
                                 @endif
-                                @if (session('auth_role') == 'headquarters')
+                                @if (session('auth_role') == 'headquarters' && $current_user->custom_role != 'VDS')
                                     @php
                                         $is_halls_confirmed = $examVenueHallConfirmation !== null;
 
@@ -908,7 +909,7 @@
                                         </div>
                                     </li>
                                 @endhasPermission
-                                @if (session('auth_role') == 'headquarters')
+                                @if (session('auth_role') == 'headquarters' && $current_user->custom_role != 'VDS')
                                     @php
                                         $is_received_printer_to_hq = $receiveMaterialsPrinterToHQ !== null;
                                         $metadata = null;
@@ -943,11 +944,6 @@
                                                             <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                                 <ul
                                                                     class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                    {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 Ticket</a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                                 </ul>
                                                             </div>
                                                         </div>
@@ -1079,7 +1075,7 @@
                                         </div>
                                     </li>
                                 @endif
-                                @if (session('auth_role') == 'headquarters')
+                                @if (session('auth_role') == 'headquarters' && $current_user->custom_role != 'VDS')
                                     @php
                                         $is_qd_trunk_qr_upload = $examTrunkboxOTLData !== null;
 
@@ -1182,12 +1178,20 @@
                                 @hasPermission('create-exam-materails-route')
                                     @php
                                         $is_exam_routes_created = $examRoutesCreated !== null;
-                                        $user = $is_exam_routes_created
-                                            ? App\Models\District::where(
-                                                'district_code',
-                                                $examRoutesCreated->district_code,
-                                            )->first()
-                                            : null;
+
+                                        $role = session('auth_role');
+                                        if ($role == 'headquarters') {
+                                            $user = $is_exam_routes_created
+                                                ? App\Models\DepartmentOfficial::find($examRoutesCreated->user_id)
+                                                : null;
+                                        } else {
+                                            $user = $is_exam_routes_created
+                                                ? App\Models\District::where(
+                                                    'district_code',
+                                                    $examRoutesCreated->district_code,
+                                                )->first()
+                                                : null;
+                                        }
                                         $profileImage =
                                             $user && !empty($user->profile_image)
                                                 ? asset('storage/' . $user->profile_image)
@@ -1227,23 +1231,34 @@
                                                                             alt=""
                                                                             class="wid-20 rounded me-2 img-fluid" />Done
                                                                         by
-                                                                        <b>{{ $is_exam_routes_created ? $user->district_name : 'District' }}</b>
+                                                                        <b>
+                                                                            {{ $is_exam_routes_created
+                                                                                ? ($role == 'headquarters'
+                                                                                    ? $user->dept_off_name
+                                                                                    : $user->district_name)
+                                                                                : ($role == 'headquarters'
+                                                                                    ? 'Unknown'
+                                                                                    : 'District') }}
+                                                                        </b>
                                                                     </li>
                                                                     <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    {{ $is_exam_routes_created ? \Carbon\Carbon::parse($examRoutesCreated->updated_at)->format('d-m-Y h:i A') : ' ' }}
-                                                                </li>
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                        {{ $is_exam_routes_created ? \Carbon\Carbon::parse($examRoutesCreated->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                    </li>
 
                                                                 </ul>
                                                             </div>
                                                             <div class="h5 mt-3"><i
                                                                     class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                District Collectorate</div>
+                                                                {{ $role == 'headquarters' ? 'ID - Section Officer' : 'District Collectorate' }}
+                                                            </div>
                                                         </div>
                                                         <div class="mt-2">
-                                                            <a href="{{ route('exam-materials-route.index', $session->exam_main_no) }}"
-                                                                class="me-2 btn btn-sm btn-light-info"><i
-                                                                    class="feather icon-map mx-1"></i>Create Route</a>
+                                                            @hasPermission('create-exam-materials-route')
+                                                                <a href="{{ route('exam-materials-route.index', $session->exam_main_no) }}"
+                                                                    class="me-2 btn btn-sm btn-light-info"><i
+                                                                        class="feather icon-map mx-1"></i>Create Route</a>
+                                                            @endhasPermission
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1252,24 +1267,42 @@
                                     </li>
                                 @endhasPermission
                                 @if ($session->exam_main_model == 'Major' && session('auth_role') == 'center')
+                                    @php
+                                        $is_received_district_to_center = $receiveMaterialsDistrictToCenter !== null;
+                                        $metadata = null;
+                                        if ($receiveMaterialsDistrictToCenter !== null) {
+                                            $metadata = is_string($receiveMaterialsDistrictToCenter->metadata)
+                                                ? json_decode($receiveMaterialsDistrictToCenter->metadata)
+                                                : (object) $receiveMaterialsDistrictToCenter->metadata;
+                                            $receiveMaterialsDistrictToCenter = (object) $receiveMaterialsDistrictToCenter;
+                                        }
+                                        $user = $is_received_district_to_center
+                                            ? App\Models\Center::find($receiveMaterialsDistrictToCenter->user_id)
+                                            : null;
+                                        $profileImage =
+                                            $user && !empty($user->profile_image)
+                                                ? asset('storage/' . $user->profile_image)
+                                                : asset('storage/assets/images/user/avatar-10.jpg');
+                                        // Set dynamic badge text and color
+                                        $uploadStatus = $is_received_district_to_center ? 'Received' : 'Pending';
+                                        $badgeClass = $is_received_district_to_center
+                                            ? 'bg-light-secondary'
+                                            : 'bg-danger';
+                                    @endphp
                                     <li class="task-list-item">
-                                        <i class="task-icon bg-danger"></i>
+                                        <i
+                                            class="task-icon {{ $is_received_district_to_center ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                         <div class="card ticket-card open-ticket">
                                             <div class="card-body">
                                                 <div class="row">
                                                     <div class="col-sm-auto mb-3 mb-sm-0">
                                                         <div class="d-sm-inline-block d-flex align-items-center">
-                                                            <img class="media-object wid-60 img-radius"
-                                                                src="{{ asset('storage/assets/images/user/avatar-10.jpg') }}"
+                                                            <img loading="lazy" class="media-object wid-60 img-radius"
+                                                                src="{{ $profileImage }}"
                                                                 alt="Generic placeholder image " />
                                                             <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                                 <ul
                                                                     class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                    {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 Ticket</a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                                 </ul>
                                                             </div>
                                                         </div>
@@ -1277,27 +1310,22 @@
                                                     <div class="col">
                                                         <div class="popup-trigger">
                                                             <div class="h5 font-weight-bold">Receive Materials From
-                                                                District<small
-                                                                    class="badge bg-light-secondary ms-2">received</small>
+                                                                District <small
+                                                                    class="badge {{ $badgeClass }} ms-2">{{ $uploadStatus }}</small>
                                                             </div>
                                                             <div class="help-sm-hidden">
                                                                 <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
+
                                                                     <li class="d-sm-inline-block d-block mt-1"><img
                                                                             src="../assets/images/user/avatar-5.jpg"
                                                                             alt=""
                                                                             class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                        <b>Ariyalur</b>
+                                                                        <b>{{ $is_received_district_to_center ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
                                                                     </li>
                                                                     <li class="d-sm-inline-block d-block mt-1"><i
                                                                             class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                        27-07-2024 02:32 PM</li>
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                        {{ $is_received_district_to_center ? \Carbon\Carbon::parse($receiveMaterialsDistrictToCenter->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                    </li>
                                                                 </ul>
                                                             </div>
                                                             <div class="h5 mt-3"><i
@@ -1308,9 +1336,9 @@
                                                             <a href="{{ route('receive-exam-materials.district-to-center', $session->exam_main_no) }}"
                                                                 class="me-2 btn btn-sm btn-light-primary"><i
                                                                     class="feather icon-info mx-1"></i>Verify </a>
-                                                            <a href="helpdesk-ticket-details.html"
+                                                            {{-- <a href="helpdesk-ticket-details.html"
                                                                 class="me-2 btn btn-sm btn-light-info"><i
-                                                                    class="feather icon-map mx-1"></i>View Route</a>
+                                                                    class="feather icon-map mx-1"></i>View Route</a> --}}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1318,161 +1346,44 @@
                                         </div>
                                     </li>
                                 @endif
-                                @if (session('auth_role') == 'headquarters')
-                                    <li class="task-list-item">
-                                        <i class="task-icon bg-danger"></i>
-                                        <div class="card ticket-card open-ticket">
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <div class="col-sm-auto mb-3 mb-sm-0">
-                                                        <div class="d-sm-inline-block d-flex align-items-center">
-                                                            <img class="media-object wid-60 img-radius"
-                                                                src="{{ asset('storage/assets/images/user/avatar-1.jpg') }}"
-                                                                alt="Generic placeholder image " />
-                                                            <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                                <ul
-                                                                    class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                    {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 Ticket</a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col">
-                                                        <div class="popup-trigger">
-                                                            <div class="h5 font-weight-bold">Receive Materials From
-                                                                Treasury<small
-                                                                    class="badge bg-light-secondary ms-2">received</small>
-                                                            </div>
-                                                            <div class="help-sm-hidden">
-                                                                <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                    <li class="d-sm-inline-block d-block mt-1"><img
-                                                                            src="../assets/images/user/avatar-5.jpg"
-                                                                            alt=""
-                                                                            class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                        <b>Prabakaran</b>
-                                                                    </li>
-                                                                    <li class="d-sm-inline-block d-block mt-1"><i
-                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                        27-07-2024 02:32 PM</li>
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                                </ul>
-                                                            </div>
-                                                            <div class="h5 mt-3"><i
-                                                                    class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                HQ - Van Duty Staff</div>
-                                                        </div>
-                                                        <div class="mt-2">
-                                                            <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
-                                                                    class="feather icon-info mx-1"></i>Verify </a>
-                                                            <a href="helpdesk-ticket-details.html"
-                                                                class="me-2 btn btn-sm btn-light-info"><i
-                                                                    class="feather icon-map mx-1"></i>View Route</a>
-
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                @endif
-                                @if (session('auth_role') == 'headquarters')
-                                    <li class="task-list-item">
-                                        <i class="task-icon bg-danger"></i>
-                                        <div class="card ticket-card open-ticket">
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <div class="col-sm-auto mb-3 mb-sm-0">
-                                                        <div class="d-sm-inline-block d-flex align-items-center">
-                                                            <img class="media-object wid-60 img-radius"
-                                                                src="{{ asset('storage/assets/images/user/avatar-1.jpg') }}"
-                                                                alt="Generic placeholder image " />
-                                                            <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                                <ul
-                                                                    class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                    {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 Ticket</a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col">
-                                                        <div class="popup-trigger">
-                                                            <div class="h5 font-weight-bold">Receive Materials From Cheif
-                                                                Invigilator<small
-                                                                    class="badge bg-light-secondary ms-2">received</small>
-                                                            </div>
-                                                            <div class="help-sm-hidden">
-                                                                <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                    <li class="d-sm-inline-block d-block mt-1"><img
-                                                                            src="../assets/images/user/avatar-5.jpg"
-                                                                            alt=""
-                                                                            class="wid-20 rounded me-2 img-fluid" />Done
-                                                                        by
-                                                                        <b>Iniya</b>
-                                                                    </li>
-                                                                    <li class="d-sm-inline-block d-block mt-1"><i
-                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                        27-07-2024 02:32 PM</li>
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                                </ul>
-                                                            </div>
-                                                            <div class="h5 mt-3"><i
-                                                                    class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                HQ - Van Duty Staff</div>
-                                                        </div>
-                                                        <div class="mt-2">
-                                                            <a href="{{ route('current-exam.vandutyBundlePackagingverfiy') }}"
-                                                                class="me-2 btn btn-sm btn-light-primary"><i
-                                                                    class="feather icon-info mx-1"></i>Verify </a>
-                                                            <a href="helpdesk-ticket-details.html"
-                                                                class="me-2 btn btn-sm btn-light-info"><i
-                                                                    class="feather icon-map mx-1"></i>View Route</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                @endif
-                                {{-- @if ($session->exam_main_model == 'Major') --}}
                                 @if ($session->exam_main_model == 'Major' && session('auth_role') == 'center')
+                                    @php
+                                        $is_received_mobileteam_to_center =
+                                            $receiveMaterialsMobileteamToCenter !== null;
+                                        $metadata = null;
+                                        if ($receiveMaterialsMobileteamToCenter !== null) {
+                                            $metadata = is_string($receiveMaterialsMobileteamToCenter->metadata)
+                                                ? json_decode($receiveMaterialsMobileteamToCenter->metadata)
+                                                : (object) $receiveMaterialsMobileteamToCenter->metadata;
+                                            $receiveMaterialsMobileteamToCenter = (object) $receiveMaterialsMobileteamToCenter;
+                                        }
+                                        $user = $is_received_mobileteam_to_center
+                                            ? App\Models\Center::find($receiveMaterialsMobileteamToCenter->user_id)
+                                            : null;
+                                        $profileImage =
+                                            $user && !empty($user->profile_image)
+                                                ? asset('storage/' . $user->profile_image)
+                                                : asset('storage/assets/images/user/avatar-10.jpg');
+                                        // Set dynamic badge text and color
+                                        $uploadStatus = $is_received_mobileteam_to_center ? 'Received' : 'Pending';
+                                        $badgeClass = $is_received_mobileteam_to_center
+                                            ? 'bg-light-secondary'
+                                            : 'bg-danger';
+                                    @endphp
                                     <li class="task-list-item">
-                                        <i class="task-icon bg-danger"></i>
+                                        <i
+                                            class="task-icon {{ $is_received_mobileteam_to_center ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                         <div class="card ticket-card open-ticket">
                                             <div class="card-body">
                                                 <div class="row">
                                                     <div class="col-sm-auto mb-3 mb-sm-0">
                                                         <div class="d-sm-inline-block d-flex align-items-center">
-                                                            <img class="media-object wid-60 img-radius"
-                                                                src="{{ asset('storage/assets/images/user/avatar-1.jpg') }}"
+                                                            <img loading="lazy" class="media-object wid-60 img-radius"
+                                                                src="{{ $profileImage }}"
                                                                 alt="Generic placeholder image " />
                                                             <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                                 <ul
                                                                     class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                    {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 Ticket</a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                                 </ul>
                                                             </div>
                                                         </div>
@@ -1481,27 +1392,21 @@
                                                         <div class="popup-trigger">
                                                             <div class="h5 font-weight-bold">Receive Materials From Mobile
                                                                 Team<small
-                                                                    class="badge bg-light-secondary ms-2">received</small>
+                                                                    class="badge {{ $badgeClass }} ms-2">{{ $uploadStatus }}</small>
                                                             </div>
                                                             <div class="help-sm-hidden">
                                                                 <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
                                                                     <li class="d-sm-inline-block d-block mt-1"><img
                                                                             src="../assets/images/user/avatar-5.jpg"
                                                                             alt=""
                                                                             class="wid-20 rounded me-2 img-fluid" />Done
                                                                         by
-                                                                        <b>Iniya</b>
+                                                                        <b>{{ $is_received_mobileteam_to_center ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
                                                                     </li>
                                                                     <li class="d-sm-inline-block d-block mt-1"><i
                                                                             class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                        27-07-2024 02:32 PM</li>
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                        {{ $is_received_mobileteam_to_center ? \Carbon\Carbon::parse($receiveMaterialsMobileteamToCenter->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                    </li>
                                                                 </ul>
                                                             </div>
                                                             <div class="h5 mt-3"><i
@@ -1512,9 +1417,6 @@
                                                             <a href="{{ route('bundle-packaging.mobileteam-to-center', $session->exam_main_no) }}"
                                                                 class="me-2 btn btn-sm btn-light-primary"><i
                                                                     class="feather icon-info mx-1"></i>Verify </a>
-                                                            <a href="helpdesk-ticket-details.html"
-                                                                class="me-2 btn btn-sm btn-light-info"><i
-                                                                    class="feather icon-map mx-1"></i>View Route</a>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1522,26 +1424,45 @@
                                         </div>
                                     </li>
                                 @endif
-                                {{-- @endif --}}
                                 @hasPermission('receive-bundle-from-mobile-team')
+                                    @php
+                                        $is_received_bundle_to_district = $receiveBundleToDistrict !== null;
+
+                                        $metadata = null;
+                                        if ($receiveBundleToDistrict !== null) {
+                                            $metadata = is_string($receiveBundleToDistrict->metadata)
+                                                ? json_decode($receiveBundleToDistrict->metadata)
+                                                : (object) $receiveBundleToDistrict->metadata;
+                                            $receiveBundleToDistrict = (object) $receiveBundleToDistrict;
+                                        }
+
+                                        $user = $is_received_bundle_to_district
+                                            ? App\Models\TreasuryOfficer::find($receiveBundleToDistrict->user_id)
+                                            : null;
+                                        $profileImage =
+                                            $user && !empty($user->profile_image)
+                                                ? asset('storage/' . $user->profile_image)
+                                                : asset('storage/assets/images/user/avatar-3.jpg');
+                                        // Set dynamic badge text and color
+                                        $uploadStatus = $is_received_bundle_to_district ? 'Received' : 'Pending';
+                                        $badgeClass = $is_received_bundle_to_district
+                                            ? 'bg-light-secondary'
+                                            : 'bg-danger';
+                                    @endphp
                                     <li class="task-list-item">
-                                        <i class="task-icon bg-danger"></i>
+                                        <i
+                                            class="task-icon {{ $is_received_bundle_to_district ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                         <div class="card ticket-card open-ticket">
                                             <div class="card-body">
                                                 <div class="row">
                                                     <div class="col-sm-auto mb-3 mb-sm-0">
                                                         <div class="d-sm-inline-block d-flex align-items-center">
-                                                            <img class="media-object wid-60 img-radius"
-                                                                src="{{ asset('storage/assets/images/user/avatar-1.jpg') }}"
+                                                            <img loading="lazy" class="media-object wid-60 img-radius"
+                                                                src="{{ $profileImage }}"
                                                                 alt="Generic placeholder image " />
                                                             <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                                 <ul
                                                                     class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                    {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 Ticket</a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                                 </ul>
                                                             </div>
                                                         </div>
@@ -1549,25 +1470,24 @@
                                                     <div class="col">
                                                         <div class="popup-trigger">
                                                             <div class="h5 font-weight-bold">Receive Materials From
-                                                                {{ $session->exam_main_model == 'Major' ? 'Sub Treasury' : 'Mobile Team' }}<small
-                                                                    class="badge bg-light-secondary ms-2">received</small>
+                                                                {{ $session->exam_main_model == 'Major' ? 'Sub Treasury' : 'Mobile Team' }}
+                                                                <small
+                                                                    class="badge {{ $badgeClass }} ms-2">{{ $uploadStatus }}</small>
                                                             </div>
                                                             <div class="help-sm-hidden">
                                                                 <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
+
                                                                     <li class="d-sm-inline-block d-block mt-1"><img
                                                                             src="../assets/images/user/avatar-5.jpg"
                                                                             alt=""
                                                                             class="wid-20 rounded me-2 img-fluid" />Done
                                                                         by
-                                                                        <b>Iniya</b>
+                                                                        <b>{{ $is_received_bundle_to_district ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
                                                                     </li>
                                                                     <li class="d-sm-inline-block d-block mt-1"><i
                                                                             class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                        27-07-2024 02:32 PM</li>
+                                                                        {{ $is_received_bundle_to_district ? \Carbon\Carbon::parse($receiveBundleToDistrict->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                    </li>
                                                                     {{-- <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
                                                                 </li> --}}
@@ -1575,15 +1495,12 @@
                                                             </div>
                                                             <div class="h5 mt-3"><i
                                                                     class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                District Collectorate</div>
+                                                                District - Treasury</div>
                                                         </div>
                                                         <div class="mt-2">
                                                             <a href="{{ route('bundle-packaging.mobileteam-to-district', $session->exam_main_no) }}"
                                                                 class="me-2 btn btn-sm btn-light-primary"><i
                                                                     class="feather icon-info mx-1"></i>Verify </a>
-                                                            <a href="helpdesk-ticket-details.html"
-                                                                class="me-2 btn btn-sm btn-light-info"><i
-                                                                    class="feather icon-map mx-1"></i>View Route</a>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1591,7 +1508,7 @@
                                         </div>
                                     </li>
                                 @endhasPermission
-                                @if (session('auth_role') == 'headquarters')
+                                @if (session('auth_role') == 'headquarters' && $current_user->custom_role != 'VDS')
                                     <li class="task-list-item">
                                         <i class="task-icon bg-primary"></i>
                                         <div class="card ticket-card open-ticket">

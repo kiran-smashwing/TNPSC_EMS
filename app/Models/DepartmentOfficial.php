@@ -28,7 +28,8 @@ class DepartmentOfficial extends Authenticatable
         'dept_off_email_status',
         'remember_token',
         'verification_token',
-        'dept_off_createdat'
+        'dept_off_createdat',
+        'custom_role',
     ];
     // Add timestamp for createdat
     protected static function boot()

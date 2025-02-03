@@ -46,7 +46,10 @@ class Center extends Authenticatable
     {
         return $this->center_name; // or whatever field you use for the name
     }
-
+    public function getDistrictCodeAttribute()
+    {
+        return $this->center_district_id;
+    }
     public function getEmailDisplayAttribute()
     {
         return !empty($this->center_email) ? $this->center_email : 'No email available';

@@ -73,7 +73,7 @@
                             <h5>Filter Candidate Attendance</h5>
                         </div>
                         <div class="card-body">
-                            <form action="#" method="GET" id="filterForm">
+                            <form action="{{ route('attendance.report.overall') }}" method="GET" id="filterForm">
                                 @csrf
                                 <div class="row">
                                     <!-- Notification No -->

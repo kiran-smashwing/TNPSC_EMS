@@ -29,4 +29,8 @@ class CIcandidateLogs extends Model
         'omr_remarks' => 'array',
         'candidate_attendance' => 'array',
     ];
+    public function center()
+    {
+        return $this->belongsTo(Center::class, 'center_code', 'center_code');
+    }
 }

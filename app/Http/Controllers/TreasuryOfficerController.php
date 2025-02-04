@@ -61,12 +61,12 @@ class TreasuryOfficerController extends Controller
             }
 
             $districts = District::where('district_code', $user->district_code)->get();
-            return view('masters.district.treasury_Officers.create', compact('districts','user'));
+            return view('masters.district.treasury_officers.create', compact('districts','user'));
         }
 
         // Default case: Fetch all districts and centers
         $districts = District::all();
-        return view('masters.district.treasury_Officers.create', compact('districts'));
+        return view('masters.district.treasury_officers.create', compact('districts'));
     }
 
     public function store(Request $request)
@@ -192,7 +192,7 @@ class TreasuryOfficerController extends Controller
     {
         $treasuryOfficer = TreasuryOfficer::findOrFail($id);
         $districts = District::all(); // Fetch all districts
-        return view('masters.district.treasury_Officers.edit', compact('treasuryOfficer', 'districts'));
+        return view('masters.district.treasury_officers.edit', compact('treasuryOfficer', 'districts'));
     }
 
     public function update(Request $request, $id)
@@ -296,7 +296,7 @@ class TreasuryOfficerController extends Controller
         AuditLogger::log('Treasury Officer Viewed', TreasuryOfficer::class, $treasuryOfficer->tre_off_id);
 
         // Pass the counts to the view
-        return view('masters.district.treasury_Officers.show', compact('treasuryOfficer', 'centerCount', 'venueCount', 'staffCount'));
+        return view('masters.district.treasury_officers.show', compact('treasuryOfficer', 'centerCount', 'venueCount', 'staffCount'));
     }
 
 

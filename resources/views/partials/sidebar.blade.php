@@ -282,6 +282,8 @@
                 </li>
                 <li class="pc-item"><a class="pc-link" href="{{ route('attendance.report') }}">Candidate Attendance</a>
                 </li>
+                {{-- <li class="pc-item"><a class="pc-link" href="{{ route('attendance.pdf') }}">Candidate pdf</a>
+                </li> --}}
                 
                 <li class="pc-item"><a class="pc-link" href="{{route('omr-account.report')}}">Replacement of OMR/QCA</a>
                 </li>

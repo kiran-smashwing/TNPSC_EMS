@@ -1,11 +1,13 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use App\Models\Currentexam;
 use Spatie\Browsershot\Browsershot;
 use Illuminate\Support\Facades\DB;
 use App\Models\Center;
+use App\Models\CIcandidateLogs;
 use Illuminate\Support\Facades\Auth;
 use App\Models\District;
 
@@ -91,7 +93,6 @@ class AttendanceReportController extends Controller
 
         $data = [];
         $html = view('pdf.attendance_report_pdf')->render();
-        // $html = view('PDF.Reports.ci-utility-certificate')->render();
         $pdf = Browsershot::html($html)
             ->setOption('landscape', false)
             ->setOption('margin', [
@@ -158,12 +159,69 @@ class AttendanceReportController extends Controller
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
     }
-    public function generateAttendanceReportOverall()
+    public function generateAttendanceReportOverall(Request $request)
     {
+        // Retrieve filter values from the request
+        $notificationNo = $request->query('notification_no');
+        $examDate = $request->query('exam_date');
+        $session = $request->query('session'); // FN or AN
+        $category = $request->query('category');
+        $district = $request->query('district');
+        $center = $request->query('center');
 
-        $data = [];
-        $html = view('pdf.attendance_report_overall')->render();
-        // $html = view('PDF.Reports.ci-utility-certificate')->render();
+        // Fetch the exam details
+        $exam_data = Currentexam::with('examservice')
+            ->where('exam_main_notification', $notificationNo)
+            ->get(); // Returns a collection
+
+        if ($exam_data->isEmpty()) {
+            return back()->with('error', 'Exam data not found.');
+        }
+
+        $exam_id = $exam_data->first()->exam_main_no; // Get first item
+
+        // Fetch the candidate attendance data
+        $candidate_attendance = CIcandidateLogs::where('exam_id', $exam_id)
+            ->where('exam_date', $examDate)
+            ->get(); // Returns a collection
+
+        if ($candidate_attendance->isEmpty()) {
+            return back()->with('error', 'No candidate attendance found for this exam date.');
+        }
+
+        // Extract and merge attendance data from all records
+        $attendance_data = [];
+
+        foreach ($candidate_attendance as $attendance) {
+            $decoded_data = $attendance->candidate_attendance;
+
+            if (isset($decoded_data[$session])) {
+                $attendance_data[] = $decoded_data[$session]; // Collect session-specific attendance
+            }
+        }
+
+        if (empty($attendance_data)) {
+            return back()->with('error', 'No attendance data found for session: ' . $session);
+        }
+
+        // Prepare data for the view
+        $data = [
+            'notification_no' => $notificationNo,
+            'exam_date' => $examDate,
+            'session' => $session,
+            'category' => $category,
+            'district' => $district,
+            'center' => $center,
+            'session_data' => $attendance_data // Array of session-specific attendance data
+        ];
+
+        // Uncomment for debugging
+        dd($data);
+
+        // Generate HTML for the PDF
+        $html = view('pdf.attendance_report_overall', $data)->render();
+
+        // Generate PDF using Browsershot
         $pdf = Browsershot::html($html)
             ->setOption('landscape', true)
             ->setOption('margin', [
@@ -175,19 +233,20 @@ class AttendanceReportController extends Controller
             ->setOption('displayHeaderFooter', true)
             ->setOption('headerTemplate', '<div></div>')
             ->setOption('footerTemplate', '
-            <div style="font-size:10px;width:100%;text-align:center;">
-                Page <span class="pageNumber"></span> of <span class="totalPages"></span>
-            </div>
-            <div style="position: absolute; bottom: 5mm; right: 10px; font-size: 10px;">
-                 IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . ' 
-            </div>')
+                <div style="font-size:10px;width:100%;text-align:center;">
+                    Page <span class="pageNumber"></span> of <span class="totalPages"></span>
+                </div>
+                <div style="position: absolute; bottom: 5mm; right: 10px; font-size: 10px;">
+                    IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . '
+                </div>')
             ->setOption('preferCSSPageSize', true)
             ->setOption('printBackground', true)
             ->scale(1)
             ->format('A4')
             ->pdf();
+
         // Define a unique filename for the report
-        $filename = 'attendance_reprot_overall' . time() . '.pdf';
+        $filename = 'attendance_report_overall_' . time() . '.pdf';
 
         // Return the PDF as a response
         return response($pdf)

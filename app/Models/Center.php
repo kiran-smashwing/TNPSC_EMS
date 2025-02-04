@@ -76,6 +76,10 @@ class Center extends Authenticatable
     {
         return $this->hasMany(TreasuryOfficer::class, 'tre_off_district_id', 'district_code');
     }
+    public function cicandidatelogs()
+    {
+        return $this->hasMany(CIcandidateLogs::class, 'center_code', 'center_code');
+    }
     public function venues()
     {
         return $this->hasMany(Venues::class, 'venue_district_id', 'district_code');

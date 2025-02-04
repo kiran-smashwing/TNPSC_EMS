@@ -49,7 +49,7 @@ class Currentexam extends Model
     }
     public function examservice()
     {
-        return $this->belongsTo(Examservice::class, 'exam_main_service', 'examservice_id');
+        return $this->belongsTo(ExamService::class, 'exam_main_service', 'examservice_id');
     }
     
 }

@@ -245,6 +245,7 @@
                                                 <a href="{{ route('viewTrunkboxes', $route['id']) }}"
                                                     class="avtar avtar-xs btn-light-success"><i
                                                         class="ti ti-checkbox  f-20"></i></a>
+                                                @hasPermission('verify-materials-handovered')
                                                 <a href="#" class="avtar avtar-xs btn-light-success"
                                                     data-bs-toggle="modal" data-bs-target="#verifyAllMaterialsHandovered"
                                                     data-route-id="{{ $route['id'] }}" onclick="setVehicleId(this)">
@@ -255,6 +256,7 @@
                                                         class="avtar avtar-xs btn-light-success"><i
                                                             class="ti ti-download f-20"></i></a>
                                                 @endif
+                                                @endhasPermission
                                             </td>
                                         </tr>
                                     @endforeach
@@ -269,7 +271,6 @@
         <!-- [ Main Content ] end -->
         </div>
         @include('modals.verify-all-materials-handovered')
-
     </section>
     <!-- [ Main Content ] end -->
     @include('partials.footer')

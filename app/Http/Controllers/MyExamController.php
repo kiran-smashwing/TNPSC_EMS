@@ -146,8 +146,14 @@ class MyExamController extends Controller
             $examTrunkboxOTLData = ExamAuditLog::where('exam_id', $examId)
                 ->where('task_type', 'exam_trunkbox_qr_otl_upload')
                 ->first();
+            $receiveTrunkboxToHQ = ExamAuditLog::where('exam_id', $examId)
+                ->where('task_type', 'receive_trunkbox_at_hq')
+                ->first();
+            $materialsHandoverVerification = ExamAuditLog::where('exam_id', $examId)
+                ->where('task_type', 'materials_handover_verification')
+                ->first();
             $current_user = $request->get('auth_user');
-            return view('my_exam.task', compact('current_user', 'session', 'auditDetails', 'sendExamVenueConsent', 'venueConsents', 'meetingCodeGen', 'expectedCandidatesUpload', 'candidatesCountIncrease', 'examVenueHallConfirmation', 'apdFinalizeHallsUpload', 'examMaterialsUpdate', 'receiveMaterialsPrinterToDistrict', 'receiveMaterialsPrinterToHQ', 'examTrunkboxOTLData', 'examRoutesCreated', 'receiveMaterialsDistrictToCenter', 'receiveMaterialsMobileteamToCenter','receiveBundleToDistrict'));
+            return view('my_exam.task', compact('current_user', 'session', 'auditDetails', 'sendExamVenueConsent', 'venueConsents', 'meetingCodeGen', 'expectedCandidatesUpload', 'candidatesCountIncrease', 'examVenueHallConfirmation', 'apdFinalizeHallsUpload', 'examMaterialsUpdate', 'receiveMaterialsPrinterToDistrict', 'receiveMaterialsPrinterToHQ', 'examTrunkboxOTLData', 'examRoutesCreated', 'receiveMaterialsDistrictToCenter', 'receiveMaterialsMobileteamToCenter', 'receiveBundleToDistrict', 'receiveTrunkboxToHQ','materialsHandoverVerification'));
         }
     }
 

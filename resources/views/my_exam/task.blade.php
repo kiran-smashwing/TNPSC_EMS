@@ -250,8 +250,7 @@
                                                                 @endif
                                                             @endhasPermission
                                                             @hasPermission('upload-candidates-csv')
-                                                                @if (isset($metadata->failed_csv_link) &&
-                                                                        file_exists(public_path(str_replace(url('/'), '', $metadata->failed_csv_link))))
+                                                                @if (!empty($metadata->failed_csv_link) && file_exists(public_path(parse_url($metadata->failed_csv_link, PHP_URL_PATH))))
                                                                     <a href="{{ $metadata->failed_csv_link }}"
                                                                         class="me-3 btn btn-sm btn-light-danger">
                                                                         <i class="feather icon-download mx-1"></i>Failed
@@ -610,9 +609,12 @@
                                                                         class="feather icon-eye mx-1"></i>Review Venues</a>
                                                             @endhasPermission
                                                             @hasPermission('downlaodConfirmedExamHalls')
-                                                                <a href="{{ route('id-candidates.export-confirmed-halls', $session->exam_main_no) }}"
-                                                                    class="me-2 btn btn-sm btn-light-info"><i
-                                                                        class="feather icon-download mx-1"></i>Download CSV</a>
+                                                                @if ($is_halls_confirmed)
+                                                                    <a href="{{ route('id-candidates.export-confirmed-halls', $session->exam_main_no) }}"
+                                                                        class="me-2 btn btn-sm btn-light-info"><i
+                                                                            class="feather icon-download mx-1"></i>Download
+                                                                        CSV</a>
+                                                                @endif
                                                             @endhasPermission
                                                         </div>
                                                     </div>
@@ -707,7 +709,7 @@
                                                                     @endif
                                                                 @endhasPermission
                                                                 @hasPermission('download-finalized-halls-csv')
-                                                                    @if ($is_apd_upload)
+                                                                    @if ($is_finalize_halls_upload)
                                                                         <a href="{{ $metadata->uploaded_csv_link }}"
                                                                             class="me-3 btn btn-sm btn-light-warning"><i
                                                                                 class="feather icon-download mx-1"></i>Download
@@ -1509,24 +1511,42 @@
                                     </li>
                                 @endhasPermission
                                 @if (session('auth_role') == 'headquarters' && $current_user->custom_role != 'VDS')
+                                    @php
+                                        $is_received_trunkbox_at_hq = $receiveTrunkboxToHQ !== null;
+
+                                        $metadata = null;
+                                        if ($receiveTrunkboxToHQ !== null) {
+                                            $metadata = is_string($receiveTrunkboxToHQ->metadata)
+                                                ? json_decode($receiveTrunkboxToHQ->metadata)
+                                                : (object) $receiveTrunkboxToHQ->metadata;
+                                            $receiveTrunkboxToHQ = (object) $receiveTrunkboxToHQ;
+                                        }
+
+                                        $user = $is_received_trunkbox_at_hq
+                                            ? App\Models\DepartmentOfficial::find($receiveTrunkboxToHQ->user_id)
+                                            : null;
+                                        $profileImage =
+                                            $user && !empty($user->profile_image)
+                                                ? asset('storage/' . $user->profile_image)
+                                                : asset('storage/assets/images/user/avatar-3.jpg');
+                                        // Set dynamic badge text and color
+                                        $uploadStatus = $is_received_trunkbox_at_hq ? 'Received' : 'Pending';
+                                        $badgeClass = $is_received_trunkbox_at_hq ? 'bg-light-secondary' : 'bg-danger';
+                                    @endphp
                                     <li class="task-list-item">
-                                        <i class="task-icon bg-primary"></i>
+                                        <i
+                                            class="task-icon {{ $is_received_trunkbox_at_hq ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                         <div class="card ticket-card open-ticket">
                                             <div class="card-body">
                                                 <div class="row">
                                                     <div class="col-sm-auto mb-3 mb-sm-0">
                                                         <div class="d-sm-inline-block d-flex align-items-center">
-                                                            <img class="media-object wid-60 img-radius"
-                                                                src="{{ asset('storage/assets/images/user/avatar-3.jpg') }}"
+                                                            <img loading="lazy" class="media-object wid-60 img-radius"
+                                                                src="{{ $profileImage }}"
                                                                 alt="Generic placeholder image " />
                                                             <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                                 <ul
                                                                     class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                    {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 Ticket</a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                                 </ul>
                                                             </div>
                                                         </div>
@@ -1534,69 +1554,81 @@
                                                     <div class="col">
                                                         <div class="popup-trigger">
                                                             <div class="h5 font-weight-bold">Receive All Materials from
-                                                                Charted Vehicle<small
-                                                                    class="badge bg-light-secondary ms-2">Received</small>
+                                                                Charted Vehicle <small
+                                                                    class="badge {{ $badgeClass }} ms-2">{{ $uploadStatus }}</small>
                                                             </div>
                                                             <div class="help-sm-hidden">
                                                                 <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"
-                                                    ><img src="../assets/images/admin/p1.jpg" alt="" class="wid-20 rounded me-2 img-fluid" /></li
-                                                  > --}}
                                                                     <li class="d-sm-inline-block d-block mt-1"><img
                                                                             src="../assets/images/user/avatar-4.jpg"
                                                                             alt=""
                                                                             class="wid-20 rounded me-2 img-fluid" />Done
                                                                         by
-                                                                        <b>Anbezhili</b>
+                                                                        <b>{{ $is_received_trunkbox_at_hq ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
                                                                     </li>
                                                                     <li class="d-sm-inline-block d-block mt-1"><i
-                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>25-07-2024
-                                                                        10:05 AM</li>
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"
-                                                    ><i class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                  </li> --}}
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                        {{ $is_received_trunkbox_at_hq ? \Carbon\Carbon::parse($receiveTrunkboxToHQ->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                    </li>
                                                                 </ul>
                                                             </div>
                                                             <div class="h5 mt-3"><i
                                                                     class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                ED / QD
+                                                                ED
                                                                 - Officer</div>
                                                         </div>
                                                         <div class="mt-2">
-                                                            <a href="helpdesk-ticket-details.html"
-                                                                class="me-2 btn btn-sm btn-light-primary "
-                                                                data-pc-animate="just-me" data-bs-toggle="modal"
-                                                                data-bs-target="#animateModal"><i
-                                                                    class="feather icon-eye mx-1 "></i>View </a>
-                                                            <a href="{{ route('bundle-packaging.charted-vehicle-to-headquarters', $session->exam_main_no) }}"
-                                                                class="me-2 btn btn-sm btn-light-info"><i
-                                                                    class="feather icon-info mx-1"></i>Verify</a>
-                                                            <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
-                                                                    class="feather icon-edit mx-1"></i>Edit </a>
+                                                            @hasPermission('verify-bundle-recevied-at-hq')
+                                                                <a href="{{ route('bundle-packaging.charted-vehicle-to-headquarters', $session->exam_main_no) }}"
+                                                                    class="me-2 btn btn-sm btn-light-info"><i
+                                                                        class="feather icon-info mx-1"></i>Verify</a>
+                                                            @endhasPermission
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </li>
+                                    @php
+                                        $is_materials_handover_verified = $materialsHandoverVerification !== null;
+
+                                        $metadata = null;
+                                        if ($materialsHandoverVerification !== null) {
+                                            $metadata = is_string($materialsHandoverVerification->metadata)
+                                                ? json_decode($materialsHandoverVerification->metadata)
+                                                : (object) $materialsHandoverVerification->metadata;
+                                            $materialsHandoverVerification = (object) $materialsHandoverVerification;
+                                        }
+
+                                        $user = $is_materials_handover_verified
+                                            ? App\Models\DepartmentOfficial::find(
+                                                $materialsHandoverVerification->user_id,
+                                            )
+                                            : null;
+                                        $profileImage =
+                                            $user && !empty($user->profile_image)
+                                                ? asset('storage/' . $user->profile_image)
+                                                : asset('storage/assets/images/user/avatar-3.jpg');
+                                        // Set dynamic badge text and color
+                                        $uploadStatus = $is_materials_handover_verified ? 'Verified' : 'Pending';
+                                        $badgeClass = $is_materials_handover_verified
+                                            ? 'bg-light-secondary'
+                                            : 'bg-danger';
+                                    @endphp
                                     <li class="task-list-item">
-                                        <i class="task-icon bg-primary"></i>
+                                        <i
+                                            class="task-icon {{ $is_materials_handover_verified ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                         <div class="card ticket-card open-ticket">
                                             <div class="card-body">
                                                 <div class="row">
                                                     <div class="col-sm-auto mb-3 mb-sm-0">
                                                         <div class="d-sm-inline-block d-flex align-items-center">
-                                                            <img class="media-object wid-60 img-radius"
-                                                                src="{{ asset('storage/assets/images/user/avatar-3.jpg') }}"
+                                                            <img loading="lazy" class="media-object wid-60 img-radius"
+                                                                src="{{ $profileImage }}"
                                                                 alt="Generic placeholder image " />
                                                             <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                                 <ul
                                                                     class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                    {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 Ticket</a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                                 </ul>
                                                             </div>
                                                         </div>
@@ -1605,27 +1637,23 @@
                                                         <div class="popup-trigger">
                                                             <div class="h5 font-weight-bold">Verify All Materials and
                                                                 Memory
-                                                                Cards Handovered<small
-                                                                    class="badge bg-light-secondary ms-2">Scanned</small>
+                                                                Cards Handovered <small
+                                                                    class="badge {{ $badgeClass }} ms-2">{{ $uploadStatus }}</small>
                                                             </div>
                                                             <div class="help-sm-hidden">
                                                                 <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"
-                                                    ><img src="../assets/images/admin/p1.jpg" alt="" class="wid-20 rounded me-2 img-fluid" /></li
-                                                  > --}}
+
                                                                     <li class="d-sm-inline-block d-block mt-1"><img
                                                                             src="../assets/images/user/avatar-4.jpg"
                                                                             alt=""
                                                                             class="wid-20 rounded me-2 img-fluid" />Done
                                                                         by
-                                                                        <b>Anbezhili</b>
+                                                                        <b>{{ $is_materials_handover_verified ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
                                                                     </li>
                                                                     <li class="d-sm-inline-block d-block mt-1"><i
-                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>25-07-2024
-                                                                        10:05 AM</li>
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"
-                                                    ><i class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                  </li> --}}
+                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                    {{ $is_materials_handover_verified ? \Carbon\Carbon::parse($materialsHandoverVerification->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                </li>
                                                                 </ul>
                                                             </div>
                                                             <div class="h5 mt-3"><i
@@ -1634,16 +1662,11 @@
                                                                 - Admin Officer</div>
                                                         </div>
                                                         <div class="mt-2">
-                                                            <a href="{{ route('bundle-packaging.charted-vehicle-to-headquarters', $session->exam_main_no) }}"
-                                                                class="me-2 btn btn-sm btn-light-info"><i
-                                                                    class="feather icon-info mx-1"></i>Verify</a>
-                                                            <a href="helpdesk-ticket-details.html"
-                                                                class="me-2 btn btn-sm btn-light-primary "
-                                                                data-pc-animate="just-me" data-bs-toggle="modal"
-                                                                data-bs-target="#verifyAllMaterialsHandovered"><i
-                                                                    class="feather icon-info mx-1 "></i>Verify </a>
-                                                            <a href="#" class="me-3 btn btn-sm btn-light-info"><i
-                                                                    class="feather icon-aperture mx-1"></i>Scan</a>
+                                                            @hasPermission('verify-materials-handovered')
+                                                                <a href="{{ route('bundle-packaging.charted-vehicle-to-headquarters', $session->exam_main_no) }}"
+                                                                    class="me-2 btn btn-sm btn-light-info"><i
+                                                                        class="feather icon-info mx-1"></i>Verify</a>
+                                                            @endhasPermission
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1667,7 +1690,7 @@
                 @include('modals.ci-meetingcode-generate')
                 {{-- @include('modals.invigilator-allotment') --}}
                 {{-- @include('modals.qpbox-opentime') --}}
-                @include('modals.verify-all-materials-handovered')
+                {{-- @include('modals.verify-all-materials-handovered') --}}
             </div>
             <!-- [ Main Content ] end -->
         </div>

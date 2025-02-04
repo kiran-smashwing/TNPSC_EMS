@@ -190,7 +190,7 @@ class DistrictCandidatesController extends Controller
         $venue = Venues::findOrFail($venueId);
         //TODO:Update the static mail to venue mail 
         // Prepare and send email
-        Mail::to("kiran@smashwing.com")->send(new VenueConsentMail($venue, $examId));
+        Mail::to("sathishm@smashwing.com")->send(new VenueConsentMail($venue, $examId));
     }
     //QRCODE  generation  function 
     public function generateQRCode(Request $request)

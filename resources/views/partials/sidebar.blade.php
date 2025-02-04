@@ -72,7 +72,7 @@
                         <li class="pc-item"><a class="pc-link" href="../dashboard/finance.html">Finance</a></li> --}}
                     </ul>
                 </li>
-               @hasPremission('heading')
+               @hasPermission('heading')
                 <li class="pc-item pc-caption">
                     <label>Masters</label>
                 </li>

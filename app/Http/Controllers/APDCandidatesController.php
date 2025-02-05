@@ -65,7 +65,7 @@ class APDCandidatesController extends Controller
         $uploadedFilePath = 'uploads/csv_files/';
         $uploadedFileName = $examId . '_uploaded_' . time() . '.' . $file->getClientOriginalExtension();
         $file->storeAs($uploadedFilePath, $uploadedFileName, 'public');
-        $uploadedFileUrl = url('storage/' . $uploadedFilePath . $uploadedFileName);
+        $uploadedFileUrl = asset('storage/' . $uploadedFilePath . $uploadedFileName);
 
         // Retrieve exam and its sessions
         $exam = Currentexam::where('exam_main_no', $examId)->with('examsession')->first();
@@ -101,7 +101,7 @@ class APDCandidatesController extends Controller
         }
 
         fclose($handle);
-            //TODO:Update the files to be saved in failes_csv file directory
+        //TODO:Update the files to be saved in failes_csv file directory
         // Handle failed rows and generate a CSV file for them
         $failedCsvPath = null;
         if (!empty($failedRows)) {
@@ -165,14 +165,14 @@ class APDCandidatesController extends Controller
         if (!$center) {
             throw new \Exception('Center code not found.');
         }
-          
-            $insertData += [
-                'center_code' => $center->center_code,
-                'district_code' => $center->district->district_code ?? null,
-                'exam_date' => \Carbon\Carbon::createFromFormat('d-m-Y', $data[1])->format('Y-m-d'),
-                'session' => $data[2],
-                'expected_candidates' => $data[3],
-            ];
+
+        $insertData += [
+            'center_code' => $center->center_code,
+            'district_code' => $center->district->district_code ?? null,
+            'exam_date' => \Carbon\Carbon::createFromFormat('d-m-Y', $data[1])->format('Y-m-d'),
+            'session' => $data[2],
+            'expected_candidates' => $data[3],
+        ];
 
         \DB::table($table)->insert($insertData);
         $successfulInserts++;
@@ -191,7 +191,7 @@ class APDCandidatesController extends Controller
             'successful_inserts' => $successfulInserts,
             'failed_count' => $failedCount,
             'uploaded_csv_link' => $uploadedFileUrl, // Include uploaded file link
-            'failed_csv_link' => $failedCsvPath ? url('storage/' . $failedCsvPath) : null,
+            'failed_csv_link' => $failedCsvPath ? asset('storage/' . $failedCsvPath) : null,
         ];
 
         // Check if a log already exists for this exam and task type
@@ -333,7 +333,7 @@ class APDCandidatesController extends Controller
         }
         fclose($fp);
 
-        $uploadedFileUrl = url('storage/' . $uploadedFilePath . $uploadedFileName);
+        $uploadedFileUrl = asset('storage/' . $uploadedFilePath . $uploadedFileName);
 
         // Retrieve exam and its sessions
         $exam = Currentexam::where('exam_main_no', $examId)->with('examsession')->first();
@@ -467,7 +467,7 @@ class APDCandidatesController extends Controller
             'successful_inserts' => $successfulInserts,
             'failed_count' => $failedCount,
             'uploaded_csv_link' => $uploadedFileUrl, // Include uploaded file link
-            'failed_csv_link' => $failedCsvPath ? url('storage/uploads/failed_csv_files/' . $failedCsvPath) : null,
+            'failed_csv_link' => $failedCsvPath ? asset('storage/uploads/failed_csv_files/' . $failedCsvPath) : null,
         ];
 
         // Check if a log already exists for this exam and task type

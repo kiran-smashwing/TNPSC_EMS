@@ -48,7 +48,13 @@ class AuthorizationService
             ],
             'ED' => [
                 'Section Officer' => [
-
+                    'verify-bundle-recevied-at-hq',
+                    
+                ],
+            ],
+            'VMD' => [
+                'Section Officer' => [
+                    'verify-materials-handovered',
                 ],
             ],
             'QD' => [

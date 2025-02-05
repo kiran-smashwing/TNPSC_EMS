@@ -228,7 +228,7 @@ class IDCandidatesController extends Controller
                 ->sum('accommodation_required');
             //todo: update the static email to district email  $district->district_email,
             // Send the email notification
-            Mail::to('kiran@smashwing.com')->send(new AccommodationNotification($exam, $districtCode, $totalCandidates));
+            Mail::to('sathishm@smashwing.com')->send(new AccommodationNotification($exam, $districtCode, $totalCandidates));
 
             // Add district-specific log to the consolidated array
             $emailLogs[] = [

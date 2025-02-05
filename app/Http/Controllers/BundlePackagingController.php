@@ -471,6 +471,69 @@ class BundlePackagingController extends Controller
                 'hq_scanned_at' => now()
             ]);
         }
+        // Audit Logging
+        $user = $request->get('auth_user');
+
+        $userName = $user->display_name ?? 'Unknown';
+        $metadata = [
+            'user_name' => $userName,
+            // Include additional metadata if needed (e.g., HQ-specific fields)
+        ];
+
+        // Prepare trunk box details for the audit log
+        $trunkBoxDetails = [
+            'trunkbox_qr_code' => $examMaterials->trunkbox_qr_code,
+            'district' => $examMaterials->district->district_name, // Adjust based on your relationships
+            'center' => $examMaterials->center->center_name,
+            'hall_code' => $examMaterials->hall_code,
+            'scan_time' => now()->toDateTimeString()
+        ];
+
+        // Check existing log for the same exam, task type, action type, and user
+        $existingLog = $this->auditService->findLog([
+            'exam_id' => $examMaterials->exam_id,
+            'task_type' => 'receive_trunkbox_at_hq', // Adjust task type as needed
+            'action_type' => 'qr_scan',
+            'user_id' => $user->dept_off_id, // Adjust user identifier as per your user model
+        ]);
+
+        if ($existingLog) {
+            // Update existing log
+            $existingScans = $existingLog->after_state['scanned_trunkboxes'] ?? [];
+            $firstScan = $existingScans[0] ?? null; // Keep the first scan
+
+            $updatedScans = [
+                $firstScan,
+                $trunkBoxDetails // Add current scan as the latest entry
+            ];
+
+            $totalScans = ($existingLog->after_state['total_scanned'] ?? 0) + 1;
+
+            $this->auditService->updateLog(
+                logId: $existingLog->id,
+                metadata: $metadata,
+                afterState: [
+                    'scanned_trunkboxes' => $updatedScans,
+                    'total_scanned' => $totalScans
+                ],
+                description: "Scanned trunkbox QR code: {$examMaterials->trunkbox_qr_code} (Total scanned: $totalScans)"
+            );
+        } else {
+            // Create new log for first scan
+            $this->auditService->log(
+                examId: $examMaterials->exam_id,
+                actionType: 'qr_scan',
+                taskType: 'receive_trunkbox_at_hq', // Adjust task type as needed
+                beforeState: null,
+                afterState: [
+                    'scanned_trunkboxes' => [$trunkBoxDetails],
+                    'total_scanned' => 1
+                ],
+                description: "Initial trunkbox QR code scan: {$examMaterials->trunkbox_qr_code}",
+                metadata: $metadata
+            );
+        }
+
 
         return response()->json([
             'status' => 'success',
@@ -491,8 +554,11 @@ class BundlePackagingController extends Controller
 
         try {
             // Find the vehicle record
-            $vehicle = ChartedVehicleRoute::findOrFail($request->vehicle_id);
-
+            $vehicle = ChartedVehicleRoute::where('id', $request->vehicle_id)->first();
+            // Capture original state before changes
+            $beforeState = $vehicle->handover_verification_details
+                ? json_decode($vehicle->handover_verification_details, true)
+                : [];
             // Prepare data, setting unchecked checkboxes to 'off'
             $handoverDetails = [
                 'memory_card_handovered' => $request->has('memory_card_handovered') ? true : false,
@@ -505,10 +571,100 @@ class BundlePackagingController extends Controller
             // Save data in JSON format
             $vehicle->handover_verification_details = json_encode($handoverDetails);
             $vehicle->save();
+            // Prepare audit log metadata
+            $user = current_user();
+            $metadata = [
+                'user_name' => $user->display_name ?? 'Unknown',
+                'vehicle_id' => $vehicle->id,
+                'route' => $vehicle->route_name,
+                'driver' => $vehicle->driver_name,
+            ];
+
+            // Normalize the exam_id field into an array
+            $examIds = $vehicle->exam_id;
+            if (!is_array($examIds)) {
+                $examIds = [$examIds];
+            }
+
+            $processLogForExamId = function ($examId) use ($beforeState, $handoverDetails, $metadata, $examIds) {
+                // Look for an existing audit log entry for this exam ID and task
+                $existingLog = $this->auditService->findLog([
+                    'exam_id' => $examId,
+                    'task_type' => 'materials_handover_verification',
+                ]);
+
+                if ($existingLog) {
+                    // Update existing log: Preserve initial_state and update last_state.
+                    $initialState = $existingLog->after_state['initial_state'] ?? $beforeState;
+                    $totalUpdates = ($existingLog->after_state['total_updates'] ?? 0) + 1;
+
+                    $this->auditService->updateLog(
+                        logId: $existingLog->id,
+                        metadata: $metadata,
+                        afterState: [
+                            'initial_state' => $initialState,
+                            'last_state' => $handoverDetails,
+                            'total_updates' => $totalUpdates,
+                        ],
+                        description: "Handover details updated for vehicle {$metadata['vehicle_id']} on exam {$examId} (Total updates: {$totalUpdates})"
+                    );
+                } else {
+                    // Create new log entry for this exam ID only if more than one exam id is saved.
+                    // (If only one exam ID exists, we do not want to create a separate log entry.)
+                    if (count($examIds) > 1) {
+                        $this->auditService->log(
+                            examId: $examId,
+                            actionType: 'update',
+                            taskType: 'materials_handover_verification',
+                            beforeState: null,
+                            afterState: [
+                                'initial_state' => $handoverDetails,
+                                'last_state' => $handoverDetails,
+                                'total_updates' => 1,
+                            ],
+                            description: "Initial handover details saved for vehicle {$metadata['vehicle_id']} on exam {$examId}",
+                            metadata: $metadata
+                        );
+                    }
+                    // For a single exam ID, if no log exists, we simply do not create one.
+                }
+            };
+
+            // Process audit logging:
+            // If there is more than one exam ID, create/update logs for each exam ID.
+            if (count($examIds) > 1) {
+                foreach ($examIds as $examId) {
+                    $processLogForExamId($examId);
+                }
+            } else {
+                // If there is only one exam ID, update existing log if it exists,
+                // but do not create a new log entry if none exists.
+                $examId = $examIds[0];
+                $existingLog = $this->auditService->findLog([
+                    'exam_id' => $examId,
+                    'task_type' => 'materials_handover_verification',
+                ]);
+                if ($existingLog) {
+                    // Update the log for the single exam ID.
+                    $initialState = $existingLog->after_state['initial_state'] ?? $beforeState;
+                    $totalUpdates = ($existingLog->after_state['total_updates'] ?? 0) + 1;
+                    $this->auditService->updateLog(
+                        logId: $existingLog->id,
+                        metadata: $metadata,
+                        afterState: [
+                            'initial_state' => $initialState,
+                            'last_state' => $handoverDetails,
+                            'total_updates' => $totalUpdates,
+                        ],
+                        description: "Handover details updated for vehicle {$metadata['vehicle_id']} on exam {$examId} (Total updates: {$totalUpdates})"
+                    );
+                }
+                // If there is no log for the single exam id, we simply do not create one.
+            }
 
             return back()->with('success', 'Handover details saved successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to save handover details. Please try again.');
+            return back()->with('error', 'Failed to save handover details. Please try again. ' . $e);
         }
     }
     public function reportHandoverDetails(Request $request, $id)

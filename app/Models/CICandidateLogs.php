@@ -33,4 +33,14 @@ class CIcandidateLogs extends Model
     {
         return $this->belongsTo(Center::class, 'center_code', 'center_code');
     }
+
+
+    public function district()
+    {
+        return $this->belongsTo(District::class, 'district_id', 'center_district_id');
+    }
+    public function ci()
+    {
+        return $this->belongsTo(ChiefInvigilator::class, 'ci_id', 'ci_id');
+    }
 }

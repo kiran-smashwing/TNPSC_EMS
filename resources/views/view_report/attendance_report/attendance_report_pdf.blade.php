@@ -237,11 +237,11 @@
             <h5>Attendance Report</h5>
         </div>
         <div class="content-section">
-            <p><strong> Notification No:</strong> 10/2024 | <strong> Exam Date: </strong>01-12-2024 | <strong>Exam
-                    Session:</strong> FN<br>
-                <strong>Exam Name:</strong> RASHTRIYA INDIAN MILITARY COLLEGE(JULY-2025 TERM) <br>
-                <strong>Exam Service:</strong> GROUP I SERVICES EXAMINATION <br>
-               <strong>District:</strong> Chennai | <strong>Center Name:</strong> Alandur (0102	)
+            <p><strong> Notification No:</strong> {{ $notification_no }} | <strong> Exam Date: </strong>{{ $exam_date }} | <strong>Exam
+                    Session:</strong> {{ $session }}<br>
+                <strong>Exam Name:</strong> {{ $exam_data->exam_main_name }} <br>
+                <strong>Exam Service:</strong> {{ $exam_data->examservice->examservice_name }} <br>
+               <strong>District:</strong> {{ $district ?? 'N/A' }} | <strong>Center Name:</strong> Alandur (0102	)
             </p>
         </div>
         <table class="report-table">

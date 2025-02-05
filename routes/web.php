@@ -187,7 +187,7 @@ Route::prefix('report')->group(function () {
     // Route::middleware(['auth.multi'])->group(function () {
         Route::get('/attendance-report', [AttendanceReportController::class, 'index'])->name('attendance.report');
         // Route::get('/attendance-pdf', [AttendanceReportController::class, 'generateAttendanceReportOverall'])->name('attendance.pdf');
-        Route::get('/attendance-report-overall', [AttendanceReportController::class, 'generateAttendanceReportOverall'])->name('attendance.report.overall');
+        Route::get('/attendance-report-overall', [AttendanceReportController::class, 'generatecategorysender'])->name('attendance.report.overall');
         Route::get('/expenditure-statment', [Expenditure_StatmentController::class, 'index'])->name('expenditure-statment.report');
         Route::get('/omr-account', [Omr_AccountController::class, 'index'])->name('omr-account.report');
         Route::get('/ci-attendace', [CiMeetingAttendanceController::class, 'index'])->name('ci-attendace.report');

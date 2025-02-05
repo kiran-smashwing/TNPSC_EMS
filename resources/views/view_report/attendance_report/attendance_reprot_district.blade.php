@@ -233,17 +233,18 @@
             <h5>Attendance Report</h5>
         </div>
         <div class="content-section">
-            <p><strong> Notification No:</strong> 10/2024 | <strong> Exam Date: </strong>01-12-2024 | <strong>Exam
-                    Session:</strong> FN<br>
-                <strong>Exam Name:</strong> RASHTRIYA INDIAN MILITARY COLLEGE(JULY-2025 TERM) <br>
-                <strong>Exam Service:</strong> GROUP I SERVICES EXAMINATION <br>
+            <p><strong> Notification No:</strong> {{ $notification_no }} | <strong> Exam Date:
+            </strong>{{ $exam_date }} | <strong>Exam
+                Session:</strong> {{ $session }}<br>
+            <strong>Exam Name:</strong> {{ $exam_data->exam_main_name }} <br>
+            <strong>Exam Service:</strong> {{ $exam_data->examservice->examservice_name }} <br>
+                <strong>District Name:</strong> {{ $district ?? 'N/A' }}
             </p>
         </div>
         <table class="report-table">
             <thead class="table-header">
                 <tr>
                     <th>S.No</th>
-                    <th>District</th>
                     <th>Center Code</th>
                     <th>Center Name</th>
                     <th>Hall Code</th>
@@ -255,19 +256,28 @@
                 </tr>
             </thead>
             <tbody class="table-body">
-                <tr>
-                    <td>1</td>
-                    <td>Chennai</td>
-                    <td>0102</td>
-                    <td>Alandur</td>
-                    <td>001</td>
-                    <td class="left-align">S.M.B.MANICKAM NADAR PACKIATHAMMAL MATRIC. HIGHER SEC.SCHOOL</td>
-                    <td>99</td>
-                    <td>11</td>
-                    <td>812</td>
-                    <td>12.19 %</td>
-                </tr>
-                <!-- Add more rows as needed -->
+                @forelse($session_data as $index => $attendance)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        {{-- <td>{{ $attendance['district_name'] }}</td> --}}
+                        <td>{{ $attendance['center_code'] }}</td>
+                        <td>{{ $attendance['center_name'] }}</td>
+                        <td>{{ $attendance['hall_code'] }}</td>
+                        <td class="left-align">{{ $attendance['hall_name'] }}</td>
+                        <td>{{ $attendance['present'] }}</td>
+                        <td>{{ $attendance['absent'] }}</td>
+                        <td>{{ $attendance['total_candidates'] }}</td>
+                        <td>
+                            {{ $attendance['total_candidates'] > 0
+                                ? number_format(($attendance['present'] / $attendance['total_candidates']) * 100, 2) . '%'
+                                : '0%' }}
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="10">No attendance data available</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
 
@@ -283,14 +293,37 @@
             </tr>
         </thead>
         <tbody class="table-body">
+            @php
+                $totalPresent = 0;
+                $totalAbsent = 0;
+                $totalCandidates = 0;
+            @endphp
+
+            <!-- Loop through the session data and display individual rows -->
+            @foreach ($session_data as $session)
+                @php
+                    $totalPresent += $session['present'];
+                    $totalAbsent += $session['absent'];
+                    $totalCandidates += $session['total_candidates'];
+                @endphp
+            @endforeach
+
+            <!-- Total Row -->
             <tr>
                 <td>Total</td>
-                <td>99</td>
-                <td>11</td>
-                <td>812</td>
-                <td>12.19 %</td>
+                <td>{{ $totalPresent }}</td>
+                <td>{{ $totalAbsent }}</td>
+                <td>{{ $totalCandidates }}</td>
+                <td>
+                    @php
+                        $totalPercentage =
+                            $totalCandidates > 0
+                                ? number_format(($totalPresent / $totalCandidates) * 100, 2) . '%'
+                                : '0%';
+                    @endphp
+                    {{ $totalPercentage }}
+                </td>
             </tr>
-            <!-- Add more rows as needed -->
         </tbody>
     </table>
     

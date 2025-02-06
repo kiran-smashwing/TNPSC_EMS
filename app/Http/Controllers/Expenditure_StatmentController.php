@@ -90,7 +90,7 @@ class Expenditure_StatmentController extends Controller
     {
 
         $data = [];
-        $html = view('PDF.Reports.expenditure-report')->render();
+        $html = view('view_report.expenditure_report.expenditure-report')->render();
         // $html = view('PDF.Reports.ci-utility-certificate')->render();
         $pdf = Browsershot::html($html)
             ->setOption('landscape', false)

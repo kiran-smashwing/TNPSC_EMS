@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Attendance REPORT</title>
+    <title>OMR Account</title>
     <style>
         html,
         body {
@@ -105,7 +105,7 @@
         .report-table td {
             border: 1px solid #ddd;
             padding: 10px;
-            vertical-align: top;
+            vertical-align: center;
         }
 
         .report-table th {
@@ -234,58 +234,49 @@
         </div>
 
         <div class="meeting-title">
-            <h5>Attendance Report</h5>
+            <h5>OMR Reports</h5>
         </div>
         <div class="content-section">
             <p><strong> Notification No:</strong> {{ $notification_no }} | <strong> Exam Date:
                 </strong>{{ $exam_date }} | <strong>Exam
                     Session:</strong> {{ $session }}<br>
-                <strong>Exam Name:</strong> {{ $exam_data->exam_main_name }} <br>
-                <strong>Exam Service:</strong> {{ $exam_data->examservice->examservice_name }} <br>
-                <strong>District:</strong> {{ $district ?? 'N/A' }} | <strong>Center Name:</strong>
-                {{ $center_name ?? 'N/A' }} ({{ $center_code ?? 'N/A' }})
+                <strong>Exam Name:</strong> {{ $exam_data->exam_main_name }}<br>
+                <strong>Exam Service:</strong> {{ $exam_data->examservice->examservice_name }}<br>
+                {{-- <strong>Center Name:</strong> Alandur (0102	) --}}
             </p>
         </div>
         <table class="report-table">
             <thead class="table-header">
                 <tr>
                     <th>S.No</th>
+                    <th>District</th>
+                    <th>Center Name</th>
+                    <th>Center Code</th>
                     <th>Hall Code</th>
-                    <th style="text-align: left">Hall Name</th>
-                    <th>Present</th>
-                    <th>Absent</th>
-                    <th>Allotted</th>
-                    <th>Percentage</th>
+                    <th style="text-align: left">Venue Name</th>
+                    <th>Registration Numbers</th>
+                    <th>Remarks</th>
                 </tr>
             </thead>
             <tbody class="table-body">
-                @forelse($session_data as $index => $attendance)
+                @foreach ($session_data as $index => $data)
                     <tr>
                         <td>{{ $index + 1 }}</td>
-                        {{-- <td>{{ $attendance['district_name'] }}</td> --}}
-                        {{-- <td>{{ $attendance['center_code'] }}</td> --}}
-                        {{-- <td>{{ $attendance['center_name'] }}</td> --}}
-                        <td>{{ $attendance['hall_code'] }}</td>
-                        <td class="left-align">{{ $attendance['hall_name'] }}</td>
-                        <td>{{ $attendance['present'] }}</td>
-                        <td>{{ $attendance['absent'] }}</td>
-                        <td>{{ $attendance['total_candidates'] }}</td>
-                        <td>
-                            {{ $attendance['total_candidates'] > 0
-                                ? number_format(($attendance['present'] / $attendance['total_candidates']) * 100, 2) . '%'
-                                : '0%' }}
-                        </td>
+                        <td>{{ $data['district_name'] }}</td>
+                        <td>{{ $data['center_name'] }}</td>
+                        <td>{{ $data['center_code'] }}</td>
+                        <td>{{ $data['hall_code'] }}</td>
+                        <td class="left-align">{{ $data['hall_name'] }}</td>
+                        <td>{{ $data['registration_numbers'] }}</td>
+                        <td>{{ $data['remarks'] }}</td>
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="10">No attendance data available</td>
-                    </tr>
-                @endforelse
+                @endforeach
             </tbody>
+
         </table>
 
     </div>
-    <table class="report-table">
+    {{-- <table class="report-table">
         <thead class="table-header">
             <tr>
                 <th>Overall</th>
@@ -296,39 +287,16 @@
             </tr>
         </thead>
         <tbody class="table-body">
-            @php
-                $totalPresent = 0;
-                $totalAbsent = 0;
-                $totalCandidates = 0;
-            @endphp
-
-            <!-- Loop through the session data and display individual rows -->
-            @foreach ($session_data as $session)
-                @php
-                    $totalPresent += $session['present'];
-                    $totalAbsent += $session['absent'];
-                    $totalCandidates += $session['total_candidates'];
-                @endphp
-            @endforeach
-
-            <!-- Total Row -->
             <tr>
                 <td>Total</td>
-                <td>{{ $totalPresent }}</td>
-                <td>{{ $totalAbsent }}</td>
-                <td>{{ $totalCandidates }}</td>
-                <td>
-                    @php
-                        $totalPercentage =
-                            $totalCandidates > 0
-                                ? number_format(($totalPresent / $totalCandidates) * 100, 2) . '%'
-                                : '0%';
-                    @endphp
-                    {{ $totalPercentage }}
-                </td>
+                <td>99</td>
+                <td>11</td>
+                <td>812</td>
+                <td>12.19 %</td>
             </tr>
+            <!-- Add more rows as needed -->
         </tbody>
-    </table>
+    </table> --}}
 
 
 

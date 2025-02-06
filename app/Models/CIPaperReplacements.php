@@ -24,5 +24,20 @@ class CIPaperReplacements extends Model
     ];
 
     public $timestamps = true; // This ensures created_at and updated_at are managed
+    
+    public function center()
+    {
+        return $this->belongsTo(Center::class, 'center_code', 'center_code');
+    }
+
+
+    public function district()
+    {
+        return $this->belongsTo(District::class, 'district_id', 'center_district_id');
+    }
+    public function ci()
+    {
+        return $this->belongsTo(ChiefInvigilator::class, 'ci_id', 'ci_id');
+    }
 }
 

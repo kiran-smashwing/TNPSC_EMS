@@ -189,7 +189,9 @@ Route::prefix('report')->group(function () {
         // Route::get('/attendance-pdf', [AttendanceReportController::class, 'generateAttendanceReportOverall'])->name('attendance.pdf');
         Route::get('/attendance-report-overall', [AttendanceReportController::class, 'generatecategorysender'])->name('attendance.report.overall');
         Route::get('/expenditure-statment', [Expenditure_StatmentController::class, 'index'])->name('expenditure-statment.report');
+        // Route::get('/expenditure-statment', [Expenditure_StatmentController::class, 'generateexpenditureReport'])->name('expenditure-pdf.report');
         Route::get('/omr-account', [Omr_AccountController::class, 'index'])->name('omr-account.report');
+        Route::get('/omr-report-overall', [Omr_AccountController::class, 'generateReport'])->name('omr-report.report.overall');
         Route::get('/ci-attendace', [CiMeetingAttendanceController::class, 'index'])->name('ci-attendace.report');
         Route::get('/consolidated-statement', [ConsolidatedStatementController::class, 'index'])->name('consolidated-statement.report');
         Route::get('/candidate-remarks', [CandidateRemarksController::class, 'index'])->name('candidate-remarks.report');

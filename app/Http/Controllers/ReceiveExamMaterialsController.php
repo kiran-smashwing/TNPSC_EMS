@@ -483,9 +483,9 @@ class ReceiveExamMaterialsController extends Controller
             'district_code' => $currentUser->center_district_id,
         ];
 
-        $tasktype = in_array($examMaterials->category, ['D1', 'D2']) 
-        ? 'receive_materials_disitrct_to_center' 
-        : 'receive_bundle_to_center';
+        $tasktype = in_array($examMaterials->category, ['D1', 'D2'])
+            ? 'receive_materials_disitrct_to_center'
+            : 'receive_bundle_to_center';
 
         $examMaterialDetails = [
             'qr_code' => $request->qr_code,
@@ -626,12 +626,27 @@ class ReceiveExamMaterialsController extends Controller
                 ->with('center')
                 ->with('district')
                 ->first();
-            $msg = "This Qr Code belongs to the following District : " . $examMaterials->district->district_name . " , Center : " . $examMaterials->center->center_name . " , Hall Code: " . $examMaterials->hall_code;
+
+            // Check if $examMaterials is still null
+            if (!$examMaterials) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid QR Code. No matching exam materials found.'
+                ], 404);
+            }
+
+            // Construct the error message safely
+            $msg = "This QR Code belongs to the following District: " .
+                ($examMaterials->district->district_name ?? 'Unknown') .
+                ", Center: " . ($examMaterials->center->center_name ?? 'Unknown') .
+                ", Hall Code: " . ($examMaterials->hall_code ?? 'Unknown');
+
             return response()->json([
                 'status' => 'error',
                 'message' => $msg
             ], 404);
         }
+
         // Check if already scanned with a valid timestamp
         $existingScan = ExamMaterialsScan::where([
             'exam_material_id' => $examMaterials->id,
@@ -662,6 +677,74 @@ class ReceiveExamMaterialsController extends Controller
             ]);
         }
 
+        // Prepare metadata
+        $metadata = [
+            'user_name' => $user->display_name ?? 'Unknown',
+            'mobile_team_id' => $user->mobile_id ?? null,
+            'qr_code' => $request->qr_code,
+            'scan_time' => now()->toDateTimeString(),
+        ];
+        $tasktype = in_array($examMaterials->category, ['D1', 'D2']) ? 'receive_materials_to_mobileteam_staff' :
+            'receive_bundle_to_mobileteam_staff';
+
+        // Get current date
+        $scanDate = $examMaterials->exam_date;
+
+        // Retrieve existing audit log
+        $existingLog = $this->auditService->findLog([
+            'exam_id' => $examId,
+            'task_type' => $tasktype,
+            'user_id' => $user->mobile_id
+        ]);
+
+        // Prepare scan details
+        $lastScannedMaterial = [
+            'district' => $examMaterials->district->district_name ?? 'Unknown',
+            'center' => $examMaterials->center->center_name ?? 'Unknown',
+            'hall_code' => $examMaterials->hall_code ?? 'Unknown',
+            'scan_timestamp' => now()->toDateTimeString()
+        ];
+
+        // Ensure `after_state` is an array
+        $afterState = $existingLog ? (is_array($existingLog->after_state) ? $existingLog->after_state : json_decode($existingLog->after_state, true)) : [];
+
+        // Ensure `scans_by_date` is an array
+        $scanHistory = isset($afterState['scans_by_date']) && is_array($afterState['scans_by_date']) ? $afterState['scans_by_date'] : [];
+
+        // Ensure $scanDate is treated as a string
+        $scanDateKey = strval($scanDate);
+
+        // Update scan history for the specific date
+        $scanHistory[$scanDateKey] = [
+            'last_scanned_material' => $lastScannedMaterial,
+            'total_scans' => isset($scanHistory[$scanDateKey]) ? $scanHistory[$scanDateKey]['total_scans'] + 1 : 1
+        ];
+
+        // Prepare updated `after_state`
+        $updatedAfterState = [
+            'scans_by_date' => $scanHistory
+        ];
+
+        // Update or insert log entry
+        if ($existingLog) {
+            $this->auditService->updateLog(
+                logId: $existingLog->id,
+                metadata: $metadata,
+                afterState: $updatedAfterState,
+                description: "Updated scan details for $scanDate. Total scans: {$scanHistory[$scanDateKey]['total_scans']}"
+            );
+        } else {
+            $this->auditService->log(
+                examId: $examId,
+                actionType: 'qr_scan',
+                taskType: $tasktype,
+                beforeState: null,
+                afterState: $updatedAfterState,
+                description: "Initial scan recorded for $scanDate.",
+                metadata: $metadata
+            );
+        }
+
         return response()->json([
             'status' => 'success',
             'message' => 'QR code scanned successfully'
@@ -678,7 +761,7 @@ class ReceiveExamMaterialsController extends Controller
         $user = $guard ? $guard->user() : null;
         $examDate = Carbon::parse($examDate)->format('Y-m-d');
 
-        $query = $role == 'headquarters' && $user->role->role_name == 'Van Duty Staff'
+        $query = $role == 'headquarters' && $user->custom_role == 'VDS'
             ? ExamMaterialsData::where('exam_id', $examId)
                 ->where('district_code', '01')
                 ->where('mobile_team_id', $user->dept_off_id)
@@ -787,7 +870,72 @@ class ReceiveExamMaterialsController extends Controller
                 'mobile_team_scanned_at' => now()
             ]);
         }
+        // Prepare last scanned material details
+        $lastScannedMaterial = [
+            'district' => $examMaterials->district->district_name ?? 'Unknown',
+            'center' => $examMaterials->center->center_name ?? 'Unknown',
+            'hall_code' => $examMaterials->hall_code ?? 'Unknown',
+            'scan_timestamp' => now()->toDateTimeString()
+        ];
 
+        // Prepare metadata
+        $metadata = [
+            'user_name' => $user->display_name ?? 'Unknown',
+            'van_duty_staff_id' => $user->dept_off_id ?? null,
+            'qr_code' => $request->qr_code,
+            'scan_time' => now()->toDateTimeString()
+        ];
+        $tasktype = in_array($examMaterials->category, ['D1', 'D2'])
+            ? 'receive_materials_to_vanduty_staff'
+            : 'receive_bundle_to_vanduty_staff';
+        // Get current date
+        $scanDate = $examMaterials->exam_date;
+
+        // Fetch existing audit log for total scan count
+        $existingLog = $this->auditService->findLog([
+            'exam_id' => $examId,
+            'task_type' => $tasktype,
+            'user_id' => $user->dept_off_id,
+        ]);
+
+        // Ensure `after_state` is an array
+        $afterState = $existingLog ? (is_array($existingLog->after_state) ? $existingLog->after_state : json_decode($existingLog->after_state, true)) : [];
+
+        // Ensure `scans_by_date` is an array
+        $scanHistory = isset($afterState['scans_by_date']) && is_array($afterState['scans_by_date']) ? $afterState['scans_by_date'] : [];
+
+        // Ensure $scanDate is treated as a string
+        $scanDateKey = strval($scanDate);
+
+        // Update scan history for the specific date
+        $scanHistory[$scanDateKey] = [
+            'last_scanned_material' => $lastScannedMaterial,
+            'total_scans' => isset($scanHistory[$scanDateKey]) ? $scanHistory[$scanDateKey]['total_scans'] + 1 : 1
+        ];
+
+        // Prepare updated `after_state`
+        $updatedAfterState = [
+            'scans_by_date' => $scanHistory
+        ];
+
+        if ($existingLog) {
+            $this->auditService->updateLog(
+                logId: $existingLog->id,
+                metadata: $metadata,
+                afterState: $updatedAfterState,
+                description: "Updated scan details for $scanDate. Total scans: {$scanHistory[$scanDateKey]['total_scans']}"
+            );
+        } else {
+            $this->auditService->log(
+                examId: $examId,
+                actionType: 'qr_scan',
+                taskType: $tasktype,
+                beforeState: null,
+                afterState: $updatedAfterState,
+                description: "Initial scan recorded for $scanDate.",
+                metadata: $metadata
+            );
+        }
         return response()->json([
             'status' => 'success',
             'message' => 'QR code scanned successfully'

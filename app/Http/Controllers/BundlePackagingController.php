@@ -88,7 +88,7 @@ class BundlePackagingController extends Controller
                 ->where('mobile_team_id', $user->mobile_id)
                 ->whereDate('exam_date', $examDate)
                 ->whereIn('category', array_keys($categoryLabels));
-        } elseif ($role == 'headquarters' && $user->role->role_name == 'Van Duty Staff') {
+        } elseif ($role == 'headquarters' && $user->custom_role == 'VDS') {
             $query = ExamMaterialsData::where('exam_id', $examId)
                 ->where('district_code', '01')
                 ->where('mobile_team_id', $user->dept_off_id)

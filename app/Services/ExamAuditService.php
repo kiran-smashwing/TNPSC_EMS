@@ -30,7 +30,7 @@ class ExamAuditService
                     $userId = $user->tre_off_id;
                     break;
                 case 'mobile_team_staffs':
-                    $userId = $user->mobile_team_id;
+                    $userId = $user->mobile_id;
                     break;
                 case 'venue':
                     $userId = $user->venue_id;
@@ -56,7 +56,7 @@ class ExamAuditService
             'action_type' => $actionType,
             'task_type' => $taskType,
             'role' => $role,
-            'department' => $role == 'headquarters' ? $user->role->role_department . " -  " . $user->role->role_name : $role,
+            'department' => $role == 'headquarters' ? (($user->role ? ($user->role->role_department . " - " . $user->role->role_name) : ($user->custom_role ?? 'Unknown'))) : $role,
             'before_state' => $beforeState,
             'after_state' => $afterState,
             'description' => $description,

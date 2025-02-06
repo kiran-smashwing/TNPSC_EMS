@@ -24,7 +24,7 @@ class AuditLogger
                     $userId = $user->tre_off_id;
                     break;
                 case 'mobile_team_staffs':
-                    $userId = $user->mobile_team_id;
+                    $userId = $user->mobile_id;
                     break;
                 case 'venue':
                     $userId = $user->venue_id;

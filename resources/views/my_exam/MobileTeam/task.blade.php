@@ -95,9 +95,6 @@
                                                                     <ul
                                                                         class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
                                                                         {{-- <li class="list-unstyled-item"><a href="#" class="link-secondary">1 session</a></li> --}}
-                                                                        {{-- <li class="list-unstyled-item"
-                                                    ><a href="#" class="link-danger"><i class="fas fa-heart"></i> 3</a></li
-                                                  > --}}
                                                                     </ul>
                                                                 </div>
                                                             </div>
@@ -132,14 +129,6 @@
                                                                 <a href="{{ route('current-exam.show', $session->exam_main_id) }}"
                                                                     class="me-2 btn btn-sm btn-light-primary"><i
                                                                         class="feather icon-eye mx-1"></i>View Exam</a>
-                                                                @if (Auth::guard('headquarters')->check() && Auth::guard('headquarters')->user()->role->role_department == 'RND')
-                                                                    <a href="{{ route('current-exam.edit', $session->exam_main_id) }}"
-                                                                        class="me-3 btn btn-sm btn-light-warning"><i
-                                                                            class="feather icon-edit mx-1"></i>Edit Exam</a>
-                                                                @endif
-                                                                {{-- <a href="{{ route('current-exam.edit') }}"
-                                                            class="me-3 btn btn-sm btn-light-warning"><i
-                                                                class="feather icon-edit mx-1"></i>Edit Exam</a> --}}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -150,6 +139,80 @@
                                 @endforeach
                                 {{-- Exam Date Wise Task List --}}
                                 @foreach ($groupedSessions as $date => $sessions)
+                                    @php
+                                        // Determine the most recent task for the date
+                                        $mostRecentTask = null;
+                                        $mostRecentTimestamp = null;
+
+                                        // Check receive materials to mobile team
+                                        if (
+                                            $receiveMaterialsToMobileteam &&
+                                            !empty($receiveMaterialsToMobileteam->after_state)
+                                        ) {
+                                            $afterState = $receiveMaterialsToMobileteam->after_state;
+                                            $examDate = Carbon\Carbon::parse($date)->format('Y-m-d 00:00:00');
+
+                                            if (isset($afterState['scans_by_date'][$examDate])) {
+                                                $mostRecentTask = $receiveMaterialsToMobileteam;
+                                                $mostRecentTimestamp = Carbon\Carbon::parse(
+                                                    $afterState['scans_by_date'][$examDate]['last_scanned_material'][
+                                                        'scan_timestamp'
+                                                    ],
+                                                );
+                                            }
+                                        }
+
+                                        // Check receive bundle to mobile team
+                                        if (
+                                            $receiveBundleToMobileteam &&
+                                            !empty($receiveBundleToMobileteam->after_state)
+                                        ) {
+                                            $afterState = $receiveBundleToMobileteam->after_state;
+                                            $examDate = Carbon\Carbon::parse($date)->format('Y-m-d 00:00:00');
+
+                                            if (isset($afterState['scans_by_date'][$examDate])) {
+                                                $bundleTimestamp = Carbon\Carbon::parse(
+                                                    $afterState['scans_by_date'][$examDate]['last_scanned_material'][
+                                                        'scan_timestamp'
+                                                    ],
+                                                );
+
+                                                if (
+                                                    !$mostRecentTask ||
+                                                    $bundleTimestamp->isAfter($mostRecentTimestamp)
+                                                ) {
+                                                    $mostRecentTask = $receiveBundleToMobileteam;
+                                                    $mostRecentTimestamp = $bundleTimestamp;
+                                                }
+                                            }
+                                        }
+
+                                        // Determine user and profile image
+                                        $headerUser = null;
+                                        $headerProfileImage = asset('storage/assets/images/user/avatar-10.jpg'); // Default image
+
+                                        if ($mostRecentTask) {
+                                            $metadata = is_string($mostRecentTask->metadata)
+                                                ? json_decode($mostRecentTask->metadata)
+                                                : (object) $mostRecentTask->metadata;
+
+                                            if (session('auth_role') == 'headquarters') {
+                                                $headerUser = App\Models\DepartmentOfficial::find(
+                                                    $mostRecentTask->user_id,
+                                                );
+                                            } else {
+                                                $headerUser = App\Models\MobileTeamStaffs::find(
+                                                    $mostRecentTask->user_id,
+                                                );
+                                            }
+
+                                            // Update profile image if user exists and has a profile image
+                                            if ($headerUser && !empty($headerUser->profile_image)) {
+                                                $headerProfileImage = asset('storage/' . $headerUser->profile_image);
+                                            }
+                                        }
+                                    @endphp
+
                                     <li class="task-list-item">
                                         <i class="task-icon bg-danger"></i>
                                         <div class="card ticket-card open-ticket">
@@ -158,217 +221,236 @@
                                                     <div class="col-sm-auto mb-3 mb-sm-0">
                                                         <div class="d-sm-inline-block d-flex align-items-center">
                                                             <img class="media-object wid-60 img-radius"
-                                                                src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                                alt="Generic placeholder image " />
+                                                                src="{{ $headerProfileImage }}" alt="User profile image" />
                                                             <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                                 <ul
                                                                     class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
+                                                                    {{-- Optional additional user info --}}
                                                                 </ul>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div class="col">
                                                         <div class="popup-trigger">
-                                                            <div class="h5 font-weight-bold">{{ $date }}<small
-                                                                    class="badge bg-light-secondary ms-2">completed</small>
+                                                            <div class="h5 font-weight-bold">
+                                                                {{ $date }}
+                                                                <small class="badge bg-light-secondary ms-2">
+                                                                    {{ $mostRecentTask ? 'Completed' : 'Pending' }}
+                                                                </small>
                                                             </div>
                                                             <div class="help-sm-hidden">
                                                                 <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                    src="../assets/images/admin/p1.jpg" alt=""
-                                                                    class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                            </li> --}}
-                                                                    <li class="d-sm-inline-block d-block mt-1"><img
-                                                                            src="../assets/images/user/avatar-5.jpg"
+                                                                    <li class="d-sm-inline-block d-block mt-1">
+                                                                        <img src="../assets/images/user/avatar-5.jpg"
                                                                             alt=""
-                                                                            class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                        <b>Chezhiyan</b>
+                                                                            class="wid-20 rounded me-2 img-fluid" />
+                                                                        Done by
+                                                                        <b>
+                                                                            {{ $mostRecentTask ? $metadata->user_name ?? 'Unknown' : 'No user' }}
+                                                                        </b>
                                                                     </li>
-                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                    <li class="d-sm-inline-block d-block mt-1">
+                                                                        <i
                                                                             class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                        28-07-2024 09:30 AM</li>
-                                                                    {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                    class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                            </li> --}}
+                                                                        {{ $mostRecentTimestamp ? $mostRecentTimestamp->format('d-m-Y h:i A') : 'Pending' }}
+                                                                    </li>
                                                                 </ul>
                                                             </div>
-
                                                         </div>
-
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <ul class="list-unstyled task-list">
-                                            @if (session('auth_role') == 'headquarters')
-                                                <li class="task-list-item">
-                                                    <i class="task-icon bg-danger"></i>
-                                                    <div class="card ticket-card open-ticket">
-                                                        <div class="card-body">
-                                                            <div class="row">
-                                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                                    <div
-                                                                        class="d-sm-inline-block d-flex align-items-center">
-                                                                        <img class="media-object wid-60 img-radius"
-                                                                            src="{{ asset('storage/assets/images/user/avatar-1.jpg') }}"
-                                                                            alt="Generic placeholder image " />
-                                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                                            <ul
-                                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                                    class="link-secondary">1 Ticket</a></li>
-                                                                            <li class="list-unstyled-item"><a href="#"
-                                                                                    class="link-danger"><i class="fas fa-heart"></i>
-                                                                                    3</a></li> --}}
-                                                                            </ul>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col">
-                                                                    <div class="popup-trigger">
-                                                                        <div class="h5 font-weight-bold">Receive Materials
-                                                                            From
-                                                                            Treasury<small
-                                                                                class="badge bg-light-secondary ms-2">received</small>
-                                                                        </div>
-                                                                        <div class="help-sm-hidden">
-                                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                                    src="../assets/images/admin/p1.jpg" alt=""
-                                                                                    class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                            </li> --}}
-                                                                                <li class="d-sm-inline-block d-block mt-1">
-                                                                                    <img src="../assets/images/user/avatar-5.jpg"
-                                                                                        alt=""
-                                                                                        class="wid-20 rounded me-2 img-fluid" />Done
-                                                                                    by
-                                                                                    <b>Prabakaran</b>
-                                                                                </li>
-                                                                                <li class="d-sm-inline-block d-block mt-1">
-                                                                                    <i
-                                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                                    27-07-2024 02:32 PM
-                                                                                </li>
-                                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                                    class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                            </li> --}}
-                                                                            </ul>
-                                                                        </div>
-                                                                        <div class="h5 mt-3"><i
-                                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                            HQ - Van Duty Staff</div>
-                                                                    </div>
-                                                                    <div class="mt-2">
-                                                                        <a href="{{ route('receive-exam-materials.headquarters-to-vanduty', ['examId' => $session->exam_main_no, 'examDate' => $date]) }}"
-                                                                            class="me-2 btn btn-sm btn-light-primary"><i
-                                                                                class="feather icon-info mx-1"></i>Verify
-                                                                        </a>
-                                                                        <a href="helpdesk-ticket-details.html"
-                                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                                class="feather icon-map mx-1"></i>View
-                                                                            Route</a>
+                                            @php
+                                                // Parse the exam session date
+                                                $examDate = Carbon\Carbon::parse($date)->format('Y-m-d 00:00:00');
+                                                // Get the scan data from after_state
 
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                            @endif
-                                            @if (session('auth_role') == 'mobile_team_staffs')
-                                                <li class="task-list-item">
-                                                    <i class="task-icon bg-danger"></i>
-                                                    <div class="card ticket-card open-ticket">
-                                                        <div class="card-body">
-                                                            <div class="row">
-                                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                                    <div
-                                                                        class="d-sm-inline-block d-flex align-items-center">
-                                                                        <img class="media-object wid-60 img-radius"
-                                                                            src="{{ asset('storage/assets/images/user/avatar-10.jpg') }}"
-                                                                            alt="Generic placeholder image " />
-                                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                                            <ul
-                                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                                    class="link-secondary">1 Ticket</a></li>
-                                                                            <li class="list-unstyled-item"><a href="#"
-                                                                                    class="link-danger"><i class="fas fa-heart"></i>
-                                                                                    3</a></li> --}}
-                                                                            </ul>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col">
-                                                                    <div class="popup-trigger">
-                                                                        <div class="h5 font-weight-bold">Receive Materials
-                                                                            From
-                                                                            Sub
-                                                                            Treasury<small
-                                                                                class="badge bg-light-secondary ms-2">received</small>
-                                                                        </div>
-                                                                        <div class="help-sm-hidden">
-                                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                                    src="../assets/images/admin/p1.jpg" alt=""
-                                                                                    class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                            </li> --}}
-                                                                                <li class="d-sm-inline-block d-block mt-1">
-                                                                                    <img src="../assets/images/user/avatar-5.jpg"
-                                                                                        alt=""
-                                                                                        class="wid-20 rounded me-2 img-fluid" />Done
-                                                                                    by
-                                                                                    <b>Iniya</b>
-                                                                                </li>
-                                                                                <li class="d-sm-inline-block d-block mt-1">
-                                                                                    <i
-                                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                                    27-07-2024 02:32 PM</li>
-                                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                                    class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                            </li> --}}
-                                                                            </ul>
-                                                                        </div>
-                                                                        <div class="h5 mt-3"><i
-                                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                            DC - Mobile Team</div>
-                                                                    </div>
-                                                                    <div class="mt-2">
-                                                                        <a href="{{ route('receive-exam-materials.sub-treasury-to-mobile-team', ['examId' => $session->exam_main_no, 'examDate' => $date]) }}"
-                                                                            class="me-2 btn btn-sm btn-light-primary"><i
-                                                                                class="feather icon-info mx-1"></i>Verify
-                                                                        </a>
-                                                                        <a href="helpdesk-ticket-details.html"
-                                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                                class="feather icon-map mx-1"></i>View
-                                                                            Route</a>
+                                                $metadata = null;
+                                                $scanData = null;
+                                                $is_received_to_mobileteam = false;
+                                                if ($receiveMaterialsToMobileteam !== null) {
+                                                    $metadata = is_string($receiveMaterialsToMobileteam->metadata)
+                                                        ? json_decode($receiveMaterialsToMobileteam->metadata)
+                                                        : (object) $receiveMaterialsToMobileteam->metadata;
+                                                    $receiveMaterialsToMobileteam = (object) $receiveMaterialsToMobileteam;
+                                                }
+                                                if (
+                                                    $receiveMaterialsToMobileteam &&
+                                                    !empty($receiveMaterialsToMobileteam->after_state)
+                                                ) {
+                                                    $afterState = $receiveMaterialsToMobileteam->after_state;
 
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                            @endif
+                                                    if (isset($afterState['scans_by_date'][$examDate])) {
+                                                        $scanData = $afterState['scans_by_date'][$examDate];
+                                                        $is_received_to_mobileteam = true;
+                                                    }
+                                                }
+
+                                                if (session('auth_role') == 'headquarters') {
+                                                    $user = $is_received_to_mobileteam
+                                                        ? App\Models\DepartmentOfficial::find(
+                                                            $receiveMaterialsToMobileteam->user_id,
+                                                        )
+                                                        : null;
+                                                } else {
+                                                    $user = $is_received_to_mobileteam
+                                                        ? App\Models\MobileTeamStaffs::find(
+                                                            $receiveMaterialsToMobileteam->user_id,
+                                                        )
+                                                        : null;
+                                                }
+                                                $profileImage =
+                                                    $user && !empty($user->profile_image)
+                                                        ? asset('storage/' . $user->profile_image)
+                                                        : asset('storage/assets/images/user/avatar-10.jpg');
+                                                // Set dynamic badge text and color
+                                                $uploadStatus = $is_received_to_mobileteam ? 'Received' : 'Pending';
+                                                $badgeClass = $is_received_to_mobileteam
+                                                    ? 'bg-light-secondary'
+                                                    : 'bg-danger';
+                                            @endphp
                                             <li class="task-list-item">
-                                                <i class="task-icon bg-danger"></i>
+                                                <i
+                                                    class="task-icon {{ $is_received_to_mobileteam ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                                 <div class="card ticket-card open-ticket">
                                                     <div class="card-body">
                                                         <div class="row">
                                                             <div class="col-sm-auto mb-3 mb-sm-0">
                                                                 <div class="d-sm-inline-block d-flex align-items-center">
-                                                                    <img class="media-object wid-60 img-radius"
-                                                                        src="{{ asset('storage/assets/images/user/avatar-10.jpg') }}"
+                                                                    <img loading="lazy"
+                                                                        class="media-object wid-60 img-radius"
+                                                                        src="{{ $profileImage }}"
                                                                         alt="Generic placeholder image " />
                                                                     <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                                         <ul
                                                                             class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                            {{-- <li class="list-unstyled-item"><a href="#"
-                                                                                    class="link-secondary">1 Ticket</a></li>
-                                                                            <li class="list-unstyled-item"><a href="#"
-                                                                                    class="link-danger"><i class="fas fa-heart"></i>
-                                                                                    3</a></li> --}}
+                                                                        </ul>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col">
+                                                                <div class="popup-trigger">
+                                                                    <div class="h5 font-weight-bold">Receive Materials
+                                                                        From
+                                                                        {{ $session->exam_main_model == 'Major' && session('auth_role') == 'mobile_team_staffs' ? 'Sub Treasury' : 'Treasury' }}
+                                                                        <small
+                                                                            class="badge {{ $badgeClass }} ms-2">{{ $uploadStatus }}</small>
+                                                                    </div>
+                                                                    <div class="help-sm-hidden">
+                                                                        <ul class="list-unstyled mt-2 mb-0 text-muted">
+
+                                                                            <li class="d-sm-inline-block d-block mt-1">
+                                                                                <img src="../assets/images/user/avatar-5.jpg"
+                                                                                    alt=""
+                                                                                    class="wid-20 rounded me-2 img-fluid" />Done
+                                                                                by
+                                                                                <b>{{ $is_received_to_mobileteam ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
+                                                                            </li>
+                                                                            <li class="d-sm-inline-block d-block mt-1">
+                                                                                <i
+                                                                                    class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                                @if ($is_received_to_mobileteam)
+                                                                                    {{ Carbon\Carbon::parse($scanData['last_scanned_material']['scan_timestamp'])->format('d-m-Y h:i A') }}
+                                                                                @else
+                                                                                    Pending
+                                                                                @endif
+                                                                            </li>
+                                                                        </ul>
+                                                                    </div>
+                                                                    <div class="h5 mt-3">
+                                                                        <i
+                                                                            class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                        {{ session('auth_role') == 'mobile_team_staffs' ? 'DC - Mobile Team' : 'HQ - Van Duty Staff' }}
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mt-2">
+
+                                                                    @if (session('auth_role') == 'headquarters')
+                                                                        <a href="{{ route('receive-exam-materials.headquarters-to-vanduty', ['examId' => $session->exam_main_no, 'examDate' => $date]) }}"
+                                                                            class="me-2 btn btn-sm btn-light-primary"><i
+                                                                                class="feather icon-info mx-1"></i>Verify
+                                                                        </a>
+                                                                    @else
+                                                                        <a href="{{ route('receive-exam-materials.sub-treasury-to-mobile-team', ['examId' => $session->exam_main_no, 'examDate' => $date]) }}"
+                                                                            class="me-2 btn btn-sm btn-light-primary"><i
+                                                                                class="feather icon-info mx-1"></i>Verify
+                                                                        </a>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            @php
+                                                // Parse the exam session date
+                                                $examDate = Carbon\Carbon::parse($date)->format('Y-m-d 00:00:00');
+                                                // Get the scan data from after_state
+
+                                                $metadata = null;
+                                                $scanData = null;
+                                                $is_received_bundle_to_mobileteam = false;
+                                                if ($receiveBundleToMobileteam !== null) {
+                                                    $metadata = is_string($receiveBundleToMobileteam->metadata)
+                                                        ? json_decode($receiveBundleToMobileteam->metadata)
+                                                        : (object) $receiveBundleToMobileteam->metadata;
+                                                    $receiveBundleToMobileteam = (object) $receiveBundleToMobileteam;
+                                                }
+                                                if (
+                                                    $receiveBundleToMobileteam &&
+                                                    !empty($receiveBundleToMobileteam->after_state)
+                                                ) {
+                                                    $afterState = $receiveBundleToMobileteam->after_state;
+
+                                                    if (isset($afterState['scans_by_date'][$examDate])) {
+                                                        $scanData = $afterState['scans_by_date'][$examDate];
+                                                        $is_received_bundle_to_mobileteam = true;
+                                                    }
+                                                }
+
+                                                if (session('auth_role') == 'headquarters') {
+                                                    $user = $is_received_bundle_to_mobileteam
+                                                        ? App\Models\DepartmentOfficial::find(
+                                                            $receiveBundleToMobileteam->user_id,
+                                                        )
+                                                        : null;
+                                                } else {
+                                                    $user = $is_received_bundle_to_mobileteam
+                                                        ? App\Models\MobileTeamStaffs::find(
+                                                            $receiveBundleToMobileteam->user_id,
+                                                        )
+                                                        : null;
+                                                }
+
+                                                $profileImage =
+                                                    $user && !empty($user->profile_image)
+                                                        ? asset('storage/' . $user->profile_image)
+                                                        : asset('storage/assets/images/user/avatar-10.jpg');
+                                                // Set dynamic badge text and color
+                                                $uploadStatus = $is_received_bundle_to_mobileteam
+                                                    ? 'Received'
+                                                    : 'Pending';
+                                                $badgeClass = $is_received_bundle_to_mobileteam
+                                                    ? 'bg-light-secondary'
+                                                    : 'bg-danger';
+                                            @endphp
+                                            <li class="task-list-item">
+                                                <i
+                                                    class="task-icon {{ $is_received_bundle_to_mobileteam ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
+                                                <div class="card ticket-card open-ticket">
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="col-sm-auto mb-3 mb-sm-0">
+                                                                <div class="d-sm-inline-block d-flex align-items-center">
+                                                                    <img loading="lazy"
+                                                                        class="media-object wid-60 img-radius"
+                                                                        src="{{ $profileImage }}"
+                                                                        alt="Generic placeholder image " />
+                                                                    <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
+                                                                        <ul
+                                                                            class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
                                                                         </ul>
                                                                     </div>
                                                                 </div>
@@ -377,42 +459,40 @@
                                                                 <div class="popup-trigger">
                                                                     <div class="h5 font-weight-bold">Receive Materials From
                                                                         Cheif
-                                                                        Invigilator<small
-                                                                            class="badge bg-light-secondary ms-2">received</small>
+                                                                        Invigilator
+                                                                        <small
+                                                                            class="badge {{ $badgeClass }} ms-2">{{ $uploadStatus }}</small>
                                                                     </div>
                                                                     <div class="help-sm-hidden">
                                                                         <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                            {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                                    src="../assets/images/admin/p1.jpg" alt=""
-                                                                                    class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                            </li> --}}
+
                                                                             <li class="d-sm-inline-block d-block mt-1"><img
                                                                                     src="../assets/images/user/avatar-5.jpg"
                                                                                     alt=""
                                                                                     class="wid-20 rounded me-2 img-fluid" />Done
                                                                                 by
-                                                                                <b>Iniya</b>
+                                                                                <b>{{ $is_received_bundle_to_mobileteam ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
                                                                             </li>
-                                                                            <li class="d-sm-inline-block d-block mt-1"><i
+                                                                            <li class="d-sm-inline-block d-block mt-1">
+                                                                                <i
                                                                                     class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                                27-07-2024 02:32 PM</li>
-                                                                            {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                                    class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                            </li> --}}
+                                                                                @if ($is_received_bundle_to_mobileteam)
+                                                                                    {{ Carbon\Carbon::parse($scanData['last_scanned_material']['scan_timestamp'])->format('d-m-Y h:i A') }}
+                                                                                @else
+                                                                                    Pending
+                                                                                @endif
+                                                                            </li>
                                                                         </ul>
                                                                     </div>
                                                                     <div class="h5 mt-3"><i
                                                                             class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                       {{session('auth_role') == 'mobile_team_staffs' ? 'DC - Mobile Team' : 'HQ - Van Duty Staff'}}</div>
+                                                                        {{ session('auth_role') == 'mobile_team_staffs' ? 'DC - Mobile Team' : 'HQ - Van Duty Staff' }}
+                                                                    </div>
                                                                 </div>
                                                                 <div class="mt-2">
                                                                     <a href="{{ route('bundle-packaging.ci-to-mobileteam', ['examId' => $session->exam_main_no, 'examDate' => $date]) }}"
                                                                         class="me-2 btn btn-sm btn-light-primary"><i
                                                                             class="feather icon-info mx-1"></i>Verify </a>
-                                                                    <a href="helpdesk-ticket-details.html"
-                                                                        class="me-2 btn btn-sm btn-light-info"><i
-                                                                            class="feather icon-map mx-1"></i>View
-                                                                        Route</a>
                                                                 </div>
                                                             </div>
                                                         </div>

@@ -595,12 +595,15 @@ class MyExamController extends Controller
             abort(404, 'Exam not found');
         }
         // Group exam sessions by date
-        $groupedSessions = $session->examsession->groupBy(function ($item) {
-            return Carbon::parse($item->exam_sess_date)->format('d-m-Y');
-        });
+        $groupedSessions = $session->examsession
+            ->groupBy(function ($item) {
+                return Carbon::parse($item->exam_sess_date)->format('d-m-Y');
+            })
+            ->sortBy(function ($sessions, $date) {
+                return Carbon::parse($date)->format('d-m-Y');
+            });
         $role = session('auth_role');
         $user = current_user();
-        // dd($user);
         // Fetch the audit details for the exam
         $auditDetails = DB::table('exam_audit_logs')
             ->where('exam_id', $examId)
@@ -618,7 +621,7 @@ class MyExamController extends Controller
                 ->where('user_id', $user->mobile_id)
                 ->first();
         }
-        if($role == 'headquarters'){
+        if ($role == 'headquarters') {
             $receiveMaterialsToMobileteam = ExamAuditLog::where('exam_id', $examId)
                 ->where('task_type', 'receive_materials_to_vanduty_staff')
                 ->where('user_id', $user->dept_off_id)
@@ -628,6 +631,6 @@ class MyExamController extends Controller
                 ->where('user_id', $user->dept_off_id)
                 ->first();
         }
-        return view('my_exam.MobileTeam.task', compact('auditDetails', 'session', 'groupedSessions','receiveMaterialsToMobileteam','receiveBundleToMobileteam'));
+        return view('my_exam.MobileTeam.task', compact('auditDetails', 'session', 'groupedSessions', 'receiveMaterialsToMobileteam', 'receiveBundleToMobileteam'));
     }
 }

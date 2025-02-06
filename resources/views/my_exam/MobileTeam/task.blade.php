@@ -139,6 +139,80 @@
                                 @endforeach
                                 {{-- Exam Date Wise Task List --}}
                                 @foreach ($groupedSessions as $date => $sessions)
+                                    @php
+                                        // Determine the most recent task for the date
+                                        $mostRecentTask = null;
+                                        $mostRecentTimestamp = null;
+
+                                        // Check receive materials to mobile team
+                                        if (
+                                            $receiveMaterialsToMobileteam &&
+                                            !empty($receiveMaterialsToMobileteam->after_state)
+                                        ) {
+                                            $afterState = $receiveMaterialsToMobileteam->after_state;
+                                            $examDate = Carbon\Carbon::parse($date)->format('Y-m-d 00:00:00');
+
+                                            if (isset($afterState['scans_by_date'][$examDate])) {
+                                                $mostRecentTask = $receiveMaterialsToMobileteam;
+                                                $mostRecentTimestamp = Carbon\Carbon::parse(
+                                                    $afterState['scans_by_date'][$examDate]['last_scanned_material'][
+                                                        'scan_timestamp'
+                                                    ],
+                                                );
+                                            }
+                                        }
+
+                                        // Check receive bundle to mobile team
+                                        if (
+                                            $receiveBundleToMobileteam &&
+                                            !empty($receiveBundleToMobileteam->after_state)
+                                        ) {
+                                            $afterState = $receiveBundleToMobileteam->after_state;
+                                            $examDate = Carbon\Carbon::parse($date)->format('Y-m-d 00:00:00');
+
+                                            if (isset($afterState['scans_by_date'][$examDate])) {
+                                                $bundleTimestamp = Carbon\Carbon::parse(
+                                                    $afterState['scans_by_date'][$examDate]['last_scanned_material'][
+                                                        'scan_timestamp'
+                                                    ],
+                                                );
+
+                                                if (
+                                                    !$mostRecentTask ||
+                                                    $bundleTimestamp->isAfter($mostRecentTimestamp)
+                                                ) {
+                                                    $mostRecentTask = $receiveBundleToMobileteam;
+                                                    $mostRecentTimestamp = $bundleTimestamp;
+                                                }
+                                            }
+                                        }
+
+                                        // Determine user and profile image
+                                        $headerUser = null;
+                                        $headerProfileImage = asset('storage/assets/images/user/avatar-10.jpg'); // Default image
+
+                                        if ($mostRecentTask) {
+                                            $metadata = is_string($mostRecentTask->metadata)
+                                                ? json_decode($mostRecentTask->metadata)
+                                                : (object) $mostRecentTask->metadata;
+
+                                            if (session('auth_role') == 'headquarters') {
+                                                $headerUser = App\Models\DepartmentOfficial::find(
+                                                    $mostRecentTask->user_id,
+                                                );
+                                            } else {
+                                                $headerUser = App\Models\MobileTeamStaffs::find(
+                                                    $mostRecentTask->user_id,
+                                                );
+                                            }
+
+                                            // Update profile image if user exists and has a profile image
+                                            if ($headerUser && !empty($headerUser->profile_image)) {
+                                                $headerProfileImage = asset('storage/' . $headerUser->profile_image);
+                                            }
+                                        }
+                                    @endphp
+
                                     <li class="task-list-item">
                                         <i class="task-icon bg-danger"></i>
                                         <div class="card ticket-card open-ticket">
@@ -147,53 +221,73 @@
                                                     <div class="col-sm-auto mb-3 mb-sm-0">
                                                         <div class="d-sm-inline-block d-flex align-items-center">
                                                             <img class="media-object wid-60 img-radius"
-                                                                src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                                alt="Generic placeholder image " />
+                                                                src="{{ $headerProfileImage }}" alt="User profile image" />
                                                             <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                                 <ul
                                                                     class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
+                                                                    {{-- Optional additional user info --}}
                                                                 </ul>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div class="col">
                                                         <div class="popup-trigger">
-                                                            <div class="h5 font-weight-bold">{{ $date }}<small
-                                                                    class="badge bg-light-secondary ms-2">completed</small>
+                                                            <div class="h5 font-weight-bold">
+                                                                {{ $date }}
+                                                                <small class="badge bg-light-secondary ms-2">
+                                                                    {{ $mostRecentTask ? 'Completed' : 'Pending' }}
+                                                                </small>
                                                             </div>
                                                             <div class="help-sm-hidden">
                                                                 <ul class="list-unstyled mt-2 mb-0 text-muted">
-
-                                                                    <li class="d-sm-inline-block d-block mt-1"><img
-                                                                            src="../assets/images/user/avatar-5.jpg"
+                                                                    <li class="d-sm-inline-block d-block mt-1">
+                                                                        <img src="../assets/images/user/avatar-5.jpg"
                                                                             alt=""
-                                                                            class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                        <b>Chezhiyan</b>
+                                                                            class="wid-20 rounded me-2 img-fluid" />
+                                                                        Done by
+                                                                        <b>
+                                                                            {{ $mostRecentTask ? $metadata->user_name ?? 'Unknown' : 'No user' }}
+                                                                        </b>
                                                                     </li>
-                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                    <li class="d-sm-inline-block d-block mt-1">
+                                                                        <i
                                                                             class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                        28-07-2024 09:30 AM</li>
+                                                                        {{ $mostRecentTimestamp ? $mostRecentTimestamp->format('d-m-Y h:i A') : 'Pending' }}
+                                                                    </li>
                                                                 </ul>
                                                             </div>
-
                                                         </div>
-
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <ul class="list-unstyled task-list">
-
                                             @php
-                                                $is_received_to_mobileteam = $receiveMaterialsToMobileteam !== null;
+                                                // Parse the exam session date
+                                                $examDate = Carbon\Carbon::parse($date)->format('Y-m-d 00:00:00');
+                                                // Get the scan data from after_state
+
                                                 $metadata = null;
+                                                $scanData = null;
+                                                $is_received_to_mobileteam = false;
                                                 if ($receiveMaterialsToMobileteam !== null) {
                                                     $metadata = is_string($receiveMaterialsToMobileteam->metadata)
                                                         ? json_decode($receiveMaterialsToMobileteam->metadata)
                                                         : (object) $receiveMaterialsToMobileteam->metadata;
                                                     $receiveMaterialsToMobileteam = (object) $receiveMaterialsToMobileteam;
                                                 }
+                                                if (
+                                                    $receiveMaterialsToMobileteam &&
+                                                    !empty($receiveMaterialsToMobileteam->after_state)
+                                                ) {
+                                                    $afterState = $receiveMaterialsToMobileteam->after_state;
+
+                                                    if (isset($afterState['scans_by_date'][$examDate])) {
+                                                        $scanData = $afterState['scans_by_date'][$examDate];
+                                                        $is_received_to_mobileteam = true;
+                                                    }
+                                                }
+
                                                 if (session('auth_role') == 'headquarters') {
                                                     $user = $is_received_to_mobileteam
                                                         ? App\Models\DepartmentOfficial::find(
@@ -257,7 +351,11 @@
                                                                             <li class="d-sm-inline-block d-block mt-1">
                                                                                 <i
                                                                                     class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                                {{ $is_received_to_mobileteam ? \Carbon\Carbon::parse($receiveMaterialsToMobileteam->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                                @if ($is_received_to_mobileteam)
+                                                                                    {{ Carbon\Carbon::parse($scanData['last_scanned_material']['scan_timestamp'])->format('d-m-Y h:i A') }}
+                                                                                @else
+                                                                                    Pending
+                                                                                @endif
                                                                             </li>
                                                                         </ul>
                                                                     </div>
@@ -287,14 +385,31 @@
                                                 </div>
                                             </li>
                                             @php
-                                                $is_received_bundle_to_mobileteam = $receiveBundleToMobileteam !== null;
+                                                // Parse the exam session date
+                                                $examDate = Carbon\Carbon::parse($date)->format('Y-m-d 00:00:00');
+                                                // Get the scan data from after_state
+
                                                 $metadata = null;
+                                                $scanData = null;
+                                                $is_received_bundle_to_mobileteam = false;
                                                 if ($receiveBundleToMobileteam !== null) {
                                                     $metadata = is_string($receiveBundleToMobileteam->metadata)
                                                         ? json_decode($receiveBundleToMobileteam->metadata)
                                                         : (object) $receiveBundleToMobileteam->metadata;
                                                     $receiveBundleToMobileteam = (object) $receiveBundleToMobileteam;
                                                 }
+                                                if (
+                                                    $receiveBundleToMobileteam &&
+                                                    !empty($receiveBundleToMobileteam->after_state)
+                                                ) {
+                                                    $afterState = $receiveBundleToMobileteam->after_state;
+
+                                                    if (isset($afterState['scans_by_date'][$examDate])) {
+                                                        $scanData = $afterState['scans_by_date'][$examDate];
+                                                        $is_received_bundle_to_mobileteam = true;
+                                                    }
+                                                }
+
                                                 if (session('auth_role') == 'headquarters') {
                                                     $user = $is_received_bundle_to_mobileteam
                                                         ? App\Models\DepartmentOfficial::find(
@@ -361,7 +476,11 @@
                                                                             <li class="d-sm-inline-block d-block mt-1">
                                                                                 <i
                                                                                     class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                                {{ $is_received_bundle_to_mobileteam ? \Carbon\Carbon::parse($receiveBundleToMobileteam->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                                @if ($is_received_bundle_to_mobileteam)
+                                                                                    {{ Carbon\Carbon::parse($scanData['last_scanned_material']['scan_timestamp'])->format('d-m-Y h:i A') }}
+                                                                                @else
+                                                                                    Pending
+                                                                                @endif
                                                                             </li>
                                                                         </ul>
                                                                     </div>

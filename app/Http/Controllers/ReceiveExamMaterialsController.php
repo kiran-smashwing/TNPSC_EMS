@@ -677,48 +677,61 @@ class ReceiveExamMaterialsController extends Controller
             ]);
         }
 
-        // Prepare last scanned material details
-        $lastScannedMaterial = [
-            'district' => $examMaterials->district->district_name,
-            'center' => $examMaterials->center->center_name,
-            'hall_code' => $examMaterials->hall_code,
-            'scan_timestamp' => now()->toDateTimeString()
-        ];
-
         // Prepare metadata
         $metadata = [
             'user_name' => $user->display_name ?? 'Unknown',
             'mobile_team_id' => $user->mobile_id ?? null,
             'qr_code' => $request->qr_code,
             'scan_time' => now()->toDateTimeString(),
-            'scan_date' => now()->format('Y-m-d') // Add scan date
         ];
+        $tasktype = in_array($examMaterials->category, ['D1', 'D2']) ? 'receive_materials_to_mobileteam_staff' :
+            'receive_bundle_to_mobileteam_staff';
 
+        // Get current date
+        $scanDate = $examMaterials->exam_date;
 
-        $tasktype = in_array($examMaterials->category, ['D1', 'D2'])
-            ? 'receive_materials_to_mobileteam_staff'
-            : 'receive_bundle_to_mobileteam_staff';
-        // Fetch existing audit log for the specific date
+        // Retrieve existing audit log
         $existingLog = $this->auditService->findLog([
             'exam_id' => $examId,
             'task_type' => $tasktype,
-            'user_id' => $user->mobile_id,
-            'date' => now()->format('Y-m-d') // Add date condition
+            'user_id' => $user->mobile_id
         ]);
 
-        // Determine total scan count
-        $totalScans = $existingLog ? ($existingLog->after_state['total_scans'] ?? 0) + 1 : 1;
+        // Prepare scan details
+        $lastScannedMaterial = [
+            'district' => $examMaterials->district->district_name ?? 'Unknown',
+            'center' => $examMaterials->center->center_name ?? 'Unknown',
+            'hall_code' => $examMaterials->hall_code ?? 'Unknown',
+            'scan_timestamp' => now()->toDateTimeString()
+        ];
 
+        // Ensure `after_state` is an array
+        $afterState = $existingLog ? (is_array($existingLog->after_state) ? $existingLog->after_state : json_decode($existingLog->after_state, true)) : [];
+
+        // Ensure `scans_by_date` is an array
+        $scanHistory = isset($afterState['scans_by_date']) && is_array($afterState['scans_by_date']) ? $afterState['scans_by_date'] : [];
+
+        // Ensure $scanDate is treated as a string
+        $scanDateKey = strval($scanDate);
+
+        // Update scan history for the specific date
+        $scanHistory[$scanDateKey] = [
+            'last_scanned_material' => $lastScannedMaterial,
+            'total_scans' => isset($scanHistory[$scanDateKey]) ? $scanHistory[$scanDateKey]['total_scans'] + 1 : 1
+        ];
+
+        // Prepare updated `after_state`
+        $updatedAfterState = [
+            'scans_by_date' => $scanHistory
+        ];
+
+        // Update or insert log entry
         if ($existingLog) {
             $this->auditService->updateLog(
                 logId: $existingLog->id,
                 metadata: $metadata,
-                afterState: [
-                    'last_scanned_material' => $lastScannedMaterial,
-                    'total_scans' => $totalScans,
-                    'scan_date' => now()->format('Y-m-d') // Add scan date
-                ],
-                description: "Mobile team last scanned material updated. Total scans: $totalScans"
+                afterState: $updatedAfterState,
+                description: "Updated scan details for $scanDate. Total scans: {$scanHistory[$scanDateKey]['total_scans']}"
             );
         } else {
             $this->auditService->log(
@@ -726,15 +739,12 @@ class ReceiveExamMaterialsController extends Controller
                 actionType: 'qr_scan',
                 taskType: $tasktype,
                 beforeState: null,
-                afterState: [
-                    'last_scanned_material' => $lastScannedMaterial,
-                    'total_scans' => 1,
-                    'scan_date' => now()->format('Y-m-d') // Add scan date
-                ],
-                description: "Initial mobile team scan: {$request->qr_code}",
+                afterState: $updatedAfterState,
+                description: "Initial scan recorded for $scanDate.",
                 metadata: $metadata
             );
         }
+
         return response()->json([
             'status' => 'success',
             'message' => 'QR code scanned successfully'
@@ -862,9 +872,9 @@ class ReceiveExamMaterialsController extends Controller
         }
         // Prepare last scanned material details
         $lastScannedMaterial = [
-            'district' => $examMaterials->district->district_name,
-            'center' => $examMaterials->center->center_name,
-            'hall_code' => $examMaterials->hall_code,
+            'district' => $examMaterials->district->district_name ?? 'Unknown',
+            'center' => $examMaterials->center->center_name ?? 'Unknown',
+            'hall_code' => $examMaterials->hall_code ?? 'Unknown',
             'scan_timestamp' => now()->toDateTimeString()
         ];
 
@@ -878,6 +888,8 @@ class ReceiveExamMaterialsController extends Controller
         $tasktype = in_array($examMaterials->category, ['D1', 'D2'])
             ? 'receive_materials_to_vanduty_staff'
             : 'receive_bundle_to_vanduty_staff';
+        // Get current date
+        $scanDate = $examMaterials->exam_date;
 
         // Fetch existing audit log for total scan count
         $existingLog = $this->auditService->findLog([
@@ -886,18 +898,32 @@ class ReceiveExamMaterialsController extends Controller
             'user_id' => $user->dept_off_id,
         ]);
 
-        // Determine total scan count
-        $totalScans = $existingLog ? ($existingLog->after_state['total_scans'] ?? 0) + 1 : 1;
+        // Ensure `after_state` is an array
+        $afterState = $existingLog ? (is_array($existingLog->after_state) ? $existingLog->after_state : json_decode($existingLog->after_state, true)) : [];
+
+        // Ensure `scans_by_date` is an array
+        $scanHistory = isset($afterState['scans_by_date']) && is_array($afterState['scans_by_date']) ? $afterState['scans_by_date'] : [];
+
+        // Ensure $scanDate is treated as a string
+        $scanDateKey = strval($scanDate);
+
+        // Update scan history for the specific date
+        $scanHistory[$scanDateKey] = [
+            'last_scanned_material' => $lastScannedMaterial,
+            'total_scans' => isset($scanHistory[$scanDateKey]) ? $scanHistory[$scanDateKey]['total_scans'] + 1 : 1
+        ];
+
+        // Prepare updated `after_state`
+        $updatedAfterState = [
+            'scans_by_date' => $scanHistory
+        ];
 
         if ($existingLog) {
             $this->auditService->updateLog(
                 logId: $existingLog->id,
                 metadata: $metadata,
-                afterState: [
-                    'last_scanned_material' => $lastScannedMaterial,
-                    'total_scans' => $totalScans
-                ],
-                description: "Van Duty Staff last scanned material updated. Total scans: $totalScans"
+                afterState: $updatedAfterState,
+                description: "Updated scan details for $scanDate. Total scans: {$scanHistory[$scanDateKey]['total_scans']}"
             );
         } else {
             $this->auditService->log(
@@ -905,11 +931,8 @@ class ReceiveExamMaterialsController extends Controller
                 actionType: 'qr_scan',
                 taskType: $tasktype,
                 beforeState: null,
-                afterState: [
-                    'last_scanned_material' => $lastScannedMaterial,
-                    'total_scans' => 1
-                ],
-                description: "Initial Van Duty Staff scan: {$request->qr_code}",
+                afterState: $updatedAfterState,
+                description: "Initial scan recorded for $scanDate.",
                 metadata: $metadata
             );
         }

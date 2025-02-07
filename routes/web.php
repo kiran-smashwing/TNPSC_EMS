@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AlertNotificationController;
 use App\Http\Controllers\DistrictCandidatesController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -185,16 +186,16 @@ Route::get('/treasury-officers/verify-email/{token}', [TreasuryOfficerController
 //District Route::prefix('district')->group(function () {
 Route::prefix('report')->group(function () {
     // Route::middleware(['auth.multi'])->group(function () {
-        Route::get('/attendance-report', [AttendanceReportController::class, 'index'])->name('attendance.report');
-        // Route::get('/attendance-pdf', [AttendanceReportController::class, 'generateAttendanceReportOverall'])->name('attendance.pdf');
-        Route::get('/attendance-report-overall', [AttendanceReportController::class, 'generatecategorysender'])->name('attendance.report.overall');
-        Route::get('/expenditure-statment', [Expenditure_StatmentController::class, 'index'])->name('expenditure-statment.report');
-        Route::get('/omr-account', [Omr_AccountController::class, 'index'])->name('omr-account.report');
-        Route::get('/ci-attendace', [CiMeetingAttendanceController::class, 'index'])->name('ci-attendace.report');
-        Route::get('/consolidated-statement', [ConsolidatedStatementController::class, 'index'])->name('consolidated-statement.report');
-        Route::get('/candidate-remarks', [CandidateRemarksController::class, 'index'])->name('candidate-remarks.report');
-        Route::get('/exam-material-discrepancy', [ExamMaterialsDiscrepancyController::class, 'index'])->name('exam-material-discrepancy.report');
-        Route::get('/emergency-alarm-notification', [EmergencyAlarmNotificationsController::class, 'index'])->name('emergency-alarm-notification.report');
+    Route::get('/attendance-report', [AttendanceReportController::class, 'index'])->name('attendance.report');
+    // Route::get('/attendance-pdf', [AttendanceReportController::class, 'generateAttendanceReportOverall'])->name('attendance.pdf');
+    Route::get('/attendance-report-overall', [AttendanceReportController::class, 'generatecategorysender'])->name('attendance.report.overall');
+    Route::get('/expenditure-statment', [Expenditure_StatmentController::class, 'index'])->name('expenditure-statment.report');
+    Route::get('/omr-account', [Omr_AccountController::class, 'index'])->name('omr-account.report');
+    Route::get('/ci-attendace', [CiMeetingAttendanceController::class, 'index'])->name('ci-attendace.report');
+    Route::get('/consolidated-statement', [ConsolidatedStatementController::class, 'index'])->name('consolidated-statement.report');
+    Route::get('/candidate-remarks', [CandidateRemarksController::class, 'index'])->name('candidate-remarks.report');
+    Route::get('/exam-material-discrepancy', [ExamMaterialsDiscrepancyController::class, 'index'])->name('exam-material-discrepancy.report');
+    Route::get('/emergency-alarm-notification', [EmergencyAlarmNotificationsController::class, 'index'])->name('emergency-alarm-notification.report');
     // });
 });
 Route::prefix('district')->group(function () {
@@ -525,6 +526,13 @@ Route::prefix('exam-trunkbox-qr-otl-data')->group(function () {
         Route::get('/download-sample-csv', [ExamTrunkBoxOTLDataController::class, 'downloadSampleCsv'])->name('exam-trunkbox-qr-otl-data.download-sample-csv');
         Route::post('/upload', [ExamTrunkBoxOTLDataController::class, 'uploadCsv'])->name('exam-trunkbox-qr-otl-data.upload');
         Route::get('/{examId}', [ExamTrunkBoxOTLDataController::class, 'index'])->name('exam-trunkbox-qr-otl-data.index');
+    });
+});
+Route::prefix('alert-notification')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        // Add your new alert notification routes
+        Route::post('/save-emergency-alert', [AlertNotificationController::class, 'saveEmergencyAlert'])->name('alert-notification.emergency-alert');
+        Route::post('/save-adequacy-check', [AlertNotificationController::class, 'saveAdequacyCheck'])->name('alert-notification.adequacy-check');
     });
 });
 // Route::get('/run-function', [DataController::class, 'addData']);

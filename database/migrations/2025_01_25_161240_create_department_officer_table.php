@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->text('dept_off_designation')->nullable(); // Officer's designation
             $table->text('dept_off_phone')->nullable(); // Officer's phone
             $table->text('dept_off_role')->nullable(); // Officer's role
+            $table->text('custom_role')->nullable(); // Officer's address
             $table->text('dept_off_emp_id')->nullable(); // Officer's employee ID
             $table->text('dept_off_email')->nullable()->unique(); // Officer's email
             $table->text('dept_off_password')->nullable(); // Officer's password

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Replacement of Question Paper Reports</title>
+    <title>Candidate Remarks</title>
     <style>
         html,
         body {
@@ -71,10 +71,6 @@
             border-radius: 5px;
         }
 
-        .table-header th {
-            text-align: center;
-        }
-
         .table-body td {
             text-align: center;
         }
@@ -105,7 +101,7 @@
         .report-table td {
             border: 1px solid #ddd;
             padding: 10px;
-            vertical-align: center;
+            vertical-align: top;
         }
 
         .report-table th {
@@ -234,15 +230,14 @@
         </div>
 
         <div class="meeting-title">
-            <h5>Replacement of Question Paper Reports</h5>
+            <h5>Candidate Remarks</h5>
         </div>
         <div class="content-section">
             <p><strong> Notification No:</strong> {{ $notification_no }} | <strong> Exam Date:
                 </strong>{{ $exam_date }} | <strong>Exam
                     Session:</strong> {{ $session }}<br>
-                <strong>Exam Name:</strong> {{ $exam_data->exam_main_name }}<br>
-                <strong>Exam Service:</strong> {{ $exam_data->examservice->examservice_name }}<br>
-                {{-- <strong>Center Name:</strong> Alandur (0102	) --}}
+                <strong>Exam Name:</strong> {{ $exam_data->exam_main_name }} <br>
+                <strong>Exam Service:</strong> {{ $exam_data->examservice->examservice_name }} <br>
             </p>
         </div>
         <table class="report-table">
@@ -250,53 +245,84 @@
                 <tr>
                     <th>S.No</th>
                     <th>District</th>
-                    <th>Center Name</th>
                     <th>Center Code</th>
+                    <th>Center Name</th>
                     <th>Hall Code</th>
                     <th style="text-align: left">Venue Name</th>
-                    <th>Registration Numbers</th>
-                    <th>Replacement Type</th>
-                    <th>Old Paper Number</th>
-                    <th>New Paper Number </th>
-                    <th>Replacement Photo</th>
+                    <th>Registration Number</th>
                     <th>Remarks</th>
                 </tr>
             </thead>
             <tbody class="table-body">
-                @foreach ($replacementDetails as $index => $detail)
+                @forelse($candidate_details as $index => $candidate)
                     <tr>
                         <td>{{ $index + 1 }}</td>
-                        <td>{{ $detail['district_name'] }}</td>
-                        <td>{{ $detail['center_name'] }}</td>
-                        <td>{{ $detail['center_code'] }}</td>
-                        <td>{{ $detail['hall_code'] }}</td>
-                        <td class="left-align">{{ $detail['venue_name'] }}</td>
-                        <td>{{ $detail['registration_number'] }}</td>
-                        <td>{{ $detail['replacement_type'] }}</td>
-                        <td>{{ $detail['old_paper_number'] }}</td>
-                        <td>{{ $detail['new_paper_number'] }}</td>
-
-                        <td>
-                            @if (!empty($detail['replacement_photo']))
-                                <img src="{{ $detail['replacement_photo'] }}" alt="Replacement Photo"
-                                    style="width: 50px; height: 50px; object-fit: cover; border: 1px solid #ccc; padding: 2px;">
-                            @else
-                                No Image
-                            @endif
-                        </td>
-
-
-
-
-
-                        <td>{{ $detail['replacement_reason'] }}</td>
+                        <td>{{ $candidate['district'] }}</td>
+                        <td>{{ $candidate['center_code'] ?? 'N/A' }}</td>
+                        <td>{{ $candidate['center'] }}</td>
+                        <td>{{ $candidate['hall_code'] ?? 'N/A' }}</td>
+                        <td class="left-align">{{ $candidate['venue_name'] }}</td>
+                        <td>{{ $candidate['reg_no'] }}</td>
+                        <td>{{ $candidate['remark'] }}</td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="8">No candidate remarks available</td>
+                    </tr>
+                @endforelse
             </tbody>
-
         </table>
 
+
     </div>
+    {{-- <table class="report-table">
+        <thead>
+            <tr>
+                <th>Overall</th>
+                <th>Present</th>
+                <th>Absent</th>
+                <th>Allotted</th>
+                <th>Percentage(%)</th>
+            </tr>
+        </thead>
+        <tbody class="table-body">
+            @php
+                $totalPresent = 0;
+                $totalAbsent = 0;
+                $totalCandidates = 0;
+            @endphp
+
+            <!-- Loop through the session data and display individual rows -->
+            @foreach ($session_data as $session)
+                @php
+                    $totalPresent += $session['present'];
+                    $totalAbsent += $session['absent'];
+                    $totalCandidates += $session['total_candidates'];
+                @endphp
+            @endforeach
+
+            <!-- Total Row -->
+            <tr>
+                <td>Total</td>
+                <td>{{ $totalPresent }}</td>
+                <td>{{ $totalAbsent }}</td>
+                <td>{{ $totalCandidates }}</td>
+                <td>
+                    @php
+                        $totalPercentage =
+                            $totalCandidates > 0
+                                ? number_format(($totalPresent / $totalCandidates) * 100, 2) . '%'
+                                : '0%';
+                    @endphp
+                    {{ $totalPercentage }}
+                </td>
+            </tr>
+        </tbody>
+    </table> --}}
+
+
+
+
 </body>
 
 </html>

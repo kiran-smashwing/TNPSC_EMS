@@ -262,12 +262,14 @@ class Omr_AccountController extends Controller
                 'hall_code' => $attendance->hall_code,
                 'exam_date' => $attendance->exam_date,
                 'exam_session' => $attendance->exam_session,
-                'registration_number' => $attendance->registration_number,
-                'replacement_type' => $attendance->replacement_type,
-                'old_paper_number' => $attendance->old_paper_number,
-                'new_paper_number' => $attendance->new_paper_number,
-                'replacement_reason' => $attendance->replacement_reason,
-                'replacement_photo' => asset($attendance->replacement_photo), // assuming the path is correct
+                'registration_number'  => $attendance->registration_number ?? '',
+                'replacement_type'     => $attendance->replacement_type ?? '',
+                'old_paper_number'     => $attendance->old_paper_number ?? '',
+                'new_paper_number'     => $attendance->new_paper_number ?? '',
+                'replacement_reason'   => $attendance->replacement_reason ?? '',
+                'replacement_photo' => !empty($attendance->replacement_photo)
+                    ? asset('storage/' . $attendance->replacement_photo)
+                    : null, // assuming the path is correct
                 'district_name' => $attendance->center->district->district_name ?? 'N/A',
                 'center_name' => $attendance->center->center_name ?? 'N/A',
                 'venue_name' => $attendance->ci->venue->venue_name ?? 'N/A',

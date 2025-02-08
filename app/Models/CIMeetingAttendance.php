@@ -14,8 +14,8 @@ class CIMeetingAttendance extends Model
 
     // The attributes that are mass assignable
     protected $fillable = [
-        'exam_id', 
-        'district_code', 
+        'exam_id',
+        'district_code',
         'center_code',
         'hall_code',
         'ci_id',
@@ -30,6 +30,19 @@ class CIMeetingAttendance extends Model
         'created_at' => 'datetime',
         'adequacy_check' => 'array',
     ];
+    public function center()
+    {
+        return $this->belongsTo(Center::class, 'center_code', 'center_code');
+    }
 
+
+    public function district()
+    {
+        return $this->belongsTo(District::class, 'district_id', 'center_district_id');
+    }
+    public function ci()
+    {
+        return $this->belongsTo(ChiefInvigilator::class, 'ci_id', 'ci_id');
+    }
     // Add any necessary relationships or custom methods here
 }

@@ -73,7 +73,7 @@
                             <h5>Filter Candidate Remarks</h5>
                         </div>
                         <div class="card-body">
-                            <form action="#" method="GET" id="filterForm">
+                            <form action="{{route('candidate-remarks.report.overall')}}" method="GET" id="filterForm">
                                 @csrf
                                 <div class="row">
                                     <!-- Notification No -->
@@ -98,7 +98,7 @@
                                         </select>
                                     </div>
 
-                                    <div class="col-md-4 mb-3">
+                                    {{-- <div class="col-md-4 mb-3">
                                         <label for="category" class="form-label">Category</label>
                                         <select name="category" id="category" class="form-control">
                                             <option value="" selected>Select</option>
@@ -122,7 +122,7 @@
                                         <select name="center" id="center" class="form-control">
                                             <option value="" selected>Select Center</option>
                                         </select>
-                                    </div>
+                                    </div> --}}
 
 
 
@@ -148,7 +148,7 @@
 
     @push('scripts')
         @include('partials.datatable-export-js')
-        <script>
+        {{-- <script>
             document.getElementById('notification_no').addEventListener('blur', function() {
                 const notificationNo = this.value.trim();
 
@@ -277,6 +277,49 @@
                 } else if (category === "center") {
                     districtContainer.style.display = "block";
                     centerContainer.style.display = "block";
+                }
+            });
+        </script> --}}
+        <script>
+            document.getElementById('notification_no').addEventListener('blur', function() {
+                const notificationNo = this.value.trim();
+    
+                if (notificationNo) {
+                    fetch(`{{ route('attendance.dropdown') }}?notification_no=${notificationNo}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Invalid response from the server');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            // Populate exam dates
+                            const examDateSelect = document.getElementById('exam_date');
+                            examDateSelect.innerHTML = '<option value="" selected>Select Exam Date</option>';
+                            if (data.examDates && data.examDates.length > 0) {
+                                data.examDates.forEach(date => {
+                                    const option = document.createElement('option');
+                                    option.value = date;
+                                    option.textContent = date;
+                                    examDateSelect.appendChild(option);
+                                });
+                            }
+    
+                            // Populate sessions
+                            const sessionSelect = document.getElementById('session');
+                            sessionSelect.innerHTML = '<option value="" selected>Select Session</option>';
+                            if (data.sessions && data.sessions.length > 0) {
+                                data.sessions.forEach(session => {
+                                    const option = document.createElement('option');
+                                    option.value = session;
+                                    option.textContent = session;
+                                    sessionSelect.appendChild(option);
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching dropdown data:', error);
+                        });
                 }
             });
         </script>

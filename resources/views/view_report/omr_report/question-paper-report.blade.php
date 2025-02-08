@@ -234,173 +234,63 @@
         </div>
 
         <div class="meeting-title">
-            <h5>OMR Account</h5>
+            <h5>OMR Reports</h5>
         </div>
         <div class="content-section">
-            <p><strong> Notification No:</strong> 10/2024 | <strong> Exam Date: </strong>13-07-2024  | <strong>Exam
-                    Session:</strong> FN<br>
-                <strong>Exam Name:</strong> Combined Civil Services Examination<br>
-                <strong>Exam Service:</strong>  I (Group-I Services)<br>
-                <strong>Center Name:</strong> Alandur (0102	)
+            <p><strong> Notification No:</strong> {{ $notification_no }} | <strong> Exam Date:
+                </strong>{{ $exam_date }} | <strong>Exam
+                    Session:</strong> {{ $session }}<br>
+                <strong>Exam Name:</strong> {{ $exam_data->exam_main_name }}<br>
+                <strong>Exam Service:</strong> {{ $exam_data->examservice->examservice_name }}<br>
+                {{-- <strong>Center Name:</strong> Alandur (0102	) --}}
             </p>
         </div>
         <table class="report-table">
             <thead class="table-header">
                 <tr>
                     <th>S.No</th>
+                    <th>District</th>
+                    <th>Center Name</th>
+                    <th>Center Code</th>
                     <th>Hall Code</th>
                     <th style="text-align: left">Venue Name</th>
-                    <th>Suppiled</th>
-                    <th>Used</th>
-                    <th>Defective</th>
-                    <th>No.of unused Question Booklets returned (including defective)</th>
+                    <th>Registration Numbers</th>
+                    <th>Replacement Type</th>
+                    <th>Old Paper Number</th>
+                    <th>New Paper Number </th>
+                    <th>Replacement Photo</th>
                     <th>Remarks</th>
                 </tr>
             </thead>
             <tbody class="table-body">
-                <tr>
-                    <td>1</td>
-                    <td>001</td>
-                    <td class="left-align">ANNA ADARSH MATRIC HR. SEC. SCHOOL</td>
-                    <td>0</td>
-                    <td>213</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>002</td>
-                    <td class="left-align">BETHEL MATRIC.
-                        HIGHER SECONDARY
-                        SCHOOL
+                @foreach ($replacementDetails as $index => $detail)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $detail['district_name'] }}</td>
+                        <td>{{ $detail['center_name'] }}</td>
+                        <td>{{ $detail['center_code'] }}</td>
+                        <td>{{ $detail['hall_code'] }}</td>
+                        <td class="left-align">{{ $detail['venue_name'] }}</td>
+                        <td>{{ $detail['registration_number'] }}</td>
+                        <td>{{ $detail['replacement_type'] }}</td>
+                        <td>{{ $detail['old_paper_number'] }}</td>
+                        <td>{{ $detail['new_paper_number'] }}</td>
+                        <td>
+                            @if ($detail['replacement_photo'])
+                                <a href="{{ $detail['replacement_photo'] }}" target="_blank">View Replacement Photo</a>
+                            @else
+                                N/A
+                            @endif
                         </td>
-                    <td>320</td>
-                    <td>191</td>
-                    <td>0</td>
-                    <td>129</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td>003</td>
-                    <td class="left-align">DR.K.K.NIRMALA GIRLS
-                        HR. SEC. SCHOOL</td>
-                    <td>320</td>
-                    <td>204</td>
-                    <td>0</td>
-                    <td>116</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>4</td>
-                    <td>004</td>
-                    <td class="left-align">Govt. Model Higher
-                        Secondary School</td>
-                    <td>260</td>
-                    <td>153</td>
-                    <td>0</td>
-                    <td>107</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>5</td>
-                    <td>005</td>
-                    <td class="left-align">VALLIAMMAL MATRIC.
-                        HIGHER SECONDARY
-                        SCHOOL</td>
-                    <td>360</td>
-                    <td>225</td>
-                    <td>0</td>
-                    <td>135</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>6</td>
-                    <td>006</td>
-                    <td class="left-align">BENTINCK HR. SEC.
-                        SCHOOL FOR GIRLS</td>
-                    <td>320</td>
-                    <td>200</td>
-                    <td>0</td>
-                    <td>120</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>7</td>
-                    <td>007</td>
-                    <td class="left-align">C.S.I ST. PAULS HR.
-                        SEC. SCHOOL </td>
-                    <td>420</td>
-                    <td>250</td>
-                    <td>0</td>
-                    <td>170</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>8</td>
-                    <td>008</td>
-                    <td class="left-align">CHENNAI GIRLS HIGHER
-                        SECONDARY SCHOOL.</td>
-                    <td>320</td>
-                    <td>199</td>
-                    <td>0</td>
-                    <td>121</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>9</td>
-                    <td>009</td>
-                    <td class="left-align">K.R.C.A.R.C. GIRLS
-                        HIGHER SECONDARY
-                        SCHOOL</td>
-                    <td>320</td>
-                    <td>177</td>
-                    <td>0</td>
-                    <td>143</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>10</td>
-                    <td>0010</td>
-                    <td class="left-align">CHENNAI GIRLS HIGHER
-                        SECONDARY SCHOOL.</td>
-                    <td>380</td>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>380</td>
-                    <td></td>
-                </tr>
-                <!-- Add more rows as needed -->
+
+                        <td>{{ $detail['replacement_reason'] }}</td>
+                    </tr>
+                @endforeach
             </tbody>
+
         </table>
 
     </div>
-    {{-- <table class="report-table">
-        <thead class="table-header">
-            <tr>
-                <th>Overall</th>
-                <th>Present</th>
-                <th>Absent</th>
-                <th>Allotted</th>
-                <th>Percentage(%)</th>
-            </tr>
-        </thead>
-        <tbody class="table-body">
-            <tr>
-                <td>Total</td>
-                <td>99</td>
-                <td>11</td>
-                <td>812</td>
-                <td>12.19 %</td>
-            </tr>
-            <!-- Add more rows as needed -->
-        </tbody>
-    </table> --}}
-    
-
-
-
 </body>
 
 </html>

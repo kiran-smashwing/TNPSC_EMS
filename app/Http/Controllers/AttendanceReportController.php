@@ -112,87 +112,63 @@ class AttendanceReportController extends Controller
 
     public function generateAttendanceReport(Request $request)
     {
-        // Get parameters from the request
         $notificationNo = $request->query('notification_no');
         $examDate = $request->query('exam_date');
         $session = $request->query('session'); // FN or AN
         $category = $request->query('category');
         $district = $request->query('district');
         $center = $request->query('center');  // Center ID for filtering
-    
+
         // Fetch the exam details
         $exam_data = Currentexam::with('examservice')
             ->where('exam_main_notification', $notificationNo)
             ->first();
-    
+
         if (!$exam_data) {
             return back()->with('error', 'Exam data not found.');
         }
-    
+
         $exam_id = $exam_data->exam_main_no;
-    
-        // Log the parameters for debugging
-        \Log::info('Exam ID: ' . $exam_id);
-        \Log::info('Exam Date: ' . $examDate);
-        \Log::info('District: ' . $district);
-        \Log::info('Center: ' . $center);
-    
-        // Start SQL Query Debugging
-        \DB::listen(function ($query) {
-            \Log::info('SQL Query: ' . $query->sql);
-            \Log::info('Bindings: ' . implode(', ', $query->bindings));
-            \Log::info('Time: ' . $query->time . 'ms');
-        });
-    
-        // Simplified candidate attendance query
-        $candidate_attendance = CIcandidateLogs::join('centers', 'ci_candidate_logs.center_code', '=', 'centers.center_code')
-            ->where('exam_id', $exam_id)
+
+        // Fetch candidate attendance data, filtered by center if centerId is provided
+        $candidate_attendance = CIcandidateLogs::where('exam_id', $exam_id)
             ->where('exam_date', $examDate)
-            ->when($district, function ($query) use ($district) {
-                // Filter by district in the centers table
-                return $query->where('centers.center_district_id', $district);
-            })
             ->when($center, function ($query) use ($center) {
-                // Filter by center in the centers table
-                return $query->where('centers.center_id', $center);
+                return $query->where('center_code', $center);  // Filter by center
             })
-            ->select('ci_candidate_logs.*', 'centers.center_code', 'centers.center_name')  // Select necessary columns
+            ->with('ci')
             ->get();
-    
-        // Dump the query result for debugging
-        dd($candidate_attendance);
-    
-        // Check if no results were found
+
         if ($candidate_attendance->isEmpty()) {
-            return back()->with('error', 'No candidate attendance found for this exam date, district, or center.');
+            return back()->with('error', 'No candidate attendance found for this exam date and center.');
         }
-    
+
         // Extract and format session data dynamically
         $session_data = [];
         $district_name = null;  // Initialize district_name
-    
+
         foreach ($candidate_attendance as $attendance) {
             $center = $attendance->center;
             $district = $center->district ?? null;
             $venue = $attendance->ci->venue ?? 'N/A'; // Access the venue name from the `ci` relationship
-    
+
             // Decode candidate_attendance JSON if stored as a string
             $attendance_data = is_string($attendance->candidate_attendance)
                 ? json_decode($attendance->candidate_attendance, true)
                 : $attendance->candidate_attendance;
-    
+
             // If a district is available, assign it only once (first occurrence)
             if ($district_name === null && $district) {
                 $district_name = $district->district_name ?? 'N/A';
             }
-    
+
             // Loop through session-wise attendance (AN, FN, etc.)
             foreach ($attendance_data as $sessionKey => $sessionAttendance) {
                 // Check if the session matches the requested session (FN or AN)
                 if ($session && $sessionKey != $session) {
                     continue; // Skip if session doesn't match the requested session
                 }
-    
+
                 // Create a session entry
                 $sessionEntry = [
                     'session' => $sessionKey,
@@ -208,12 +184,12 @@ class AttendanceReportController extends Controller
                         : '0%',
                     'timestamp' => $sessionAttendance['timestamp'] ?? 'N/A',
                 ];
-    
+
                 // Add the session entry to the session_data array
                 $session_data[] = $sessionEntry;
             }
         }
-    
+
         // Prepare final data for Blade
         $data = [
             'notification_no' => $notificationNo,
@@ -221,17 +197,18 @@ class AttendanceReportController extends Controller
             'exam_data' => $exam_data,
             'session' => $session,
             'category' => $category,
-            'district' => $district_name ?? 'N/A',  // Pass the unique district
-            'center' => $center,  // Pass the center
+            'center_code' => $center ? $center->center_code : 'N/A',  // Add this
+            'center_name' => $center ? $center->center_name : 'N/A',  // Add this
+            'district' => $district_name ?? 'N/A',  // Ensure only one district is passed
             'session_data' => $session_data
         ];
-    
+        // dd($data);
         // Render the Blade template
         $html = view('view_report.attendance_report.attendance_report_pdf', $data)->render();
-    
+
         // Generate PDF using Browsershot
         $pdf = Browsershot::html($html)
-            ->setOption('landscape', false)
+            ->setOption('protarit', true)
             ->setOption('margin', [
                 'top' => '10mm',
                 'right' => '10mm',
@@ -241,27 +218,26 @@ class AttendanceReportController extends Controller
             ->setOption('displayHeaderFooter', true)
             ->setOption('headerTemplate', '<div></div>')
             ->setOption('footerTemplate', '
-        <div style="font-size:10px;width:100%;text-align:center;">
-            Page <span class="pageNumber"></span> of <span class="totalPages"></span>
-        </div>
-        <div style="position: absolute; bottom: 5mm; right: 10px; font-size: 10px;">
-            IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . '
-        </div>')
+    <div style="font-size:10px;width:100%;text-align:center;">
+        Page <span class="pageNumber"></span> of <span class="totalPages"></span>
+    </div>
+    <div style="position: absolute; bottom: 5mm; right: 10px; font-size: 10px;">
+        IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . '
+    </div>')
             ->setOption('preferCSSPageSize', true)
             ->setOption('printBackground', true)
             ->scale(1)
             ->format('A4')
             ->pdf();
-    
+
         // Define a unique filename for the report
-        $filename = 'attendance_report_' . $center . '_' . time() . '.pdf';
-    
+        $filename = 'attendance_report_district' . $center . '_' . time() . '.pdf';
+
         // Return the PDF as a response
         return response($pdf)
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
     }
-    
 
 
 
@@ -289,7 +265,7 @@ class AttendanceReportController extends Controller
         $candidate_attendance = CIcandidateLogs::where('exam_id', $exam_id)
             ->where('exam_date', $examDate)
             ->when($center, function ($query) use ($center) {
-                return $query->where('center_id', $center);  // Filter by center
+                return $query->where('center_code', $center);  // Filter by center
             })
             ->with('ci')
             ->get();

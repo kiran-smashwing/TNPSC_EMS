@@ -73,8 +73,8 @@
                             <h5>Filter Replacement of OMR/QCA</h5>
                         </div>
                         <div class="card-body">
-                            <form action="#" method="GET" id="filterForm">
-                                @csrf
+                            <form action="{{ route('omr-report.report.overall') }}" method="GET" id="filterForm">
+                                 @csrf
                                 <div class="row">
                                     <!-- Notification No -->
                                     <div class="col-md-4 mb-3">
@@ -102,14 +102,14 @@
                                         <label for="category" class="form-label">Category</label>
                                         <select name="category" id="category" class="form-control">
                                             <option value="" selected>Select</option>
-                                            <option value="all">All</option>
-                                            <option value="district">District</option>
-                                            <option value="center">Center</option>
+                                            {{-- <option value="all">All</option> --}}
+                                            <option value="omr_remarks">OMR Remarks</option>
+                                            <option value="question_paper">Qusetion Paper Remarks</option>
                                         </select>
                                     </div>
 
                                     <!-- District Dropdown -->
-                                    <div class="col-md-4 mb-3" id="district-container" style="display: none;">
+                                    {{-- <div class="col-md-4 mb-3" id="district-container" style="display: none;">
                                         <label for="district" class="form-label">District</label>
                                         <select name="district" id="district" class="form-control">
                                             <option value="" selected>Select District</option>
@@ -122,7 +122,7 @@
                                         <select name="center" id="center" class="form-control">
                                             <option value="" selected>Select Center</option>
                                         </select>
-                                    </div>
+                                    </div> --}}
 
 
 
@@ -146,7 +146,7 @@
 
     @include('partials.footer')
 
-    @push('scripts')
+    {{-- @push('scripts')
         @include('partials.datatable-export-js')
         <script>
             document.getElementById('notification_no').addEventListener('blur', function() {
@@ -170,7 +170,7 @@
 
                             // Populate districts
                             const districtSelect = document.getElementById('district');
-                            districtSelect.innerHTML = '<option value="" selected>Select District</option>';
+                           // districtSelect.innerHTML = '<option value="" selected>Select District</option>';
                             if (data.districts && data.districts.length > 0) {
                                 data.districts.forEach(district => {
                                     const option = document.createElement('option');
@@ -280,7 +280,54 @@
                 }
             });
         </script>
-    @endpush
+    @endpush --}}
+    @push('scripts')
+    @include('partials.datatable-export-js')
+    <script>
+        document.getElementById('notification_no').addEventListener('blur', function() {
+            const notificationNo = this.value.trim();
+
+            if (notificationNo) {
+                fetch(`{{ route('attendance.dropdown') }}?notification_no=${notificationNo}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Invalid response from the server');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Populate exam dates
+                        const examDateSelect = document.getElementById('exam_date');
+                        examDateSelect.innerHTML = '<option value="" selected>Select Exam Date</option>';
+                        if (data.examDates && data.examDates.length > 0) {
+                            data.examDates.forEach(date => {
+                                const option = document.createElement('option');
+                                option.value = date;
+                                option.textContent = date;
+                                examDateSelect.appendChild(option);
+                            });
+                        }
+
+                        // Populate sessions
+                        const sessionSelect = document.getElementById('session');
+                        sessionSelect.innerHTML = '<option value="" selected>Select Session</option>';
+                        if (data.sessions && data.sessions.length > 0) {
+                            data.sessions.forEach(session => {
+                                const option = document.createElement('option');
+                                option.value = session;
+                                option.textContent = session;
+                                sessionSelect.appendChild(option);
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching dropdown data:', error);
+                    });
+            }
+        });
+    </script>
+@endpush
+
     @include('partials.theme')
 
 @endsection

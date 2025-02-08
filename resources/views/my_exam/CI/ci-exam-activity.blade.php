@@ -51,10 +51,10 @@
                                     </div>
                                     <div class="d-flex align-items-center">
 
-                                    <a href="#" data-pc-animate="just-me" data-bs-toggle="modal" data-bs-target="#adequacyCheckNotificationModal" class="me-2 btn btn-sm btn-light-danger d-flex align-items-center">
+                                    <a href="#" title="Adequacy Check Notification" data-pc-animate="just-me" data-bs-toggle="modal" data-bs-target="#adequacyCheckNotificationModal" class="me-2 btn btn-sm btn-light-danger d-flex align-items-center">
                                         <i class="material-icons-two-tone" style="font-size: 22px">assignment_turned_in</i>
                                     </a>
-                                    <a href="#" data-pc-animate="just-me" data-bs-toggle="modal" data-bs-target="#emergencyAlarmNotificationModal" class="me-2 btn btn-sm btn-light-danger d-flex align-items-center">
+                                    <a href="#" title="Emergency Alarm Notification" data-pc-animate="just-me" data-bs-toggle="modal" data-bs-target="#emergencyAlarmNotificationModal" class="me-2 btn btn-sm btn-light-danger d-flex align-items-center">
                                         <i class="material-icons-two-tone" style="font-size: 22px">add_alert</i>
                                     </a>
                                 </div>

@@ -32,9 +32,15 @@ class AlertNotification extends Model
         'updated_at' => 'datetime',
     ];
 
-    // Optionally, you can define relationships if needed
-    // public function exampleRelationship()
-    // {
-    //     return $this->belongsTo(ExampleModel::class);
-    // }
+    public function district()
+    {
+        return $this->belongsTo(District::class, 'district_code', 'district_code');
+    }
+    public function center()
+    {
+        return $this->belongsTo(Center::class, 'center_code', 'center_code');
+    }
+    public function ci(){
+        return $this->belongsTo(ChiefInvigilator::class, 'ci_id', 'ci_id');
+    }
 }

@@ -94,8 +94,6 @@ class AlertNotificationController extends Controller
         event(new EmergencyAlertEvent($alertData));
         \Log::info('Emergency alert dispatched');
         // Dispatch the event.
-        // event(new EmergencyAlertEvent($alertData));
-
 
         return redirect()->back()->with('success', 'Emergency Alert saved successfully!');
     }
@@ -138,14 +136,15 @@ class AlertNotificationController extends Controller
             return redirect()->back()->with('error', 'No matching record found.');
         }
 
+        $districtCode = $examConfirmedHall->district_code;
         $centerCode = $examConfirmedHall->center_code;
         $hallCode = $examConfirmedHall->hall_code;
 
         // Store alert notification in the database
-        AlertNotification::create([
+        $alertNotification = AlertNotification::create([
             'exam_id' => $validated['exam_id'],
-            'district_code' => $centerCode,
-            'center_code' => $hallCode,
+            'district_code' => $districtCode,
+            'center_code' => $centerCode,
             'hall_code' => $hallCode,
             'ci_id' => $ci_id,
             'exam_date' => $exam_date,
@@ -156,7 +155,26 @@ class AlertNotificationController extends Controller
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+        $alertTypeTitles = [
+            'count_mismatch_reported' => 'Count Mismatch Reported',
+            'discrepancy_reported' => 'Discrepancy Reported',
+            'seal_damage_reported' => 'Damage of Seal/Tampered',
+        ];
+        // Retrieve the correct title for the emergency_alert_type
+        $alertTypeTitle = $alertTypeTitles[$validated['adequacy_check_type']] ?? 'Unknown Alert Type';
 
+
+        // Prepare data to broadcast.
+        $alertData = [
+            'id' => $alertNotification->id,
+            'district' => $examConfirmedHall->district->district_name,
+            'center' => $examConfirmedHall->center->center_name,
+            'venue' => $examConfirmedHall->venue->venue_name,
+            'details' => $alertTypeTitle,
+            'remarks' => $request->input('adequacy_check_remarks'),
+            'timestamp' => now()->toDateTimeString(),
+        ];
+        event(new AdequacyCheckEvent($alertData));
         return redirect()->back()->with('success', 'Adequacy Check saved successfully!');
     }
 }

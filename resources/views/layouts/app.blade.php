@@ -111,7 +111,9 @@
     <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
     <!-- Laravel Echo -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/laravel-echo/1.11.3/echo.iife.js"></script>
-
+    @php
+        $user = current_user();
+    @endphp
 
 </head>
 
@@ -180,14 +182,63 @@
     @stack('scripts')
     <!-- [Page Specific JS] end -->
     <script>
+        function getRelativeTime(timestamp) {
+            if (!timestamp) return 'Just now';
+
+            // Convert "YYYY-MM-DD HH:mm:ss" to a format recognized by the Date constructor (ISO 8601)
+            let timeString = timestamp.indexOf(' ') !== -1 ?
+                timestamp.replace(' ', 'T') :
+                timestamp;
+            const time = new Date(timeString);
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - time) / 1000);
+
+            if (diffInSeconds < 5) {
+                return 'Just now';
+            }
+            if (diffInSeconds < 60) {
+                return diffInSeconds + ' seconds ago';
+            }
+
+            const diffInMinutes = Math.floor(diffInSeconds / 60);
+            if (diffInMinutes < 60) {
+                return diffInMinutes + ' minutes ago';
+            }
+
+            const diffInHours = Math.floor(diffInMinutes / 60);
+            if (diffInHours < 24) {
+                return diffInHours + ' hours ago';
+            }
+
+            const diffInDays = Math.floor(diffInHours / 24);
+            return diffInDays + ' days ago';
+        }
+
         // Toast notification helper function
-        function showNotification(title, message, type = 'success') {
+        function showNotification(title, message, type = 'success', timestamp = null) {
+            // Play notification sound
+            const notificationSound = new Audio("{{ asset('storage/assets/sounds/notification.wav') }}");
+            // notificationSound.play().catch((error) => {
+            //     // Handle the error gracefully (e.g., log it)
+            //     console.warn("Audio playback prevented:", error);
+            // });
+            var promise = notificationSound.play();
+
+            if (promise !== undefined) {
+                promise.then(_ => {
+                    // Autoplay started!
+                }).catch(error => {
+                    // Autoplay was prevented.
+                    console.warn("Audio playback prevented:", error);
+                });
+            }
+
             // Create unique ID for the toast
             const toastId = 'toast-' + Date.now();
 
             // Get style classes based on type
             let headerClass = 'bg-light';
-            let icon = '../assets/images/favicon.svg';
+            let icon = '{{ asset('storage/assets/images/favicon-32x32.png') }}';
 
             switch (type) {
                 case 'success':
@@ -203,7 +254,8 @@
                     headerClass = 'bg-info text-white';
                     break;
             }
-
+            // Get relative time string (if timestamp is provided)
+            const relativeTime = getRelativeTime(timestamp);
             // Create toast HTML
             const toastHtml = `
         <div class="bg-body p-2 mb-2">
@@ -211,7 +263,7 @@
                 <div class="toast-header ${headerClass}">
                     <img src="${icon}" class="img-fluid m-r-5" alt="icon" style="width: 17px">
                     <strong class="me-auto">${title}</strong>
-                    <small>Just now</small>
+                        <small>${relativeTime}</small>
                     <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
                 <div class="toast-body">
@@ -238,6 +290,8 @@
             });
         }
     </script>
+
+
     <script>
         window.addEventListener('load', function() {
             const loader = document.getElementById('loader');
@@ -278,52 +332,73 @@
             installButton.setAttribute("hidden", "");
         });
     </script>
+
     <script>
-        // Modified Echo initialization with detailed logging
-        window.Echo = new Echo({
-            broadcaster: 'pusher',
-            key: '{{ env('REVERB_APP_KEY') }}',
-            wsHost: '{{ env('REVERB_HOST') }}',
-            wsPort: '{{ env('REVERB_PORT', 8080) }}',
-            forceTLS: ('{{ env('REVERB_SCHEME', 'http') }}' === 'https'),
-            encrypted: false,
-            enabledTransports: ['ws', 'wss'],
-        });
+        var user = @json($user);
 
-
-        // Connection status logging
-        window.Echo.connector.pusher.connection.bind('connecting', () => {
-            console.log('Attempting to connect to Reverb...');
-        });
-
-        window.Echo.connector.pusher.connection.bind('connected', () => {
-            console.log('Successfully connected to Reverb');
-        });
-
-        window.Echo.connector.pusher.connection.bind('disconnected', () => {
-            console.log('Disconnected from Reverb');
-        });
-
-        window.Echo.connector.pusher.connection.bind('error', (error) => {
-            console.log('Connection error:', error);
-        });
-
-        Echo.channel('alerts')
-            .listen('.EmergencyAlertEvent', (e) => {
-                console.log('Emergency Alert Received:', e);
-                showNotification('Emergency Alert: ' + (e.alertData.details || 'No details provided'), ('<b>District</b>: '+e.alertData.district + ' <b>Center:</b> ' + e.alertData.center + '</br> <b>Venue:</b> ' + e.alertData.venue + '</br><b>Remarks:</b> ' + e.alertData.remarks),'error');
-            })
-            .listen('.AdequacyCheckEvent', (e) => {
-                console.log('Adequacy Check Received:', e);
-                showNotification('Adequacy Check: ' + (e.alertData.details || 'No details provided'), e.alertData.remarks,'error');
+        if (user && user.role && user.role.role_department === 'MCD') {
+            // Modified Echo initialization with detailed logging
+            window.Echo = new Echo({
+                broadcaster: 'pusher',
+                key: '{{ env('REVERB_APP_KEY') }}',
+                wsHost: '{{ env('REVERB_HOST') }}',
+                wsPort: '{{ env('REVERB_PORT', 8080) }}',
+                forceTLS: ('{{ env('REVERB_SCHEME', 'http') }}' === 'https'),
+                encrypted: true,
+                enabledTransports: ['ws', 'wss'],
+                auth: {
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                }
             });
 
-        window.Echo.connector.pusher.connection.bind('error', function(error) {
-            console.error('Pusher Error:', error);
-        });
+
+            // Connection status logging
+            window.Echo.connector.pusher.connection.bind('connecting', () => {
+                console.log('Attempting to connect to Reverb...');
+            });
+
+            window.Echo.connector.pusher.connection.bind('connected', () => {
+                console.log('Successfully connected to Reverb');
+            });
+
+            window.Echo.connector.pusher.connection.bind('disconnected', () => {
+                console.log('Disconnected from Reverb');
+            });
+
+            window.Echo.connector.pusher.connection.bind('error', (error) => {
+                console.log('Connection error:', error);
+            });
+        
+            Echo.channel('alerts')
+                .listen('.EmergencyAlertEvent', (e) => {
+                    console.log('Emergency Alert Received:', e);
+                    showNotification(
+                        'Emergency Alert: ' + (e.alertData.details || 'No details provided'),
+                        `<b>District</b>: ${e.alertData.district} <b>Center:</b> ${e.alertData.center}
+                 </br> <b>Venue:</b> ${e.alertData.venue}</br><b>Remarks:</b> ${e.alertData.remarks}`,
+                        'error',
+                        e.alertData.timestamp // Timestamp provided from the server
+                    );
+                })
+                .listen('.AdequacyCheckEvent', (e) => {
+                    console.log('Adequacy Check Received:', e);
+                    showNotification(
+                        'Adequacy Check: ' + (e.alertData.details || 'No details provided'),
+                        `<b>District</b>: ${e.alertData.district} <b>Center:</b> ${e.alertData.center}
+                 </br> <b>Venue:</b> ${e.alertData.venue}</br><b>Remarks:</b> ${e.alertData.remarks}`,
+                        'error',
+                        e.alertData.timestamp
+                    );
+                })
+
+            window.Echo.connector.pusher.connection.bind('error', function(error) {
+                console.error('Pusher Error:', error);
+            });
+        }
     </script>
     <!-- [Body] end -->
 </body>
-
 
 </html>

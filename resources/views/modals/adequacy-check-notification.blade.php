@@ -10,7 +10,7 @@
 
                 <div class="modal-header ">
                     <h5 class="modal-title text-primary" id="adequacyCheckNotificationModalLabel">
-                        <i class="feather icon-map-pin me-2"></i>Emergency Alarm Notification
+                        <i class="feather icon-map-pin me-2"></i>Adequacy Check Notification
                     </h5>
 
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"

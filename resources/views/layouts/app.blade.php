@@ -53,7 +53,7 @@
     <!-- [Template CSS Files] -->
     <link rel="stylesheet" href="{{ asset('storage/assets/css/style.css') }}" id="main-style-link" />
     <link rel="stylesheet" href="{{ asset('storage/assets/css/style-preset.css') }}" />
-  
+
     <!-- [Page Specific CSS] end -->
     @stack('styles')
     <!-- [Page Specific CSS] end -->
@@ -107,6 +107,12 @@
             }
         }
     </style>
+    <!-- Pusher JS (compatible with Reverb) -->
+    <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
+    <!-- Laravel Echo -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/laravel-echo/1.11.3/echo.iife.js"></script>
+
+
 </head>
 
 <!-- [Head] end -->
@@ -143,7 +149,6 @@
     <script src="{{ asset('storage/assets/js/pages/dashboard-analytics.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     {{-- <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script> --}}
-    
 
 
     <script>
@@ -273,7 +278,50 @@
             installButton.setAttribute("hidden", "");
         });
     </script>
+    <script>
+        // Modified Echo initialization with detailed logging
+        window.Echo = new Echo({
+            broadcaster: 'pusher',
+            key: '{{ env('REVERB_APP_KEY') }}',
+            wsHost: '{{ env('REVERB_HOST') }}',
+            wsPort: '{{ env('REVERB_PORT', 8080) }}',
+            forceTLS: ('{{ env('REVERB_SCHEME', 'http') }}' === 'https'),
+            encrypted: false,
+            enabledTransports: ['ws', 'wss'],
+        });
 
+
+        // Connection status logging
+        window.Echo.connector.pusher.connection.bind('connecting', () => {
+            console.log('Attempting to connect to Reverb...');
+        });
+
+        window.Echo.connector.pusher.connection.bind('connected', () => {
+            console.log('Successfully connected to Reverb');
+        });
+
+        window.Echo.connector.pusher.connection.bind('disconnected', () => {
+            console.log('Disconnected from Reverb');
+        });
+
+        window.Echo.connector.pusher.connection.bind('error', (error) => {
+            console.log('Connection error:', error);
+        });
+
+        Echo.channel('alerts')
+            .listen('.EmergencyAlertEvent', (e) => {
+                console.log('Emergency Alert Received:', e);
+                showNotification('Emergency Alert: ' + (e.alertData.details || 'No details provided'), ('<b>District</b>: '+e.alertData.district + ' <b>Center:</b> ' + e.alertData.center + '</br> <b>Venue:</b> ' + e.alertData.venue + '</br><b>Remarks:</b> ' + e.alertData.remarks),'error');
+            })
+            .listen('.AdequacyCheckEvent', (e) => {
+                console.log('Adequacy Check Received:', e);
+                showNotification('Adequacy Check: ' + (e.alertData.details || 'No details provided'), e.alertData.remarks,'error');
+            });
+
+        window.Echo.connector.pusher.connection.bind('error', function(error) {
+            console.error('Pusher Error:', error);
+        });
+    </script>
     <!-- [Body] end -->
 </body>
 

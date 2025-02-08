@@ -132,8 +132,9 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="{{ route('current-exam.ciReceiveMaterials') }}"
-                                                            class="me-2 btn btn-sm btn-light-primary"><i
+                                                        <a href="#"
+                                                            class="me-2 btn btn-sm btn-light-primary"data-pc-animate="just-me"
+                                                            data-bs-toggle="modal" data-bs-target="#qrCodeModal"><i
                                                                 class="feather icon-aperture mx-1"></i>Scan</a>
                                                         <a href="#" data-pc-animate="just-me" data-bs-toggle="modal"
                                                             data-bs-target="#meetingPreliminaryCheckListModel"
@@ -396,7 +397,8 @@
                                                             data-bs-target="#utilizationCertificateModal"
                                                             class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-info mx-1"></i>Self declaration</a>
-                                                        <a href="{{ route('download.utilireport', ['examid' => $session->exam_main_no]) }}" class="me-2 btn btn-sm btn-light-info"><i
+                                                        <a href="{{ route('download.utilireport', ['examid' => $session->exam_main_no]) }}"
+                                                            class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-download mx-1"></i>Download</a>
                                                     </div>
                                                 </div>
@@ -417,6 +419,7 @@
                 @include('modals.preliminary-checklist')
                 @include('modals.utilization-certificate')
                 @include('modals.meeting-preliminary-checklist')
+                @include('modals.qr-code-modal')
             </div>
             <!-- [ Main Content ] end -->
         </div>
@@ -459,6 +462,71 @@
                 });
                 classesToRemove.forEach(function(c) {
                     node.classList.remove(c);
+                });
+            }
+        </script>
+        <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
+        <script>
+            function processQrCode(data) {
+                // Hide the modal using Bootstrap's modal method
+                const qrCodeModal = document.getElementById('qrCodeModal');
+                const modalInstance = bootstrap.Modal.getInstance(qrCodeModal);
+                modalInstance.hide();
+                fetch("{{ route('ci-meetings.attendance-QRcode-scan') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            qr_code: data
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        showAlert(data.status, data.message);
+                        $('#qrCodeModal').modal('hide'); // Close modal after successful scan
+                        // Update the total scanned and total exam materials count
+                    })
+                    .catch((error) => {
+                        showAlert(data.status, data.message);
+                        $('#qrCodeModal').modal('hide');
+                    });
+            }
+
+            function showAlert(type, message) {
+                // Map the type to SweetAlert2's icon options
+                let iconType;
+                switch (type) {
+                    case 'success':
+                        iconType = 'success';
+                        break;
+                    case 'error':
+                        iconType = 'error';
+                        break;
+                    case 'info':
+                        iconType = 'info';
+                        break;
+                    case 'warning':
+                        iconType = 'warning';
+                        break;
+                    default:
+                        iconType = 'info'; // Default to 'info' if type is unknown
+                }
+
+                // Use SweetAlert2 to display the alert
+                Swal.fire({
+                    icon: iconType,
+                    title: type.charAt(0).toUpperCase() + type.slice(1),
+                    text: message,
+                    timer: 5000, // Hide after 5 seconds
+                    didOpen: () => {
+                        setTimeout(() => {
+                            Swal.close(); // Automatically close alert after 5 seconds
+                        }, 5000);
+                    }
+                }).then((result) => {
+                    window.location.reload(); // Reload the page when "OK" is clicked
                 });
             }
         </script>

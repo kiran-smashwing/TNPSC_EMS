@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AlertNotificationController;
 use App\Http\Controllers\DistrictCandidatesController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -530,6 +531,13 @@ Route::prefix('exam-trunkbox-qr-otl-data')->group(function () {
         Route::get('/download-sample-csv', [ExamTrunkBoxOTLDataController::class, 'downloadSampleCsv'])->name('exam-trunkbox-qr-otl-data.download-sample-csv');
         Route::post('/upload', [ExamTrunkBoxOTLDataController::class, 'uploadCsv'])->name('exam-trunkbox-qr-otl-data.upload');
         Route::get('/{examId}', [ExamTrunkBoxOTLDataController::class, 'index'])->name('exam-trunkbox-qr-otl-data.index');
+    });
+});
+Route::prefix('alert-notification')->group(function () {
+    Route::middleware(['auth.multi'])->group(function () {
+        // Add your new alert notification routes
+        Route::post('/save-emergency-alert', [AlertNotificationController::class, 'saveEmergencyAlert'])->name('alert-notification.emergency-alert');
+        Route::post('/save-adequacy-check', [AlertNotificationController::class, 'saveAdequacyCheck'])->name('alert-notification.adequacy-check');
     });
 });
 // Route::get('/run-function', [DataController::class, 'addData']);

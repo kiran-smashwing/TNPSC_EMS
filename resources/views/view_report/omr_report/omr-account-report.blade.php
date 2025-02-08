@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OMR Account</title>
+    <title>OMR Remarks</title>
     <style>
         html,
         body {
@@ -234,7 +234,7 @@
         </div>
 
         <div class="meeting-title">
-            <h5>OMR Reports</h5>
+            <h5>OMR Remarks</h5>
         </div>
         <div class="content-section">
             <p><strong> Notification No:</strong> {{ $notification_no }} | <strong> Exam Date:

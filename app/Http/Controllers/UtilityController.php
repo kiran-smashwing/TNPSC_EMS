@@ -68,7 +68,7 @@ class UtilityController extends Controller
             ->where('ci_id', $user->ci_id)
             ->pluck('hall_code')
             ->first();
-    //    dd($hall_code);
+        //    dd($hall_code);
         if ($ci_amount->isEmpty()) {
             abort(404, 'CI data not found.');
         }
@@ -80,7 +80,7 @@ class UtilityController extends Controller
 
         // Pass the collection to the Blade template
         // return view('PDF.Reports.ci-utility-certificate', compact('exam_data', 'formattedDatesString', 'user', 'utility_answer', 'amount', 'amount_in_words'));
-        $html = view('PDF.Reports.ci-utility-certificate', compact('exam_data', 'formattedDatesString', 'user', 'utility_answer', 'amount', 'amount_in_words','hall_code'))->render();
+        $html = view('PDF.Reports.ci-utility-certificate', compact('exam_data', 'formattedDatesString', 'user', 'utility_answer', 'amount', 'amount_in_words', 'hall_code'))->render();
 
         // Render the Blade view with the exam data
         // Generate PDF using Browsershot

@@ -1,11 +1,13 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Spatie\Browsershot\Browsershot;
 use App\Models\Currentexam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Center;
+use App\Models\CIcandidateLogs;
 use Illuminate\Support\Facades\Auth;
 use App\Models\District;
 
@@ -85,4 +87,120 @@ class CandidateRemarksController extends Controller
             'centerCodeFromSession' => $centerCodeFromSession,
         ]);
     }
+    public function generateCandidateRemarksReportOverall(Request $request)
+    {
+        $notificationNo = $request->query('notification_no');
+        $examDate = $request->query('exam_date');
+        $session = $request->query('session'); // FN or AN
+        $category = $request->query('category');
+        $districtId = $request->query('district');
+        $centerId = $request->query('center');
+    
+        // Fetch the exam details
+        $exam_data = Currentexam::with('examservice')
+            ->where('exam_main_notification', $notificationNo)
+            ->first();
+    
+        if (!$exam_data) {
+            return back()->with('error', 'Exam data not found.');
+        }
+    
+        $exam_id = $exam_data->exam_main_no;
+    
+        // Fetch candidate attendance data
+        $candidate_attendance = CIcandidateLogs::where('exam_id', $exam_id)
+            ->where('exam_date', $examDate)
+            ->when($districtId, function ($query) use ($districtId) {
+                return $query->whereHas('center.district', function ($q) use ($districtId) {
+                    $q->where('id', $districtId);
+                });
+            })
+            ->when($centerId, function ($query) use ($centerId) {
+                return $query->whereHas('center', function ($q) use ($centerId) {
+                    $q->where('id', $centerId);
+                });
+            })
+            ->with('ci', 'center.district') 
+            ->get();
+    
+        if ($candidate_attendance->isEmpty()) {
+            return back()->with('error', 'No candidate attendance found for this exam date.');
+        }
+    
+        // Extract candidate remarks and details
+        $candidate_details = [];
+    
+        foreach ($candidate_attendance as $attendance) {
+            // Decode JSON from candidate_remarks
+            $remarks_data = $attendance->candidate_remarks;
+    
+            // Ensure decoding is successful and the session exists
+            if (is_array($remarks_data) && isset($remarks_data[$session])) {
+                foreach ($remarks_data[$session] as $remark_entry) {
+                    $candidate_details[] = [
+                        'reg_no' => $remark_entry['registration_number'] ?? 'N/A',
+                        'remark' => $remark_entry['remark'] ?? 'N/A',
+                        'hall_code' => $attendance->hall_code ?? 'N/A',
+                        'district' => $attendance->center->district->district_name ?? 'N/A',
+                        'center' => $attendance->center->center_name ?? 'N/A',
+                        'center_code' => $attendance->center->center_code ?? 'N/A',
+                        'venue_name' => $attendance->ci->venue->venue_name ?? 'N/A',
+                    ];
+                }
+            }
+        }
+    
+        if (empty($candidate_details)) {
+            return back()->with('error', 'No candidate remarks found for this session.');
+        }
+    
+        // Prepare final data for Blade
+        $data = [
+            'notification_no' => $notificationNo,
+            'exam_date' => $examDate,
+            'exam_data' => $exam_data,
+            'session' => $session,
+            'category' => $category,
+            'candidate_details' => $candidate_details,
+        ];
+    
+        // Debugging output (You can remove this after testing)
+        // dd($data);
+    
+        // Render the Blade template
+        $html = view('view_report.candidate_remarks_report.candidate_remarks_report_overall', $data)->render();
+    
+        // Generate PDF using Browsershot
+        $pdf = Browsershot::html($html)
+            ->setOption('landscape', true)
+            ->setOption('margin', [
+                'top' => '10mm',
+                'right' => '10mm',
+                'bottom' => '10mm',
+                'left' => '10mm'
+            ])
+            ->setOption('displayHeaderFooter', true)
+            ->setOption('headerTemplate', '<div></div>')
+            ->setOption('footerTemplate', '
+                <div style="font-size:10px;width:100%;text-align:center;">
+                    Page <span class="pageNumber"></span> of <span class="totalPages"></span>
+                </div>
+                <div style="position: absolute; bottom: 5mm; right: 10px; font-size: 10px;">
+                    IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . '
+                </div>')
+            ->setOption('preferCSSPageSize', true)
+            ->setOption('printBackground', true)
+            ->scale(1)
+            ->format('A4')
+            ->pdf();
+    
+        // Define a unique filename for the report
+        $filename = 'candidate_remarks_report_overall_' . time() . '.pdf';
+    
+        // Return the PDF as a response
+        return response($pdf)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
+    }
+    
 }

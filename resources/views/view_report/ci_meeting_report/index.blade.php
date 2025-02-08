@@ -73,7 +73,7 @@
                             <h5>Filter CI Meeting Attendance</h5>
                         </div>
                         <div class="card-body">
-                            <form action="#" method="GET" id="filterForm">
+                            <form action="{{route('ci-attendace.report.overall')}}" method="GET" id="filterForm">
                                 @csrf
                                 <div class="row">
                                     <!-- Notification No -->
@@ -99,7 +99,7 @@
                                     </div> --}}
 
                                     <!-- District -->
-                                    <!-- District Dropdown -->
+                                    {{-- <!-- District Dropdown -->
                                     <div class="col-md-4 mb-3">
                                         <label for="category" class="form-label">Category</label>
                                         <select name="category" id="category" class="form-control">
@@ -124,7 +124,7 @@
                                         <select name="center" id="center" class="form-control">
                                             <option value="" selected>Select Center</option>
                                         </select>
-                                    </div>
+                                    </div> --}}
                                 </div>
 
                                 <!-- Submit Button -->

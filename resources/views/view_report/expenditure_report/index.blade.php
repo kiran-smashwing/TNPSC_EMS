@@ -73,57 +73,15 @@
                             <h5>Filter Expenditure Statement</h5>
                         </div>
                         <div class="card-body">
-                            <form action="#" method="GET" id="filterForm">
+                            <form action="{{ route('filter.expenditure') }}" method="GET">
                                 @csrf
                                 <div class="row">
                                     <!-- Notification No -->
                                     <div class="col-md-4 mb-3">
                                         <label for="notification_no" class="form-label">Notification No</label>
                                         <input type="text" name="notification_no" id="notification_no"
-                                            class="form-control" placeholder="Enter Notification No" />
-                                    </div>
-                                    <!-- Exam Date -->
-                                    {{-- <div class="col-md-4 mb-3">
-                                        <label for="exam_date" class="form-label">Exam Date</label>
-                                        <select name="exam_date" id="exam_date" class="form-control">
-                                            <option value="" selected>Select Exam Date</option>
-                                        </select>
-                                    </div>
-
-                                    <!-- Session -->
-                                    <div class="col-md-4 mb-3">
-                                        <label for="session" class="form-label">Session</label>
-                                        <select name="session" id="session" class="form-control">
-                                            <option value="" selected>Select Session</option>
-                                        </select>
-                                    </div> --}}
-
-                                    <!-- District -->
-                                    <!-- District Dropdown -->
-                                    <div class="col-md-4 mb-3">
-                                        <label for="category" class="form-label">Category</label>
-                                        <select name="category" id="category" class="form-control">
-                                            <option value="" selected>Select</option>
-                                            <option value="all">All</option>
-                                            <option value="district">District</option>
-                                            <option value="center">Center</option>
-                                        </select>
-                                    </div>
-                                    
-                                    <!-- District Dropdown -->
-                                    <div class="col-md-4 mb-3" id="district-container" style="display: none;">
-                                        <label for="district" class="form-label">District</label>
-                                        <select name="district" id="district" class="form-control">
-                                            <option value="" selected>Select District</option>
-                                        </select>
-                                    </div>
-                                    
-                                    <!-- Center Dropdown -->
-                                    <div class="col-md-4 mb-3" id="center-container" style="display: none;">
-                                        <label for="center" class="form-label">Center</label>
-                                        <select name="center" id="center" class="form-control">
-                                            <option value="" selected>Select Center</option>
-                                        </select>
+                                            class="form-control" placeholder="Enter Notification No"
+                                            value="{{ request('notification_no') }}" />
                                     </div>
                                 </div>
 
@@ -131,13 +89,67 @@
                                 <div class="row">
                                     <div class="col-md-12 text-end">
                                         <button type="submit" class="btn btn-primary">Submit</button>
+                                        <a href="{{ route('expenditure-statment.report') }}" class="btn btn-secondary">Reset</a>
+
                                     </div>
                                 </div>
+
                             </form>
                         </div>
                     </div>
                 </div>
                 <!-- [ Filter Form ] end -->
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Expenditure Statement</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>District</th>
+                                        <th>Center</th>
+                                        <th>Hall Code</th>
+                                        <th>Venue Name</th>
+                                        <th>Amount Received (Rs.)</th>
+                                        <th>Amount Spent (Rs.)</th>
+                                        <th>Balance Returned (Rs.)</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (isset($attendance_data) && is_array($attendance_data))
+                                        @forelse ($attendance_data as $index => $data)
+                                            <tr>
+                                                <td>{{ $index + 1 }}</td>
+                                                <td>{{ $data['district'] ?? 'N/A' }}</td>
+                                                <td>{{ $data['center'] ?? 'N/A' }}</td>
+                                                <td>{{ $data['hall_code'] ?? 'N/A' }}</td>
+                                                <td>{{ $data['venue_name'] ?? 'N/A' }}</td>
+                                                <td>{{ $data['amountReceived'] ?? '0' }}</td>
+                                                <td>{{ $data['totalAmountSpent'] ?? '0' }}</td>
+                                                <td>{{ $data['balanceAmount'] ?? '0' }}</td>
+                                                <td>
+                                                    <a href="{{ route('download.expenditure.report', ['examid' => $exam_main_no]) }}"
+                                                        class="me-2 btn btn-sm btn-light-success">
+                                                        <i class="feather icon-download mx-1"></i> View
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="9" class="text-center">No records found</td>
+                                            </tr>
+                                        @endforelse
+                                    @endif
+                                </tbody>
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -147,7 +159,75 @@
 
     @push('scripts')
         @include('partials.datatable-export-js')
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+
         <script>
+            $(document).ready(function() {
+                var table = $('#res-config').DataTable({
+                    processing: true,
+                    serverSide: false, // Set to true if fetching large data
+                    ajax: {
+                        url: "{{ route('filter.expenditure') }}",
+                        type: 'GET',
+                        data: function(d) {
+                            d.notification_no = $('#notification_no').val();
+                        },
+                        dataSrc: function(json) {
+                            console.log("Filtered Exam Data:", json.data); // Log response data
+                            return json.data; // Pass data to DataTable
+                        }
+                    },
+                    columns: [{
+                            data: 'id',
+                            name: 'id'
+                        },
+                        {
+                            data: 'district',
+                            name: 'district'
+                        },
+                        {
+                            data: 'center',
+                            name: 'center'
+                        },
+                        {
+                            data: 'hall_code',
+                            name: 'hall_code'
+                        },
+                        {
+                            data: 'venue_name',
+                            name: 'venue_name'
+                        },
+                        {
+                            data: 'amount_received',
+                            name: 'amount_received'
+                        },
+                        {
+                            data: 'amount_spent',
+                            name: 'amount_spent'
+                        },
+                        {
+                            data: 'balance_returned',
+                            name: 'balance_returned'
+                        },
+                        {
+                            data: null,
+                            render: function(data, type, row) {
+                                return `<a href="/expenditure/${row.id}" class="btn btn-primary btn-sm">View</a>`;
+                            }
+                        }
+                    ]
+                });
+
+                $('#filterForm').submit(function(e) {
+                    e.preventDefault();
+                    table.ajax.reload();
+                });
+            });
+        </script>
+
+        {{-- <script>
             document.getElementById('notification_no').addEventListener('blur', function() {
                 const notificationNo = this.value.trim();
 
@@ -278,7 +358,50 @@
                     centerContainer.style.display = "block";
                 }
             });
-        </script>
+        </script> --}}
+        {{-- <script>
+            document.getElementById('notification_no').addEventListener('blur', function() {
+                const notificationNo = this.value.trim();
+    
+                if (notificationNo) {
+                    fetch(`{{ route('attendance.dropdown') }}?notification_no=${notificationNo}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Invalid response from the server');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            // Populate exam dates
+                            const examDateSelect = document.getElementById('exam_date');
+                            examDateSelect.innerHTML = '<option value="" selected>Select Exam Date</option>';
+                            if (data.examDates && data.examDates.length > 0) {
+                                data.examDates.forEach(date => {
+                                    const option = document.createElement('option');
+                                    option.value = date;
+                                    option.textContent = date;
+                                    examDateSelect.appendChild(option);
+                                });
+                            }
+    
+                            // Populate sessions
+                            const sessionSelect = document.getElementById('session');
+                            sessionSelect.innerHTML = '<option value="" selected>Select Session</option>';
+                            if (data.sessions && data.sessions.length > 0) {
+                                data.sessions.forEach(session => {
+                                    const option = document.createElement('option');
+                                    option.value = session;
+                                    option.textContent = session;
+                                    sessionSelect.appendChild(option);
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching dropdown data:', error);
+                        });
+                }
+            });
+        </script> --}}
     @endpush
     @include('partials.theme')
 

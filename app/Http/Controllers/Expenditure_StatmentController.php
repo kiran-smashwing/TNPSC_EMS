@@ -79,12 +79,7 @@ class Expenditure_StatmentController extends Controller
         ));
     }
 
-
-
-
-
-
-    public function getDropdownData(Request $request)
+public function getDropdownData(Request $request)
     {
         $notificationNo = $request->query('notification_no');
 

@@ -42,6 +42,11 @@
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
+        .content-section {
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14pt;
+        }
 
         .logo-container {
             flex: 0 0 90px;
@@ -84,7 +89,7 @@
 
         .attendance-table th,
         .attendance-table td {
-            border: 1px solid #000;
+            border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
         }
@@ -95,7 +100,7 @@
             text-align: center;
         }
 
-       
+
 
         @media print {
             .header-container {
@@ -130,43 +135,62 @@
         </div>
 
         <div class="meeting-title">
-            <h5>CHIEF INVIGILATORS MEETING ATTENDANCE REPORT</h5>
-            <p><strong> Notification No:</strong> 10/2024 |
-                <strong>Exam Name:</strong> RASHTRIYA INDIAN MILITARY COLLEGE(JULY-2025 TERM) |
-                <strong>Meeting Date & Time:</strong> 01-12-2024 10:30 AM
+            <h5>CHIEF INVIGILATORS MEETING ATTENDANCE</h5>
+        </div>
+        <div class="content-section">
+            <p><strong> Notification No:</strong> {{$notification_no}} |
+                <strong>Exam Name:</strong> {{$exam_name}} <br> Exam Service: {{$exam_services}} <br>
             </p>
         </div>
+        @foreach ($grouped_data as $district_name => $data)
+            <div class="meeting-title" style="margin: 40px 0 20px 0; padding: 10px 0;">
+                <h5 style="margin-bottom: 10px;">
+                    <strong>District:</strong> {{ $district_name }} |
+                    <strong>Meeting Date & Time:</strong>
+                    {{ $data['meeting_time']['meeting_date'] ?? 'N/A' }}
+                    {{ $data['meeting_time']['meeting_time'] ?? '' }}
+                </h5>
+            </div>
 
-        <table class="attendance-table">
-            <thead>
-                <tr>
-                    <th>S.No</th>
-                    <th>District <br> Name</th>
-                    <th>Center <br> Code</th>
-                    <th>Hall <br> No</th>
-                    <th>Venue Name</th>
-                    <th>Attendance <br> Date & Time</th>
-                    <th>Adequacy Check <br> Date & Time</th>
-                    <th>CI Name</th>
-                    <th>CI Phone</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for ($i = 1; $i <= 100; $i++)
+
+            <table class="attendance-table">
+                <thead>
                     <tr>
-                        <td>{{ $i }}</td>
-                        <td>Thiruvanamalai</td>
-                        <td>0102</td>
-                        <td>001</td>
-                        <td>DURAI KAMALAM GOVERNMENT MODEL HIGHER SECONDARY SCHOOL</td>
-                        <td>01-12-2024 <br> 10:30 AM</td>
-                        <td>01-12-2024 <br> 10:45 AM</td>
-                        <td>Mrs. FLORIDA MERLINE LAWRENCE</td>
-                        <td>9999999999</td>
+                        <th>S.No</th>
+                        <th>Center Name</th>
+                        <th>Center Code</th>
+                        <th>Hall <br> No</th>
+                        <th>Venue Name</th>
+                        <th>Attendance <br> Date & Time</th>
+                        <th>Adequacy Check <br> Date & Time</th>
+                        <th>CI Name</th>
+                        <th>CI E-mail</th>
+                        <th>CI Phone</th>
                     </tr>
-                @endfor
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach ($data['ci_meeting_records'] as $index => $record)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $record->center->center_name ?? 'N/A' }}</td>
+                            <td>{{ $record->center->center_code ?? 'N/A' }}</td>
+                            <td>{{ $record->hall_code ?? 'N/A' }}</td>
+                            <td>{{ optional($record->center->venues->first())->venue_name ?? 'N/A' }}</td>
+                            <td>
+                                {{ $record->updated_at ?? 'N/A' }} <br>
+                            </td>
+                            <td>
+                                {{ $record->created_at ?? 'N/A' }} <br>
+                            </td>
+                            <td>{{ $record->ci->ci_name ?? 'N/A' }}</td>
+                            <td>{{ $record->ci->ci_email ?? 'N/A' }}</td>
+                            <td>{{ $record->ci->ci_phone ?? 'N/A' }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endforeach
+
     </div>
 
 </body>

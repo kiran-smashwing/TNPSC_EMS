@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CIcandidateLogs extends Model
+class CICandidateLogs extends Model
 {
     use HasFactory;
 

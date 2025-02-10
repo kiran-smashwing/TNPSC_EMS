@@ -48,4 +48,8 @@ class CIChecklistAnswer extends Model
     {
         return $this->belongsTo(ChiefInvigilator::class, 'ci_id', 'ci_id');
     }
+    public function venue()
+    {
+        return $this->belongsTo(Venues::class, 'venue_id', 'ci_venue_id');
+    }
 }

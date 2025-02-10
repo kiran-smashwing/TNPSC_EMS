@@ -105,7 +105,8 @@
                             <h5>Expenditure Statement</h5>
                         </div>
                         <div class="card-body">
-                            <table class="table table-striped table-hover">
+                            <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
+                            style="width: 100%">
                                 <thead>
                                     <tr>
                                         <th>#</th>

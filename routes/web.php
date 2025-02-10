@@ -197,6 +197,8 @@ Route::prefix('report')->group(function () {
         Route::get('/ci-attendace', [CiMeetingAttendanceController::class, 'index'])->name('ci-attendace.report');
         Route::get('/ci-attendace-report-overall', [CiMeetingAttendanceController::class, 'generateCIMeetingReport'])->name('ci-attendace.report.overall');
         Route::get('/consolidated-statement', [ConsolidatedStatementController::class, 'index'])->name('consolidated-statement.report');
+        Route::get('/download-consolidated-statement/{exam_id}/{exam_date}/{session}/{ci_id}', [ConsolidatedStatementController::class, 'generateconsolidatedReport'])->name('download-consolidated-statement.report');
+        Route::get('/consolidated-statement-overall', [ConsolidatedStatementController::class, 'filterConsolidatedStatement'])->name('consolidated-statement.report.overall');
         Route::get('/candidate-remarks', [CandidateRemarksController::class, 'index'])->name('candidate-remarks.report');
         Route::get('/candidate-remarks-report-overall', [CandidateRemarksController::class, 'generateCandidateRemarksReportOverall'])->name('candidate-remarks.report.overall');
         Route::get('/exam-material-discrepancy', [ExamMaterialsDiscrepancyController::class, 'index'])->name('exam-material-discrepancy.report');

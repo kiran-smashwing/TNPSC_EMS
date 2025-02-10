@@ -11,6 +11,11 @@ class AuthorizationService
                     'current-exam.create',
                     'current-exam.store',
                     'current-exam.edit',
+                    'departments-masters',
+                    'view-all-examination-services',
+                    'exam-heading',
+                    'current-exam',
+                    
                 ],
             ],
             'APD' => [
@@ -20,6 +25,11 @@ class AuthorizationService
                     'finalize-csv',
                     'downlaodConfirmedExamHalls',
                     'download-finalized-halls-csv',
+                    'exam-heading',
+                    'current-exam',
+                    'exam-completed',
+                    'report-heading',
+                    'candidate-attendance'
                 ],
             ],
             'ID' => [
@@ -44,17 +54,55 @@ class AuthorizationService
                     'downlaodConfirmedExamHalls',
                     'heading',
                     'create-exam-materials-route',
+                    'view-all-examination-services',
+                    'view-all-department',
+                    'exam-heading',
+                    'current-exam',
+                    'exam-completed',
+                    'report-heading',
+                    'candidate-attendance',
+                    'cv-down-updates',
+                    'bundle-collection',
+                    'omr-qca-delivered',
+                    'chv-routes',
+                    'replacement-omr-qca',
+                    'emergency-alrm',
+                    'exam-discrepancy',
+                    'candidate-remarks',
+                    'candidate-statement',
+                    'expenditure-statment',
+                    'ci-meeting',
+
                 ],
             ],
             'ED' => [
                 'Section Officer' => [
                     'verify-bundle-recevied-at-hq',
-                    
+                    'exam-heading',
+                    'current-exam',
+                    'cv-down-updates',
+                    'exam-completed',
+                    'bundle-collection'
                 ],
             ],
             'VMD' => [
                 'Section Officer' => [
                     'verify-materials-handovered',
+                    'exam-heading',
+                    'cv-down-updates',
+                ],
+            ],
+            'VSD' => [
+                'Section Officer' => [
+                    'report-heading',
+                    'replacement-omr-qca',
+                ],
+            ],
+            'MCD' => [
+                'Section Officer' => [
+                    'report-heading',
+                    'emergency-alrm',
+                    'exam-discrepancy',
                 ],
             ],
             'QD' => [
@@ -64,6 +112,10 @@ class AuthorizationService
                     'receive-materials-printer-to-hq',
                     'upload-trunk-box-otl-csv',
                     'download-trunk-box-otl-csv',
+                    'exam-heading',
+                    'current-exam',
+                    'exam-completed',
+                    'omr-qca-delivered'
                 ],
             ],
             'ADMIN' => [
@@ -76,11 +128,15 @@ class AuthorizationService
             'ci-meetings.attendance-QRcode-scan',
             'venues-masters',
             'heading',
+            'exam-heading',
+            'current-exam',
         ],
         'venue' => [
             'venues-masters',
             'heading',
             'view-all-chief-invigilators',
+            'exam-heading',
+            'current-exam',
         ],
         'district' => [
             'receive-exam-materials',
@@ -95,13 +151,19 @@ class AuthorizationService
             'heading',
             'view-all-center',
             'create-exam-materials-route',
+            'exam-heading',
+            'current-exam',
         ],
         'treasury' => [
             'receive-exam-materials-from-printer',
             'receive-bundle-from-mobile-team',
+            'exam-heading',
+            'current-exam',
         ],
         'center' => [
             'download-meeting-qr',
+            'exam-heading',
+            'current-exam',
         ],
         // Add other roles and their permissions
     ];

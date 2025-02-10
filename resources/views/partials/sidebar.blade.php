@@ -146,12 +146,12 @@
                         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                     </a>
                     <ul class="pc-submenu">
-
+                    @hasPermission('view-all-examination-services')
                         <li class="pc-item"><a class="pc-link" href="{{ route('exam-services.index') }}">Examination
                                 Services</a>
                         </li>
-
-
+                    @endhasPermission
+                    @hasPermission('view-all-department')
                         <li class="pc-item"><a class="pc-link" href="{{ route('ci-checklist') }}">CI Checklist</a>
                         </li>
 
@@ -161,15 +161,18 @@
                                 href="{{ route('department-officials.index') }}">Department
                                 Officials</a>
                         </li>
+                        @endhasPermission
                     </ul>
                 </li>
                 @endhasPermission
+                @hasPermission('exam-heading')
                 <li class="pc-item pc-caption">
                     <label>Exams</label>
                     <svg class="pc-icon">
                         <use xlink:href="#custom-presentation-chart"></use>
                     </svg>
                 </li>
+                @endhasPermission
                 {{-- <li class="pc-item">
                     <a href="{{ route('my-exam.index') }}" class="pc-link">
                         <span class="pc-micon">
@@ -180,6 +183,7 @@
                         <span class="pc-mtext">My Exams</span>
                     </a>
                 </li> --}}
+                @hasPermission('current-exam')
                 <li class="pc-item">
                     <a href="{{ route('current-exam.index') }}" class="pc-link">
                         <span class="pc-micon">
@@ -190,6 +194,7 @@
                         <span class="pc-mtext">Current Exams</span>
                     </a>
                 </li>
+                @endhasPermission
                 {{-- <li class="pc-item">
                     <a href="{{ route('my-exam.ciTask', '20241126092207') }}" class="pc-link">
                         <span class="pc-micon">
@@ -240,6 +245,7 @@
                     <span class="pc-mtext">MobileTeam - Current Exams</span>
                 </a>
             </li> --}}
+            @hasPermission('chv-routes')
                 <li class="pc-item">
                     <a href="{{ route('charted-vehicle-routes.index') }}" class="pc-link">
                         <span class="pc-micon">
@@ -250,6 +256,8 @@
                         <span class="pc-mtext">Charted Vehicle Routes</span>
                     </a>
                 </li>
+                @endhasPermission
+                @hasPermission('cv-down-updates')
                 <li class="pc-item">
                     <a href="{{ route('charted-vehicle-routes.downward-journey-routes') }}" class="pc-link">
                         <span class="pc-micon">
@@ -260,7 +268,8 @@
                         <span class="pc-mtext"></span>CV Downward Updates
                     </a>
                 </li>
-
+               @endhasPermission
+                @hasPermission('exam-completed')
                 <li class="pc-item">
                     <a href="{{ route('completed-exam') }}" class="pc-link">
                         <span class="pc-micon">
@@ -270,31 +279,50 @@
                         </span>
                         <span class="pc-mtext"></span>Completed Exams</a>
                 </li>
+                @endhasPermission
+                @hasPermission('report-heading')
                 <li class="pc-item pc-caption">
                     <label>Reports</label>
                     <svg class="pc-icon">
                         <use xlink:href="#custom-layer"></use>
                     </svg>
                 </li>
+                @endhasPermission
+                @hasPermission('emergency-alrm')
                 <li class="pc-item"><a class="pc-link" href="{{route('emergency-alarm-notification.report')}}">Emergency Alarm Notifications</a>
                 </li>
+                @endhasPermission
+                @hasPermission('exam-discrepancy')
                 <li class="pc-item"><a class="pc-link" href="{{route('exam-material-discrepancy.report')}}">Exam Materials Discrepancy</a>
                 </li>
+                @endhasPermission
+                @hasPermission('candidate-attendance')
                 <li class="pc-item"><a class="pc-link" href="{{ route('attendance.report') }}">Candidate Attendance</a>
                 </li>
+                @endhasPermission
                 {{-- <li class="pc-item"><a class="pc-link" href="{{ route('expenditure-statment.report.overall') }}">Candidate pdf</a>
                 </li> --}}
-                
+                @hasPermission('replacement-omr-qca')
                 <li class="pc-item"><a class="pc-link" href="{{route('omr-account.report')}}">Replacement of OMR/QCA</a>
                 </li>
+                @endhasPermission
+                @hasPermission('candidate-remarks')
                 <li class="pc-item"><a class="pc-link" href="{{route('candidate-remarks.report')}}">Candidate Remarks</a>
                 </li>
+                @endhasPermission
+                @hasPermission('candidate-statement')
                 <li class="pc-item"><a class="pc-link" href="{{route('consolidated-statement.report')}}">Consolidated Statement </a>
                 </li>
+                @endhasPermission
+                @hasPermission('expenditure-statment')
                     <li class="pc-item"><a class="pc-link" href="{{ route('expenditure-statment.report') }}">Expenditure Statement</a>
                     </li>
+                    @endhasPermission
+                    @hasPermission('ci-meeting')
                     <li class="pc-item"><a class="pc-link" href="{{route('ci-attendace.report')}}">CI Meeting Attendance</a>
                     </li>
+                    @endhasPermission
+                    @hasPermission('omr-qca-delivered')
                 <li class="pc-item pc-hasmenu">
                     <a href="#!" class="pc-link">
                         <span class="pc-micon">
@@ -312,7 +340,8 @@
                         <li class="pc-item"><a class="pc-link" href="#"> Mobile Team to Chief Invigilator</a> </li>
                     </ul>
                 </li>
-
+                 @endhasPermission
+                 @hasPermission('bundle-collection')
                 <li class="pc-item pc-hasmenu">
                     <a href="#!" class="pc-link">
                         <span class="pc-micon">
@@ -329,6 +358,7 @@
                         <li class="pc-item"><a class="pc-link" href="#">Sub Treasury to District Treasury</a></li>
                     </ul>
                 </li>
+                @endhasPermission
                 <li class="pc-item pc-caption">
                     <label> Email</label>
                     <svg class="pc-icon">

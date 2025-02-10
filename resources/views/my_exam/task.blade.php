@@ -250,7 +250,7 @@
                                                                 @endif
                                                             @endhasPermission
                                                             @hasPermission('upload-candidates-csv')
-                                                                @if (!empty($metadata->failed_csv_link) && file_exists(public_path(parse_url($metadata->failed_csv_link, PHP_URL_PATH))))
+                                                                @if (!empty($metadata->failed_csv_link))
                                                                     <a href="{{ $metadata->failed_csv_link }}"
                                                                         class="me-3 btn btn-sm btn-light-danger">
                                                                         <i class="feather icon-download mx-1"></i>Failed
@@ -1651,9 +1651,9 @@
                                                                         <b>{{ $is_materials_handover_verified ? $metadata->user_name ?? '' : ' Unknown ' }}</b>
                                                                     </li>
                                                                     <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    {{ $is_materials_handover_verified ? \Carbon\Carbon::parse($materialsHandoverVerification->updated_at)->format('d-m-Y h:i A') : ' ' }}
-                                                                </li>
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                        {{ $is_materials_handover_verified ? \Carbon\Carbon::parse($materialsHandoverVerification->updated_at)->format('d-m-Y h:i A') : ' ' }}
+                                                                    </li>
                                                                 </ul>
                                                             </div>
                                                             <div class="h5 mt-3"><i

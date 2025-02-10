@@ -39,17 +39,21 @@ class DistrictCandidatesController extends Controller
         $guard = $role ? Auth::guard($role) : null;
         $user = $guard ? $guard->user() : null;
         //get the exam_main_candidates_for_hall data from current exam table with exam id
-
-
+        $current_exam = Currentexam::where('exam_main_no', $examId)->first();
         $candidatesCountForEachHall = Currentexam::where('exam_main_no', $examId)
             ->value('exam_main_candidates_for_hall');
 
         $examCenters = \DB::table('exam_candidates_projection')
-            ->select('center_code', \DB::raw('SUM(accommodation_required) as total_accommodation'), \DB::raw('COUNT(*) as candidate_count'))
+            ->select(
+                'center_code',
+                \DB::raw('MAX(accommodation_required) as total_accommodation'),
+                \DB::raw('COUNT(*) as session_count')
+            )
             ->where('exam_id', $examId)
             ->where('district_code', $user->district_code)
             ->groupBy('center_code')
             ->get();
+
         $examCenters->each(function ($center) {
             $center->details = \DB::table('centers')
                 ->where('center_code', $center->center_code)
@@ -83,45 +87,53 @@ class DistrictCandidatesController extends Controller
             ->where('district_code', $user->district_code)
             ->distinct('center_code')
             ->count('center_code');
-        return view('my_exam.District.venue-intimation', compact('examId', 'examCenters', 'user', 'totalCenters', 'totalCentersFromProjection', 'allvenues', 'candidatesCountForEachHall'));
+        return view('my_exam.District.venue-intimation', compact('examId', 'current_exam', 'examCenters', 'user', 'totalCenters', 'totalCentersFromProjection', 'allvenues', 'candidatesCountForEachHall'));
     }
     public function processVenueConsentEmail(Request $request)
     {
+        // dd($request->all());
         // Validate the request
         $request->validate([
             'center_code' => 'required',
             'exam_id' => 'required',
-            'venues' => 'required|array'
+            'venues' => 'required|array',
+            'action' => 'required|in:save,send'
         ]);
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
         $user = $guard ? $guard->user() : null;
-
-        // Get the district code (you might need to derive this from the center code)
         $districtCode = $user->district_code;
 
         // Process each selected venue
         foreach ($request->venues as $venue) {
-            // Create or update exam venue consent record
-            ExamVenueConsent::updateOrCreate(
-                [
-                    'exam_id' => $request->exam_id,
-                    'venue_id' => $venue['venue_id'],
-                    'center_code' => $request->center_code,
-                    'district_code' => $districtCode
-                ],
-                [
-                    'consent_status' => 'requested', // Initial status
-                    'email_sent_status' => true,
-                    'expected_candidates_count' => $venue['halls_count']  // Assuming 200 candidates per hall
-                ]
-            );
-            // Get the current exam details
-            $currentExam = \DB::table('exam_main')->where('exam_main_no', $request->exam_id)->first();
+            $record = ExamVenueConsent::firstOrNew([
+                'exam_id' => $request->exam_id,
+                'venue_id' => $venue['venue_id'],
+                'center_code' => $request->center_code,
+                'district_code' => $districtCode
+            ]);
 
-            // Send actual email to venue
-            $this->sendVenueConsentEmail($venue['venue_id'], $currentExam);
+            // Update common fields
+            $record->expected_candidates_count = $venue['halls_count'];
 
+            // Handle email status
+            if ($request->action === 'send') {
+                $record->consent_status = 'requested';
+                $record->email_sent_status = true;
+            } elseif (!$record->exists) {
+                $record->consent_status = 'saved';
+                $record->email_sent_status = false;
+            }
+
+            $record->save();
+            // Send email only for send action
+            if ($request->action === 'send') {
+                // Get the current exam details
+                $currentExam = \DB::table('exam_main')->where('exam_main_no', $request->exam_id)->first();
+
+                // Send actual email to venue
+                $this->sendVenueConsentEmail($venue['venue_id'], $currentExam);
+            }
         }
         // Log the action using the AuditService
         $currentUser = current_user();
@@ -176,13 +188,56 @@ class DistrictCandidatesController extends Controller
                 metadata: $metadata
             );
         }
+        $message = $request->action === 'send' ? 'Consent requests sent successfully' : 'Saved successfully';
 
         return response()->json([
-            'message' => 'Consent requests sent successfully',
+            'message' => $message,
             'venues' => $request->venues
         ]);
     }
+    public function clearSavedVenues(Request $request)
+    {
+        $request->validate([
+            'center_code' => 'required',
+            'exam_id' => 'required',
+            'venue_ids' => 'required|array'
+        ]);
 
+        // Get the current user's district code
+        $role = session('auth_role');
+        $guard = $role ? Auth::guard($role) : null;
+        $user = $guard ? $guard->user() : null;
+        $districtCode = $user->district_code;
+
+        // Clear saved data for selected venues
+        ExamVenueConsent::where('exam_id', $request->exam_id)
+            ->where('center_code', $request->center_code)
+            ->where('district_code', $districtCode)
+            ->whereIn('venue_id', $request->venue_ids)
+            ->delete();
+
+        // Log the action
+        $currentUser = current_user();
+        $metadata = ['user_name' => $currentUser->display_name ?? 'Unknown'];
+
+        $this->auditService->log(
+            examId: $request->exam_id,
+            actionType: 'cleared_saved_venues',
+            taskType: 'exam_venue_consent',
+            beforeState: null,
+            afterState: [
+                'cleared_venue_ids' => $request->venue_ids,
+                'total_cleared' => count($request->venue_ids)
+            ],
+            description: 'Cleared saved data for ' . count($request->venue_ids) . ' venues',
+            metadata: $metadata
+        );
+
+        return response()->json([
+            'message' => 'Saved data cleared successfully for selected venues',
+            'cleared_venues' => $request->venue_ids
+        ]);
+    }
     // Optional email sending method
     protected function sendVenueConsentEmail($venueId, $examId)
     {
@@ -383,6 +438,6 @@ class DistrictCandidatesController extends Controller
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
     }
-    
+
 
 }

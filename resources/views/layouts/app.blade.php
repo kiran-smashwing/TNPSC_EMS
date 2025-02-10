@@ -215,7 +215,7 @@
         }
 
         // Toast notification helper function
-        function showNotification(title, message, type = 'success', timestamp = null) {
+        function showNotification(title, message, type = 'success', timestamp = null, route = '#') {
             // Play notification sound
             const notificationSound = new Audio("{{ asset('storage/assets/sounds/notification.wav') }}");
             // notificationSound.play().catch((error) => {
@@ -266,9 +266,11 @@
                         <small>${relativeTime}</small>
                     <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
+                 <a href="${route}" class="text-decoration-none text-dark" style="display: block;">
                 <div class="toast-body">
                     ${message}
                 </div>
+            </a>
             </div>
         </div>
     `;
@@ -370,7 +372,7 @@
             window.Echo.connector.pusher.connection.bind('error', (error) => {
                 console.log('Connection error:', error);
             });
-        
+
             Echo.channel('alerts')
                 .listen('.EmergencyAlertEvent', (e) => {
                     console.log('Emergency Alert Received:', e);
@@ -379,7 +381,8 @@
                         `<b>District</b>: ${e.alertData.district} <b>Center:</b> ${e.alertData.center}
                  </br> <b>Venue:</b> ${e.alertData.venue}</br><b>Remarks:</b> ${e.alertData.remarks}`,
                         'error',
-                        e.alertData.timestamp // Timestamp provided from the server
+                        e.alertData.timestamp, // Timestamp provided from the server
+                        '{{ route('emergency-alarm-notification.report') }}'
                     );
                 })
                 .listen('.AdequacyCheckEvent', (e) => {
@@ -389,7 +392,8 @@
                         `<b>District</b>: ${e.alertData.district} <b>Center:</b> ${e.alertData.center}
                  </br> <b>Venue:</b> ${e.alertData.venue}</br><b>Remarks:</b> ${e.alertData.remarks}`,
                         'error',
-                        e.alertData.timestamp
+                        e.alertData.timestamp,
+                        '{{ route('emergency-alarm-notification.report') }}'
                     );
                 })
 

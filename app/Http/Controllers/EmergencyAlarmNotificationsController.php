@@ -67,7 +67,7 @@ class EmergencyAlarmNotificationsController extends Controller
                 case 'district':
                     if ($request->filled('district')) {
                         $query->whereHas('district', function ($q) use ($request) {
-                            $q->where('id', $request->district);
+                            $q->where('district_code', $request->district);
                         });
                     }
                     break;
@@ -75,7 +75,7 @@ class EmergencyAlarmNotificationsController extends Controller
                 case 'center':
                     if ($request->filled('district')) {
                         $query->whereHas('district', function ($q) use ($request) {
-                            $q->where('id', $request->district);
+                            $q->where('district_code', $request->district);
                         });
                     }
                     if ($request->filled('center')) {
@@ -86,7 +86,10 @@ class EmergencyAlarmNotificationsController extends Controller
                     break;
             }
         }
-
+        // Handle alert type-based filtering
+        if ($request->filled('alertType')) {
+            $query->where('alert_type', $request->alertType);
+        }
         $emergencyAlerts = $query->with(['district', 'center', 'ci.venue'])->get();
 
         // Store filter values for form
@@ -97,7 +100,9 @@ class EmergencyAlarmNotificationsController extends Controller
             'category' => $request->category,
             'district' => $request->district,
             'center' => $request->center,
+            'alertType' => $request->alertType
         ];
+
 
         return view(
             'view_report.emergency_alarm_notification.index',

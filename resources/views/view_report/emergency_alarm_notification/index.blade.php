@@ -108,6 +108,19 @@
                                             @endif
                                         </select>
                                     </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="alertType" class="form-label">Alert Type</label>
+                                        <select name="alertType" id="alertType" class="form-control">
+                                            <option value="" {{ $filters['alertType'] == 'all' ? 'selected' : '' }}>
+                                                All</option>
+                                            <option value="Emergency Alert"
+                                                {{ $filters['alertType'] == 'Emergency Alert' ? 'selected' : '' }}>Emergency Alert
+                                            </option>
+                                            <option value="Adequacy Check"
+                                                {{ $filters['alertType'] == 'Adequacy Check' ? 'selected' : '' }}>Adequacy Check
+                                            </option>
+                                        </select>
+                                    </div>
 
                                     <!-- Category -->
                                     <div class="col-md-4 mb-3">
@@ -131,8 +144,8 @@
                                         <select name="district" id="district" class="form-control">
                                             <option value="">Select District</option>
                                             @foreach ($districts as $district)
-                                                <option value="{{ $district->id }}"
-                                                    {{ $filters['district'] == $district->id ? 'selected' : '' }}>
+                                                <option value="{{ $district->district_code }}"
+                                                    {{ $filters['district'] == $district->district_code ? 'selected' : '' }}>
                                                     {{ $district->district_name }}
                                                 </option>
                                             @endforeach
@@ -257,36 +270,6 @@
                             return response.json();
                         })
                         .then(data => {
-                            // console.log(data.user); 
-                            //console.log(data.districts);
-                            // console.log(data.centers); 
-                            // console.log(data.examDates); 
-                            //console.log(data.sessions); 
-                            //console.log(data.centerCodeFromSession);
-
-                            // Populate districts
-                            const districtSelect = document.getElementById('district');
-                            districtSelect.innerHTML = '<option value="" selected>Select District</option>';
-                            if (data.districts && data.districts.length > 0) {
-                                data.districts.forEach(district => {
-                                    const option = document.createElement('option');
-                                    option.value = district.id;
-                                    option.textContent = district.name;
-                                    districtSelect.appendChild(option);
-                                });
-                            }
-
-                            // Populate centers
-                            const centerSelect = document.getElementById('center');
-                            centerSelect.innerHTML = '<option value="" selected>Select Center</option>';
-                            if (data.centers && data.centers.length > 0) {
-                                data.centers.forEach(center => {
-                                    const option = document.createElement('option');
-                                    option.value = center.id;
-                                    option.textContent = center.name;
-                                    centerSelect.appendChild(option);
-                                });
-                            }
 
                             // Populate exam dates
                             const examDateSelect = document.getElementById('exam_date');
@@ -358,31 +341,48 @@
             $('#district').on('change', function() {
                 const selectedDistrictCode = $(this).val();
                 const centerDropdown = $('#center');
+                const previouslySelectedCenter = centerDropdown.val();
 
                 // Clear previous options
                 centerDropdown.empty();
                 centerDropdown.append('<option value="">Select Center</option>');
 
-                // Filter centers based on selected district
-                const filteredCenters = allCenters.filter(center =>
-                    center.center_district_id == selectedDistrictCode
-                );
-
-                // Populate centers
-                filteredCenters.forEach(center => {
-                    centerDropdown.append(
-                        `<option value="${center.center_code}">
-                            ${center.center_name}
-                        </option>`
+                if (selectedDistrictCode) {
+                    // Filter centers based on selected district
+                    const filteredCenters = allCenters.filter(center =>
+                        center.center_district_id == selectedDistrictCode
                     );
-                });
+
+                    // Populate centers
+                    filteredCenters.forEach(center => {
+                        // Check if this center was previously selected or matches the request value
+                        const isSelected = (previouslySelectedCenter == center.center_code) ||
+                            ("{{ request('center') }}" == center.center_code);
+
+                        centerDropdown.append(`
+                <option value="${center.center_code}" ${isSelected ? 'selected' : ''}>
+                    ${center.center_name}
+                </option>
+            `);
+                    });
+                }
             });
 
-            // Trigger change event on page load to handle old/existing selections
+            // On page load, set initial selections
             $(document).ready(function() {
                 const oldDistrict = "{{ request('district') }}";
+                const oldCenter = "{{ request('center') }}";
+
                 if (oldDistrict) {
-                    $('#district').val(oldDistrict).trigger('change');
+                    $('#district').val(oldDistrict);
+                    $('#district').trigger('change');
+
+                    // After district change is triggered, set the center value
+                    if (oldCenter) {
+                        setTimeout(() => {
+                            $('#center').val(oldCenter);
+                        }, 100);
+                    }
                 }
             });
         </script>

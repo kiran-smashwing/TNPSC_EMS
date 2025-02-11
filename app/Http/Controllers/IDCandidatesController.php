@@ -131,13 +131,24 @@ class IDCandidatesController extends Controller
     public function showDistrictIntimationForm($examId)
     {
         // Retrieve and group candidates by district code, calculating totals in the query itself
-        $districts = DB::table('exam_candidates_projection')
+        // First, build a subquery that gets the max candidate count for each center in each district.
+        $subQuery = DB::table('exam_candidates_projection')
             ->select(
                 'district_code',
-                DB::raw('SUM(accommodation_required) as total_accommodation_required'),
-                DB::raw('COUNT(DISTINCT center_code) as center_count')
+                'center_code',
+                DB::raw('MAX(accommodation_required) as max_accommodation_required')
             )
             ->where('exam_id', $examId)
+            ->groupBy('district_code', 'center_code');
+
+        // Next, use that subquery as the source to aggregate by district.
+        $districts = DB::table(DB::raw("({$subQuery->toSql()}) as sub"))
+            ->mergeBindings($subQuery) // Important to merge bindings from the subquery
+            ->select(
+                'district_code',
+                DB::raw('SUM(max_accommodation_required) as total_accommodation_required'),
+                DB::raw('COUNT(center_code) as center_count')
+            )
             ->groupBy('district_code')
             ->get();
 

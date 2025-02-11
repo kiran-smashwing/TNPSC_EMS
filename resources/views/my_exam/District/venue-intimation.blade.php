@@ -513,7 +513,7 @@
                                         })
                                         .then(() => {
                                             // Reload the page after the user acknowledges the success alert
-                                            location.reload();
+                                            window.location.reload(true);
                                         });
                                 },
                                 error: function(xhr) {

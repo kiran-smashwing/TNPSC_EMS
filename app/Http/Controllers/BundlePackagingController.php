@@ -76,27 +76,20 @@ class BundlePackagingController extends Controller
         $user = $guard ? $guard->user() : null;
         $examDate = Carbon::parse($examDate)->format('Y-m-d');
 
-        // Define the category mapping
-        $categoryLabels = [
-            'R3' => 'Bundle I',
-            'R4' => 'Bundle II',
-            'R5' => 'Bundle C',
-        ];
-        $query = '';
+        // Define the category mapping       
+        $categoryArray = ['R1', 'R2', 'R3', 'R4', 'R5', 'R6'];
+        // Fetch exam materials based on examId and examDate
+        $query = ExamMaterialsData::where('exam_id', $examId)
+            ->whereDate('exam_date', $examDate)
+            ->whereIn('category', $categoryArray);
+
         if ($role == 'mobile_team_staffs') {
-            $query = ExamMaterialsData::where('exam_id', $examId)
-                ->where('mobile_team_id', $user->mobile_id)
-                ->whereDate('exam_date', $examDate)
-                ->whereIn('category', array_keys($categoryLabels));
+            $query->where('mobile_team_id', $user->mobile_id);
         } elseif ($role == 'headquarters' && $user->custom_role == 'VDS') {
-            $query = ExamMaterialsData::where('exam_id', $examId)
-                ->where('district_code', '01')
-                ->where('mobile_team_id', $user->dept_off_id)
-                ->whereDate('exam_date', $examDate)
-                ->whereIn('category', array_keys($categoryLabels));
+            $query->where('district_code', '01')
+                ->where('mobile_team_id', $user->dept_off_id);
         } else {
-            $query = ExamMaterialsData::where('exam_id', $examId)
-                ->whereIn('category', array_keys($categoryLabels));
+            $query = ExamMaterialsData::where('exam_id', $examId);
         }
         // Apply filters 
         if ($request->has('centerCode') && !empty($request->centerCode)) {
@@ -127,10 +120,42 @@ class BundlePackagingController extends Controller
             ->groupBy('centers.center_code', 'centers.center_name')
             ->select('centers.center_name', 'centers.center_code')
             ->get();
-        // Add label mapping to the data
-        $examMaterials->each(function ($material) use ($categoryLabels) {
-            $material->bundle_label = $categoryLabels[$material->category] ?? 'Unknown Bundle';
+        // Assign bundle labels to each exam material based on its exam session and date
+        $examMaterials->each(function ($material) {
+            $examSessionData = ExamSession::where('exam_sess_mainid', $material->exam_id)
+                ->whereRaw("TO_DATE(exam_sess_date, 'DD-MM-YYYY') = TO_DATE(?, 'YYYY-MM-DD')", [$material->exam_date])
+                ->where('exam_sess_session', $material->exam_session)
+                ->first();
+
+            // Check if session data exists for the material
+            if ($examSessionData) {
+                // Define the category labels based on the session type
+                if ($examSessionData->exam_sess_type == 'Descriptive') {
+                    $categoryLabels = [
+                        'R1' => 'Bundle IA',
+                        'R2' => 'Bundle IB',
+                        'R3' => 'Bundle II',
+                        'R4' => 'Bundle III',
+                        'R5' => 'Bundle IV',
+                        'R6' => 'Cover C',
+                    ];
+                } else {
+                    $categoryLabels = [
+                        'R3' => 'Bundle I',
+                        'R4' => 'Bundle II',
+                        'R5' => 'Bundle C',
+                    ];
+
+                }
+
+                // Apply the label from the category mapping for each material
+                $material->bundle_label = $categoryLabels[$material->category] ?? $material->category;  // If no match, use the material's category directly
+            } else {
+                // If no session data found, use the material's category directly
+                $material->bundle_label = $material->category;
+            }
         });
+
         return view('my_exam.BundlePackaging.ci-to-mobileteam-bundle', compact('examMaterials', 'examId', 'examDate', 'totalExamMaterials', 'totalScanned', 'centers'));
     }
     public function MobileTeamtoDistrict(Request $request, $examId)
@@ -140,19 +165,15 @@ class BundlePackagingController extends Controller
         $user = $guard ? $guard->user() : null;
         // $examDate = Carbon::parse($examDate)->format('Y-m-d');
 
-        // Define the category mapping
-        $categoryLabels = [
-            'R3' => 'Bundle I',
-            'R4' => 'Bundle II',
-            'R5' => 'Bundle C',
-        ];
-        $query = $role == 'treasury'
-            ? ExamMaterialsData::where('exam_id', $examId)
-                ->where('district_code', $user->tre_off_district_id)
-                ->whereIn('category', array_keys($categoryLabels))
-            : ExamMaterialsData::where('exam_id', $examId)
-                ->where('district_code', $user->district_code)
-                ->whereIn('category', array_keys($categoryLabels));
+        // Define the category mapping       
+        $categoryArray = ['R1', 'R2', 'R3', 'R4', 'R5', 'R6'];
+        // Fetch exam materials based on examId and examDate
+        $query = ExamMaterialsData::where('exam_id', $examId)
+            ->whereIn('category', $categoryArray);
+
+        $role == 'treasury'
+            ? $query->where('district_code', $user->tre_off_district_id)
+            : $query->where('district_code', $user->district_code);
 
         // Apply filters 
         if ($request->has('centerCode') && !empty($request->centerCode)) {
@@ -187,10 +208,42 @@ class BundlePackagingController extends Controller
         $examDates = $session->examsession->groupBy(function ($item) {
             return Carbon::parse($item->exam_sess_date)->format('d-m-Y');
         })->keys();
-        // Add label mapping to the data
-        $examMaterials->each(function ($material) use ($categoryLabels) {
-            $material->bundle_label = $categoryLabels[$material->category] ?? 'Unknown Bundle';
+        // Assign bundle labels to each exam material based on its exam session and date
+        $examMaterials->each(function ($material) {
+            $examSessionData = ExamSession::where('exam_sess_mainid', $material->exam_id)
+                ->whereRaw("TO_DATE(exam_sess_date, 'DD-MM-YYYY') = TO_DATE(?, 'YYYY-MM-DD')", [$material->exam_date])
+                ->where('exam_sess_session', $material->exam_session)
+                ->first();
+
+            // Check if session data exists for the material
+            if ($examSessionData) {
+                // Define the category labels based on the session type
+                if ($examSessionData->exam_sess_type == 'Descriptive') {
+                    $categoryLabels = [
+                        'R1' => 'Bundle IA',
+                        'R2' => 'Bundle IB',
+                        'R3' => 'Bundle II',
+                        'R4' => 'Bundle III',
+                        'R5' => 'Bundle IV',
+                        'R6' => 'Cover C',
+                    ];
+                } else {
+                    $categoryLabels = [
+                        'R3' => 'Bundle I',
+                        'R4' => 'Bundle II',
+                        'R5' => 'Bundle C',
+                    ];
+
+                }
+
+                // Apply the label from the category mapping for each material
+                $material->bundle_label = $categoryLabels[$material->category] ?? $material->category;  // If no match, use the material's category directly
+            } else {
+                // If no session data found, use the material's category directly
+                $material->bundle_label = $material->category;
+            }
         });
+
         return view('my_exam.BundlePackaging.mobileteam-to-disitrict-bundle', compact('examMaterials', 'examId', 'totalExamMaterials', 'totalScanned', 'centers', 'examDates'));
     }
     public function scanDistrictExamMaterials($examId, Request $request)
@@ -351,18 +404,16 @@ class BundlePackagingController extends Controller
         $user = $guard ? $guard->user() : null;
         // $examDate = Carbon::parse($examDate)->format('Y-m-d');
 
-        // Define the category mapping
-        $categoryLabels = [
-            'R3' => 'Bundle I',
-            'R4' => 'Bundle II',
-            'R5' => 'Bundle C',
-        ];
-        $query = $role == 'center'
-            ? ExamMaterialsData::where('exam_id', $examId)
-                ->where('center_code', $user->center_code)
-                ->whereIn('category', array_keys($categoryLabels))
-            : ExamMaterialsData::where('exam_id', $examId)
-                ->whereIn('category', array_keys($categoryLabels));
+
+        // Define the category mapping       
+        $categoryArray = ['R1', 'R2', 'R3', 'R4', 'R5', 'R6'];
+        // Fetch exam materials based on examId and examDate
+        $query = ExamMaterialsData::where('exam_id', $examId)
+            ->whereIn('category', $categoryArray);
+
+        $role == 'center'
+            ? $query->where('center_code', $user->center_code)
+            : '';
 
         // Apply filters 
         if ($request->has('examDate') && !empty($request->examDate)) {
@@ -388,10 +439,42 @@ class BundlePackagingController extends Controller
         $examDates = $session->examsession->groupBy(function ($item) {
             return Carbon::parse($item->exam_sess_date)->format('d-m-Y');
         })->keys();
-        // Add label mapping to the data
-        $examMaterials->each(function ($material) use ($categoryLabels) {
-            $material->bundle_label = $categoryLabels[$material->category] ?? 'Unknown Bundle';
+        // Assign bundle labels to each exam material based on its exam session and date
+        $examMaterials->each(function ($material) {
+            $examSessionData = ExamSession::where('exam_sess_mainid', $material->exam_id)
+                ->whereRaw("TO_DATE(exam_sess_date, 'DD-MM-YYYY') = TO_DATE(?, 'YYYY-MM-DD')", [$material->exam_date])
+                ->where('exam_sess_session', $material->exam_session)
+                ->first();
+
+            // Check if session data exists for the material
+            if ($examSessionData) {
+                // Define the category labels based on the session type
+                if ($examSessionData->exam_sess_type == 'Descriptive') {
+                    $categoryLabels = [
+                        'R1' => 'Bundle IA',
+                        'R2' => 'Bundle IB',
+                        'R3' => 'Bundle II',
+                        'R4' => 'Bundle III',
+                        'R5' => 'Bundle IV',
+                        'R6' => 'Cover C',
+                    ];
+                } else {
+                    $categoryLabels = [
+                        'R3' => 'Bundle I',
+                        'R4' => 'Bundle II',
+                        'R5' => 'Bundle C',
+                    ];
+
+                }
+
+                // Apply the label from the category mapping for each material
+                $material->bundle_label = $categoryLabels[$material->category] ?? $material->category;  // If no match, use the material's category directly
+            } else {
+                // If no session data found, use the material's category directly
+                $material->bundle_label = $material->category;
+            }
         });
+        
         return view('my_exam.BundlePackaging.mobileteam-to-center-bundle', compact('examMaterials', 'examId', 'totalExamMaterials', 'totalScanned', 'examDates'));
     }
     public function chartedVehicletoHeadquarters(Request $request, $examId)

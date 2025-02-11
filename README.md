@@ -110,3 +110,32 @@ GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO smasgkcg_tnpsc_
 - Replace `public` with the appropriate schema name if your sequences are not in the default `public` schema.
 - Replace `smasgkcg_tnpsc_ems_admin` with the database username that needs these permissions.
 - For better security, grant permissions only to the required sequences or roles if you do not need global permissions.
+
+
+# PostgreSQL DateStyle Configuration
+
+To ensure consistent date formatting (DD-MM-YYYY) in PostgreSQL, update the DateStyle setting.
+
+## Temporary Change (Session Only)
+```sql
+SET DateStyle = 'ISO, DMY';
+```
+
+## Permanent Change (Database Level)
+```sql
+ALTER DATABASE your_database_name SET DateStyle TO 'ISO, DMY';
+```
+
+
+## System-Wide Change (postgresql.conf)
+Edit the PostgreSQL configuration file and update:
+```conf
+datestyle = 'ISO, DMY'
+```
+Restart the PostgreSQL server after making this change.
+
+## Verify the Setting
+```sql
+SHOW DateStyle;
+```
+

@@ -15,7 +15,7 @@ class AuthorizationService
                     'view-all-examination-services',
                     'exam-heading',
                     'current-exam',
-                    
+
                 ],
             ],
             'APD' => [
@@ -163,6 +163,9 @@ class AuthorizationService
         'center' => [
             'download-meeting-qr',
             'exam-heading',
+            'current-exam',
+        ],
+        'mobile_team_staffs' => [
             'current-exam',
         ],
         // Add other roles and their permissions

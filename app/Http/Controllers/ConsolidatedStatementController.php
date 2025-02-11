@@ -148,7 +148,7 @@ class ConsolidatedStatementController extends Controller
 
         // ✅ Capture the session input from the request
         $session = $request->input('session', ''); // Default empty if not provided
-        $exam_date = $request->input('session', '');
+        $exam_date = $request->input('exam_date', '');
         return view('view_report.consolidated_statement_report.index', compact(
             'exam_data',
             'exam_main_no',
@@ -163,7 +163,10 @@ class ConsolidatedStatementController extends Controller
         // Get the role and user from the session
         // $role = session('auth_role');
         // $guard = $role ? Auth::guard($role) : null;
-        $user = $ci_id;
+        $users = $ci_id;
+        $user = ChiefInvigilator::where('ci_id', $users)
+                    ->with(['venue'])
+                    ->first();
 
         if (!$user) {
             abort(403, 'Unauthorized action.');
@@ -285,7 +288,6 @@ class ConsolidatedStatementController extends Controller
             return $item['category'] . ' - ' . $item['scan_time'];
         }, $pdfData));
 
-        // Output the final string for PDF
         // dd($finalString); // This will dump the combined string for debugging
 
         $orm_remarks = DB::table('ci_candidate_logs')
@@ -594,7 +596,7 @@ class ConsolidatedStatementController extends Controller
                 // return view('PDF.Reports.ci-consolidate-report', compact('exam_data', 'exam_session_type', 'exam_date', 'user', 'hall_code', 'qp_box_open_time', 'remarks_summary', 'candidate_remarks_summary', 'merged_scribes', 'checklist_videography_data','checklist_consolidate_data'));
                 // return view('PDF.Reports.ci-consolidate-report', compact('balanceUnusedOMR', 'balanceUnusedQuestionPapers', 'copies', 'exam_data', 'exam_session_type', 'exam_date', 'user', 'hall_code', 'qp_box_open_time', 'remarks_summary', 'candidate_remarks_summary', 'merged_scribes', 'checklist_videography_data', 'checklist_consolidate_data', 'session_confirmedhalls', 'sessionDetails', 'scanTime', 'attendanceData', 'finalString'));
 
-                $html = view('view_reprot.Reports.ci-consolidate-statment-report', compact('balanceUnusedOMR', 'balanceUnusedQuestionPapers', 'copies', 'exam_data', 'exam_session_type', 'exam_date', 'user', 'hall_code', 'qp_box_open_time', 'remarks_summary', 'candidate_remarks_summary', 'merged_scribes', 'checklist_videography_data', 'checklist_consolidate_data', 'session_confirmedhalls', 'sessionDetails', 'scanTime', 'attendanceData', 'finalString'))->render();
+                $html = view('view_report.consolidated_statement_report.ci-consolidate-statment-report', compact('balanceUnusedOMR', 'balanceUnusedQuestionPapers', 'copies', 'exam_data', 'exam_session_type', 'exam_date', 'user', 'hall_code', 'qp_box_open_time', 'remarks_summary', 'candidate_remarks_summary', 'merged_scribes', 'checklist_videography_data', 'checklist_consolidate_data', 'session_confirmedhalls', 'sessionDetails', 'scanTime', 'attendanceData', 'finalString'))->render();
 
                 // Generate the PDF using Browsershot
                 $pdf = Browsershot::html($html)

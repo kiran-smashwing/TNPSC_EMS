@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                      <h2 class="mb-0"></h2>
-                    </div> -->
+                          <h2 class="mb-0"></h2>
+                        </div> -->
                         </div>
                     </div>
                 </div>
@@ -195,6 +195,8 @@
                                         <th>Department</th>
                                         <th>Role</th>
                                         <th>Officer</th>
+                                        <th>Officer Email</th>
+                                        <th>Officer Designation</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -208,7 +210,14 @@
                                                     <h6 class="mb-0">{{ $role->role_name }}</h6>
                                                 </div>
                                             </td>
-                                            <td>{{ $role->department_officer->dept_off_name ?? 'N/A'}}</td>
+                                            <td>
+                                                <a
+                                                    href="{{ route('department-officials.show', $role->department_officer->dept_off_id ?? '#') }}">
+                                                    {{ $role->department_officer->dept_off_name ?? 'N/A' }}
+                                                </a>
+                                            </td>
+                                            <td>{{ $role->department_officer->dept_off_email ?? 'N/A' }}</td>
+                                            <td>{{ $role->department_officer->dept_off_designation ?? 'N/A' }}</td>
                                             <td>
                                                 <!-- View Button -->
                                                 {{-- <a href="{{ route('roles.show', $role->role_id) }}" class="avtar avtar-xs btn-light-success">

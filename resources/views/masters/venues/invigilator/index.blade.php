@@ -239,7 +239,7 @@
                                         <th>Image</th>
                                         <th>Name</th>
                                         <th>Venue Name</th>
-                                        <th>E-mail</th>
+                                        {{-- <th>E-mail</th> --}}
                                         <th>Phone</th>
                                         <th>Action</th>
                                     </tr>
@@ -264,7 +264,7 @@
 
                                             <td>{{ $invigilator->invigilator_name }}</td>
                                             <td>{{ $invigilator->venue->venue_name }}</td>
-                                            <td>{{ $invigilator->invigilator_email }}</td>
+                                            {{-- <td>{{ $invigilator->invigilator_email }}</td> --}}
                                             <td>{{ $invigilator->invigilator_phone }}</td>
 
                                             <td>

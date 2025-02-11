@@ -101,7 +101,7 @@ class InvigilatorsController extends Controller
         $districts = District::all(); // Same as above
 
         // Return the view with the data
-        return view('masters.venues.invigilator.create', compact('venues', 'centers', 'districts'));
+        return view('masters.venues.invigilator.create', compact('venues', 'centers', 'districts','user'));
     }
 
     public function store(Request $request)
@@ -120,7 +120,7 @@ class InvigilatorsController extends Controller
             'center' => 'required|numeric',
             'venue' => 'required|numeric',
             'name' => 'required|string|max:255',
-            'mail' => 'required|email|max:255|unique:invigilator,invigilator_email',
+            // 'mail' => 'required|email|max:255|unique:invigilator,invigilator_email',
             'phone' => 'required|string|max:15',
             'designation' => 'required|string|max:255',
             'cropped_image' => 'nullable|string', // Base64 image input
@@ -164,7 +164,7 @@ class InvigilatorsController extends Controller
                 'invigilator_center_id' => $validated['center'],
                 'invigilator_venue_id' => $validated['venue'],
                 'invigilator_name' => $validated['name'],
-                'invigilator_email' => $validated['mail'],
+                // 'invigilator_email' => $validated['mail'],
                 'invigilator_phone' => $validated['phone'],
                 'invigilator_designation' => $validated['designation'],
                 'invigilator_image' => $validated['image'] ?? null, // Store image path if exists
@@ -212,7 +212,7 @@ class InvigilatorsController extends Controller
             'center' => 'required|numeric',
             'venue' => 'required|numeric',
             'name' => 'required|string|max:255',
-            'mail' => 'required|email|max:255|unique:invigilator,invigilator_email,' . $id . ',invigilator_id',
+            // 'mail' => 'required|email|max:255|unique:invigilator,invigilator_email,' . $id . ',invigilator_id',
             'phone' => 'required|string|max:15',
             'designation' => 'required|string|max:255',
             'cropped_image' => 'nullable|string' // Base64 image input
@@ -259,7 +259,7 @@ class InvigilatorsController extends Controller
                 'invigilator_center_id' => $validated['center'],
                 'invigilator_venue_id' => $validated['venue'],
                 'invigilator_name' => $validated['name'],
-                'invigilator_email' => $validated['mail'],
+                // 'invigilator_email' => $validated['mail'],
                 'invigilator_phone' => $validated['phone'],
                 'invigilator_designation' => $validated['designation'],
 

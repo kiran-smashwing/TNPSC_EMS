@@ -116,7 +116,7 @@ class ScribeController extends Controller
             'center' => 'required|numeric',
             'venue' => 'required|numeric',
             'name' => 'required|string|max:255',
-            'mail' => 'required|email|max:255|unique:scribe,scribe_email',
+            // 'mail' => 'required|email|max:255|unique:scribe,scribe_email',
             'phone' => 'required|string|max:15',
             'designation' => 'required|string|max:255',
             'cropped_image' => 'nullable|string', // Base64 image input
@@ -160,7 +160,7 @@ class ScribeController extends Controller
                 'scribe_center_id' => $validated['center'],
                 'scribe_venue_id' => $validated['venue'],
                 'scribe_name' => $validated['name'],
-                'scribe_email' => $validated['mail'],
+                // 'scribe_email' => $validated['mail'],
                 'scribe_phone' => $validated['phone'],
                 'scribe_designation' => $validated['designation'],
                 'scribe_image' => $validated['image'] ?? null  // Save image if available
@@ -209,7 +209,7 @@ class ScribeController extends Controller
             'center' => 'required|numeric',
             'venue' => 'required|numeric',
             'name' => 'required|string|max:255',
-            'mail' => 'required|email|max:255|unique:scribe,scribe_email,' . $id . ',scribe_id',
+            // 'mail' => 'required|email|max:255|unique:scribe,scribe_email,' . $id . ',scribe_id',
             'phone' => 'required|string|max:15',
             'designation' => 'required|string|max:255',
             'cropped_image' => 'nullable|string' // Base64 image input
@@ -254,7 +254,7 @@ class ScribeController extends Controller
             // Prepare data for updating the scribe record
             $updateData = [
                 'scribe_name' => $validated['name'],
-                'scribe_email' => $validated['mail'],
+                // 'scribe_email' => $validated['mail'],
                 'scribe_phone' => $validated['phone'],
                 'scribe_designation' => $validated['designation'],
                 'scribe_district_id' => $validated['district'],

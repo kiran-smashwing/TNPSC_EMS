@@ -118,7 +118,7 @@
                                             <img class="rounded-circle img-fluid wid-70"
                                                 src="{{ $invigilator->venue->venue_image
                                                     ? asset('storage/' . $invigilator->venue->venue_image)
-                                                    : asset('storage/assets/images/user/collectorate.png') }}"
+                                                    : asset('storage/assets/images/user/venue.png') }}"
                                                 alt="Venue image" />
                                         </div>
                                         <h5 class="mb-0">{{ $invigilator->venue->venue_code }} - {{ $invigilator->venue->venue_name }}</h5>
@@ -217,10 +217,10 @@
                                             <i class="ti ti-map-pin me-2"></i>
                                             <p class="mb-0">{{ $invigilator->center->center_code }} - {{ $invigilator->center->center_name }}</p>
                                         </div>
-                                        <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
+                                        {{-- <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
                                             <p class="mb-0">{{ $invigilator->invigilator_email }}</p>
-                                        </div>
+                                        </div> --}}
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
                                             <p class="mb-0">{{ $invigilator->invigilator_phone }}</p>

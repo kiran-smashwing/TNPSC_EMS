@@ -236,7 +236,7 @@
                                         <th>Image</th>
                                         <th>Name</th>
                                         <th>Venue Name</th>
-                                        <th>E-mail</th>
+                                        {{-- <th>E-mail</th> --}}
                                         <th>Phone</th>
                                         <th>Action</th>
                                     </tr>
@@ -264,7 +264,7 @@
                                                 </div>
                                             </td>
                                             <td>{{ $scribe->venue->venue_name }}</td>
-                                            <td>{{ $scribe->scribe_email }}</td>
+                                            {{-- <td>{{ $scribe->scribe_email }}</td> --}}
                                             <td>{{ $scribe->scribe_phone }}</td>
                                             <td>
                                                 <a href="{{ route('scribes.show', $scribe->scribe_id) }}"

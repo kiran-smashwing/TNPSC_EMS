@@ -176,10 +176,6 @@
         <div class="meeting-title">
             <h5>Annexure - IB Statement of Receiving Team (Mofussil) Venue: Receiving Cum Storage Hall (1st Floor)</h5>
         </div>
-
-        {{-- <div class="header" style="text-align: center;">
-            Venue: Receiving Cum Storage Hall (1st Floor)
-        </div> --}}
         <div class="content-section">
           
         </div>

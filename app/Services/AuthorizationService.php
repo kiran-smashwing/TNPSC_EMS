@@ -72,6 +72,7 @@ class AuthorizationService
                     'candidate-statement',
                     'expenditure-statment',
                     'ci-meeting',
+                    'email-template'
 
                 ],
             ],

@@ -318,6 +318,8 @@
                     <li class="pc-item"><a class="pc-link" href="{{ route('expenditure-statment.report') }}">Expenditure Statement</a>
                     </li>
                     @endhasPermission
+                    <li class="pc-item"><a class="pc-link" href="{{ route('ed.report') }}">ED Report</a>
+                    </li>
                     @hasPermission('ci-meeting')
                     <li class="pc-item"><a class="pc-link" href="{{route('ci-attendace.report')}}">CI Meeting Attendance</a>
                     </li>
@@ -359,6 +361,7 @@
                     </ul>
                 </li>
                 @endhasPermission
+                @hasPermission('email-template')
                 <li class="pc-item pc-caption">
                     <label> Email</label>
                     <svg class="pc-icon">
@@ -379,6 +382,7 @@
                             </a></li>
                     </ul>
                 </li>
+                @endhasPermission
             </ul>
         </div>
     </div>

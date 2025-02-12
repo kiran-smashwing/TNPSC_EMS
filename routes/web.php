@@ -434,7 +434,7 @@ Route::prefix('ci-candidate-log')->group(function () {
 });
 Route::prefix('ci-checklist')->middleware(['auth.multi'])->group(function () {
     Route::post('/save', [CIPreliminaryCheckController::class, 'saveChecklist'])->name('ci-checklist.save'); // To save checklist
-    Route::post('/ci-session-save', [CIPreliminaryCheckController::class, 'savesessionChecklist'])->name('ci-session-checklist.save'); // To save checklist
+    Route::post('/ci-session-save', [CIPreliminaryCheckController::class, 'saveSessionChecklist'])->name('ci-session-checklist.save'); // To save checklist
     Route::post('/save-videography-checklist', [CIPreliminaryCheckController::class, 'saveVideographyChecklist'])->name('saveVideographyChecklist');
     Route::post('/save-consolidate-certificate', [CIPreliminaryCheckController::class, 'saveConsolidateCertificate'])->name('saveConsolidateCertificate');
     Route::post('/save-utilization-certificate', [CIPreliminaryCheckController::class, 'saveUtilizationCertificate'])->name('saveUtilizationCertificate');

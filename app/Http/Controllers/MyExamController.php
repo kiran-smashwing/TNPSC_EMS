@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CIChecklistAnswer;
 use App\Models\CIMeetingQrcode;
 use App\Models\Currentexam;
 use App\Models\ExamMaterialRoutes;
+use App\Models\ExamMaterialsData;
 use App\Models\ExamTrunkBoxOTLData;
 use App\Models\CIAssistant;
 use App\Models\Invigilator;
@@ -178,39 +180,25 @@ class MyExamController extends Controller
         $ci_id = $user->ci_id;
 
         // Retrieve CI meeting data
-        $ci_meeting_Data = DB::table('ci_meeting_attendance')
+        $ciMeetingData = DB::table('ci_meeting_attendance')
             ->where('exam_id', $examId)
             ->where('ci_id', $ci_id)
-            ->get();
+            ->first();
+        // dd($ciMeetingData);
 
         $adequacy_check_data = [];
         $firstReceivedAmount = null;
 
-        if ($ci_meeting_Data->isNotEmpty()) {
+        if ($ciMeetingData) {
             // Loop through each meeting entry
-            foreach ($ci_meeting_Data as $meetingData) {
-                // Decode the 'adequacy_check' JSON field
-                $adequacyData = json_decode($meetingData->adequacy_check, true);
-
-                // Check if the required keys are present
-                if (isset($adequacyData['exam_id'])) {
-                    // Extract relevant data for the output
-                    $adequacy_check_data[] = [
-                        'exam_id' => $adequacyData['exam_id'] ?? 'N/A',
-                        'received_amount' => $adequacyData['received_amount'] ?? 'N/A',
-                        'received_packet' => $adequacyData['received_packet'] ?? 'N/A',
-                        'received_appointment_letter' => $adequacyData['received_appointment_letter'] ?? 'N/A',
-                    ];
-                }
-            }
+            // Decode the 'adequacy_check' JSON field
+            $adequacyData = json_decode($ciMeetingData->adequacy_check, true);
 
             // Extract 'received_amount' from the first item, if available
-            if (!empty($adequacy_check_data)) {
-                $firstReceivedAmount = $adequacy_check_data[0]['received_amount'] ?? null;
+            if (!empty($adequacyData)) {
+                $firstReceivedAmount = $adequacyData['received_amount'] ?? null;
             }
         }
-
-        // Group exam sessions by date
         // Group and sort exam sessions by date
         $groupedSessions = $session->examsession
             ->sortBy(function ($item) {
@@ -221,9 +209,16 @@ class MyExamController extends Controller
             });
         // Retrieve preliminary checklist
         $preliminary = CIChecklist::where('ci_checklist_type', 'Preliminary')->get();
-
+        $preliminaryAnswer = CIChecklistAnswer::where('ci_id', $ci_id)
+            ->where('exam_id', $examId)
+            ->select('preliminary_answer')
+            ->first();
+        $utilityAnswer = CIChecklistAnswer::where('ci_id', $ci_id)
+            ->where('exam_id', $examId)
+            ->select('utility_answer')
+            ->first();
         // Pass all data to the view
-        return view('my_exam.CI.task', compact('session', 'groupedSessions', 'preliminary', 'adequacy_check_data', 'firstReceivedAmount'));
+        return view('my_exam.CI.task', compact('session', 'groupedSessions', 'preliminary', 'preliminaryAnswer', 'ciMeetingData', 'firstReceivedAmount', 'utilityAnswer'));
     }
 
     public function ciExamActivity($examId, $session)
@@ -247,9 +242,23 @@ class MyExamController extends Controller
         if (!$user) {
             abort(403, 'Unauthorized action.');
         }
-
         $ci_id = $user->ci_id;
 
+        // Query based on the role
+        $lastScannedMaterial = ExamMaterialsData::where('exam_id', $examId)
+            ->where('ci_id', $user->ci_id)
+            ->whereIn('category', ['D1', 'D2'])
+            ->join('exam_materials_scans', function ($join) {
+                $join->on('exam_materials_data.id', '=', 'exam_materials_scans.exam_material_id');
+            })
+            ->orderBy('exam_materials_scans.ci_scanned_at', 'desc') // Get the latest scanned material
+            ->select('exam_materials_data.*', 'exam_materials_scans.ci_scanned_at as last_scanned_at')
+            ->first(); // Get only one row
+        $sessionAnswer = CIChecklistAnswer::where('ci_id', $ci_id)
+            ->where('exam_id', $examId)
+            ->select(DB::raw("session_answer->'" . $session->exam_sess_date . "'->'" . $session->exam_sess_session . "' as session_answer"))
+            ->first();
+        
         // Initialize variables
         $invigilators_type = [];
         $scribes_type = [];
@@ -265,7 +274,6 @@ class MyExamController extends Controller
             'present' => $candidateAttendance['present'] ?? 0,
             'alloted_count' => $candidateAttendance['alloted_count'] ?? 0,
         ];
-
 
         // Retrieve allocation records
         $existingAllocations = DB::table('ci_staff_allocation')
@@ -583,7 +591,9 @@ class MyExamController extends Controller
             'candidate_orm_remarks_data',
             'consolidate_data',
             'candidate_attendance_data',
-            'ci_id'
+            'ci_id',
+            'lastScannedMaterial',
+            'sessionAnswer'
         ));
     }
 

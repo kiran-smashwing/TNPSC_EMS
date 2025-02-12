@@ -80,51 +80,52 @@
                         @endif
                         <div class="card-body">
                             <ul class="list-unstyled task-list">
+                                @php
+                                    $is_meeting_attended = $ciMeetingData !== null;
+
+                                    // Set dynamic badge text and color
+                                    $taskStatus = $is_meeting_attended ? 'Attended' : 'Pending';
+                                    $badgeClass = $is_meeting_attended ? 'bg-light-secondary' : 'bg-danger';
+
+                                @endphp
                                 <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
+                                    <i
+                                        class="task-icon {{ $is_meeting_attended ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="col-sm-auto mb-3 mb-sm-0">
                                                     <div class="d-sm-inline-block d-flex align-items-center">
                                                         <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
+                                                            src="{{ asset('storage/' . current_user()->profile_image) }}"
                                                             alt="Generic placeholder image " />
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 Ticket</a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
+
                                                             </ul>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Attendence - CI Meeting<small
-                                                                class="badge bg-light-secondary ms-2">attended</small>
+                                                        <div class="h5 font-weight-bold">Attendence - CI Meeting
+                                                            <small
+                                                                class="badge {{ $badgeClass }} ms-2">{{ $taskStatus }}</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
+
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
+                                                                    <b>{{ $is_meeting_attended ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
                                                                 </li>
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    26-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                    {{ $is_meeting_attended ? \Carbon\Carbon::parse($ciMeetingData->created_at)->format('d-m-Y h:i A') : '' }}
+                                                                </li>
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -146,50 +147,50 @@
                                         </div>
                                     </div>
                                 </li>
+                                @php
+                                    $is_preliminary_answered = $preliminaryAnswer !== null && !empty((array) $preliminaryAnswer->preliminary_answer);;
+
+                                    // Set dynamic badge text and color
+                                    $taskStatus = $is_preliminary_answered ? 'Verified' : 'Pending';
+                                    $badgeClass = $is_preliminary_answered ? 'bg-light-secondary' : 'bg-danger';
+                                @endphp
                                 <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
+                                    <i
+                                        class="task-icon {{ $is_preliminary_answered ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="col-sm-auto mb-3 mb-sm-0">
                                                     <div class="d-sm-inline-block d-flex align-items-center">
                                                         <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
+                                                            src="{{ asset('storage/' . current_user()->profile_image) }}"
                                                             alt="Generic placeholder image " />
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
 
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                             </ul>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Preliminary Check<small
-                                                                class="badge bg-light-secondary ms-2">checked</small>
+                                                        <div class="h5 font-weight-bold">Preliminary Check
+                                                            <small
+                                                                class="badge {{ $badgeClass }} ms-2">{{ $taskStatus }}</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
+                                                                    <b>{{ $is_preliminary_answered ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
                                                                 </li>
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                    {{ $is_preliminary_answered ? \Carbon\Carbon::parse($preliminaryAnswer->preliminary_answer['timestamp'])->format('d-m-Y h:i A') : '' }}
+                                                                </li>
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -218,7 +219,7 @@
                                                     <div class="col-sm-auto mb-3 mb-sm-0">
                                                         <div class="d-sm-inline-block d-flex align-items-center">
                                                             <img class="media-object wid-60 img-radius"
-                                                                src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
+                                                                src="{{ asset('storage/' . current_user()->profile_image) }}"
                                                                 alt="Generic placeholder image " />
                                                             <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                                 <ul
@@ -286,78 +287,26 @@
                                         </div>
                                     </li>
                                 @endforeach
-                                {{-- <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
-                                    <div class="card ticket-card open-ticket">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-sm-auto mb-3 mb-sm-0">
-                                                    <div class="d-sm-inline-block d-flex align-items-center">
-                                                        <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
-                                                            alt="Generic placeholder image " />
-                                                        <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
-                                                            <ul
-                                                                class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                             
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">FN - Session<small
-                                                                class="badge bg-light-secondary ms-2">completed</small>
-                                                        </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                               
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                              
-                                                            </ul>
-                                                        </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="{{ route('current-exam.examActivityTask') }}"
-                                                            class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-edit mx-1"></i>Update Exam
-                                                            Activites</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li> --}}
-
+                                @php
+                                    $is_utility_answered = $utilityAnswer !== null && !empty((array) $utilityAnswer->utility_answer);
+                                    // Set dynamic badge text and color
+                                    $taskStatus = $is_utility_answered ? 'Completed' : 'Pending';
+                                    $badgeClass = $is_utility_answered ? 'bg-light-secondary' : 'bg-danger';
+                                @endphp
                                 <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
+                                    <i
+                                        class="task-icon {{ $is_utility_answered ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="col-sm-auto mb-3 mb-sm-0">
                                                     <div class="d-sm-inline-block d-flex align-items-center">
                                                         <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
+                                                            src="{{ asset('storage/' . current_user()->profile_image) }}"
                                                             alt="Generic placeholder image " />
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -365,26 +314,20 @@
                                                 <div class="col">
                                                     <div class="popup-trigger">
                                                         <div class="h5 font-weight-bold">Utility Certificate <small
-                                                                class="badge bg-light-secondary ms-2">completed</small>
+                                                                class="badge {{ $badgeClass }} ms-2">{{ $taskStatus }}</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
+                                                                    <b>{{ $is_utility_answered ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
                                                                 </li>
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                    {{ $is_utility_answered ? \Carbon\Carbon::parse($utilityAnswer->utility_answer['updated_at'])->format('d-m-Y h:i A') : '' }}
+                                                                </li>
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -397,9 +340,11 @@
                                                             data-bs-target="#utilizationCertificateModal"
                                                             class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-info mx-1"></i>Self declaration</a>
-                                                        <a href="{{ route('download.utilireport', ['examid' => $session->exam_main_no]) }}"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-download mx-1"></i>Download</a>
+                                                        @if ($is_utility_answered)
+                                                            <a href="{{ route('download.utilireport', ['examid' => $session->exam_main_no]) }}"
+                                                                class="me-2 btn btn-sm btn-light-info"><i
+                                                                    class="feather icon-download mx-1"></i>Download</a>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </div>

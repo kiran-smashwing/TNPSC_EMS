@@ -11,6 +11,10 @@
                     aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                @php
+                    // Check if utility_answer is not null and decode it
+                    $utilityAnswer = $utilityAnswer ? $utilityAnswer->utility_answer : null;
+                @endphp
                 <!-- Form to Enter Utilization Details -->
                 <form id="utilizationCertificateForm" action="{{ route('saveUtilizationCertificate') }}" method="POST">
                     <input type="hidden" name="exam_id" value="{{ $session->exam_main_no }}">
@@ -22,28 +26,28 @@
                         <label for="ciAmount" class="form-label">Cheif Invigilator, Invigilator, Assisting
                             staff:</label>
                         <input type="number" class="form-control calculate-spent" name="ciAmount" id="ciAmount"
-                            placeholder="Enter CI.I amount" value="0" required>
+                            placeholder="Enter CI.I amount"  value="{{ $utilityAnswer['ciAmount'] ?? 0 }}" required>
                     </div>
 
                     <!-- Assistant Staff Amount Input -->
                     <div class="mb-3">
                         <label for="assistantStaffAmount" class="form-label">Sweeper, Sanitary Worker, Waterman:</label>
                         <input type="number" class="form-control calculate-spent" name="assistantStaffAmount"
-                            id="assistantStaffAmount" value="0" placeholder="Enter Assistant Staff amount"
+                            id="assistantStaffAmount"  value="{{ $utilityAnswer['assistantStaffAmount'] ?? 0 }}" placeholder="Enter Assistant Staff amount"
                             required>
                     </div>
 
                     <!-- Police Amount Input -->
                     <div class="mb-3">
                         <label for="policeAmount" class="form-label">Police Person:</label>
-                        <input type="number" class="form-control calculate-spent" value="0" name="policeAmount"
+                        <input type="number" class="form-control calculate-spent" value="{{ $utilityAnswer['policeAmount'] ?? 0 }}" name="policeAmount"
                             id="policeAmount" placeholder="Enter Police amount" required>
                     </div>
 
                     <!-- Scribe Amount Input -->
                     <div class="mb-3">
                         <label for="scribeAmount" class="form-label">Scribe(s) (if any):</label>
-                        <input type="number" class="form-control calculate-spent" name="scribeAmount" value="0"
+                        <input type="number" class="form-control calculate-spent" name="scribeAmount" value="{{ $utilityAnswer['scribeAmount'] ?? 0 }}"
                             id="scribeAmount" placeholder="Enter Scribe amount">
                     </div>
 
@@ -52,7 +56,7 @@
                         <label for="inspectionStaffAmount" class="form-label">Inspection Staff deputed by DRO/District
                             Collector:</label>
                         <input type="number" class="form-control calculate-spent" name="inspectionStaffAmount"
-                            id="inspectionStaffAmount" value="0" placeholder="Enter Inspection Staff amount"
+                            id="inspectionStaffAmount" value="{{ $utilityAnswer['inspectionStaffAmount'] ?? 0 }}" placeholder="Enter Inspection Staff amount"
                             required>
                     </div>
 
@@ -60,14 +64,14 @@
                     <div class="mb-3">
                         <label for="stationeryAmount" class="form-label">Stationery:</label>
                         <input type="number" class="form-control calculate-spent" name="stationeryAmount"
-                            id="stationeryAmount" value="0" placeholder="Enter Stationery amount" required>
+                            id="stationeryAmount" value="{{ $utilityAnswer['stationeryAmount'] ?? 0 }}" placeholder="Enter Stationery amount" required>
                     </div>
 
                     <!-- Hall Rent Amount Input -->
                     <div class="mb-3">
                         <label for="hallRentAmount" class="form-label">Hall Rent:</label>
                         <input type="number" class="form-control calculate-spent" name="hallRentAmount"
-                            id="hallRentAmount" value="0" placeholder="Enter Hall Rent amount" required>
+                            id="hallRentAmount" value="{{ $utilityAnswer['hallRentAmount'] ?? 0 }}" placeholder="Enter Hall Rent amount" required>
                     </div>
 
                     <!-- Total Amount Spent Input -->

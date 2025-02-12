@@ -32,7 +32,7 @@
                                 </div>
                                 <div class="mb-2">
                                     <label for="received_amount" class="form-label">Received Amount</label>
-                                    <input type="text" class="form-control input-primary" id="received_amount"
+                                    <input value="{{ old('received_amount', $firstReceivedAmount) }}" type="text" class="form-control input-primary" id="received_amount"
                                         name="received_amount">
                                 </div>
                             </div>

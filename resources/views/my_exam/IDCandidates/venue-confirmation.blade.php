@@ -212,6 +212,7 @@
                                                 <input type="hidden" name="exam_id" value="{{ $exam->exam_main_no }}">
                                                 <input type="hidden" id="selectedVenuesOrder" name="selected_venues"
                                                     value="">
+                                                <input type="hidden" name="center_code" value="{{ $selectedCenter }}">
                                                 <button type="submit" class="btn btn-success save-venue-confirmation">
                                                     Save Confirmation
                                                 </button>

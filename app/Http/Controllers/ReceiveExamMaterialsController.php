@@ -957,9 +957,9 @@ class ReceiveExamMaterialsController extends Controller
                 ->whereDate('exam_date', $exam_date);
 
         // Filter by session (FN/AN)
-        if ($exam_session == 'FN' || $exam_session == 'AN') {
-            $query->where('exam_session', $exam_session);
-        }
+        // if ($exam_session == 'FN' || $exam_session == 'AN') {
+        //     $query->where('exam_session', $exam_session);
+        // }
 
         // Retrieve exam materials
         $examMaterials = $query

@@ -21,10 +21,11 @@ class CIPreliminaryCheckController extends Controller
             'checklist' => 'required|array',
             'exam_id' => 'required|numeric',
         ]);
-
+        $user = current_user();
         // Retrieve the exam details
         $examDetails = DB::table('exam_confirmed_halls')
             ->where('exam_id', $validated['exam_id'])
+            ->where('ci_id', $user->ci_id)
             ->first();
 
         if (!$examDetails) {
@@ -53,84 +54,98 @@ class CIPreliminaryCheckController extends Controller
         ];
 
         // Save the data in JSON format
-        CIChecklistAnswer::create([
-            'exam_id' => $validated['exam_id'],
-            'center_code' => $examDetails->center_code,
-            'hall_code' => $examDetails->hall_code,
-            'ci_id' => $ci_id,
-            'preliminary_answer' => $preliminaryAnswer, // Save as JSON with the single timestamp
-        ]);
+        // Update or create the checklist answer
+        CIChecklistAnswer::updateOrCreate(
+            [
+                'exam_id' => $validated['exam_id'],
+                'center_code' => $examDetails->center_code,
+                'hall_code' => $examDetails->hall_code,
+                'ci_id' => $ci_id,
+            ],
+            [
+                'preliminary_answer' => $preliminaryAnswer, // Save as JSON with the single timestamp
+            ]
+        );
 
         // Redirect back with a success message
         return redirect()->back()->with('success', 'Checklist saved successfully!');
     }
-    public function savesessionChecklist(Request $request)
+    public function saveSessionChecklist(Request $request)
     {
-        // Validate the incoming request data
+        // Validate the request data
         $validated = $request->validate([
-            'exam_id' => 'required',
+            'exam_id' => 'required|numeric',
             'exam_sess_date' => 'required|date',
             'exam_sess_session' => 'required|string',
             'checklist' => 'nullable|array',
             'inspectionStaff' => 'nullable|array',
         ]);
-        
-        // Find the existing record or create a new one
-        $ciSessionChecklist = CIChecklistAnswer::firstOrNew(['exam_id' => $request->exam_id]);
 
-        // Retrieve the current data or initialize an empty structure
-        $currentData = $ciSessionChecklist->session_answer ?? [
-            'sessions' => []
-        ];
-       
-        // Prepare the new session data
-        $exam_date = $request->input('exam_sess_date');
-        $sessions = $request->input('exam_sess_session');
-        $checklistData = [];
+        $user = current_user();
 
-        if (!empty($request->checklist)) {
-            foreach ($request->checklist as $checklistId => $value) {
-                // Create checklist item array
-                $checklistItem = [
-                    'description' => $value,
-                    'checklist_id' => $checklistId,
-                ];
+        // Retrieve the exam details from exam_confirmed_halls
+        $examDetails = DB::table('exam_confirmed_halls')
+            ->where('exam_id', $validated['exam_id'])
+            ->where('ci_id', $user->ci_id)
+            ->first();
 
-                // Add dynamic fields for Inspection Staff (if provided)
-                if (isset($request->inspectionStaff[$checklistId])) {
-                    $checklistItem['inspection_staff'] = [
-                        'name' => $request->input("inspectionStaff.{$checklistId}.name"),
-                        'designation' => $request->input("inspectionStaff.{$checklistId}.designation"),
-                        'department' => $request->input("inspectionStaff.{$checklistId}.department")
-                    ];
-                }
-
-              
-
-                // Add the checklist item to the data array
-                $checklistData[] = $checklistItem;
-            }
-
-            // Append the new session data with current timestamp
-            $currentData['sessions'][] = [
-                'exam_date' => $exam_date,
-                'session' => $sessions,
-                'checklist' => $checklistData,
-                'timestamp' => now()->toDateTimeString(),
-            ];
+        if (!$examDetails) {
+            return back()->withErrors(['exam_id' => 'Exam not found in confirmed halls.']);
         }
 
-        // Save the updated session_answer data in the ciSessionChecklist record
-        $ciSessionChecklist->session_answer = $currentData;
+        // Retrieve the existing checklist record or create a new one
+        $ciSessionChecklist = CIChecklistAnswer::firstOrCreate(
+            [
+                'exam_id' => $validated['exam_id'],
+                'center_code' => $examDetails->center_code,
+                'hall_code' => $examDetails->hall_code,
+                'ci_id' => $user->ci_id,
+            ],
+            [
+                'session_answer' => []
+            ]
+        );
 
-        // Save the record (this will insert if it's a new record or update if it exists)
-        $ciSessionChecklist->save();
+        $currentData = $ciSessionChecklist->session_answer ?? [];
+        $exam_date = $validated['exam_sess_date'];
+        $session = $validated['exam_sess_session'];
 
-        // Return success message
+        if (!empty($validated['checklist'])) {
+            $checklistData = [];
+            $inspectionStaffData = [];
+
+            foreach ($validated['checklist'] as $checklistId => $value) {
+                $checklistData[$checklistId] = $value;
+
+                if (isset($validated['inspectionStaff'][$checklistId])) {
+                    $inspectionStaffData[$checklistId] = [
+                        'name' => $validated['inspectionStaff'][$checklistId]['name'] ?? null,
+                        'designation' => $validated['inspectionStaff'][$checklistId]['designation'] ?? null,
+                        'department' => $validated['inspectionStaff'][$checklistId]['department'] ?? null,
+                    ];
+                }
+            }
+
+            // Handle nested data structure updates
+            if (!isset($currentData[$exam_date])) {
+                // If date doesn't exist, create new date entry
+                $currentData[$exam_date] = [];
+            }
+
+            // Update or create session data while preserving other sessions
+            $currentData[$exam_date][$session] = [
+                'checklist' => $checklistData,
+                'timestamp' => now()->toDateTimeString(),
+                'inspection_staff' => $inspectionStaffData
+            ];
+
+            // Save the updated data
+            $ciSessionChecklist->session_answer = $currentData;
+            $ciSessionChecklist->save();
+        }
+
         return redirect()->back()->with('success', 'Checklist updated successfully.');
     }
-
-
 
 
     public function saveVideographyChecklist(Request $request)
@@ -259,9 +274,9 @@ class CIPreliminaryCheckController extends Controller
             'amountReceived' => 'required|numeric',
             'balanceAmount' => 'required|numeric',
         ]);
-
+        $user = current_user();
         // Find the existing utilization record by exam_id
-        $utilizationRecord = CIChecklistAnswer::where('exam_id', $request->exam_id)->first();
+        $utilizationRecord = CIChecklistAnswer::where('exam_id', $request->exam_id)->where('ci_id', $user->ci_id)->first();
 
         if (!$utilizationRecord) {
             return redirect()->back()->with('error', 'Record not found.');
@@ -289,7 +304,7 @@ class CIPreliminaryCheckController extends Controller
             'totalAmountSpent' => $validated['totalAmountSpent'],
             'amountReceived' => $validated['amountReceived'],
             'balanceAmount' => $validated['balanceAmount'],
-            'updated_at' =>  $timestamp, // Add the update timestamp
+            'updated_at' => $timestamp, // Add the update timestamp
         ];
 
         // Update the existing record's jsonb field

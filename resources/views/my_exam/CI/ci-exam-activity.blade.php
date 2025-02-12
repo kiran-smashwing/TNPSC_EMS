@@ -41,26 +41,34 @@
                             <div class="card-body">
                                 <nav class="navbar justify-content-between p-0 align-items-center">
                                     <h5 class="mb-0 d-flex align-items-center">
-                                        <span class="text-primary">{{ $session->currentexam->exam_main_notification }}</span>
+                                        <span
+                                            class="text-primary">{{ $session->currentexam->exam_main_notification }}</span>
                                         - {{ $session->currentexam->exam_main_name }} -
-                                        {{ $session->currentexam->exam_main_postname }} - 
-                                        <span class="text-warning">&nbsp;{{ $session->currentexam->exam_main_startdate }}</span>
+                                        {{ $session->currentexam->exam_main_postname }} -
+                                        <span
+                                            class="text-warning">&nbsp;{{ $session->currentexam->exam_main_startdate }}</span>
                                     </h5>
-                                    <div class="btn-group btn-group-sm help-filter" role="group" aria-label="button groups sm">
+                                    <div class="btn-group btn-group-sm help-filter" role="group"
+                                        aria-label="button groups sm">
                                         <!-- Add your buttons here if needed -->
                                     </div>
                                     <div class="d-flex align-items-center">
 
-                                    <a href="#" title="Adequacy Check Notification" data-pc-animate="just-me" data-bs-toggle="modal" data-bs-target="#adequacyCheckNotificationModal" class="me-2 btn btn-sm btn-light-danger d-flex align-items-center">
-                                        <i class="material-icons-two-tone" style="font-size: 22px">assignment_turned_in</i>
-                                    </a>
-                                    <a href="#" title="Emergency Alarm Notification" data-pc-animate="just-me" data-bs-toggle="modal" data-bs-target="#emergencyAlarmNotificationModal" class="me-2 btn btn-sm btn-light-danger d-flex align-items-center">
-                                        <i class="material-icons-two-tone" style="font-size: 22px">add_alert</i>
-                                    </a>
-                                </div>
+                                        <a href="#" title="Adequacy Check Notification" data-pc-animate="just-me"
+                                            data-bs-toggle="modal" data-bs-target="#adequacyCheckNotificationModal"
+                                            class="me-2 btn btn-sm btn-light-danger d-flex align-items-center">
+                                            <i class="material-icons-two-tone"
+                                                style="font-size: 22px">assignment_turned_in</i>
+                                        </a>
+                                        <a href="#" title="Emergency Alarm Notification" data-pc-animate="just-me"
+                                            data-bs-toggle="modal" data-bs-target="#emergencyAlarmNotificationModal"
+                                            class="me-2 btn btn-sm btn-light-danger d-flex align-items-center">
+                                            <i class="material-icons-two-tone" style="font-size: 22px">add_alert</i>
+                                        </a>
+                                    </div>
 
                                 </nav>
-                                
+
                             </div>
                         </div>
                         @if (session('success'))
@@ -96,26 +104,28 @@
 
                         <div class="card-body">
                             <ul class="list-unstyled task-list">
+                                @php
+                                    $is_materials_received = $lastScannedMaterial !== null;
+
+                                    // Set dynamic badge text and color
+                                    $taskStatus = $is_materials_received ? 'Received' : 'Pending';
+                                    $badgeClass = $is_materials_received ? 'bg-light-secondary' : 'bg-danger';
+                                @endphp
                                 <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
+                                    <i
+                                        class="task-icon {{ $is_materials_received ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="col-sm-auto mb-3 mb-sm-0">
                                                     <div class="d-sm-inline-block d-flex align-items-center">
                                                         <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
+                                                            src="{{ asset('storage/' . current_user()->profile_image) }}"
                                                             alt="Generic placeholder image " />
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">4 - QP </a></li>
-                                                                <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-secondary">1 - OMR </a></li>
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
+
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -123,27 +133,21 @@
                                                 <div class="col">
                                                     <div class="popup-trigger">
                                                         <div class="h5 font-weight-bold">Receive Materials From Mobile
-                                                            Team<small
-                                                                class="badge bg-light-secondary ms-2">received</small>
+                                                            Team <small
+                                                                class="badge {{ $badgeClass }} ms-2">{{ $taskStatus }}</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
+                                                                    <b>{{ $is_materials_received ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
                                                                 </li>
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                    {{ $is_materials_received ? \Carbon\Carbon::parse($lastScannedMaterial->last_scanned_at)->format('d-m-Y h:i A') : '' }}
+                                                                </li>
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -165,50 +169,50 @@
                                         </div>
                                     </div>
                                 </li>
+                                @php
+                                    $is_session_answered =
+                                        $sessionAnswer !== null && !empty((array) $sessionAnswer->session_answer);
+
+                                    // Set dynamic badge text and color
+                                    $taskStatus = $is_session_answered ? 'Verified' : 'Pending';
+                                    $badgeClass = $is_session_answered ? 'bg-light-secondary' : 'bg-danger';
+                                @endphp
                                 <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
+                                    <i
+                                        class="task-icon {{ $is_session_answered ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="col-sm-auto mb-3 mb-sm-0">
                                                     <div class="d-sm-inline-block d-flex align-items-center">
                                                         <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
+                                                            src="{{ asset('storage/' . current_user()->profile_image) }}"
                                                             alt="Generic placeholder image " />
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                             </ul>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Session Check<small
-                                                                class="badge bg-light-secondary ms-2">checked</small>
+                                                        <div class="h5 font-weight-bold">Session Check <small
+                                                                class="badge {{ $badgeClass }} ms-2">{{ $taskStatus }}</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
+                                                              
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
+                                                                        <b>{{ $is_session_answered ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
+                                                                    </li>
+                                                                    <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                    {{ $is_session_answered ? \Carbon\Carbon::parse($sessionAnswer->session_answer['timestamp'])->format('d-m-Y h:i A') : '' }}
+                                                                </li>
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -234,7 +238,7 @@
                                                 <div class="col-sm-auto mb-3 mb-sm-0">
                                                     <div class="d-sm-inline-block d-flex align-items-center">
                                                         <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
+                                                            src="{{ asset('storage/' . current_user()->profile_image) }}"
                                                             alt="Generic placeholder image " />
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
@@ -311,7 +315,7 @@
                                                 <div class="col-sm-auto mb-3 mb-sm-0">
                                                     <div class="d-sm-inline-block d-flex align-items-center">
                                                         <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
+                                                            src="{{ asset('storage/' . current_user()->profile_image) }}"
                                                             alt="Generic placeholder image " />
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
@@ -376,7 +380,7 @@
                                                 <div class="col-sm-auto mb-3 mb-sm-0">
                                                     <div class="d-sm-inline-block d-flex align-items-center">
                                                         <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
+                                                            src="{{ asset('storage/' . current_user()->profile_image) }}"
                                                             alt="Generic placeholder image " />
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
@@ -443,7 +447,7 @@
                                                 <div class="col-sm-auto mb-3 mb-sm-0">
                                                     <div class="d-sm-inline-block d-flex align-items-center">
                                                         <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
+                                                            src="{{ asset('storage/' . current_user()->profile_image) }}"
                                                             alt="Generic placeholder image " />
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
@@ -504,7 +508,7 @@
                                                 <div class="col-sm-auto mb-3 mb-sm-0">
                                                     <div class="d-sm-inline-block d-flex align-items-center">
                                                         <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
+                                                            src="{{ asset('storage/' . current_user()->profile_image) }}"
                                                             alt="Generic placeholder image " />
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
@@ -581,7 +585,7 @@
                                                 <div class="col-sm-auto mb-3 mb-sm-0">
                                                     <div class="d-sm-inline-block d-flex align-items-center">
                                                         <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
+                                                            src="{{ asset('storage/' . current_user()->profile_image) }}"
                                                             alt="Generic placeholder image " />
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
@@ -648,7 +652,7 @@
                                                 <div class="col-sm-auto mb-3 mb-sm-0">
                                                     <div class="d-sm-inline-block d-flex align-items-center">
                                                         <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
+                                                            src="{{ asset('storage/' . current_user()->profile_image) }}"
                                                             alt="Generic placeholder image " />
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
@@ -709,7 +713,7 @@
                                                 <div class="col-sm-auto mb-3 mb-sm-0">
                                                     <div class="d-sm-inline-block d-flex align-items-center">
                                                         <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
+                                                            src="{{ asset('storage/' . current_user()->profile_image) }}"
                                                             alt="Generic placeholder image " />
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
@@ -775,7 +779,7 @@
                                                 <div class="col-sm-auto mb-3 mb-sm-0">
                                                     <div class="d-sm-inline-block d-flex align-items-center">
                                                         <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
+                                                            src="{{ asset('storage/' . current_user()->profile_image) }}"
                                                             alt="Generic placeholder image " />
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
@@ -844,7 +848,7 @@
                                                 <div class="col-sm-auto mb-3 mb-sm-0">
                                                     <div class="d-sm-inline-block d-flex align-items-center">
                                                         <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
+                                                            src="{{ asset('storage/' . current_user()->profile_image) }}"
                                                             alt="Generic placeholder image " />
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
@@ -915,7 +919,7 @@
                                                 <div class="col-sm-auto mb-3 mb-sm-0">
                                                     <div class="d-sm-inline-block d-flex align-items-center">
                                                         <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
+                                                            src="{{ asset('storage/' . current_user()->profile_image) }}"
                                                             alt="Generic placeholder image " />
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
@@ -985,7 +989,7 @@
                                                 <div class="col-sm-auto mb-3 mb-sm-0">
                                                     <div class="d-sm-inline-block d-flex align-items-center">
                                                         <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
+                                                            src="{{ asset('storage/' . current_user()->profile_image) }}"
                                                             alt="Generic placeholder image " />
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
@@ -1047,7 +1051,7 @@
                                                 <div class="col-sm-auto mb-3 mb-sm-0">
                                                     <div class="d-sm-inline-block d-flex align-items-center">
                                                         <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
+                                                            src="{{ asset('storage/' . current_user()->profile_image) }}"
                                                             alt="Generic placeholder image " />
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
@@ -1112,7 +1116,7 @@
                                                 <div class="col-sm-auto mb-3 mb-sm-0">
                                                     <div class="d-sm-inline-block d-flex align-items-center">
                                                         <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
+                                                            src="{{ asset('storage/' . current_user()->profile_image) }}"
                                                             alt="Generic placeholder image " />
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
@@ -1179,7 +1183,7 @@
                                                 <div class="col-sm-auto mb-3 mb-sm-0">
                                                     <div class="d-sm-inline-block d-flex align-items-center">
                                                         <img class="media-object wid-60 img-radius"
-                                                            src="{{ asset('storage/assets/images/user/avatar-8.jpg') }}"
+                                                            src="{{ asset('storage/' . current_user()->profile_image) }}"
                                                             alt="Generic placeholder image " />
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul

@@ -413,6 +413,7 @@ class IDCandidatesController extends Controller
             // get all venues in saved order
             $confirmedVenues = ExamVenueConsent::where('exam_id', $examId)
                 ->where('is_confirmed', 'true')
+                ->where('center_code', $request->center_code)
                 ->orderBy('order_by_id', 'asc')
                 ->get();
             if ($confirmedVenues) {

@@ -18,11 +18,21 @@
                             @if ($preliminary->isEmpty())
                                 <p>No checklist items found.</p>
                             @else
+                                @php
+                                    // Check if preliminary_answer is not null and decode it
+                                    $preliminaryAnswer = $preliminaryAnswer ? $preliminaryAnswer->preliminary_answer : null;
+                                    // Initialize selectedIds to an empty array if preliminaryAnswer or checklist is null
+                                    $selectedIds =
+                                        $preliminaryAnswer && isset($preliminaryAnswer['checklist'])
+                                            ? array_keys($preliminaryAnswer['checklist'])
+                                            : [];
+                                @endphp
                                 @foreach ($preliminary as $item)
                                     <div class="form-check mb-2">
                                         <input class="form-check-input input-primary"
                                             name="checklist[{{ $item->ci_checklist_id }}]" type="checkbox"
-                                            id="customCheck{{ $item->ci_checklist_id }}" checked>
+                                            id="customCheck{{ $item->ci_checklist_id }}"
+                                            @if (in_array($item->ci_checklist_id, $selectedIds)) checked @endif>
                                         <label class="form-check-label" for="customCheck{{ $item->ci_checklist_id }}">
                                             {{ $item->ci_checklist_description }}
                                         </label>

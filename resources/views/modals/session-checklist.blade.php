@@ -21,6 +21,17 @@
                             @if ($type_sessions->isEmpty())
                                 <p>No checklist items found.</p>
                             @else
+                                @php
+                                    // Decode the session_answer JSON string
+                                    $sessionAnswer = $sessionAnswer
+                                        ? $sessionAnswer->session_answer : null;
+
+                                    // Initialize selectedIds to an empty array if sessionAnswer or checklist is null
+                                    $selectedIds =
+                                        $sessionAnswer && isset($sessionAnswer['checklist'])
+                                            ? array_keys($sessionAnswer['checklist'])
+                                            : [];
+                                @endphp
                                 @foreach ($type_sessions as $item)
                                     <div class="form-check mb-2">
                                         <input class="form-check-input input-primary"
@@ -28,7 +39,7 @@
                                             id="customCheck{{ $item->ci_checklist_id }}"
                                             data-checklist-id="{{ $item->ci_checklist_id }}"
                                             data-description="{{ $item->ci_checklist_description }}"
-                                            {{ old('checklist.' . $item->ci_checklist_id) ? 'checked' : '' }}>
+                                            {{ in_array($item->ci_checklist_id, $selectedIds) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="customCheck{{ $item->ci_checklist_id }}">
                                             {{ $item->ci_checklist_description }}
                                         </label>
@@ -47,7 +58,8 @@
                                                             <input type="text"
                                                                 id="inspectionStaffName{{ $item->ci_checklist_id }}"
                                                                 name="inspectionStaff[{{ $item->ci_checklist_id }}][name]"
-                                                                class="form-control" placeholder="Enter Name">
+                                                                class="form-control" placeholder="Enter Name"
+                                                                value="{{ $sessionAnswer['inspection_staff'][$item->ci_checklist_id]['name'] ?? '' }}">
                                                         </div>
                                                         <div class="col-md-4">
                                                             <label
@@ -56,7 +68,8 @@
                                                             <input type="text"
                                                                 id="inspectionStaffDesignation{{ $item->ci_checklist_id }}"
                                                                 name="inspectionStaff[{{ $item->ci_checklist_id }}][designation]"
-                                                                class="form-control" placeholder="Enter Designation">
+                                                                class="form-control" placeholder="Enter Designation"
+                                                                value="{{ $sessionAnswer['inspection_staff'][$item->ci_checklist_id]['designation'] ?? '' }}">
                                                         </div>
                                                         <div class="col-md-4">
                                                             <label
@@ -65,11 +78,12 @@
                                                             <input type="text"
                                                                 id="inspectionStaffDepartment{{ $item->ci_checklist_id }}"
                                                                 name="inspectionStaff[{{ $item->ci_checklist_id }}][department]"
-                                                                class="form-control" placeholder="Enter Department">
+                                                                class="form-control" placeholder="Enter Department"
+                                                                value="{{ $sessionAnswer['inspection_staff'][$item->ci_checklist_id]['department'] ?? '' }}">
                                                         </div>
                                                     </div>
                                                 </div>
-                                            @endif                                           
+                                            @endif
                                         </div>
                                     </div>
                                 @endforeach
@@ -96,7 +110,7 @@
             function toggleDynamicFields($checkbox) {
                 const checklistId = $checkbox.data('checklist-id');
                 const $dynamicFields = $('#dynamicFields' +
-                checklistId); // Removed the hyphen to match your HTML IDs
+                    checklistId); // Removed the hyphen to match your HTML IDs
 
                 if ($checkbox.is(':checked')) {
                     $dynamicFields.slideDown();
@@ -107,9 +121,9 @@
 
             // Event listener for checkbox changes
             $(document).on('change', '.form-check-input',
-        function() { // Changed selector to match your checkbox class
-                toggleDynamicFields($(this));
-            });
+                function() { // Changed selector to match your checkbox class
+                    toggleDynamicFields($(this));
+                });
 
             // Initialize fields on page load
             $('.form-check-input').each(function() {

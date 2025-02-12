@@ -46,7 +46,7 @@
                         <div class="card">
                             <div class="card-header">
                                 <div class="d-sm-flex align-items-center justify-content-between">
-                                    <h5 class="mb-3 mb-sm-0">{{ $exam_date }}</h5>
+                                    <h5 class="mb-3 mb-sm-0">{{ $exam_date }} - {{$session}}</h5>
                                 </div>
                             </div>
                             <div class="card-body table-border-style">
@@ -72,8 +72,6 @@
                                                                     No Scans
                                                                 @endif
                                                             </td>
-
-
                                                         </tr>
                                                         {{-- @php dd($material->examMaterialsScan->ci_scanned_at); @endphp <!-- Debugging the material object --> --}}
                                                     @endif

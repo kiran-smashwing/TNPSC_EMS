@@ -50,7 +50,7 @@
                                         </div>
                                         <h5 class="mb-0">{{ $venue->district->district_code }} - {{ $venue->district->district_name }}
                                         </h5>
-                                        <p class="text-muted text-sm">{{ $venue->district->district_type }}</p>
+                                        <p class="text-muted text-sm">District Collectorate</p>
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
                                             <div class="col-4">

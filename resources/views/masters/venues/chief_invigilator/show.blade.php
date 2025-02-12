@@ -48,7 +48,7 @@
                                             id="previewImage" alt="Cropped Preview"
                                             class="rounded-circle img-fluid wid-70">
                                         </div>
-                                        <h5 class="mb-0">{{ $chiefInvigilator->district->district_name }} - {{ $chiefInvigilator->district->district_code }}
+                                        <h5 class="mb-0">{{ $chiefInvigilator->district->district_code }} - {{ $chiefInvigilator->district->district_name }}
                                         </h5>
                                         <p class="text-muted text-sm">District Collectorate</p>
                                         <hr class="my-3 border border-secondary-subtle">

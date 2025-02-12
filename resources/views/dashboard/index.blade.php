@@ -35,7 +35,7 @@
                                         </div>
                                         <div class="flex-grow-1 mx-2">
                                             <p class="mb-1">Districts</p>
-                                            <h6 class="mb-0">38</h6>
+                                            <h6 class="mb-0">{{ $districtCount }}</h6>
                                         </div>
                                     </div>
                                 </div>
@@ -53,7 +53,7 @@
                                         </div>
                                         <div class="flex-grow-1 mx-2">
                                             <p class="mb-1">Treasury Officers</p>
-                                            <h6 class="mb-0">50</h6>
+                                            <h6 class="mb-0">{{ $treasuryofficerCount }}</h6>
                                         </div>
                                     </div>
                                 </div>
@@ -75,13 +75,13 @@
                                         </div>
                                         <div class="flex-grow-1 mx-2">
                                             <p class="mb-1">Centers</p>
-                                            <h6 class="mb-0">317</h6>
+                                            <h6 class="mb-0">{{ $centerCount }}</h6>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Fourth Card -->
                         <div class="col-md-6">
                             <div class="card mb-2">
@@ -94,7 +94,7 @@
                                         </div>
                                         <div class="flex-grow-1 mx-2">
                                             <p class="mb-1">Mobile Team Officers</p>
-                                            <h6 class="mb-0">50</h6>
+                                            <h6 class="mb-0">{{ $mobileTeamStaffCount }}</h6>
                                         </div>
                                     </div>
                                 </div>
@@ -134,7 +134,7 @@
                                         </div>
                                         <div class="flex-grow-1 mx-2">
                                             <p class="mb-1">Venues</p>
-                                            <h6 class="mb-0">10,000</h6>
+                                            <h6 class="mb-0">{{ $venueCount }}</h6>
                                         </div>
                                     </div>
                                 </div>
@@ -152,7 +152,7 @@
                                         </div>
                                         <div class="flex-grow-1 mx-2">
                                             <p class="mb-1">Chief Invigilators</p>
-                                            <h6 class="mb-0">20,000</h6>
+                                            <h6 class="mb-0">{{ $chiefInvigilatorCount }}</h6>
                                         </div>
                                     </div>
                                 </div>
@@ -173,13 +173,13 @@
                                         </div>
                                         <div class="flex-grow-1 mx-2">
                                             <p class="mb-1">Examination Services</p>
-                                            <h6 class="mb-0">70</h6>
+                                            <h6 class="mb-0">{{ $examServiceCount }}</h6>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Eight Card -->
                         <div class="col-md-6">
                             <div class="card mb-2">
@@ -192,7 +192,7 @@
                                         </div>
                                         <div class="flex-grow-1 mx-2">
                                             <p class="mb-1">Exam Notifications </p>
-                                            <h6 class="mb-0">100</h6>
+                                            <h6 class="mb-0">{{ $currentExamCount }}</h6>
                                         </div>
                                     </div>
                                 </div>
@@ -213,7 +213,7 @@
                                         </div>
                                         <div class="flex-grow-1 mx-2">
                                             <p class="mb-1">Current Exams</p>
-                                            <h6 class="mb-0">15</h6>
+                                            <h6 class="mb-0">{{ $currentsExamCount }}</h6>
                                         </div>
                                     </div>
                                 </div>
@@ -231,7 +231,7 @@
                                         </div>
                                         <div class="flex-grow-1 mx-2">
                                             <p class="mb-1">Completed Exams </p>
-                                            <h6 class="mb-0">85</h6>
+                                            <h6 class="mb-0">{{ $completedExamCount }}</h6>
                                         </div>
                                     </div>
                                 </div>
@@ -252,14 +252,14 @@
                                         </div>
                                         <div class="flex-grow-1 mx-2">
                                             <p class="mb-1">Major Exams</p>
-                                            <h6 class="mb-0">30</h6>
+                                            <h6 class="mb-0">{{ $majorExamCount }}</h6>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <!-- Twelve Card -->
-                       
+
                         <div class="col-md-6">
                             <div class="card mb-2">
                                 <div class="card-body">
@@ -271,7 +271,7 @@
                                         </div>
                                         <div class="flex-grow-1 mx-2">
                                             <p class="mb-1">Minor Exams </p>
-                                            <h6 class="mb-0">70</h6>
+                                            <h6 class="mb-0">{{ $minorExamCount }}</h6>
                                         </div>
                                     </div>
                                 </div>
@@ -280,7 +280,7 @@
                     </div>
                     <div class="row">
                         <!-- Thirteen Card -->
-                       
+
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -298,25 +298,25 @@
                                 <div class="col-6 col-lg-6 col-xxl-6">
                                     <div class="overview-product-legends">
                                         <span>Objective Exams</span>
-                                        <h6 class="mb-0">20</h6>
+                                        <h6 class="mb-0">{{$objectiveExamCount}}</h6>
                                     </div>
                                 </div>
                                 <div class="col-6 col-lg-6 col-xxl-6">
                                     <div class="overview-product-legends">
                                         <span>Descriptive Exams</span>
-                                        <h6 class="mb-0">30</h6>
+                                        <h6 class="mb-0">{{$descriptiveExamCount}}</h6>
                                     </div>
                                 </div>
                                 <div class="col-6 col-lg-6 col-xxl-6">
                                     <div class="overview-product-legends">
                                         <span>Objective & Descriptive Exams</span>
-                                        <h6 class="mb-0">25</h6>
+                                        <h6 class="mb-0">{{$objDescExamCount}}</h6>
                                     </div>
                                 </div>
                                 <div class="col-6 col-lg-6 col-xxl-6">
                                     <div class="overview-product-legends">
                                         <span>CBT Exams</span>
-                                        <h6 class="mb-0">25</h6>
+                                        <h6 class="mb-0">{{$cbtExamCount}}</h6>
                                     </div>
                                 </div>
                             </div>
@@ -341,7 +341,12 @@
                     type: 'pie'
                 },
                 labels: ['CBT Exams', 'Objective & Descriptive Exams', 'Descriptive Exams', 'Objective Exams'],
-                series: [25, 25, 30, 20],
+                series: [
+                    {{ $cbtExamCount }},
+                    {{ $objDescExamCount }},
+                    {{ $descriptiveExamCount }},
+                    {{ $objectiveExamCount }}
+                ],
                 colors: ['#2ca87f', '#199f73', '#FFC022', '#FF3E3E'],
                 fill: {
                     opacity: [0.4, 0.6, 0.8, 1]
@@ -367,6 +372,7 @@
                     }
                 }]
             };
+
             var chart = new ApexCharts(document.querySelector('#overview-product-graph'), options8);
             chart.render();
         </script>

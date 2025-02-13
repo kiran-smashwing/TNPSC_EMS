@@ -187,27 +187,35 @@
             </tr>
             <tr>
                 <td class="row-label" colspan="2">Route No:</td>
+                <td class="row-label" colspan="2">GPS Lock Number:</td>
+                
+            </tr>
+            <tr>
                 <td class="row-label" colspan="2">District:</td>
-            </tr>
-            <tr>
-                <td class="row-label" colspan="2">Centre Code & Name:</td>
-                <td class="row-label" colspan="2">No. of Halls:</td>
-            </tr>
-            <tr>
-                <td class="row-label" colspan="1">GPS Lock Number:</td>
                 <td class="row-label" colspan="1">Access Card Number:</td>
-                <td class="row-label" colspan="2">Memory Cards Received from Dist. Treasury:</td>
+                
             </tr>
             <tr>
-                <td class="row-label" colspan="4">
-                    Particulars of Unused One Time Lock for Metal Trunk Box Received (Spare Lock Number):
-                </td>
+                <td class="row-label" colspan="4">Centre Code & Name:</td>
+                
+            </tr>
+            <tr>
+                <td class="row-label" colspan="4">Halls Numbers:</td>
+            </tr>
+            <tr>
+                <td class="row-label" colspan="4">Memory Cards Received from Dist. Treasury:</td>
             </tr>
             <tr>
                 <td class="row-label" colspan="4">
                     Particulars of One Time Lock For Chartered Vehicle: (I) Used OTL No. <br>
                     (II) Unused OTL (Spare Lock Number):
                 </td>
+            </tr>
+            <tr>
+                <td class="row-label" colspan="4">
+                    Particulars of Unused One Time Lock for Metal Trunk Box Received (Spare Lock Number):
+                </td>
+               
             </tr>
         </table>
         

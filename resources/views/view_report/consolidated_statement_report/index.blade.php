@@ -342,10 +342,26 @@
             });
         </script> --}}
         <script>
-            document.getElementById('notification_no').addEventListener('blur', function() {
-                const notificationNo = this.value.trim();
+            document.addEventListener("DOMContentLoaded", function() {
+                const notificationInput = document.getElementById('notification_no');
+                const examDateSelect = document.getElementById('exam_date');
+                const sessionSelect = document.getElementById('session');
 
-                if (notificationNo) {
+                // Restore values after page reload
+                if (localStorage.getItem('notification_no')) {
+                    notificationInput.value = localStorage.getItem('notification_no');
+                    fetchDropdownData(notificationInput.value);
+                }
+
+                notificationInput.addEventListener('blur', function() {
+                    const notificationNo = this.value.trim();
+                    if (notificationNo) {
+                        localStorage.setItem('notification_no', notificationNo); // Save to localStorage
+                        fetchDropdownData(notificationNo);
+                    }
+                });
+
+                function fetchDropdownData(notificationNo) {
                     fetch(`{{ route('attendance.dropdown') }}?notification_no=${notificationNo}`)
                         .then(response => {
                             if (!response.ok) {
@@ -355,7 +371,6 @@
                         })
                         .then(data => {
                             // Populate exam dates
-                            const examDateSelect = document.getElementById('exam_date');
                             examDateSelect.innerHTML = '<option value="" selected>Select Exam Date</option>';
                             if (data.examDates && data.examDates.length > 0) {
                                 data.examDates.forEach(date => {
@@ -364,10 +379,10 @@
                                     option.textContent = date;
                                     examDateSelect.appendChild(option);
                                 });
+                                localStorage.setItem('exam_date', data.examDates[0]); // Store selected value
                             }
 
                             // Populate sessions
-                            const sessionSelect = document.getElementById('session');
                             sessionSelect.innerHTML = '<option value="" selected>Select Session</option>';
                             if (data.sessions && data.sessions.length > 0) {
                                 data.sessions.forEach(session => {
@@ -376,6 +391,7 @@
                                     option.textContent = session;
                                     sessionSelect.appendChild(option);
                                 });
+                                localStorage.setItem('session', data.sessions[0]); // Store selected value
                             }
                         })
                         .catch(error => {

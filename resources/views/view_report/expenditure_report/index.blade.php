@@ -89,7 +89,8 @@
                                 <div class="row">
                                     <div class="col-md-12 text-end">
                                         <button type="submit" class="btn btn-primary">Submit</button>
-                                        <a href="{{ route('expenditure-statment.report') }}" class="btn btn-secondary">Reset</a>
+                                        <a href="{{ route('expenditure-statment.report') }}"
+                                            class="btn btn-secondary">Reset</a>
 
                                     </div>
                                 </div>
@@ -106,7 +107,7 @@
                         </div>
                         <div class="card-body">
                             <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
-                            style="width: 100%">
+                                width="100%">
                                 <thead>
                                     <tr>
                                         <th>#</th>
@@ -160,73 +161,91 @@
 
     @push('scripts')
         @include('partials.datatable-export-js')
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-        <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 
         <script>
             $(document).ready(function() {
-                var table = $('#res-config').DataTable({
-                    processing: true,
-                    serverSide: false, // Set to true if fetching large data
-                    ajax: {
-                        url: "{{ route('filter.expenditure') }}",
-                        type: 'GET',
-                        data: function(d) {
-                            d.notification_no = $('#notification_no').val();
-                        },
-                        dataSrc: function(json) {
-                            console.log("Filtered Exam Data:", json.data); // Log response data
-                            return json.data; // Pass data to DataTable
-                        }
-                    },
-                    columns: [{
-                            data: 'id',
-                            name: 'id'
-                        },
-                        {
-                            data: 'district',
-                            name: 'district'
-                        },
-                        {
-                            data: 'center',
-                            name: 'center'
-                        },
-                        {
-                            data: 'hall_code',
-                            name: 'hall_code'
-                        },
-                        {
-                            data: 'venue_name',
-                            name: 'venue_name'
-                        },
-                        {
-                            data: 'amount_received',
-                            name: 'amount_received'
-                        },
-                        {
-                            data: 'amount_spent',
-                            name: 'amount_spent'
-                        },
-                        {
-                            data: 'balance_returned',
-                            name: 'balance_returned'
-                        },
-                        {
-                            data: null,
-                            render: function(data, type, row) {
-                                return `<a href="/expenditure/${row.id}" class="btn btn-primary btn-sm">View</a>`;
-                            }
-                        }
-                    ]
-                });
+                var table; // Declare the DataTable variable
 
+                // Handle form submission and initialize/reload DataTable
                 $('#filterForm').submit(function(e) {
                     e.preventDefault();
-                    table.ajax.reload();
+                    var notification_no = $('#notification_no').val().trim();
+
+                    if (!notification_no) {
+                        alert("Please enter a Notification No.");
+                        return;
+                    }
+
+                    // Check if DataTable is already initialized
+                    if ($.fn.DataTable.isDataTable("#res-config")) {
+                        table.destroy(); // Destroy the previous instance before reinitializing
+                    }
+
+                    // Initialize DataTable with new notification number
+                    table = $('#res-config').DataTable({
+                        processing: true,
+                        serverSide: false, // Set to true if handling large datasets
+                        destroy: true,
+                        ajax: {
+                            url: "{{ route('filter.expenditure') }}",
+                            type: 'GET',
+                            data: function(d) {
+                                d.notification_no = notification_no; // Pass entered notification_no
+                            },
+                            dataSrc: function(json) {
+                                console.log("Filtered Exam Data:", json.data);
+                                return json.data || []; // Ensure data is always an array
+                            },
+                            error: function(xhr, error, thrown) {
+                                console.error("DataTable AJAX Error:", error);
+                            }
+                        },
+                        columns: [{
+                                data: 'id',
+                                name: 'id'
+                            },
+                            {
+                                data: 'district',
+                                name: 'district'
+                            },
+                            {
+                                data: 'center',
+                                name: 'center'
+                            },
+                            {
+                                data: 'hall_code',
+                                name: 'hall_code'
+                            },
+                            {
+                                data: 'venue_name',
+                                name: 'venue_name'
+                            },
+                            {
+                                data: 'amount_received',
+                                name: 'amount_received'
+                            },
+                            {
+                                data: 'amount_spent',
+                                name: 'amount_spent'
+                            },
+                            {
+                                data: 'balance_returned',
+                                name: 'balance_returned'
+                            },
+                            {
+                                data: null,
+                                render: function(data, type, row) {
+                                    return `<a href="/expenditure/${row.id}" class="btn btn-primary btn-sm">View</a>`;
+                                }
+                            }
+                        ]
+                    });
                 });
             });
         </script>
+
+
+
 
         {{-- <script>
             document.getElementById('notification_no').addEventListener('blur', function() {

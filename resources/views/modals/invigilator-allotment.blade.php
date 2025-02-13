@@ -28,36 +28,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @php
-                                            // Shuffle the invigilators_type array to randomize the invigilators
-                                            $shuffledInvigilators = collect($invigilators_type)->shuffle();
 
-                                            // Create an array of hall numbers
-                                            $hallNumbers = range(1, count($shuffledInvigilators));
-                                        @endphp
-
-                                        @foreach ($shuffledInvigilators as $key => $data)
-                                            @php
-                                                // Get the invigilator ID from the data
-                                                $invigilator_id = $data['invigilators'];
-
-                                                // Fetch invigilator details based on invigilator_id
-                                                $invigilator = \App\Models\Invigilator::find($invigilator_id);
-
-                                                // Check if the invigilator exists (avoid null reference error)
-                                                if (!$invigilator) {
-                                                    continue;
-                                                }
-
-                                                // Assign hall numbers sequentially
-                                                $hallNo = str_pad($hallNumbers[$key], 3, '0', STR_PAD_LEFT);
-                                            @endphp
-                                            <tr>
-                                                <td>{{ $hallNo }}</td>
-                                                <td>{{ $invigilator->invigilator_name }} -
-                                                    {{ $invigilator->invigilator_phone }}</td>
-                                            </tr>
-                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>
@@ -76,49 +47,48 @@
 
 @push('scripts')
     <script>
-        const tableBody = document.querySelector('#allocation-table tbody');
-        const localStorageKey = 'shuffledTableRows';
+        $(document).ready(function() {
+            // Function to fetch and display the allotment details
+            function fetchAllotmentDetails() {
+                fetch("{{ route('view-invigilator-allocate') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            exam_id: '{{ $session->exam_sess_mainid }}',
+                            exam_sess_date: '{{ $session->exam_sess_date }}',
+                            exam_sess_session: '{{ $session->exam_sess_session }}',
+                            exam_session_id: '{{ $session->exam_session_id }}'
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(response => {
+                        $('#allocation-table tbody').empty();
 
-        // Load saved table rows from localStorage
-        function loadSavedRows() {
-            const savedRows = localStorage.getItem(localStorageKey);
-            if (savedRows) {
-                const parsedRows = JSON.parse(savedRows);
-
-                // Clear current rows
-                tableBody.innerHTML = '';
-
-                // Add saved rows back to the table
-                parsedRows.forEach(row => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = row;
-                    tableBody.appendChild(tr);
-                });
+                        if (response.success && response.invigilators_allotment.hall_allocations.length > 0) {
+                            response.invigilators_allotment.hall_allocations.forEach(function(allocation) {
+                                var row = `<tr>
+                    <td>${allocation.hall_code}</td>
+                    <td>${allocation.invigilator_name} - ${allocation.invigilator_phone}</td>
+                </tr>`;
+                                $('#allocation-table tbody').append(row);
+                            });
+                        } else {
+                            var row = `<tr><td colspan="2">${response.message}</td></tr>`;
+                            $('#allocation-table tbody').append(row);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching allotment details:', error);
+                        var row = '<tr><td colspan="2">Error fetching allotment details</td></tr>';
+                        $('#allocation-table tbody').append(row);
+                    });
             }
-        }
 
-        // Shuffle table rows and save to localStorage
-        function shuffleTableRows() {
-            const rows = Array.from(tableBody.rows);
-            rows.sort(() => Math.random() - 0.5);
-
-            // Clear table and append shuffled rows
-            tableBody.innerHTML = '';
-            rows.forEach(row => tableBody.appendChild(row));
-
-            // Save shuffled rows to localStorage
-            const rowHTML = rows.map(row => row.outerHTML);
-            localStorage.setItem(localStorageKey, JSON.stringify(rowHTML));
-        }
-
-        // Event listener for "View" button
-        document.getElementById('viewBtn').addEventListener('click', function() {
-            if (!localStorage.getItem(localStorageKey)) {
-                shuffleTableRows(); // Shuffle only if not already shuffled
-            }
+            // Trigger fetchAllotmentDetails when the modal is shown
+            fetchAllotmentDetails();
         });
-
-        // Load saved rows on page load
-        document.addEventListener('DOMContentLoaded', loadSavedRows);
     </script>
 @endpush

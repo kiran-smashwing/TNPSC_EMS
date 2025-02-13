@@ -21,25 +21,48 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if (!empty($scribes_type))
+                            @php
+                                // Decode the session_answer JSON string
+                                $selectedScribe = $selectedScribe
+                                    ? json_decode($selectedScribe->selected_scribes, true)
+                                    : null;
+
+                                // Initialize scribeAssignments to an empty array if selectedScribe or scribe_assignments is null
+                                $scribeAssignments =
+                                    $selectedScribe && isset($selectedScribe['scribe_assignments'])
+                                        ? $selectedScribe['scribe_assignments']
+                                        : [];
+                                // Collect all unique scribe IDs from the assignments
+                                $scribeIds = array_unique(array_column($scribeAssignments, 'scribe_id'));
+
+                                // Fetch scribe details from the database
+                                $scribes = \App\Models\Scribe::whereIn('scribe_id', $scribeIds)
+                                    ->get()
+                                    ->keyBy('scribe_id');
+                            @endphp
+                            @if (!empty($scribeAssignments))
                                 <!-- Scribes Data -->
-                                @foreach ($scribes_type as $scribeData)
+                                @foreach ($scribeAssignments as $assignment)
+                                    @php
+                                        $scribe = $scribes->get($assignment['scribe_id']);
+                                    @endphp
                                     <tr>
                                         <td>
-                                            {{ is_array($scribeData['reg_no'])
-                                                ? implode(', ', $scribeData['reg_no'])
-                                                : $scribeData['reg_no'] ?? 'Not Available' }}
+                                            {{ $assignment['reg_no'] ?? 'Not Available' }}
                                         </td>
                                         <td>
-                                            {{ $scribeData['scribe_name'] ?? 'N/A' }} -
-                                            {{ $scribeData['scribe_phone'] ?? 'N/A' }}
+                                            @if ($scribe)
+                                                {{ $scribe->scribe_name ?? 'N/A' }} -
+                                                {{ $scribe->scribe_phone ?? 'N/A' }}
+                                            @else
+                                                Scribe details not found
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach
                             @else
-                                <!-- No Data Available -->
                                 <tr>
-                                    <td colspan="2" class="text-center text-muted">No data available.</td>
+                                    <td colspan="2">No scribe assignments found.</td>
                                 </tr>
                             @endif
                         </tbody>

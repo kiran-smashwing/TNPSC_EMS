@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\CIStaffAllocation;
+use App\Models\ExamSession;
+use App\Models\Invigilator;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -15,7 +18,7 @@ class ExamStaffAllotmentController extends Controller
         //apply the auth middleware to the entire controller
         $this->middleware('auth.multi');
     }
-    public function saveinvigilatoreDetails(Request $request)
+    public function saveInvigilatorDetails(Request $request)
     {
         // Validate the incoming request data
         $validated = $request->validate([
@@ -25,10 +28,6 @@ class ExamStaffAllotmentController extends Controller
             'invigilators' => 'nullable|array',
         ]);
 
-        // Prepare the session data
-        $exam_date = $request->input('exam_sess_date');
-        $sessions = $request->input('exam_sess_session');
-
         // Get authenticated user
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
@@ -37,134 +36,168 @@ class ExamStaffAllotmentController extends Controller
         if (!$user || !isset($user->ci_id)) {
             return back()->withErrors(['auth' => 'Unable to retrieve the authenticated user.']);
         }
+        // Prepare the session data
+        $exam_date = $validated['exam_sess_date'];
+        $session = $validated['exam_sess_session'];
 
-        $timestamp = now()->toDateTimeString();
-
-        // Prepare the invigilators data in the required format
-        $formattedInvigilators = [];
-        if ($validated['invigilators']) {
-            foreach ($validated['invigilators'] as $invigilator) {
-                $formattedInvigilators[] = ['invigilators' => $invigilator];
-            }
-        }
-
-        // Create the new session data structure
-        $newSessionData = [
-            'session' => $sessions,
-            'invigilators' => $formattedInvigilators,
-            'timestamp' => $timestamp,
-        ];
-
-        // Find existing record or create new one
-        $CIStaffAllocation = CIStaffAllocation::firstOrNew([
+        $CIStaffAllocation = CIStaffAllocation::firstOrCreate([
             'exam_id' => $validated['exam_id'],
             'exam_date' => $exam_date,
             'ci_id' => $user->ci_id,
+        ], [
+            'invigilators' => [],
+            'created_at' => now()
         ]);
 
-        // Handle existing invigilators data
-        if ($CIStaffAllocation->exists && $CIStaffAllocation->invigilators) {
-            // If existing data is not an array, convert it to array
-            $existingData = is_array($CIStaffAllocation->invigilators)
-                ? $CIStaffAllocation->invigilators
-                : [$CIStaffAllocation->invigilators];
+        $currentData = $CIStaffAllocation->invigilators ?: [];
 
-            // Append new session data to existing data
-            $existingData[] = $newSessionData;
-            $CIStaffAllocation->invigilators = $existingData;
-        } else {
-            // If no existing data, initialize with the new session data
-            $CIStaffAllocation->invigilators = [$newSessionData];
-        }
+        // Simple session data with just invigilator IDs and timestamp
+        $sessionData = [
+            'invigilators' => $validated['invigilators'] ?? [],
+            'timestamp' => now()->toDateTimeString()
+        ];
 
-        // Set or update created_at timestamp
-        if (!$CIStaffAllocation->exists) {
-            $CIStaffAllocation->created_at = now();
-        }
+        // Update or add new session while preserving other sessions
+        $currentData[$session] = $sessionData;
 
+        $CIStaffAllocation->invigilators = $currentData;
         $CIStaffAllocation->save();
 
         return redirect()->back()->with('success', 'Invigilators Added successfully.');
     }
-
-    public function updateInvigilatorDetails(Request $request, $examId, $examDate, $ciId)
+    public function allocateHallsRandomly(Request $request)
     {
-        // Validate the incoming request data
         $validated = $request->validate([
+            'exam_id' => 'required',
             'exam_sess_date' => 'required|date',
             'exam_sess_session' => 'required|string',
-            'invigilators' => 'nullable|array',
+            'exam_session_id' => 'nullable',
         ]);
 
-        // Get the authenticated user
-        $role = session('auth_role');
-        $guard = $role ? Auth::guard($role) : null;
-        $user = $guard ? $guard->user() : null;
+        $exam_date = $validated['exam_sess_date'];
+        $session = $validated['exam_sess_session'];
+        $user = current_user();
+        $currentDateTime = now(); // Current DateTime
+// Convert exam date from dd-mm-yyyy PostgreSQL format to Y-m-d format
+        $examDateFormatted = Carbon::createFromFormat('d-m-Y', $validated['exam_sess_date'])->format('Y-m-d');
+        $examsession = ExamSession::where('exam_session_id', $validated['exam_session_id'])->first();
+        // Create exam datetime using 24-hour format
+        $examDateTime = Carbon::createFromFormat('Y-m-d H:i A', "$examDateFormatted {$examsession->exam_sess_time}");
+        // If exam is today, check if within 30 minutes of start time
+        if ($examDateTime->isToday()) {
+            $minutesDiff = $currentDateTime->diffInMinutes($examDateTime, false);
 
-        if (!$user || !isset($user->ci_id)) {
-            return back()->withErrors(['auth' => 'Unable to retrieve the authenticated user.']);
+            if ($minutesDiff > 30) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Hall allocation will be done 30 minutes before the exam starts.',
+                    'invigilators_allotment' => [],
+                ]);
+            }
         }
-
-        // Find the existing exam assignment record
-        $CIStaffAllocation = CIStaffAllocation::where([
-            ['exam_id', '=', $examId],
-            ['exam_date', '=', $validated['exam_sess_date']],
-            ['ci_id', '=', $user->ci_id]
+        // If exam is in the future (after today), block access
+        elseif ($examDateTime->isAfter($currentDateTime->endOfDay())) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hall allocation will be done 30 minutes before the exam starts.',
+                'invigilators_allotment' => [],
+            ]);
+        }
+        // Get saved invigilators for this date and session
+        $staffAllocation = CIStaffAllocation::where([
+            'exam_id' => $validated['exam_id'],
+            'exam_date' => $exam_date,
+            'ci_id' => $user->ci_id,
         ])->first();
 
-        // If the assignment doesn't exist, return an error
-        if (!$CIStaffAllocation) {
-            return back()->withErrors(['error' => 'Assignment not found']);
+        if (!$staffAllocation || empty($staffAllocation->invigilators[$session])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No invigilators found for this session',
+            ], 404);
         }
 
-        // Dump and Die to view the existing invigilators (old data)
-        // dd('Old Data:', $CIStaffAllocation->invigilators);
+        // Get session data
+        $sessionData = $staffAllocation->invigilators[$session];
 
-        // Prepare the new session data
-        $newSessionData = [
-            'session' => $validated['exam_sess_session'],
-            'invigilators' => $validated['invigilators'],
-            'timestamp' => now()->toDateTimeString(),
-        ];
+        // If halls are already allocated, return existing allocations
+        if (!empty($sessionData['hall_allocations'])) {
+            $hallAllocationsWithDetails = collect($sessionData['hall_allocations'])->map(function ($allocation) {
+                $invigilator = Invigilator::where('invigilator_id', $allocation['invigilator_id'])->first();
 
-        // Update the invigilators data (replace or append as needed)
-        $existingData = $CIStaffAllocation->invigilators;
-
-        // If there's existing data, update it
-        if (is_array($existingData)) {
-            foreach ($existingData as &$session) {
-                if ($session['session'] == $newSessionData['session']) {
-                    $session['invigilators'] = $newSessionData['invigilators'];
-                    break;
-                }
-            }
-        } else {
-            // If no existing data, initialize the invigilators with the new session data
-            $existingData = [$newSessionData];
+                return [
+                    'hall_code' => $allocation['hall_code'],
+                    'invigilator_id' => $allocation['invigilator_id'],
+                    'invigilator_name' => $invigilator->invigilator_name ?? '',
+                    'invigilator_phone' => $invigilator->invigilator_phone ?? '',
+                ];
+            })->toArray();
+            return response()->json([
+                'success' => true,
+                'message' => 'Existing hall allocations retrieved successfully',
+                'invigilators_allotment' => [
+                    'hall_allocations' => $hallAllocationsWithDetails,
+                ],
+            ]);
         }
 
-        // Dump and Die to view the new data before saving
-        // dd('New Data:', $existingData);
+        // Get invigilators array for this session
+        $invigilatorIds = $sessionData['invigilators'];
 
-        // Save the updated invigilators data
-        $CIStaffAllocation->invigilators = $existingData;
-        $CIStaffAllocation->save();
+        // Shuffle invigilator IDs randomly
+        $shuffledInvigilators = $invigilatorIds;
+        shuffle($shuffledInvigilators);
 
-        return redirect()->back()->with('success', 'Invigilator details updated successfully.');
-        // return redirect()->route('exam.details', ['examId' => $examId])
-        //     ->with('success', 'Invigilator details updated successfully.');
+        // Generate hall allocations
+        $hallAllocations = [];
+        foreach ($shuffledInvigilators as $index => $invigilatorId) {
+            // Generate hall code with leading zeros (001, 002, etc.)
+            $hallNumber = str_pad($index + 1, 3, '0', STR_PAD_LEFT);
+            $hallCode = $hallNumber;
+
+            $hallAllocations[] = [
+                'invigilator_id' => $invigilatorId,
+                'hall_code' => $hallCode,
+            ];
+        }
+
+        // Save the new hall allocations
+        $sessionData['hall_allocations'] = $hallAllocations;
+        $sessionData['allocation_timestamp'] = now()->toDateTimeString();
+
+        // Update the stored data
+        $currentData = $staffAllocation->invigilators;
+        $currentData[$session] = $sessionData;
+
+        $staffAllocation->invigilators = $currentData;
+        $staffAllocation->save();
+        $hallAllocationsWithDetails = collect($hallAllocations)->map(function ($allocation) {
+            $invigilator = Invigilator::where('invigilator_id', $allocation['invigilator_id'])->first();
+
+            return [
+                'hall_code' => $allocation['hall_code'],
+                'invigilator_id' => $allocation['invigilator_id'],
+                'invigilator_name' => $invigilator->invigilator_name ?? '',
+                'invigilator_phone' => $invigilator->invigilator_phone ?? '',
+            ];
+        })->toArray();
+        return response()->json([
+            'success' => true,
+            'message' => 'Halls allocated successfully',
+            'invigilators_allotment' => [
+                'hall_allocations' => $hallAllocationsWithDetails,
+            ],
+        ]);
     }
 
     public function updateScribeDetails(Request $request, $examId, $examDate, $ciId)
     {
-        // Validate the incoming request data
         $validated = $request->validate([
-            'exam_sess_session' => 'required|string', // The session for the exam
-            'scribes' => 'required|array',            // Scribes array is required
-            'reg_no' => 'required|array',             // Registration numbers array is required
+            'exam_sess_session' => 'required|string',
+            'scribes' => 'required|array',
+            'reg_no' => 'required|array',
         ]);
 
-        // Retrieve the authenticated user
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
         $user = $guard ? $guard->user() : null;
@@ -173,47 +206,54 @@ class ExamStaffAllotmentController extends Controller
             return back()->withErrors(['auth' => 'Unable to retrieve the authenticated user.']);
         }
 
-        // Find the existing CI staff allocation record using exam_id, exam_date, and ci_id
-        $staffAllocation = CIStaffAllocation::where([
-            ['exam_id', '=', $examId],
-            ['exam_date', '=', $examDate],
-            ['ci_id', '=', $ciId],
-        ])->first();
+        $staffAllocation = CIStaffAllocation::firstOrCreate([
+            'exam_id' => $examId,
+            'exam_date' => $examDate,
+            'ci_id' => $ciId,
+        ], [
+            'scribes' => [],
+            'created_at' => now()
+        ]);
 
-        if (!$staffAllocation) {
-            return back()->withErrors(['error' => 'Staff allocation not found.']);
+        $session = $validated['exam_sess_session'];
+        $currentData = $staffAllocation->scribes ?: [];
+
+        // Get existing assignments for this session or initialize empty array
+        $existingSessionData = $currentData[$session]['scribe_assignments'] ?? [];
+
+        // Convert existing assignments to associative array using reg_no as key for easy lookup
+        $existingAssignments = [];
+        foreach ($existingSessionData as $assignment) {
+            $existingAssignments[$assignment['reg_no']] = $assignment;
         }
 
-        // Prepare new scribe data for the given session
-        $newScribeData = [
-            'session' => $validated['exam_sess_session'],
-            'timestamp' => now()->toDateTimeString(),
-            'data' => []
+        // Process new assignments
+        $timestamp = now()->toDateTimeString();
+        foreach ($validated['reg_no'] as $index => $regNo) {
+            if (isset($validated['scribes'][$index])) {
+                // Create or update assignment
+                $existingAssignments[$regNo] = [
+                    'reg_no' => $regNo,
+                    'scribe_id' => $validated['scribes'][$index],
+                ];
+            }
+        }
+
+        // Convert back to indexed array
+        $allAssignments = array_values($existingAssignments);
+
+        // Update session data
+        $currentData[$session] = [
+            'scribe_assignments' => $allAssignments,
+            'last_updated' => $timestamp
         ];
 
-        // Populate scribe data with reg_no and scribes
-        foreach ($validated['reg_no'] as $index => $regNo) {
-            $newScribeData['data'][] = [
-                'reg_no' => $regNo,
-                'scribe' => $validated['scribes'][$index] ?? null // Handle missing scribe index safely
-            ];
-        }
-
-        // Add new scribe data to the existing data (if any)
-        $existingData = $staffAllocation->scribes ?: [];  // Assume the field is an array
-
-        // Add new data to the existing scribes
-        $existingData[] = $newScribeData;
-
-        // Save the updated scribes data back to the record
-        $staffAllocation->scribes = $existingData; // Storing as an array or object directly
+        // Save the updated data
+        $staffAllocation->scribes = $currentData;
         $staffAllocation->save();
 
-        // Return a success message
-        return redirect()->back()->with('success', 'Scribe details added successfully.');
+        return redirect()->back()->with('success', 'Scribe details updated successfully.');
     }
-
-
 
     public function updateCIAssistantDetails(Request $request, $examId, $examDate, $ciId)
     {

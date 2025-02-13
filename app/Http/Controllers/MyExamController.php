@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CIChecklistAnswer;
 use App\Models\CIMeetingQrcode;
+use App\Models\CIStaffAllocation;
 use App\Models\Currentexam;
 use App\Models\ExamMaterialRoutes;
 use App\Models\ExamMaterialsData;
@@ -258,7 +259,20 @@ class MyExamController extends Controller
             ->where('exam_id', $examId)
             ->select(DB::raw("session_answer->'" . $session->exam_sess_date . "'->'" . $session->exam_sess_session . "' as session_answer"))
             ->first();
-        
+        $sessionAnswer = CIChecklistAnswer::where('ci_id', $ci_id)
+            ->where('exam_id', $examId)
+            ->select(DB::raw("session_answer->'" . $session->exam_sess_date . "'->'" . $session->exam_sess_session . "' as session_answer"))
+            ->first();
+        $selectedInvigilator = CIStaffAllocation::where('exam_id', $examId)
+            ->where('ci_id', $user->ci_id)
+            ->where('exam_date', $session->exam_sess_date)
+            ->select(DB::raw("invigilators->'" . $session->exam_sess_session . "' as selected_invigilators"))
+            ->first();
+        $selectedScribe = CIStaffAllocation::where('exam_id', $examId)
+            ->where('ci_id', $user->ci_id)
+            ->where('exam_date', $session->exam_sess_date)
+            ->select(DB::raw("scribes->'" . $session->exam_sess_session . "' as selected_scribes"))
+            ->first();
         // Initialize variables
         $invigilators_type = [];
         $scribes_type = [];
@@ -593,7 +607,9 @@ class MyExamController extends Controller
             'candidate_attendance_data',
             'ci_id',
             'lastScannedMaterial',
-            'sessionAnswer'
+            'sessionAnswer',
+            'selectedInvigilator',
+            'selectedScribe'
         ));
     }
 

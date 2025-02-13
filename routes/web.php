@@ -440,9 +440,8 @@ Route::prefix('ci-checklist')->middleware(['auth.multi'])->group(function () {
     Route::post('/save-utilization-certificate', [CIPreliminaryCheckController::class, 'saveUtilizationCertificate'])->name('saveUtilizationCertificate');
 });
 Route::prefix('ci-staffalloment')->middleware(['auth.multi'])->group(function () {
-    Route::post('/save-invigilator-details', [ExamStaffAllotmentController::class, 'saveinvigilatoreDetails'])->name('save-invigilator.details');
-    Route::put('/update-invigilator-details/{examId}/{examDate}/{ciId}', [ExamStaffAllotmentController::class, 'updateInvigilatorDetails'])->name('update-invigilator.details');
-    // Route::put('/view-invigilator-allocate/{examId}/{examDate}', [ExamStaffAllotmentController::class, 'allocate'])->name('view-invigilator-allocate.savehallsallocate');
+    Route::post('/save-invigilator-details', [ExamStaffAllotmentController::class, 'saveInvigilatorDetails'])->name('save-invigilator.details');
+    Route::post('/view-invigilator-allocate', [ExamStaffAllotmentController::class, 'allocateHallsRandomly'])->name('view-invigilator-allocate');
     Route::put('/ci-staffalloment/update-invigilator-details/{examId}/{examDate}/{ciId}', [ExamStaffAllotmentController::class, 'updateScribeDetails'])->name('update.scribe.details');
     Route::put('/update-ci-assistant-details/{examId}/{examDate}/{ciId}', [ExamStaffAllotmentController::class, 'updateCIAssistantDetails'])->name('update.ci-assistant-details');
 });

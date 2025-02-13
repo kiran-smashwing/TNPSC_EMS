@@ -17,6 +17,18 @@
                         aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    @php
+                        // Decode the session_answer JSON string
+                        $selectedInvigilator = $selectedInvigilator
+                            ? json_decode($selectedInvigilator->selected_invigilators, true)
+                            : null;
+
+                        // Initialize selectedIds to an empty array if selectedInvigilator or invigilators is null
+                        $selectedIds =
+                            $selectedInvigilator && isset($selectedInvigilator['invigilators'])
+                                ? $selectedInvigilator['invigilators']
+                                : [];
+                    @endphp
                     <div class="row">
                         <div class="mb-4">
                             <div class="col-lg-12 col-md-11 col-sm-12">
@@ -24,7 +36,9 @@
                                     multiple>
                                     <option value="">Select Invigilator</option>
                                     @foreach ($invigilator as $invigilatorItem)
-                                        <option value="{{ $invigilatorItem->invigilator_id }}">
+                                        <option
+                                         value="{{ $invigilatorItem->invigilator_id }}"
+                                         {{ in_array($invigilatorItem->invigilator_id, $selectedIds) ? 'selected' : '' }}>
                                             {{ $invigilatorItem->invigilator_name }} -
                                             {{ $invigilatorItem->invigilator_phone }}
                                         </option>

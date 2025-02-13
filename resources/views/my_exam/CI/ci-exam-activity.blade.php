@@ -202,14 +202,14 @@
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                              
+
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                        <b>{{ $is_session_answered ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
-                                                                    </li>
-                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                    <b>{{ $is_session_answered ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
+                                                                </li>
+                                                                <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
                                                                     {{ $is_session_answered ? \Carbon\Carbon::parse($sessionAnswer->session_answer['timestamp'])->format('d-m-Y h:i A') : '' }}
                                                                 </li>
@@ -230,8 +230,18 @@
                                         </div>
                                     </div>
                                 </li>
+                                @php
+
+                                    $is_invigilators_selected =
+                                        $selectedInvigilator !== null &&
+                                        !empty((array) $selectedInvigilator->selected_invigilators);
+                                    // Set dynamic badge text and color
+                                    $taskStatus = $is_invigilators_selected ? 'Selected' : 'Pending';
+                                    $badgeClass = $is_invigilators_selected ? 'bg-light-secondary' : 'bg-danger';
+                                @endphp
                                 <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
+                                    <i
+                                        class="task-icon {{ $is_invigilators_selected ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
                                             <div class="row">
@@ -243,10 +253,6 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -255,26 +261,21 @@
                                                     <div class="popup-trigger">
                                                         <div class="h5 font-weight-bold">Invigilator Attendence /
                                                             Allotment<small
-                                                                class="badge bg-light-secondary ms-2">allotted</small>
+                                                                class="badge {{ $badgeClass }} ms-2">{{ $taskStatus }}</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
+                                                                    <b>{{ $is_invigilators_selected ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
                                                                 </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
+                                                                <li class="d-sm-inline-block d-block mt-1">
+                                                                    <i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                    {{ $is_invigilators_selected ? \Carbon\Carbon::parse(time: json_decode($selectedInvigilator->selected_invigilators, true)['timestamp'])->format('d-m-Y h:i A') : '' }}
+                                                                </li>
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -282,33 +283,35 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" id="viewBtn" data-pc-animate="just-me"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#invigilatorAllotmentModel"
-                                                            class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
-                                                        @if ($invigilators_type)
-                                                            <a href="#"data-pc-animate="just-me"
+                                                        @if ($is_invigilators_selected)
+                                                            <a href="#" id="viewBtn" data-pc-animate="just-me"
                                                                 data-bs-toggle="modal"
-                                                                data-bs-target="#invigilatorEditModal"
-                                                                class="btn btn-sm btn-light-info"><i
-                                                                    class="ti ti-edit f-20"></i>Edit</a>
-                                                        @else
-                                                            <a href="#" data-pc-animate="just-me"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#invigilatorSelectModal"
-                                                                class="me-2 btn btn-sm btn-light-info"><i
-                                                                    class="feather icon-plus mx-1"></i>Select</a>
+                                                                data-bs-target="#invigilatorAllotmentModel"
+                                                                class="me-2 btn btn-sm btn-light-primary"><i
+                                                                    class="feather icon-eye mx-1"></i>View</a>
                                                         @endif
-
+                                                        <a href="#" data-pc-animate="just-me"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#invigilatorSelectModal"
+                                                            class="me-2 btn btn-sm btn-light-info"><i
+                                                                class="feather icon-plus mx-1"></i>Select</a>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </li>
+                                @php
+                                    $is_scribe_selected =
+                                        $selectedScribe !== null && !empty((array) $selectedScribe->selected_scribes);
+
+                                    // Set dynamic badge text and color
+                                    $taskStatus = $is_scribe_selected ? 'Assigned' : 'Pending';
+                                    $badgeClass = $is_scribe_selected ? 'bg-light-secondary' : 'bg-danger';
+                                @endphp
                                 <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
+                                    <i
+                                        class="task-icon {{ $is_scribe_selected ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
                                             <div class="row">
@@ -320,37 +323,27 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                             </ul>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Scribe Attendence <small
-                                                                class="badge bg-light-secondary ms-2">attended</small>
+                                                        <div class="h5 font-weight-bold">Scribe Attendence<small
+                                                                class="badge {{ $badgeClass }} ms-2">{{ $taskStatus }}</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
+                                                                    <b>{{ $is_scribe_selected ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
                                                                 </li>
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                    {{ $is_scribe_selected ? \Carbon\Carbon::parse(time: json_decode($selectedScribe->selected_scribes, true)['last_updated'])->format('d-m-Y h:i A') : '' }}
+                                                                </li>
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -358,10 +351,13 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" data-pc-animate="just-me"
-                                                            data-bs-toggle="modal" data-bs-target="#scribeAllotmentModal"
-                                                            class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
+                                                        @if ($is_scribe_selected)
+                                                            <a href="#" data-pc-animate="just-me"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#scribeAllotmentModal"
+                                                                class="me-2 btn btn-sm btn-light-primary"><i
+                                                                    class="feather icon-eye mx-1"></i>View</a>
+                                                        @endif
                                                         <a href="#" data-pc-animate="just-me"
                                                             data-bs-toggle="modal" data-bs-target="#scribeSelectModal"
                                                             class="me-2 btn btn-sm btn-light-info"><i
@@ -1252,7 +1248,6 @@
                 {{-- @include('modals.preliminary-checklist') --}}
                 @include('modals.session-checklist')
                 @include('modals.invigilator-select')
-                @include('modals.invigilator-edit')
                 @include('modals.invigilator-allotment')
                 @include('modals.scribe-select')
                 @include('modals.scribe-allotment')

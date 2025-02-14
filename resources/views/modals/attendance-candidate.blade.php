@@ -22,11 +22,26 @@
                 </div>
 
                 <div class="modal-body">
+                    @php
+                        // Initialize a default value
+                        $presentValue = '';
+
+                        // Check if $candidateAttendance is available and has the candidate_attendance data
+                        if ($candidateAttendance && isset($candidateAttendance->candidate_attendance)) {
+                            // Decode the JSON string into an associative array
+                            $attendanceData = $candidateAttendance->candidate_attendance;
+                            // Set $presentValue if the 'present' key exists
+                            $presentValue = isset($attendanceData['present']) ? $attendanceData['present'] : '';
+                        }
+                    @endphp
+
+
                     <div class="mb-3">
                         <label for="present" class="form-label">Present:</label>
                         <input type="number" class="form-control" name="present[]" id="present"
-                            placeholder="Enter Present" required min="0"
-                            max="{{ $session_confirmedhalls ? $session_confirmedhalls->alloted_count : 0 }}" oninput="validatePresent()">
+                            placeholder="Enter Present" required min="0"   value="{{ $presentValue }}"
+                            max="{{ $session_confirmedhalls ? $session_confirmedhalls->alloted_count : 0 }}"
+                            oninput="validatePresent()">
                     </div>
 
                     <div class="mb-3">
@@ -52,7 +67,7 @@
         $(document).ready(function() {
             // Define the validatePresent function for the Add page
             function validatePresent() {
-                const allotedCount = {{ $session_confirmedhalls ? $session_confirmedhalls->alloted_count : 0 }} ;
+                const allotedCount = {{ $session_confirmedhalls ? $session_confirmedhalls->alloted_count : 0 }};
                 const presentInput = document.getElementById('present');
                 const absentInput = document.getElementById('absent');
                 const submitButton = document.getElementById('submitBtn');

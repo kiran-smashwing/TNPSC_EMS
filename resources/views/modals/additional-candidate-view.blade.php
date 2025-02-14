@@ -16,6 +16,13 @@
                     {{-- <p class="fw-bold">Below is the list of added candidates:</p> --}}
                     <!-- Table of Added Candidates -->
                     <div class="table-responsive">
+                        @php
+                            // Decode the JSON string into an associative array
+                            $additionalData = json_decode($additionalCandidates->additional_candidates, true);
+
+                            // Get the candidates array if it exists, otherwise use an empty array
+                            $candidates = isset($additionalData['candidates']) ? $additionalData['candidates'] : [];
+                        @endphp
                         <table class="table table-bordered">
                             <thead class="bg-light">
                                 <tr>
@@ -25,37 +32,16 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Loop through AN session candidates -->
-                                @if (isset($candidate_logs_data['AN']) && count($candidate_logs_data['AN']) > 0)
-                                    @foreach ($candidate_logs_data['AN'] as $log)
-                                        <tr>
-                                            <td>{{ $log['registration_number'] }}</td>
-                                            <td>{{ $log['candidate_name'] }}</td>
-                                            {{-- <td>AN</td> --}}
-                                        </tr>
-                                    @endforeach
-                                @endif
-
-                                <!-- Loop through FN session candidates -->
-                                @if (isset($candidate_logs_data['FN']) && count($candidate_logs_data['FN']) > 0)
-                                    @foreach ($candidate_logs_data['FN'] as $log)
-                                        <tr>
-                                            <td>{{ $log['registration_number'] }}</td>
-                                            <td>{{ $log['candidate_name'] }}</td>
-                                            {{-- <td>FN</td> --}}
-                                        </tr>
-                                    @endforeach
-                                @endif
-
-                                <!-- If no candidates for both sessions -->
-                                @if (
-                                    (empty($candidate_logs_data['AN']) || count($candidate_logs_data['AN']) === 0) &&
-                                        (empty($candidate_logs_data['FN']) || count($candidate_logs_data['FN']) === 0))
+                                @forelse ($candidates as $candidate)
                                     <tr>
-                                        <td colspan="3" class="text-center">No candidates available for either
-                                            session.</td>
+                                        <td>{{ $candidate['registration_number'] }}</td>
+                                        <td>{{ $candidate['candidate_name'] }}</td>
                                     </tr>
-                                @endif
+                                @empty
+                                    <tr>
+                                        <td colspan="2">No candidates found.</td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>

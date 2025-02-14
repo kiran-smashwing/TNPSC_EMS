@@ -19,33 +19,49 @@
                             <!-- Each Hall Allocation Block -->
                             <div class="mb-4">
                                 {{-- <h6 class="text-primary mb-2">CI Assistants</h6> --}}
+                                @php
+                                    // Decode the session_answer JSON string for selected assistants
+                                    $selectedAssistant = $selectedAssistant
+                                        ? json_decode($selectedAssistant->selected_assistants, true)
+                                        : null;
 
-                                @if (!empty($assistants_type) && count($assistants_type) > 0)
-                                    @foreach ($assistants_type as $index => $assistant)
-                                        
-                                                <div class="row">
-                                                    <div class="col-md-12 mb-2">
-                                                        <label
-                                                            for="ciAssistant{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}"
-                                                            class="form-label">
-                                                        </label>
-                                                        <input type="text" class="form-control"
-                                                            id="ciAssistant{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}"
-                                                            value="{{ $assistant['assistant_name'] ?? 'Unknown' }} - {{ $assistant['assistant_phone'] ?? 'Unknown' }}"
-                                                            readonly>
-                                                    </div>
-                                                </div>
-                                          
+                                    // Initialize assistantAssignments to an empty array if selectedAssistant or assistant_ids is null
+                                    $assistantAssignments =
+                                        $selectedAssistant && isset($selectedAssistant['assistant_ids'])
+                                            ? $selectedAssistant['assistant_ids']
+                                            : [];
+
+                                    // Fetch assistant details from the database
+                                    $assistants = \App\Models\CIAssistant::whereIn('cia_id', $assistantAssignments)
+                                        ->get()
+                                        ->keyBy('cia_id');
+                                @endphp
+
+                                @if (!empty($assistantAssignments))
+                                    @foreach ($assistantAssignments as $index => $assistantId)
+                                        @php
+                                            $assistant = $assistants->get($assistantId);
+                                        @endphp
+                                        <div class="row">
+                                            <div class="col-md-12 mb-2">
+                                                <label for="ciAssistant{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}"
+                                                    class="form-label">
+                                                </label>
+                                                <input type="text" class="form-control"
+                                                    id="ciAssistant{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}"
+                                                    value="{{ $assistant ? $assistant->cia_name . ' - ' . $assistant->cia_phone : 'Unknown - Unknown' }}"
+                                                    readonly>
+                                            </div>
+                                        </div>
                                     @endforeach
                                 @else
                                     <div class="card">
                                         <div class="card-body">
-                                            <p class="text-muted">No CI Assistants assigned for this venue.</p>
+                                            <p class="text-muted">No Assistants assigned for this venue.</p>
                                         </div>
                                     </div>
                                 @endif
                             </div>
-
                         </div>
                     </div>
                 </form>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CICandidateLogs;
 use App\Models\CIChecklistAnswer;
 use App\Models\CIMeetingQrcode;
 use App\Models\CIStaffAllocation;
@@ -14,6 +15,7 @@ use App\Models\Invigilator;
 use App\Models\ExamAuditLog;
 use App\Models\ExamSession;
 use App\Models\ExamVenueConsent;
+use App\Models\QpBoxLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\CIChecklist;
@@ -273,6 +275,17 @@ class MyExamController extends Controller
             ->where('exam_date', $session->exam_sess_date)
             ->select(DB::raw("scribes->'" . $session->exam_sess_session . "' as selected_scribes"))
             ->first();
+        $selectedAssistant = CIStaffAllocation::where('exam_id', $examId)
+            ->where('ci_id', $user->ci_id)
+            ->where('exam_date', $session->exam_sess_date)
+            ->select(DB::raw("assistants->'" . $session->exam_sess_session . "' as selected_assistants"))
+            ->first();
+        $qpboxTimeLog = QpBoxLog::where('exam_id', $examId)
+            ->where('ci_id', $user->ci_id)
+            ->where('exam_date', $session->exam_sess_date)
+            ->select(DB::raw("qp_timing_log->'" . $session->exam_sess_session . "' as qp_timing_log"))
+            ->first();
+
         // Initialize variables
         $invigilators_type = [];
         $scribes_type = [];
@@ -584,7 +597,17 @@ class MyExamController extends Controller
         $type_sessions = CIChecklist::where('ci_checklist_type', 'Session')->get();
         $consolidate_data = CIChecklist::where('ci_checklist_type', 'Self Declaration')->get();
         // dd($consolidate_data);
-
+        //new updates -kiran
+        $candidateAttendance = CICandidateLogs::where('exam_id', $examId)
+            ->where('ci_id', $user->ci_id)
+            ->where('exam_date', $session->exam_sess_date)
+            ->select(DB::raw("candidate_attendance->'" . $session->exam_sess_session . "' as candidate_attendance"))
+            ->first();
+        $additionalCandidates = CICandidateLogs::where('exam_id', $examId)
+            ->where('ci_id', $user->ci_id)
+            ->where('exam_date', $session->exam_sess_date)
+            ->select(DB::raw("additional_details->'" . $session->exam_sess_session . "' as additional_candidates"))
+            ->first();
         // Return the view with the data
         return view('my_exam.CI.ci-exam-activity', compact(
             'ci_assistant',
@@ -609,7 +632,11 @@ class MyExamController extends Controller
             'lastScannedMaterial',
             'sessionAnswer',
             'selectedInvigilator',
-            'selectedScribe'
+            'selectedScribe',
+            'selectedAssistant',
+            'qpboxTimeLog',
+            'candidateAttendance',
+            'additionalCandidates'
         ));
     }
 

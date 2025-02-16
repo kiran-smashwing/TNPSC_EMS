@@ -84,7 +84,7 @@ class ScribeController extends Controller
             $centers = Center::where('center_code', $user->venue_center_id)->get();
             $districts = District::where('district_code', $user->venue_district_id)->get();
 
-            return view('masters.venues.scribe.create', compact('districts', 'centers', 'venues','user'));
+            return view('masters.venues.scribe.create', compact('districts', 'centers', 'venues', 'user'));
         } else if ($role == 'ci') {
             if (!$user) {
                 return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);
@@ -92,7 +92,7 @@ class ScribeController extends Controller
             $venues = Venues::where('venue_code', $user->ci_venue_id)->get();
             $centers = Center::where('center_code', $user->ci_center_id)->get();
             $districts = District::where('district_code', $user->ci_district_id)->get();
-            return view('masters.venues.scribe.create', compact('districts', 'centers', 'venues','user'));
+            return view('masters.venues.scribe.create', compact('districts', 'centers', 'venues', 'user'));
         }
 
         // Fetch any necessary data to display in the form (e.g., venues, centers)
@@ -283,12 +283,17 @@ class ScribeController extends Controller
     public function show($id)
     {
         $scribe = Scribe::with(['district', 'venue', 'center'])->findOrFail($id);
-        $centerCount = $scribe->district->centers()->count();  // Assuming 'centers' is a relationship in District model
-        $venueCount = $scribe->district->venues()->count();
-        $staffCount = $scribe->district->treasuryOfficers()->count() + $scribe->district->mobileTeamStaffs()->count();
-        $ci_count = $scribe->venue->chiefinvigilator()->count();
-        $invigilator_count = $scribe->venue->invigilator()->count();
-        $cia_count = $scribe->venue->cia()->count();
+
+        // Handle null district
+        $centerCount = optional($scribe->district)->centers()->count() ?? 0;
+        $venueCount = optional($scribe->district)->venues()->count() ?? 0;
+        $staffCount = (optional($scribe->district)->treasuryOfficers()->count() ?? 0) +
+            (optional($scribe->district)->mobileTeamStaffs()->count() ?? 0);
+
+        // Handle null venue
+        $ci_count = optional($scribe->venue)->chiefinvigilator()->count() ?? 0;
+        $invigilator_count = optional($scribe->venue)->invigilator()->count() ?? 0;
+        $cia_count = optional($scribe->venue)->cia()->count() ?? 0;
         // Return the view with the Scribe and related data
         return view('masters.venues.scribe.show', compact('scribe', 'centerCount', 'venueCount', 'staffCount', 'ci_count', 'invigilator_count', 'cia_count'));
     }

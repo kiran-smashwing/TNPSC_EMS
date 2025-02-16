@@ -237,7 +237,7 @@
                                         <th>Image</th>
                                         <th>Name</th>
                                         <th>Venue Name</th>
-                                        <th>E-mail</th>
+                                        {{-- <th>E-mail</th> --}}
                                         <th>Phone</th>
                                         <!-- <th>status</th> -->
                                         <th>Action</th>
@@ -266,7 +266,7 @@
                                                 </div>
                                             </td>
                                             <td>{{ $assistant->venue->venue_name ?? 'N/A' }}</td>
-                                            <td>{{ $assistant->cia_email }}</td>
+                                            {{-- <td>{{ $assistant->cia_email }}</td> --}}
                                             <td>{{ $assistant->cia_phone }}</td>
                                             <td>
                                                 <a href="{{ route('ci-assistant.show', $assistant->cia_id) }}"

@@ -7,7 +7,7 @@ use App\Models\Currentexam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Center;
-use App\Models\CIcandidateLogs;
+use App\Models\CICandidateLogs;
 use Illuminate\Support\Facades\Auth;
 use App\Models\District;
 
@@ -108,7 +108,7 @@ class CandidateRemarksController extends Controller
         $exam_id = $exam_data->exam_main_no;
     
         // Fetch candidate attendance data
-        $candidate_attendance = CIcandidateLogs::where('exam_id', $exam_id)
+        $candidate_attendance = CICandidateLogs::where('exam_id', $exam_id)
             ->where('exam_date', $examDate)
             ->when($districtId, function ($query) use ($districtId) {
                 return $query->whereHas('center.district', function ($q) use ($districtId) {

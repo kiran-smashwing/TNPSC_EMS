@@ -46,7 +46,7 @@ class TreasuryOfficerController extends Controller
         // Fetch all districts (for dropdown or display purposes)
         $districts = District::all();
 
-        return view('masters.district.treasury_Officers.index', compact('treasuryOfficers', 'districts'));
+        return view('masters.district.treasury_officers.index', compact('treasuryOfficers', 'districts'));
     }
     public function create(Request $request)
     {

@@ -54,6 +54,7 @@ use App\Http\Controllers\CiMeetingAttendanceController;
 use App\Http\Controllers\ConsolidatedStatementController;
 use App\Http\Controllers\ChartedVehicleRoutesController;
 use App\Http\Controllers\CandidateRemarksController;
+use App\Http\Controllers\SupportController;
 use App\Http\Controllers\ExamMaterialsDiscrepancyController;
 use App\Http\Controllers\EmergencyAlarmNotificationsController;
 
@@ -163,10 +164,20 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/current-exam/routeCreate', [CurrentExamController::class, 'routeCreate'])->name('current-exam.routeCreate');
     Route::get('/current-exam/routeEdit', [CurrentExamController::class, 'routeEdit'])->name('current-exam.routeEdit');
     Route::get('/current-exam/updateMaterialScanDetails', [CurrentExamController::class, 'updateMaterialScanDetails'])->name('current-exam.updateMaterialScanDetails');
-    //Current Exam
-    Route::get('/completed-exam', [CompletedExamController::class, 'index'])->name('completed-exam');
-    Route::get('/completed-exam/task', [CompletedExamController::class, 'task'])->name('completed-exam.task');
-    Route::get('/completed-exam/edit', [CompletedExamController::class, 'edit'])->name('completed-exam.edit');
+    //Current Exam 
+    Route::prefix('support')->group(function () {
+        Route::middleware(['auth.multi'])->group(function () {
+            Route::get('/support', [SupportController::class, 'index'])->name('support');
+        });
+    });
+    Route::prefix('completed-exam')->group(function () {
+        Route::middleware(['auth.multi'])->group(function () {
+            Route::get('/completed-exam', [CompletedExamController::class, 'index'])->name('completed-exam');
+            Route::get('/completed-exam/task', [CompletedExamController::class, 'task'])->name('completed-exam.task');
+            Route::get('/completed-exam/edit', [CompletedExamController::class, 'edit'])->name('completed-exam.edit');
+        });
+    });
+   
     Route::get('/test-mail', [TestMailController::class, 'sendTestEmail']);
     Route::get('/password/reset', [AuthController::class, 'showResetForm'])->name('password.reset');
     //Qr Code Reader

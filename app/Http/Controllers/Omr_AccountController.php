@@ -7,7 +7,7 @@ use Spatie\Browsershot\Browsershot;
 use Illuminate\Support\Facades\DB;
 use App\Models\Center;
 use Illuminate\Support\Facades\Auth;
-use App\Models\CIcandidateLogs;
+use App\Models\CICandidateLogs;
 use App\Models\CIPaperReplacements;
 use App\Models\District;
 use Illuminate\Http\Request;
@@ -124,7 +124,7 @@ class Omr_AccountController extends Controller
         $exam_id = $exam_data->exam_main_no;
 
         // Fetch candidate attendance data
-        $candidate_attendance = CIcandidateLogs::where('exam_id', $exam_id)
+        $candidate_attendance = CICandidateLogs::where('exam_id', $exam_id)
             ->where('exam_date', $examDate)
             ->with('ci', 'center.district') // Include center and district relationships
             ->get();

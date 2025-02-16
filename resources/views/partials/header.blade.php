@@ -94,7 +94,7 @@
                                         <span>My Account</span>
                                     </span>
                                 </a>
-                                <a href="#" class="dropdown-item">
+                                <a href="{{route('support')}}" class="dropdown-item">
                                     <span>
 
                                         <i class="ti ti-headset"></i>

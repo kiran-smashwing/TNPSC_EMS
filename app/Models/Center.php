@@ -78,7 +78,7 @@ class Center extends Authenticatable
     }
     public function cicandidatelogs()
     {
-        return $this->hasMany(CIcandidateLogs::class, 'center_code', 'center_code');
+        return $this->hasMany(CICandidateLogs::class, 'center_code', 'center_code');
     }
     public function venues()
     {

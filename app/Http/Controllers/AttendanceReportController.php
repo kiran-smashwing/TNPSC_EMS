@@ -7,7 +7,7 @@ use App\Models\Currentexam;
 use Spatie\Browsershot\Browsershot;
 use Illuminate\Support\Facades\DB;
 use App\Models\Center;
-use App\Models\CIcandidateLogs;
+use App\Models\CICandidateLogs;
 use Illuminate\Support\Facades\Auth;
 use App\Models\District;
 
@@ -131,7 +131,7 @@ class AttendanceReportController extends Controller
         $exam_id = $exam_data->exam_main_no;
 
         // Fetch candidate attendance data, filtered by center if centerId is provided
-        $candidate_attendance = CIcandidateLogs::where('exam_id', $exam_id)
+        $candidate_attendance = CICandidateLogs::where('exam_id', $exam_id)
             ->where('exam_date', $examDate)
             ->when($center, function ($query) use ($center) {
                 return $query->where('center_code', $center);  // Filter by center
@@ -262,7 +262,7 @@ class AttendanceReportController extends Controller
         $exam_id = $exam_data->exam_main_no;
 
         // Fetch candidate attendance data, filtered by center if centerId is provided
-        $candidate_attendance = CIcandidateLogs::where('exam_id', $exam_id)
+        $candidate_attendance = CICandidateLogs::where('exam_id', $exam_id)
             ->where('exam_date', $examDate)
             ->when($center, function ($query) use ($center) {
                 return $query->where('center_code', $center);  // Filter by center
@@ -389,7 +389,7 @@ class AttendanceReportController extends Controller
         $exam_id = $exam_data->exam_main_no;
 
         // Fetch candidate attendance data
-        $candidate_attendance = CIcandidateLogs::where('exam_id', $exam_id)
+        $candidate_attendance = CICandidateLogs::where('exam_id', $exam_id)
             ->where('exam_date', $examDate)
             ->with('ci')
             ->get();

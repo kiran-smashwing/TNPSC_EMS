@@ -9,6 +9,8 @@ use App\Services\AuditLogger;
 use App\Services\ExamAuditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
 
 class CurrentExamController extends Controller
 {
@@ -23,12 +25,14 @@ class CurrentExamController extends Controller
 
     public function index()
     {
-        // Fetch all exams from the `exam_main` table
+        // Get today's date in 'DD-MM-YYYY' format (to match database format)
+        $today = Carbon::today()->format('d-m-Y');
+
+        // Fetch only the current exams that have not yet ended (last date >= today)
         $exams = Currentexam::withCount('examsession')
+            ->whereRaw("TO_DATE(exam_main_lastdate, 'DD-MM-YYYY') >= TO_DATE(?, 'DD-MM-YYYY')", [$today])
             ->orderBy('exam_main_createdat', 'desc')
             ->get();
-
-        // Pass the exams to the index view
         return view('current_exam.index', compact('exams'));
     }
 
@@ -229,7 +233,6 @@ class CurrentExamController extends Controller
             return back()->withInput()
                 ->with('error', 'Error updating exam: ' . $e->getMessage());
         }
-
     }
     public function getExamByNotificationNo(Request $request)
     {
@@ -301,7 +304,7 @@ class CurrentExamController extends Controller
     {
         return view('current_exam.venue-consent');
     }
- 
+
 
 
     public function confirmVenues()

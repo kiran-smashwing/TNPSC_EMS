@@ -156,7 +156,7 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="d-sm-flex align-items-center justify-content-between">
-                                <h5 class="mb-3 mb-sm-0">Completed Exam list</h5>
+                                <h5 class="mb-3 mb-sm-0">Support</h5>
                                 {{-- <div>
                                     <a href="{{ route('completed-exam.create') }}" class="btn btn-outline-success">Add Exam
                                     </a>
@@ -165,7 +165,7 @@
                         </div>
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
-                            <form id="filterForm" class="mb-3">
+                            {{-- <form id="filterForm" class="mb-3">
                                 <div class="filter-item">
                                     <select class="form-select" id="roleFilter" name="role">
                                         <option value="">Select Role</option>
@@ -193,23 +193,18 @@
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                                 </div>
-                            </form>
+                            </form> --}}
                             <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
                                 width="100%">
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Notif. No.</th>
-                                        <th>Exam Name</th>
-                                        <th>Exam Date</th>
-                                        <th>Sess. Count</th>
-                                        <th>Type </th>
-                                        <th>Last Date</th>
-                                        <th>Tier</th>
-                                        <th>Actions</th>
+                                        <th>Department Officials</th>
+                                        <th>Phone</th>
+                                        <th>E-mail</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                {{-- <tbody>
                                     @foreach ($exams as $exam)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
@@ -242,7 +237,7 @@
                                             </td>
                                         </tr>
                                     @endforeach
-                                </tbody>
+                                </tbody> --}}
 
                             </table>
                         </div>

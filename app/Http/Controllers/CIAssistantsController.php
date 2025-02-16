@@ -23,43 +23,43 @@ class CIAssistantsController extends Controller
     }
 
     public function index(Request $request)
-{
-    // Retrieve user details
-    $role = session('auth_role');
-    $user_details = $request->get('auth_user');
-    $user_venue_code = $user_details->venue_code ?? null;
-    // Start query for CIAssistants with related District, Center, and Venue
-    $query = CIAssistant::with(['district', 'center', 'venue']);
+    {
+        // Retrieve user details
+        $role = session('auth_role');
+        $user_details = $request->get('auth_user');
+        $user_venue_code = $user_details->venue_code ?? null;
+        // Start query for CIAssistants with related District, Center, and Venue
+        $query = CIAssistant::with(['district', 'center', 'venue']);
 
-    // Apply default user-based filtering
-    if (!empty($user_venue_code)) {
-        $query->where('cia_venue_id', $user_venue_code);
+        // Apply default user-based filtering
+        if (!empty($user_venue_code)) {
+            $query->where('cia_venue_id', $user_venue_code);
+        }
+
+        // Apply filters based on request input
+        if ($request->filled('district')) {
+            $query->where('cia_district_id', $request->input('district'));
+        }
+
+        if ($request->filled('center')) {
+            $query->where('cia_center_id', $request->input('center'));
+        }
+
+        if ($request->filled('venue')) {
+            $query->where('cia_venue_id', $request->input('venue'));
+        }
+
+        // Fetch filtered CIAssistants with pagination
+        $ciAssistants = $query->orderBy('cia_name')->paginate(10);
+
+        // Fetch all districts, centers, and venues
+        $districts = District::all();
+        $centers = Center::all();
+        $venues = Venues::all();
+
+        // Return the view with data
+        return view('masters.venues.ci_assistants.index', compact('ciAssistants', 'districts', 'centers', 'venues'));
     }
-
-    // Apply filters based on request input
-    if ($request->filled('district')) {
-        $query->where('cia_district_id', $request->input('district'));
-    }
-
-    if ($request->filled('center')) {
-        $query->where('cia_center_id', $request->input('center'));
-    }
-
-    if ($request->filled('venue')) {
-        $query->where('cia_venue_id', $request->input('venue'));
-    }
-
-    // Fetch filtered CIAssistants with pagination
-    $ciAssistants = $query->orderBy('cia_name')->paginate(10);
-
-    // Fetch all districts, centers, and venues
-    $districts = District::all();
-    $centers = Center::all();
-    $venues = Venues::all();
-
-    // Return the view with data
-    return view('masters.venues.ci_assistants.index', compact('ciAssistants', 'districts', 'centers', 'venues'));
-}
 
 
 
@@ -80,7 +80,7 @@ class CIAssistantsController extends Controller
             $centers = Center::where('center_code', $user->venue_center_id)->get();
             $districts = District::where('district_code', $user->venue_district_id)->get();
 
-            return view('masters.venues.ci_assistants.create', data: compact('districts', 'centers', 'venues','user'));
+            return view('masters.venues.ci_assistants.create', data: compact('districts', 'centers', 'venues', 'user'));
         } else if ($role == 'ci') {
             if (!$user) {
                 return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);
@@ -88,7 +88,7 @@ class CIAssistantsController extends Controller
             $venues = Venues::where('venue_code', $user->ci_venue_id)->get();
             $centers = Center::where('center_code', $user->ci_center_id)->get();
             $districts = District::where('district_code', $user->ci_district_id)->get();
-            return view('masters.venues.ci_assistants.create', data: compact('districts', 'centers', 'venues','user'));
+            return view('masters.venues.ci_assistants.create', data: compact('districts', 'centers', 'venues', 'user'));
         }
         // Fetch necessary data for CI Assistants form (venues, centers, districts)
         $venues = Venues::all(); // Retrieves all venues
@@ -305,12 +305,18 @@ class CIAssistantsController extends Controller
     {
         // Retrieve the CI Assistant record by ID, or fail if not found
         $ciAssistant = CIAssistant::with(['district', 'venue', 'center'])->findOrFail($id);
-        $centerCount = $ciAssistant->district->centers()->count();  // Assuming 'centers' is a relationship in District model
-        $venueCount = $ciAssistant->district->venues()->count();
-        $staffCount = $ciAssistant->district->treasuryOfficers()->count() + $ciAssistant->district->mobileTeamStaffs()->count();
-        $ci_count = $ciAssistant->venue->chiefinvigilator()->count();
-        $invigilator_count = $ciAssistant->venue->invigilator()->count();
-        $cia_count = $ciAssistant->venue->cia()->count();
+
+        // Handle null district
+        $centerCount = optional($ciAssistant->district)->centers()->count() ?? 0;
+        $venueCount = optional($ciAssistant->district)->venues()->count() ?? 0;
+        $staffCount = (optional($ciAssistant->district)->treasuryOfficers()->count() ?? 0) +
+            (optional($ciAssistant->district)->mobileTeamStaffs()->count() ?? 0);
+
+        // Handle null venue
+        $ci_count = optional($ciAssistant->venue)->chiefinvigilator()->count() ?? 0;
+        $invigilator_count = optional($ciAssistant->venue)->invigilator()->count() ?? 0;
+        $cia_count = optional($ciAssistant->venue)->cia()->count() ?? 0;
+
         // Return the view with the CI Assistant and related data
         return view('masters.venues.ci_assistants.show', compact('ciAssistant', 'centerCount', 'venueCount', 'staffCount', 'ci_count', 'invigilator_count', 'cia_count'));
     }

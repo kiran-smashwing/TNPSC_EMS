@@ -174,7 +174,7 @@
                             <div class="card">
                                 <div class="card-body position-relative">
                                     <div class="position-absolute end-0 top-0 p-3">
-                                        <span class="d-flex align-items-center">
+                                        {{-- <span class="d-flex align-items-center">
                                             <span class="me-2">E-mail</span>
                                             <!-- Check the district_email_status -->
                                             @if ($ciAssistant->cia_email_status) <!-- Assuming $district contains the row data -->
@@ -182,7 +182,7 @@
                                             @else
                                                 <i class="ti ti-alert-circle text-danger f-18"></i>
                                             @endif
-                                        </span>
+                                        </span> --}}
                                     </div>
 
                                     <div class="text-center mt-3">
@@ -217,10 +217,10 @@
                                             <p class="mb-0">{{ $ciAssistant->center->center_code }} -
                                                 {{ $ciAssistant->center->center_name }}</p>
                                         </div>
-                                        <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
+                                        {{-- <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-mail me-2"></i>
                                             <p class="mb-0">{{ $ciAssistant->cia_email }}</p>
-                                        </div>
+                                        </div> --}}
                                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone me-2"></i>
                                             <p class="mb-0">{{ $ciAssistant->cia_phone }}</p>

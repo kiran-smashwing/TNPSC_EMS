@@ -101,7 +101,7 @@ class InvigilatorsController extends Controller
         $districts = District::all(); // Same as above
 
         // Return the view with the data
-        return view('masters.venues.invigilator.create', compact('venues', 'centers', 'districts','user'));
+        return view('masters.venues.invigilator.create', compact('venues', 'centers', 'districts', 'user'));
     }
 
     public function store(Request $request)
@@ -331,12 +331,18 @@ class InvigilatorsController extends Controller
     {
         // Fetch the invigilator with its related district, venue, and center using eager loading
         $invigilator = Invigilator::with(['district', 'venue', 'center'])->findOrFail($id);
-        $centerCount = $invigilator->district->centers()->count();  // Assuming 'centers' is a relationship in District model
-        $venueCount = $invigilator->district->venues()->count();
-        $staffCount = $invigilator->district->treasuryOfficers()->count() + $invigilator->district->mobileTeamStaffs()->count();
-        $ci_count = $invigilator->venue->chiefinvigilator()->count();
-        $invigilator_count = $invigilator->venue->invigilator()->count();
-        $cia_count = $invigilator->venue->cia()->count();
+
+        // Handle null district
+        $centerCount = optional($invigilator->district)->centers()->count() ?? 0;
+        $venueCount = optional($invigilator->district)->venues()->count() ?? 0;
+        $staffCount = (optional($invigilator->district)->treasuryOfficers()->count() ?? 0) +
+            (optional($invigilator->district)->mobileTeamStaffs()->count() ?? 0);
+
+        // Handle null venue
+        $ci_count = optional($invigilator->venue)->chiefinvigilator()->count() ?? 0;
+        $invigilator_count = optional($invigilator->venue)->invigilator()->count() ?? 0;
+        $cia_count = optional($invigilator->venue)->cia()->count() ?? 0;
+
 
         // Return the view with the invigilator and its related data
         return view('masters.venues.invigilator.show', compact('invigilator', 'centerCount', 'venueCount', 'staffCount', 'ci_count', 'invigilator_count', 'cia_count'));

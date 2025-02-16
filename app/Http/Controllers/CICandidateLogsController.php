@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\ExamConfirmedHalls;
-use App\Models\CIcandidateLogs;
+use App\Models\CICandidateLogs;
 use Illuminate\Http\Request;
 
 
@@ -74,7 +74,7 @@ class CICandidateLogsController extends Controller
         }
 
         // Retrieve the existing record if it exists
-        $candidateLog = CIcandidateLogs::where([
+        $candidateLog = CICandidateLogs::where([
             'exam_id' => $validated['exam_id'],
             'center_code' => $centerCode,
             'hall_code' => $hallCode,
@@ -102,7 +102,7 @@ class CICandidateLogsController extends Controller
             ]);
         } else {
             // If no existing record, create a new one
-            $candidateLog = CIcandidateLogs::create([
+            $candidateLog = CICandidateLogs::create([
                 'exam_id' => $validated['exam_id'],
                 'center_code' => $centerCode,
                 'hall_code' => $hallCode,
@@ -176,7 +176,7 @@ class CICandidateLogsController extends Controller
         }
 
         // Retrieve the existing record if it exists
-        $candidateLog = CIcandidateLogs::where([
+        $candidateLog = CICandidateLogs::where([
             'exam_id' => $validated['exam_id'],
             'center_code' => $centerCode,
             'hall_code' => $hallCode,
@@ -204,7 +204,7 @@ class CICandidateLogsController extends Controller
             ]);
         } else {
             // If no existing record, create a new one
-            $candidateLog = CIcandidateLogs::create([
+            $candidateLog = CICandidateLogs::create([
                 'exam_id' => $validated['exam_id'],
                 'center_code' => $centerCode,
                 'hall_code' => $hallCode,
@@ -282,7 +282,7 @@ class CICandidateLogsController extends Controller
         }
 
         // Retrieve the existing record if it exists
-        $candidateLog = CIcandidateLogs::where([
+        $candidateLog = CICandidateLogs::where([
             'exam_id' => $validated['exam_id'],
             'center_code' => $centerCode,
             'hall_code' => $hallCode,
@@ -298,7 +298,7 @@ class CICandidateLogsController extends Controller
             ]);
         } else {
             // If no existing record, create a new one
-            $candidateLog = CIcandidateLogs::create([
+            $candidateLog = CICandidateLogs::create([
                 'exam_id' => $validated['exam_id'],
                 'center_code' => $centerCode,
                 'hall_code' => $hallCode,
@@ -368,7 +368,7 @@ class CICandidateLogsController extends Controller
 
                 if ($session == 'FN' || $session == 'AN') { // Ensure valid session
                     // Check if the registration number already exists in the current session (FN or AN)
-                    $existingRemarks = CIcandidateLogs::where([
+                    $existingRemarks = CICandidateLogs::where([
                         'exam_id' => $validated['exam_id'],
                         'center_code' => $centerCode,
                         'hall_code' => $hallCode,
@@ -397,7 +397,7 @@ class CICandidateLogsController extends Controller
         }
 
         // Retrieve the existing record for OMR remarks if it exists
-        $omrLog = CIcandidateLogs::where([
+        $omrLog = CICandidateLogs::where([
             'exam_id' => $validated['exam_id'],
             'center_code' => $centerCode,
             'hall_code' => $hallCode,
@@ -425,7 +425,7 @@ class CICandidateLogsController extends Controller
             ]);
         } else {
             // If no existing record, create a new OMR log record
-            CIcandidateLogs::create([
+            CICandidateLogs::create([
                 'exam_id' => $validated['exam_id'],
                 'center_code' => $centerCode,
                 'hall_code' => $hallCode,
@@ -483,7 +483,7 @@ class CICandidateLogsController extends Controller
         $hallCode = $examConfirmedHall->hall_code;
 
         // Check if attendance data already exists for this session (FN/AN)
-        $existingAttendance = CIcandidateLogs::where([
+        $existingAttendance = CICandidateLogs::where([
             'exam_id' => $validated['exam_id'],
             'center_code' => $centerCode,
             'hall_code' => $hallCode,
@@ -529,7 +529,7 @@ class CICandidateLogsController extends Controller
             ]);
         } else {
             // Create a new attendance record if it doesn't exist
-            CIcandidateLogs::create([
+            CICandidateLogs::create([
                 'exam_id' => $validated['exam_id'],
                 'center_code' => $centerCode,
                 'hall_code' => $hallCode,

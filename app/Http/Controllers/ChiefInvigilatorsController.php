@@ -404,12 +404,18 @@ class ChiefInvigilatorsController extends Controller
     public function show($id)
     {
         $chiefInvigilator = ChiefInvigilator::with(['district', 'venue', 'center'])->findOrFail($id);
-        $centerCount = $chiefInvigilator->district->centers()->count();  // Assuming 'centers' is a relationship in District model
-        $venueCount = $chiefInvigilator->district->venues()->count();
-        $staffCount = $chiefInvigilator->district->treasuryOfficers()->count() + $chiefInvigilator->district->mobileTeamStaffs()->count();
-        $ci_count = $chiefInvigilator->venue->chiefinvigilator()->count();
-        $invigilator_count = $chiefInvigilator->venue->invigilator()->count();
-        $cia_count = $chiefInvigilator->venue->cia()->count();
+
+        // Handle null district
+        $centerCount = optional($chiefInvigilator->district)->centers()->count() ?? 0;
+        $venueCount = optional($chiefInvigilator->district)->venues()->count() ?? 0;
+        $staffCount = (optional($chiefInvigilator->district)->treasuryOfficers()->count() ?? 0) +
+            (optional($chiefInvigilator->district)->mobileTeamStaffs()->count() ?? 0);
+
+        // Handle null venue
+        $ci_count = optional($chiefInvigilator->venue)->chiefinvigilator()->count() ?? 0;
+        $invigilator_count = optional($chiefInvigilator->venue)->invigilator()->count() ?? 0;
+        $cia_count = optional($chiefInvigilator->venue)->cia()->count() ?? 0;
+
 
         return view('masters.venues.chief_invigilator.show', compact('chiefInvigilator', 'centerCount', 'venueCount', 'staffCount', 'ci_count', 'invigilator_count', 'cia_count'));
     }

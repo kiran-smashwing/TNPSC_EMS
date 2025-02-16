@@ -175,7 +175,7 @@
                             <div class="card">
                                 <div class="card-body position-relative">
                                     <div class="position-absolute end-0 top-0 p-3">
-                                        <span class="d-flex align-items-center">
+                                        {{-- <span class="d-flex align-items-center">
                                             <span class="me-2">E-mail</span>
                                             <!-- Check the district_email_status -->
                                             @if ($scribe->scribe_email_status) <!-- Assuming $district contains the row data -->
@@ -183,7 +183,7 @@
                                             @else
                                                 <i class="ti ti-alert-circle text-danger f-18"></i>
                                             @endif
-                                        </span>
+                                        </span> --}}
                                     </div>
 
                                     <div class="text-center mt-3">

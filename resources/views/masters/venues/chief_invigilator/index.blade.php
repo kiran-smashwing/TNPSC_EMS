@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'District Collectorate')
+@section('title', 'Chief Invigilator')
 
 @section('content')
     @push('styles')

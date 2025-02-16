@@ -17,15 +17,11 @@ class QpBoxlogController extends Controller
     }
     public function saveTime(Request $request)
     {
-        // Validate the incoming request data
         $validated = $request->validate([
             'exam_id' => 'required|numeric',
             'exam_sess_date' => 'required|date',
-            'exam_sess_session' => 'required|string', // FN or AN
+            'exam_sess_session' => 'required|string',
         ]);
-
-        $exam_date = $request->input('exam_sess_date'); // Exam date
-        $sessions = $request->input('exam_sess_session'); // Exam session
 
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
@@ -36,12 +32,9 @@ class QpBoxlogController extends Controller
             return back()->withErrors(['auth' => 'Unable to retrieve the authenticated user.']);
         }
 
-        $timestamp = now()->toDateTimeString();
-
-        // Query the 'exam_confirmed_halls' table to get center_code and hall_code
         $examConfirmedHall = ExamConfirmedHalls::where('exam_id', $validated['exam_id'])
-            ->where('exam_date', $exam_date)
-            ->where('exam_session', $sessions)
+            ->where('exam_date', $validated['exam_sess_date'])
+            ->where('exam_session', $validated['exam_sess_session'])
             ->where('ci_id', $ci_id)
             ->first();
 
@@ -49,132 +42,100 @@ class QpBoxlogController extends Controller
             return redirect()->back()->with('error', 'No matching record found.');
         }
 
-        $centerCode = $examConfirmedHall->center_code;
-        $hallCode = $examConfirmedHall->hall_code;
-
-        // Find existing QpBoxLog record or create a new one
-        $qpBoxLog = QpBoxLog::firstOrNew([
+        $qpBoxLog = QpBoxLog::firstOrCreate([
             'exam_id' => $validated['exam_id'],
-            'exam_date' => $exam_date,
-            'center_code' => $centerCode,
-            'hall_code' => $hallCode,
+            'exam_date' => $validated['exam_sess_date'],
+            'center_code' => $examConfirmedHall->center_code,
+            'hall_code' => $examConfirmedHall->hall_code,
             'ci_id' => $ci_id,
+        ], [
+            'qp_timing_log' => [],
+            'created_at' => now()
         ]);
 
-        $newSessionData = [
-            'session' => $sessions,
-            'qp_box_open_time' => $timestamp,
-        ];
+        $session = $validated['exam_sess_session'];
+        $currentData = $qpBoxLog->qp_timing_log ?: [];
 
-        if ($qpBoxLog->exists && is_array($qpBoxLog->qp_timing_log)) {
-            $existingTimings = $qpBoxLog->qp_timing_log;
-            $sessionExists = false;
+        // Get existing session data or initialize new
+        $sessionData = $currentData[$session] ?? [];
 
-            foreach ($existingTimings as &$session) {
-                if ($session['session'] === $sessions) {
-                    $session['qp_box_open_time'] = $timestamp;
-                    $sessionExists = true;
-                    break;
-                }
-            }
+        // Update open time while preserving distribution time
+        $sessionData = array_merge([
+            'qp_box_open_time' => now()->toDateTimeString(),
+            'qp_box_distribution_time' => null,
+        ], $sessionData);
 
-            if (!$sessionExists) {
-                $existingTimings[] = $newSessionData;
-            }
+        // Ensure the timestamp is updated
+        $sessionData['qp_box_open_time'] = now()->toDateTimeString();
 
-            $qpBoxLog->qp_timing_log = $existingTimings;
-        } else {
-            $qpBoxLog->qp_timing_log = [$newSessionData];
-        }
+        // Update session data while preserving other sessions
+        $currentData[$session] = $sessionData;
 
-        if (!$qpBoxLog->exists) {
-            $qpBoxLog->created_at = now();
-        }
-
+        // Save the updated data
+        $qpBoxLog->qp_timing_log = $currentData;
         $qpBoxLog->save();
 
         return redirect()->back()->with('success', 'Scan time saved successfully!');
     }
     public function saveqpboxdistributiontimeTime(Request $request)
-{
-    // Validate the incoming request data
-    $validated = $request->validate([
-        'exam_id' => 'required|numeric',
-        'exam_sess_date' => 'required|date',
-        'exam_sess_session' => 'required|string', // FN or AN
-    ]);
+    {
+        $validated = $request->validate([
+            'exam_id' => 'required|numeric',
+            'exam_sess_date' => 'required|date',
+            'exam_sess_session' => 'required|string',
+        ]);
 
-    $exam_date = $request->input('exam_sess_date'); // Exam date
-    $sessions = $request->input('exam_sess_session'); // Exam session
+        $role = session('auth_role');
+        $guard = $role ? Auth::guard($role) : null;
+        $user = $guard ? $guard->user() : null;
+        $ci_id = $user ? $user->ci_id : null;
 
-    $role = session('auth_role');
-    $guard = $role ? Auth::guard($role) : null;
-    $user = $guard ? $guard->user() : null;
-    $ci_id = $user ? $user->ci_id : null;
-
-    if (!$user || !$ci_id) {
-        return back()->withErrors(['auth' => 'Unable to retrieve the authenticated user.']);
-    }
-
-    $timestamp = now()->toDateTimeString();
-
-    // Query the 'exam_confirmed_halls' table to get center_code and hall_code
-    $examConfirmedHall = ExamConfirmedHalls::where('exam_id', $validated['exam_id'])
-        ->where('exam_date', $exam_date)
-        ->where('exam_session', $sessions)
-        ->where('ci_id', $ci_id)
-        ->first();
-
-    if (!$examConfirmedHall) {
-        return redirect()->back()->with('error', 'No matching record found.');
-    }
-
-    $centerCode = $examConfirmedHall->center_code;
-    $hallCode = $examConfirmedHall->hall_code;
-
-    // Find existing QpBoxLog record or create a new one
-    $qpBoxLog = QpBoxLog::firstOrNew([
-        'exam_id' => $validated['exam_id'],
-        'exam_date' => $exam_date,
-        'center_code' => $centerCode,
-        'hall_code' => $hallCode,
-        'ci_id' => $ci_id,
-    ]);
-
-    $newSessionData = [
-        'session' => $sessions,
-        'qp_box_distribution_time' => $timestamp,
-    ];
-
-    if ($qpBoxLog->exists && is_array($qpBoxLog->qp_timing_log)) {
-        $existingTimings = $qpBoxLog->qp_timing_log;
-        $sessionExists = false;
-
-        foreach ($existingTimings as &$session) {
-            if ($session['session'] === $sessions) {
-                // Update the distribution time without removing previous data
-                $session['qp_box_distribution_time'] = $timestamp;
-                $sessionExists = true;
-                break;
-            }
+        if (!$user || !$ci_id) {
+            return back()->withErrors(['auth' => 'Unable to retrieve the authenticated user.']);
         }
 
-        if (!$sessionExists) {
-            $existingTimings[] = $newSessionData;
+        // Query confirmed halls
+        $examConfirmedHall = ExamConfirmedHalls::where('exam_id', $validated['exam_id'])
+            ->where('exam_date', $validated['exam_sess_date'])
+            ->where('exam_session', $validated['exam_sess_session'])
+            ->where('ci_id', $ci_id)
+            ->first();
+
+        if (!$examConfirmedHall) {
+            return redirect()->back()->with('error', 'No matching record found.');
         }
 
-        $qpBoxLog->qp_timing_log = $existingTimings;
-    } else {
-        $qpBoxLog->qp_timing_log = [$newSessionData];
+        // Find or create QpBoxLog record
+        $qpBoxLog = QpBoxLog::firstOrCreate([
+            'exam_id' => $validated['exam_id'],
+            'exam_date' => $validated['exam_sess_date'],
+            'center_code' => $examConfirmedHall->center_code,
+            'hall_code' => $examConfirmedHall->hall_code,
+            'ci_id' => $ci_id,
+        ], [
+            'qp_timing_log' => [],
+            'created_at' => now()
+        ]);
+
+        $session = $validated['exam_sess_session'];
+        $currentData = $qpBoxLog->qp_timing_log ?: [];
+
+        // Get existing session data or initialize new
+        $sessionData = $currentData[$session] ?? [
+            'qp_box_open_time' => null,
+        ];
+
+        // Update distribution time while preserving other fields
+        $sessionData['qp_box_distribution_time'] = now()->toDateTimeString();
+
+        // Update session data while preserving other sessions
+        $currentData[$session] = $sessionData;
+
+        // Save updated data
+        $qpBoxLog->qp_timing_log = $currentData;
+        $qpBoxLog->save();
+
+        return redirect()->back()->with('success', 'Distribution time saved successfully!');
     }
-
-    if (!$qpBoxLog->exists) {
-        $qpBoxLog->created_at = now();
-    }
-
-    $qpBoxLog->save();
-
-    return redirect()->back()->with('success', 'Distribution time saved successfully!');
-}
 
 }

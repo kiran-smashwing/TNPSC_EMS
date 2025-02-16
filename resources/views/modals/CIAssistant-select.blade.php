@@ -24,6 +24,18 @@
                 </div>
 
                 <div class="modal-body">
+                    @php
+                        // Decode the selected_assistants JSON string
+                        $selectedAssistant = $selectedAssistant
+                            ? json_decode($selectedAssistant->selected_assistants, true)
+                            : null;
+
+                        // Initialize selectedIds to an empty array if selectedAssistant or selected_assistants is null
+                        $selectedIds =
+                            $selectedAssistant && isset($selectedAssistant['assistant_ids'])
+                                ? $selectedAssistant['assistant_ids']
+                                : [];
+                    @endphp
                     <div class="row">
                         <div class="mb-4">
                             <div class="col-lg-12 col-md-11 col-sm-12">
@@ -32,7 +44,8 @@
                                     name="assistants[]" id="ciAssistantSelect" multiple required>
                                     <option value="">Select CI Assistant</option>
                                     @foreach ($ci_assistant as $assistant)
-                                        <option value="{{ $assistant->cia_id }}">
+                                        <option value="{{ $assistant->cia_id }}"
+                                            {{ in_array($assistant->cia_id, $selectedIds) ? 'selected' : '' }}>
                                             {{ $assistant->cia_name }} - {{ $assistant->cia_phone }}
                                         </option>
                                     @endforeach

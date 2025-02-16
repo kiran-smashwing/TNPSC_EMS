@@ -368,8 +368,18 @@
                                         </div>
                                     </div>
                                 </li>
+                                @php
+                                    $is_assistant_selected =
+                                        $selectedAssistant !== null &&
+                                        !empty((array) $selectedAssistant->selected_assistants);
+
+                                    // Set dynamic badge text and color
+                                    $taskStatus = $is_assistant_selected ? 'Assigned' : 'Pending';
+                                    $badgeClass = $is_assistant_selected ? 'bg-light-secondary' : 'bg-danger';
+                                @endphp
                                 <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
+                                    <i
+                                        class="task-icon {{ $is_assistant_selected ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
                                             <div class="row">
@@ -381,10 +391,6 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -392,26 +398,20 @@
                                                 <div class="col">
                                                     <div class="popup-trigger">
                                                         <div class="h5 font-weight-bold">CI Assistants Attendence <small
-                                                                class="badge bg-light-secondary ms-2">attended</small>
+                                                                class="badge {{ $badgeClass }} ms-2">{{ $taskStatus }}</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
+                                                                    <b>{{ $is_assistant_selected ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
                                                                 </li>
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                    {{ $is_assistant_selected ? \Carbon\Carbon::parse(time: json_decode($selectedAssistant->selected_assistants, true)['timestamp'])->format('d-m-Y h:i A') : '' }}
+                                                                </li>
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -419,11 +419,13 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" data-pc-animate="just-me"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#ciAssistantAllotmentModal"
-                                                            class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
+                                                        @if ($is_assistant_selected)
+                                                            <a href="#" data-pc-animate="just-me"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#ciAssistantAllotmentModal"
+                                                                class="me-2 btn btn-sm btn-light-primary"><i
+                                                                    class="feather icon-eye mx-1"></i>View</a>
+                                                        @endif
                                                         <a href="#" data-pc-animate="just-me"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#ciAssistantSelectModal"
@@ -435,8 +437,22 @@
                                         </div>
                                     </div>
                                 </li>
+                                @php
+                                    // Decode the JSON string into a PHP associative array
+                                    $timingLog = $qpboxTimeLog['qp_timing_log'];
+
+                                    // Check if 'qp_box_open_time' exists and is not empty
+                                    $isBoxOpenTimeSet =
+                                        isset($timingLog['qp_box_open_time']) && !empty($timingLog['qp_box_open_time']);
+
+                                    // Optional: Set a status or badge class based on whether the time is set
+                                    $taskStatus = $isBoxOpenTimeSet ? 'Time Set' : 'Pending';
+                                    $badgeClass = $isBoxOpenTimeSet ? 'bg-light-secondary' : 'bg-danger';
+                                @endphp
+
                                 <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
+                                    <i
+                                        class="task-icon {{ $isBoxOpenTimeSet ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
                                             <div class="row">
@@ -448,10 +464,6 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -459,26 +471,20 @@
                                                 <div class="col">
                                                     <div class="popup-trigger">
                                                         <div class="h5 font-weight-bold">QP Box Open Time <small
-                                                                class="badge bg-light-secondary ms-2">scanned</small>
+                                                                class="badge {{ $badgeClass }} ms-2">{{ $taskStatus }}</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
+                                                                    <b>{{ $isBoxOpenTimeSet ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
                                                                 </li>
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                    {{ $isBoxOpenTimeSet ? \Carbon\Carbon::parse(time: $timingLog['qp_box_open_time'])->format('d-m-Y h:i A') : '' }}
+                                                                </li>
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -496,8 +502,22 @@
                                         </div>
                                     </div>
                                 </li>
+                                @php
+                                    // Assuming $candidateAttendance is retrieved from the database and contains a JSON string
+                                    // Example: '{"absent": 100, "present": 200, "timestamp": "2025-02-14 16:29:38", "alloted_count": "300"}'
+                                    $attendanceData = $candidateAttendance->candidate_attendance;
+
+                                    // Check if 'present' exists and is not empty
+                                    $isPresentSet =
+                                        isset($attendanceData['present']) && !empty($attendanceData['present']);
+
+                                    // Set a dynamic status and badge class based on whether 'present' data is available
+                                    $presentStatus = $isPresentSet ? 'Updated' : 'Pending';
+                                    $presentBadgeClass = $isPresentSet ? 'bg-light-secondary' : 'bg-danger';
+                                @endphp
                                 <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
+                                    <i
+                                        class="task-icon {{ $isPresentSet ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
                                             <div class="row">
@@ -509,37 +529,27 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                             </ul>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Candidiate Attendance<small
-                                                                class="badge bg-light-secondary ms-2">added</small>
+                                                        <div class="h5 font-weight-bold">Candidiate Attendance <small
+                                                                class="badge {{ $badgeClass }} ms-2">{{ $taskStatus }}</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
+                                                                    <b>{{ $isPresentSet ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
                                                                 </li>
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                    {{ $isPresentSet ? \Carbon\Carbon::parse(time: $attendanceData['timestamp'])->format('d-m-Y h:i A') : '' }}
+                                                                </li>
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -571,10 +581,19 @@
                                             </div>
                                         </div>
                                     </div>
-
                                 </li>
+                                @php
+                                    $is_candidates_added =
+                                        $additionalCandidates !== null &&
+                                        !empty((array) $additionalCandidates->additional_candidates);
+                                    
+                                    // Set dynamic badge text and color
+                                    $taskStatus = $is_candidates_added ? 'Added' : 'Pending';
+                                    $badgeClass = $is_candidates_added ? 'bg-light-secondary' : 'bg-danger';
+                                @endphp
                                 <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
+                                    <i
+                                        class="task-icon {{ $is_candidates_added ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
                                             <div class="row">
@@ -586,10 +605,6 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -597,26 +612,20 @@
                                                 <div class="col">
                                                     <div class="popup-trigger">
                                                         <div class="h5 font-weight-bold">Additional Candidiate<small
-                                                                class="badge bg-light-secondary ms-2">added</small>
+                                                                class="badge {{ $badgeClass }} ms-2">{{ $taskStatus }}</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
+                                                                    <b>{{ $is_candidates_added ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
                                                                 </li>
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                    class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                {{ $is_candidates_added ? \Carbon\Carbon::parse(time: json_decode($additionalCandidates->additional_candidates, true)['timestamp'])->format('d-m-Y h:i A') : '' }}
+                                                            </li>
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -701,8 +710,22 @@
                                         </div>
                                     </div>
                                 </li> --}}
+                                @php
+                                    // Decode the JSON string into a PHP associative array
+                                    $timingLog = $qpboxTimeLog['qp_timing_log'];
+
+                                    // Check if 'isBoxDistributionTimeSet' exists and is not empty
+                                    $isBoxDistributionTimeSet =
+                                        isset($timingLog['qp_box_distribution_time']) &&
+                                        !empty($timingLog['qp_box_distribution_time']);
+
+                                    // Optional: Set a status or badge class based on whether the time is set
+                                    $taskStatus = $isBoxDistributionTimeSet ? 'Time Set' : 'Pending';
+                                    $badgeClass = $isBoxDistributionTimeSet ? 'bg-light-secondary' : 'bg-danger';
+                                @endphp
                                 <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
+                                    <i
+                                        class="task-icon {{ $isBoxDistributionTimeSet ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
                                             <div class="row">
@@ -714,10 +737,6 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -725,26 +744,20 @@
                                                 <div class="col">
                                                     <div class="popup-trigger">
                                                         <div class="h5 font-weight-bold">Q-paper distribution time <small
-                                                                class="badge bg-light-secondary ms-2">added</small>
+                                                                class="badge {{ $badgeClass }} ms-2">{{ $taskStatus }}</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
+                                                                    <b>{{ $isBoxDistributionTimeSet ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
                                                                 </li>
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                    {{ $isBoxDistributionTimeSet ? \Carbon\Carbon::parse(time: $timingLog['qp_box_distribution_time'])->format('d-m-Y h:i A') : '' }}
+                                                                </li>
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i

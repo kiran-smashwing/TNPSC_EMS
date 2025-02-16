@@ -17,7 +17,6 @@ class CICandidateLogsController extends Controller
     }
     public function saveAdditionalCandidates(Request $request)
     {
-        // Validate the incoming request data
         $validated = $request->validate([
             'exam_id' => 'required|numeric',
             'exam_sess_date' => 'required|date',
@@ -25,9 +24,6 @@ class CICandidateLogsController extends Controller
             'candidateRegNo' => 'nullable|array',
             'candidateName' => 'nullable|array',
         ]);
-
-        $exam_date = $request->input('exam_sess_date'); // Exam date
-        $sessions = $request->input('exam_sess_session'); // Exam session (FN or AN)
 
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
@@ -38,12 +34,9 @@ class CICandidateLogsController extends Controller
             return back()->withErrors(['auth' => 'Unable to retrieve the authenticated user.']);
         }
 
-        $timestamp = now()->toDateTimeString();
-
-        // Query the 'exam_confirmed_halls' table to get center_code and hall_code
         $examConfirmedHall = ExamConfirmedHalls::where('exam_id', $validated['exam_id'])
-            ->where('exam_date', $exam_date)
-            ->where('exam_session', $sessions)
+            ->where('exam_date', $validated['exam_sess_date'])
+            ->where('exam_session', $validated['exam_sess_session'])
             ->where('ci_id', $ci_id)
             ->first();
 
@@ -51,68 +44,62 @@ class CICandidateLogsController extends Controller
             return redirect()->back()->with('error', 'No matching record found.');
         }
 
-        $centerCode = $examConfirmedHall->center_code;
-        $hallCode = $examConfirmedHall->hall_code;
+        // Find or create candidate log
+        $candidateLog = CIcandidateLogs::firstOrCreate([
+            'exam_id' => $validated['exam_id'],
+            'center_code' => $examConfirmedHall->center_code,
+            'hall_code' => $examConfirmedHall->hall_code,
+            'exam_date' => $validated['exam_sess_date'],
+            'ci_id' => $ci_id,
+        ], [
+            'additional_details' => [],
+            'created_at' => now()
+        ]);
 
-        // Prepare the additional details data as an array, grouped by session (FN, AN)
-        $newDetails = [
-            'FN' => [],
-            'AN' => [],
+        $session = $validated['exam_sess_session'];
+        $currentData = $candidateLog->additional_details ?: [];
+
+        // Get existing session data or initialize new
+        $sessionData = $currentData[$session] ?? [
+            'candidates' => [],
+            'timestamp' => now()->toDateTimeString()
         ];
 
+        // Prepare new candidate details
+        $newCandidates = [];
         if (isset($validated['candidateRegNo']) && isset($validated['candidateName'])) {
             foreach ($validated['candidateRegNo'] as $index => $regNo) {
-                // Append candidate details into FN or AN based on the session
-                $session = strtoupper($sessions); // Ensure the session is in uppercase ('FN' or 'AN')
-                if (array_key_exists($session, $newDetails)) {
-                    $newDetails[$session][] = [
-                        'registration_number' => $regNo,
-                        'candidate_name' => $validated['candidateName'][$index],
-                    ];
-                }
+                $newCandidates[] = [
+                    'registration_number' => $regNo,
+                    'candidate_name' => $validated['candidateName'][$index],
+                ];
             }
         }
 
-        // Retrieve the existing record if it exists
-        $candidateLog = CICandidateLogs::where([
-            'exam_id' => $validated['exam_id'],
-            'center_code' => $centerCode,
-            'hall_code' => $hallCode,
-            'exam_date' => $exam_date,
-            'ci_id' => $ci_id,
-        ])->first();
+        // Merge existing and new candidates, ensuring uniqueness by registration number
+        $existingCandidates = $sessionData['candidates'] ?? [];
+        $existingRegNos = array_column($existingCandidates, 'registration_number');
 
-        if ($candidateLog) {
-            // Merge the new data with the existing data
-            $existingDetails = $candidateLog->additional_details;
-
-            // Merge FN and AN sessions separately
-            foreach ($newDetails as $session => $candidates) {
-                if (isset($existingDetails[$session])) {
-                    $existingDetails[$session] = array_merge($existingDetails[$session], $candidates);
-                } else {
-                    $existingDetails[$session] = $candidates;
-                }
+        foreach ($newCandidates as $candidate) {
+            if (!in_array($candidate['registration_number'], $existingRegNos)) {
+                $existingCandidates[] = $candidate;
+                $existingRegNos[] = $candidate['registration_number'];
             }
-
-            // Update the record
-            $candidateLog->update([
-                'additional_details' => $existingDetails,
-                'updated_at' => $timestamp,
-            ]);
-        } else {
-            // If no existing record, create a new one
-            $candidateLog = CICandidateLogs::create([
-                'exam_id' => $validated['exam_id'],
-                'center_code' => $centerCode,
-                'hall_code' => $hallCode,
-                'exam_date' => $exam_date,
-                'ci_id' => $ci_id,
-                'additional_details' => $newDetails,
-                'created_at' => $timestamp,
-                'updated_at' => $timestamp,
-            ]);
         }
+
+        // Update session data
+        $sessionData = [
+            'candidates' => $existingCandidates,
+            'timestamp' => now()->toDateTimeString()
+        ];
+
+        // Update session while preserving other sessions
+        $currentData[$session] = $sessionData;
+
+        // Save the updated data
+        $candidateLog->additional_details = $currentData;
+        $candidateLog->updated_at = now();
+        $candidateLog->save();
 
         return redirect()->back()->with('success', 'Additional candidates saved successfully!');
     }

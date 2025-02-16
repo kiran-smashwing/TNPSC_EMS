@@ -258,15 +258,13 @@ class ExamStaffAllotmentController extends Controller
     public function updateCIAssistantDetails(Request $request, $examId, $examDate, $ciId)
     {
         try {
-            // Validate the incoming request data
             $validated = $request->validate([
-                'assistants' => 'required|array|min:2|max:2', // Ensure exactly 2 assistants are selected
+                'assistants' => 'required|array|min:2|max:2',
                 'exam_id' => 'required',
                 'exam_sess_date' => 'required|date',
-                'exam_sess_session' => 'required|in:FN,AN', // Ensure session is either FN or AN
+                'exam_sess_session' => 'required|in:FN,AN',
             ]);
 
-            // Get the authenticated user
             $role = session('auth_role');
             $guard = $role ? Auth::guard($role) : null;
             $user = $guard ? $guard->user() : null;
@@ -275,37 +273,33 @@ class ExamStaffAllotmentController extends Controller
                 return back()->withErrors(['auth' => 'Unable to retrieve the authenticated user.']);
             }
 
-            // Find the existing CI staff allocation record
-            $staffAllocation = CIStaffAllocation::where([
-                ['exam_id', '=', $examId],
-                ['exam_date', '=', $examDate],
-                ['ci_id', '=', $ciId],
-            ])->first();
+            $staffAllocation = CIStaffAllocation::firstOrCreate([
+                'exam_id' => $examId,
+                'exam_date' => $examDate,
+                'ci_id' => $ciId,
+            ], [
+                'assistants' => [],
+                'created_at' => now()
+            ]);
 
-            if (!$staffAllocation) {
-                return back()->withErrors(['error' => 'Staff allocation not found']);
-            }
+            $session = $validated['exam_sess_session'];
+            $currentData = $staffAllocation->assistants ?: [];
 
-            // Prepare the new CI assistants data
-            $newAssistantData = [
-                'session' => $validated['exam_sess_session'],
-                'assistants' => $validated['assistants'],
-                'timestamp' => now()->toDateTimeString(),
+            // Structure the session data
+            $sessionData = [
+                'assistant_ids' => $validated['assistants'],
+                'timestamp' => now()->toDateTimeString()
             ];
 
-            // Initialize existing assistants data if null
-            $existingAssistants = $staffAllocation->assistants ?? [];
+            // Update or add new session while preserving other sessions
+            $currentData[$session] = $sessionData;
 
-            // Append or update based on the session (FN or AN)
-            $existingAssistants[] = $newAssistantData;
-
-            // Save the updated assistants data back to the record
-            $staffAllocation->assistants = $existingAssistants;
+            // Save the updated data
+            $staffAllocation->assistants = $currentData;
             $staffAllocation->save();
 
-            return redirect()->back()->with('success', "CI Assistant details for session updated successfully.");
+            return redirect()->back()->with('success', 'CI Assistant details updated successfully.');
         } catch (\Exception $e) {
-            // Log::error('CI Assistant Update Error: ' . $e->getMessage());
             return back()->withErrors(['error' => 'An error occurred while updating CI Assistant details.']);
         }
     }

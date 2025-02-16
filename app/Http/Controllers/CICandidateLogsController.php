@@ -106,7 +106,6 @@ class CICandidateLogsController extends Controller
 
     public function saveRemarkCandidates(Request $request)
     {
-        // Validate the incoming request data
         $validated = $request->validate([
             'exam_id' => 'required|numeric',
             'exam_sess_date' => 'required|date',
@@ -114,9 +113,6 @@ class CICandidateLogsController extends Controller
             'candidateRegNo' => 'nullable|array',
             'candidateRemarks' => 'nullable|array',
         ]);
-        // dd($validated);
-        $exam_date = $request->input('exam_sess_date'); // Exam date
-        $sessions = $request->input('exam_sess_session'); // Exam session (FN or AN)
 
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
@@ -127,12 +123,9 @@ class CICandidateLogsController extends Controller
             return back()->withErrors(['auth' => 'Unable to retrieve the authenticated user.']);
         }
 
-        $timestamp = now()->toDateTimeString();
-
-        // Query the 'exam_confirmed_halls' table to get center_code and hall_code
         $examConfirmedHall = ExamConfirmedHalls::where('exam_id', $validated['exam_id'])
-            ->where('exam_date', $exam_date)
-            ->where('exam_session', $sessions)
+            ->where('exam_date', $validated['exam_sess_date'])
+            ->where('exam_session', $validated['exam_sess_session'])
             ->where('ci_id', $ci_id)
             ->first();
 
@@ -140,168 +133,76 @@ class CICandidateLogsController extends Controller
             return redirect()->back()->with('error', 'No matching record found.');
         }
 
-        $centerCode = $examConfirmedHall->center_code;
-        $hallCode = $examConfirmedHall->hall_code;
-
-        // Prepare the remarks data as an array, grouped by session (FN, AN)
-        $newRemarks = [
-            'FN' => [],
-            'AN' => [],
-        ];
-
-        if (isset($validated['candidateRegNo']) && isset($validated['candidateRemarks'])) {
-            foreach ($validated['candidateRegNo'] as $index => $regNo) {
-                // Append candidate remarks into FN or AN based on the session
-                $session = strtoupper($sessions); // Ensure the session is in uppercase ('FN' or 'AN')
-                if (array_key_exists($session, $newRemarks)) {
-                    $newRemarks[$session][] = [
-                        'registration_number' => $regNo,
-                        'remark' => $validated['candidateRemarks'][$index],
-                    ];
-                }
-            }
-        }
-
-        // Retrieve the existing record if it exists
-        $candidateLog = CIcandidateLogs::where([
+        // Find or create candidate log
+        $candidateLog = CIcandidateLogs::firstOrCreate([
             'exam_id' => $validated['exam_id'],
-            'center_code' => $centerCode,
-            'hall_code' => $hallCode,
-            'exam_date' => $exam_date,
+            'center_code' => $examConfirmedHall->center_code,
+            'hall_code' => $examConfirmedHall->hall_code,
+            'exam_date' => $validated['exam_sess_date'],
             'ci_id' => $ci_id,
-        ])->first();
-
-        if ($candidateLog) {
-            // Merge the new remarks with the existing remarks
-            $existingRemarks = $candidateLog->candidate_remarks;
-
-            // Merge FN and AN sessions separately
-            foreach ($newRemarks as $session => $remarks) {
-                if (isset($existingRemarks[$session])) {
-                    $existingRemarks[$session] = array_merge($existingRemarks[$session], $remarks);
-                } else {
-                    $existingRemarks[$session] = $remarks;
-                }
-            }
-
-            // Update the record
-            $candidateLog->update([
-                'candidate_remarks' => $existingRemarks,
-                'updated_at' => $timestamp,
-            ]);
-        } else {
-            // If no existing record, create a new one
-            $candidateLog = CIcandidateLogs::create([
-                'exam_id' => $validated['exam_id'],
-                'center_code' => $centerCode,
-                'hall_code' => $hallCode,
-                'exam_date' => $exam_date,
-                'ci_id' => $ci_id,
-                'candidate_remarks' => $newRemarks,
-                'created_at' => $timestamp,
-                'updated_at' => $timestamp,
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Candidate remarks saved successfully!');
-    }
-
-    public function updateRemarkCandidates(Request $request)
-    {
-        // Validate the incoming request data
-        $validated = $request->validate([
-            'exam_id' => 'required|numeric',
-            'exam_sess_date' => 'required|date',
-            'exam_sess_session' => 'required|string',
-            'candidateRegNo' => 'nullable|array',
-            'candidateRemarks' => 'nullable|array',
+        ], [
+            'candidate_remarks' => [],
+            'created_at' => now()
         ]);
 
-        $exam_date = $request->input('exam_sess_date'); // Exam date
-        $sessions = $request->input('exam_sess_session'); // Exam session (FN or AN)
+        $session = $validated['exam_sess_session'];
+        $currentData = $candidateLog->candidate_remarks ?: [];
 
-        $role = session('auth_role');
-        $guard = $role ? Auth::guard($role) : null;
-        $user = $guard ? $guard->user() : null;
-        $ci_id = $user ? $user->ci_id : null;
-
-        if (!$user || !$ci_id) {
-            return back()->withErrors(['auth' => 'Unable to retrieve the authenticated user.']);
-        }
-
-        $timestamp = now()->toDateTimeString();
-
-        // Query the 'exam_confirmed_halls' table to get center_code and hall_code
-        $examConfirmedHall = ExamConfirmedHalls::where('exam_id', $validated['exam_id'])
-            ->where('exam_date', $exam_date)
-            ->where('exam_session', $sessions)
-            ->where('ci_id', $ci_id)
-            ->first();
-
-        if (!$examConfirmedHall) {
-            return redirect()->back()->with('error', 'No matching record found.');
-        }
-
-        $centerCode = $examConfirmedHall->center_code;
-        $hallCode = $examConfirmedHall->hall_code;
-
-        // Prepare the remarks data for the selected session (FN or AN)
-        $newRemarks = [
-            'FN' => [],
-            'AN' => [],
+        // Get existing session data or initialize new
+        $sessionData = $currentData[$session] ?? [
+            'remarks' => [],
+            'timestamp' => now()->toDateTimeString()
         ];
 
+        // Prepare new remarks
+        $newRemarks = [];
         if (isset($validated['candidateRegNo']) && isset($validated['candidateRemarks'])) {
             foreach ($validated['candidateRegNo'] as $index => $regNo) {
-                // Only add remarks to the selected session
-                if (strtoupper($sessions) == 'FN') {
-                    $newRemarks['FN'][] = [
-                        'registration_number' => $regNo,
-                        'remark' => $validated['candidateRemarks'][$index],
-                    ];
-                } elseif (strtoupper($sessions) == 'AN') {
-                    $newRemarks['AN'][] = [
-                        'registration_number' => $regNo,
-                        'remark' => $validated['candidateRemarks'][$index],
-                    ];
+                $newRemarks[] = [
+                    'registration_number' => $regNo,
+                    'remark' => $validated['candidateRemarks'][$index],
+                ];
+            }
+        }
+
+        // Merge existing and new remarks, ensuring uniqueness by registration number
+        $existingRemarks = $sessionData['remarks'] ?? [];
+        $existingRegNos = array_column($existingRemarks, 'registration_number');
+
+        foreach ($newRemarks as $remark) {
+            if (!in_array($remark['registration_number'], $existingRegNos)) {
+                $existingRemarks[] = $remark;
+                $existingRegNos[] = $remark['registration_number'];
+            } else {
+                // Update existing remark for this registration number
+                foreach ($existingRemarks as $key => $existingRemark) {
+                    if ($existingRemark['registration_number'] === $remark['registration_number']) {
+                        $existingRemarks[$key] = $remark;
+                        break;
+                    }
                 }
             }
         }
 
-        // Retrieve the existing record if it exists
-        $candidateLog = CIcandidateLogs::where([
-            'exam_id' => $validated['exam_id'],
-            'center_code' => $centerCode,
-            'hall_code' => $hallCode,
-            'exam_date' => $exam_date,
-            'ci_id' => $ci_id,
-        ])->first();
+        // Update session data
+        $sessionData = [
+            'remarks' => $existingRemarks,
+            'timestamp' => now()->toDateTimeString()
+        ];
 
-        if ($candidateLog) {
-            // If record exists, update the candidate remarks for the selected session
-            $candidateLog->update([
-                'candidate_remarks' => $newRemarks,
-                'updated_at' => $timestamp,
-            ]);
-        } else {
-            // If no existing record, create a new one
-            $candidateLog = CIcandidateLogs::create([
-                'exam_id' => $validated['exam_id'],
-                'center_code' => $centerCode,
-                'hall_code' => $hallCode,
-                'exam_date' => $exam_date,
-                'ci_id' => $ci_id,
-                'candidate_remarks' => $newRemarks,
-                'created_at' => $timestamp,
-                'updated_at' => $timestamp,
-            ]);
-        }
+        // Update session while preserving other sessions
+        $currentData[$session] = $sessionData;
+
+        // Save the updated data
+        $candidateLog->candidate_remarks = $currentData;
+        $candidateLog->updated_at = now();
+        $candidateLog->save();
 
         return redirect()->back()->with('success', 'Candidate remarks saved successfully!');
     }
+
     public function saveOMRRemark(Request $request)
     {
-        // Validate the incoming request data
         $validated = $request->validate([
             'exam_id' => 'required|numeric',
             'exam_sess_date' => 'required|date',
@@ -310,27 +211,18 @@ class CICandidateLogsController extends Controller
             'candidateRemarks' => 'nullable|array',
         ]);
 
-        // Get exam details from request
-        $exam_date = $request->input('exam_sess_date'); // Exam date
-        $sessions = $request->input('exam_sess_session'); // Exam session (FN or AN)
-
-        // Retrieve authenticated user and CI ID
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
         $user = $guard ? $guard->user() : null;
         $ci_id = $user ? $user->ci_id : null;
 
-        // If user or CI ID is not found, return an error
         if (!$user || !$ci_id) {
             return back()->withErrors(['auth' => 'Unable to retrieve the authenticated user.']);
         }
 
-        $timestamp = now()->toDateTimeString(); // Current timestamp
-
-        // Query the 'exam_confirmed_halls' table to get center_code and hall_code
         $examConfirmedHall = ExamConfirmedHalls::where('exam_id', $validated['exam_id'])
-            ->where('exam_date', $exam_date)
-            ->where('exam_session', $sessions)
+            ->where('exam_date', $validated['exam_sess_date'])
+            ->where('exam_session', $validated['exam_sess_session'])
             ->where('ci_id', $ci_id)
             ->first();
 
@@ -338,91 +230,53 @@ class CICandidateLogsController extends Controller
             return redirect()->back()->with('error', 'No matching record found.');
         }
 
-        $centerCode = $examConfirmedHall->center_code;
-        $hallCode = $examConfirmedHall->hall_code;
+        // Find or create candidate log
+        $candidateLog = CIcandidateLogs::firstOrCreate([
+            'exam_id' => $validated['exam_id'],
+            'center_code' => $examConfirmedHall->center_code,
+            'hall_code' => $examConfirmedHall->hall_code,
+            'exam_date' => $validated['exam_sess_date'],
+            'ci_id' => $ci_id,
+        ], [
+            'omr_remarks' => [],
+            'created_at' => now()
+        ]);
 
-        // Prepare the remarks data as an array, grouped by session (FN, AN)
-        $newRemarks = [
-            'FN' => [],
-            'AN' => [],
+        $session = $validated['exam_sess_session'];
+        $currentData = $candidateLog->omr_remarks ?: [];
+
+        // Get existing session data or initialize new
+        $sessionData = $currentData[$session] ?? [
+            'remarks' => [],
+            'timestamp' => now()->toDateTimeString()
         ];
 
-        // If candidate data and remarks exist, process and store
+        // Prepare new remarks
         if (isset($validated['candidateRegNo']) && isset($validated['candidateRemarks'])) {
+            $existingRegNos = array_column($sessionData['remarks'], 'reg_no');
+
             foreach ($validated['candidateRegNo'] as $index => $regNo) {
-                // Ensure session is in uppercase ('FN' or 'AN')
-                $session = strtoupper($sessions); // Validate the session
-
-                if ($session == 'FN' || $session == 'AN') { // Ensure valid session
-                    // Check if the registration number already exists in the current session (FN or AN)
-                    $existingRemarks = CIcandidateLogs::where([
-                        'exam_id' => $validated['exam_id'],
-                        'center_code' => $centerCode,
-                        'hall_code' => $hallCode,
-                        'exam_date' => $exam_date,
-                        'ci_id' => $ci_id,
-                    ])->first();
-
-                    if ($existingRemarks) {
-                        // For FN or AN session, check if the registration number exists in the specific session
-                        $existingSessionRemarks = $existingRemarks->omr_remarks[$session] ?? [];
-                        $existingRegNos = array_column($existingSessionRemarks, 'registration_number');
-
-                        if (in_array($regNo, $existingRegNos)) {
-                            return redirect()->back()->withErrors(['error' => "Registration Number $regNo already exists in the OMR remarks for the $session session."]);
-                        }
-                    }
-
-                    // Prepare the data for the new remarks entry, including the timestamp
-                    $newRemarks[$session][] = [
-                        'registration_number' => $regNo,
+                if (!in_array($regNo, $existingRegNos)) {
+                    $sessionData['remarks'][] = [
+                        'reg_no' => $regNo,
                         'remark' => $validated['candidateRemarks'][$index],
-                        'timestamp' => $timestamp,  // Add the timestamp to each remark
                     ];
-                }
-            }
-        }
-
-        // Retrieve the existing record for OMR remarks if it exists
-        $omrLog = CIcandidateLogs::where([
-            'exam_id' => $validated['exam_id'],
-            'center_code' => $centerCode,
-            'hall_code' => $hallCode,
-            'exam_date' => $exam_date,
-            'ci_id' => $ci_id,
-        ])->first();
-
-        if ($omrLog) {
-            // Merge new OMR remarks with the existing ones
-            $existingOMRRemarks = $omrLog->omr_remarks;
-
-            // Merge FN and AN sessions separately
-            foreach ($newRemarks as $session => $remarks) {
-                if (isset($existingOMRRemarks[$session])) {
-                    $existingOMRRemarks[$session] = array_merge($existingOMRRemarks[$session], $remarks);
                 } else {
-                    $existingOMRRemarks[$session] = $remarks;
+                    return redirect()->back()->withErrors(['error' => "Registration Number $regNo already exists in the OMR remarks for this session."]);
                 }
             }
-
-            // Update the existing OMR log with the new remarks
-            $omrLog->update([
-                'omr_remarks' => $existingOMRRemarks,
-                'updated_at' => $timestamp,
-            ]);
-        } else {
-            // If no existing record, create a new OMR log record
-            CIcandidateLogs::create([
-                'exam_id' => $validated['exam_id'],
-                'center_code' => $centerCode,
-                'hall_code' => $hallCode,
-                'exam_date' => $exam_date,
-                'ci_id' => $ci_id,
-                'omr_remarks' => $newRemarks,  // Save the new remarks
-                'created_at' => $timestamp,
-                'updated_at' => $timestamp,
-            ]);
         }
+
+        // Update timestamp
+        $sessionData['timestamp'] = now()->toDateTimeString();
+
+        // Update session while preserving other sessions
+        $currentData[$session] = $sessionData;
+
+        // Save the updated data
+        $candidateLog->omr_remarks = $currentData;
+        $candidateLog->updated_at = now();
+        $candidateLog->save();
 
         return redirect()->back()->with('success', 'OMR Remarks saved successfully!');
     }

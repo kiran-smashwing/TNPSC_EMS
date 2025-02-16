@@ -19,15 +19,22 @@
                                 <th>Remarks</th>
                             </tr>
                         </thead>
+                        @php
+                            // Decode the JSON string into an associative array (or an empty array if no data)
+                            $candidate_remarks_data = !empty($candidateRemarks)
+                                ? $candidateRemarks->candidate_remarks
+                                : [];
+                        @endphp
                         <tbody>
-                            @if (isset($candidate_remarks_data) && !empty($candidate_remarks_data))
-                                @foreach ($candidate_remarks_data as $session => $remarks)
-                                    @foreach ($remarks as $remark)
-                                        <tr>
-                                            <td>{{ $remark['registration_number'] ?? 'N/A' }}</td>
-                                            <td>{{ $remark['remark'] ?? 'N/A' }}</td>
-                                        </tr>
-                                    @endforeach
+                            @if (
+                                !empty($candidate_remarks_data) &&
+                                    isset($candidate_remarks_data['remarks']) &&
+                                    count($candidate_remarks_data['remarks']) > 0)
+                                @foreach ($candidate_remarks_data['remarks'] as $remark)
+                                    <tr>
+                                        <td>{{ $remark['registration_number'] ?? 'N/A' }}</td>
+                                        <td>{{ $remark['remark'] ?? 'N/A' }}</td>
+                                    </tr>
                                 @endforeach
                             @else
                                 <tr>

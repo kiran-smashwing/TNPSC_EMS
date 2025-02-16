@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CICandidateLogs;
 use App\Models\CIChecklistAnswer;
 use App\Models\CIMeetingQrcode;
+use App\Models\CIPaperReplacements;
 use App\Models\CIStaffAllocation;
 use App\Models\Currentexam;
 use App\Models\ExamMaterialRoutes;
@@ -257,10 +258,6 @@ class MyExamController extends Controller
             ->orderBy('exam_materials_scans.ci_scanned_at', 'desc') // Get the latest scanned material
             ->select('exam_materials_data.*', 'exam_materials_scans.ci_scanned_at as last_scanned_at')
             ->first(); // Get only one row
-        $sessionAnswer = CIChecklistAnswer::where('ci_id', $ci_id)
-            ->where('exam_id', $examId)
-            ->select(DB::raw("session_answer->'" . $session->exam_sess_date . "'->'" . $session->exam_sess_session . "' as session_answer"))
-            ->first();
         $sessionAnswer = CIChecklistAnswer::where('ci_id', $ci_id)
             ->where('exam_id', $examId)
             ->select(DB::raw("session_answer->'" . $session->exam_sess_date . "'->'" . $session->exam_sess_session . "' as session_answer"))
@@ -608,6 +605,38 @@ class MyExamController extends Controller
             ->where('exam_date', $session->exam_sess_date)
             ->select(DB::raw("additional_details->'" . $session->exam_sess_session . "' as additional_candidates"))
             ->first();
+        $paperReplacements = CIPaperReplacements::where('exam_id', $examId)
+            ->where('ci_id', $user->ci_id)
+            ->where('exam_date', $session->exam_sess_date)
+            ->where('exam_session', $session->exam_sess_session)
+            ->orderBy('updated_at', 'desc') // Order by latest update
+            ->get();
+        $candidateRemarks = CICandidateLogs::where('exam_id', $examId)
+            ->where('ci_id', $user->ci_id)
+            ->where('exam_date', $session->exam_sess_date)
+            ->select(DB::raw("candidate_remarks->'" . $session->exam_sess_session . "' as candidate_remarks"))
+            ->first();
+        $videographyAnswer = CIChecklistAnswer::where('ci_id', $ci_id)
+            ->where('exam_id', $examId)
+            ->select(DB::raw("videography_answer->'" . $session->exam_sess_date . "'->'" . $session->exam_sess_session . "' as videography_answer"))
+            ->first();
+        $omrRemarks = CICandidateLogs::where('exam_id', $examId)
+            ->where('ci_id', $user->ci_id)
+            ->where('exam_date', $session->exam_sess_date)
+            ->select(DB::raw("omr_remarks->'" . $session->exam_sess_session . "' as omr_remarks"))
+            ->first();
+        // Query based on the role
+        $lastScannedBundle = ExamMaterialsData::where('exam_id', $examId)
+            ->where('ci_id', $user->ci_id)
+            ->where('exam_date', $session->exam_sess_date)
+            ->where('exam_session', $session->exam_sess_session)
+            ->whereIn('category', ['R1', 'R2', 'R3', 'R4', 'R5', 'R6'])
+            ->join('exam_materials_scans', function ($join) {
+                $join->on('exam_materials_data.id', '=', 'exam_materials_scans.exam_material_id');
+            })
+            ->orderBy('exam_materials_scans.ci_scanned_at', 'desc') // Get the latest scanned material
+            ->select('exam_materials_data.*', 'exam_materials_scans.ci_scanned_at as last_scanned_at')
+            ->first(); // Get only one row
         // Return the view with the data
         return view('my_exam.CI.ci-exam-activity', compact(
             'ci_assistant',
@@ -636,7 +665,12 @@ class MyExamController extends Controller
             'selectedAssistant',
             'qpboxTimeLog',
             'candidateAttendance',
-            'additionalCandidates'
+            'additionalCandidates',
+            'paperReplacements',
+            'candidateRemarks',
+            'videographyAnswer',
+            'omrRemarks',
+            'lastScannedBundle'
         ));
     }
 

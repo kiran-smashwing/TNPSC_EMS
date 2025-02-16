@@ -427,7 +427,6 @@ Route::prefix('ci-candidate-log')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::post('/ci-candidates-log', [CICandidateLogsController::class, 'saveAdditionalcandidates'])->name('ci-candidates-log.savecandidates');
         Route::post('/ci-candidates-remarks', [CICandidateLogsController::class, 'saveRemarkcandidates'])->name('ci-candidates-remark.saveremarks');
-        Route::put('/ci-candidates-remarks-update', [CICandidateLogsController::class, 'updateRemarkCandidates'])->name('ci-candidates-remark.updateremarks');
         Route::post('/ci-candidates-omrremarks', [CICandidateLogsController::class, 'saveOMRRemark'])->name('ci-candidates-omrremarks.saveomrremarks');
         Route::post('/save-candidate-attendance', [CICandidateLogsController::class, 'saveCandidateAttendance'])->name('candidate.attendance.save');
     });

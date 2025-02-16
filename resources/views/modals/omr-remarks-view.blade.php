@@ -1,5 +1,6 @@
 <!-- OMR Remarks View Modal -->
-<div class="modal fade modal-animate" data-bs-backdrop="static" id="omrRemarksViewModal" tabindex="-1" aria-labelledby="omrRemarksViewModalLabel" aria-hidden="true">
+<div class="modal fade modal-animate" data-bs-backdrop="static" id="omrRemarksViewModal" tabindex="-1"
+    aria-labelledby="omrRemarksViewModalLabel" aria-hidden="true">
     <div class="modal-dialog ">
         <div class="modal-content">
             <div class="modal-header bg-info">
@@ -18,29 +19,23 @@
                                 <th>Remark</th>
                             </tr>
                         </thead>
+                        @php
+                            // Decode the stored JSON response
+                            $omrRemarksData = optional($omrRemarks)->omr_remarks;
+                            $remarksList = $omrRemarksData['remarks'] ?? []; // Extract remarks array
+                        @endphp
                         <tbody>
-                            @if(isset($candidate_orm_remarks_data['AN']))
-                                @foreach($candidate_orm_remarks_data['AN'] as $remark)
-                                    <tr>
-                                        <td>{{ $remark['registration_number'] }}</td>
-                                        <td>{{ $remark['remark'] }}</td>
-                                    </tr>
-                                @endforeach
-                            @endif
-            
-                            @if(isset($candidate_orm_remarks_data['FN']))
-                                @foreach($candidate_orm_remarks_data['FN'] as $remark)
-                                    <tr>
-                                        <td>{{ $remark['registration_number'] }}</td>
-                                        <td>{{ $remark['remark'] }}</td>
-                                    </tr>
-                                @endforeach
-                            @endif
+                            @foreach ($remarksList as $remark)
+                                <tr>
+                                    <td>{{ $remark['reg_no'] }}</td>
+                                    <td>{{ $remark['remark'] }}</td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
             </div>
-            
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>

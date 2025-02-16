@@ -586,7 +586,7 @@
                                     $is_candidates_added =
                                         $additionalCandidates !== null &&
                                         !empty((array) $additionalCandidates->additional_candidates);
-                                    
+
                                     // Set dynamic badge text and color
                                     $taskStatus = $is_candidates_added ? 'Added' : 'Pending';
                                     $badgeClass = $is_candidates_added ? 'bg-light-secondary' : 'bg-danger';
@@ -623,9 +623,9 @@
                                                                     <b>{{ $is_candidates_added ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
                                                                 </li>
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
-                                                                    class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                {{ $is_candidates_added ? \Carbon\Carbon::parse(time: json_decode($additionalCandidates->additional_candidates, true)['timestamp'])->format('d-m-Y h:i A') : '' }}
-                                                            </li>
+                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                    {{ $is_candidates_added ? \Carbon\Carbon::parse(time: json_decode($additionalCandidates->additional_candidates, true)['timestamp'])->format('d-m-Y h:i A') : '' }}
+                                                                </li>
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -780,8 +780,23 @@
                                         </div>
                                     </div>
                                 </li>
+                                @php
+                                    // Determine if any replacement record exists
+                                    $hasReplacement = $paperReplacements->isNotEmpty();
+                                    // Since the collection is ordered descending, the first record is the latest
+                                    $latestReplacement = $hasReplacement ? $paperReplacements->first() : null;
+                                    // Set the status and badge based on the record's existence
+$replacementStatus = $hasReplacement ? 'Replaced' : 'Pending';
+$replacementBadgeClass = $hasReplacement ? 'bg-light-secondary' : 'bg-danger';
+
+// Format the updated_at timestamp if a replacement exists
+$replacementTime = $hasReplacement
+    ? \Carbon\Carbon::parse($latestReplacement->updated_at)->format('d-m-Y h:i A')
+    : '';
+                                @endphp
                                 <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
+                                    <i
+                                        class="task-icon {{ $hasReplacement ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
                                             <div class="row">
@@ -794,36 +809,36 @@
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
 
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                             </ul>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Replacemnt of Q-paper<small
-                                                                class="badge bg-light-secondary ms-2">replaced</small>
+                                                        <div class="h5 font-weight-bold">Replacemnt of Q-paper <small
+                                                                class="badge {{ $replacementBadgeClass }} ms-2">
+                                                                {{ $replacementStatus }}
+                                                            </small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
+
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
+                                                                    <b>
+                                                                        {{ $hasReplacement ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}
+                                                                    </b>
                                                                 </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                <li class="d-sm-inline-block d-block mt-1">
+                                                                    <i
+                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">
+                                                                        calendar_today
+                                                                    </i>
+                                                                    {{ $replacementTime }}
+                                                                </li>
+
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -831,10 +846,13 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" data-pc-animate="just-me"
-                                                            data-bs-toggle="modal" data-bs-target="#viewReplacementModal"
-                                                            class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
+                                                        @if ($hasReplacement)
+                                                            <a href="#" data-pc-animate="just-me"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#viewReplacementModal"
+                                                                class="me-2 btn btn-sm btn-light-primary"><i
+                                                                    class="feather icon-eye mx-1"></i>View</a>
+                                                        @endif
                                                         <a href="#" data-pc-animate="just-me"
                                                             data-bs-toggle="modal" data-bs-target="#paperReplacementModal"
                                                             class="me-2 btn btn-sm btn-light-info"><i
@@ -849,8 +867,18 @@
                                         </div>
                                     </div>
                                 </li>
+                                @php
+                                    $is_remark_added =
+                                        $candidateRemarks !== null &&
+                                        !empty((array) $candidateRemarks->candidate_remarks);
+
+                                    // Set dynamic badge text and color
+                                    $taskStatus = $is_remark_added ? 'Added' : 'Pending';
+                                    $badgeClass = $is_remark_added ? 'bg-light-secondary' : 'bg-danger';
+                                @endphp
                                 <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
+                                    <i
+                                        class="task-icon {{ $is_remark_added ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
                                             <div class="row">
@@ -862,10 +890,6 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -873,26 +897,20 @@
                                                 <div class="col">
                                                     <div class="popup-trigger">
                                                         <div class="h5 font-weight-bold">Remarks of Candidiate <small
-                                                                class="badge bg-light-secondary ms-2">remarked</small>
+                                                                class="badge {{ $badgeClass }} ms-2">{{ $taskStatus }}</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
+                                                                    <b>{{ $is_remark_added ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
                                                                 </li>
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                    {{ $is_remark_added ? \Carbon\Carbon::parse(time: $candidateRemarks->candidate_remarks['timestamp'])->format('d-m-Y h:i A') : '' }}
+                                                                </li>
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -900,28 +918,42 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" data-pc-animate="just-me"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#candidateRemarksViewModal"
-                                                            class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
+                                                        @if ($is_remark_added)
+                                                            <a href="#" data-pc-animate="just-me"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#candidateRemarksViewModal"
+                                                                class="me-2 btn btn-sm btn-light-primary"><i
+                                                                    class="feather icon-eye mx-1"></i>View</a>
+                                                        @endif
                                                         <a href="#" data-pc-animate="just-me"
                                                             data-bs-toggle="modal" data-bs-target="#candidateRemarksModal"
                                                             class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-plus mx-1"></i>Add</a>
-                                                        <a href="#" data-pc-animate="just-me"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#candidateRemarkseditModal"
-                                                            class="me-2 btn btn-sm btn-light-warning"><i
-                                                                class="feather icon-edit mx-1"></i>Edit</a>
+                                                        @if ($is_remark_added)
+                                                            <a href="#" data-pc-animate="just-me"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#candidateRemarkseditModal"
+                                                                class="me-2 btn btn-sm btn-light-warning"><i
+                                                                    class="feather icon-edit mx-1"></i>Edit</a>
+                                                        @endif
+
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </li>
+                                @php
+                                    $is_videography_answered =
+                                        $videographyAnswer !== null &&
+                                        !empty((array) $videographyAnswer->videography_answer);
+                                    // Set dynamic badge text and color
+                                    $taskStatus = $is_videography_answered ? 'Verified' : 'Pending';
+                                    $badgeClass = $is_videography_answered ? 'bg-light-secondary' : 'bg-danger';
+                                @endphp
                                 <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
+                                    <i
+                                        class="task-icon {{ $is_videography_answered ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
                                             <div class="row">
@@ -933,38 +965,29 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                             </ul>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Counting / Packaging Videography
+                                                        <div class="h5 font-weight-bold">Counting / Packaging
+                                                            Videography
                                                             <small
-                                                                class="badge bg-light-secondary ms-2">videographed</small>
+                                                                class="badge {{ $badgeClass }} ms-2">{{ $taskStatus }}</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
+                                                                    <b>{{ $is_videography_answered ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
                                                                 </li>
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                    {{ $is_videography_answered ? \Carbon\Carbon::parse($videographyAnswer->videography_answer['timestamp'])->format('d-m-Y h:i A') : '' }}
+                                                                </li>
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -974,16 +997,10 @@
                                                     <div class="mt-2">
                                                         <a href="#" data-pc-animate="just-me"
                                                             data-bs-toggle="modal"
-                                                            data-bs-target="#countingpackagingvideographyview"
-                                                            class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
-                                                        <a href="#" data-pc-animate="just-me"
-                                                            data-bs-toggle="modal"
                                                             data-bs-target="#countingpackagingvideography"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
+                                                            class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-info mx-1"></i>verify</a>
-                                                        {{-- <a href="#" class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-info mx-1"></i>Verify</a> --}}
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -1052,8 +1069,17 @@
                                         </div>
                                     </div>
                                 </li> --}}
+                                @php
+                                    $is_omr_remark_added =
+                                        $omrRemarks !== null && !empty((array) $omrRemarks->omr_remarks);
+
+                                    // Set dynamic badge text and color
+                                    $taskStatus = $is_omr_remark_added ? 'Added' : 'Pending';
+                                    $badgeClass = $is_omr_remark_added ? 'bg-light-secondary' : 'bg-danger';
+                                @endphp
                                 <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
+                                    <i
+                                        class="task-icon {{ $is_remark_added ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
                                             <div class="row">
@@ -1065,37 +1091,27 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                             </ul>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">OMR Remarks<small
-                                                                class="badge bg-light-secondary ms-2">remarked</small>
+                                                        <div class="h5 font-weight-bold">OMR Remarks <small
+                                                                class="badge {{ $badgeClass }} ms-2">{{ $taskStatus }}</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
+                                                                    <b>{{ $is_omr_remark_added ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
                                                                 </li>
                                                                 <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                    {{ $is_omr_remark_added ? \Carbon\Carbon::parse(time: $omrRemarks->omr_remarks['timestamp'])->format('d-m-Y h:i A') : '' }}
+                                                                </li>
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i
@@ -1103,10 +1119,13 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        <a href="#" data-pc-animate="just-me"
-                                                            data-bs-toggle="modal" data-bs-target="#omrRemarksViewModal"
-                                                            class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-eye mx-1"></i>View</a>
+                                                        @if ($is_omr_remark_added)
+                                                            <a href="#" data-pc-animate="just-me"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#omrRemarksViewModal"
+                                                                class="me-2 btn btn-sm btn-light-primary"><i
+                                                                    class="feather icon-eye mx-1"></i>View</a>
+                                                        @endif
                                                         <a href="#" data-pc-animate="just-me"
                                                             data-bs-toggle="modal" data-bs-target="#omrRemarksInputModal"
                                                             class="me-2 btn btn-sm btn-light-info"><i
@@ -1117,8 +1136,16 @@
                                         </div>
                                     </div>
                                 </li>
+                                @php
+                                    $is_bundle_packed = $lastScannedBundle !== null;
+
+                                    // Set dynamic badge text and color
+                                    $taskStatus = $is_bundle_packed ? 'Packed' : 'Pending';
+                                    $badgeClass = $is_bundle_packed ? 'bg-light-secondary' : 'bg-danger';
+                                @endphp
                                 <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
+                                    <i
+                                        class="task-icon {{ $is_bundle_packed ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
                                             <div class="row">
@@ -1130,10 +1157,6 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -1141,26 +1164,20 @@
                                                 <div class="col">
                                                     <div class="popup-trigger">
                                                         <div class="h5 font-weight-bold">Scan Bundle Packaging <small
-                                                                class="badge bg-light-secondary ms-2">scanned</small>
+                                                                class="badge {{ $badgeClass }} ms-2">{{ $taskStatus }}</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
                                                             <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
                                                                 <li class="d-sm-inline-block d-block mt-1"><img
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
+                                                                        <b>{{ $is_bundle_packed ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
+                                                                    </li>
+                                                                    <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
+                                                                    {{ $is_bundle_packed ? \Carbon\Carbon::parse($lastScannedBundle->last_scanned_at)->format('d-m-Y h:i A') : '' }}
+                                                                </li>
                                                             </ul>
                                                         </div>
                                                         <div class="h5 mt-3"><i

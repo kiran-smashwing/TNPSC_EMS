@@ -150,59 +150,65 @@ class CIPreliminaryCheckController extends Controller
 
     public function saveVideographyChecklist(Request $request)
     {
-        // Validate the incoming request data
         $validated = $request->validate([
             'exam_id' => 'required',
             'exam_sess_date' => 'required|date',
             'exam_sess_session' => 'required|string',
             'checklist' => 'nullable|array',
-            'inspectionStaff' => 'nullable|array',
+            'remarks' => 'nullable|array',
         ]);
-        // dd($validated);
-        // Find the existing record in the ci_checklist_answer table
-        $ciVideographyChecklist = CIChecklistAnswer::where('exam_id', $request->exam_id)->first();
 
-        if (!$ciVideographyChecklist) {
-            return redirect()->back()->with('error', 'Record not found.');
+        $user = current_user();
+
+        // Get exam details from confirmed halls
+        $examDetails = DB::table('exam_confirmed_halls')
+            ->where('exam_id', $validated['exam_id'])
+            ->where('ci_id', $user->ci_id)
+            ->first();
+
+        if (!$examDetails) {
+            return back()->withErrors(['exam_id' => 'Exam not found in confirmed halls.']);
         }
 
-        // Retrieve the current data or initialize an empty structure
-        $currentData = $ciVideographyChecklist->videography_answer ?? [
-            'sessions' => []
-        ];
+        // Find or create record
+        $ciVideographyChecklist = CIChecklistAnswer::firstOrCreate([
+            'exam_id' => $validated['exam_id'],
+            'center_code' => $examDetails->center_code,
+            'hall_code' => $examDetails->hall_code,
+            'ci_id' => $user->ci_id,
+        ], [
+            'videography_answer' => []
+        ]);
 
-        // Prepare the new session data
-        $exam_date = $request->input('exam_sess_date');
-        $sessions = $request->input('exam_sess_session');
-        $checklistData = [];
+        $currentData = $ciVideographyChecklist->videography_answer ?? [];
+        $exam_date = $validated['exam_sess_date'];
+        $session = $validated['exam_sess_session'];
 
-        if (!empty($request->checklist)) {
-            foreach ($request->checklist as $checklistId => $value) {
-                $checklistItem = [
-                    'description' => $value,
-                    'checklist_id' => $checklistId,
+        // Prepare checklist data
+        if (!empty($validated['checklist'])) {
+            $checklistData = [];
+            foreach ($validated['checklist'] as $checklistId => $value) {
+                $checklistData[$checklistId] = [
+                    'value' => $value,
+                    'remark' => $validated['remarks'][$checklistId] ?? null
                 ];
-
-                // Add dynamic fields for Inspection Staff
-                if ($request->has("inspectionStaff.{$checklistId}")) {
-                    $checklistItem['inspection_staff'] = $request->input("inspectionStaff.{$checklistId}");
-                }
-
-                $checklistData[] = $checklistItem;
             }
 
-            // Append the new session data
-            $currentData['sessions'][] = [
-                'exam_date' => $exam_date,
-                'session' => $sessions,
-                'checklist' => $checklistData,
-                'timestamp' => now()->toDateTimeString(), // Add current timestamp
-            ];
-        }
+            // Handle nested data structure
+            if (!isset($currentData[$exam_date])) {
+                $currentData[$exam_date] = [];
+            }
 
-        // Save the updated array data in the videography_answer column
-        $ciVideographyChecklist->videography_answer = $currentData;
-        $ciVideographyChecklist->save();
+            // Update session data while preserving other sessions
+            $currentData[$exam_date][$session] = [
+                'checklist' => $checklistData,
+                'timestamp' => now()->toDateTimeString()
+            ];
+
+            // Save the updated data
+            $ciVideographyChecklist->videography_answer = $currentData;
+            $ciVideographyChecklist->save();
+        }
 
         return redirect()->back()->with('success', 'Videography checklist updated successfully.');
     }

@@ -10,6 +10,11 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                     aria-label="Close"></button>
             </div>
+            @php
+                // Decode stored JSON response
+                $consolidateAnswerData =optional($consolidateAnswer)->consolidate_answer;
+                $savedChecklist = $consolidateAnswerData['checklist'] ?? []; // Extract checklist array
+            @endphp
             <div class="modal-body">
                 <form id="consolidatecertificateForm" action="{{ route('saveConsolidateCertificate') }}" method="POST">
                     @csrf
@@ -26,11 +31,11 @@
                                     <input type="hidden" name="checklists[{{ $checklist->ci_checklist_id }}]"
                                         value="0">
 
-                                    <!-- Checkbox input to send 1 when checked -->
+                                    <!-- Checkbox input -->
                                     <input class="form-check-input input-primary" type="checkbox"
                                         name="checklists[{{ $checklist->ci_checklist_id }}]"
                                         id="customCheck{{ $loop->index }}" value="1"
-                                        {{ in_array($checklist->ci_checklist_id, old('checklists', [])) ? 'checked' : '' }}>
+                                        {{ isset($savedChecklist[$checklist->ci_checklist_id]) && $savedChecklist[$checklist->ci_checklist_id] == '1' ? 'checked' : '' }}>
 
                                     <label class="form-check-label" for="customCheck{{ $loop->index }}">
                                         {{ $checklist->ci_checklist_description }}
@@ -39,7 +44,7 @@
                             @endforeach
                         </div>
                     </div>
-                <div class="modal-footer">
+                    <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-primary d-flex align-items-center">
                             <i class="feather icon-save me-2"></i>Save Changes

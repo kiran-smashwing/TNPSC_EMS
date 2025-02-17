@@ -215,7 +215,6 @@ class CIPreliminaryCheckController extends Controller
 
     public function saveConsolidateCertificate(Request $request)
     {
-        // Validate the incoming request data
         $validated = $request->validate([
             'exam_id' => 'required',
             'exam_sess_date' => 'required|date',
@@ -223,41 +222,44 @@ class CIPreliminaryCheckController extends Controller
             'checklists' => 'nullable|array',
         ]);
 
-        // Find the existing record in the consolidate_answer table
-        $consolidateRecord = CIChecklistAnswer::where('exam_id', $request->exam_id)->first();
+        $consolidateRecord = CIChecklistAnswer::firstOrCreate([
+            'exam_id' => $validated['exam_id']
+        ], [
+            'consolidate_answer' => [],
+            'created_at' => now()
+        ]);
 
-        if (!$consolidateRecord) {
-            return redirect()->back()->with('error', 'Record not found.');
-        }
+        $examDate = $validated['exam_sess_date'];
+        $session = $validated['exam_sess_session'];
+        $currentData = $consolidateRecord->consolidate_answer ?: [];
 
-        // Retrieve the current data or initialize an empty structure
-        $currentData = $consolidateRecord->consolidate_answer ?? [
-            'sessions' => []
+        // Get existing session data or initialize new
+        $dateData = $currentData[$examDate] ?? [];
+        $sessionData = $dateData[$session] ?? [
+            'checklist' => [],
+            'timestamp' => now()->toDateTimeString()
         ];
 
-        // Prepare the new session data
-        $examDate = $request->input('exam_sess_date');
-        $session = $request->input('exam_sess_session');
+        // Convert checklists array to simple key-value pairs
         $checklistData = [];
-
-        if (!empty($request->checklists)) {
-            foreach ($request->checklists as $checklistId => $status) {
-                $checklistData[] = [
-                    'description' => $checklistId,
-                    'status' => $status, // Save the status as 0 or 1
-                ];
+        if (!empty($validated['checklists'])) {
+            foreach ($validated['checklists'] as $checklistId => $status) {
+                $checklistData[$checklistId] = $status;
             }
-
-            // Append the new session data
-            $currentData['sessions'][] = [
-                'exam_date' => $examDate,
-                'session' => $session,
-                'checklist' => $checklistData,
-                'timestamp' => now()->toDateTimeString(), // Add current timestamp
-            ];
         }
 
-        // Save the updated array data in the consolidate_answer column
+        // Update session data
+        $sessionData = [
+            'checklist' => $checklistData,
+            'timestamp' => now()->toDateTimeString()
+        ];
+
+        // Update nested structure
+        if (!isset($currentData[$examDate])) {
+            $currentData[$examDate] = [];
+        }
+        $currentData[$examDate][$session] = $sessionData;
+
         $consolidateRecord->consolidate_answer = $currentData;
         $consolidateRecord->save();
 

@@ -282,319 +282,6 @@ class MyExamController extends Controller
             ->where('exam_date', $session->exam_sess_date)
             ->select(DB::raw("qp_timing_log->'" . $session->exam_sess_session . "' as qp_timing_log"))
             ->first();
-
-        // Initialize variables
-        $invigilators_type = [];
-        $scribes_type = [];
-        $assistants_type = [];
-        $candidate_logs_data = [];
-        $cipaperreplacement_data = [];
-        $candidate_remarks_data = []; // For storing remarks data
-        $checklist_videography_data = [];
-        $candidate_orm_remarks_data = []; // For storing
-        // Initialize attendance data arrays
-        $candidate_attendance_data = [
-            'absent' => $candidateAttendance['absent'] ?? 0,
-            'present' => $candidateAttendance['present'] ?? 0,
-            'alloted_count' => $candidateAttendance['alloted_count'] ?? 0,
-        ];
-
-        // Retrieve allocation records
-        $existingAllocations = DB::table('ci_staff_allocation')
-            ->where('exam_id', $examId)
-            ->where('ci_id', $user->ci_id)
-            ->get();
-
-        // Retrieve candidate logs data for the CI user
-        $ciCandidatelogs = DB::table('ci_candidate_logs')
-            ->where('exam_id', $examId)
-            ->where('ci_id', $user->ci_id)
-            ->first();
-
-        $cipaperreplacement = DB::table('ci_paper_replacements')
-            ->where('exam_id', $examId)
-            ->where('ci_id', $user->ci_id)
-            ->get();
-
-
-        // Retrieve the checklist videography data
-        $checklistvideographyData = DB::table('ci_checklist_answers')
-            ->where('exam_id', $examId)
-            ->where('ci_id', $user->ci_id)
-            ->get();
-
-        // Initialize an array to hold all checklist data
-
-
-        if ($checklistvideographyData->isNotEmpty()) {
-            // Loop through each checklist entry
-            foreach ($checklistvideographyData as $checklistAnswer) {
-                // Decode the 'videography_answer' JSON field
-                $videographyData = json_decode($checklistAnswer->videography_answer, true);
-
-                // Check if 'sessions' is set in the decoded data
-                if (isset($videographyData['sessions'])) {
-                    // Loop through the sessions
-                    foreach ($videographyData['sessions'] as $sessionData) {
-                        // Ensure session type (AN or FN) and match with the current session
-                        if (isset($sessionData['session'])) {
-                            // Check if the session matches the current session (AN or FN)
-                            if (
-                                ($sessionData['session'] === 'FN' && $session->exam_sess_session == 'FN') ||
-                                ($sessionData['session'] === 'AN' && $session->exam_sess_session == 'AN')
-                            ) {
-
-                                // Add data to the checklist
-                                foreach ($sessionData['checklist'] as $checklistItem) {
-                                    $checklist_videography_data[] = [
-                                        'checklist_id' => $checklistItem['checklist_id'] ?? 'N/A',
-                                        'description' => $checklistItem['description'] ?? 'N/A',
-                                        'inspection_staff' => $checklistItem['inspection_staff'] ?? 'N/A',
-                                        'exam_date' => $sessionData['exam_date'] ?? 'N/A',
-                                        'timestamp' => $sessionData['timestamp'] ?? 'N/A',
-                                    ];
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        // Separate cipaperreplacement by session
-        foreach ($cipaperreplacement as $replacement) {
-            $sessionType = $replacement->exam_session; // Assuming 'exam_session' is a column in the table
-
-            // Only add the data, no session titles
-            if ($sessionType === 'FN' && $session->exam_sess_session == 'FN') {
-                $cipaperreplacement_data[] = $replacement;
-            } elseif ($sessionType === 'AN' && $session->exam_sess_session == 'AN') {
-                $cipaperreplacement_data[] = $replacement;
-            }
-        }
-
-        // Decode candidate logs and remarks
-        if ($ciCandidatelogs) {
-            $candidateAttendance = $ciCandidatelogs->candidate_attendance
-                ? json_decode($ciCandidatelogs->candidate_attendance, true)
-                : []; // Decode the `candidate_attendance` field or initialize as an empty array
-
-
-
-            // Check if session type is AN or FN and assign the attendance data accordingly
-            if ($session->exam_sess_session == 'AN' && isset($candidateAttendance['AN'])) {
-                $candidate_attendance_data['absent'] = $candidateAttendance['AN']['absent'] ?? 0;
-                $candidate_attendance_data['present'] = $candidateAttendance['AN']['present'] ?? 0;
-                $candidate_attendance_data['alloted_count'] = $candidateAttendance['AN']['alloted_count'] ?? 0;
-            }
-
-            if ($session->exam_sess_session == 'FN' && isset($candidateAttendance['FN'])) {
-                $candidate_attendance_data['absent'] = $candidateAttendance['FN']['absent'] ?? 0;
-                $candidate_attendance_data['present'] = $candidateAttendance['FN']['present'] ?? 0;
-                $candidate_attendance_data['alloted_count'] = $candidateAttendance['FN']['alloted_count'] ?? 0;
-            }
-
-            // Additional processing for logs, remarks, etc.
-            $candidateLogs = $ciCandidatelogs->additional_details
-                ? json_decode($ciCandidatelogs->additional_details, true)
-                : [];
-
-            $candidate_remarks_data = [];
-            $candidate_orm_remarks_data = [];
-
-            if ($ciCandidatelogs->candidate_remarks) {
-                $candidateRemarks = json_decode($ciCandidatelogs->candidate_remarks, true);
-
-                if (isset($candidateRemarks['AN']) && $session->exam_sess_session == 'AN') {
-                    foreach ($candidateRemarks['AN'] as $remark) {
-                        $candidate_remarks_data['AN'][] = [
-                            'registration_number' => $remark['registration_number'] ?? 'N/A',
-                            'remark' => $remark['remark'] ?? 'N/A',
-                        ];
-                    }
-                }
-
-                if (isset($candidateRemarks['FN']) && $session->exam_sess_session == 'FN') {
-                    foreach ($candidateRemarks['FN'] as $remark) {
-                        $candidate_remarks_data['FN'][] = [
-                            'registration_number' => $remark['registration_number'] ?? 'N/A',
-                            'remark' => $remark['remark'] ?? 'N/A',
-                        ];
-                    }
-                }
-            }
-
-            if ($ciCandidatelogs->omr_remarks) {
-                $candidateomrRemarks = json_decode($ciCandidatelogs->omr_remarks, true);
-
-                if (isset($candidateomrRemarks['AN']) && $session->exam_sess_session == 'AN') {
-                    foreach ($candidateomrRemarks['AN'] as $remark) {
-                        $candidate_orm_remarks_data['AN'][] = [
-                            'registration_number' => $remark['registration_number'] ?? 'N/A',
-                            'remark' => $remark['remark'] ?? 'N/A',
-                        ];
-                    }
-                }
-
-                if (isset($candidateomrRemarks['FN']) && $session->exam_sess_session == 'FN') {
-                    foreach ($candidateomrRemarks['FN'] as $remark) {
-                        $candidate_orm_remarks_data['FN'][] = [
-                            'registration_number' => $remark['registration_number'] ?? 'N/A',
-                            'remark' => $remark['remark'] ?? 'N/A',
-                        ];
-                    }
-                }
-            }
-        }
-
-        // Process allocations (scribes and assistants)
-        if ($existingAllocations->isNotEmpty()) {
-            foreach ($existingAllocations as $allocation) {
-                // Decode scribes data
-                $scribesData = json_decode($allocation->scribes, true) ?? [];
-                $assistantsData = json_decode($allocation->assistants, true) ?? []; // Decode assistants data
-
-                // Process scribes data
-                // Process scribes data
-                foreach ($scribesData as $scribeData) {
-                    if (isset($scribeData['session'])) {
-                        $sessionType = $scribeData['session'];
-
-                        // Check session type: FN or AN
-                        if ($sessionType == 'FN' && $session->exam_sess_session == 'FN') {
-                            // Ensure 'data' key exists in the data
-                            if (isset($scribeData['data']) && is_array($scribeData['data'])) {
-                                foreach ($scribeData['data'] as $data) {
-                                    // Ensure 'scribe' key exists in the data
-                                    if (isset($data['scribe'])) {
-                                        $scribeId = $data['scribe'];  // Get scribe ID
-
-                                        // Fetch scribe based on the scribe_id (correct column)
-                                        $scribe = Scribe::where('scribe_id', $scribeId)->first();
-
-                                        // Add scribe details to the result
-                                        if ($scribe) {
-                                            $scribes_type[] = [
-                                                'scribe_name' => $scribe->scribe_name,
-                                                'scribe_phone' => $scribe->scribe_phone,
-                                                'reg_no' => $data['reg_no'] ?? 'Not Available',
-                                            ];
-                                        }
-                                    }
-                                }
-                            }
-                        } elseif ($sessionType == 'AN' && $session->exam_sess_session == 'AN') {
-                            // Ensure 'data' key exists in the data
-                            if (isset($scribeData['data']) && is_array($scribeData['data'])) {
-                                foreach ($scribeData['data'] as $data) {
-                                    // Ensure 'scribe' key exists in the data
-                                    if (isset($data['scribe'])) {
-                                        $scribeId = $data['scribe'];  // Get scribe ID
-
-                                        // Fetch scribe based on the scribe_id (correct column)
-                                        $scribe = Scribe::where('scribe_id', $scribeId)->first(); // Fixed column name
-
-                                        // Add scribe details to the result
-                                        if ($scribe) {
-                                            $scribes_type[] = [
-                                                'scribe_name' => $scribe->scribe_name,
-                                                'scribe_phone' => $scribe->scribe_phone,
-                                                'reg_no' => $data['reg_no'] ?? 'Not Available',
-                                            ];
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-
-                // dd($scribes_type);
-                // Process assistants data
-                foreach ($assistantsData as $assistantData) {
-                    if (isset($assistantData['session'])) {
-                        $sessionType = $assistantData['session'];
-
-                        // Check session type: FN or AN
-                        if ($sessionType == 'FN' && $session->exam_sess_session == 'FN') {
-                            $assistants = CIAssistant::whereIn('cia_id', $assistantData['assistants'])->get();
-                            foreach ($assistants as $assistant) {
-                                $assistants_type[] = [
-                                    'assistant_name' => $assistant->cia_name,
-                                    'assistant_phone' => $assistant->cia_phone,
-                                    'timestamp' => $assistantData['timestamp'] ?? 'Not Available',
-                                ];
-                            }
-                        } elseif ($sessionType == 'AN' && $session->exam_sess_session == 'AN') {
-                            $assistants = CIAssistant::whereIn('cia_id', $assistantData['assistants'])->get();
-                            foreach ($assistants as $assistant) {
-                                $assistants_type[] = [
-                                    'assistant_name' => $assistant->cia_name,
-                                    'assistant_phone' => $assistant->cia_phone,
-                                    'timestamp' => $assistantData['timestamp'] ?? 'Not Available',
-                                ];
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        // Retrieve the allocation data for the CI (Chief Invigilator)
-        $existingAllocation = DB::table('ci_staff_allocation')
-            ->where('exam_id', $examId)
-            ->where('ci_id', $user->ci_id)  // Ensure the user is checked as well
-            ->first();
-
-        if ($existingAllocation) {
-            // Decode the invigilators data (assuming it's stored as a JSON string)
-            $sessionData = json_decode($existingAllocation->invigilators, true);  // Convert JSON to array
-
-            // Loop through the session data to check session type (FN or AN)
-            foreach ($sessionData as $data) {
-                if (isset($data['session'])) {
-                    $sessionType = $data['session'];  // "FN" or "AN"
-
-                    // Check if the current session type matches the one stored in the database
-                    if ($sessionType == 'FN' && $session->exam_sess_session == 'FN') {
-                        // Handle logic for FN session
-                        $invigilators_type = $data['invigilators']; // Array of invigilator IDs for FN session
-                    } elseif ($sessionType == 'AN' && $session->exam_sess_session == 'AN') {
-                        // Handle logic for AN session
-                        $invigilators_type = $data['invigilators']; // Array of invigilator IDs for AN session
-                    }
-                }
-            }
-        }
-        //  dd($invigilators_type);
-        // Retrieve session type (Objective or Descriptive)
-        $session_type = $session->exam_sess_type;
-
-        // Get confirmed halls for the session
-        $session_confirmedhalls = ExamConfirmedHalls::where('exam_id', $examId)
-            ->where('exam_session', $session->exam_sess_session)
-            ->where('exam_date', $session->exam_sess_date)
-            ->where('ci_id', $user->ci_id)
-            ->first();
-
-        $alloted_count = $session_confirmedhalls
-            ? ($session_type == 'Objective'
-                ? $session_confirmedhalls->alloted_count / 20
-                : $session_confirmedhalls->alloted_count / 10)
-            : 0;
-
-
-        // Retrieve invigilators, scribes, and assistants based on the venue
-        $invigilator = Invigilator::where('invigilator_venue_id', $user->ci_venue_id)->get();
-        // dd($invigilator);
-        $scribe = Scribe::where('scribe_venue_id', $user->ci_venue_id)->get();
-        // dd($user->ci_venue_id);
-        $ci_assistant = CIAssistant::where('cia_venue_id', $user->ci_venue_id)->get();
-
-        // Retrieve checklist sessions
-        $type_sessions = CIChecklist::where('ci_checklist_type', 'Session')->get();
-        $consolidate_data = CIChecklist::where('ci_checklist_type', 'Self Declaration')->get();
-        // dd($consolidate_data);
-        //new updates -kiran
         $candidateAttendance = CICandidateLogs::where('exam_id', $examId)
             ->where('ci_id', $user->ci_id)
             ->where('exam_date', $session->exam_sess_date)
@@ -637,6 +324,38 @@ class MyExamController extends Controller
             ->orderBy('exam_materials_scans.ci_scanned_at', 'desc') // Get the latest scanned material
             ->select('exam_materials_data.*', 'exam_materials_scans.ci_scanned_at as last_scanned_at')
             ->first(); // Get only one row
+        $consolidateAnswer = CIChecklistAnswer::where('ci_id', $ci_id)
+            ->where('exam_id', $examId)
+            ->select(DB::raw("consolidate_answer->'" . $session->exam_sess_date . "'->'" . $session->exam_sess_session . "' as consolidate_answer"))
+            ->first();
+        // Retrieve session type (Objective or Descriptive)
+        $session_type = $session->exam_sess_type;
+
+        // Get confirmed halls for the session
+        $session_confirmedhalls = ExamConfirmedHalls::where('exam_id', $examId)
+            ->where('exam_session', $session->exam_sess_session)
+            ->where('exam_date', $session->exam_sess_date)
+            ->where('ci_id', $user->ci_id)
+            ->first();
+
+        $alloted_count = $session_confirmedhalls
+            ? ($session_type == 'Objective'
+                ? $session_confirmedhalls->alloted_count / 20
+                : $session_confirmedhalls->alloted_count / 10)
+            : 0;
+
+
+        // Retrieve invigilators, scribes, and assistants based on the venue
+        $invigilator = Invigilator::where('invigilator_venue_id', $user->ci_venue_id)->get();
+        // dd($invigilator);
+        $scribe = Scribe::where('scribe_venue_id', $user->ci_venue_id)->get();
+        // dd($user->ci_venue_id);
+        $ci_assistant = CIAssistant::where('cia_venue_id', $user->ci_venue_id)->get();
+
+        // Retrieve checklist sessions
+        $type_sessions = CIChecklist::where('ci_checklist_type', 'Session')->get();
+        $consolidate_data = CIChecklist::where('ci_checklist_type', 'Self Declaration')->get();
+        // dd($consolidate_data);
         // Return the view with the data
         return view('my_exam.CI.ci-exam-activity', compact(
             'ci_assistant',
@@ -646,17 +365,8 @@ class MyExamController extends Controller
             'session_type',
             'session_confirmedhalls',
             'alloted_count',
-            'invigilators_type',
-            'scribes_type',
-            'assistants_type',
             'scribe',
-            'candidate_logs_data',
-            'cipaperreplacement_data',
-            'candidate_remarks_data',
-            'checklist_videography_data',
-            'candidate_orm_remarks_data',
             'consolidate_data',
-            'candidate_attendance_data',
             'ci_id',
             'lastScannedMaterial',
             'sessionAnswer',
@@ -670,7 +380,8 @@ class MyExamController extends Controller
             'candidateRemarks',
             'videographyAnswer',
             'omrRemarks',
-            'lastScannedBundle'
+            'lastScannedBundle',
+            'consolidateAnswer'
         ));
     }
 

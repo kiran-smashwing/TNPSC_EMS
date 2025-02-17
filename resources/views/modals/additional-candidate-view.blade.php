@@ -18,7 +18,7 @@
                     <div class="table-responsive">
                         @php
                             // Decode the JSON string into an associative array
-                            $additionalData = json_decode($additionalCandidates->additional_candidates, true);
+                            $additionalData =$additionalCandidates ?json_decode($additionalCandidates->additional_candidates, true): null;
 
                             // Get the candidates array if it exists, otherwise use an empty array
                             $candidates = isset($additionalData['candidates']) ? $additionalData['candidates'] : [];

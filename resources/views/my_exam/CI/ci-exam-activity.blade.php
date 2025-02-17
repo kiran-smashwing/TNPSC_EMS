@@ -439,7 +439,7 @@
                                 </li>
                                 @php
                                     // Decode the JSON string into a PHP associative array
-                                    $timingLog = $qpboxTimeLog['qp_timing_log'];
+                                    $timingLog = $qpboxTimeLog ? $qpboxTimeLog['qp_timing_log'] : null;
 
                                     // Check if 'qp_box_open_time' exists and is not empty
                                     $isBoxOpenTimeSet =
@@ -503,9 +503,7 @@
                                     </div>
                                 </li>
                                 @php
-                                    // Assuming $candidateAttendance is retrieved from the database and contains a JSON string
-                                    // Example: '{"absent": 100, "present": 200, "timestamp": "2025-02-14 16:29:38", "alloted_count": "300"}'
-                                    $attendanceData = $candidateAttendance->candidate_attendance;
+                                    $attendanceData = $candidateAttendance ? $candidateAttendance->candidate_attendance : null;
 
                                     // Check if 'present' exists and is not empty
                                     $isPresentSet =
@@ -712,7 +710,7 @@
                                 </li> --}}
                                 @php
                                     // Decode the JSON string into a PHP associative array
-                                    $timingLog = $qpboxTimeLog['qp_timing_log'];
+                                    $timingLog = $qpboxTimeLog ? $qpboxTimeLog['qp_timing_log']: null;
 
                                     // Check if 'isBoxDistributionTimeSet' exists and is not empty
                                     $isBoxDistributionTimeSet =
@@ -808,7 +806,6 @@ $replacementTime = $hasReplacement
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -1079,7 +1076,7 @@ $replacementTime = $hasReplacement
                                 @endphp
                                 <li class="task-list-item">
                                     <i
-                                        class="task-icon {{ $is_remark_added ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
+                                        class="task-icon {{ $is_omr_remark_added ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
                                             <div class="row">
@@ -1172,9 +1169,9 @@ $replacementTime = $hasReplacement
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                        <b>{{ $is_bundle_packed ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
-                                                                    </li>
-                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                    <b>{{ $is_bundle_packed ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
+                                                                </li>
+                                                                <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
                                                                     {{ $is_bundle_packed ? \Carbon\Carbon::parse($lastScannedBundle->last_scanned_at)->format('d-m-Y h:i A') : '' }}
                                                                 </li>
@@ -1201,8 +1198,17 @@ $replacementTime = $hasReplacement
                                         </div>
                                     </div>
                                 </li>
+                                @php
+                                    $is_consolidate_answered =
+                                        $consolidateAnswer !== null &&
+                                        !empty((array) $consolidateAnswer->consolidate_answer);
+                                    // Set dynamic badge text and color
+                                    $taskStatus = $is_consolidate_answered ? 'Verified' : 'Pending';
+                                    $badgeClass = $is_consolidate_answered ? 'bg-light-secondary' : 'bg-danger';
+                                @endphp
                                 <li class="task-list-item">
-                                    <i class="task-icon bg-danger"></i>
+                                    <i
+                                        class="task-icon {{ $is_consolidate_answered ? 'feather icon-check f-w-600 bg-success' : 'bg-danger' }}"></i>
                                     <div class="card ticket-card open-ticket">
                                         <div class="card-body">
                                             <div class="row">
@@ -1214,10 +1220,6 @@ $replacementTime = $hasReplacement
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
-
-                                                                {{-- <li class="list-unstyled-item"><a href="#"
-                                                                        class="link-danger"><i class="fas fa-heart"></i>
-                                                                        3</a></li> --}}
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -1225,48 +1227,44 @@ $replacementTime = $hasReplacement
                                                 <div class="col">
                                                     <div class="popup-trigger">
                                                         <div class="h5 font-weight-bold">Consolidate Certificate <small
-                                                                class="badge bg-light-secondary ms-2">completed</small>
+                                                                class="badge {{ $badgeClass }} ms-2">
+                                                                {{ $taskStatus }}
+                                                            </small>
+                                                            <div class="help-sm-hidden">
+                                                                <ul class="list-unstyled mt-2 mb-0 text-muted">
+                                                                    <li class="d-sm-inline-block d-block mt-1"><img
+                                                                            src="../assets/images/user/avatar-5.jpg"
+                                                                            alt=""
+                                                                            class="wid-20 rounded me-2 img-fluid" />Done by
+                                                                        <b>{{ $is_consolidate_answered ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
+                                                                    </li>
+                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                            class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
+                                                                        {{ $is_consolidate_answered ? \Carbon\Carbon::parse($consolidateAnswer->consolidate_answer['timestamp'])->format('d-m-Y h:i A') : '' }}
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="h5 mt-3"><i
+                                                                    class="material-icons-two-tone f-16 me-1">apartment</i>
+                                                                Chief Invigilator</div>
                                                         </div>
-                                                        <div class="help-sm-hidden">
-                                                            <ul class="list-unstyled mt-2 mb-0 text-muted">
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/admin/p1.jpg" alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Piaf able
-                                                                </li> --}}
-                                                                <li class="d-sm-inline-block d-block mt-1"><img
-                                                                        src="../assets/images/user/avatar-5.jpg"
-                                                                        alt=""
-                                                                        class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                    <b>Chezhiyan</b>
-                                                                </li>
-                                                                <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                    28-07-2024 09:30 AM</li>
-                                                                {{-- <li class="d-sm-inline-block d-block mt-1"><i
-                                                                        class="wid-20 material-icons-two-tone text-center f-14 me-2">chat</i>9
-                                                                </li> --}}
-                                                            </ul>
+                                                        <div class="mt-2">
+                                                            <a href="#" data-pc-animate="just-me"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#consolidatecertificate"
+                                                                class="me-2 btn btn-sm btn-light-primary"><i
+                                                                    class="feather icon-info mx-1"></i>verify</a>
+                                                            @if ($is_consolidate_answered)
+                                                                <a href="{{ route('download.report', ['examId' => $session->currentexam->exam_main_no, 'exam_date' => $session->exam_sess_date, 'exam_session' => $session->exam_sess_session]) }}"
+                                                                    class="me-2 btn btn-sm btn-light-info">
+                                                                    <i class="feather icon-download mx-1"></i>Download
+                                                                </a>
+                                                            @endif
                                                         </div>
-                                                        <div class="h5 mt-3"><i
-                                                                class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                            Chief Invigilator</div>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <a href="#" data-pc-animate="just-me"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#consolidatecertificate"
-                                                            class="me-2 btn btn-sm btn-light-primary"><i
-                                                                class="feather icon-info mx-1"></i>verify</a>
-                                                        <a href="{{ route('download.report', ['examId' => $session->currentexam->exam_main_no, 'exam_date' => $session->exam_sess_date, 'exam_session' => $session->exam_sess_session]) }}"
-                                                            class="me-2 btn btn-sm btn-light-info">
-                                                            <i class="feather icon-download mx-1"></i>Download
-                                                        </a>
-
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
                                 </li>
                             </ul>
                             {{-- <div class="text-end">
@@ -1290,7 +1288,6 @@ $replacementTime = $hasReplacement
                 @include('modals.attendance-candidate-edit')
                 @include('modals.qpaper-distribution-time')
                 @include('modals.counting-packaging-videography')
-                @include('modals.counting-packaging-videography-view')
                 @include('modals.consolidate-certificate')
                 @include('modals.qp-ans-replacement')
                 @include('modals.qp-ans-replacement-view')

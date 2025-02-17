@@ -238,6 +238,10 @@
         <div class="meeting-title">
             <h5>CONSOLIDATED / COMPREHENSIVE REPORT</h5>
         </div>
+        @php
+            $checklist_videography_data = null;
+            $checklist_consolidate_data = null;
+        @endphp
         <table class="report-table">
             <tr>
                 <th class="sno-column">S.No.</th>
@@ -271,7 +275,9 @@
             <tr>
                 <td class="sno-column">5</td>
                 <td>Time of Receiving Examination Material</td>
-                <td>{{ $scanTime }}</td>
+                <td>
+                    {{ $timeReceivingMaterial ? \Carbon\Carbon::parse($timeReceivingMaterial->received_at)->format('d-m-Y h:i A') : 'N/A' }}
+                </td>
             </tr>
             <tr>
                 <td class="sno-column">6</td>
@@ -282,58 +288,64 @@
             <tr>
                 <td class="sno-column">7</td>
                 <td>Time of Opening the Question Paper Box</td>
-                <td>{{ $qp_box_open_time }}</td>
+                <td>
+                    {{ isset($qpboxTimeLog['qp_timing_log']['qp_box_open_time'])
+                        ? \Carbon\Carbon::parse($qpboxTimeLog['qp_timing_log']['qp_box_open_time'])->format('d-m-Y h:i A')
+                        : 'N/A' }}
+                </td>
+
             </tr>
             <tr>
                 <td class="sno-column">8</td>
                 <td>Register number(s) of candidates who have used non-personalised OMR (with reasons)</td>
-                <td>{{ $remarks_summary['non_personalized_omr'] }}</td>
+                <td>{{ $nonPersonalisedOMRCandidates ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <td class="sno-column">9</td>
                 <td>Register number(s) of candidates who have returned Blank OMR Answer Sheet without shading any answer
                 </td>
-                <td>{{ $remarks_summary['blank_omr'] }}</td>
+                <td>{{ $blankOMRSheetCandidates ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <td class="sno-column">10</td>
                 <td>Register number(s) of candidates who have used pencil for shading the answers in OMR Answer Sheet
                 </td>
-                <td>{{ $remarks_summary['pencil_omr'] }}</td>
+                <td>{{ $usedPencilCandidates ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <td class="sno-column">11</td>
                 <td>Register number(s) of candidates who have used pen Other than black ball point pen for shading the
                     answers in OMR Answer Sheet</td>
-                <td>{{ $remarks_summary['pen_other_than_black'] }}</td>
+                <td>{{ $usedOtherPenCanidates ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <td class="sno-column">12</td>
                 <td>Register number(s) of Differently Abled candidates who appeared in the exam with the assistance of
                     scribe</td>
-                <td>{{ $merged_scribes }}</td>
+                <td>{{ isset($formattedScribes) && is_array($formattedScribes) ? implode(', ', $formattedScribes) : 'N/A' }}
+                </td>
             </tr>
             <tr>
                 <td class="sno-column">13</td>
                 <td>Register number(s) of candidates who have wrongly seated in the place of other candidate </td>
-                <td>{{ $candidate_remarks_summary['wrong_seating'] }}</td>
+                <td>{{ $wronglySeatedCandidates ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <td class="sno-column">14</td>
                 <td>Register number(s) of candidates written the exam/used the OMR answer sheet of other candidate</td>
-                <td>{{ $candidate_remarks_summary['wrong_omr'] }}</td>
+                <td>{{ $usedOMRofOtherCandidates ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <td class="sno-column">15</td>
                 <td>Whether any of the candidates indulged in malpractice or any act in violation of the instructions
                     issued by the Commission? If so, the Register number(s) of such candidates</td>
-                <td>{{ $candidate_remarks_summary['malpractice'] }}</td>
+                <td>{{ $indulgedMalpracticeCandidates ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <td class="sno-column">16</td>
                 <td>Whether any candidates left the examination hall during the examination? If so, the details of such
                     candidate(s) with reasons.</td>
-                <td>{{ $candidate_remarks_summary['left_exam'] }}</td>
+                <td>{{ $leftTheExamHallCandidates ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <td class="sno-column">17</td>
@@ -343,27 +355,26 @@
             <tr>
                 <td class="sno-column">18</td>
                 <td>Time of packing OMR Answer Sheets and other examination materials</td>
-                <td>{{ $finalString }}
+                <td>{{ isset($formattedBundles) && is_array($formattedBundles) ? implode(', ', $formattedBundles) : 'N/A' }}
                 </td>
             </tr>
             <tr>
                 <td class="sno-column">19</td>
                 <td>Whether the entire counting and packing activities of all the Bundles A (Covers A1 & A2) & B (Covers
-                    B1,B2,B3,B4 & B5) have been completely videographed without any break?</td>
-                <td>{{ $checklist_videography_data[0]['description'] == 1 ? 'Yes - ' . $checklist_videography_data[0]['inspection_staff'] : 'No' }}
+                    B1, B2, B3, B4 & B5) have been completely videographed without any break?</td>
+                <td>
+                    {{ isset($videographyAnswer['checklist'][1]) && $videographyAnswer['checklist'][1]['value'] == '1' ? 'Yes - ' . ($videographyAnswer['checklist'][1]['remark'] ?? 'No Remark') : 'No' }}
                 </td>
             </tr>
             <tr>
                 <td class="sno-column">20</td>
-                <td>Whether the Videographer has video graphed all the exam rooms during the time of examination
-                    covering the entrance and the black board in the classroom, where the REGISTER NUMBERS and the
-                    seating arrangement are displayed?</td>
-                <td>{{ $checklist_videography_data[1]['description'] == 1 ? 'Yes - ' . $checklist_videography_data[1]['inspection_staff'] : 'No' }}
+                <td>Whether the Videographer has videographed all the exam rooms during the time of examination covering
+                    the entrance and the blackboard in the classroom, where the REGISTER NUMBERS and the seating
+                    arrangement are displayed?</td>
+                <td>
+                    {{ isset($videographyAnswer['checklist'][2]) && $videographyAnswer['checklist'][2]['value'] == '1' ? 'Yes - ' . ($videographyAnswer['checklist'][2]['remark'] ?? 'No Remark') : 'No' }}
                 </td>
             </tr>
-
-
-
         </table>
 
         <table class="report-table">
@@ -376,30 +387,40 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>Actual allotted<br>{{ $session_confirmedhalls }}</td>
-                    <td>Total received <br>{{ ($copies['FN']['D1'] ?? 0) + ($copies['AN']['D1'] ?? 0) }}</td>
-                    <td>Total received <br>{{ ($copies['FN']['D2'] ?? 0) + ($copies['AN']['D2'] ?? 0) }}
+                    <td>Actual allotted<br>{{ $allocatedCount ?? '0' }}</td>
+                    <td>Total received <br>{{ $totalQPsReceived ?? '0' }}</td>
+                    <td>Total received <br>{{ $totalOMRsReceived ?? '0' }}</td>
+                </tr>
+                <tr>
+                    <td>Additional<br>{{ $totalAdditionalCandidates ?? '0' }}</td>
+                    <td>Distributed to candidates<br>
+                        {{ (isset($candidateAttendance['present']) ? $candidateAttendance['present'] : 0) + ($totalAdditionalCandidates ?? 0) }}
                     </td>
+
+                    <td>Distributed to candidates<br>
+                        {{ (isset($candidateAttendance['present']) ? $candidateAttendance['present'] : 0) + ($totalAdditionalCandidates ?? 0) }}
+                    </td>
+
                 </tr>
                 <tr>
-                    <td>Additional<br>{{ $sessionDetails['count'] }}</td>
-                    <td>Distributed to candidates<br>{{ $attendanceData['present'] }}</td>
-                    <td>Distributed to candidates<br>{{ $attendanceData['present'] }}</td>
+                    <td>Total<br>{{ $allocatedCount + $totalAdditionalCandidates ?? '0' }}</td>
+                    <td>Absent<br>{{ $candidateAttendance['absent'] ?? 0 }}</td>
+                    <td>Absent<br>{{ $candidateAttendance['absent'] ?? 0 }}</td>
                 </tr>
                 <tr>
-                    <td>Total<br>{{ $session_confirmedhalls }}</td>
-                    <td>Absent<br>{{ $attendanceData['absent'] }}</td>
-                    <td>Absent<br>{{ $attendanceData['absent'] }}</td>
+                    <td>Present<br>{{ $candidateAttendance['present'] ?? 0 }}</td>
+                    <td>Defective<br>{{ $totalPaperReplacements ?? 0 }}</td>
+                    <td>Defective<br>{{ $totalPaperReplacements ?? 0 }}</td>
                 </tr>
                 <tr>
-                    <td>Present<br>{{ $attendanceData['present'] }}</td>
-                    <td>Defective<br>0</td>
-                    <td>Defective<br>0</td>
-                </tr>
-                <tr>
-                    <td>Absent<br>{{ $attendanceData['absent'] }}</td>
-                    <td>Balance Unused<br>{{ $balanceUnusedQuestionPapers }}</td>
-                    <td>Balance Unused<br>{{ $balanceUnusedOMR }}</td>
+                    <td>Absent<br>{{ $candidateAttendance['absent'] ?? 0 }}</td>
+                    <td>Balance Unused<br>
+                        {{ ($totalQPsReceived ?? 0) - (isset($candidateAttendance['present']) ? $candidateAttendance['present'] : 0) - ($totalAdditionalCandidates ?? 0) }}
+                    </td>
+                    <td>Balance Unused<br>
+                        {{ ($totalOMRsReceived ?? 0) - (isset($candidateAttendance['present']) ? $candidateAttendance['present'] : 0) - ($totalAdditionalCandidates ?? 0) }}
+                    </td>
+
                 </tr>
                 <tr>
                     <td colspan="5"
@@ -411,6 +432,11 @@
                 </tr>
             <tbody>
         </table>
+        @php
+            // Parse the JSON string from consolidate_answer into an array
+            $checklistAnswers = $consolidateAnswer->consolidate_answer['checklist']?? [];
+        @endphp
+
         <table class="report-table" id="certificate">
             <caption>Self Declaration</caption>
             <tr>
@@ -418,241 +444,18 @@
                 <th>Description</th>
                 <th>Certified</th>
             </tr>
-            <tr>
-                <td>1</td>
-                <td>Certified that none of my relative or person known to me has appeared for the above said examination
-                    in this venue.</td>
-                <td>
-                    {{-- Loop through checklist_consolidate_data and find checklist_id 15 --}}
-                    @php
-                        $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 14);
-                    @endphp
-                    {{-- Render the checkbox-like div, checking if 'status' is 'Yes' --}}
-                    <div
-                        class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                        {{-- Empty div to style as checkbox --}}
-                    </div>
-                </td>
-            </tr>
-
-
-
-
-            <tr>
-                <td>2</td>
-                <td>Certified that only the candidates were allowed inside the examination hall.</td>
-                <td>
-                    @php
-                        $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 15);
-                    @endphp
-                    <div
-                        class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                        {{-- Empty div to style as checkbox --}}
-                    </div>
-
-                </td>
-            </tr>
-            <tr>
-                <td>3</td>
-                <td>Certified that all the candidates were permitted to enter the examination venue 30 minutes before
-                    the commencement of examination and no candidate was permitted to leave the examination venue before
-                    the closure of examination.</td>
-                <td>
-                    @php
-                        $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 16);
-                    @endphp
-                    <div
-                        class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                        {{-- Empty div to style as checkbox --}}
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>4</td>
-                <td>Certified that the candidates were allowed to take only the Memorandum of Admission (Hall Ticket)
-                    and black pen and they were not allowed to keep any banned items with them during the examination.
-                </td>
-                <td>
-                    @php
-                        $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 17);
-                    @endphp
-                    <div
-                        class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                        {{-- Empty div to style as checkbox --}}
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>5</td>
-                <td>Certified that no other candidates except those given in the attendance sheets have appeared for the
-                    examination in this venue.</td>
-                <td>
-                    @php
-                        $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 18);
-                    @endphp
-                    <div
-                        class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                        {{-- Empty div to style as checkbox --}}
-                    </div>
-
-                </td>
-            </tr>
-            <tr>
-                <td>6</td>
-                <td>Certified that I was personally present during opening of Question paper.</td>
-                <td>
-                    @php
-                        $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 19);
-                    @endphp
-                    <div
-                        class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                        {{-- Empty div to style as checkbox --}}
-                    </div>
-
-                </td>
-            </tr>
-            <tr>
-                <td>7</td>
-                <td>Certified that all the unused question papers and wrappers of Question Paper booklets have been
-                    returned in a sealed bundle to the TNPSC.</td>
-                <td>
-                    @php
-                        $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 20);
-                    @endphp
-                    <div
-                        class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                        {{-- Empty div to style as checkbox --}}
-                    </div>
-
-                </td>
-            </tr>
-            <tr>
-                <td>8</td>
-                <td>Certified that all the used and unused OMR sheets have been packed in the self adhesive tamper proof
-                    covers supplied by the TNPSC.</td>
-                <td>
-                    @php
-                        $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 21);
-                    @endphp
-                    <div
-                        class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                        {{-- Empty div to style as checkbox --}}
-                    </div>
-
-                </td>
-            </tr>
-            <tr>
-                <td>9</td>
-                <td>Certified that no used or unused or Spare OMR Answer Sheet has been retained by me.</td>
-                <td>
-                    @php
-                        $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 22);
-                    @endphp
-                    <div
-                        class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                        {{-- Empty div to style as checkbox --}}
-                    </div>
-
-                </td>
-            </tr>
-            <tr>
-                <td>10</td>
-                <td>Certified that I was personally present during counting and packing of used OMR Answer Sheets.</td>
-                <td>
-                    @php
-                        $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 23);
-                    @endphp
-                    <div
-                        class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                        {{-- Empty div to style as checkbox --}}
-                    </div>
-
-                </td>
-            </tr>
-            <tr>
-                <td>11</td>
-                <td>Certified that the instructions given by TNPSC were followed without any deviation.</td>
-                <td>
-                    <div
-                        class="certificate-checkbox {{ isset($checklist_consolidate_data[25]) && $checklist_consolidate_data[25]['status'] == 'Yes' ? 'checked' : '' }}">
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>12</td>
-                <td>Certified that the examination was conducted smoothly without any untoward incident.</td>
-                <td>
-                    @php
-                        $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 24);
-                    @endphp
-                    <div
-                        class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                        {{-- Empty div to style as checkbox --}}
-                    </div>
-
-                </td>
-            </tr>
-            {{-- <tr>
-                <td>13</td>
-                <td>Certified that Part 1 and 2 of the used OMR Answer Sheets have been detached and all the used and
-                    unused OMR sheets have been packed in the self-adhesive tamper proof covers supplied by the TNPSC
-                    before me.</td>
-                <td>
-                    @php
-                    $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 25);
-                @endphp
-                <div
-                    class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                    {{-- Empty div to style as checkbox
-                </div>
-                    
-                </td>
-            </tr> --}}
-            <tr>
-                <td>13</td>
-                <td>Certified that Videographer has recorded the entire proceedings till sealing of Bundle-I.</td>
-                <td>
-                    @php
-                        $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 25);
-                    @endphp
-                    <div
-                        class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                        {{-- Empty div to style as checkbox --}}
-                    </div>
-
-                </td>
-            </tr>
-            <tr>
-                <td>14</td>
-                <td>Certified that candidates have been permitted to write examination in the subject mentioned in the
-                    hall ticket.</td>
-                <td>
-                    @php
-                        $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 26);
-                    @endphp
-                    <div
-                        class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                        {{-- Empty div to style as checkbox --}}
-                    </div>
-
-                </td>
-            </tr>
-            <tr>
-                <td>15</td>
-                <td>Seating arrangements were made as per the room sketch.</td>
-                <td>
-                    @php
-                        $checklist = collect($checklist_consolidate_data)->firstWhere('checklist_id', 27);
-                    @endphp
-                    <div
-                        class="certificate-checkbox {{ $checklist && $checklist['status'] == 'Yes' ? 'checked' : '' }}">
-                        {{-- Empty div to style as checkbox --}}
-                    </div>
-
-                </td>
-            </tr>
-
-
+            @foreach ($consolidateChecklist as $index => $checklist)
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $checklist->ci_checklist_description }}</td>
+                    <td>
+                        <div class="certificate-checkbox {{ isset($checklistAnswers[$checklist->ci_checklist_id]) && $checklistAnswers[$checklist->ci_checklist_id] == '1' ? 'checked' : '' }}">
+                            {{-- Empty div to style as checkbox --}}
+                        </div>
+                        
+                    </td>
+                </tr>
+            @endforeach
         </table>
     </div>
 

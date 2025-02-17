@@ -320,6 +320,8 @@
                     @endhasPermission
                     <li class="pc-item"><a class="pc-link" href="{{ route('ed.report') }}">ED Report</a>
                     </li>
+                    <li class="pc-item"><a class="pc-link" href="{{ route('vehicel.report') }}">Vehicel Report</a>
+                    </li>
                     @hasPermission('ci-meeting')
                     <li class="pc-item"><a class="pc-link" href="{{route('ci-attendace.report')}}">CI Meeting Attendance</a>
                     </li>

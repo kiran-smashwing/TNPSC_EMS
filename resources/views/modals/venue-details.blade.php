@@ -25,7 +25,7 @@
                                 <label class="form-label" for="district">District <span
                                         class="text-danger">*</span></label>
                                 <select class="form-control @error('district') is-invalid @enderror" id="district"
-                                    name="district" required>
+                                    name="district" required disabled>
                                     <option>Select District</option>
                                     @foreach ($districts as $district)
                                         <option value="{{ $district->district_code }}"
@@ -34,6 +34,9 @@
                                         </option>
                                     @endforeach
                                 </select>
+                                <!-- Hidden Input to Submit the Selected District -->
+                                <input type="hidden" name="district" value="{{ $user->venue_district_id }}">
+
                                 @error('district')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -44,7 +47,7 @@
                                 <label class="form-label" for="center">Center <span
                                         class="text-danger">*</span></label>
                                 <select class="form-control @error('center') is-invalid @enderror" id="center"
-                                    name="center" required>
+                                    name="center" required disabled>
                                     <option>Select Centers</option>
                                     @foreach ($centers as $center)
                                         <option value="{{ $center->center_code }}"
@@ -53,6 +56,9 @@
                                         </option>
                                     @endforeach
                                 </select>
+                                <!-- Hidden Input to Submit the Selected center -->
+                                <input type="hidden" name="center" value="{{ $user->venue_center_id }}">
+
                                 @error('center')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -368,9 +374,9 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CLose</button>
                 <button type="submit" id="save-button" class="btn btn-primary d-flex align-items-center">
-                    <i class="feather icon-save me-2"></i>Save Changes
+                    <i class="feather icon-save me-2"></i>Update
                 </button>
             </div>
         </div>

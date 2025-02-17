@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Completed Exam')
+@section('title', 'Support')
 
 @section('content')
     @push('styles')
@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                  <h2 class="mb-0"></h2>
-                </div> -->
+                      <h2 class="mb-0"></h2>
+                    </div> -->
                         </div>
                     </div>
                 </div>
@@ -149,7 +149,7 @@
 
 
             <!-- [ Main Content ] start -->
-           
+
             <div class="row">
                 <!-- [ basic-table ] start -->
                 <div class="col-xl-12">
@@ -204,40 +204,56 @@
                                         <th>E-mail</th>
                                     </tr>
                                 </thead>
-                                {{-- <tbody>
-                                    @foreach ($exams as $exam)
-                                        <tr>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>
-                                                    <h6 class="mb-0">{{ $exam->exam_main_notification}}</h6>
-                                            </td>
-                                            <td>
-                                                    <h6 class="mb-0">{{ $exam->exam_main_name }}</h6>
-                                            </td>
-                                            <td>{{ $exam->exam_main_startdate }}</td>
-                                            <td>{{ $exam->examsession_count }}</td>
-                                            <td>{{ $exam->exam_main_type }}</td>
-                                            <td>{{ $exam->exam_main_lastdate }}</td>
-                                            <td>{{ $exam->exam_main_tiers }}</td>
-                                            <td>
-                                                <a href="{{ route('my-exam.examTask', $exam->exam_main_no) }}"
-                                                    class="avtar avtar-xs btn-light-success">
-                                                    <i class="ti ti-eye f-20"></i>
-                                                </a>
-                                                @hasPermission('current-exam.edit')
-                                                <a href="{{ route('current-exam.edit', $exam->exam_main_id) }}"
-                                                    class="avtar avtar-xs btn-light-success">
-                                                    <i class="ti ti-edit f-20"></i>
-                                                </a>
-                                                @endhasPermission
-                                                <a href="#" class="avtar avtar-xs btn-light-success"
-                                                    title="Change Status (Active or Inactive)">
-                                                    <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon -->
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody> --}}
+                                <tbody>
+                                    <tr>
+                                    <td>1</td>
+                                    <td>Infrastructure Department - ID</td>
+                                    <td>09597469631</td>
+                                    <td>id@mail.com</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>Application Processing Department - APD</td>
+                                    <td>8593457629</td>
+                                    <td>apd@mail.com</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>Rules Notification Department - RND</td>
+                                    <td>8576847560</td>
+                                    <td>rnd@mail.com</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>Evaluation Department - ED</td>
+                                    <td>7684567893</td>
+                                    <td>ed@mail.com</td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>Confidential Department - QD</td>
+                                    <td>6381345673</td>
+                                    <td>qd@mail.com</td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td>Vehicles Machineries Department - VMD</td>
+                                    <td>9597469631</td>
+                                    <td>vmd@mail.com</td>
+                                </tr>
+                                <tr>
+                                    <td>7</td>
+                                    <td>Verification Stationary Department - VSD</td>
+                                    <td>9574567382</td>
+                                    <td>vsd@mail.com</td>
+                                </tr>
+                                <tr>
+                                    <td>8</td>
+                                    <td>Monitoring Coordination Department - MCD</td>
+                                    <td>7684567893</td>
+                                    <td>mcd@mail.com</td>
+                                </tr>
+                                </tbody>
 
                             </table>
                         </div>

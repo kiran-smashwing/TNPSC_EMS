@@ -252,23 +252,23 @@
             <table>
                 <tr>
                     <th class="row-label" colspan="2">Name of the Examination</th>
-                    <td></td>
+                    <td>{{$exam_names_string}}</td>
                 </tr>
                 <tr>
                     <th class="row-label" colspan="2">Date of the Examination</th>
-                    <td></td>
+                    <td>{{$exam_dates_string}}</td>
                 </tr>
                 <tr>
                     <th class="row-label" colspan="2">Route No</th>
-                    <td></td>
+                    <td>{{$vehicle_no_details->route_no}}</td>
                 </tr>
                 <tr>
                     <th class="row-label" colspan="2">Districts Covered</th>
-                    <td></td>
+                    <td>{{$district_names_string}}</td>
                 </tr>
                 <tr>
                     <th class="row-label" colspan="2">Charted Vehicle No</th>
-                    <td>TN</td>
+                    <td>{{$vehicle_no_details->charted_vehicle_no}}</td>
                 </tr>
             </table>
 

@@ -17,12 +17,20 @@
                     <!-- Table of Added Candidates -->
                     <div class="table-responsive">
                         @php
-                            // Decode the JSON string into an associative array
-                            $additionalData = json_decode($additionalCandidates->additional_candidates, true);
+                            // Check if $additionalCandidates is not null and has 'additional_candidates' property
+                            $additionalData = isset($additionalCandidates->additional_candidates)
+                                ? json_decode($additionalCandidates->additional_candidates, true)
+                                : [];
+
+                            // Ensure json_decode returned an array
+                            if (!is_array($additionalData)) {
+                                $additionalData = [];
+                            }
 
                             // Get the candidates array if it exists, otherwise use an empty array
                             $candidates = isset($additionalData['candidates']) ? $additionalData['candidates'] : [];
                         @endphp
+
                         <table class="table table-bordered">
                             <thead class="bg-light">
                                 <tr>

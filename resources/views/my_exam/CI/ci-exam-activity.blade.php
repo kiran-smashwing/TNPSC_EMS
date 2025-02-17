@@ -438,17 +438,25 @@
                                     </div>
                                 </li>
                                 @php
-                                    // Decode the JSON string into a PHP associative array
-                                    $timingLog = $qpboxTimeLog['qp_timing_log'];
+                                    // Ensure the key exists and is not null
+                                    $timingLog = isset($qpboxTimeLog['qp_timing_log'])
+                                        ? json_decode($qpboxTimeLog['qp_timing_log'], true)
+                                        : [];
 
-                                    // Check if 'qp_box_open_time' exists and is not empty
-                                    $isBoxOpenTimeSet =
-                                        isset($timingLog['qp_box_open_time']) && !empty($timingLog['qp_box_open_time']);
+                                    // Check if decoding was successful and it's an array
+if (!is_array($timingLog)) {
+    $timingLog = []; // Set to an empty array if decoding fails
+}
 
-                                    // Optional: Set a status or badge class based on whether the time is set
-                                    $taskStatus = $isBoxOpenTimeSet ? 'Time Set' : 'Pending';
-                                    $badgeClass = $isBoxOpenTimeSet ? 'bg-light-secondary' : 'bg-danger';
+// Check if 'qp_box_open_time' exists and is not empty
+$isBoxOpenTimeSet =
+    isset($timingLog['qp_box_open_time']) && !empty($timingLog['qp_box_open_time']);
+
+// Set a status or badge class based on whether the time is set
+$taskStatus = $isBoxOpenTimeSet ? 'Time Set' : 'Pending';
+$badgeClass = $isBoxOpenTimeSet ? 'bg-light-secondary' : 'bg-danger';
                                 @endphp
+
 
                                 <li class="task-list-item">
                                     <i
@@ -1172,9 +1180,9 @@ $replacementTime = $hasReplacement
                                                                         src="../assets/images/user/avatar-5.jpg"
                                                                         alt=""
                                                                         class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                        <b>{{ $is_bundle_packed ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
-                                                                    </li>
-                                                                    <li class="d-sm-inline-block d-block mt-1"><i
+                                                                    <b>{{ $is_bundle_packed ? Str::limit(current_user()->display_name, 15, '...') : 'Unknown' }}</b>
+                                                                </li>
+                                                                <li class="d-sm-inline-block d-block mt-1"><i
                                                                         class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
                                                                     {{ $is_bundle_packed ? \Carbon\Carbon::parse($lastScannedBundle->last_scanned_at)->format('d-m-Y h:i A') : '' }}
                                                                 </li>

@@ -34,4 +34,6 @@ class ChartedVehicleRoute extends Model
         return $this->hasMany(EscortStaff::class, 'charted_vehicle_id');
     }
 
+    
+
 }

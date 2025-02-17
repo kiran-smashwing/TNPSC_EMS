@@ -45,7 +45,7 @@ class CIConsolidateController extends Controller
             ->where('ci_id', $user->ci_id)
             ->pluck('hall_code')
             ->first();
-            // dd($hall_code);
+        // dd($hall_code);
         //CI-Qp box Log to get this all data
         $qp_box_timing = DB::table('ci_qp_box_log')
             ->where('exam_id', $examId)
@@ -54,7 +54,7 @@ class CIConsolidateController extends Controller
             ->where('hall_code', $hall_code)
             ->where('exam_date', $exam_date)
             ->first();
-            // dd($qp_box_timing);
+        // dd($qp_box_timing);
         // Get the session-specific exam material based on the session type (FN or AN)
         $examTime = ExamMaterialsData::where('exam_id', $examId)
             ->where('ci_id', $user->ci_id)
@@ -62,7 +62,7 @@ class CIConsolidateController extends Controller
             ->whereDate('exam_date', $exam_date)
             ->where('exam_session', $exam_session_type) // Match based on FN or AN session
             ->first(); // Get the first record
-            // dd($examTime);
+        // dd($examTime);
         // Initialize variables for parsed data
         $examData = ExamMaterialsData::where('exam_id', $examId)
             ->where('ci_id', $user->ci_id)
@@ -117,7 +117,7 @@ class CIConsolidateController extends Controller
 
         // Fetch the results
         $examMaterials = $query->get();
-        
+
         // Prepare the categories to be displayed in the PDF
         $pdfData = [];
         // dd($pdfData);
@@ -437,8 +437,11 @@ class CIConsolidateController extends Controller
                     'left_exam' => $left_exam,
                 ];
                 // Decode the JSON for remarks
-                $qp_timing_log = json_decode($qp_box_timing->qp_timing_log, true);
-                // Determine the session type ('FN' or 'AN') based on your requirement
+                $qp_timing_log = isset($qp_box_timing->qp_timing_log)
+                    ? json_decode($qp_box_timing->qp_timing_log, true)
+                    : [];
+
+                // Initialize $qp_box_open_time
                 $qp_box_open_time = null;
 
                 // Loop through the qp_timing_log array to find the matching session and retrieve qp_box_open_time

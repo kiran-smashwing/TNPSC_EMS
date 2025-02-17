@@ -131,6 +131,7 @@ class AuthorizationService
             'heading',
             'exam-heading',
             'current-exam',
+            'exam-completed',
         ],
         'venue' => [
             'venues-masters',
@@ -138,6 +139,7 @@ class AuthorizationService
             'view-all-chief-invigilators',
             'exam-heading',
             'current-exam',
+            'exam-completed',
         ],
         'district' => [
             'receive-exam-materials',

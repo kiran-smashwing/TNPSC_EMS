@@ -9,6 +9,8 @@ class EDController extends Controller
 {
     public function generateEDReport()
     {
+        // $exam_id = ;
+        // $exam_date= ;
         $data = [];  // You can load your ED report data here
 
         // Render the view for the ED report

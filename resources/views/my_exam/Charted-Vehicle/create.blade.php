@@ -317,7 +317,7 @@
                                                                     class="form-control" required>
                                                                     <option disabled selected>Select TNPSC Staff</option>
                                                                    @foreach ($tnpscStaffs as $tnpscStaff)
-                                                                        <option value="{{ $tnpscStaff->dept_off_id }}">{{ $tnpscStaff->dept_off_name }} - {{$tnpscStaff->role->role_department}} {{$tnpscStaff->role->role_name}}</option>
+                                                                        <option value="{{ $tnpscStaff->dept_off_id }}">{{ $tnpscStaff->dept_off_name }} - {{$tnpscStaff->role->role_department ?? 'N/A'}} {{$tnpscStaff->role->role_name ?? 'N/A'}}</option>
                                                                    @endforeach
                                                                 </select>
                                                             </div>

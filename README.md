@@ -138,4 +138,214 @@ Restart the PostgreSQL server after making this change.
 ```sql
 SHOW DateStyle;
 ```
+# Editing the Default Apache SSL Configuration
 
+This guide outlines the steps to modify the default Apache SSL configuration for the EMS project hosted on `ems.smashsoft.site`.
+
+## Prerequisites
+- Apache2 installed and running
+- Proper SSL certificates available
+- Sufficient permissions to modify configuration files
+
+## Steps to Edit the Default Configuration
+
+### 1. Backup the Default Configuration
+Before making any changes, create a backup of the default SSL configuration:
+
+```bash
+sudo cp /etc/apache2/sites-available/000-default-le-ssl.conf /etc/apache2/sites-available/000-default-le-ssl.conf.backup
+```
+
+### 2. Edit the Default Configuration
+Open the default SSL configuration file:
+
+```bash
+sudo nano /etc/apache2/sites-available/000-default-le-ssl.conf
+```
+
+Replace the existing content with the following configuration:
+
+```apache
+<VirtualHost *:443>
+    ServerName ems.smashsoft.site
+    DocumentRoot /var/www/html/tnpsc/public
+
+    SSLEngine on
+    SSLCertificateFile /path/to/ssl/cert.pem
+    SSLCertificateKeyFile /path/to/ssl/key.pem
+
+    # Enable proxy modules
+    ProxyPreserveHost On
+    ProxyRequests Off
+
+    # Proxy WebSocket requests to Reverb
+    ProxyPass /app ws://127.0.0.1:8080/app
+    ProxyPassReverse /app ws://127.0.0.1:8080/app
+
+    # Logging
+    ErrorLog ${APACHE_LOG_DIR}/ems_error.log
+    CustomLog ${APACHE_LOG_DIR}/ems_access.log combined
+
+    <Directory /var/www/html/tnpsc>
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+```
+
+### 3. Reload Apache
+After saving the configuration file, reload Apache to apply the changes:
+
+```bash
+sudo systemctl reload apache2
+```
+
+## Verification
+
+### 1. Check Apache Syntax
+Run the following command to verify the configuration syntax:
+
+```bash
+sudo apachectl configtest
+```
+If the syntax is correct, you should see:
+
+```
+Syntax OK
+```
+
+### 2. Test the WebSocket Connection
+Use `wscat` to test the WebSocket proxy:
+
+```bash
+wscat -c wss://ems.smashsoft.site/app/akekrpcgnfvkap1zusuk
+```
+
+If successful, you should see a connection message like:
+
+```
+Connected (press CTRL+C to quit)
+< {"event":"pusher:connection_established","data":"{\"socket_id\":\"827750617.916928949\",\"activity_timeout\":30}"}
+```
+
+## Notes
+- Ensure that `/path/to/ssl/cert.pem` and `/path/to/ssl/key.pem` are replaced with the actual SSL certificate and key paths.
+- If any errors occur, check Apache logs using:
+  ```bash
+  sudo journalctl -xe
+  ```
+- If the WebSocket connection fails, verify the proxy configuration and network connectivity.
+
+## Conclusion
+Following these steps will properly configure the Apache SSL setup for `ems.smashsoft.site`, ensuring secure and efficient communication with WebSocket support.
+
+# Configuring Systemd for Laravel Queue and Reverb
+
+This guide provides steps to create and manage systemd service units for Laravel queue workers and WebSocket servers.
+
+## Prerequisites
+- A running Laravel application
+- Systemd available on your server
+- Proper permissions to create service files
+
+## Creating Systemd Services
+
+### 1. Create a Systemd Unit for the Laravel Queue Worker
+Create a new service file for the Laravel queue worker:
+
+```bash
+sudo nano /etc/systemd/system/laravel-queue-worker.service
+```
+
+Add the following content:
+
+```ini
+[Unit]
+Description=Laravel Queue Worker
+After=network.target
+
+[Service]
+User=www-data
+WorkingDirectory=/var/www/html/tnpsc
+ExecStart=/usr/bin/php artisan queue:work --sleep=3 --tries=3
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=laravel-queue-worker
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Save and exit the file.
+
+### 2. Create a Systemd Unit for the Laravel Reverb Server
+Create another service file for the Reverb server:
+
+```bash
+sudo nano /etc/systemd/system/laravel-reverb.service
+```
+
+Add the following content:
+
+```ini
+[Unit]
+Description=Laravel Reverb Server
+After=network.target
+
+[Service]
+User=www-data
+WorkingDirectory=/var/www/html/tnpsc
+ExecStart=/usr/bin/php artisan reverb:start
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=laravel-reverb
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Save and exit the file.
+
+### 3. Enable and Start the Services
+Reload systemd to recognize the new services:
+
+```bash
+sudo systemctl daemon-reload
+```
+
+Enable the services to start on boot:
+
+```bash
+sudo systemctl enable laravel-queue-worker
+sudo systemctl enable laravel-reverb
+```
+
+Start the services:
+
+```bash
+sudo systemctl start laravel-queue-worker
+sudo systemctl start laravel-reverb
+```
+
+### 4. Verify Service Status
+To check if the services are running properly, use:
+
+```bash
+sudo systemctl status laravel-queue-worker
+sudo systemctl status laravel-reverb
+```
+
+## Notes
+- Ensure that `www-data` is the correct user for running Laravel. Adjust if necessary.
+- If any issues occur, check logs using:
+  ```bash
+  journalctl -u laravel-queue-worker --no-pager
+  journalctl -u laravel-reverb --no-pager
+  ```
+- Modify `ExecStart` commands based on Laravel's queue driver and environment requirements.
+
+## Conclusion
+Following these steps ensures that Laravel queue workers and Reverb run efficiently under systemd, providing stability and automatic restarts.

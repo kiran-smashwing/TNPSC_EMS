@@ -440,14 +440,14 @@ class IDCandidatesController extends Controller
                             [
                                 'exam_id' => $examId,
                                 'venue_code' => $venuecode,
-                                'hall_code' => $hallCode,
+                                'district_code' => $confirmedVenue->district_code,
+                                'center_code' => $confirmedVenue->center_code,
                                 'ci_id' => $ciId,
                                 'exam_date' => $examDate,
                                 'exam_session' => $session->exam_sess_session,
                             ],
                             [
-                                'district_code' => $confirmedVenue->district_code,
-                                'center_code' => $confirmedVenue->center_code,
+                                'hall_code' => $hallCode,
                                 'is_apd_uploaded' => false,
                                 'alloted_count' => null,
                             ]

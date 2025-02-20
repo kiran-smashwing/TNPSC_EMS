@@ -105,8 +105,11 @@
                         <div class="card-body">
                             <ul class="list-unstyled task-list">
                                 @php
-                                    $is_materials_received = $lastScannedMaterial !== null;
+                                    $is_materials_received = false;
 
+                                    if (!empty($lastScannedMaterial)) {
+                                        $is_materials_received = !is_null($lastScannedMaterial['last_scanned_at']);
+                                    }
                                     // Set dynamic badge text and color
                                     $taskStatus = $is_materials_received ? 'Received' : 'Pending';
                                     $badgeClass = $is_materials_received ? 'bg-light-secondary' : 'bg-danger';
@@ -441,13 +444,13 @@
                                     // Decode the JSON string into a PHP associative array
                                     $timingLog = $qpboxTimeLog ? $qpboxTimeLog['qp_timing_log'] : null;
 
-// Check if 'qp_box_open_time' exists and is not empty
-$isBoxOpenTimeSet =
-    isset($timingLog['qp_box_open_time']) && !empty($timingLog['qp_box_open_time']);
+                                    // Check if 'qp_box_open_time' exists and is not empty
+                                    $isBoxOpenTimeSet =
+                                        isset($timingLog['qp_box_open_time']) && !empty($timingLog['qp_box_open_time']);
 
-// Set a status or badge class based on whether the time is set
-$taskStatus = $isBoxOpenTimeSet ? 'Time Set' : 'Pending';
-$badgeClass = $isBoxOpenTimeSet ? 'bg-light-secondary' : 'bg-danger';
+                                    // Set a status or badge class based on whether the time is set
+                                    $taskStatus = $isBoxOpenTimeSet ? 'Time Set' : 'Pending';
+                                    $badgeClass = $isBoxOpenTimeSet ? 'bg-light-secondary' : 'bg-danger';
                                 @endphp
 
 
@@ -504,15 +507,17 @@ $badgeClass = $isBoxOpenTimeSet ? 'bg-light-secondary' : 'bg-danger';
                                     </div>
                                 </li>
                                 @php
-                                    $attendanceData = $candidateAttendance ? $candidateAttendance->candidate_attendance : null;
+                                    $attendanceData = $candidateAttendance
+                                        ? $candidateAttendance->candidate_attendance
+                                        : null;
 
                                     // Check if 'present' exists and is not empty
                                     $isPresentSet =
                                         isset($attendanceData['present']) && !empty($attendanceData['present']);
 
                                     // Set a dynamic status and badge class based on whether 'present' data is available
-                                    $presentStatus = $isPresentSet ? 'Updated' : 'Pending';
-                                    $presentBadgeClass = $isPresentSet ? 'bg-light-secondary' : 'bg-danger';
+                                    $taskStatus = $isPresentSet ? 'Updated' : 'Pending';
+                                    $badgeClass = $isPresentSet ? 'bg-light-secondary' : 'bg-danger';
                                 @endphp
                                 <li class="task-list-item">
                                     <i
@@ -711,7 +716,7 @@ $badgeClass = $isBoxOpenTimeSet ? 'bg-light-secondary' : 'bg-danger';
                                 </li> --}}
                                 @php
                                     // Decode the JSON string into a PHP associative array
-                                    $timingLog = $qpboxTimeLog ? $qpboxTimeLog['qp_timing_log']: null;
+                                    $timingLog = $qpboxTimeLog ? $qpboxTimeLog['qp_timing_log'] : null;
 
                                     // Check if 'isBoxDistributionTimeSet' exists and is not empty
                                     $isBoxDistributionTimeSet =

@@ -1234,6 +1234,9 @@
                                                                             class="wid-20 rounded me-2 img-fluid" />Done
                                                                         by
                                                                         <b>
+                                                                            @php
+                                                                               $user = current_user();
+                                                                            @endphp
                                                                             {{ $is_exam_routes_created
                                                                                 ? ($role == 'headquarters'
                                                                                     ? $user->dept_off_name

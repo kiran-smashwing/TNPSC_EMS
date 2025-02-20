@@ -222,8 +222,22 @@ class CIPreliminaryCheckController extends Controller
             'checklists' => 'nullable|array',
         ]);
 
+        $user = current_user();
+           // Retrieve the exam details from exam_confirmed_halls
+           $examDetails = DB::table('exam_confirmed_halls')
+           ->where('exam_id', $validated['exam_id'])
+           ->where('ci_id', $user->ci_id)
+           ->first();
+
+       if (!$examDetails) {
+           return back()->withErrors(['exam_id' => 'Exam not found in confirmed halls.']);
+       }
         $consolidateRecord = CIChecklistAnswer::firstOrCreate([
-            'exam_id' => $validated['exam_id']
+            'exam_id' => $validated['exam_id'],
+            'ci_id' => $user->ci_id,
+            'center_code' => $examDetails->center_code,
+            'hall_code' => $examDetails->hall_code,
+
         ], [
             'consolidate_answer' => [],
             'created_at' => now()

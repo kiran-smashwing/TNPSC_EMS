@@ -973,7 +973,7 @@
                                                             </div>
                                                             <div class="h5 mt-3"><i
                                                                     class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                {{ $is_received_printer_to_hq ? $receiveMaterialsPrinterToHQ->department : 'ED - Section Officer' }}
+                                                                {{ $is_received_printer_to_hq ? $receiveMaterialsPrinterToHQ->department : 'QD - Section Officer' }}
                                                             </div>
                                                         </div>
                                                         <div class="mt-2">

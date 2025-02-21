@@ -316,9 +316,13 @@
                                                                 <select name="escortstaffs[0][tnpsc_staff]"
                                                                     class="form-control" required>
                                                                     <option disabled selected>Select TNPSC Staff</option>
-                                                                   @foreach ($tnpscStaffs as $tnpscStaff)
-                                                                        <option value="{{ $tnpscStaff->dept_off_id }}">{{ $tnpscStaff->dept_off_name }} - {{$tnpscStaff->role->role_department ?? 'N/A'}} {{$tnpscStaff->role->role_name ?? 'N/A'}}</option>
-                                                                   @endforeach
+                                                                    @foreach ($tnpscStaffs as $tnpscStaff)
+                                                                        <option value="{{ $tnpscStaff->dept_off_id }}">
+                                                                            {{ $tnpscStaff->dept_off_name }} -
+                                                                            {{ $tnpscStaff->role->role_department ?? 'N/A' }}
+                                                                            {{ $tnpscStaff->role->role_name ?? 'N/A' }}
+                                                                        </option>
+                                                                    @endforeach
                                                                 </select>
                                                             </div>
                                                         </div>
@@ -442,8 +446,9 @@
                     })
                     .then(response => response.json())
                     .then(data => {
-                        districts = data;
-                        updateDistrictDropdowns();
+                        // Convert object to array if needed
+                        districts = Array.isArray(data) ? data : Object.values(data);
+                        updateDistrictDropdowns(); // Ensure dropdowns are updated with the correct districts 
                     })
 
                     .catch(error => console.error('Error fetching districts:', error));
@@ -474,10 +479,13 @@
                     updateDistrictDropdowns();
                 }
             });
+            var tnpscStaffs = @json($tnpscStaffs);
 
             document.querySelector('.add-card').addEventListener('click', function(e) {
                 e.preventDefault();
-
+                const tnpscOptions = tnpscStaffs.map(staff =>
+                    `<option value="${staff.dept_off_id}">${staff.dept_off_name} - ${staff.role?.role_department || 'N/A'} ${staff.role?.role_name || 'N/A'}</option>`
+                ).join('');
                 const newCard = `
             <div class="card mb-3" id="escortstaff-card-${cardIndex}">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -500,9 +508,7 @@
                                 <label class="form-label">TNPSC Staff <span class="text-danger">*</span></label>
                                 <select name="escortstaffs[${cardIndex}][tnpsc_staff]" class="form-control" required>
                                     <option disabled selected>Select TNPSC Staff</option>
-                                    <option value="Staff1">Staff1</option>
-                                    <option value="Staff2">Staff2</option>
-                                    <option value="Staff3">Staff3</option>
+                                    ${tnpscOptions}  <!-- Insert TNPSC staff dynamically -->
                                 </select>
                             </div>
                         </div>

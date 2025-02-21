@@ -197,12 +197,14 @@
                                         <i class="ti ti-refresh me-2"></i> Reset
                                     </button>
                                 </div>
+                                @hasPermission('scan-receive-disitrct-exam-materials')
                                 <div class="btn-container">
                                     <a href="#" class="btn btn-light-primary d-flex align-items-center"  data-pc-animate="just-me"
                                         data-bs-toggle="modal" data-bs-target="#qrCodeModal">
                                         <i class="feather icon-aperture mx-1"></i>Scan 
                                     </a>
                                 </div>
+                                @endhasPermission
                             </form>
                             
                             <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"

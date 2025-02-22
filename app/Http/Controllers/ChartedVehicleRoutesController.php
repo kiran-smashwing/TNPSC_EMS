@@ -245,7 +245,10 @@ class ChartedVehicleRoutesController extends Controller
         $user = $request->get('auth_user');
 
         // $routes = ChartedVehicleRoute::with(['escortstaffs'])->get();
-
+        $role = session()->get('auth_role');
+        if ($role === 'headquarters' && ($user->role && ($user->role->role_department == 'ED' || $user->role->role_department == 'VMD'))) {
+            $routes = ChartedVehicleRoute::with(['escortstaffs'])->get();
+        } else {      
         $routes = ChartedVehicleRoute::with([
             'escortstaffs' => function ($query) use ($user) {
                 $query->where('tnpsc_staff_id', $user->dept_off_id);
@@ -255,6 +258,7 @@ class ChartedVehicleRoutesController extends Controller
                 $query->where('tnpsc_staff_id', $user->dept_off_id);
             })
             ->get();
+        }
 
         // Fetching exam notifications 
         foreach ($routes as $route) {

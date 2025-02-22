@@ -50,6 +50,15 @@ class BundlePackagingController extends Controller
                 'R3' => 'Bundle I',
                 'R4' => 'Bundle II',
                 'R5' => 'Bundle C',
+                'I1' => 'BUNDLE A1',
+                'I2' => 'BUNDLE A2',
+                'R1' => 'BUNDLE A',
+                'I3' => 'BUNDLE B1',
+                'I4' => 'BUNDLE B2',
+                'I5' => 'BUNDLE B3',
+                'I6' => 'BUNDLE B4',
+                'I7' => 'BUNDLE B5',
+                'R2' => 'BUNDLE B',
             ];
         }
         $query = $role == 'ci'

@@ -49,7 +49,7 @@
 
             .table-responsive {
                 overflow-y: auto;
-                overflow-x: hidden;
+                overflow-x: auto;
                 max-width: 100%;
             }
         </style>
@@ -167,39 +167,51 @@
                                                 <th>#</th>
                                                 <th>VENUE NAME</th>
                                                 <th>VENUE CODE</th>
-                                                <th>E- MAIL</th>
+                                                <th>E-MAIL</th>
                                                 <th>PHONE</th>
-                                                <th>HALL COUNT</th>
+                                                <th>ADDRESS</th>
+                                                <th>EXAM DATE</th>
+                                                <th>CI NAME</th>
+                                                <th>CI EMAIL</th>
+                                                <th>CI PHONE</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($confirmedVenues as $key => $confirmedVenue)
+                                            @foreach ($venuesWithCIs as $key => $item)
                                                 <tr>
                                                     <td>{{ $key + 1 }}</td>
                                                     <td>
                                                         <input class="form-check-input input-success venue-checkbox"
                                                             type="checkbox" name="venue_checkbox[]"
-                                                            {{ $confirmedVenue->is_confirmed == true ? 'checked' : '' }}
-                                                            value="{{ $confirmedVenue->venue_id }}">
+                                                            {{ $item['venue']->is_confirmed == true ? 'checked' : '' }}
+                                                            value="{{ $item['venue']->venue_id }}">
                                                     </td>
-                                                    <td>{{ $confirmedVenue->venues->venue_name }}</td>
-                                                    <td>{{ $confirmedVenue->venues->venue_code }}</td>
-                                                    <td>{{ $confirmedVenue->venues->venue_email }}</td>
-                                                    <td>{{ $confirmedVenue->venues->venue_phone }}</td>
-                                                    <td>{{ $confirmedVenue->expected_candidates_count / $exam->exam_main_candidates_for_hall }}
+                                                    <td>{{ $item['venue']->venues->venue_name }}</td>
+                                                    <td>{{ $item['venue']->venues->venue_code }}</td>
+                                                    <td>{{ $item['venue']->venues->venue_email }}</td>
+                                                    <td>{{ $item['venue']->venues->venue_phone }}</td>
+                                                    <td>{{ $item['venue']->venues->venue_address }}</td>
+                                                    <td>{{ $item['exam_date'] ?? 'No Date' }}</td>
+                                                    <td>{{ $item['ci']['ci_name'] ?? 'No CI Assigned' }}</td>
+                                                    <td>{{ $item['ci']['ci_email'] ?? 'N/A' }}</td>
+                                                    <td>{{ $item['ci']['ci_phone'] ?? 'N/A' }}</td>
                                                     </td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
                                         <tfoot>
                                             <tr>
-                                                <th>S.NO</th>
+                                                <th>S.No</th>
                                                 <th>#</th>
                                                 <th>VENUE NAME</th>
                                                 <th>VENUE CODE</th>
-                                                <th>E - MAIL</th>
+                                                <th>E-MAIL</th>
                                                 <th>PHONE</th>
-                                                <th>HALL COUNT</th>
+                                                <th>ADDRESS</th>
+                                                <th>EXAM DATE</th>
+                                                <th>CI NAME</th>
+                                                <th>CI EMAIL</th>
+                                                <th>CI PHONE</th>
                                             </tr>
                                         </tfoot>
                                     </table>

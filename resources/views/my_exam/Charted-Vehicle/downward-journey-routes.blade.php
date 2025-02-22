@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                              <h2 class="mb-0"></h2>
-                            </div> -->
+                                  <h2 class="mb-0"></h2>
+                                </div> -->
                         </div>
                     </div>
                 </div>
@@ -167,18 +167,17 @@
                         </div>
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
-                            <form id="filterForm" class="mb-3" method="GET"
-                                action="#">
+                            <form id="filterForm" class="mb-3" method="GET" action="#">
                                 <div class="filter-item">
                                     <select class="form-select" id="centerCodeFilter" name="centerCode">
                                         <option value="">Select Center</option>
-                                      
+
                                     </select>
                                 </div>
                                 <div class="filter-item">
                                     <select class="form-select" id="examDateFilter" name="examDate">
                                         <option value="">Select Exam Date</option>
-                                       
+
                                     </select>
                                 </div>
                                 <div class="btn-container">
@@ -201,31 +200,45 @@
                                         <th>Vehicle No</th>
                                         <th>OTL Locks</th>
                                         <th>GPS Locks</th>
-                                        <th>District</th>                                        
+                                        <th>District</th>
                                         {{-- <th>Mobile team staff</th>
                                         <th>Mobile team mobile no</th> --}}
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                        @foreach ($routes as $route)
-                                            <tr>
-                                                <td>{{ $route->route_no }}</td>
-                                                <td>{{ $route->exam_notifications }}</td>
-                                                <td>{{ $route->charted_vehicle_no }}</td>
-                                                <td>{{ is_array($route->otl_locks) ? implode(', ', $route->otl_locks) : $route->otl_locks }}</td>
-                                                <td>{{ is_array($route->gps_locks) ? implode(', ', $route->gps_locks) : $route->gps_locks }}</td>                                                
-                                                <td> {{ $route->district_codes }}</td>
-                                                <td>
-                                                    <a href="{{ route('charted-vehicle-routes.edit', $route['id']) }}"
-                                                        class="avtar avtar-xs btn-light-success"><i
-                                                            class="ti ti-edit f-20"></i></a>
-                                                    <a href="{{ route('viewTrunkboxes', $route['id']) }}"
-                                                        class="avtar avtar-xs btn-light-success"><i
-                                                            class="ti ti-checkbox  f-20"></i></a>
-                                                </td>
-                                            </tr>
-                                        @endforeach
+                                    @foreach ($routes as $route)
+                                        <tr>
+                                            <td>{{ $route->route_no }}</td>
+                                            <td>{{ $route->exam_notifications }}</td>
+                                            <td>{{ $route->charted_vehicle_no }}</td>
+                                            <td>{{ is_array($route->otl_locks) ? implode(', ', $route->otl_locks) : $route->otl_locks }}
+                                            </td>
+                                            <td>{{ is_array($route->gps_locks) ? implode(', ', $route->gps_locks) : $route->gps_locks }}
+                                            </td>
+                                            <td> {{ $route->district_codes }}</td>
+                                            <td>
+                                                <a href="{{ route('charted-vehicle-routes.edit', $route['id']) }}"
+                                                    class="avtar avtar-xs btn-light-success"><i
+                                                        class="ti ti-edit f-20"></i></a>
+                                                <a href="{{ route('viewTrunkboxes', $route['id']) }}"
+                                                    class="avtar avtar-xs btn-light-success"><i
+                                                        class="ti ti-checkbox  f-20"></i></a>
+                                                @hasPermission('verify-materials-handovered')
+                                                    <a href="#" class="avtar avtar-xs btn-light-success"
+                                                        data-bs-toggle="modal" data-bs-target="#verifyAllMaterialsHandovered"
+                                                        data-route-id="{{ $route['id'] }}" onclick="setVehicleId(this)">
+                                                        <i class="ti ti-clipboard-check f-20"></i>
+                                                    </a>
+                                                    @if (!empty($route->handover_verification_details))
+                                                        <a href="{{ route('bundle-packaging.report-handover-details', $route['id']) }}"
+                                                            class="avtar avtar-xs btn-light-success"><i
+                                                                class="ti ti-download f-20"></i></a>
+                                                    @endif
+                                                @endhasPermission
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                 </tbody>
 
                             </table>
@@ -239,6 +252,8 @@
         </div>
     </section>
     <!-- [ Main Content ] end -->
+    @include('modals.verify-all-materials-handovered')
+
     @include('partials.footer')
 
     @push('scripts')

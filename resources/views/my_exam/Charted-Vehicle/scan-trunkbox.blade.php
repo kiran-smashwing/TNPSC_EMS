@@ -229,12 +229,6 @@
       												  No Scans
   											 @endif
 											</td>
-                                            <td>
-                                                {{ $trunkbox &&
-                                                ($scanTime = $user->role->role_department === 'ED' ? $trunkbox->hq_scanned_at : $trunkbox->dept_off_scanned_at)
-                                                    ? \Carbon\Carbon::parse($scanTime)->format('d-m-Y h:i:s')
-                                                    : 'No Scans' }}
-                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>

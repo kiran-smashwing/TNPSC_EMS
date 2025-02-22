@@ -71,7 +71,7 @@ class AuthorizationService
                     'candidate-statement',
                     'expenditure-statment',
                     'ci-meeting',
-                    // 'chv-routes',
+                    'chv-routes',
                     'email-template'
 
                 ],
@@ -118,7 +118,6 @@ class AuthorizationService
                     'current-exam',
                     'exam-completed',
                     'omr-qca-delivered',
-                    'chv-routes',
                 ],
             ],
             'ADMIN' => [
@@ -197,7 +196,13 @@ class AuthorizationService
                 return true;
             }
         }
-
+        if ($permission === 'receive-exam-materials-from-printer' || $permission === 'receive-bundle-from-mobile-team') {
+            $user = current_user();
+            // Check if the user's dept_off_id exists in EscortStaff
+            if ($user->district_code === '01') {
+                return false; // Re-enabling the return statement
+            }
+        }
         // Check if user is logged in through any guard
         if (!isset($this->rolePermissions[$role])) {
             return false;

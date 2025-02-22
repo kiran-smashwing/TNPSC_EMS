@@ -71,7 +71,7 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const dropdown = document.getElementById('test');
+            const dropdown = document.getElementById('ciAssistantSelect');
 
             if (!dropdown) {
                 console.error('Dropdown element not found.');

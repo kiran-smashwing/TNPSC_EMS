@@ -113,7 +113,7 @@ class CIAssistantsController extends Controller
             'center' => 'required|numeric',
             'venue' => 'required|numeric',
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:cheif_invigilator_assistant,cia_email',
+            // 'email' => 'required|email|max:255|unique:cheif_invigilator_assistant,cia_email',
             'phone' => 'required|string|max:15',
             'designation' => 'required|string|max:255',
             'cropped_image' => 'nullable|string'  // For image (if needed)
@@ -146,7 +146,7 @@ class CIAssistantsController extends Controller
                 'cia_center_id' => $validated['center'],
                 'cia_venue_id' => $validated['venue'],
                 'cia_name' => $validated['name'],
-                'cia_email' => $validated['email'],
+                // 'cia_email' => $validated['email'],
                 'cia_phone' => $validated['phone'],
                 'cia_designation' => $validated['designation'],
                 'cia_image' => $validated['image'] ?? null  // Save image if available
@@ -191,7 +191,7 @@ class CIAssistantsController extends Controller
         // Validation rules for CI Assistant data
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:cheif_invigilator_assistant,cia_email,' . $id . ',cia_id',
+            // 'email' => 'required|email|unique:cheif_invigilator_assistant,cia_email,' . $id . ',cia_id',
             'phone' => 'required|string|max:15',
             'designation' => 'nullable|string|max:255',
             'district' => 'required|numeric',
@@ -239,7 +239,7 @@ class CIAssistantsController extends Controller
             // Prepare data for updating the CI Assistant record
             $updateData = [
                 'cia_name' => $validated['name'],
-                'cia_email' => $validated['email'],
+                // 'cia_email' => $validated['email'],
                 'cia_phone' => $validated['phone'],
                 'cia_designation' => $validated['designation'],
                 'cia_district_id' => $validated['district'],

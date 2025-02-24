@@ -222,12 +222,9 @@
                                             <td>{{ $trunkbox->hall_code }}</td>
                                             <td>{{ $trunkbox->exam_date }}</td>
                                             <td>{{ $trunkbox->trunkbox_qr_code }}</td>
-                                            <td>
-                                                {{ $trunkbox &&
-                                                ($scanTime = $user->role->role_department === 'ED' ? $trunkbox->hq_scanned_at : $trunkbox->dept_off_scanned_at)
-                                                    ? \Carbon\Carbon::parse($scanTime)->format('d-m-Y h:i:s')
-                                                    : 'No Scans' }}
-                                            </td>
+                                         	<td>
+   											 {{ $trunkbox && ($scanTime = optional($user->role)->role_department === 'ED' ? $trunkbox->hq_scanned_at : 														$trunkbox->dept_off_scanned_at) ? \Carbon\Carbon::parse($scanTime)->format('d-m-Y h:i:s') : 'No Scans' }}
+											</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -244,7 +241,11 @@
     </section>
     <!-- [ Main Content ] end -->
     @include('partials.footer')
-
+@php
+    $scanRoute = ($user->role?->role_department == 'ED') 
+        ? route('bundle-packaging.scan-hq-exam-materials') 
+        : route('scanTrunkboxOrder');
+@endphp
     @push('scripts')
         @include('partials.datatable-export-js')
         <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
@@ -254,9 +255,7 @@
                 const qrCodeModal = document.getElementById('qrCodeModal');
                 const modalInstance = bootstrap.Modal.getInstance(qrCodeModal);
                 modalInstance.hide();
-                let scanRoute = @json($user->role->role_department == 'ED'
-                        ? route('bundle-packaging.scan-hq-exam-materials')
-                        : route('scanTrunkboxOrder'));
+                let scanRoute = @json($scanRoute);
                 fetch(scanRoute, {
                         method: 'POST',
                         headers: {
@@ -321,3 +320,4 @@
     @include('partials.theme')
 
 @endsection
+

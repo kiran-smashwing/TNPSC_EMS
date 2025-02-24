@@ -64,7 +64,6 @@ class AuthorizationService
                     'cv-down-updates',
                     'bundle-collection',
                     'omr-qca-delivered',
-                    'chv-routes',
                     'replacement-omr-qca',
                     'emergency-alrm',
                     'exam-discrepancy',
@@ -72,6 +71,7 @@ class AuthorizationService
                     'candidate-statement',
                     'expenditure-statment',
                     'ci-meeting',
+                    'chv-routes',
                     'email-template'
 
                 ],
@@ -90,6 +90,7 @@ class AuthorizationService
                 'Section Officer' => [
                     'verify-materials-handovered',
                     'exam-heading',
+                    'current-exam',
                     'cv-down-updates',
                 ],
             ],
@@ -116,12 +117,19 @@ class AuthorizationService
                     'exam-heading',
                     'current-exam',
                     'exam-completed',
-                    'omr-qca-delivered'
+                    'omr-qca-delivered',
+                    // 'chv-routes',
                 ],
             ],
             'ADMIN' => [
                 'ci-meetings.*',
                 'users.*'
+            ],
+            'VDS' => [
+                'VDS' => [
+                    'exam-heading',
+                    'current-exam',
+                ]
             ]
         ],
         'ci' => [
@@ -162,6 +170,7 @@ class AuthorizationService
             'receive-bundle-from-mobile-team',
             'exam-heading',
             'current-exam',
+            'scan-receive-disitrct-exam-materials',
         ],
         'center' => [
             'download-meeting-qr',
@@ -170,6 +179,7 @@ class AuthorizationService
         ],
         'mobile_team_staffs' => [
             'current-exam',
+            'exam-heading',
         ],
         // Add other roles and their permissions
     ];
@@ -180,6 +190,14 @@ class AuthorizationService
         if ($role === 'sw-admin') {
             return true; // sw-admin has access to everything
         }
+        if ($permission === 'cv-down-updates') {
+            $user = auth()->guard('headquarters')->user();
+
+            // Check if the user's dept_off_id exists in EscortStaff
+            if ($role === 'headquarters' && \App\Models\EscortStaff::where('tnpsc_staff_id', $user->dept_off_id)->exists()) {
+                return true;
+            }
+        }
 
         // Check if user is logged in through any guard
         if (!isset($this->rolePermissions[$role])) {
@@ -188,20 +206,24 @@ class AuthorizationService
 
         if ($role === 'headquarters') {
             $user = auth()->guard('headquarters')->user();
+            // If user has 'VDS' as a custom role, set fixed values
 
+            if ($user->custom_role == 'VDS') {
+                $department = 'VDS';
+                $dept_role = 'VDS';
+            }
             // Check if the user has a role
-            if ($user && $user->role) {
+            else if ($user && $user->role) {
                 $department = $user->role->role_department;
                 $dept_role = $user->role->role_name;
-
-                return collect($this->rolePermissions[$role][$department][$dept_role] ?? [])
-                    ->contains(function ($allowedPermission) use ($permission) {
-                        return \Illuminate\Support\Str::is($allowedPermission, $permission);
-                    });
+            } else {
+                // If no valid user role exists, return false
+                return false;
             }
-
-            // If the user doesn't have a role, return false or handle accordingly
-            return false;
+            return collect($this->rolePermissions[$role][$department][$dept_role] ?? [])
+                ->contains(function ($allowedPermission) use ($permission) {
+                    return \Illuminate\Support\Str::is($allowedPermission, $permission);
+                });
         }
 
         return collect($this->rolePermissions[$role])

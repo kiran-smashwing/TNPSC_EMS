@@ -105,7 +105,11 @@
                         <div class="card-body">
                             <ul class="list-unstyled task-list">
                                 @php
-                                    $is_materials_received = $lastScannedMaterial !== null;
+                                $is_materials_received = false;
+
+if (!empty($lastScannedMaterial)) {
+    $is_materials_received = !is_null($lastScannedMaterial['last_scanned_at']);
+                              }
 
                                     // Set dynamic badge text and color
                                     $taskStatus = $is_materials_received ? 'Received' : 'Pending';
@@ -509,10 +513,9 @@ $badgeClass = $isBoxOpenTimeSet ? 'bg-light-secondary' : 'bg-danger';
                                     // Check if 'present' exists and is not empty
                                     $isPresentSet =
                                         isset($attendanceData['present']) && !empty($attendanceData['present']);
-
                                     // Set a dynamic status and badge class based on whether 'present' data is available
-                                    $presentStatus = $isPresentSet ? 'Updated' : 'Pending';
-                                    $presentBadgeClass = $isPresentSet ? 'bg-light-secondary' : 'bg-danger';
+                                    $badgeClass = $isPresentSet ? 'Updated' : 'Pending';
+                                    $taskStatus = $isPresentSet ? 'bg-light-secondary' : 'bg-danger';
                                 @endphp
                                 <li class="task-list-item">
                                     <i

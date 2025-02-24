@@ -989,8 +989,8 @@
                                         </div>
                                     </li>
                                 @endif
-                                @if (session('auth_role') == 'district' || session('auth_role') == 'center')
-                                    @php
+                                @hasPermission('download-meeting-qr')
+                                @php
                                         $is_meeting_qr_created = $meetingCodeGen !== null;
                                         $user = $is_meeting_qr_created
                                             ? App\Models\District::where(
@@ -1069,15 +1069,14 @@
                                                                         class="feather icon-navigation mx-1"></i>Send
                                                                     Intimation</a>
                                                             @endhasPermission
-
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </li>
-                                @endif
-                                @if (session('auth_role') == 'headquarters' && $current_user->custom_role != 'VDS')
+                                    @endhasPermission
+                                    @if (session('auth_role') == 'headquarters' && $current_user->custom_role != 'VDS')
                                     @php
                                         $is_qd_trunk_qr_upload = $examTrunkboxOTLData !== null;
 
@@ -1234,6 +1233,9 @@
                                                                             class="wid-20 rounded me-2 img-fluid" />Done
                                                                         by
                                                                         <b>
+                                                                            @php
+                                                                               $user = current_user();
+                                                                            @endphp
                                                                             {{ $is_exam_routes_created
                                                                                 ? ($role == 'headquarters'
                                                                                     ? $user->dept_off_name

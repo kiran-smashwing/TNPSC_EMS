@@ -113,7 +113,7 @@ class ChartedVehicleRoutesController extends Controller
     {
         $user = $request->get('auth_user');
 
-        if ($user->role->role_department == 'ID') {
+        if ($user->role && $user->role->role_department == 'ID') {
             $route = ChartedVehicleRoute::with('escortstaffs')->findOrFail($id);
         } else {
             $route = ChartedVehicleRoute::with([
@@ -133,7 +133,7 @@ class ChartedVehicleRoutesController extends Controller
         $route = ChartedVehicleRoute::findOrFail($id);
         $user = $request->get('auth_user');
 
-        if ($user->role->role_department == 'ID') {
+        if ($user->role && $user->role->role_department == 'ID') {
 
             // Update route details
             $route->update([
@@ -219,24 +219,26 @@ class ChartedVehicleRoutesController extends Controller
         return view('my_exam.Charted-Vehicle.view', compact('route', 'exams', 'tnpscStaffs'));
     }
 
-    public function getDistrictsForExamIDs(Request $request)
-    {
-        $examIds = $request->exam_ids;
-        $districts = ExamConfirmedHalls::whereIn('exam_id', $examIds)
-            ->with('district')
-            ->get()
-            ->unique('district_id');
-
-        // Prepare the response data
-        $response = $districts->map(function ($hall) {
+   public function getDistrictsForExamIDs(Request $request)
+{
+    $examIds = $request->exam_ids;
+    
+    $districts = ExamConfirmedHalls::whereIn('exam_id', $examIds)
+        ->with('district')
+        ->get()
+        ->groupBy('district.district_code') // Ensure unique districts
+        ->map(function ($group) {
+            $hall = $group->first(); // Get first record in each group
             return [
                 'district_code' => $hall->district->district_code,
                 'district_name' => $hall->district->district_name,
             ];
-        });
+        })
+        ->values(); // Reset array keys to numeric
 
-        return response()->json($response);
-    }
+    return response()->json($districts);
+}
+
 
     public function downwardJourneyRoutes(Request $request)
     {
@@ -277,16 +279,16 @@ class ChartedVehicleRoutesController extends Controller
             ->select('cvr.*', 'es.district_code')
             ->where('cvr.id', $id);
         //TODO: update the user department to required 
-        if (!in_array($user->role->role_department, ['ED', 'QD'])) {
-            // Apply additional condition only if the user's department is not 'ID'
-            $query->where('es.tnpsc_staff_id', $user->dept_off_id);
-        }
+        if ($user->role && !in_array($user->role->role_department, ['ED', 'QD'])) {
+    	// Apply additional condition only if the user's department is not 'ID'
+   		 $query->where('es.tnpsc_staff_id', $user->dept_off_id);
+		}
+
         // Execute the query
         $routes = $query->get();
 
         // Extract unique districts from the routes
         $districtCodes = $routes->pluck('district_code')->unique();
-
         // Decode exam IDs (assuming they are consistent across all routes)
         $examIds = isset($routes[0]) ? json_decode($routes[0]->exam_id, true) : [];
 
@@ -296,23 +298,22 @@ class ChartedVehicleRoutesController extends Controller
         }
 
         // Determine the order direction based on the role
-        $orderDirection = (in_array($user->role->role_department, ['ED', 'QD'])) ? 'desc' : 'asc';
+      $orderDirection = ($user->role && in_array($user->role->role_department, ['ED', 'QD'])) ? 'desc' : 'asc';
 
         // Fetch trunk boxes for all exam IDs and districts, with conditional ordering
         $trunkBoxes = DB::table('exam_trunkbox_otl_data as e')
             ->leftJoin('exam_trunkbox_scans as s', 'e.id', '=', 's.exam_trunkbox_id') // Join with scans table
             ->whereIn('e.exam_id', $examIds) // Match exam IDs
             ->whereIn('e.district_code', $districtCodes) // Match district codes
-            ->orderBy('e.load_order', $orderDirection) // Conditional order
+            ->orderByRaw('e.load_order::INTEGER ' . $orderDirection) // PostgreSQL integer sorting
             ->get(); // Get all matching trunk boxes
-
         //total number of trunk boxes found for this user
         $totalTrunkBoxes = $trunkBoxes->count();
         // Total number of trunk boxes scanned by the user
         $totalScanned = $trunkBoxes->filter(
             fn($examMaterial) => !is_null(
                 value: $examMaterial->{
-                    in_array($user->role->role_department, ['ED', 'QD'])
+                     $user->role && in_array($user->role->role_department, ['ED', 'QD'])
                     ? 'hq_scanned_at'
                     : 'dept_off_scanned_at'
                     }
@@ -380,11 +381,12 @@ class ChartedVehicleRoutesController extends Controller
         }
 
         // Get the previous trunk box in the load order
-        $previousTrunkBox = ExamTrunkBoxOTLData::where('exam_id', $examMaterials->exam_id)
-            ->where('district_code', $examMaterials->district_code)
-            ->where('load_order', '<', $examMaterials->load_order) // Get only boxes with lower load_order
-            ->orderByDesc('load_order') // Get the immediate previous box
-            ->first();
+           $previousTrunkBox = ExamTrunkBoxOTLData::where('exam_id', $examMaterials->exam_id)
+        ->where('district_code', $examMaterials->district_code)
+        ->where('center_code', $examMaterials->center_code)
+        ->where('load_order', $examMaterials->load_order - 1) // Always check the immediate previous load_order
+        ->first();
+    
 
         // Check if the previous trunk box was scanned
         if ($previousTrunkBox && !ExamTrunkBoxScan::where('exam_trunkbox_id', $previousTrunkBox->id)->exists()) {

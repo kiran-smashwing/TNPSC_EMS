@@ -27,6 +27,7 @@ class ExamTrunkBoxOTLData extends Model
         'exam_date',
         'trunkbox_qr_code',
         'otl_code',
+        'used_otl_code',
     ];
 
     // Define the casts for specific fields

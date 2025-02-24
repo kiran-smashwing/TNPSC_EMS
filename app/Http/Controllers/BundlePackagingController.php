@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ChartedVehicleRoute;
+use App\Models\ExamMaterialRoutes;
 use App\Models\ExamMaterialsScan;
 use App\Models\ExamMaterialsData;
 use App\Models\Currentexam;
@@ -13,6 +14,7 @@ use App\Services\ExamAuditService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Log;
 use Spatie\Browsershot\Browsershot;
 
 class BundlePackagingController extends Controller
@@ -406,6 +408,155 @@ class BundlePackagingController extends Controller
         ], 200);
 
     }
+    public function scanVandutyHQExamMaterials($examId, Request $request)
+    {
+        // Validate request
+        $request->validate([
+            'qr_code' => 'required|string',
+        ]);
+
+        // Get authenticated user
+        $role = session('auth_role');
+        $guard = $role ? Auth::guard($role) : null;
+        $user = $guard ? $guard->user() : null;
+
+        // Check authorization
+        if ($role !== 'headquarters' || !$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found or not authorized'
+            ], 403); // 403 is for authorization errors
+        }
+
+        // Find exam materials
+        $examMaterials = ExamMaterialsData::where([
+            'exam_id' => $examId,
+            'district_code' => '01',
+            'qr_code' => $request->qr_code
+        ])->first();
+
+        if (!$examMaterials) {
+            $examMaterials = ExamMaterialsData::where([
+                'exam_id' => $examId,
+                'qr_code' => $request->qr_code
+            ])
+                ->with('center')
+                ->with('district')
+                ->first();
+            $msg = "This Qr Code belongs to the following District : " . $examMaterials->district->district_name . " , Center : " . $examMaterials->center->center_name . " , Hall Code: " . $examMaterials->hall_code;
+            return response()->json([
+                'status' => 'error',
+                'message' => $msg
+            ], 404);
+        }
+        //find trunk box for this exm materials
+        $trunkBox = ExamTrunkBoxOTLData::where([
+            'exam_id' => $examId,
+            'district_code' => '01',
+            'center_code' => $examMaterials->center_code,
+            'hall_code' => $examMaterials->hall_code,
+        ])->first();
+
+        // Check if already scanned
+        $existingScan = ExamMaterialsScan::where([
+            'exam_material_id' => $examMaterials->id,
+        ])->first();
+
+        // Check if already scanned
+        if (
+            ExamMaterialsScan::where(['exam_material_id' => $examMaterials->id])
+                ->whereNotNull('district_scanned_at')->exists()
+        ) {
+            $message = 'QR code has already been scanned';
+            if (!is_null($trunkBox)) {
+                $message .= ', Place this bundle in this trunk box: ' . $trunkBox->trunkbox_qr_code;
+            }
+            return response()->json([
+                'status' => 'error',
+                'message' => $message,
+            ], 409);
+        }
+
+        // Update the existing record if district_scanned_at is null
+        if ($existingScan && !$existingScan->district_scanned_at) {
+            $existingScan->update([
+                'district_scanned_at' => now()
+            ]);
+        } else {
+            // Create a new record if no existing scan record is found
+            ExamMaterialsScan::create([
+                'exam_material_id' => $examMaterials->id,
+                'district_scanned_at' => now()
+            ]);
+        }
+        // Audit Logging
+        $currentUser = current_user();
+        $userName = $currentUser ? $currentUser->display_name : 'Unknown';
+        $metadata = [
+            'user_name' => $userName,
+            'district_code' => '01',
+        ];
+
+        $examMaterialDetails = [
+            'qr_code' => $request->qr_code,
+            'district' => $examMaterials->district->district_name,
+            'center' => $examMaterials->center->center_name,
+            'hall_code' => $examMaterials->hall_code,
+            'scan_time' => now()->toDateTimeString()
+        ];
+
+        // Check existing log
+        $existingLog = $this->auditService->findLog([
+            'exam_id' => $examId,
+            'task_type' => 'receive_bundle_to_disitrct_treasury',
+            'action_type' => 'qr_scan',
+            'user_id' => $user->dept_off_id,
+        ]);
+
+        if ($existingLog) {
+            // Update existing log
+            $existingScans = $existingLog->after_state['scanned_codes'] ?? [];
+            $firstScan = $existingScans[0] ?? null; // Keep the first scan
+
+            // Update with first and current scan only
+            $updatedScans = [
+                $firstScan,
+                $examMaterialDetails // Current scan becomes the last scan
+            ];
+
+            $totalScans = ($existingLog->after_state['total_scanned'] ?? 0) + 1;
+
+            $this->auditService->updateLog(
+                logId: $existingLog->id,
+                metadata: $metadata,
+                afterState: [
+                    'scanned_codes' => $updatedScans,
+                    'total_scanned' => $totalScans
+                ],
+                description: "Scanned QR code: {$request->qr_code} (Total scanned: $totalScans)"
+            );
+        } else {
+            // Create new log for first scan
+            $this->auditService->log(
+                examId: $examId,
+                actionType: 'qr_scan',
+                taskType: 'receive_bundle_to_disitrct_treasury',
+                beforeState: null,
+                afterState: [
+                    'scanned_codes' => [$examMaterialDetails],
+                    'total_scanned' => 1
+                ],
+                description: "Initial QR code scan: {$request->qr_code}",
+                metadata: $metadata
+            );
+        }
+        return response()->json([
+            'status' => 'success',
+            'message' => 'QR code scanned successfully' .
+                (!is_null($trunkBox) ? ', Place this bundle in this trunk box: ' . $trunkBox->trunkbox_qr_code : ''),
+        ], 200);
+
+    }
     public function MobileTeamtoCenter(Request $request, $examId)
     {
         $role = session('auth_role');
@@ -504,6 +655,126 @@ class BundlePackagingController extends Controller
         }
         return view('my_exam.BundlePackaging.vds-to-hq-bundle', compact('routes'));
     }
+    public function vanDutyStafftoHeadquarters(Request $request, $examId)
+    {
+        $user = $request->get('auth_user');
+        // Define the category mapping       
+        $categoryArray = ['R1', 'R2', 'R3', 'R4', 'R5', 'R6'];
+
+        // Fetch exam materials grouped by hall_code
+        $examMaterials = ExamMaterialsData::where('district_code', '01')
+            ->where('exam_id', $examId)
+            ->whereIn('category', $categoryArray)
+            ->with('examMaterialsScan') // Load scan relationship
+            ->get()
+            ->groupBy('hall_code');
+
+        // Fetch trunkbox data
+        $examMaterialsTrunkbox = ExamTrunkBoxOTLData::where('district_code', '01')
+            ->where('exam_id', $examId)
+            ->get();
+
+        // Fetch route data
+        $routes = ExamMaterialRoutes::where('exam_id', $examId)
+            ->where('district_code', '01')
+            ->get();
+
+        // Process data: match exam materials with routes and trunkboxes
+        $groupedExamMaterials = [];
+
+        foreach ($routes as $route) {
+            $hallMapping = $route->hall_code; // Decode hall mappings
+
+            foreach ($hallMapping as $centerCode => $hallCodes) {
+                foreach ($hallCodes as $hallCode) {
+                    if (isset($examMaterials[$hallCode])) {
+                        $trunkbox = $examMaterialsTrunkbox->firstWhere('hall_code', $hallCode);
+                        $trunkboxCode = $trunkbox->trunkbox_qr_code ?? 'Unknown';
+
+                        // Count total materials and scanned materials
+                        $totalMaterials = count($examMaterials[$hallCode]);
+                        $totalScanned = $examMaterials[$hallCode]->filter(function ($examMaterial) {
+                            return $examMaterial->examMaterialsScan &&
+                                $examMaterial->examMaterialsScan->district_scanned_at;
+                        })->count();
+
+                        // Group data by trunkbox QR code
+                        if (!isset($groupedExamMaterials[$trunkboxCode])) {
+                            $groupedExamMaterials[$trunkboxCode] = [
+                                'route_no' => $route->route_no,
+                                'route_id' => $route->id,
+                                'center_code' => [$centerCode],
+                                'hall_code' => [$hallCode],
+                                'trunkbox_qr_code' => $trunkboxCode,
+                                'otl_codes' => json_decode($trunkbox->otl_code ?? '[]'),
+                                'materials_count' => $totalMaterials,
+                                'scanned_count' => $totalScanned
+                            ];
+                        } else {
+                            $groupedExamMaterials[$trunkboxCode]['center_code'][] = $centerCode;
+                            $groupedExamMaterials[$trunkboxCode]['hall_code'][] = $hallCode;
+                            $groupedExamMaterials[$trunkboxCode]['materials_count'] += $totalMaterials;
+                            $groupedExamMaterials[$trunkboxCode]['scanned_count'] += $totalScanned;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Convert center_code and hall_code arrays to comma-separated strings
+        foreach ($groupedExamMaterials as &$data) {
+            $data['center_code'] = implode(',', array_unique($data['center_code']));
+            $data['hall_code'] = implode(',', array_unique($data['hall_code']));
+        }
+
+
+        return view('my_exam.BundlePackaging.vds-to-hq-bundle', compact('groupedExamMaterials', 'examId'));
+    }
+    public function saveUsedOTLCodes(Request $request) {
+        try {
+            $request->validate([
+                'otlCodes' => 'required',
+                'trunkboxQrCode' => 'required',
+                'examId' => 'required',
+            ]);
+    
+            // Check if the provided OTL code exists in trunkbox_otldata
+            $otlData = ExamTrunkBoxOTLData::where('trunkbox_qr_code', $request->trunkboxQrCode)->first();
+            if (!$otlData) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid Trunk Box. It does not exist.'
+                ], 400);
+            }
+            // check if otl codes existing in otlData 
+            $otlCodes = json_decode($otlData->otl_code,true);
+            $usedOTLCodes = $request->otlCodes;
+            $newOTLCodes = array_diff($usedOTLCodes, $otlCodes);
+            if (count($newOTLCodes) > 0) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid OTL Codes. Some OTL codes are not found in the allocated codes.'
+                ], 400);
+            }
+            // Update used_otl_code in trunkbox_otldata
+            $otlData->used_otl_code = json_encode($request->otlCodes);
+            $otlData->save();            
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'OTL codes saved successfully.'
+            ], 200);
+          
+          
+    
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to save OTL code: ' . $e->getMessage()
+            ], 500);
+        }
+    }    
+
     public function scanHQExamMaterials(Request $request)
     {
         // Validate request

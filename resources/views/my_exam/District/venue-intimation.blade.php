@@ -413,7 +413,7 @@
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Success',
-                                text: 'Consent emails sent successfully',
+                                text: response.message,
                             }).then(() => {
                                 // Reload the page after the user acknowledges the success alert
                                 location.reload();

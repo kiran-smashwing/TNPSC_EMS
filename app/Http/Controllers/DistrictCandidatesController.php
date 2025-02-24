@@ -91,7 +91,6 @@ class DistrictCandidatesController extends Controller
     }
     public function processVenueConsentEmail(Request $request)
     {
-        // dd($request->all());
         // Validate the request
         $request->validate([
             'center_code' => 'required',
@@ -117,7 +116,7 @@ class DistrictCandidatesController extends Controller
             $record->expected_candidates_count = $venue['halls_count'];
 
             // Handle email status
-            if ($request->action === 'send') {
+            if ($request->action == 'send') {
                 $record->consent_status = 'requested';
                 $record->email_sent_status = true;
             } elseif (!$record->exists) {
@@ -188,7 +187,7 @@ class DistrictCandidatesController extends Controller
                 metadata: $metadata
             );
         }
-        $message = $request->action === 'send' ? 'Consent requests sent successfully' : 'Saved successfully';
+        $message = $request->action == 'send' ? 'Consent requests sent successfully' : 'Saved successfully';
 
         return response()->json([
             'message' => $message,

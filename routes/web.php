@@ -172,7 +172,7 @@ Route::middleware(['auth.multi'])->group(function () {
     });
     Route::prefix('completed-exam')->group(function () {
         Route::middleware(['auth.multi'])->group(function () {
-            Route::get('/completed-exam', [CompletedExamController::class, 'index'])->name('completed-exam');
+            Route::get('/', [CompletedExamController::class, 'index'])->name('completed-exam');
             Route::get('/completed-exam/task', [CompletedExamController::class, 'task'])->name('completed-exam.task');
             Route::get('/completed-exam/edit', [CompletedExamController::class, 'edit'])->name('completed-exam.edit');
         });
@@ -485,7 +485,10 @@ Route::prefix('bundle-packaging')->group(function () {
         Route::get('/mobileteam-to-district-bundle-packaging/{examId}', [BundlePackagingController::class, 'MobileTeamtoDistrict'])->name('bundle-packaging.mobileteam-to-district');
         Route::get('/mobileteam-to-center/{examId}', [BundlePackagingController::class, 'MobileTeamtoCenter'])->name('bundle-packaging.mobileteam-to-center');
         Route::post('/scan-disitrct-exam-materials/{examId}', [BundlePackagingController::class, 'scanDistrictExamMaterials'])->name('bundle-packaging.scan-disitrct-exam-materials');
+        Route::post('/scan-chennai-disitrct-exam-materials/{examId}', [BundlePackagingController::class, 'scanVandutyHQExamMaterials'])->name('bundle-packaging.scan-chennai-disitrct-exam-materials');
+        Route::post('/save-used-otl-codes', [BundlePackagingController::class, 'saveUsedOTLCodes'])->name('bundle-packaging.save-used-otl-codes');
         Route::get('/charted-vehicle-to-headquarters/{examId}', [BundlePackagingController::class, 'chartedVehicletoHeadquarters'])->name('bundle-packaging.charted-vehicle-to-headquarters');
+        Route::get('/vds-to-headquarters/{examId}', [BundlePackagingController::class, 'vanDutyStafftoHeadquarters'])->name('bundle-packaging.vanduty-staff-to-headquarters');
         Route::post('/scan-hq-exam-materials', [BundlePackagingController::class, 'scanHQExamMaterials'])->name('bundle-packaging.scan-hq-exam-materials');
         Route::post('/save-handover-details', [BundlePackagingController::class, 'saveHandoverDetails'])->name('bundle-packaging.save-handover-details');
         Route::get('/report-handover-details/{id}', [BundlePackagingController::class, 'reportHandoverDetails'])->name('bundle-packaging.report-handover-details');

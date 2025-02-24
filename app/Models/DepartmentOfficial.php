@@ -57,7 +57,7 @@ class DepartmentOfficial extends Authenticatable
             return $this->dept_off_image;
         }
 
-        return '/assets/images/user/avatar-8.jpg';
+        return '/assets/images/user/avatar-4.jpg';
     }
 
     protected $hidden = [

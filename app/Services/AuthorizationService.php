@@ -169,6 +169,7 @@ class AuthorizationService
             'receive-bundle-from-mobile-team',
             'exam-heading',
             'current-exam',
+            'scan-receive-disitrct-exam-materials',
         ],
         'center' => [
             'download-meeting-qr',

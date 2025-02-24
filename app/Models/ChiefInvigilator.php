@@ -70,7 +70,7 @@ class ChiefInvigilator extends Authenticatable
             return $this->ci_image;
         }
 
-        return '/assets/images/user/avatar-1.jpg';
+        return '/assets/images/user/avatar-4.jpg';
     }
     public function getAuthPassword()
     {

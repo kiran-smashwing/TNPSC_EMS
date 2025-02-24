@@ -111,6 +111,7 @@
     <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
     <!-- Laravel Echo -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/laravel-echo/1.11.3/echo.iife.js"></script>
+
     @php
         $user = current_user();
     @endphp
@@ -335,11 +336,12 @@
         });
     </script>
 
-    <script>
-        var user = @json($user);
+<script>
+    var user = @json($user);
 
-        if (user && user.role && user.role.role_department === 'MCD') {
-            // Modified Echo initialization with detailed logging
+    if (user && user.role && user.role.role_department === 'MCD') {
+        // Initialize Echo using Reverb settings from your environment
+           // Modified Echo initialization with detailed logging
             window.Echo = new Echo({
                 broadcaster: 'pusher',
                 key: '{{ env('REVERB_APP_KEY') }}',
@@ -400,8 +402,10 @@
             window.Echo.connector.pusher.connection.bind('error', function(error) {
                 console.error('Pusher Error:', error);
             });
-        }
-    </script>
+    }
+</script>
+
+
     <!-- [Body] end -->
 </body>
 

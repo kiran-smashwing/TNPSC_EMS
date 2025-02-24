@@ -514,7 +514,6 @@
                                     // Check if 'present' exists and is not empty
                                     $isPresentSet =
                                         isset($attendanceData['present']) && !empty($attendanceData['present']);
-
                                     // Set a dynamic status and badge class based on whether 'present' data is available
                                     $taskStatus = $isPresentSet ? 'Updated' : 'Pending';
                                     $badgeClass = $isPresentSet ? 'bg-light-secondary' : 'bg-danger';

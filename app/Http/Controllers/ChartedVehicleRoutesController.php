@@ -293,7 +293,6 @@ class ChartedVehicleRoutesController extends Controller
 
         // Extract unique districts from the routes
         $districtCodes = $routes->pluck('district_code')->unique();
-
         // Decode exam IDs (assuming they are consistent across all routes)
         $examIds = isset($routes[0]) ? json_decode($routes[0]->exam_id, true) : [];
 
@@ -312,7 +311,6 @@ class ChartedVehicleRoutesController extends Controller
             ->whereIn('e.district_code', $districtCodes) // Match district codes
             ->orderByRaw('e.load_order::INTEGER ' . $orderDirection) // PostgreSQL integer sorting
             ->get(); // Get all matching trunk boxes
-
         //total number of trunk boxes found for this user
         $totalTrunkBoxes = $trunkBoxes->count();
         // Total number of trunk boxes scanned by the user

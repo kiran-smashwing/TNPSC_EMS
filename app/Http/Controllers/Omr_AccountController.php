@@ -102,125 +102,118 @@ class Omr_AccountController extends Controller
                 return response()->json(['error' => 'Invalid category selected'], 400);
         }
     }
-    public function generateOmrremarksReport(Request $request)
-    {
-        // Get query parameters
-        $notificationNo = $request->query('notification_no');
-        $examDate = $request->query('exam_date');
-        $session = $request->query('session'); // FN or AN
-        $category = $request->query('category');
-        // $districtId = $request->query('district');
-        // $centerId = $request->query('center');
+  public function generateOmrremarksReport(Request $request)
+{
+    $notificationNo = $request->query('notification_no');
+    $examDate = $request->query('exam_date');
+    $session = $request->query('session'); // FN or AN
+    $category = $request->query('category');
 
-        // Fetch the exam details
-        $exam_data = Currentexam::with('examservice')
-            ->where('exam_main_notification', $notificationNo)
-            ->first();
+    // Convert date format if necessary
+    $examDate = \Carbon\Carbon::createFromFormat('d-m-Y', $examDate)->format('Y-m-d');
 
-        if (!$exam_data) {
-            return back()->with('error', 'Exam data not found.');
+    $exam_data = Currentexam::with('examservice')
+        ->where('exam_main_notification', $notificationNo)
+        ->first();
+
+    if (!$exam_data) {
+        return back()->with('error', 'Exam data not found.');
+    }
+
+    $exam_id = $exam_data->exam_main_no;
+
+    $candidate_attendance = CICandidateLogs::where('exam_id', $exam_id)
+        ->where('exam_date', $examDate)
+        ->with('ci', 'center.district')
+        ->get();
+
+    if ($candidate_attendance->isEmpty()) {
+        return back()->with('error', 'No candidate attendance found for this exam date.');
+    }
+
+    $session_data = [];
+
+    foreach ($candidate_attendance as $attendance) {
+        $center = $attendance->center;
+        $district = $center->district ?? null;
+        $venue = $attendance->ci->venue ?? 'N/A';
+
+        // Decode JSON safely
+        $omr_remarks_data = $attendance->omr_remarks;
+        if (!is_array($omr_remarks_data)) {
+            continue;
         }
 
-        $exam_id = $exam_data->exam_main_no;
+        foreach ($omr_remarks_data as $sessionKey => $sessionDetails) {
+            if ($session && $sessionKey !== $session) {
+                continue;
+            }
 
-        // Fetch candidate attendance data
-        $candidate_attendance = CICandidateLogs::where('exam_id', $exam_id)
-            ->where('exam_date', $examDate)
-            ->with('ci', 'center.district') // Include center and district relationships
-            ->get();
+            if (!isset($sessionDetails['remarks']) || !is_array($sessionDetails['remarks'])) {
+                continue;
+            }
 
-        if ($candidate_attendance->isEmpty()) {
-            return back()->with('error', 'No candidate attendance found for this exam date.');
-        }
+            $timestamp = $sessionDetails['timestamp'] ?? 'N/A';
 
-        // Extract and format session data dynamically
-        $session_data = [];
-
-        foreach ($candidate_attendance as $attendance) {
-            $center = $attendance->center;
-            $district = $center->district ?? null;
-            $venue = $attendance->ci->venue ?? 'N/A'; // Access the venue name from the `ci` relationship
-
-            // Decode the omr_remarks JSON if stored as a string
-            $omr_remarks_data = is_string($attendance->omr_remarks)
-                ? json_decode($attendance->omr_remarks, true)
-                : $attendance->omr_remarks;
-
-            // Loop through session-wise OMR remarks (AN, FN, etc.)
-            foreach ($omr_remarks_data as $sessionKey => $sessionRemarks) {
-                // Check if the session matches the requested session (FN or AN)
-                if ($session && $sessionKey != $session) {
-                    continue; // Skip if session doesn't match the requested session
-                }
-
-                // Loop through remarks for each registration number
-                foreach ($sessionRemarks as $remark) {
-                    // Create a session entry for OMR remarks
-                    $sessionEntry = [
-                        'session' => $sessionKey,
-                        'district_name' => $district ? $district->district_name : 'N/A',
-                        'center_code' => $center ? $center->center_code : 'N/A',
-                        'center_name' => $center ? $center->center_name : 'N/A',
-                        'hall_code' => $attendance->hall_code ?? 'N/A',
-                        'hall_name' => $venue ? $venue->venue_name : 'N/A',
-                        'remarks' => $remark['remark'] ?? 'N/A',
-                        'timestamp' => $remark['timestamp'] ?? 'N/A',
-                        'registration_numbers' => $remark['registration_number'] ?? 'N/A',
-                    ];
-
-                    // Add the session entry to the session_data array
-                    $session_data[] = $sessionEntry;
-                }
+            foreach ($sessionDetails['remarks'] as $remark) {
+                $session_data[] = [
+                    'session' => $sessionKey,
+                    'district_name' => $district ? $district->district_name : 'N/A',
+                    'center_code' => $center ? $center->center_code : 'N/A',
+                    'center_name' => $center ? $center->center_name : 'N/A',
+                    'hall_code' => $attendance->hall_code ?? 'N/A',
+                    'hall_name' => $venue ? $venue->venue_name : 'N/A',
+                    'remarks' => $remark['remark'] ?? 'N/A',
+                    'timestamp' => $timestamp,
+                    'registration_numbers' => $remark['reg_no'] ?? 'N/A',
+                ];
             }
         }
-
-        // Prepare final data for Blade
-        $data = [
-            'notification_no' => $notificationNo,
-            'exam_date' => $examDate,
-            'exam_data' => $exam_data,
-            'session' => $session,
-            'category' => $category,
-            'districts' => array_unique(array_column($session_data, 'district_name')),
-            'centers' => array_unique(array_column($session_data, 'center_name')),
-            'session_data' => $session_data
-        ];
-        // dd($data);
-        // Render the Blade template
-        $html = view('view_report.omr_report.omr-account-report', $data)->render();
-
-        // Generate PDF using Browsershot
-        $pdf = Browsershot::html($html)
-            ->setOption('landscape', true)
-            ->setOption('margin', [
-                'top' => '10mm',
-                'right' => '10mm',
-                'bottom' => '10mm',
-                'left' => '10mm'
-            ])
-            ->setOption('displayHeaderFooter', true)
-            ->setOption('headerTemplate', '<div></div>')
-            ->setOption('footerTemplate', '
-                <div style="font-size:10px;width:100%;text-align:center;">
-                    Page <span class="pageNumber"></span> of <span class="totalPages"></span>
-                </div>
-                <div style="position: absolute; bottom: 5mm; right: 10px; font-size: 10px;">
-                    IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . '
-                </div>')
-            ->setOption('preferCSSPageSize', true)
-            ->setOption('printBackground', true)
-            ->scale(1)
-            ->format('A4')
-            ->pdf();
-
-        // Define a unique filename for the report
-        $filename = 'omr_account_report_' . time() . '.pdf';
-
-        // Return the PDF as a response
-        return response($pdf)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
     }
+
+    if (empty($session_data)) {
+        return back()->with('error', 'No OMR remarks found for the selected session.');
+    }
+
+    $data = [
+        'notification_no' => $notificationNo,
+        'exam_date' => $examDate,
+        'exam_data' => $exam_data,
+        'session' => $session,
+        'category' => $category,
+        'districts' => array_unique(array_column($session_data, 'district_name')),
+        'centers' => array_unique(array_column($session_data, 'center_name')),
+        'session_data' => $session_data
+    ];
+
+    $html = view('view_report.omr_report.omr-account-report', $data)->render();
+
+    $pdf = Browsershot::html($html)
+        ->setOption('landscape', true)
+        ->setOption('margin', ['top' => '10mm', 'right' => '10mm', 'bottom' => '10mm', 'left' => '10mm'])
+        ->setOption('displayHeaderFooter', true)
+        ->setOption('headerTemplate', '<div></div>')
+        ->setOption('footerTemplate', '
+            <div style="font-size:10px;width:100%;text-align:center;">
+                Page <span class="pageNumber"></span> of <span class="totalPages"></span>
+            </div>
+            <div style="position: absolute; bottom: 5mm; right: 10px; font-size: 10px;">
+                IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . '
+            </div>')
+        ->setOption('preferCSSPageSize', true)
+        ->setOption('printBackground', true)
+        ->scale(1)
+        ->format('A4')
+        ->pdf();
+
+    $filename = 'omr_account_report_' . time() . '.pdf';
+
+    return response($pdf)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
+}
+
+
 
 
 

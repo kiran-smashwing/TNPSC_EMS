@@ -323,22 +323,24 @@
                                                                     </select> </div>
                                                             </div>
                                                             <div class="col-sm-6">
-                                                                <div class="mb-3"> <label class="form-label">TNPSC Staff
-                                                                        <span class="text-danger">*</span></label> <select
-                                                                        disabled
-                                                                        name="escortstaffs[{{ $index }}][tnpsc_staff]"
-                                                                        class="form-control" required>
-                                                                        <option disabled>Select TNPSC Staff</option>
-                                                                        @foreach ($tnpscStaffs as $tnpscStaff)
-                                                                            <option value="{{ $tnpscStaff->dept_off_id }}"
-                                                                                {{ $tnpscStaff->dept_off_id == $escortStaff->tnpsc_staff_id ? 'selected' : '' }}>
-                                                                                {{ $tnpscStaff->dept_off_name }} -
-                                                                                {{ $tnpscStaff->role->role_department }}
-                                                                                {{ $tnpscStaff->role->role_name }}
-                                                                            </option>
-                                                                        @endforeach
-                                                                    </select> </div>
-                                                            </div>
+                                               <div class="mb-3">
+                                                  <label class="form-label">TNPSC Staff
+                                                     <span class="text-danger">*</span>
+                                                  </label>
+                                              <select disabled name="escortstaffs[{{ $index }}][tnpsc_staff]" class="form-control" required>
+                                                   <option disabled>Select TNPSC Staff</option>
+                                                      @foreach ($tnpscStaffs as $tnpscStaff)
+                                                  <option value="{{ $tnpscStaff->dept_off_id }}"
+                                                {{ $tnpscStaff->dept_off_id == ($escortStaff->tnpsc_staff_id ?? '') ? 'selected' : '' }}>
+                                                 {{ $tnpscStaff->dept_off_name }}
+                                                 @if ($tnpscStaff->role) - {{ $tnpscStaff->role->role_department }} {{ $tnpscStaff->role->role_name }}
+                                                   @endif
+                                                </option>
+                                                  @endforeach
+                                                         </select>
+                                                  </div>
+                                               </div>
+
                                                             <div class="col-sm-6">
                                                                 <div class="mb-3"> <label class="form-label">SI Name
                                                                         <span class="text-danger">*</span></label> <input
@@ -511,3 +513,4 @@
 
     @include('partials.theme')
 @endsection
+

@@ -329,6 +329,7 @@ class MyExamController extends Controller
             ->where('exam_id', $examId)
             ->select(DB::raw("consolidate_answer->'" . $session->exam_sess_date . "'->'" . $session->exam_sess_session . "' as consolidate_answer"))
             ->first();
+     // dd($consolidateAnswer);
         // Retrieve session type (Objective or Descriptive)
         $session_type = $session->exam_sess_type;
 

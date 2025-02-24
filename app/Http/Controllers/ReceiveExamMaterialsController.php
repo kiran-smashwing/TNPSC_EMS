@@ -105,6 +105,7 @@ class ReceiveExamMaterialsController extends Controller
                 ->with('center')
                 ->with('district')
                 ->first();
+         
             $msg = "This Qr Code belongs to the following District : " . $examMaterials->district->district_name . " , Center : " . $examMaterials->center->center_name . " , Hall Code: " . $examMaterials->hall_code;
             return response()->json([
                 'status' => 'error',

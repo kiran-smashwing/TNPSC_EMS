@@ -115,7 +115,7 @@ class IDCandidatesController extends Controller
 
         foreach ($candidates as $candidate) {
             fputcsv($handle, [
-                $candidate->center_code,
+                "\t" . $candidate->center_code,
                 $candidate->exam_date,
                 $candidate->session,
                 $candidate->expected_candidates,
@@ -339,8 +339,30 @@ class IDCandidatesController extends Controller
             $confirmedVenuesQuery->where('is_confirmed', 'true');
         }
 
+      
         $confirmedVenues = $confirmedVenuesQuery->get();
+        $venuesWithCIs = collect();
 
+        foreach ($confirmedVenuesQuery->get() as $venue) {
+            $chiefInvigilators =$venue->chief_invigilator_data ?? [];
+
+            // If no CIs are added, add the venue with empty CI details
+            if (empty($chiefInvigilators)) {
+                $venuesWithCIs->push([
+                    'venue' => $venue,
+                    'ci' => null
+                ]);
+            } else {
+                // Create separate entries for each CI
+                foreach ($chiefInvigilators as $examDate => $ci) {
+                    $venuesWithCIs->push([
+                        'venue' => $venue,
+                        'ci' => ChiefInvigilator::where('ci_id', $ci['ci_id'])->first(),
+                        'exam_date' => $ci['exam_date']
+                    ]);
+                }
+            }
+        }
         // Retrieve districts
         $districts = DB::table('exam_candidates_projection as ecp')
             ->join('district as d', 'ecp.district_code', '=', 'd.district_code')
@@ -358,7 +380,7 @@ class IDCandidatesController extends Controller
             ->get();
 
         // Pass data to the view
-        return view('my_exam.IDCandidates.venue-confirmation', compact('exam', 'confirmedVenues', 'districts', 'centers', 'selectedDistrict', 'selectedCenter', 'confirmedOnly'));
+        return view('my_exam.IDCandidates.venue-confirmation', compact('exam', 'confirmedVenues', 'districts', 'centers', 'selectedDistrict', 'selectedCenter', 'confirmedOnly', 'venuesWithCIs'));
     }
     public function saveVenueConfirmation(Request $request, $examId)
     {
@@ -440,7 +462,7 @@ class IDCandidatesController extends Controller
                             [
                                 'exam_id' => $examId,
                                 'venue_code' => $venuecode,
-                               	'district_code' => $confirmedVenue->district_code,
+                                'district_code' => $confirmedVenue->district_code,
                                 'center_code' => $confirmedVenue->center_code,
                                 'ci_id' => $ciId,
                                 'exam_date' => $examDate,
@@ -557,7 +579,7 @@ class IDCandidatesController extends Controller
         $csvString = fopen('php://temp', 'r+');
         fputcsv($csvString, array_keys($csvData[0]));
         foreach ($csvData as $row) {
-            $row['Hall Code'] = sprintf('="%s"', $row['Hall Code']);
+            $row['Hall Code'] = "\t" . $row['Hall Code']; // Add tab space to Hall Code
             fputcsv($csvString, $row);
         }
         rewind($csvString);

@@ -219,25 +219,25 @@ class ChartedVehicleRoutesController extends Controller
         return view('my_exam.Charted-Vehicle.view', compact('route', 'exams', 'tnpscStaffs'));
     }
 
-   public function getDistrictsForExamIDs(Request $request)
-{
-    $examIds = $request->exam_ids;
-    
-    $districts = ExamConfirmedHalls::whereIn('exam_id', $examIds)
-        ->with('district')
-        ->get()
-        ->groupBy('district.district_code') // Ensure unique districts
-        ->map(function ($group) {
-            $hall = $group->first(); // Get first record in each group
-            return [
-                'district_code' => $hall->district->district_code,
-                'district_name' => $hall->district->district_name,
-            ];
-        })
-        ->values(); // Reset array keys to numeric
+    public function getDistrictsForExamIDs(Request $request)
+    {
+        $examIds = $request->exam_ids;
 
-    return response()->json($districts);
-}
+        $districts = ExamConfirmedHalls::whereIn('exam_id', $examIds)
+            ->with('district')
+            ->get()
+            ->groupBy('district.district_code') // Ensure unique districts
+            ->map(function ($group) {
+                $hall = $group->first(); // Get first record in each group
+                return [
+                    'district_code' => $hall->district->district_code,
+                    'district_name' => $hall->district->district_name,
+                ];
+            })
+            ->values(); // Reset array keys to numeric
+
+        return response()->json($districts);
+    }
 
 
     public function downwardJourneyRoutes(Request $request)
@@ -245,7 +245,10 @@ class ChartedVehicleRoutesController extends Controller
         $user = $request->get('auth_user');
 
         // $routes = ChartedVehicleRoute::with(['escortstaffs'])->get();
-
+        $role = session()->get('auth_role');
+        if ($role === 'headquarters' && ($user->role && ($user->role->role_department == 'ED' || $user->role->role_department == 'VMD'))) {
+            $routes = ChartedVehicleRoute::with(['escortstaffs'])->get();
+        } else {      
         $routes = ChartedVehicleRoute::with([
             'escortstaffs' => function ($query) use ($user) {
                 $query->where('tnpsc_staff_id', $user->dept_off_id);
@@ -255,6 +258,7 @@ class ChartedVehicleRoutesController extends Controller
                 $query->where('tnpsc_staff_id', $user->dept_off_id);
             })
             ->get();
+        }
 
         // Fetching exam notifications 
         foreach ($routes as $route) {
@@ -280,9 +284,9 @@ class ChartedVehicleRoutesController extends Controller
             ->where('cvr.id', $id);
         //TODO: update the user department to required 
         if ($user->role && !in_array($user->role->role_department, ['ED', 'QD'])) {
-    	// Apply additional condition only if the user's department is not 'ID'
-   		 $query->where('es.tnpsc_staff_id', $user->dept_off_id);
-		}
+            // Apply additional condition only if the user's department is not ''ED', 'QD''
+            $query->where('es.tnpsc_staff_id', $user->dept_off_id);
+        }
 
         // Execute the query
         $routes = $query->get();
@@ -298,7 +302,7 @@ class ChartedVehicleRoutesController extends Controller
         }
 
         // Determine the order direction based on the role
-      $orderDirection = ($user->role && in_array($user->role->role_department, ['ED', 'QD'])) ? 'desc' : 'asc';
+        $orderDirection = ($user->role && in_array($user->role->role_department, ['ED', 'QD'])) ? 'desc' : 'asc';
 
         // Fetch trunk boxes for all exam IDs and districts, with conditional ordering
         $trunkBoxes = DB::table('exam_trunkbox_otl_data as e')
@@ -313,7 +317,7 @@ class ChartedVehicleRoutesController extends Controller
         $totalScanned = $trunkBoxes->filter(
             fn($examMaterial) => !is_null(
                 value: $examMaterial->{
-                     $user->role && in_array($user->role->role_department, ['ED', 'QD'])
+                    $user->role && in_array($user->role->role_department, ['ED', 'QD'])
                     ? 'hq_scanned_at'
                     : 'dept_off_scanned_at'
                     }
@@ -381,10 +385,11 @@ class ChartedVehicleRoutesController extends Controller
         }
 
         // Get the previous trunk box in the load order
-           $previousTrunkBox = ExamTrunkBoxOTLData::where('exam_id', $examMaterials->exam_id)
+        $previousTrunkBox = ExamTrunkBoxOTLData::where('exam_id', $examMaterials->exam_id)
         ->where('district_code', $examMaterials->district_code)
         ->where('center_code', $examMaterials->center_code)
         ->where('load_order', $examMaterials->load_order - 1) // Always check the immediate previous load_order
+        ->orderBy('load_order') // Ensure it picks the next in sequence
         ->first();
     
 

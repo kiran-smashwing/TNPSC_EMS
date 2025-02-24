@@ -717,8 +717,7 @@
                                                                     @endif
                                                                 @endhasPermission
                                                                 @hasPermission('finalize-csv')
-                                                                    @if (isset($metadata->failed_csv_link) &&
-                                                                            file_exists(public_path(str_replace(url('/'), '', $metadata->failed_csv_link))))
+                                                                    @if (!empty($metadata->failed_csv_link))
                                                                         <a href="{{ $metadata->failed_csv_link }}"
                                                                             class="me-3 btn btn-sm btn-light-danger">
                                                                             <i class="feather icon-download mx-1"></i>Failed
@@ -973,7 +972,7 @@
                                                             </div>
                                                             <div class="h5 mt-3"><i
                                                                     class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                {{ $is_received_printer_to_hq ? $receiveMaterialsPrinterToHQ->department : 'ED - Section Officer' }}
+                                                                {{ $is_received_printer_to_hq ? $receiveMaterialsPrinterToHQ->department : 'QD - Section Officer' }}
                                                             </div>
                                                         </div>
                                                         <div class="mt-2">
@@ -990,7 +989,7 @@
                                     </li>
                                 @endif
                                 @hasPermission('download-meeting-qr')
-                                @php
+                                    @php
                                         $is_meeting_qr_created = $meetingCodeGen !== null;
                                         $user = $is_meeting_qr_created
                                             ? App\Models\District::where(
@@ -1015,8 +1014,7 @@
                                                     <div class="col-sm-auto mb-3 mb-sm-0">
                                                         <div class="d-sm-inline-block d-flex align-items-center">
                                                             <img loading="lazy" class="media-object wid-60 img-radius"
-                                                                src="{{ $profileImage }}"
-                                                                alt="Generic placeholder image " />
+                                                                src="{{ $profileImage }}" alt="Generic placeholder image " />
                                                             <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                                 <ul
                                                                     class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
@@ -1075,8 +1073,8 @@
                                             </div>
                                         </div>
                                     </li>
-                                    @endhasPermission
-                                    @if (session('auth_role') == 'headquarters' && $current_user->custom_role != 'VDS')
+                                @endhasPermission
+                                @if (session('auth_role') == 'headquarters' && $current_user->custom_role != 'VDS')
                                     @php
                                         $is_qd_trunk_qr_upload = $examTrunkboxOTLData !== null;
 
@@ -1234,7 +1232,7 @@
                                                                         by
                                                                         <b>
                                                                             @php
-                                                                               $user = current_user();
+                                                                                $user = current_user();
                                                                             @endphp
                                                                             {{ $is_exam_routes_created
                                                                                 ? ($role == 'headquarters'
@@ -1512,7 +1510,7 @@
                                         </div>
                                     </li>
                                 @endhasPermission
-                                @if (session('auth_role') == 'headquarters' && $current_user->custom_role != 'VDS')
+                                {{-- @if (session('auth_role') == 'headquarters' && $current_user->custom_role != 'VDS')
                                     @php
                                         $is_received_trunkbox_at_hq = $receiveTrunkboxToHQ !== null;
 
@@ -1675,7 +1673,7 @@
                                             </div>
                                         </div>
                                     </li>
-                                @endif
+                                @endif --}}
                             </ul>
                             {{-- <div class="text-end">
                       <a href="#!" class="b-b-primary text-primary">View Friend List</a>

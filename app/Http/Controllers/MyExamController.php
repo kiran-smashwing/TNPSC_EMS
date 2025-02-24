@@ -77,9 +77,9 @@ class MyExamController extends Controller
                 $venueConsents->venueName = $user->venue_name;
                 $venueConsents->profile_image = $user->venue_image;
 
-            } else if ($role == 'district' || $role == 'center') {
+            } else  {
                 $meetingCodeGen = CIMeetingQrcode::where('exam_id', $examId)
-                    ->where('district_code', $user->district_code)
+                    ->where('district_code', $user->district_code ?? '01')
                     ->first();
                 if ($meetingCodeGen !== null) {
                     $meetingCodeGen->user = $user;

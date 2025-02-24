@@ -56,6 +56,10 @@ class TreasuryOfficer extends Authenticatable
     {
         return !empty($this->tre_off_email) ? $this->tre_off_email : 'No email available';
     }
+    public function getDistrictCodeAttribute()
+    {
+        return $this->tre_off_district_id;
+    }
     public function getProfileImageAttribute()
     {
         if (!empty($this->tre_off_image) && file_exists(public_path('storage/' . $this->tre_off_image))) {

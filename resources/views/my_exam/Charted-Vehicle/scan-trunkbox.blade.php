@@ -222,8 +222,12 @@
                                             <td>{{ $trunkbox->hall_code }}</td>
                                             <td>{{ $trunkbox->exam_date }}</td>
                                             <td>{{ $trunkbox->trunkbox_qr_code }}</td>
-                                         	<td>
-   											 {{ $trunkbox && ($scanTime = optional($user->role)->role_department === 'ED' ? $trunkbox->hq_scanned_at : 														$trunkbox->dept_off_scanned_at) ? \Carbon\Carbon::parse($scanTime)->format('d-m-Y h:i:s') : 'No Scans' }}
+                                          <td>
+   											 @if ($trunkbox && $user->role && ($scanTime = ($user->role->role_department === 'ED' ? $trunkbox->hq_scanned_at : 													$trunkbox->dept_off_scanned_at)))
+  												      {{ \Carbon\Carbon::parse($scanTime)->format('d-m-Y h:i:s') }}
+   											 @else
+      												  No Scans
+  											 @endif
 											</td>
                                         </tr>
                                     @endforeach

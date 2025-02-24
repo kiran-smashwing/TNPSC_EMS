@@ -38,9 +38,11 @@ class APDCandidatesController extends Controller
         ob_start(); // Start output buffering
         fputcsv($handle, $data[0]); // Add headers to the CSV
         foreach (array_slice($data, 1) as $row) {
-            // Format `center_code` as a string to preserve leading zeros
-            $row[0] = sprintf('="%s"', $row[0]);
-            fputcsv($handle, $row); // Add data rows to the CSV
+            // Add tab prefix to each cell in the row
+            $tabbedRow = array_map(function ($cell) {
+                return "\t" . $cell;
+            }, $row);
+            fputcsv($handle, $tabbedRow); // Add data rows to the CSV with tab prefix
         }
         fclose($handle);
         $csvOutput = ob_get_clean(); // Capture CSV output
@@ -60,11 +62,32 @@ class APDCandidatesController extends Controller
 
         $examId = $request->input('exam_id');
         $file = $request->file('csv_file');
-        //TODO:Add functionality to preserve leading zeros in the CSV file and remove duplicate file already uplaoded 
         // Save the uploaded file
         $uploadedFilePath = 'uploads/csv_files/';
-        $uploadedFileName = $examId . '_uploaded_' . time() . '.' . $file->getClientOriginalExtension();
-        $file->storeAs($uploadedFilePath, $uploadedFileName, 'public');
+        $uploadedFileName = $examId . '_uploaded_' . time() . '.csv';
+        $fullFilePath = storage_path("app/public/{$uploadedFilePath}{$uploadedFileName}");
+        // Check for duplicate files and remove them
+        $existingFiles = glob(storage_path("app/public/{$uploadedFilePath}{$examId}_uploaded_*"));
+        foreach ($existingFiles as $existingFile) {
+            unlink($existingFile); // Delete old files
+        }
+
+        // Read uploaded CSV file
+        $tempFilePath = $file->getPathname();
+        $rows = array_map('str_getcsv', file($tempFilePath));
+
+        // Open new file for writing
+        $fp = fopen($fullFilePath, 'w');
+
+        foreach ($rows as $row) {
+            if (!empty($row)) {
+                // Add tab space only to the first column
+                $row[0] = "\t" . $row[0];
+            }
+            fputcsv($fp, $row); // Save with correct column separation
+        }
+
+        fclose($fp);
         $uploadedFileUrl = asset('storage/' . $uploadedFilePath . $uploadedFileName);
 
         // Retrieve exam and its sessions
@@ -77,7 +100,11 @@ class APDCandidatesController extends Controller
         if (($handle = fopen($file->getRealPath(), 'r')) === false) {
             return redirect()->back()->with('error', 'Failed to open the CSV file.');
         }
-
+        // Remove UTF-8 BOM if present
+        $bom = fgets($handle, 4);
+        if (!str_starts_with($bom, "\xEF\xBB\xBF")) {
+            rewind($handle);
+        }
         fgetcsv($handle); // Skip the header row
 
         $table = 'exam_candidates_projection';
@@ -93,6 +120,10 @@ class APDCandidatesController extends Controller
         while (($data = fgetcsv($handle, 1000, ',')) !== false) {
             $totalRows++;
             try {
+                // Skip empty rows
+                if (empty(array_filter($data))) {
+                    continue;
+                }
                 // Validate the data for each field
                 $this->validateRow($data, $examId, $table, $currentTime, $exam, $successfulInserts, $failedRows);
             } catch (\Exception $e) {
@@ -101,16 +132,23 @@ class APDCandidatesController extends Controller
         }
 
         fclose($handle);
-        //TODO:Update the files to be saved in failes_csv file directory
         // Handle failed rows and generate a CSV file for them
         $failedCsvPath = null;
         if (!empty($failedRows)) {
-            $failedCsvPath = $examId . '_failed_rows_' . time() . '.csv';
+            $failedCsvPath = 'failes_csv/' . $examId . '_failed_rows_' . time() . '.csv';
             $filePath = storage_path('app/public/' . $failedCsvPath);
+            // Ensure the directory exists
+            if (!file_exists(storage_path('app/public/failes_csv'))) {
+                mkdir(storage_path('app/public/failes_csv'), 0777, true);
+            }
             $fp = fopen($filePath, 'w');
             fputcsv($fp, ['Center Code', 'Center Name', 'Exam Date', 'Session', 'Expected Candidates', 'Error']);
+            // Add tab prefix to each cell in failed rows
             foreach ($failedRows as $row) {
-                fputcsv($fp, $row);
+                $tabbedRow = array_map(function ($cell) {
+                    return "\t" . $cell;
+                }, $row);
+                fputcsv($fp, $tabbedRow);
             }
             fclose($fp);
             session()->put('failed_csv_path', $failedCsvPath); // Store the file path in session for future download
@@ -128,26 +166,39 @@ class APDCandidatesController extends Controller
      */
     private function validateRow($data, $examId, $table, $currentTime, $exam, &$successfulInserts, &$failedRows)
     {
-        // Validate center code, name, date, session, and expected candidates
-        if (!isset($data[0]) || !is_numeric($data[0])) {
+        // Clean and format the center code
+        $centerCode = isset($data[0]) ? trim($data[0]) : ''; // Remove any leading/trailing spaces
+
+        // Validate center code is numeric after trimming
+        if (!is_numeric($centerCode)) {
             throw new \Exception('Invalid or missing center code.');
         }
-        if (!isset($data[1]) || !\Carbon\Carbon::createFromFormat('d-m-Y', $data[1])) {
+
+        // Format center code to ensure 4 digits with leading zeros
+        $centerCode = str_pad((string) $centerCode, 4, '0', STR_PAD_LEFT);
+
+        // Clean other data fields
+        $examDate = isset($data[1]) ? trim($data[1]) : '';
+        $session = isset($data[2]) ? trim($data[2]) : '';
+        $expectedCandidates = isset($data[3]) ? trim($data[3]) : '';
+
+        // Validate other fields
+        if (!$examDate || !\Carbon\Carbon::createFromFormat('d-m-Y', $examDate)) {
             throw new \Exception('Invalid or missing exam date.');
         }
-        if (!isset($data[2]) || !in_array($data[2], ['FN', 'AN'])) {
+        if (!$session || !in_array(strtoupper($session), ['FN', 'AN'])) {
             throw new \Exception('Invalid session. Must be FN or AN.');
         }
-        if (!isset($data[3]) || !is_numeric($data[3])) {
+        if (!$expectedCandidates || !is_numeric($expectedCandidates)) {
             throw new \Exception('Invalid or missing expected candidates count.');
         }
 
         // Check for duplicate entry
         $duplicate = \DB::table($table)
             ->where('exam_id', $examId)
-            ->where('center_code', $data[0])
-            ->where('exam_date', \Carbon\Carbon::createFromFormat('d-m-Y', $data[1])->format('Y-m-d'))
-            ->where('session', $data[2])
+            ->where('center_code', $centerCode)
+            ->where('exam_date', \Carbon\Carbon::createFromFormat('d-m-Y', $examDate)->format('Y-m-d'))
+            ->where('session', strtoupper($session))
             ->first();
 
         if ($duplicate) {
@@ -155,23 +206,21 @@ class APDCandidatesController extends Controller
             throw new \Exception($errorDetails);
         }
 
-        // Insert data into the database
-        $insertData = [
-            'exam_id' => $examId,
-            'created_at' => $currentTime,
-            'updated_at' => $currentTime,
-        ];
-        $center = Center::where('center_code', $data[0])->first();
+        // Check if center exists with formatted code
+        $center = Center::where('center_code', $centerCode)->first();
         if (!$center) {
-            throw new \Exception('Center code not found.');
+            throw new \Exception("Center code '$centerCode' not found.");
         }
 
-        $insertData += [
-            'center_code' => $center->center_code,
-            'district_code' => $center->district->district_code ?? null,
-            'exam_date' => \Carbon\Carbon::createFromFormat('d-m-Y', $data[1])->format('Y-m-d'),
-            'session' => $data[2],
-            'expected_candidates' => $data[3],
+        $insertData = [
+            'exam_id' => $examId,
+            'center_code' => $centerCode,
+            'district_code' => $center->district->district_code,
+            'exam_date' => \Carbon\Carbon::createFromFormat('d-m-Y', $examDate)->format('Y-m-d'),
+            'session' => strtoupper($session),
+            'expected_candidates' => $expectedCandidates,
+            'created_at' => $currentTime,
+            'updated_at' => $currentTime,
         ];
 
         \DB::table($table)->insert($insertData);
@@ -226,7 +275,7 @@ class APDCandidatesController extends Controller
      */
     private function deleteOldFailedFiles($examId)
     {
-        $failedCsvFiles = glob(storage_path('app/public/' . $examId . '_failed_rows_*.csv'));
+        $failedCsvFiles = glob(storage_path('app/public/failes_csv/' . $examId . '_failed_rows_*.csv'));
 
         // Loop through and delete old failed CSV files
         foreach ($failedCsvFiles as $file) {
@@ -261,9 +310,10 @@ class APDCandidatesController extends Controller
         ob_start(); // Start output buffering
         fputcsv($handle, $data[0]); // Add headers to the CSV
         foreach (array_slice($data, 1) as $row) {
-            // Format `center_code` as a string to preserve leading zeros
-            $row[0] = sprintf('="%s"', $row[0]);
-            $row[1] = sprintf('="%s"', $row[1]);
+            // Add tab space and zero-padding while keeping them as plain text
+            $row[0] = "\t" . str_pad(trim($row[0]), 4, '0', STR_PAD_LEFT); // Center Code (min 4 digits)
+            $row[1] = "\t" . str_pad(trim($row[1]), 3, '0', STR_PAD_LEFT); // Hall Code (min 3 digits)
+
             fputcsv($handle, $row); // Add data rows to the CSV
         }
         fclose($handle);
@@ -306,7 +356,6 @@ class APDCandidatesController extends Controller
         }
 
         // Create new file with preserved formatting
-        $uploadedFilePath = 'uploads/csv_files/';
         $uploadedFileName = 'APD_FINALIZE_HALLS_' . $examId . '_uploaded_' . time() . '.csv';
         $fullPath = storage_path('app/public/' . $uploadedFilePath . $uploadedFileName);
 
@@ -320,14 +369,17 @@ class APDCandidatesController extends Controller
         fprintf($fp, chr(0xEF) . chr(0xBB) . chr(0xBF)); // Add UTF-8 BOM
 
         foreach ($rows as $row) {
-            //skip first row heading
+            // Skip first row heading
             if ($row[0] == '') {
                 continue;
             }
+
             if (!empty($row)) { // Skip empty rows
-                // Format the columns that need leading zeros
-                $row[0] = '="' . str_pad(trim($row[0]), 3, '0', STR_PAD_LEFT) . '"'; // Center Code
-                $row[1] = '="' . str_pad(trim($row[1]), 3, '0', STR_PAD_LEFT) . '"'; // Hall Code
+                // Add tab space and zero-padding
+                $row[0] = "\t" . str_pad(trim($row[0]), 4, '0', STR_PAD_LEFT); // Center Code (min 4 digits)
+                $row[1] = "\t" . str_pad(trim($row[1]), 3, '0', STR_PAD_LEFT); // Hall Code (min 3 digits)
+
+                // Write row to CSV file
                 fputcsv($fp, $row);
             }
         }
@@ -374,14 +426,21 @@ class APDCandidatesController extends Controller
         // Handle failed rows and generate a CSV file for them
         $failedCsvPath = null;
         if (!empty($failedRows)) {
-            $failedCsvPath = $examId . '_finalizehalls_failed_rows_' . time() . '.csv';
-            $filePath = storage_path('app/public/uploads/failed_csv_files/' . $failedCsvPath);
+            $failedCsvPath = 'failes_csv/' . $examId . '_finalizehalls_failed_rows_' . time() . '.csv';
+            $filePath = storage_path('app/public/' . $failedCsvPath);
+            // Ensure the directory exists
+            if (!file_exists(storage_path('app/public/failes_csv'))) {
+                mkdir(storage_path('app/public/failes_csv'), 0777, true);
+            }
             $fp = fopen($filePath, 'w');
+            fprintf($fp, chr(0xEF) . chr(0xBB) . chr(0xBF)); // Add UTF-8 BOM for Excel compatibility
             fputcsv($fp, ['Center Code', 'Hall Code', 'Exam Date', 'Exam Session', 'Candidates Count', 'Error']);
+
             foreach ($failedRows as $row) {
-                // Format `center_code` as a string to preserve leading zeros
-                $row[0] = sprintf('="%s"', $row[0]);
-                $row[1] = sprintf('="%s"', $row[1]);
+                // Add tab space to Center Code and Hall Code to preserve leading zeros
+                $row[0] = "\t" . trim($row[0]); // Center Code
+                $row[1] = "\t" . trim($row[1]); // Hall Code
+
                 fputcsv($fp, $row);
             }
             fclose($fp);
@@ -401,7 +460,7 @@ class APDCandidatesController extends Controller
      */
     private function deleteFinalizeOldFailedFiles($examId)
     {
-        $failedCsvFiles = glob(storage_path('app/public/uploads/failed_csv_files/' . $examId . '_finalizehalls_failed_rows_*.csv'));
+        $failedCsvFiles = glob(storage_path('app/public/failes_csv/' . $examId . '_finalizehalls_failed_rows_*.csv'));
 
         // Loop through and delete old failed CSV files
         foreach ($failedCsvFiles as $file) {
@@ -415,39 +474,58 @@ class APDCandidatesController extends Controller
      */
     private function validateFinalizeCSVRow($data, $examId, &$successfulInserts, &$failedRows)
     {
+        // Clean and format the center code
+        $centerCode = isset($data[0]) ? trim($data[0]) : '';
+        $hallCode = isset($data[1]) ? trim($data[1]) : '';
+        $examDate = isset($data[2]) ? trim($data[2]) : '';
+        $session = isset($data[3]) ? trim($data[3]) : '';
+        $candidatesCount = isset($data[4]) ? trim($data[4]) : '';
 
-        // Validate center code, name, date, session, and expected candidates
-        if (!isset($data[0]) || !is_numeric($data[0])) {
+        // Validate center code
+        if (!is_numeric($centerCode)) {
             throw new \Exception('Invalid or missing center code.');
         }
-        if (!isset($data[1]) || !is_numeric($data[1])) {
+        // Format center code to 4 digits
+        $centerCode = str_pad($centerCode, 4, '0', STR_PAD_LEFT);
+        // Validate and format hall code
+        if (!is_numeric($hallCode)) {
             throw new \Exception('Invalid or missing Hall code.');
         }
-        if (!isset($data[2]) || !\Carbon\Carbon::createFromFormat('d-m-Y', $data[2])) {
+        // Format hall code to 3 digits
+        $hallCode = str_pad($hallCode, 3, '0', STR_PAD_LEFT);
+        // Validate exam date
+        if (!$examDate || !\Carbon\Carbon::createFromFormat('d-m-Y', $examDate)) {
             throw new \Exception('Invalid or missing exam date.');
         }
-        if (!isset($data[3]) || !in_array($data[3], ['FN', 'AN'])) {
+
+        // Validate session
+        if (!$session || !in_array(strtoupper($session), ['FN', 'AN'])) {
             throw new \Exception('Invalid session. Must be FN or AN.');
         }
-        if (!isset($data[4]) || !is_numeric($data[4])) {
+        $session = strtoupper($session);
+
+        // Validate candidates count
+        if (!is_numeric($candidatesCount)) {
             throw new \Exception('Invalid or missing actual candidates count.');
         }
-        // Validate center code, name, date, session, in ExamConfirmedHalls 
+
+        // Validate in ExamConfirmedHalls 
         $confirmedByID = ExamConfirmedHalls::where('exam_id', $examId)
-            ->where('hall_code', $data[1])
-            ->where('exam_session', $data[3])
-            ->where('exam_date', \Carbon\Carbon::createFromFormat('d-m-Y', $data[2])->format('Y-m-d'))
-            ->where('center_code', $data[0])
+            ->where('hall_code', $hallCode)
+            ->where('exam_session', $session)
+            ->where('exam_date', \Carbon\Carbon::createFromFormat('d-m-Y', $examDate)->format('Y-m-d'))
+            ->where('center_code', $centerCode)
             ->first();
 
         if (!$confirmedByID) {
-            $errorDetails = "No Confirmed Halls found. Existing data - Center Code: {$data[0]}, Hall Code: {$data[1]},  Exam Date: {$data[2]}, Session: {$data[3]}";
+            $errorDetails = "No Confirmed Halls found. Existing data - Center Code: {$centerCode}, Hall Code: {$hallCode}, Exam Date: {$examDate}, Session: {$session}";
             throw new \Exception($errorDetails);
         }
-        // Insert data into the database
+
+        // Update the record
         if ($confirmedByID) {
             $confirmedByID->is_apd_uploaded = true;
-            $confirmedByID->alloted_count = $data[4];
+            $confirmedByID->alloted_count = $candidatesCount;
             $confirmedByID->save();
         } else {
             throw new \Exception('Invalid exam model.');
@@ -467,7 +545,7 @@ class APDCandidatesController extends Controller
             'successful_inserts' => $successfulInserts,
             'failed_count' => $failedCount,
             'uploaded_csv_link' => $uploadedFileUrl, // Include uploaded file link
-            'failed_csv_link' => $failedCsvPath ? asset('storage/uploads/failed_csv_files/' . $failedCsvPath) : null,
+            'failed_csv_link' => $failedCsvPath ? asset('storage/' . $failedCsvPath) : null,
         ];
 
         // Check if a log already exists for this exam and task type

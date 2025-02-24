@@ -266,12 +266,26 @@ class DistrictCandidatesController extends Controller
         $examId = $request->input('exam_id');
         $meetingDate = $request->input('meeting_date');
         $meetingTime = $request->input('meeting_time');
-
-        //if meeting is already created return the created pdf view 
+        // Combine date and time
+        $meetingDateTime = $meetingDate . ' ' . $meetingTime;
+        
+        // Check if a QR code already exists for this exam and district
         $qrCode = DB::table('ci_meeting_qrcode')
             ->where('exam_id', $examId)
-            ->where('district_code', $user->district_code)
+            ->where('district_code', $user->district_code ?? - '01')
             ->first();
+        if ($qrCode) {
+            // Update only the meeting date and time without modifying the QR code
+            DB::table('ci_meeting_qrcode')
+                ->where('id', $qrCode->id)
+                ->update([
+                    'meeting_date_time' => $meetingDateTime,
+                    'updated_at' => now(),
+                ]);
+
+            return redirect()->route('district-candidates.generatePdf', ['qrCodeId' => $qrCode->id])
+                ->with('success', 'Meeting date and time updated successfully.');
+        }
         //TODO: check if qr code is already created for the url and skip if exisits are already created.
         //generate qr code for this link and send it to view page https://smashsoft.site/tnpsc-ems/public/login
         $logoPath = asset('storage/assets/images/qr-logo.png'); // replace with your logo path
@@ -328,9 +342,6 @@ class DistrictCandidatesController extends Controller
         // Store the QR code image using Storage
         Storage::disk('public')->put($imagePath, $result->getString());
 
-        if ($qrCode) {
-            return redirect()->route('district-candidates.generatePdf', ['qrCodeId' => $qrCode->id]);
-        }
 
         // Combine date and time
         $meetingDateTime = $meetingDate . ' ' . $meetingTime;

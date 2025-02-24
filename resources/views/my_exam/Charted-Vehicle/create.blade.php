@@ -448,7 +448,7 @@
                     .then(data => {
                         // Convert object to array if needed
                         districts = Array.isArray(data) ? data : Object.values(data);
-                        updateDistrictDropdowns();
+                        updateDistrictDropdowns(); // Ensure dropdowns are updated with the correct districts 
                     })
 
                     .catch(error => console.error('Error fetching districts:', error));
@@ -508,7 +508,7 @@
                                 <label class="form-label">TNPSC Staff <span class="text-danger">*</span></label>
                                 <select name="escortstaffs[${cardIndex}][tnpsc_staff]" class="form-control" required>
                                     <option disabled selected>Select TNPSC Staff</option>
-                                        ${tnpscOptions}  <!-- Insert TNPSC staff dynamically -->
+                                    ${tnpscOptions}  <!-- Insert TNPSC staff dynamically -->
                                 </select>
                             </div>
                         </div>

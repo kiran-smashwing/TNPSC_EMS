@@ -221,7 +221,8 @@ class CIPreliminaryCheckController extends Controller
             'exam_sess_session' => 'required|string',
             'checklists' => 'nullable|array',
         ]);
-    $user = current_user();
+
+        $user = current_user();
            // Retrieve the exam details from exam_confirmed_halls
            $examDetails = DB::table('exam_confirmed_halls')
            ->where('exam_id', $validated['exam_id'])

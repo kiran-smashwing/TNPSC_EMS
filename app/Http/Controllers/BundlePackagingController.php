@@ -50,6 +50,15 @@ class BundlePackagingController extends Controller
                 'R3' => 'Bundle I',
                 'R4' => 'Bundle II',
                 'R5' => 'Bundle C',
+                'I1' => 'BUNDLE A1',
+                'I2' => 'BUNDLE A2',
+                'R1' => 'BUNDLE A',
+                'I3' => 'BUNDLE B1',
+                'I4' => 'BUNDLE B2',
+                'I5' => 'BUNDLE B3',
+                'I6' => 'BUNDLE B4',
+                'I7' => 'BUNDLE B5',
+                'R2' => 'BUNDLE B',
             ];
         }
         $query = $role == 'ci'
@@ -474,7 +483,7 @@ class BundlePackagingController extends Controller
                 $material->bundle_label = $material->category;
             }
         });
-        
+
         return view('my_exam.BundlePackaging.mobileteam-to-center-bundle', compact('examMaterials', 'examId', 'totalExamMaterials', 'totalScanned', 'examDates'));
     }
     public function chartedVehicletoHeadquarters(Request $request, $examId)
@@ -528,23 +537,24 @@ class BundlePackagingController extends Controller
 
         // Get the next trunk box in reverse order (descending load_order)
         $previousTrunkBox = ExamTrunkBoxOTLData::where('exam_id', $examMaterials->exam_id)
-        ->where('district_code', $examMaterials->district_code)
-        ->where('load_order', $examMaterials->load_order + 1) // Always check the immediate previous load_order
-        ->orderBy('load_order') // Ensure it picks the next in sequence
-        ->first();
-      
+            ->where('district_code', $examMaterials->district_code)
+            ->where('load_order', $examMaterials->load_order + 1) // Always check the immediate previous load_order
+            ->orderBy('load_order') // Ensure it picks the next in sequence
+            ->first();
 
-       // Check if the previous trunk box was scanned and has hq_scanned_at filled
-if ($previousTrunkBox && 
-    !ExamTrunkBoxScan::where('exam_trunkbox_id', $previousTrunkBox->id)
-        ->whereNotNull('hq_scanned_at') // Ensure hq_scanned_at is filled
-        ->exists()
-) {
-    return response()->json([
-        'status' => 'error',
-        'message' => 'Please scan trunk boxes in the correct order. The previous trunk box has not been scanned at HQ yet.',
-    ], 400);
-}
+        // Check if the previous trunk box was scanned and has hq_scanned_at filled
+        if (
+            $previousTrunkBox &&
+            !ExamTrunkBoxScan::where('exam_trunkbox_id', $previousTrunkBox->id)
+                ->whereNotNull('hq_scanned_at') // Ensure hq_scanned_at is filled
+                ->exists()
+        ) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Please scan trunk boxes in the correct order. The previous trunk box has not been scanned at HQ yet.',
+            ], 400);
+        }
+
         // Check if the current trunk box is already scanned at HQ
         $existingScan = ExamTrunkBoxScan::where('exam_trunkbox_id', $examMaterials->id)
             ->whereNotNull('hq_scanned_at') // Ensure it's already scanned

@@ -116,6 +116,11 @@
                     justify-content: center;
                 }
             }
+            
+            #swal2-html-container {
+                z-index: 9999 !important;
+                overflow: visible !important;
+            }
         </style>
     @endpush
     <!-- [ Pre-loader ] start -->
@@ -138,8 +143,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                                              <h2 class="mb-0"></h2>
-                                                                            </div> -->
+                                                                                  <h2 class="mb-0"></h2>
+                                                                                </div> -->
                         </div>
                     </div>
                 </div>
@@ -156,9 +161,9 @@
                                 <h5 class="mb-3 mb-sm-0">Mobile Team to District Treasury
                                 </h5>
                                 <ul class="list-inline ms-auto  mb-0">
-                                    <li class="list-inline-item"><a href="#" class="badge bg-dark f-14">Received
+                                    {{-- <li class="list-inline-item"><a href="#" class="badge bg-dark f-14">Received
                                             {{ $totalScanned }} /
-                                            {{ $totalExamMaterials }}</a></li>
+                                            {{ $totalExamMaterials }}</a></li> --}}
                                     {{-- <li class="list-inline-item"> <a href="{{route('collectorate.create')}}" class="btn btn-outline-success">Scan Now</a></li> --}}
                                 </ul>
                             </div>
@@ -211,32 +216,30 @@
                                 width="100%">
                                 <thead>
                                     <tr>
-                                        <th>#</th>
-                                        <th>Center</th>
-                                        <th>Hall no</th>
-                                        <th>Exam Date</th>
-                                        <th>Exam Session</th>
-                                        <th>Bundle</th>
-                                        <th>Time Stamp</th>
+                                        <th>Route No</th>
+                                        <th>Center Code</th>
+                                        <th>Hall No</th>
+                                        <th>Trunkbox Code</th>
+                                        <th>OTL Locks</th>
+                                        <th>Materials Count</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @php $counter = 1; @endphp
-                                    @foreach ($examMaterials as $examMaterial)
+                                    @foreach ($groupedExamMaterials as $data)
                                         <tr>
-                                            <td>{{ $counter++ }}</td>
-                                            <td>{{ $examMaterial['center']->center_code }} -
-                                                {{ $examMaterial['center']->center_name }}</td>
-                                            <td>{{ $examMaterial['hall_code'] }}</td>
-                                            <td>{{ date('d-m-Y', strtotime($examMaterial['exam_date'])) }}</td>
-                                            <td>{{ $examMaterial['exam_session'] }}</td>
-                                            <td>{{ $examMaterial->bundle_label }}</td>
+                                            <td>{{ $data['route_no'] }}</td>
+                                            <td>{{ $data['center_code'] }}</td>
+                                            <td>{{ $data['hall_code'] }}</td>
+                                            <td>{{ $data['trunkbox_qr_code'] }}</td>
+                                            <td>{{ implode(', ', $data['otl_codes']) }}</td>
+                                            <td>{{ $data['scanned_count'] }} / {{ $data['materials_count'] }}</td>
                                             <td>
-                                                @if ($examMaterial->examMaterialsScan && $examMaterial->examMaterialsScan->district_scanned_at)
-                                                    {{ \Carbon\Carbon::parse($examMaterial->examMaterialsScan->district_scanned_at)->format('d-m-Y h:i:s') }}
-                                                @else
-                                                    No Scans
-                                                @endif
+                                                <a class="avtar avtar-xs btn-light-success bs-ajex-req"
+                                                    data-trunkbox="{{ $data['trunkbox_qr_code'] }}"
+                                                    data-otl="{{ json_encode($data['otl_codes']) }}">
+                                                    <i class="ti ti-checkbox f-20"></i>
+                                                </a>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -258,6 +261,8 @@
 
     @push('scripts')
         @include('partials.datatable-export-js')
+        <script src="{{ asset('storage/assets/js/plugins/choices.min.js') }}"></script>
+
         <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
         <script>
             function processQrCode(data) {
@@ -316,6 +321,82 @@
                     window.location.reload(); // Reload the page when "OK" is clicked
                 });
             }
+        </script>
+        <script>
+            document.querySelectorAll('.bs-ajex-req').forEach(button => {
+                button.addEventListener('click', function() {
+                    let trunkboxQrCode = this.getAttribute('data-trunkbox');
+                    let otlCodes = JSON.parse(this.getAttribute('data-otl'));
+
+                    // Create multi-select dropdown options
+                    let optionsHtml = otlCodes.map(code =>
+                        `<option value="${code}">${code}</option>`
+                    ).join('');
+
+                    Swal.fire({
+                        title: 'Select Used OTL Codes',
+                        html: `
+                <div class="form-group">
+                    <select class="form-select" 
+                        id="otlSelect" name="otlSelect[]" multiple>
+                        ${optionsHtml}
+                    </select>
+                </div>
+                `,
+                        showCancelButton: true,
+                        confirmButtonText: 'Submit',
+                        didOpen: () => {
+                            // Initialize Choices.js on the select element after the modal is opened
+                            const choicesInstance = new Choices('#otlSelect', {
+                                removeItemButton: true,
+                                placeholderValue: 'Select OTL Codes',
+                                position: 'bottom',
+                                searchEnabled: true,
+                                searchChoices: true,
+                                multiple: true,
+                                itemSelectText: ''
+                            });
+                        },
+                        preConfirm: () => {
+                            let selectEl = document.getElementById('otlSelect');
+                            let selectedOptions = Array.from(selectEl.selectedOptions)
+                                .map(option => option.value);
+
+                            if (selectedOptions.length === 0) {
+                                Swal.showValidationMessage('Please select at least one OTL code');
+                                return false;
+                            }
+
+                            return {
+                                trunkboxQrCode,
+                                otlCodes: selectedOptions
+                            };
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch('{{ route('bundle-packaging.save-used-otl-codes') }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                    },
+                                    body: JSON.stringify({
+                                        ...result.value,
+                                        examId: '{{ $examId }}'
+                                    })
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    Swal.fire('Success!', 'OTL Codes updated successfully.',
+                                        'success');
+                                })
+                                .catch(error => {
+                                    Swal.fire('Error!', 'Something went wrong.', 'error');
+                                });
+                        }
+                    });
+                });
+            });
         </script>
     @endpush
 

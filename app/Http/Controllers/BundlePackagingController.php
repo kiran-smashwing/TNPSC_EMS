@@ -174,17 +174,14 @@ class BundlePackagingController extends Controller
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
         $user = $guard ? $guard->user() : null;
-        // $examDate = Carbon::parse($examDate)->format('Y-m-d');
-
         // Define the category mapping       
         $categoryArray = ['R1', 'R2', 'R3', 'R4', 'R5', 'R6'];
-        // Fetch exam materials based on examId and examDate
-        $query = ExamMaterialsData::where('exam_id', $examId)
-            ->whereIn('category', $categoryArray);
 
-        $role == 'treasury'
-            ? $query->where('district_code', $user->tre_off_district_id)
-            : $query->where('district_code', $user->district_code);
+        // Fetch exam materials grouped by hall_code
+        $query = ExamMaterialsData::where('district_code', $user->district_code)
+            ->where('exam_id', $examId)
+            ->whereIn('category', $categoryArray)
+            ->with('examMaterialsScan'); // Load scan relationship
 
         // Apply filters 
         if ($request->has('centerCode') && !empty($request->centerCode)) {
@@ -193,20 +190,60 @@ class BundlePackagingController extends Controller
         if ($request->has('examDate') && !empty($request->examDate)) {
             $query->whereDate('exam_date', $request->examDate);
         }
-        $examMaterials = $query
-            ->with([
-                'center',
-                'examMaterialsScan'
-            ])
+
+        $examMaterials = $query->get()->groupBy('hall_code');
+
+        // Fetch trunkbox data
+        $examMaterialsTrunkbox = ExamTrunkBoxOTLData::where('district_code', $user->district_code)
+            ->where('exam_id', $examId)
             ->get();
 
-        //total number of exam materials found for this user
-        $totalExamMaterials = $examMaterials->count();
-        //total number of exam materials scanned by the user
-        $totalScanned = $examMaterials->filter(function ($examMaterial) {
-            return $examMaterial->examMaterialsScan &&
-                $examMaterial->examMaterialsScan->district_scanned_at;
-        })->count();
+        // Fetch route data
+        $routes = ExamMaterialRoutes::where('exam_id', $examId)
+            ->where('district_code', $user->district_code)
+            ->get();
+
+        // Process data: match exam materials with routes and trunkboxes
+        $groupedExamMaterials = [];
+
+        foreach ($routes as $route) {
+            $hallMapping = $route->hall_code; // Decode hall mappings
+
+            foreach ($hallMapping as $centerCode => $hallCodes) {
+                foreach ($hallCodes as $hallCode) {
+                    if (isset($examMaterials[$hallCode])) {
+                        $trunkbox = $examMaterialsTrunkbox->firstWhere('hall_code', $hallCode);
+                        $trunkboxCode = $trunkbox->trunkbox_qr_code ?? 'Unknown';
+
+                        // Count total materials and scanned materials
+                        $totalMaterials = count($examMaterials[$hallCode]);
+                        $totalScanned = $examMaterials[$hallCode]->filter(function ($examMaterial) {
+                            return $examMaterial->examMaterialsScan &&
+                                $examMaterial->examMaterialsScan->district_scanned_at;
+                        })->count();
+
+                        // Group data by trunkbox QR code
+                        if (!isset($groupedExamMaterials[$trunkboxCode])) {
+                            $groupedExamMaterials[$trunkboxCode] = [
+                                'route_no' => $route->route_no,
+                                'route_id' => $route->id,
+                                'center_code' => [$centerCode],
+                                'hall_code' => [$hallCode],
+                                'trunkbox_qr_code' => $trunkboxCode,
+                                'otl_codes' => json_decode($trunkbox->otl_code ?? '[]'),
+                                'materials_count' => $totalMaterials,
+                                'scanned_count' => $totalScanned
+                            ];
+                        } else {
+                            $groupedExamMaterials[$trunkboxCode]['center_code'][] = $centerCode;
+                            $groupedExamMaterials[$trunkboxCode]['hall_code'][] = $hallCode;
+                            $groupedExamMaterials[$trunkboxCode]['materials_count'] += $totalMaterials;
+                            $groupedExamMaterials[$trunkboxCode]['scanned_count'] += $totalScanned;
+                        }
+                    }
+                }
+            }
+        }
         //get center code for the user 
         $centers = ExamMaterialsData::where('exam_id', $examId)
             ->where('district_code', $user->district_code)
@@ -219,43 +256,12 @@ class BundlePackagingController extends Controller
         $examDates = $session->examsession->groupBy(function ($item) {
             return Carbon::parse($item->exam_sess_date)->format('d-m-Y');
         })->keys();
-        // Assign bundle labels to each exam material based on its exam session and date
-        $examMaterials->each(function ($material) {
-            $examSessionData = ExamSession::where('exam_sess_mainid', $material->exam_id)
-                ->whereRaw("TO_DATE(exam_sess_date, 'DD-MM-YYYY') = TO_DATE(?, 'YYYY-MM-DD')", [$material->exam_date])
-                ->where('exam_sess_session', $material->exam_session)
-                ->first();
-
-            // Check if session data exists for the material
-            if ($examSessionData) {
-                // Define the category labels based on the session type
-                if ($examSessionData->exam_sess_type == 'Descriptive') {
-                    $categoryLabels = [
-                        'R1' => 'Bundle IA',
-                        'R2' => 'Bundle IB',
-                        'R3' => 'Bundle II',
-                        'R4' => 'Bundle III',
-                        'R5' => 'Bundle IV',
-                        'R6' => 'Cover C',
-                    ];
-                } else {
-                    $categoryLabels = [
-                        'R3' => 'Bundle I',
-                        'R4' => 'Bundle II',
-                        'R5' => 'Bundle C',
-                    ];
-
-                }
-
-                // Apply the label from the category mapping for each material
-                $material->bundle_label = $categoryLabels[$material->category] ?? $material->category;  // If no match, use the material's category directly
-            } else {
-                // If no session data found, use the material's category directly
-                $material->bundle_label = $material->category;
-            }
-        });
-
-        return view('my_exam.BundlePackaging.mobileteam-to-disitrict-bundle', compact('examMaterials', 'examId', 'totalExamMaterials', 'totalScanned', 'centers', 'examDates'));
+        // Convert center_code and hall_code arrays to comma-separated strings
+        foreach ($groupedExamMaterials as &$data) {
+            $data['center_code'] = implode(',', array_unique($data['center_code']));
+            $data['hall_code'] = implode(',', array_unique($data['hall_code']));
+        }
+        return view('my_exam.BundlePackaging.mobileteam-to-district-bundle', compact('groupedExamMaterials', 'examId', 'centers', 'examDates'));
     }
     public function scanDistrictExamMaterials($examId, Request $request)
     {
@@ -730,14 +736,15 @@ class BundlePackagingController extends Controller
 
         return view('my_exam.BundlePackaging.vds-to-hq-bundle', compact('groupedExamMaterials', 'examId'));
     }
-    public function saveUsedOTLCodes(Request $request) {
+    public function saveUsedOTLCodes(Request $request)
+    {
         try {
             $request->validate([
                 'otlCodes' => 'required',
                 'trunkboxQrCode' => 'required',
                 'examId' => 'required',
             ]);
-    
+
             // Check if the provided OTL code exists in trunkbox_otldata
             $otlData = ExamTrunkBoxOTLData::where('trunkbox_qr_code', $request->trunkboxQrCode)->first();
             if (!$otlData) {
@@ -747,7 +754,7 @@ class BundlePackagingController extends Controller
                 ], 400);
             }
             // check if otl codes existing in otlData 
-            $otlCodes = json_decode($otlData->otl_code,true);
+            $otlCodes = json_decode($otlData->otl_code, true);
             $usedOTLCodes = $request->otlCodes;
             $newOTLCodes = array_diff($usedOTLCodes, $otlCodes);
             if (count($newOTLCodes) > 0) {
@@ -758,22 +765,22 @@ class BundlePackagingController extends Controller
             }
             // Update used_otl_code in trunkbox_otldata
             $otlData->used_otl_code = json_encode($request->otlCodes);
-            $otlData->save();            
+            $otlData->save();
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'OTL codes saved successfully.'
             ], 200);
-          
-          
-    
+
+
+
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to save OTL code: ' . $e->getMessage()
             ], 500);
         }
-    }    
+    }
 
     public function scanHQExamMaterials(Request $request)
     {

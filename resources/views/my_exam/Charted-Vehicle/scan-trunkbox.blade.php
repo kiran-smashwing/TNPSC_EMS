@@ -207,7 +207,6 @@
                                         <th>#</th>
                                         <th>District</th>
                                         <th>Center</th>
-                                        <th>Hall no</th>
                                         <th>Exam Date</th>
                                         <th>Trunk Box</th>
                                         <th>Time Stamp</th>
@@ -218,8 +217,7 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $trunkbox->district_code }}</td>
-                                            <td>{{ $trunkbox->center_code }}</td>
-                                            <td>{{ $trunkbox->hall_code }}</td>
+                                            <td>{{ $trunkbox->center_codes }}</td>
                                             <td>{{ $trunkbox->exam_date }}</td>
                                             <td>{{ $trunkbox->trunkbox_qr_code }}</td>
                                           <td>

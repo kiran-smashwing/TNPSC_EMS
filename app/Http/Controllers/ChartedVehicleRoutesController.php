@@ -72,8 +72,8 @@ class ChartedVehicleRoutesController extends Controller
                 'licence_no' => $request->driver_licence_no,
                 'phone' => $request->phone
             ],
-            'otl_locks' => $request->otl_locks,
-            'gps_locks' => $request->gps_lock,
+            'gps_locks' => explode(',', $request->gps_locks[0]),
+            'otl_locks' => explode(',', $request->otl_locks[0]),
             'pc_details' => [
                 'name' => $request->police_constable,
                 'phone' => $request->police_constable_phone,
@@ -145,8 +145,8 @@ class ChartedVehicleRoutesController extends Controller
                     'licence_no' => $request->driver_licence_no,
                     'phone' => $request->phone
                 ],
-                'gps_locks' => $request->gps_locks,
-                'otl_locks' => $request->otl_locks,
+                'gps_locks' => explode(',', $request->gps_locks[0]),
+                'otl_locks' => explode(',', $request->otl_locks[0]),
                 'pc_details' => [
                     'name' => $request->police_constable,
                     'phone' => $request->police_constable_phone,
@@ -248,18 +248,24 @@ class ChartedVehicleRoutesController extends Controller
         $role = session()->get('auth_role');
         if ($role === 'headquarters' && ($user->role && ($user->role->role_department == 'ED' || $user->role->role_department == 'VMD'))) {
             $routes = ChartedVehicleRoute::with(['escortstaffs'])->get();
-        } else {      
-        $routes = ChartedVehicleRoute::with([
-            'escortstaffs' => function ($query) use ($user) {
-                $query->where('tnpsc_staff_id', $user->dept_off_id);
-            }
-        ])
-            ->whereHas('escortstaffs', function ($query) use ($user) {
-                $query->where('tnpsc_staff_id', $user->dept_off_id);
-            })
-            ->get();
+        } else {
+            $routes = ChartedVehicleRoute::with([
+                'escortstaffs' => function ($query) use ($user) {
+                    $query->where('tnpsc_staff_id', $user->dept_off_id);
+                }
+            ])
+                ->whereHas('escortstaffs', function ($query) use ($user) {
+                    $query->where('tnpsc_staff_id', $user->dept_off_id);
+                })
+                ->get()
+                ->each(function ($route) use ($user) {
+                    // Decode JSON stored in used_otl_locks
+                    $usedOtlCodes = json_decode($route->used_otl_locks, true) ?? [];
+                    // Attach the specific user's OTL code to the route
+                    $route->user_used_otl_code = $usedOtlCodes[$user->dept_off_id] ?? null;
+                });
+            
         }
-
         // Fetching exam notifications 
         foreach ($routes as $route) {
             $examIds = $route->exam_id; // Assuming this is how you fetch the exam IDs array 
@@ -304,13 +310,34 @@ class ChartedVehicleRoutesController extends Controller
         // Determine the order direction based on the role
         $orderDirection = ($user->role && in_array($user->role->role_department, ['ED', 'QD'])) ? 'desc' : 'asc';
 
-        // Fetch trunk boxes for all exam IDs and districts, with conditional ordering
         $trunkBoxes = DB::table('exam_trunkbox_otl_data as e')
-            ->leftJoin('exam_trunkbox_scans as s', 'e.id', '=', 's.exam_trunkbox_id') // Join with scans table
-            ->whereIn('e.exam_id', $examIds) // Match exam IDs
-            ->whereIn('e.district_code', $districtCodes) // Match district codes
-            ->orderByRaw('e.load_order::INTEGER ' . $orderDirection) // PostgreSQL integer sorting
-            ->get(); // Get all matching trunk boxes
+            ->leftJoin('exam_trunkbox_scans as s', 'e.id', '=', 's.exam_trunkbox_id')
+            ->whereIn('e.exam_id', $examIds)
+            ->whereIn('e.district_code', $districtCodes)
+            ->select(
+                'e.exam_id',
+                'e.district_code',
+                'e.trunkbox_qr_code',
+                'e.otl_code',
+                'e.exam_date',
+                DB::raw('string_agg(DISTINCT e.center_code, \',\') as center_codes'),
+                DB::raw('string_agg(DISTINCT e.hall_code, \',\') as hall_codes'),
+                's.dept_off_scanned_at',
+                's.hq_scanned_at',
+                DB::raw('MIN(e.load_order::INTEGER) as load_order')
+            )
+            ->groupBy(
+                'e.exam_id',
+                'e.district_code',
+                'e.trunkbox_qr_code',
+                'e.otl_code',
+                'e.exam_date',
+                's.dept_off_scanned_at',
+                's.hq_scanned_at'
+            )
+            ->orderByRaw('MIN(e.load_order::INTEGER) ' . $orderDirection)
+            ->get();
+
         //total number of trunk boxes found for this user
         $totalTrunkBoxes = $trunkBoxes->count();
         // Total number of trunk boxes scanned by the user
@@ -386,12 +413,12 @@ class ChartedVehicleRoutesController extends Controller
 
         // Get the previous trunk box in the load order
         $previousTrunkBox = ExamTrunkBoxOTLData::where('exam_id', $examMaterials->exam_id)
-        ->where('district_code', $examMaterials->district_code)
-        ->where('center_code', $examMaterials->center_code)
-        ->where('load_order', $examMaterials->load_order - 1) // Always check the immediate previous load_order
-        ->orderBy('load_order') // Ensure it picks the next in sequence
-        ->first();
-    
+            ->where('district_code', $examMaterials->district_code)
+            ->where('center_code', $examMaterials->center_code)
+            ->where('load_order', $examMaterials->load_order - 1) // Always check the immediate previous load_order
+            ->orderBy('load_order') // Ensure it picks the next in sequence
+            ->first();
+
 
         // Check if the previous trunk box was scanned
         if ($previousTrunkBox && !ExamTrunkBoxScan::where('exam_trunkbox_id', $previousTrunkBox->id)->exists()) {
@@ -450,18 +477,16 @@ class ChartedVehicleRoutesController extends Controller
         // Group trunk boxes by center_id
         $groupedByCenter = $trunkBoxes->groupBy('center_code');
 
-        // Sort centers numerically
-        $sortedCenters = $groupedByCenter->sortKeysUsing(function ($keyA, $keyB) {
-            return (int) $keyA <=> (int) $keyB;
-        });
+        // Randomly shuffle the order of centers
+        $randomizedCenters = $groupedByCenter->keys()->shuffle();
 
         // Initialize variables
         $orderedTrunkBoxes = [];
         $orderCounter = 1; // Start ordering from 1
 
-        foreach ($sortedCenters as $center => $trunkBoxes) {
-            // Randomize the order of trunk boxes within this center
-            $shuffledBoxes = $trunkBoxes->shuffle();
+        foreach ($randomizedCenters as $center) {
+            // Get trunk boxes for this center and shuffle them
+            $shuffledBoxes = $groupedByCenter[$center]->shuffle();
 
             // Assign new order and append to orderedTrunkBoxes
             foreach ($shuffledBoxes as $trunkBox) {
@@ -476,15 +501,15 @@ class ChartedVehicleRoutesController extends Controller
 
         // Prepare CSV data
         $csvData = [];
-        $csvData[] = ['Center Code', 'District Code', 'Hall Code', 'Trunk Box Code', 'Load Order'];
+        $csvData[] = ['Load Order', 'Center Code', 'District Code', 'Hall Code', 'Trunk Box Code'];
 
         foreach ($orderedTrunkBoxes as $box) {
             $csvData[] = [
+                $box['load_order'] ?? '',
                 $box['center_code'] ?? '',
                 $box['district_code'] ?? '',
                 $box['hall_code'] ?? '',
-                $box['trunk_box_code'] ?? '',
-                $box['load_order'] ?? '',
+                $box['trunkbox_qr_code'] ?? '',
             ];
         }
 
@@ -498,20 +523,15 @@ class ChartedVehicleRoutesController extends Controller
         // Add column headers
         fputcsv($handle, ['Load Order', 'Center Code', 'District Code', 'Hall Code', 'Trunk Box Code']);
 
-        // Loop through the trunk boxes and write rows
+        // Write CSV rows
         foreach ($orderedTrunkBoxes as $box) {
-            // Prepare the row with tab prefixes to preserve formatting
-            $row = array_map(function ($value) {
-                return "\t" . $value; // Adding a tab to force Excel to treat as text
-            }, [
+            $row = [
                 $box['load_order'],
-                $box['center_code'],
-                $box['district_code'],
-                $box['hall_code'],
+                "\t" . $box['center_code'],
+                "\t" . $box['district_code'],
+                "\t" . $box['hall_code'],
                 $box['trunkbox_qr_code']
-            ]);
-
-            // Write the row to the CSV file
+            ];
             fputcsv($handle, $row);
         }
 
@@ -529,6 +549,49 @@ class ChartedVehicleRoutesController extends Controller
 
         // Return session with the link to the file
         return redirect()->back()->with('success', 'Trunk boxes have been ordered successfully. <a href="' . asset("storage/{$fileName}") . '" target="_blank">Download CSV</a>');
+    }
+
+    public function saveOTLLockUsed(Request $request)
+    {
+        $request->validate([
+            'routeId' => 'required',
+            'otlCode' => 'required',
+        ]);
+        // Check if the provided route exists in charted_vehicle_routes
+        // Fetch the route and include escortstaffs
+        $route = ChartedVehicleRoute::where('id', $request->routeId)
+            ->with('escortstaffs')
+            ->first();
+        if (!$route) {
+            return response()->json(['error' => 'Route does not exist.'], 404);
+        }
+
+        // Extract existing OTL locks
+        $routeOtlCodes = $route->otl_locks ?? [];
+        // Ensure OTL code exists in the list of valid OTLs for this route
+        if (!in_array($request->otlCode, $routeOtlCodes)) {
+            return response()->json(['error' => 'OTL code does not exist for the provided route.'], 404);
+        }
+        // Get authenticated user ID
+        $userId = current_user()->dept_off_id;
+        // Decode existing used_otl_locks data
+        $usedOtlCodes = $route->used_otl_locks ?? [];
+
+        // Ensure user has not already locked an OTL code
+        if (isset($usedOtlCodes[$userId])) {
+            return response()->json(['error' => 'You have already locked an OTL code.'], 400);
+        }
+        // Append new entry for this user
+        $usedOtlCodes[$userId] = [
+            'otl_code' => $request->otlCode,
+            'locked_at' => now()->toDateTimeString() // Save timestamp
+        ];
+
+        // Update route with the new used_otl_locks data
+        $route->used_otl_locks = $usedOtlCodes;
+        $route->save();
+        return response()->json(['success' => 'OTL code saved successfully.', 'used_otl_locks' => $usedOtlCodes]);
+
     }
 
 }

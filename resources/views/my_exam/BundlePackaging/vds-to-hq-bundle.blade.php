@@ -268,7 +268,6 @@
     @push('scripts')
         @include('partials.datatable-export-js')
         <script src="{{ asset('storage/assets/js/plugins/choices.min.js') }}"></script>
-
         <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
         <script>
             function processQrCode(data) {
@@ -402,15 +401,6 @@
                         }
                     });
                 });
-            });
-        </script>
-
-        <script>
-            const centerSelect = new Choices('#otlSelect', {
-                removeItemButton: true,
-                placeholderValue: 'Select OTL Codes',
-                multiple: true,
-                itemSelectText: ''
             });
         </script>
     @endpush

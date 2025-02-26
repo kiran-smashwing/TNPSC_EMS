@@ -185,11 +185,10 @@
                         <div class="card-header">
                             <div class="d-sm-flex align-items-center justify-content-between">
                                 <h5 class="mb-3 mb-sm-0">Vanduty Staff to Headquarters</h5>
-                                <ul class="list-inline ms-auto  mb-0">
-                                    <li class="list-inline-item"><a href="#" class="badge bg-dark f-14">Received
-                                            {{ 1 }} /
-                                            {{ 1 }}</a></li>
-                                </ul>
+                                <div>
+                                    <a href="{{ route('charted-vehicle-routes.create') }}"
+                                        class="btn btn-outline-success">Add Route</a>
+                                </div>
                             </div>
                         </div>
                         <div class="card-body table-border-style">
@@ -272,152 +271,6 @@
 
     @push('scripts')
         @include('partials.datatable-export-js')
-        <script src="{{ asset('storage/assets/js/plugins/choices.min.js') }}"></script>
-
-        <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
-        <script>
-            function processQrCode(data) {
-                // Hide the modal using Bootstrap's modal method
-                const qrCodeModal = document.getElementById('qrCodeModal');
-                const modalInstance = bootstrap.Modal.getInstance(qrCodeModal);
-                modalInstance.hide();
-                fetch("{{ route('bundle-packaging.scan-chennai-disitrct-exam-materials', $examId) }}", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            qr_code: data
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        showAlert(data.status, data.message);
-                        $('#qrCodeModal').modal('hide'); // Close modal after successful scan
-                        // Update the total scanned and total exam materials count
-                    })
-                    .catch((error) => {
-                        showAlert(data.status, data.message);
-                        $('#qrCodeModal').modal('hide');
-                    });
-            }
-
-            function showAlert(type, message) {
-                // Map the type to SweetAlert2's icon options
-                let iconType;
-                switch (type) {
-                    case 'success':
-                        iconType = 'success';
-                        break;
-                    case 'error':
-                        iconType = 'error';
-                        break;
-                    case 'info':
-                        iconType = 'info';
-                        break;
-                    case 'warning':
-                        iconType = 'warning';
-                        break;
-                    default:
-                        iconType = 'info'; // Default to 'info' if type is unknown
-                }
-
-                // Use SweetAlert2 to display the alert
-                Swal.fire({
-                    icon: iconType,
-                    title: type.charAt(0).toUpperCase() + type.slice(1),
-                    text: message,
-                }).then((result) => {
-                    window.location.reload(); // Reload the page when "OK" is clicked
-                });
-            }
-        </script>
-        <script>
-            document.querySelectorAll('.bs-ajex-req').forEach(button => {
-                button.addEventListener('click', function() {
-                    let trunkboxQrCode = this.getAttribute('data-trunkbox');
-                    let otlCodes = JSON.parse(this.getAttribute('data-otl'));
-
-                    // Create multi-select dropdown options
-                    let optionsHtml = otlCodes.map(code =>
-                        `<option value="${code}">${code}</option>`
-                    ).join('');
-
-                    Swal.fire({
-                        title: 'Select Used OTL Codes',
-                        html: `
-            <div class="form-group">
-                <select class="form-select" 
-                    id="otlSelect" name="otlSelect[]" multiple>
-                    ${optionsHtml}
-                </select>
-            </div>
-            `,
-                        showCancelButton: true,
-                        confirmButtonText: 'Submit',
-                        didOpen: () => {
-                            // Initialize Choices.js on the select element after the modal is opened
-                            const choicesInstance = new Choices('#otlSelect', {
-                                removeItemButton: true,
-                                placeholderValue: 'Select OTL Codes',
-                                position: 'bottom',
-                                searchEnabled: true,
-                                searchChoices: true,
-                                multiple: true,
-                                itemSelectText: ''
-                            });
-                        },
-                        preConfirm: () => {
-                            let selectEl = document.getElementById('otlSelect');
-                            let selectedOptions = Array.from(selectEl.selectedOptions)
-                                .map(option => option.value);
-
-                            if (selectedOptions.length === 0) {
-                                Swal.showValidationMessage('Please select at least one OTL code');
-                                return false;
-                            }
-
-                            return {
-                                trunkboxQrCode,
-                                otlCodes: selectedOptions
-                            };
-                        }
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            fetch('{{ route('bundle-packaging.save-used-otl-codes') }}', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                    },
-                                    body: JSON.stringify({
-                                        ...result.value,
-                                        examId: '{{ $examId }}'
-                                    })
-                                })
-                                .then(response => response.json())
-                                .then(data => {
-                                    Swal.fire('Success!', 'OTL Codes updated successfully.',
-                                        'success');
-                                })
-                                .catch(error => {
-                                    Swal.fire('Error!', 'Something went wrong.', 'error');
-                                });
-                        }
-                    });
-                });
-            });
-        </script>
-
-        <script>
-            const centerSelect = new Choices('#otlSelect', {
-                removeItemButton: true,
-                placeholderValue: 'Select OTL Codes',
-                multiple: true,
-                itemSelectText: ''
-            });
-        </script>
     @endpush
 
     @include('partials.theme')

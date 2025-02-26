@@ -560,6 +560,302 @@ class BundlePackagingController extends Controller
                 (!is_null($trunkBox) ? ', Place this bundle in this trunk box: ' . $trunkBox->trunkbox_qr_code : ''),
         ], 200);
     }
+    public function scanVandutyHQExamMaterials($examId, Request $request)
+    {
+        // Validate request
+        $request->validate([
+            'qr_code' => 'required|string',
+        ]);
+
+        // Get authenticated user
+        $role = session('auth_role');
+        $guard = $role ? Auth::guard($role) : null;
+        $user = $guard ? $guard->user() : null;
+
+        // Check authorization
+        if ($role !== 'headquarters' || !$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found or not authorized'
+            ], 403); // 403 is for authorization errors
+        }
+
+        // Find exam materials
+        $examMaterials = ExamMaterialsData::where([
+            'exam_id' => $examId,
+            'district_code' => '01',
+            'qr_code' => $request->qr_code
+        ])->first();
+
+        if (!$examMaterials) {
+            $examMaterials = ExamMaterialsData::where([
+                'exam_id' => $examId,
+                'qr_code' => $request->qr_code
+            ])
+                ->with('center')
+                ->with('district')
+                ->first();
+            $msg = "This Qr Code belongs to the following District : " . $examMaterials->district->district_name . " , Center : " . $examMaterials->center->center_name . " , Hall Code: " . $examMaterials->hall_code;
+            return response()->json([
+                'status' => 'error',
+                'message' => $msg
+            ], 404);
+        }
+        //find trunk box for this exm materials
+        $trunkBox = ExamTrunkBoxOTLData::where([
+            'exam_id' => $examId,
+            'district_code' => '01',
+            'center_code' => $examMaterials->center_code,
+            'hall_code' => $examMaterials->hall_code,
+        ])->first();
+
+        // Check if already scanned
+        $existingScan = ExamMaterialsScan::where([
+            'exam_material_id' => $examMaterials->id,
+        ])->first();
+
+        // Check if already scanned
+        if (
+            ExamMaterialsScan::where(['exam_material_id' => $examMaterials->id])
+                ->whereNotNull('district_scanned_at')->exists()
+        ) {
+            $message = 'QR code has already been scanned';
+            if (!is_null($trunkBox)) {
+                $message .= ', Place this bundle in this trunk box: ' . $trunkBox->trunkbox_qr_code;
+            }
+            return response()->json([
+                'status' => 'error',
+                'message' => $message,
+            ], 409);
+        }
+
+        // Update the existing record if district_scanned_at is null
+        if ($existingScan && !$existingScan->district_scanned_at) {
+            $existingScan->update([
+                'district_scanned_at' => now()
+            ]);
+        } else {
+            // Create a new record if no existing scan record is found
+            ExamMaterialsScan::create([
+                'exam_material_id' => $examMaterials->id,
+                'district_scanned_at' => now()
+            ]);
+        }
+        // Audit Logging
+        $currentUser = current_user();
+        $userName = $currentUser ? $currentUser->display_name : 'Unknown';
+        $metadata = [
+            'user_name' => $userName,
+            'district_code' => '01',
+        ];
+
+        $examMaterialDetails = [
+            'qr_code' => $request->qr_code,
+            'district' => $examMaterials->district->district_name,
+            'center' => $examMaterials->center->center_name,
+            'hall_code' => $examMaterials->hall_code,
+            'scan_time' => now()->toDateTimeString()
+        ];
+
+        // Check existing log
+        $existingLog = $this->auditService->findLog([
+            'exam_id' => $examId,
+            'task_type' => 'receive_bundle_to_disitrct_treasury',
+            'action_type' => 'qr_scan',
+            'user_id' => $user->dept_off_id,
+        ]);
+
+        if ($existingLog) {
+            // Update existing log
+            $existingScans = $existingLog->after_state['scanned_codes'] ?? [];
+            $firstScan = $existingScans[0] ?? null; // Keep the first scan
+
+            // Update with first and current scan only
+            $updatedScans = [
+                $firstScan,
+                $examMaterialDetails // Current scan becomes the last scan
+            ];
+
+            $totalScans = ($existingLog->after_state['total_scanned'] ?? 0) + 1;
+
+            $this->auditService->updateLog(
+                logId: $existingLog->id,
+                metadata: $metadata,
+                afterState: [
+                    'scanned_codes' => $updatedScans,
+                    'total_scanned' => $totalScans
+                ],
+                description: "Scanned QR code: {$request->qr_code} (Total scanned: $totalScans)"
+            );
+        } else {
+            // Create new log for first scan
+            $this->auditService->log(
+                examId: $examId,
+                actionType: 'qr_scan',
+                taskType: 'receive_bundle_to_disitrct_treasury',
+                beforeState: null,
+                afterState: [
+                    'scanned_codes' => [$examMaterialDetails],
+                    'total_scanned' => 1
+                ],
+                description: "Initial QR code scan: {$request->qr_code}",
+                metadata: $metadata
+            );
+        }
+        return response()->json([
+            'status' => 'success',
+            'message' => 'QR code scanned successfully' .
+                (!is_null($trunkBox) ? ', Place this bundle in this trunk box: ' . $trunkBox->trunkbox_qr_code : ''),
+        ], 200);
+    }
+    public function scanVandutyHQExamMaterials($examId, Request $request)
+    {
+        // Validate request
+        $request->validate([
+            'qr_code' => 'required|string',
+        ]);
+
+        // Get authenticated user
+        $role = session('auth_role');
+        $guard = $role ? Auth::guard($role) : null;
+        $user = $guard ? $guard->user() : null;
+
+        // Check authorization
+        if ($role !== 'headquarters' || !$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found or not authorized'
+            ], 403); // 403 is for authorization errors
+        }
+
+        // Find exam materials
+        $examMaterials = ExamMaterialsData::where([
+            'exam_id' => $examId,
+            'district_code' => '01',
+            'qr_code' => $request->qr_code
+        ])->first();
+
+        if (!$examMaterials) {
+            $examMaterials = ExamMaterialsData::where([
+                'exam_id' => $examId,
+                'qr_code' => $request->qr_code
+            ])
+                ->with('center')
+                ->with('district')
+                ->first();
+            $msg = "This Qr Code belongs to the following District : " . $examMaterials->district->district_name . " , Center : " . $examMaterials->center->center_name . " , Hall Code: " . $examMaterials->hall_code;
+            return response()->json([
+                'status' => 'error',
+                'message' => $msg
+            ], 404);
+        }
+        //find trunk box for this exm materials
+        $trunkBox = ExamTrunkBoxOTLData::where([
+            'exam_id' => $examId,
+            'district_code' => '01',
+            'center_code' => $examMaterials->center_code,
+            'hall_code' => $examMaterials->hall_code,
+        ])->first();
+
+        // Check if already scanned
+        $existingScan = ExamMaterialsScan::where([
+            'exam_material_id' => $examMaterials->id,
+        ])->first();
+
+        // Check if already scanned
+        if (
+            ExamMaterialsScan::where(['exam_material_id' => $examMaterials->id])
+            ->whereNotNull('district_scanned_at')->exists()
+        ) {
+            $message = 'QR code has already been scanned';
+            if (!is_null($trunkBox)) {
+                $message .= ', Place this bundle in this trunk box: ' . $trunkBox->trunkbox_qr_code;
+            }
+            return response()->json([
+                'status' => 'error',
+                'message' => $message,
+            ], 409);
+        }
+
+        // Update the existing record if district_scanned_at is null
+        if ($existingScan && !$existingScan->district_scanned_at) {
+            $existingScan->update([
+                'district_scanned_at' => now()
+            ]);
+        } else {
+            // Create a new record if no existing scan record is found
+            ExamMaterialsScan::create([
+                'exam_material_id' => $examMaterials->id,
+                'district_scanned_at' => now()
+            ]);
+        }
+        // Audit Logging
+        $currentUser = current_user();
+        $userName = $currentUser ? $currentUser->display_name : 'Unknown';
+        $metadata = [
+            'user_name' => $userName,
+            'district_code' => '01',
+        ];
+
+        $examMaterialDetails = [
+            'qr_code' => $request->qr_code,
+            'district' => $examMaterials->district->district_name,
+            'center' => $examMaterials->center->center_name,
+            'hall_code' => $examMaterials->hall_code,
+            'scan_time' => now()->toDateTimeString()
+        ];
+
+        // Check existing log
+        $existingLog = $this->auditService->findLog([
+            'exam_id' => $examId,
+            'task_type' => 'receive_bundle_to_disitrct_treasury',
+            'action_type' => 'qr_scan',
+            'user_id' => $user->dept_off_id,
+        ]);
+
+        if ($existingLog) {
+            // Update existing log
+            $existingScans = $existingLog->after_state['scanned_codes'] ?? [];
+            $firstScan = $existingScans[0] ?? null; // Keep the first scan
+
+            // Update with first and current scan only
+            $updatedScans = [
+                $firstScan,
+                $examMaterialDetails // Current scan becomes the last scan
+            ];
+
+            $totalScans = ($existingLog->after_state['total_scanned'] ?? 0) + 1;
+
+            $this->auditService->updateLog(
+                logId: $existingLog->id,
+                metadata: $metadata,
+                afterState: [
+                    'scanned_codes' => $updatedScans,
+                    'total_scanned' => $totalScans
+                ],
+                description: "Scanned QR code: {$request->qr_code} (Total scanned: $totalScans)"
+            );
+        } else {
+            // Create new log for first scan
+            $this->auditService->log(
+                examId: $examId,
+                actionType: 'qr_scan',
+                taskType: 'receive_bundle_to_disitrct_treasury',
+                beforeState: null,
+                afterState: [
+                    'scanned_codes' => [$examMaterialDetails],
+                    'total_scanned' => 1
+                ],
+                description: "Initial QR code scan: {$request->qr_code}",
+                metadata: $metadata
+            );
+        }
+        return response()->json([
+            'status' => 'success',
+            'message' => 'QR code scanned successfully' .
+                (!is_null($trunkBox) ? ', Place this bundle in this trunk box: ' . $trunkBox->trunkbox_qr_code : ''),
+        ], 200);
+    }
     public function MobileTeamtoCenter(Request $request, $examId)
     {
         $role = session('auth_role');

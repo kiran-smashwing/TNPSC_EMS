@@ -29,6 +29,7 @@ class CiMeetingAttendanceController extends Controller
         $examDetails = Currentexam::where('exam_main_notification', $notificationNo)->first();
 
         if (!$examDetails) {
+            // return back()->with('error', 'Invalid Notification No.');
             return response()->json(['error' => 'Invalid Notification No'], 404);
         }
 
@@ -100,7 +101,8 @@ class CiMeetingAttendanceController extends Controller
             ->first();
 
         if (!$exam_data) {
-            return response()->json(['error' => 'Exam data not found'], 404);
+            return back()->with('error', 'Exam data not found.');
+            // return response()->json(['error' => 'Exam data not found'], 404);
         }
 
         // Retrieve CI Meeting Attendance data
@@ -123,7 +125,8 @@ class CiMeetingAttendanceController extends Controller
             ->get();
 
         if ($ci_meeting->isEmpty()) {
-            return response()->json(['error' => 'No CI Meeting data found'], 404);
+            return back()->with('error', 'No CI Meeting data found.');
+            // return response()->json(['error' => 'No CI Meeting data found'], 404);
         }
 
         // Extract district codes from CI Meeting Attendance records

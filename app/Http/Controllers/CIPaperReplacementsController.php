@@ -6,6 +6,7 @@ use App\Models\ExamConfirmedHalls;
 use App\Models\CIPaperReplacements;
 use Illuminate\Support\Facades\Storage;
 use App\Services\ImageCompressService;
+use App\Models\ExamSession;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 
@@ -26,7 +27,8 @@ class CIPaperReplacementsController extends Controller
             'exam_sess_date' => 'required|date',
             'exam_sess_session' => 'required|string',
             'registration_number' => 'required|string|max:255',
-            'replacement_type' => 'required|in:damaged,shortage',
+            // 'replacement_type' => 'required|in:damaged,shortage',
+            'replacement_type_paper' => 'required',
             'old_paper_number' => 'nullable|string|max:255', // Only for damaged
             'new_paper_number_damaged' => 'nullable|string|max:255', // Damaged type
             'new_paper_number_shortage' => 'nullable|string|max:255', // Shortage type
@@ -45,12 +47,15 @@ class CIPaperReplacementsController extends Controller
         $sessions = $validated['exam_sess_session'];
 
         // dd($exam_date);
-
+         $examId =$validated['exam_id'];
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
         $user = $guard ? $guard->user() : null;
         $ci_id = $user ? $user->ci_id : null;
-
+        $session = ExamSession::with('currentexam')
+            ->where('exam_sess_mainid', $examId)
+            ->where('exam_sess_session', $sessions)->first();
+            // dd($session);
         $examConfirmedHall = ExamConfirmedHalls::where('exam_id', $validated['exam_id'])
             ->where('exam_date', $exam_date)
             ->where('exam_session', $sessions)
@@ -63,7 +68,7 @@ class CIPaperReplacementsController extends Controller
 
         $centerCode = $examConfirmedHall->center_code;
         $hallCode = $examConfirmedHall->hall_code;
-
+        // dd($examConfirmedHall);
         // Handle photo upload
         $photoPath = null;
 
@@ -103,13 +108,24 @@ class CIPaperReplacementsController extends Controller
         }
 
         // Save data to the database
+        $exam_type = $session->exam_sess_type;
+
+        if ($exam_type == 'Objective') {
+            $replacement_type = "OMR Sheet";
+            // dd($replacement_type);
+        } else {
+            $replacement_type = "Question Cum Answer Booklet";
+            // dd($replacement_type);
+        }
+        
         try {
             CIPaperReplacements::create([
                 'exam_id' => $validated['exam_id'],
                 'exam_date' => $validated['exam_sess_date'],
                 'exam_session' => $validated['exam_sess_session'],
                 'registration_number' => $validated['registration_number'],
-                'replacement_type' => $validated['replacement_type'],
+                'replacement_type' => $replacement_type,
+                'replacement_type_paper' => $validated['replacement_type_paper'],
                 'old_paper_number' => $validated['old_paper_number'], // Only for damaged
                 'new_paper_number' => $newPaperNumber, // Dynamic based on type
                 'replacement_reason' => $validated['replacement_reason'],

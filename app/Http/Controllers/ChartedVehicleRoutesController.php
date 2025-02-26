@@ -7,6 +7,7 @@ use App\Models\DepartmentOfficial;
 use App\Models\ExamConfirmedHalls;
 use App\Models\ExamMaterialRoutes;
 use App\Models\ExamMaterialsData;
+use Spatie\Browsershot\Browsershot;
 use App\Models\ExamTrunkBoxOTLData;
 use App\Models\ExamTrunkBoxScan;
 use Illuminate\Http\Request;
@@ -15,7 +16,7 @@ use App\Models\EscortStaff;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Currentexam;
-use Spatie\Browsershot\Browsershot;
+
 class ChartedVehicleRoutesController extends Controller
 {
     public function index(Request $request)
@@ -73,8 +74,8 @@ class ChartedVehicleRoutesController extends Controller
                 'licence_no' => $request->driver_licence_no,
                 'phone' => $request->phone
             ],
-            'gps_locks' => explode(',', $request->gps_locks[0]),
-            'otl_locks' => explode(',', $request->otl_locks[0]),
+            'otl_locks' => explode(',', $request->otl_locks),
+            'gps_locks' => explode(',', $request->gps_lock),
             'pc_details' => [
                 'name' => $request->police_constable,
                 'phone' => $request->police_constable_phone,
@@ -206,7 +207,6 @@ class ChartedVehicleRoutesController extends Controller
                     ]);
                 }
             }
-
         }
         return redirect()->route('charted-vehicle-routes.index')
             ->with('success', 'Charted Vehicle Route updated successfully.');
@@ -265,7 +265,7 @@ class ChartedVehicleRoutesController extends Controller
                     // Attach the specific user's OTL code to the route
                     $route->user_used_otl_code = $usedOtlCodes[$user->dept_off_id] ?? null;
                 });
-
+            
         }
         // Fetching exam notifications 
         foreach ($routes as $route) {
@@ -344,11 +344,9 @@ class ChartedVehicleRoutesController extends Controller
         // Total number of trunk boxes scanned by the user
         $totalScanned = $trunkBoxes->filter(
             fn($examMaterial) => !is_null(
-                value: $examMaterial->{
-                    $user->role && in_array($user->role->role_department, ['ED', 'QD'])
+                value: $examMaterial->{$user->role && in_array($user->role->role_department, ['ED', 'QD'])
                     ? 'hq_scanned_at'
-                    : 'dept_off_scanned_at'
-                    }
+                    : 'dept_off_scanned_at'}
             )
         )->count();
         $myroute = ChartedVehicleRoute::where('id', $id)->first();
@@ -552,12 +550,164 @@ class ChartedVehicleRoutesController extends Controller
         return redirect()->back()->with('success', 'Trunk boxes have been ordered successfully. <a href="' . asset("storage/{$fileName}") . '" target="_blank">Download CSV</a>');
     }
 
+    public function chartedVehicleVerification(Request $request)
+    {
+
+
+        // Validate request data
+        $request->validate([
+            'vehicle_id_cv' => 'required|exists:charted_vehicle_routes,id',
+            'GPS_lock_intact' => 'sometimes|in:on,off',
+            'one_GPS_lock_intact' => 'sometimes|in:on,off',
+            'OTL_intacl' => 'sometimes|in:on,off',
+            'pre_determined_order' => 'sometimes|in:on,off',
+            'one_time_lock_trunk_box' => 'sometimes|in:on,off',
+            'verified_availabe_app' => 'sometimes|in:on,off',
+        ]);
+
+        // dd($validate);
+        try {
+            // Find vehicle record
+            $vehicle = ChartedVehicleRoute::find($request->vehicle_id_cv);
+            // dd($vehicle);
+            if (!$vehicle) {
+                return back()->with(['success' => false, 'message' => 'Vehicle not found.'], 404);
+                // return response()->json(['success' => false, 'message' => 'Vehicle not found.'], 404);
+            }
+
+            // Capture previous state
+            $beforeState = $vehicle->charted_vehicle_verification
+                ? $vehicle->charted_vehicle_verification
+                : [];
+
+            // Prepare verification data
+            $verificationDetails = [
+                'GPS_lock_intact' => $request->has('GPS_lock_intact'),
+                'one_GPS_lock_intact' => $request->has('one_GPS_lock_intact'),
+                'OTL_intacl' => $request->has('OTL_intacl'),
+                'pre_determined_order' => $request->has('pre_determined_order'),
+                'one_time_lock_trunk_box' => $request->has('one_time_lock_trunk_box'),
+                'verified_availabe_app' => $request->has('verified_availabe_app'),
+            ];
+
+            // Save data as JSON in `charted_vehicle_verification`
+            $vehicle->charted_vehicle_verification = $verificationDetails;
+            $vehicle->save();
+            return back()->with('success', 'Charted vehicle verification details saved successfully.');
+        } catch (\Exception $e) {
+            return back()->with('success', 'Failed to save charted vehicle verification details.');
+            // return response()->json(['success' => false, 'message' => 'Failed to save charted vehicle verification details. ' . $e->getMessage()], 500);
+        }
+    }
+    public function generateVehicleReport($id)
+    {
+        // $vehicle_id = 13;
+        $vehicle_no_details = ChartedVehicleRoute::with('escortstaffs.district')  // Load the 'district' relation on 'escortstaffs'
+            ->where('id', $id)
+            ->first();
+        // dd($vehicle_no_details);
+        // If no data is found, handle it
+        if (!$vehicle_no_details) {
+            return abort(404, 'Vehicle details not found.');
+        }
+        $charted_vehicle_verification = $vehicle_no_details->charted_vehicle_verification
+        ? $vehicle_no_details->charted_vehicle_verification
+        : [];
+        // dd($charted_vehicle_verification);
+        // Get exam_id and make sure it's a string before processing
+        $exam_id_string = $vehicle_no_details->exam_id;
+
+        // Ensure it's not null and is a string
+        if (!empty($exam_id_string)) {
+            // Handle the case if the exam_id is stored in a non-standard format
+            if (is_string($exam_id_string)) {
+                // Case where the exam IDs are in a comma-separated string (like "{1,2,3}")
+                $processed_exam_ids = explode(',', trim($exam_id_string, '{}[]'));
+            } else {
+                // If the string is already an array, directly use it
+                $processed_exam_ids = (array) $exam_id_string;
+            }
+        } else {
+            // Handle case where exam_id_string is empty or null
+            return abort(404, 'No valid exam IDs found.');
+        }
+
+        // Ensure we have valid IDs before querying
+        if (empty($processed_exam_ids)) {
+            return abort(404, 'No valid exam IDs found.');
+        }
+
+        // Fetch exam data matching the IDs
+        $exam_data = Currentexam::with('examsession')  // Make sure the relation `examsession` is loaded here
+            ->whereIn('exam_main_no', $processed_exam_ids) // Fetch matching records
+            ->get(); // Retrieve multiple records
+
+        // Check if no data was found
+        if ($exam_data->isEmpty()) {
+            return abort(404, 'No exam data found for the given IDs.');
+        }
+
+        // Extract `exam_main_name`, `exam_main_startdate`, and related `district_name`
+        $exam_names = [];
+        $exam_dates = [];
+        $district_names = [];
+
+        foreach ($exam_data as $exam) {
+            $exam_names[] = $exam->exam_main_name;
+            $exam_dates[] = $exam->exam_main_startdate;
+
+            // Check if `escortstaffs` relation exists and is not empty
+            if ($vehicle_no_details->escortstaffs && $vehicle_no_details->escortstaffs->isNotEmpty()) {
+                foreach ($vehicle_no_details->escortstaffs as $escort) {
+                    // Access the district name using the 'district' relation
+                    if ($escort->district) {
+                        $district_names[] = $escort->district->district_name;
+                    }
+                }
+            }
+        }
+
+        // Remove duplicates by using array_unique
+        $district_names_string = implode(', ', array_unique($district_names));
+        // Create comma-separated strings for names and dates
+        $exam_names_string = implode(', ', $exam_names);
+        $exam_dates_string = implode(', ', $exam_dates);
+        // Pass data to the Blade view
+        $html = view('PDF.ED.vehicle-security-checklist', compact('charted_vehicle_verification','vehicle_no_details', 'exam_data', 'exam_names_string', 'exam_dates_string', 'district_names_string'))->render();
+
+        // Generate PDF
+        $pdf = Browsershot::html($html)
+            ->setOption('landscape', false)
+            ->setOption('margin', ['top' => '10mm', 'right' => '10mm', 'bottom' => '10mm', 'left' => '10mm'])
+            ->setOption('displayHeaderFooter', true)
+            ->setOption('headerTemplate', '<div></div>')
+            ->setOption('footerTemplate', '
+                       <div style="font-size:10px;width:100%;text-align:center;">
+                        Page <span class="pageNumber"></span> of <span class="totalPages"></span>
+                       </div>
+                       <div style="position: absolute; bottom: 5mm; right: 10px; font-size: 10px;">
+                        IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . ' 
+                       </div>')
+            ->setOption('preferCSSPageSize', true)
+            ->setOption('printBackground', true)
+            ->scale(1)
+            ->format('A4')
+            ->pdf();
+
+        // Define filename and return PDF
+        $filename = 'vehicle_security_checklist_' . time() . '.pdf';
+
+        return response($pdf)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
+    }
     public function saveOTLLockUsed(Request $request)
     {
         $request->validate([
             'routeId' => 'required',
             'otlCode' => 'required',
         ]);
+        // dd($request->validate);
         // Check if the provided route exists in charted_vehicle_routes
         // Fetch the route and include escortstaffs
         $route = ChartedVehicleRoute::where('id', $request->routeId)
@@ -592,7 +742,6 @@ class ChartedVehicleRoutesController extends Controller
         $route->used_otl_locks = $usedOtlCodes;
         $route->save();
         return response()->json(['success' => 'OTL code saved successfully.', 'used_otl_locks' => $usedOtlCodes]);
-
     }
     public function generateAnnexure1BReport($Id)
     {

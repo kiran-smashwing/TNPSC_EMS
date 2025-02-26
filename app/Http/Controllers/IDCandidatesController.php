@@ -339,12 +339,11 @@ class IDCandidatesController extends Controller
             $confirmedVenuesQuery->where('is_confirmed', 'true');
         }
 
-      
         $confirmedVenues = $confirmedVenuesQuery->get();
         $venuesWithCIs = collect();
 
         foreach ($confirmedVenuesQuery->get() as $venue) {
-            $chiefInvigilators =$venue->chief_invigilator_data ?? [];
+            $chiefInvigilators = $venue->chief_invigilator_data ?? [];
 
             // If no CIs are added, add the venue with empty CI details
             if (empty($chiefInvigilators)) {

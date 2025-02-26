@@ -72,7 +72,8 @@ class AuthorizationService
                     'expenditure-statment',
                     'ci-meeting',
                     'chv-routes',
-                    'email-template'
+                    'email-template',
+                    'route-edit'
 
                 ],
             ],
@@ -85,6 +86,8 @@ class AuthorizationService
                     'exam-completed',
                     'bundle-collection',
                     'annexure-1-b.download',
+                    'route-checkbox'
+                    
                 ],
             ],
             'VMD' => [
@@ -119,6 +122,7 @@ class AuthorizationService
                     'current-exam',
                     'exam-completed',
                     'omr-qca-delivered',
+                    // 'chv-routes',
                 ],
             ],
             'ADMIN' => [
@@ -190,7 +194,7 @@ class AuthorizationService
         if ($role === 'sw-admin') {
             return true; // sw-admin has access to everything
         }
-        if ($permission === 'cv-down-updates') {
+        if ($permission === 'cv-down-updates' || $permission === 'route-edit' || $permission === 'otl-lock') {
             $user = auth()->guard('headquarters')->user();
 
             // Check if the user's dept_off_id exists in EscortStaff
@@ -204,7 +208,7 @@ class AuthorizationService
             if ($user->district_code === '01') {
                 return false; // Re-enabling the return statement
             }
-        }
+        } 
         // Check if user is logged in through any guard
         if (!isset($this->rolePermissions[$role])) {
             return false;

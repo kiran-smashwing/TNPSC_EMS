@@ -20,6 +20,7 @@ class CIPaperReplacements extends Model
         'new_paper_number',
         'replacement_reason',
         'replacement_photo',
+        'replacement_type_paper',
         'ci_id',
     ];
 

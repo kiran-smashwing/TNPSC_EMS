@@ -69,7 +69,7 @@ Route::get('/attendance-report-overall', [AttendanceReportController::class, 'ge
 Route::get('/api/get-dropdown-data', [AttendanceReportController::class, 'getDropdownData'])->name('attendance.dropdown');
 // Route::get('/attendance-report/filter', [AttendanceReportController::class, 'filterAttendanceReport'])->name('attendance-report.filter');
 Route::get('/ed-report', [EDController::class, 'generateEDReport'])->name('ed.report');
-Route::get('/vehicel-report', [Vehicle_SecurityController::class, 'generateVehicleReport'])->name('vehicel.report');
+
 // Qp_bookletcontroller
 Route::get('/qp-booklet', [Qp_BookletController::class, 'generateQpbookletReport'])->name('qp_booklet.report');
 // Qp_bookletcontroller
@@ -536,6 +536,8 @@ Route::prefix('charted-vehicle-routes')->group(function () {
         Route::post('/get-districts-for-exam', [ChartedVehicleRoutesController::class, 'getDistrictsForExamIDs'])->name('charted-vehicle-routes.get-districts-for-exam');
         Route::get('/downward-journey-routes', [ChartedVehicleRoutesController::class, 'downwardJourneyRoutes'])->name('charted-vehicle-routes.downward-journey-routes');
         Route::post('/save-otl-lock-used', [ChartedVehicleRoutesController::class, 'saveOTLLockUsed'])->name('charted-vehicle-routes.save-otl-lock-used');
+        Route::post('/charted-vehicle-verification', [ChartedVehicleRoutesController::class, 'chartedVehicleVerification'])->name('charted.vehicle.verification');
+        Route::get('/vehicel-report/{id}', [ChartedVehicleRoutesController::class, 'generateVehicleReport'])->name('vehicel.report.download');
         Route::get('/view-trunk-boxes/{Id}', [ChartedVehicleRoutesController::class, 'viewTrunkboxes'])->name('viewTrunkboxes');
         Route::get('/generate-trunkbox-order/{Id}', [ChartedVehicleRoutesController::class, 'generateTrunkboxOrder'])->name('generateTrunkboxOrder');
         Route::post('/scan-trunkbox-order', [ChartedVehicleRoutesController::class, 'scanTrunkboxOrder'])->name('scanTrunkboxOrder');

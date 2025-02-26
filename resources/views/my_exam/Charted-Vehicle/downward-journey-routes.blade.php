@@ -154,6 +154,30 @@
 
             </div>
             <div class="row">
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
                 <!-- [ basic-table ] start -->
                 <div class="col-xl-12">
                     <div class="card">
@@ -215,18 +239,34 @@
                                             </td>
                                             <td> {{ $route->district_codes }}</td>
                                             <td>
-                                                <a href="{{ route('charted-vehicle-routes.edit', $route['id']) }}"
-                                                    class="avtar avtar-xs btn-light-success"><i
-                                                        class="ti ti-edit f-20"></i></a>
+                                                @hasPermission('route-edit')
+                                                    <a href="{{ route('charted-vehicle-routes.edit', $route['id']) }}"
+                                                        class="avtar avtar-xs btn-light-success"><i
+                                                            class="ti ti-edit f-20"></i></a>
+                                                @endhasPermission
+                                                @hasPermission('route-checkbox')
+                                                    <a href="#" class="avtar avtar-xs btn-light-success"
+                                                        data-bs-toggle="modal" data-bs-target="#verifyroutecheckbox"
+                                                        data-route-id="{{ $route['id'] }}" onclick="setVehicleIds(this)">
+                                                        <i class="ti ti-clipboard-check f-20"></i>
+                                                    </a>
+                                                    @if (!empty($route->charted_vehicle_verification))
+                                                    <a href="{{ route('vehicel.report.download', $route['id']) }}"
+                                                        class="avtar avtar-xs btn-light-success"><i
+                                                            class="ti ti-download f-20"></i></a>
+                                                @endif
+                                                @endhasPermission
                                                 <a href="{{ route('viewTrunkboxes', $route['id']) }}"
                                                     class="avtar avtar-xs btn-light-success"><i
                                                         class="ti ti-checkbox  f-20"></i></a>
+                                               @hasPermission('otl-lock')
                                                 <a href='#'
                                                     class="{{ $route->user_used_otl_code ? 'avtar avtar-xs btn-light-success"' : 'avtar avtar-xs btn-light-danger' }} lock-update"
                                                     data-route-id="{{ $route->id }}"
                                                     data-otl="{{ json_encode($route->otl_locks) }}">
                                                     {!! $route->user_used_otl_code ? '<i class="ti ti-lock f-20"></i>' : '<i class="ti ti-lock-off f-20"></i>' !!}
                                                 </a>
+                                                @endhasPermission
                                                 @hasPermission('annexure-1-b.download')
                                                     <a href="{{ route('charted-vehicle-routes.generateAnnexure1BReport', $route['id']) }}"
                                                        title="Download Annexure 1-B Report" class="avtar avtar-xs btn-light-success"><i
@@ -261,6 +301,7 @@
     </section>
     <!-- [ Main Content ] end -->
     @include('modals.verify-all-materials-handovered')
+    @include('modals.verify-route-check-box')
 
     @include('partials.footer')
 

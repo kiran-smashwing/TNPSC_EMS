@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ChartedVehicleRoute;
-use App\Models\Currentexam;
-use Illuminate\Http\Request;
-use Spatie\Browsershot\Browsershot;
+
 
 class Vehicle_SecurityController extends Controller
 {

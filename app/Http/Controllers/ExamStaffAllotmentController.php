@@ -90,7 +90,7 @@ class ExamStaffAllotmentController extends Controller
             if ($minutesDiff > 30) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Hall allocation will be done 30 minutes before the exam starts.',
+                    'message' => 'Hall allocation will be done 30 minutes <br>before the exam starts.',
                     'invigilators_allotment' => [],
                 ]);
             }
@@ -99,7 +99,7 @@ class ExamStaffAllotmentController extends Controller
         elseif ($examDateTime->isAfter($currentDateTime->endOfDay())) {
             return response()->json([
                 'success' => false,
-                'message' => 'Hall allocation will be done 30 minutes before the exam starts.',
+                'message' => 'Hall allocation will be done 30 minutes <br>before the exam starts.',
                 'invigilators_allotment' => [],
             ]);
         }
@@ -257,14 +257,15 @@ class ExamStaffAllotmentController extends Controller
 
     public function updateCIAssistantDetails(Request $request, $examId, $examDate, $ciId)
     {
+        // dd($request->all());
         try {
             $validated = $request->validate([
-                'assistants' => 'required|array|min:2|max:2',
+                'assistants' => 'required|array',
                 'exam_id' => 'required',
                 'exam_sess_date' => 'required|date',
                 'exam_sess_session' => 'required|in:FN,AN',
             ]);
-
+        //   dd($validated);
             $role = session('auth_role');
             $guard = $role ? Auth::guard($role) : null;
             $user = $guard ? $guard->user() : null;
@@ -300,7 +301,8 @@ class ExamStaffAllotmentController extends Controller
 
             return redirect()->back()->with('success', 'CI Assistant details updated successfully.');
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'An error occurred while updating CI Assistant details.']);
+            // dd($e);
+             return back()->withErrors(['error' => 'An error occurred while updating CI Assistant details.']);
         }
     }
 }

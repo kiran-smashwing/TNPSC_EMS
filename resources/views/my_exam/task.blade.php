@@ -1067,6 +1067,7 @@
                                                                         class="feather icon-navigation mx-1"></i>Send
                                                                     Intimation</a>
                                                             @endhasPermission
+
                                                         </div>
                                                     </div>
                                                 </div>

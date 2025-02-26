@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                          <h2 class="mb-0"></h2>
-                        </div> -->
+                              <h2 class="mb-0"></h2>
+                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -152,32 +152,29 @@
 
             <div class="row">
                 @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"
-                        aria-label="Close"></button>
-                </div>
-            @endif
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
 
-            @if (session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"
-                        aria-label="Close"></button>
-                </div>
-            @endif
+                @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
 
-            @if ($errors->any())
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <ul class="mb-0">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"
-                        aria-label="Close"></button>
-                </div>
-            @endif
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
                 <!-- [ basic-table ] start -->
                 <div class="col-xl-12">
                     <div class="card">
@@ -185,7 +182,7 @@
                             <div class="d-sm-flex align-items-center justify-content-between">
                                 <h5 class="mb-3 mb-sm-0">Current Exam list</h5>
                                 @hasPermission('current-exam.create')
-                                <div>
+                                    <div>
                                         <a href="{{ route('current-exam.create') }}" class="btn btn-outline-success">Add Exam
                                         </a>
                                     </div>
@@ -243,10 +240,10 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>
-                                                    <h6 class="mb-0">{{ $exam->exam_main_notification}}</h6>
+                                                <h6 class="mb-0">{{ $exam->exam_main_notification }}</h6>
                                             </td>
                                             <td>
-                                                    <h6 class="mb-0">{{ $exam->exam_main_name }}</h6>
+                                                <h6 class="mb-0">{{ $exam->exam_main_name }}</h6>
                                             </td>
                                             <td>{{ $exam->exam_main_startdate }}</td>
                                             <td>{{ $exam->examsession_count }}</td>
@@ -259,10 +256,10 @@
                                                     <i class="ti ti-eye f-20"></i>
                                                 </a>
                                                 @hasPermission('current-exam.edit')
-                                                <a href="{{ route('current-exam.edit', $exam->exam_main_id) }}"
-                                                    class="avtar avtar-xs btn-light-success">
-                                                    <i class="ti ti-edit f-20"></i>
-                                                </a>
+                                                    <a href="{{ route('current-exam.edit', $exam->exam_main_id) }}"
+                                                        class="avtar avtar-xs btn-light-success">
+                                                        <i class="ti ti-edit f-20"></i>
+                                                    </a>
                                                 @endhasPermission
                                                 <a href="#" class="avtar avtar-xs btn-light-success"
                                                     title="Change Status (Active or Inactive)">

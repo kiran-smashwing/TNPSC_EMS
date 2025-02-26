@@ -4,7 +4,7 @@
         <div class="modal-content">
             <div class="modal-header ">
                 <h5 class="modal-title text-primary" id="meetingPreliminaryCheckListModelLabel">
-                    <i class="feather icon-map-pin me-2"></i>Adequacy Check
+                    <i class="feather icon-map-pin me-2"></i>Acknowledge Receiving Amount
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                     aria-label="Close"></button>

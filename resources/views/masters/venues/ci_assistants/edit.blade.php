@@ -149,7 +149,7 @@
                                                     </div>
                                                 </div>
                                                 
-                                                <div class="col-sm-6">
+                                                {{-- <div class="col-sm-6">
                                                     <div class="mb-3">
                                                         <label class="form-label">Email<span class="text-danger">*</span></label>
                                                         <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email', $ciAssistant->cia_email) }}" placeholder="malarvizhi@***.in" required>
@@ -157,7 +157,7 @@
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
                                                     </div>
-                                                </div>
+                                                </div> --}}
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
                                                         <label class="form-label" for="phone">Phone<span class="text-danger">*</span></label>

@@ -271,7 +271,7 @@ class DistrictCandidatesController extends Controller
         // Check if a QR code already exists for this exam and district
         $qrCode = DB::table('ci_meeting_qrcode')
             ->where('exam_id', $examId)
-            ->where('district_code', $user->district_code ?? - '01')
+            ->where('district_code', $user->district_code ?? '01')
             ->first();
         if ($qrCode) {
             // Update only the meeting date and time without modifying the QR code

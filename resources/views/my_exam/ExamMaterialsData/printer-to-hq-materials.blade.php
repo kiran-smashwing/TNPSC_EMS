@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                  <h2 class="mb-0"></h2>
-                                                </div> -->
+                                                      <h2 class="mb-0"></h2>
+                                                    </div> -->
                         </div>
                     </div>
                 </div>
@@ -168,43 +168,64 @@
                         </div>
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
-                            <form id="filterForm" class="mb-3" method="GET" action="{{ route('receive-exam-materials.printer-to-hq-treasury', $examId) }}">
+                            <form id="filterForm" class="mb-3" method="GET"
+                                action="{{ route('receive-exam-materials.printer-to-hq-treasury', $examId) }}">
                                 <div class="filter-item">
                                     <select class="form-select" id="centerCodeFilter" name="centerCode">
                                         <option value="">Select Center</option>
                                         @foreach ($centers as $center)
-                                            <option value="{{ $center->center_code }}" {{ request('centerCode') == $center->center_code ? 'selected' : '' }}>
+                                            <option value="{{ $center->center_code }}"
+                                                {{ request('centerCode') == $center->center_code ? 'selected' : '' }}>
                                                 {{ $center->center_code }} - {{ $center->center_name }}
                                             </option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="filter-item">
-                                    <input type="date" class="form-control" id="examDateFilter" name="examDate" value="{{ request('examDate') }}">
+                                    {{-- <label for="examDateFilter">Select Exam Date:</label> --}}
+                                    <select class="form-control" id="examDateFilter" name="examDate">
+                                        <option value=""> Select Date </option>
+                                        @foreach ($examDates as $date)
+                                            @php
+                                                $formattedDate = \Carbon\Carbon::createFromFormat(
+                                                    'd-m-Y',
+                                                    $date,
+                                                )->format('Y-m-d');
+                                            @endphp
+                                            <option value="{{ $formattedDate }}"
+                                                {{ request('examDate') == $formattedDate ? 'selected' : '' }}>
+                                                {{ $date }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div class="filter-item">
                                     <select class="form-select" id="examSessionFilter" name="examSession">
                                         <option value="">Select Exam Session</option>
-                                        <option value="FN" {{ request('examSession') == 'FN' ? 'selected' : '' }}>FN</option>
-                                        <option value="AN" {{ request('examSession') == 'AN' ? 'selected' : '' }}>AN</option>
+                                        <option value="FN" {{ request('examSession') == 'FN' ? 'selected' : '' }}>FN
+                                        </option>
+                                        <option value="AN" {{ request('examSession') == 'AN' ? 'selected' : '' }}>AN
+                                        </option>
                                     </select>
                                 </div>
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                                 </div>
                                 <div class="btn-container">
-                                    <button type="button" id="resetButton" class="btn btn-secondary d-flex align-items-center" onclick="window.location.href='{{ route('receive-exam-materials.printer-to-hq-treasury', $examId) }}'">
+                                    <button type="button" id="resetButton"
+                                        class="btn btn-secondary d-flex align-items-center"
+                                        onclick="window.location.href='{{ route('receive-exam-materials.printer-to-hq-treasury', $examId) }}'">
                                         <i class="ti ti-refresh me-2"></i> Reset
                                     </button>
                                 </div>
                                 <div class="btn-container">
-                                    <a href="#" class="btn btn-light-primary d-flex align-items-center"  data-pc-animate="just-me"
-                                        data-bs-toggle="modal" data-bs-target="#qrCodeModal">
-                                        <i class="feather icon-aperture mx-1"></i>Scan 
+                                    <a href="#" class="btn btn-light-primary d-flex align-items-center"
+                                        data-pc-animate="just-me" data-bs-toggle="modal" data-bs-target="#qrCodeModal">
+                                        <i class="feather icon-aperture mx-1"></i>Scan
                                     </a>
                                 </div>
                             </form>
-                            
+
                             <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
                                 width="100%">
                                 <thead>
@@ -317,7 +338,7 @@
                         }, 5000);
                     }
                 }).then((result) => {
-                        window.location.reload(); // Reload the page when "OK" is clicked
+                    window.location.reload(); // Reload the page when "OK" is clicked
                 });
             }
         </script>

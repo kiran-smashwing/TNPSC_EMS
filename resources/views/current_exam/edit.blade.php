@@ -239,7 +239,7 @@
                                                         value="{{ $exam->exam_main_nametamil }}">
                                                 </div>
                                             </div>
-                                            <div class="col-sm-6">
+                                            {{-- <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="exam_main_postname">Post Name <span
                                                             class="text-danger">*</span></label>
@@ -248,7 +248,7 @@
                                                         placeholder="Group II and IIA Services"
                                                         value="{{ $exam->exam_main_postname }}">
                                                 </div>
-                                            </div>
+                                            </div> --}}
                                             <div class="col-sm-3">
                                                 <div class="mb-3 ">
                                                     <label class="form-label" for="exam_main_lastdate">Last Date For Apply

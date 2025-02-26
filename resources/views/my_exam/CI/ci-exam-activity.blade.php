@@ -40,19 +40,24 @@
                         <div class="card">
                             <div class="card-body">
                                 <nav class="navbar justify-content-between p-0 align-items-center">
-                                    <h5 class="mb-0 d-flex align-items-center">
+                                    <h5><span class="text-primary">{{ $session->currentexam->exam_main_notification }}</span>
+                                        - {{ $session->currentexam->exam_main_name }} -
+                                        {{ $session->currentexam->examservice->examservice_name }} 
+                                        - <span class="text-warning"> {{ $session->currentexam->exam_main_startdate }}</span>
+                                    </h5>
+                                    {{-- <h5 class="mb-0 d-flex align-items-center">
                                         <span
                                             class="text-primary">{{ $session->currentexam->exam_main_notification }}</span>
                                         - {{ $session->currentexam->exam_main_name }} -
-                                        {{ $session->currentexam->exam_main_postname }} -
+                                        {{ $session->currentexam->examservice->examservice_name }} -
                                         <span
                                             class="text-warning">&nbsp;{{ $session->currentexam->exam_main_startdate }}</span>
-                                    </h5>
+                                    </h5> --}}
                                     <div class="btn-group btn-group-sm help-filter" role="group"
                                         aria-label="button groups sm">
                                         <!-- Add your buttons here if needed -->
                                     </div>
-                                    <div class="d-flex align-items-center">
+                                    {{-- <div class="d-flex align-items-center">
 
                                         <a href="#" title="Adequacy Check Notification" data-pc-animate="just-me"
                                             data-bs-toggle="modal" data-bs-target="#adequacyCheckNotificationModal"
@@ -65,12 +70,31 @@
                                             class="me-2 btn btn-sm btn-light-danger d-flex align-items-center">
                                             <i class="material-icons-two-tone" style="font-size: 22px">add_alert</i>
                                         </a>
-                                    </div>
+                                    </div> --}}
 
                                 </nav>
 
                             </div>
                         </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <nav class="navbar justify-content-between p-0 align-items-center">
+                                    <div class="d-flex">
+                                        <a href="#" title="Adequacy Check Notification" data-pc-animate="just-me"
+                                            data-bs-toggle="modal" data-bs-target="#adequacyCheckNotificationModal"
+                                            class="me-2 btn btn-sm btn-light-danger">
+                                            <i style="font-size: 22px"></i>Exam Materials Discrepancy
+                                        </a>
+                                        <a href="#" title="Emergency Alarm Notification" data-pc-animate="just-me"
+                                            data-bs-toggle="modal" data-bs-target="#emergencyAlarmNotificationModal"
+                                            class="me-2 btn btn-sm btn-light-danger">
+                                            <i style="font-size: 22px"></i>Emergency Alarm Notifications
+                                        </a>
+                                    </div>
+                                </nav>
+                            </div>
+                        </div>
+
                         @if (session('success'))
                             <div class="alert alert-success alert-dismissible fade show" role="alert">
                                 {{ session('success') }}
@@ -110,6 +134,7 @@
                                     if (!empty($lastScannedMaterial)) {
                                         $is_materials_received = !is_null($lastScannedMaterial['last_scanned_at']);
                                     }
+
                                     // Set dynamic badge text and color
                                     $taskStatus = $is_materials_received ? 'Received' : 'Pending';
                                     $badgeClass = $is_materials_received ? 'bg-light-secondary' : 'bg-danger';
@@ -817,8 +842,8 @@ $replacementTime = $hasReplacement
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Replacemnt of Q-paper <small
-                                                                class="badge {{ $replacementBadgeClass }} ms-2">
+                                                        <div class="h5 font-weight-bold">Replacemnt of Q-paper or OMR Sheet
+                                                            <small class="badge {{ $replacementBadgeClass }} ms-2">
                                                                 {{ $replacementStatus }}
                                                             </small>
                                                         </div>
@@ -898,7 +923,7 @@ $replacementTime = $hasReplacement
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Remarks of Candidiate <small
+                                                        <div class="h5 font-weight-bold">Candidiate of Remarks  <small
                                                                 class="badge {{ $badgeClass }} ms-2">{{ $taskStatus }}</small>
                                                         </div>
                                                         <div class="help-sm-hidden">

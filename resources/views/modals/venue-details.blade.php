@@ -374,7 +374,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CLose</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button type="submit" id="save-button" class="btn btn-primary d-flex align-items-center">
                     <i class="feather icon-save me-2"></i>Update
                 </button>

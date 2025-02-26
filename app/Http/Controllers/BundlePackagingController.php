@@ -65,12 +65,12 @@ class BundlePackagingController extends Controller
         }
         $query = $role == 'ci'
             ? ExamMaterialsData::where('exam_id', $examId)
-                ->where('ci_id', $user->ci_id)
-                ->whereIn('category', array_keys($categoryLabels))
-                ->whereDate('exam_date', $exam_date)
-                ->where('exam_session', $exam_session->exam_sess_session)
+            ->where('ci_id', $user->ci_id)
+            ->whereIn('category', array_keys($categoryLabels))
+            ->whereDate('exam_date', $exam_date)
+            ->where('exam_session', $exam_session->exam_sess_session)
             : ExamMaterialsData::where('exam_id', $examId)
-                ->whereIn('category', array_keys($categoryLabels));
+            ->whereIn('category', array_keys($categoryLabels));
 
         $examMaterials = $query->with(relations: ['examMaterialsScan'])->get();
         // Add label mapping to the data
@@ -156,7 +156,6 @@ class BundlePackagingController extends Controller
                         'R4' => 'Bundle II',
                         'R5' => 'Bundle C',
                     ];
-
                 }
 
                 // Apply the label from the category mapping for each material
@@ -321,7 +320,7 @@ class BundlePackagingController extends Controller
         // Check if already scanned
         if (
             ExamMaterialsScan::where(['exam_material_id' => $examMaterials->id])
-                ->whereNotNull('district_scanned_at')->exists()
+            ->whereNotNull('district_scanned_at')->exists()
         ) {
             $message = 'QR code has already been scanned';
             if (!is_null($trunkBox)) {
@@ -412,7 +411,6 @@ class BundlePackagingController extends Controller
             'message' => 'QR code scanned successfully' .
                 (!is_null($trunkBox) ? ', Place this bundle in this trunk box: ' . $trunkBox->trunkbox_qr_code : ''),
         ], 200);
-
     }
     public function scanVandutyHQExamMaterials($examId, Request $request)
     {
@@ -471,7 +469,7 @@ class BundlePackagingController extends Controller
         // Check if already scanned
         if (
             ExamMaterialsScan::where(['exam_material_id' => $examMaterials->id])
-                ->whereNotNull('district_scanned_at')->exists()
+            ->whereNotNull('district_scanned_at')->exists()
         ) {
             $message = 'QR code has already been scanned';
             if (!is_null($trunkBox)) {
@@ -561,8 +559,9 @@ class BundlePackagingController extends Controller
             'message' => 'QR code scanned successfully' .
                 (!is_null($trunkBox) ? ', Place this bundle in this trunk box: ' . $trunkBox->trunkbox_qr_code : ''),
         ], 200);
-
     }
+  
+   
     public function MobileTeamtoCenter(Request $request, $examId)
     {
         $role = session('auth_role');
@@ -630,7 +629,6 @@ class BundlePackagingController extends Controller
                         'R4' => 'Bundle II',
                         'R5' => 'Bundle C',
                     ];
-
                 }
 
                 // Apply the label from the category mapping for each material
@@ -771,9 +769,6 @@ class BundlePackagingController extends Controller
                 'status' => 'success',
                 'message' => 'OTL codes saved successfully.'
             ], 200);
-
-
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -929,7 +924,7 @@ class BundlePackagingController extends Controller
             'gps_lock_handovered' => 'sometimes|in:on',
             'final_remarks' => 'nullable|string|max:500',
         ]);
-
+          
         try {
             // Find the vehicle record
             $vehicle = ChartedVehicleRoute::where('id', $request->vehicle_id)->first();
@@ -950,101 +945,14 @@ class BundlePackagingController extends Controller
             $vehicle->handover_verification_details = json_encode($handoverDetails);
             $vehicle->save();
             // Prepare audit log metadata
-            $user = current_user();
-            $metadata = [
-                'user_name' => $user->display_name ?? 'Unknown',
-                'vehicle_id' => $vehicle->id,
-                'route' => $vehicle->route_name,
-                'driver' => $vehicle->driver_name,
-            ];
-
-            // Normalize the exam_id field into an array
-            $examIds = $vehicle->exam_id;
-            if (!is_array($examIds)) {
-                $examIds = [$examIds];
-            }
-
-            $processLogForExamId = function ($examId) use ($beforeState, $handoverDetails, $metadata, $examIds) {
-                // Look for an existing audit log entry for this exam ID and task
-                $existingLog = $this->auditService->findLog([
-                    'exam_id' => $examId,
-                    'task_type' => 'materials_handover_verification',
-                ]);
-
-                if ($existingLog) {
-                    // Update existing log: Preserve initial_state and update last_state.
-                    $initialState = $existingLog->after_state['initial_state'] ?? $beforeState;
-                    $totalUpdates = ($existingLog->after_state['total_updates'] ?? 0) + 1;
-
-                    $this->auditService->updateLog(
-                        logId: $existingLog->id,
-                        metadata: $metadata,
-                        afterState: [
-                            'initial_state' => $initialState,
-                            'last_state' => $handoverDetails,
-                            'total_updates' => $totalUpdates,
-                        ],
-                        description: "Handover details updated for vehicle {$metadata['vehicle_id']} on exam {$examId} (Total updates: {$totalUpdates})"
-                    );
-                } else {
-                    // Create new log entry for this exam ID only if more than one exam id is saved.
-                    // (If only one exam ID exists, we do not want to create a separate log entry.)
-                    if (count($examIds) > 1) {
-                        $this->auditService->log(
-                            examId: $examId,
-                            actionType: 'update',
-                            taskType: 'materials_handover_verification',
-                            beforeState: null,
-                            afterState: [
-                                'initial_state' => $handoverDetails,
-                                'last_state' => $handoverDetails,
-                                'total_updates' => 1,
-                            ],
-                            description: "Initial handover details saved for vehicle {$metadata['vehicle_id']} on exam {$examId}",
-                            metadata: $metadata
-                        );
-                    }
-                    // For a single exam ID, if no log exists, we simply do not create one.
-                }
-            };
-
-            // Process audit logging:
-            // If there is more than one exam ID, create/update logs for each exam ID.
-            if (count($examIds) > 1) {
-                foreach ($examIds as $examId) {
-                    $processLogForExamId($examId);
-                }
-            } else {
-                // If there is only one exam ID, update existing log if it exists,
-                // but do not create a new log entry if none exists.
-                $examId = $examIds[0];
-                $existingLog = $this->auditService->findLog([
-                    'exam_id' => $examId,
-                    'task_type' => 'materials_handover_verification',
-                ]);
-                if ($existingLog) {
-                    // Update the log for the single exam ID.
-                    $initialState = $existingLog->after_state['initial_state'] ?? $beforeState;
-                    $totalUpdates = ($existingLog->after_state['total_updates'] ?? 0) + 1;
-                    $this->auditService->updateLog(
-                        logId: $existingLog->id,
-                        metadata: $metadata,
-                        afterState: [
-                            'initial_state' => $initialState,
-                            'last_state' => $handoverDetails,
-                            'total_updates' => $totalUpdates,
-                        ],
-                        description: "Handover details updated for vehicle {$metadata['vehicle_id']} on exam {$examId} (Total updates: {$totalUpdates})"
-                    );
-                }
-                // If there is no log for the single exam id, we simply do not create one.
-            }
 
             return back()->with('success', 'Handover details saved successfully.');
         } catch (\Exception $e) {
             return back()->with('error', 'Failed to save handover details. Please try again. ' . $e);
         }
     }
+    
+
     public function reportHandoverDetails(Request $request, $id)
     {
         $vehicles = ChartedVehicleRoute::where('id', $id)->with(['escortstaffs.district'])->first();
@@ -1083,5 +991,4 @@ class BundlePackagingController extends Controller
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
     }
-
 }

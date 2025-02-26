@@ -15,6 +15,7 @@ use App\Models\EscortStaff;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Currentexam;
+use Spatie\Browsershot\Browsershot;
 class ChartedVehicleRoutesController extends Controller
 {
     public function index(Request $request)
@@ -264,7 +265,7 @@ class ChartedVehicleRoutesController extends Controller
                     // Attach the specific user's OTL code to the route
                     $route->user_used_otl_code = $usedOtlCodes[$user->dept_off_id] ?? null;
                 });
-            
+
         }
         // Fetching exam notifications 
         foreach ($routes as $route) {
@@ -593,5 +594,177 @@ class ChartedVehicleRoutesController extends Controller
         return response()->json(['success' => 'OTL code saved successfully.', 'used_otl_locks' => $usedOtlCodes]);
 
     }
+    public function generateAnnexure1BReport($Id)
+    {
+        // Fetch the route with all escort staff for the given charted vehicle ID and user
+        $route = ChartedVehicleRoute::where('id', $Id)->with('escortstaffs')->first();
+        //Fetch exams records
+        $examIds = $route->exam_id;
+        $exams = Currentexam::whereIn('exam_main_no', $examIds)->get();
+        $groupedExams = [
+            'notifications' => $exams->pluck('exam_main_notification')->unique()->implode(', '),
+            'exam_dates' => $exams->pluck('exam_main_notifdate')->unique()->implode(', '),
+            'exam_names' => $exams->pluck('exam_main_name')->unique()->implode(', ')
+        ];
+        //get the districts from the escort staff
+        $route->district_codes = $route->escortstaffs
+            ->pluck('district_code')
+            ->unique()
+            ->implode(', ');
+        // dd($exams);
 
+        $trunkBoxes = DB::table('exam_trunkbox_otl_data as e')
+            ->leftJoin('exam_trunkbox_scans as s', 'e.id', '=', 's.exam_trunkbox_id')
+            ->whereIn('e.exam_id', $examIds)
+            ->whereIn('e.district_code', $route->escortstaffs->pluck('district_code'))
+            ->select(
+                'e.exam_id',
+                'e.district_code',
+                'e.trunkbox_qr_code',
+                'e.otl_code',
+                'e.exam_date',
+                'e.used_otl_code',
+                DB::raw('string_agg(DISTINCT e.center_code, \',\') as center_codes'),
+                DB::raw('string_agg(DISTINCT e.hall_code, \',\') as hall_codes'),
+                DB::raw('MIN(e.load_order::INTEGER) as load_order')
+            )
+            ->groupBy(
+                'e.exam_id',
+                'e.district_code',
+                'e.trunkbox_qr_code',
+                'e.otl_code',
+                'e.exam_date',
+                'e.used_otl_code',
+            )
+            ->get();
+
+        // Convert to arrays
+        $trunkBoxes = $trunkBoxes->toArray();
+        // Extract and format centers
+        $centers = collect($trunkBoxes)->pluck('center_codes')->flatten()->unique()->implode(', ');
+
+        // Extract and format halls grouped by center
+        $hallMapping = [];
+        foreach ($trunkBoxes as $box) {
+            $centerCodes = explode(',', $box->center_codes);
+            $hallCodes = explode(',', $box->hall_codes);
+
+            foreach ($centerCodes as $index => $center) {
+                $hallMapping[$center] = array_merge(
+                    $hallMapping[$center] ?? [],
+                    isset($hallCodes[$index]) ? [$hallCodes[$index]] : []
+                );
+            }
+        }
+
+        // Format halls as "0101(001,002,003)"
+        $halls = collect($hallMapping)
+            ->map(fn($halls, $center) => "{$center}(" . implode(',', array_unique($halls)) . ")")
+            ->implode(', ');
+        // Decode JSON fields
+        $cvOtlLocks = $route["otl_locks"]; // Available OTL locks as an array
+        $cvUsedOtlData = json_decode($route["used_otl_locks"], true) ?? []; // Multiple used OTL entries
+
+        // Extract all used OTL codes from different keys
+        $cvUsedOtlLocks = [];
+        foreach ($cvUsedOtlData as $entry) {
+            if (isset($entry["otl_code"])) {
+                $cvUsedOtlLocks = array_merge($cvUsedOtlLocks, explode(",", $entry["otl_code"]));
+            }
+        }
+        // Remove duplicates if any
+        $usedOtlLocks = array_unique(array_map('trim', $cvUsedOtlLocks));
+
+        // Find unused OTL locks
+        $cvUnusedOtlLocks = array_diff($cvOtlLocks, $cvUsedOtlLocks);
+     
+     
+        $allUnusedOtlLocks = [];
+
+        foreach ($trunkBoxes as $item) {
+            // Decode JSON values properly
+            // Decode JSON values properly
+            $otlCodes = json_decode($item->otl_code, true) ?? [];
+            $usedOtlCodes = json_decode($item->used_otl_code, true) ?? [];
+
+            // Ensure valid arrays
+            $otlCodes = is_array($otlCodes) ? $otlCodes : [];
+            $usedOtlCodes = is_array($usedOtlCodes) ? $usedOtlCodes : [];
+
+            // Find unused OTL locks for this trunk box
+            $unusedOtlLocks = array_diff($otlCodes, $usedOtlCodes);
+
+            // Merge all unused locks into a single array
+            $allUnusedOtlLocks = array_merge($allUnusedOtlLocks, $unusedOtlLocks);
+        }
+
+        // Convert the final array to a comma-separated string
+        $unusedOtlString = implode(", ", array_unique($allUnusedOtlLocks));
+
+        $examHalls = DB::table('exam_trunkbox_otl_data as e')
+            ->leftJoin('venue as v', 'v.venue_code', '=', 'e.venue_code')
+            ->whereIn('e.exam_id', $examIds)
+            ->whereIn('e.district_code', $route->escortstaffs->pluck('district_code'))
+            ->select(
+                'e.exam_id',
+                'e.district_code',
+                'e.trunkbox_qr_code',
+                'e.otl_code',
+                'e.exam_date',
+                'e.used_otl_code',
+                'v.venue_name',
+                'e.center_code',
+                'e.hall_code',
+                DB::raw('MIN(e.load_order::INTEGER) as load_order') // Aggregate function
+            )
+            ->groupBy(
+                'e.exam_id',
+                'e.district_code',
+                'e.trunkbox_qr_code',
+                'e.otl_code',
+                'e.exam_date',
+                'e.used_otl_code',
+                'v.venue_name',
+                'e.center_code',
+                'e.hall_code'
+            )
+            ->orderBy('e.trunkbox_qr_code')
+            ->get();
+
+        // dd($trunkBoxes);
+        // Render the view for the ED report
+        $html = view('PDF.ED.annexure-1-b', compact('groupedExams', 'route', 'centers', 'halls', 'cvUnusedOtlLocks', 'cvUsedOtlLocks', 'unusedOtlString','examHalls'))->render();
+
+        // Create the PDF with the necessary options
+        $pdf = Browsershot::html($html)
+            ->setOption('landscape', true) // Set landscape orientation
+            ->setOption('margin', [
+                'top' => '10mm',
+                'right' => '10mm',
+                'bottom' => '10mm',
+                'left' => '10mm'
+            ])
+            ->setOption('displayHeaderFooter', true)
+            ->setOption('headerTemplate', '<div></div>')
+            ->setOption('footerTemplate', '
+        <div style="font-size:10px;width:100%;text-align:center;">
+            Page <span class="pageNumber"></span> of <span class="totalPages"></span>
+        </div>
+        <div style="position: absolute; bottom: 5mm; right: 10px; font-size: 10px;">
+            IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . ' 
+        </div>')
+            ->setOption('preferCSSPageSize', true)
+            ->setOption('printBackground', true)
+            ->scale(1)
+            ->format('A4')  // Page size
+            ->pdf(); // Generate PDF
+
+        // Define a unique filename for the ED report
+        $filename = 'ed_statment_receiving_report_' . time() . '.pdf';
+
+        // Return the PDF as a response to be viewed inline
+        return response($pdf)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
+    }
 }

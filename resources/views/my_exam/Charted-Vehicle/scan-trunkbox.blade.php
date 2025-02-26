@@ -138,8 +138,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                              <h2 class="mb-0"></h2>
-                                                            </div> -->
+                                                                  <h2 class="mb-0"></h2>
+                                                                </div> -->
                         </div>
                     </div>
                 </div>
@@ -154,12 +154,11 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="d-sm-flex align-items-center justify-content-between">
-                                <h5 class="mb-3 mb-sm-0">Place Trunk Box & Scan By Order</h5>
+                                <h5 class="mb-3 mb-sm-0">Predetermined Trunk Box Order</h5>
                                 <ul class="list-inline ms-auto  mb-0">
-
-                                    <li class="list-inline-item"><a href="#" class="badge bg-dark f-14">Received
+                                    {{-- <li class="list-inline-item"><a href="#" class="badge bg-dark f-14">Received
                                             {{ $totalScanned }} /
-                                            {{ $totalTrunkBoxes }}</a></li>
+                                            {{ $totalTrunkBoxes }}</a></li> --}}
                                     {{-- <li class="list-inline-item"> <a href="{{route('collectorate.create')}}" class="btn btn-outline-success">Scan Now</a></li> --}}
                                 </ul>
 
@@ -167,7 +166,7 @@
                         </div>
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
-                            <form id="filterForm" class="mb-3" method="GET" action="">
+                            {{-- <form id="filterForm" class="mb-3" method="GET" action="">
                                 <div class="filter-item">
                                     <select class="form-select" id="centerCodeFilter" name="centerCode">
                                         <option value="">Select Center</option>
@@ -198,9 +197,9 @@
                                         <i class="feather icon-aperture mx-1"></i>Scan
                                     </a>
                                 </div>
-                            </form>
+                            </form> --}}
 
-                            <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
+                            <table id="res-configs" class="display table table-striped table-hover dt-responsive nowrap"
                                 width="100%">
                                 <thead>
                                     <tr>
@@ -209,7 +208,7 @@
                                         <th>Center</th>
                                         <th>Exam Date</th>
                                         <th>Trunk Box</th>
-                                        <th>Time Stamp</th>
+                                        {{-- <th>Time Stamp</th> --}}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -220,13 +219,13 @@
                                             <td>{{ $trunkbox->center_codes }}</td>
                                             <td>{{ $trunkbox->exam_date }}</td>
                                             <td>{{ $trunkbox->trunkbox_qr_code }}</td>
-                                          <td>
-   											 @if ($trunkbox && $user->role && ($scanTime = ($user->role->role_department === 'ED' ? $trunkbox->hq_scanned_at : 													$trunkbox->dept_off_scanned_at)))
+                                            {{-- <td>
+   											 @if ($trunkbox && $user->role && ($scanTime = $user->role->role_department === 'ED' ? $trunkbox->hq_scanned_at : $trunkbox->dept_off_scanned_at))
   												      {{ \Carbon\Carbon::parse($scanTime)->format('d-m-Y h:i:s') }}
    											 @else
       												  No Scans
   											 @endif
-											</td>
+											</td> --}}
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -239,19 +238,30 @@
         </div>
         <!-- [ Main Content ] end -->
         </div>
-        @include('modals.qr-code-modal')
+        {{-- @include('modals.qr-code-modal') --}}
     </section>
     <!-- [ Main Content ] end -->
     @include('partials.footer')
-@php
-    $scanRoute = ($user->role?->role_department == 'ED') 
-        ? route('bundle-packaging.scan-hq-exam-materials') 
-        : route('scanTrunkboxOrder');
-@endphp
+    @php
+        $scanRoute =
+            $user->role?->role_department == 'ED'
+                ? route('bundle-packaging.scan-hq-exam-materials')
+                : route('scanTrunkboxOrder');
+    @endphp
     @push('scripts')
         @include('partials.datatable-export-js')
-        <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
         <script>
+            $(document).ready(function() {
+                $('#res-configs').DataTable({
+                    "paging": false, // Disable pagination
+                    "info": false, // Hide table info
+                    "searching": false, // Disable search
+                    "ordering": true, // Enable sorting (optional)
+                });
+            });
+        </script>
+        <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
+        {{-- <script>
             function processQrCode(data) {
                 // Hide the modal using Bootstrap's modal method
                 const qrCodeModal = document.getElementById('qrCodeModal');
@@ -316,10 +326,9 @@
                     window.location.reload(); // Reload the page when "OK" is clicked
                 });
             }
-        </script>
+        </script> --}}
     @endpush
 
     @include('partials.theme')
 
 @endsection
-

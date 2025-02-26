@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Statement Template</title>
+    <title> Annexure-1 B</title>
     <style>
         html,
         body {
@@ -94,7 +94,7 @@
         th,
         td {
             border: 1px solid #dcdcdc;
-            padding: 12px;
+            padding: 8px;
             /* Increased padding for better spacing */
             text-align: left;
             font-size: 14px;
@@ -122,10 +122,7 @@
             text-align: center;
         }
 
-        .row-label {
-            /* width: 20%; */
-            font-weight: bold;
-        }
+
 
         h3 {
             font-size: 18pt;
@@ -177,48 +174,54 @@
             <h5>Annexure - IB Statement of Receiving Team (Mofussil) Venue: Receiving Cum Storage Hall (1st Floor)</h5>
         </div>
         <div class="content-section">
-          
+
         </div>
         <table>
             <tr>
-                <td class="row-label" colspan="1">Notification No: 10/2024</td>
-                <td class="row-label" colspan="1">Exam Date: 01-12-2024</td>
-                <td class="row-label" colspan="2">Exam Name: RASHTRIYA INDIAN MILITARY COLLEGE (JULY-2025 TERM)</td>
+                <td colspan="1"><b>Notification No:</b> {{ $groupedExams['notifications'] ?? 'N/A' }}</td>
+                <td colspan="1"><b>Exam Date:</b> {{ $groupedExams['exam_dates'] ?? 'N/A' }}</td>
+                <td colspan="2"><b>Exam Name:</b> {{ $groupedExams['exam_names'] ?? 'N/A' }}</td>
             </tr>
             <tr>
-                <td class="row-label" colspan="2">Route No:</td>
-                <td class="row-label" colspan="2">GPS Lock Number:</td>
-                
+                <td><b>Route No:</b> {{ $route->route_no ?? 'N/A' }}</td>
+                <td colspan="3">
+                    <b>GPS Lock Number:</b>
+                    {{ collect($route->gps_locks)->filter()->implode(', ') ?: 'N/A' }}
+                </td>
+
+
             </tr>
             <tr>
-                <td class="row-label" colspan="2">District:</td>
-                <td class="row-label" colspan="1">Access Card Number:</td>
-                
+                <td colspan="2"><b>District:</b> {{ $route->district_codes ?? 'N/A' }}</td>
+                <td colspan="1"><b>Access Card Number:</b></td>
+
             </tr>
             <tr>
-                <td class="row-label" colspan="4">Centre Code & Name:</td>
-                
+                <td colspan="4"><b>Centre Code & Name:</b> {{ $centers ?? 'N/A' }}</td>
+
             </tr>
             <tr>
-                <td class="row-label" colspan="4">Halls Numbers:</td>
+                <td colspan="4"><b>Halls Numbers:</b> {{ $halls ?? 'N/A' }}</td>
             </tr>
             <tr>
-                <td class="row-label" colspan="4">Memory Cards Received from Dist. Treasury:</td>
+                <td colspan="4"><b>Memory Cards Received from Dist. Treasury:</b></td>
             </tr>
             <tr>
-                <td class="row-label" colspan="4">
-                    Particulars of One Time Lock For Chartered Vehicle: (I) Used OTL No. <br>
-                    (II) Unused OTL (Spare Lock Number):
+                <td colspan="4">
+                    <b>Particulars of One Time Lock For Chartered Vehicle:</b> (I) Used OTL No.
+                    {{ implode(',', $cvUsedOtlLocks) ?? 'N/A' }} <br>
+                    <b>(II) Unused OTL (Spare Lock Number):</b> {{ implode(',', $cvUnusedOtlLocks) ?? 'N/A' }}
                 </td>
             </tr>
             <tr>
-                <td class="row-label" colspan="4">
-                    Particulars of Unused One Time Lock for Metal Trunk Box Received (Spare Lock Number):
+                <td colspan="4">
+                    <b>Particulars of Unused One Time Lock for Metal Trunk Box Received (Spare Lock Number):</b>
+                    {{ $unusedOtlString ?? 'NIL' }}
                 </td>
-               
+
             </tr>
         </table>
-        
+
         <table class="report-summary-table">
             <tr>
                 <th style="width: 20px;">Hall Code</th>
@@ -230,59 +233,38 @@
                 <th style="width: 20px;">Remarks</th>
                 <th style="width: 20px;">Name, Designation, Signature with Date and Time</th>
             </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td rowspan="6" style="text-align: left; font-weight: bold; vertical-align: top;"></td>
-                <td rowspan="6" style="text-align: left; font-weight: bold; vertical-align: top;"></td>
-                <td></td>
-                <td></td>
-                <td rowspan="6" style="text-align: left; font-weight: bold; vertical-align: top;"></td>
-                <td rowspan="6" style="text-align: left; font-weight: bold; vertical-align: top;"></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-               
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-               
-            </tr>
-            
-            
-           
-           
+            @php
+                $previousTrunk = null;
+                $rowspanCounts = [];
+                $trunkboxCounts = [];
+
+                // Count occurrences of each trunk box to determine rowspans
+                foreach ($examHalls as $box) {
+                    $trunkboxCounts[$box->trunkbox_qr_code] = ($trunkboxCounts[$box->trunkbox_qr_code] ?? 0) + 1;
+                }
+            @endphp
+
+            @foreach ($examHalls as $box)
+                <tr>
+                    <td>{{ $box->hall_code }}</td>
+                    <td>{{ $box->venue_name }}</td>
+
+                    {{-- Only show trunkbox if it's the first occurrence, otherwise rowspan --}}
+                    @if ($box->trunkbox_qr_code !== $previousTrunk)
+                        <td rowspan="{{ $trunkboxCounts[$box->trunkbox_qr_code] }}">{{ $box->trunkbox_qr_code }}</td>
+                        <td rowspan="{{ $trunkboxCounts[$box->trunkbox_qr_code] }}">
+                            {{ is_array(json_decode($box->used_otl_code, true)) ? implode(',', json_decode($box->used_otl_code, true)) : '' }}
+                        </td>
+                        @php $previousTrunk = $box->trunkbox_qr_code; @endphp
+                    @endif
+
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            @endforeach
         </table>
-        
-        
-
-
-
     </div>
 </body>
 

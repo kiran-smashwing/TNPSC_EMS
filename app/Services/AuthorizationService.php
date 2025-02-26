@@ -83,7 +83,8 @@ class AuthorizationService
                     'current-exam',
                     'cv-down-updates',
                     'exam-completed',
-                    'bundle-collection'
+                    'bundle-collection',
+                    'annexure-1-b.download',
                 ],
             ],
             'VMD' => [

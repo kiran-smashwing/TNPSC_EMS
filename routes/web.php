@@ -514,6 +514,7 @@ Route::prefix('receive-exam-materials')->group(function () {
 //ExamMaterialsRouteController Route::prefix('exam-materials-route')->group(function(){
 Route::prefix('exam-materials-route')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
+        // Route::get('/samplePdf', [ExamMaterialsRouteController::class, 'samplePdf'])->name('exam-materials-route.sample-pdf');
         Route::get('/{examId}', [ExamMaterialsRouteController::class, 'index'])->name('exam-materials-route.index');
         Route::get('/create/{examId}', [ExamMaterialsRouteController::class, 'createRoute'])->name('exam-materials-route.create');
         Route::get('/edit/{Id}', [ExamMaterialsRouteController::class, 'editRoute'])->name('exam-materials-route.edit');
@@ -538,6 +539,7 @@ Route::prefix('charted-vehicle-routes')->group(function () {
         Route::get('/view-trunk-boxes/{Id}', [ChartedVehicleRoutesController::class, 'viewTrunkboxes'])->name('viewTrunkboxes');
         Route::get('/generate-trunkbox-order/{Id}', [ChartedVehicleRoutesController::class, 'generateTrunkboxOrder'])->name('generateTrunkboxOrder');
         Route::post('/scan-trunkbox-order', [ChartedVehicleRoutesController::class, 'scanTrunkboxOrder'])->name('scanTrunkboxOrder');
+        Route::get('/generate-annexure-1B-report/{Id}', [ChartedVehicleRoutesController::class, 'generateAnnexure1BReport'])->name('charted-vehicle-routes.generateAnnexure1BReport');
     });
 });
 

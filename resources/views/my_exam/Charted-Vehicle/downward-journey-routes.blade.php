@@ -140,8 +140,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                                          <h2 class="mb-0"></h2>
-                                                                        </div> -->
+                                                                                  <h2 class="mb-0"></h2>
+                                                                                </div> -->
                         </div>
                     </div>
                 </div>
@@ -224,8 +224,14 @@
                                                 <a href='#'
                                                     class="{{ $route->user_used_otl_code ? 'avtar avtar-xs btn-light-success"' : 'avtar avtar-xs btn-light-danger' }} lock-update"
                                                     data-route-id="{{ $route->id }}"
-                                                    data-otl="{{ json_encode($route->otl_locks) }}">                                                    {!! $route->user_used_otl_code ? '<i class="ti ti-lock f-20"></i>' : '<i class="ti ti-lock-off f-20"></i>' !!}
+                                                    data-otl="{{ json_encode($route->otl_locks) }}">
+                                                    {!! $route->user_used_otl_code ? '<i class="ti ti-lock f-20"></i>' : '<i class="ti ti-lock-off f-20"></i>' !!}
                                                 </a>
+                                                @hasPermission('annexure-1-b.download')
+                                                    <a href="{{ route('charted-vehicle-routes.generateAnnexure1BReport', $route['id']) }}"
+                                                       title="Download Annexure 1-B Report" class="avtar avtar-xs btn-light-success"><i
+                                                            class="ti ti-download f-20"></i></a>
+                                                @endhasPermission
                                                 @hasPermission('verify-materials-handovered')
                                                     <a href="#" class="avtar avtar-xs btn-light-success"
                                                         data-bs-toggle="modal" data-bs-target="#verifyAllMaterialsHandovered"
@@ -330,35 +336,35 @@
                                 success: function(data, textStatus, xhr) {
                                     const loader = document.getElementById('loader');
                                     if (loader) loader.style.display =
-                                    'none'; // Hide loader
+                                        'none'; // Hide loader
 
                                     if (xhr.status === 200) {
                                         Swal.fire({
                                             title: 'Success!',
                                             text: data
-                                            .success, // Show dynamic success message
+                                                .success, // Show dynamic success message
                                             icon: 'success',
                                             confirmButtonText: 'OK'
                                         }).then((result) => {
                                             if (result.isConfirmed) {
                                                 location
-                                            .reload(); // Reload the page when "OK" is clicked
+                                                    .reload(); // Reload the page when "OK" is clicked
                                             }
                                         });
                                     } else {
                                         Swal.fire('Error!', data.error,
-                                        'error'); // Show dynamic error message
+                                            'error'); // Show dynamic error message
                                     }
                                 },
                                 error: function(xhr) {
                                     const loader = document.getElementById('loader');
                                     if (loader) loader.style.display =
-                                    'none'; // Hide loader
+                                        'none'; // Hide loader
 
                                     let errorMessage = 'Something went wrong.';
                                     if (xhr.responseJSON && xhr.responseJSON.error) {
                                         errorMessage = xhr.responseJSON
-                                        .error; // Get actual error message
+                                            .error; // Get actual error message
                                     }
                                     Swal.fire('Error!', errorMessage, 'error');
                                 }

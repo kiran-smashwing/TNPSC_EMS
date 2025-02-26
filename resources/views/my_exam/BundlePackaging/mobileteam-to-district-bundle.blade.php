@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Headquarters to Van Duty Staff')
+@section('title', 'Mobile Team to District Treasury')
 
 @section('content')
     @push('styles')
@@ -116,6 +116,11 @@
                     justify-content: center;
                 }
             }
+            
+            #swal2-html-container {
+                z-index: 9999 !important;
+                overflow: visible !important;
+            }
         </style>
     @endpush
     <!-- [ Pre-loader ] start -->
@@ -138,14 +143,13 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                              <h2 class="mb-0"></h2>
-                                                            </div> -->
+                                                                                  <h2 class="mb-0"></h2>
+                                                                                </div> -->
                         </div>
                     </div>
                 </div>
             </div>
             <!-- [ breadcrumb ] end -->
-
 
             <!-- [ Main Content ] start -->
             <div class="row">
@@ -154,32 +158,40 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="d-sm-flex align-items-center justify-content-between">
-                                <h5 class="mb-3 mb-sm-0">Place Trunk Box & Scan By Order</h5>
+                                <h5 class="mb-3 mb-sm-0">Mobile Team to District Treasury
+                                </h5>
                                 <ul class="list-inline ms-auto  mb-0">
-
-                                    <li class="list-inline-item"><a href="#" class="badge bg-dark f-14">Received
+                                    {{-- <li class="list-inline-item"><a href="#" class="badge bg-dark f-14">Received
                                             {{ $totalScanned }} /
-                                            {{ $totalTrunkBoxes }}</a></li>
+                                            {{ $totalExamMaterials }}</a></li> --}}
                                     {{-- <li class="list-inline-item"> <a href="{{route('collectorate.create')}}" class="btn btn-outline-success">Scan Now</a></li> --}}
                                 </ul>
-
                             </div>
                         </div>
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
-                            <form id="filterForm" class="mb-3" method="GET" action="">
+                            <form id="filterForm" class="mb-3" method="GET"
+                                action="{{ route('bundle-packaging.mobileteam-to-district', ['examId' => $examId]) }}">
                                 <div class="filter-item">
                                     <select class="form-select" id="centerCodeFilter" name="centerCode">
                                         <option value="">Select Center</option>
+                                        @foreach ($centers as $center)
+                                            <option value="{{ $center->center_code }}"
+                                                {{ request('centerCode') == $center->center_code ? 'selected' : '' }}>
+                                                {{ $center->center_code }} - {{ $center->center_name }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="filter-item">
-                                    <select class="form-select" id="examSessionFilter" name="examSession">
-                                        <option value="">Select Exam Session</option>
-                                        <option value="FN" {{ request('examSession') == 'FN' ? 'selected' : '' }}>FN
-                                        </option>
-                                        <option value="AN" {{ request('examSession') == 'AN' ? 'selected' : '' }}>AN
-                                        </option>
+                                    <select class="form-select" id="examDateFilter" name="examDate" class="form-control">
+                                        <option value="">Select Exam Date</option>
+                                        @foreach ($examDates as $examDate)
+                                            <option value="{{ $examDate }}"
+                                                {{ request('examDate') == $examDate ? 'selected' : '' }}>
+                                                {{ Carbon\Carbon::parse($examDate)->format('d-m-Y') }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="btn-container">
@@ -188,7 +200,7 @@
                                 <div class="btn-container">
                                     <button type="button" id="resetButton"
                                         class="btn btn-secondary d-flex align-items-center"
-                                        onclick="window.location.href=''">
+                                        onclick="window.location.href='{{ route('bundle-packaging.mobileteam-to-district', ['examId' => $examId]) }}'">
                                         <i class="ti ti-refresh me-2"></i> Reset
                                     </button>
                                 </div>
@@ -204,33 +216,36 @@
                                 width="100%">
                                 <thead>
                                     <tr>
-                                        <th>#</th>
-                                        <th>District</th>
-                                        <th>Center</th>
-                                        <th>Exam Date</th>
-                                        <th>Trunk Box</th>
-                                        <th>Time Stamp</th>
+                                        <th>Route No</th>
+                                        <th>Center Code</th>
+                                        <th>Hall No</th>
+                                        <th>Trunkbox Code</th>
+                                        <th>OTL Locks</th>
+                                        <th>Materials Count</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($trunkBoxes as $trunkbox)
+                                    @foreach ($groupedExamMaterials as $data)
                                         <tr>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $trunkbox->district_code }}</td>
-                                            <td>{{ $trunkbox->center_codes }}</td>
-                                            <td>{{ $trunkbox->exam_date }}</td>
-                                            <td>{{ $trunkbox->trunkbox_qr_code }}</td>
-                                          <td>
-   											 @if ($trunkbox && $user->role && ($scanTime = ($user->role->role_department === 'ED' ? $trunkbox->hq_scanned_at : 													$trunkbox->dept_off_scanned_at)))
-  												      {{ \Carbon\Carbon::parse($scanTime)->format('d-m-Y h:i:s') }}
-   											 @else
-      												  No Scans
-  											 @endif
-											</td>
+                                            <td>{{ $data['route_no'] }}</td>
+                                            <td>{{ $data['center_code'] }}</td>
+                                            <td>{{ $data['hall_code'] }}</td>
+                                            <td>{{ $data['trunkbox_qr_code'] }}</td>
+                                            <td>{{ implode(', ', $data['otl_codes']) }}</td>
+                                            <td>{{ $data['scanned_count'] }} / {{ $data['materials_count'] }}</td>
+                                            <td>
+                                                <a class="avtar avtar-xs btn-light-success bs-ajex-req"
+                                                    data-trunkbox="{{ $data['trunkbox_qr_code'] }}"
+                                                    data-otl="{{ json_encode($data['otl_codes']) }}">
+                                                    <i class="ti ti-checkbox f-20"></i>
+                                                </a>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
+
                         </div>
                     </div>
                 </div>
@@ -243,13 +258,11 @@
     </section>
     <!-- [ Main Content ] end -->
     @include('partials.footer')
-@php
-    $scanRoute = ($user->role?->role_department == 'ED') 
-        ? route('bundle-packaging.scan-hq-exam-materials') 
-        : route('scanTrunkboxOrder');
-@endphp
+
     @push('scripts')
         @include('partials.datatable-export-js')
+        <script src="{{ asset('storage/assets/js/plugins/choices.min.js') }}"></script>
+
         <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
         <script>
             function processQrCode(data) {
@@ -257,16 +270,14 @@
                 const qrCodeModal = document.getElementById('qrCodeModal');
                 const modalInstance = bootstrap.Modal.getInstance(qrCodeModal);
                 modalInstance.hide();
-                let scanRoute = @json($scanRoute);
-                fetch(scanRoute, {
+                fetch("{{ route('bundle-packaging.scan-disitrct-exam-materials', $examId) }}", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify({
-                            qr_code: data,
-                            exam_id: '{{ json_encode($myroute->exam_id) }}', // Replace with the actual exam_id value from $myroute->exam_id}}'
+                            qr_code: data
                         })
                     })
                     .then(response => response.json())
@@ -306,20 +317,89 @@
                     icon: iconType,
                     title: type.charAt(0).toUpperCase() + type.slice(1),
                     text: message,
-                    timer: 5000, // Hide after 5 seconds
-                    didOpen: () => {
-                        setTimeout(() => {
-                            Swal.close(); // Automatically close alert after 5 seconds
-                        }, 5000);
-                    }
                 }).then((result) => {
                     window.location.reload(); // Reload the page when "OK" is clicked
                 });
             }
+        </script>
+        <script>
+            document.querySelectorAll('.bs-ajex-req').forEach(button => {
+                button.addEventListener('click', function() {
+                    let trunkboxQrCode = this.getAttribute('data-trunkbox');
+                    let otlCodes = JSON.parse(this.getAttribute('data-otl'));
+
+                    // Create multi-select dropdown options
+                    let optionsHtml = otlCodes.map(code =>
+                        `<option value="${code}">${code}</option>`
+                    ).join('');
+
+                    Swal.fire({
+                        title: 'Select Used OTL Codes',
+                        html: `
+                <div class="form-group">
+                    <select class="form-select" 
+                        id="otlSelect" name="otlSelect[]" multiple>
+                        ${optionsHtml}
+                    </select>
+                </div>
+                `,
+                        showCancelButton: true,
+                        confirmButtonText: 'Submit',
+                        didOpen: () => {
+                            // Initialize Choices.js on the select element after the modal is opened
+                            const choicesInstance = new Choices('#otlSelect', {
+                                removeItemButton: true,
+                                placeholderValue: 'Select OTL Codes',
+                                position: 'bottom',
+                                searchEnabled: true,
+                                searchChoices: true,
+                                multiple: true,
+                                itemSelectText: ''
+                            });
+                        },
+                        preConfirm: () => {
+                            let selectEl = document.getElementById('otlSelect');
+                            let selectedOptions = Array.from(selectEl.selectedOptions)
+                                .map(option => option.value);
+
+                            if (selectedOptions.length === 0) {
+                                Swal.showValidationMessage('Please select at least one OTL code');
+                                return false;
+                            }
+
+                            return {
+                                trunkboxQrCode,
+                                otlCodes: selectedOptions
+                            };
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch('{{ route('bundle-packaging.save-used-otl-codes') }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                    },
+                                    body: JSON.stringify({
+                                        ...result.value,
+                                        examId: '{{ $examId }}'
+                                    })
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    Swal.fire('Success!', 'OTL Codes updated successfully.',
+                                        'success');
+                                })
+                                .catch(error => {
+                                    Swal.fire('Error!', 'Something went wrong.', 'error');
+                                });
+                        }
+                    });
+                });
+            });
         </script>
     @endpush
 
     @include('partials.theme')
 
 @endsection
-

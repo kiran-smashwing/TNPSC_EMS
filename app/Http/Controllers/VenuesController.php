@@ -153,12 +153,12 @@ class VenuesController extends Controller
             'password' => 'required|string|min:6',
             'longitude' => 'required|numeric',
             'latitude' => 'required|numeric',
-            'bank_name' => 'required|string|max:255',
-            'account_name' => 'required|string|max:255',
-            'account_number' => 'required|string|max:50',
-            'branch_name' => 'required|string|max:255',
-            'account_type' => 'required|string|max:50',
-            'ifsc' => 'required|string|max:11',
+            'bank_name' => 'string|max:255',
+            'account_name' => 'string|max:255',
+            'account_number' => 'string|max:50',
+            'branch_name' => 'string|max:255',
+            'account_type' => 'string|max:50',
+            'ifsc' => 'string|max:11',
             'cropped_image' => 'nullable|string',
         ], $messages);
 
@@ -269,12 +269,12 @@ class VenuesController extends Controller
             'longitude' => 'required|numeric',
             'latitude' => 'required|numeric',
             'cropped_image' => 'nullable|string',
-            'bank_name' => 'required|string|max:255',
-            'account_name' => 'required|string|max:255',
-            'account_number' => 'required|string|max:50',
-            'branch_name' => 'required|string|max:255',
-            'account_type' => 'required|string|max:50',
-            'ifsc' => 'required|string|max:11',
+            'bank_name' => 'string|max:255',
+            'account_name' => 'string|max:255',
+            'account_number' => 'string|max:50',
+            'branch_name' => 'string|max:255',
+            'account_type' => 'string|max:50',
+            'ifsc' => 'string|max:11',
         ], $messages);
         try {
             $newImagePath = null;

@@ -67,6 +67,7 @@
 <script>
     function setVehicleId(link) {
         var routeId = link.getAttribute('data-route-id');
+        console.log(routeId);
         document.getElementById('vehicle_id').value = routeId;
     }
 </script>

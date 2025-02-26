@@ -339,30 +339,8 @@ class IDCandidatesController extends Controller
             $confirmedVenuesQuery->where('is_confirmed', 'true');
         }
 
-      
         $confirmedVenues = $confirmedVenuesQuery->get();
-        $venuesWithCIs = collect();
 
-        foreach ($confirmedVenuesQuery->get() as $venue) {
-            $chiefInvigilators =$venue->chief_invigilator_data ?? [];
-
-            // If no CIs are added, add the venue with empty CI details
-            if (empty($chiefInvigilators)) {
-                $venuesWithCIs->push([
-                    'venue' => $venue,
-                    'ci' => null
-                ]);
-            } else {
-                // Create separate entries for each CI
-                foreach ($chiefInvigilators as $examDate => $ci) {
-                    $venuesWithCIs->push([
-                        'venue' => $venue,
-                        'ci' => ChiefInvigilator::where('ci_id', $ci['ci_id'])->first(),
-                        'exam_date' => $ci['exam_date']
-                    ]);
-                }
-            }
-        }
         // Retrieve districts
         $districts = DB::table('exam_candidates_projection as ecp')
             ->join('district as d', 'ecp.district_code', '=', 'd.district_code')
@@ -380,7 +358,7 @@ class IDCandidatesController extends Controller
             ->get();
 
         // Pass data to the view
-        return view('my_exam.IDCandidates.venue-confirmation', compact('exam', 'confirmedVenues', 'districts', 'centers', 'selectedDistrict', 'selectedCenter', 'confirmedOnly', 'venuesWithCIs'));
+        return view('my_exam.IDCandidates.venue-confirmation', compact('exam', 'confirmedVenues', 'districts', 'centers', 'selectedDistrict', 'selectedCenter', 'confirmedOnly'));
     }
     public function saveVenueConfirmation(Request $request, $examId)
     {

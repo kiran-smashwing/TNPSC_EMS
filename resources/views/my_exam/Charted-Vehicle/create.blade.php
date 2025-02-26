@@ -116,7 +116,7 @@
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label">Charted Vehicle Driver Licenese No<span
+                                                    <label class="form-label">Charted Vehicle Driver License No<span
                                                             class="text-danger">*</span></label>
                                                     <input type="text"
                                                         class="form-control  @error('driver_licence_no') is-invalid @enderror"
@@ -142,18 +142,21 @@
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
-                                                <div class="mb-3">
-                                                    <label class="form-label" for="vehicle_no">Charted Vehicle No<span
-                                                            class="text-danger">*</span></label>
-                                                    <input type="text"
-                                                        class="form-control @error('vehicle_no') is-invalid @enderror"
-                                                        id="vehicle_no" name="vehicle_no" placeholder="TN 01 2345"
-                                                        value="{{ old('vehicle_no') }}" required>
-                                                    @error('vehicle_no')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                            </div>
+        <div class="mb-3">
+            <label class="form-label" for="vehicle_no">Charted Vehicle No <span class="text-danger">*</span></label>
+            <input type="text" 
+                class="form-control @error('vehicle_no') is-invalid @enderror"
+                id="vehicle_no" name="vehicle_no"
+                placeholder="TN20AA2024"
+                value="{{ old('vehicle_no') }}"
+                required
+                maxlength="10">
+            
+            @error('vehicle_no')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+    </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="otl_locks">OTL Locks <span
@@ -230,7 +233,7 @@
                                                     <input type="text"
                                                         class="form-control @error('escort_vehicle_no') is-invalid @enderror"
                                                         id="escort_vehicle_no" name="escort_vehicle_no"
-                                                        placeholder="TN 01 2345" value="{{ old('escort_vehicle_no') }}"
+                                                        placeholder="TN01AA2345" maxlength="10" value="{{ old('escort_vehicle_no') }}"
                                                         required>
                                                     @error('escort_vehicle_no')
                                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -254,7 +257,7 @@
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="escort_driver_licence_no">Escort Driver
-                                                        Licenese No<span class="text-danger">*</span></label>
+                                                    License No<span class="text-danger">*</span></label>
                                                     <input type="text"
                                                         class="form-control @error('escort_driver_licence_no') is-invalid @enderror"
                                                         id="escort_driver_licence_no" name="escort_driver_licence_no"
@@ -448,7 +451,7 @@
                     .then(data => {
                         // Convert object to array if needed
                         districts = Array.isArray(data) ? data : Object.values(data);
-                        updateDistrictDropdowns(); // Ensure dropdowns are updated with the correct districts 
+                        updateDistrictDropdowns();
                     })
 
                     .catch(error => console.error('Error fetching districts:', error));
@@ -508,7 +511,7 @@
                                 <label class="form-label">TNPSC Staff <span class="text-danger">*</span></label>
                                 <select name="escortstaffs[${cardIndex}][tnpsc_staff]" class="form-control" required>
                                     <option disabled selected>Select TNPSC Staff</option>
-                                    ${tnpscOptions}  <!-- Insert TNPSC staff dynamically -->
+                                        ${tnpscOptions}  <!-- Insert TNPSC staff dynamically -->
                                 </select>
                             </div>
                         </div>

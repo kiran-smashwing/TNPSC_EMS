@@ -216,7 +216,7 @@
                                                             class="text-danger">*</span></label>
                                                     <input type="text"
                                                         class="form-control @error('designation') is-invalid @enderror"
-                                                        id="designation" name="designation" placeholder="Mathematics"
+                                                        id="designation" name="designation" placeholder="Professor"
                                                         required>
                                                     @error('designation')
                                                         <div class="invalid-feedback">{{ $message }}</div>

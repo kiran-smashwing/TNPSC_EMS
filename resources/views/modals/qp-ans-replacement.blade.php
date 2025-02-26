@@ -5,7 +5,7 @@
         <div class="modal-content">
             <div class="modal-header bg-warning">
                 <h5 class="modal-title text-primary" id="paperReplacementModalLabel">
-                    <i class="feather icon-repeat me-2"></i>Replacement of Question/Answer Paper
+                    <i class="feather icon-repeat me-2"></i>Replacement of Question/Answer/OMR Paper
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -23,7 +23,18 @@
                         <input type="text" class="form-control" name="registration_number" id="regNo"
                             placeholder="Enter Registration Number" required>
                     </div>
-
+                    {{-- <div class="mb-3">
+                        <label for="replacement_type_paper" class="form-label">Type</label>
+                        <select class="form-control" name="replacement_type_paper" id="replacement_type_paper" required>
+                            <option value="">Select Type</option>
+                            @if ($session->exam_sess_type == 'Objective')
+                            <option value="Question Booklet">Question Booklet</option>
+                            <option value="OMR Sheet">OMR Sheet</option>
+                            @else
+                            <option value="Answer Booklet">Answer Booklet</option>
+                            @endif
+                        </select>
+                    </div> --}}
                     <!-- Replacement Type Selection -->
                     <div class="mb-3">
                         <label for="replacementType" class="form-label">Replacement Type</label>

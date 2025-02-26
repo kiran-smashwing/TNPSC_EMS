@@ -117,13 +117,14 @@
                     justify-content: center;
                 }
             }
+
+            #swal2-html-container {
+                z-index: 9999 !important;
+                overflow: visible !important;
+            }
         </style>
     @endpush
-    <!-- [ Pre-loader ] start -->
-    <div class="page-loader">
-        <div class="bar"></div>
-    </div>
-    <!-- [ Pre-loader ] End -->
+
     <!-- [ Sidebar Menu ] start -->
     @include('partials.sidebar')
     <!-- [ Sidebar Menu ] end -->
@@ -139,8 +140,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                  <h2 class="mb-0"></h2>
-                                </div> -->
+                                                                              <h2 class="mb-0"></h2>
+                                                                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -153,16 +154,36 @@
 
             </div>
             <div class="row">
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
                 <!-- [ basic-table ] start -->
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-header">
                             <div class="d-sm-flex align-items-center justify-content-between">
-                                <h5 class="mb-3 mb-sm-0">Charted Vehicle Route View</h5>
-                                <div>
-                                    <a href="{{ route('charted-vehicle-routes.create') }}"
-                                        class="btn btn-outline-success">Add Route</a>
-                                </div>
+                                <h5 class="mb-3 mb-sm-0">Downward Journey Routes</h5>
                             </div>
                         </div>
                         <div class="card-body table-border-style">
@@ -218,12 +239,34 @@
                                             </td>
                                             <td> {{ $route->district_codes }}</td>
                                             <td>
-                                                <a href="{{ route('charted-vehicle-routes.edit', $route['id']) }}"
-                                                    class="avtar avtar-xs btn-light-success"><i
-                                                        class="ti ti-edit f-20"></i></a>
+                                                @hasPermission('route-edit')
+                                                    <a href="{{ route('charted-vehicle-routes.edit', $route['id']) }}"
+                                                        class="avtar avtar-xs btn-light-success"><i
+                                                            class="ti ti-edit f-20"></i></a>
+                                                @endhasPermission
+                                                @hasPermission('route-checkbox')
+                                                    <a href="#" class="avtar avtar-xs btn-light-success"
+                                                        data-bs-toggle="modal" data-bs-target="#verifyroutecheckbox"
+                                                        data-route-id="{{ $route['id'] }}" onclick="setVehicleIds(this)">
+                                                        <i class="ti ti-clipboard-check f-20"></i>
+                                                    </a>
+                                                    @if (!empty($route->charted_vehicle_verification))
+                                                    <a href="{{ route('vehicel.report.download', $route['id']) }}"
+                                                        class="avtar avtar-xs btn-light-success"><i
+                                                            class="ti ti-download f-20"></i></a>
+                                                @endif
+                                                @endhasPermission
                                                 <a href="{{ route('viewTrunkboxes', $route['id']) }}"
                                                     class="avtar avtar-xs btn-light-success"><i
                                                         class="ti ti-checkbox  f-20"></i></a>
+                                               @hasPermission('otl-lock')
+                                                <a href='#'
+                                                    class="{{ $route->user_used_otl_code ? 'avtar avtar-xs btn-light-success"' : 'avtar avtar-xs btn-light-danger' }} lock-update"
+                                                    data-route-id="{{ $route->id }}"
+                                                    data-otl="{{ json_encode($route->otl_locks) }}">
+                                                    {!! $route->user_used_otl_code ? '<i class="ti ti-lock f-20"></i>' : '<i class="ti ti-lock-off f-20"></i>' !!}
+                                                </a>
+                                                @endhasPermission
                                                 @hasPermission('verify-materials-handovered')
                                                     <a href="#" class="avtar avtar-xs btn-light-success"
                                                         data-bs-toggle="modal" data-bs-target="#verifyAllMaterialsHandovered"
@@ -231,7 +274,7 @@
                                                         <i class="ti ti-clipboard-check f-20"></i>
                                                     </a>
                                                     @if (!empty($route->handover_verification_details))
-                                                        <a href="{{ route('bundle-packaging.report-handover-details', $route['id']) }}"
+                                                        <a href="{{ route('vehicel.report.download', $route['id']) }}"
                                                             class="avtar avtar-xs btn-light-success"><i
                                                                 class="ti ti-download f-20"></i></a>
                                                     @endif
@@ -253,12 +296,121 @@
     </section>
     <!-- [ Main Content ] end -->
     @include('modals.verify-all-materials-handovered')
+    @include('modals.verify-route-check-box')
 
     @include('partials.footer')
 
     @push('scripts')
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         @include('partials.datatable-export-js')
+        <script src="{{ asset('storage/assets/js/plugins/choices.min.js') }}"></script>
+        <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
+        <script>
+            document.querySelectorAll('.lock-update').forEach(button => {
+                button.addEventListener('click', function() {
+                    let routeId = this.getAttribute('data-route-id');
+                    let otlCodes = JSON.parse(this.getAttribute('data-otl'));
+
+                    // Create multi-select dropdown options
+                    let optionsHtml = otlCodes.map(code =>
+                        `<option value="${code}">${code}</option>`
+                    ).join('');
+
+                    Swal.fire({
+                        title: 'Select Used OTL Codes',
+                        html: `
+            <div class="form-group">
+                <select class="form-select" 
+                    id="otlSelect" name="otlSelect" >
+                    ${optionsHtml}
+                </select>
+            </div>
+            `,
+                        showCancelButton: true,
+                        confirmButtonText: 'Submit',
+                        didOpen: () => {
+                            // Initialize Choices.js on the select element after the modal is opened
+                            const choicesInstance = new Choices('#otlSelect', {
+                                removeItemButton: true,
+                                placeholderValue: 'Select OTL Codes',
+                                position: 'bottom',
+                                searchEnabled: false,
+                                searchChoices: false,
+                                multiple: false,
+                                itemSelectText: ''
+                            });
+                        },
+                        preConfirm: () => {
+                            let selectEl = document.getElementById('otlSelect');
+                            let selectedOption = selectEl.value;
+
+                            if (!selectedOption) {
+                                Swal.showValidationMessage('Please select an OTL code');
+                                return false;
+                            }
+                            return {
+                                routeId: routeId,
+                                otlCode: selectedOption
+                            };
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            const loader = document.getElementById('loader');
+
+                            $.ajax({
+                                url: '{{ route('charted-vehicle-routes.save-otl-lock-used') }}',
+                                method: 'POST',
+                                data: JSON.stringify(result.value),
+                                contentType: 'application/json',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                beforeSend: function() {
+                                    const loader = document.getElementById('loader');
+                                    if (loader) loader.style.removeProperty(
+                                        'display'); // Show loader
+                                },
+                                success: function(data, textStatus, xhr) {
+                                    const loader = document.getElementById('loader');
+                                    if (loader) loader.style.display =
+                                        'none'; // Hide loader
+
+                                    if (xhr.status === 200) {
+                                        Swal.fire({
+                                            title: 'Success!',
+                                            text: data
+                                                .success, // Show dynamic success message
+                                            icon: 'success',
+                                            confirmButtonText: 'OK'
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                location
+                                                    .reload(); // Reload the page when "OK" is clicked
+                                            }
+                                        });
+                                    } else {
+                                        Swal.fire('Error!', data.error,
+                                            'error'); // Show dynamic error message
+                                    }
+                                },
+                                error: function(xhr) {
+                                    const loader = document.getElementById('loader');
+                                    if (loader) loader.style.display =
+                                        'none'; // Hide loader
+
+                                    let errorMessage = 'Something went wrong.';
+                                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                                        errorMessage = xhr.responseJSON
+                                            .error; // Get actual error message
+                                    }
+                                    Swal.fire('Error!', errorMessage, 'error');
+                                }
+                            });
+
+                        }
+                    });
+                });
+            });
+        </script>
     @endpush
 
     @include('partials.theme')

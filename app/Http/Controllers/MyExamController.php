@@ -77,7 +77,7 @@ class MyExamController extends Controller
                 $venueConsents->venueName = $user->venue_name;
                 $venueConsents->profile_image = $user->venue_image;
 
-            } else  {
+            } else {
                 $meetingCodeGen = CIMeetingQrcode::where('exam_id', $examId)
                     ->where('district_code', $user->district_code ?? '01')
                     ->first();
@@ -167,7 +167,7 @@ class MyExamController extends Controller
     {
         // Retrieve the current exam session
         $session = Currentexam::with('examsession')->where('exam_main_no', $examId)->first();
-
+        
         if (!$session) {
             abort(404, 'Exam not found');
         }
@@ -232,7 +232,7 @@ class MyExamController extends Controller
             ->where('exam_sess_mainid', $examId)
             ->where('exam_session_id', $session)
             ->first();
-
+        // dd();
         // Check if session is found
         if (!$session) {
             abort(404, 'Session not found');
@@ -282,6 +282,7 @@ class MyExamController extends Controller
             ->where('exam_date', $session->exam_sess_date)
             ->select(DB::raw("qp_timing_log->'" . $session->exam_sess_session . "' as qp_timing_log"))
             ->first();
+            // dd($qpboxTimeLog);
         $candidateAttendance = CICandidateLogs::where('exam_id', $examId)
             ->where('ci_id', $user->ci_id)
             ->where('exam_date', $session->exam_sess_date)
@@ -328,7 +329,7 @@ class MyExamController extends Controller
             ->where('exam_id', $examId)
             ->select(DB::raw("consolidate_answer->'" . $session->exam_sess_date . "'->'" . $session->exam_sess_session . "' as consolidate_answer"))
             ->first();
-     // dd($consolidateAnswer);
+        // dd($consolidateAnswer);
         // Retrieve session type (Objective or Descriptive)
         $session_type = $session->exam_sess_type;
 

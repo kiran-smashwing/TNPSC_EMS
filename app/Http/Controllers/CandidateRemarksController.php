@@ -95,18 +95,18 @@ class CandidateRemarksController extends Controller
         $category = $request->query('category');
         $districtId = $request->query('district');
         $centerId = $request->query('center');
-    
+
         // Fetch the exam details
         $exam_data = Currentexam::with('examservice')
             ->where('exam_main_notification', $notificationNo)
             ->first();
-    
+
         if (!$exam_data) {
             return back()->with('error', 'Exam data not found.');
         }
-    
+
         $exam_id = $exam_data->exam_main_no;
-    
+
         // Fetch candidate attendance data
         $candidate_attendance = CICandidateLogs::where('exam_id', $exam_id)
             ->where('exam_date', $examDate)
@@ -120,40 +120,47 @@ class CandidateRemarksController extends Controller
                     $q->where('id', $centerId);
                 });
             })
-            ->with('ci', 'center.district') 
+            ->with('ci', 'center.district')
             ->get();
-    
+
         if ($candidate_attendance->isEmpty()) {
             return back()->with('error', 'No candidate attendance found for this exam date.');
         }
-    
+        
         // Extract candidate remarks and details
         $candidate_details = [];
-    
+
         foreach ($candidate_attendance as $attendance) {
             // Decode JSON from candidate_remarks
             $remarks_data = $attendance->candidate_remarks;
-    
+
             // Ensure decoding is successful and the session exists
             if (is_array($remarks_data) && isset($remarks_data[$session])) {
-                foreach ($remarks_data[$session] as $remark_entry) {
-                    $candidate_details[] = [
-                        'reg_no' => $remark_entry['registration_number'] ?? 'N/A',
-                        'remark' => $remark_entry['remark'] ?? 'N/A',
-                        'hall_code' => $attendance->hall_code ?? 'N/A',
-                        'district' => $attendance->center->district->district_name ?? 'N/A',
-                        'center' => $attendance->center->center_name ?? 'N/A',
-                        'center_code' => $attendance->center->center_code ?? 'N/A',
-                        'venue_name' => $attendance->ci->venue->venue_name ?? 'N/A',
-                    ];
+                foreach ($candidate_attendance as $attendance) {
+                    // Decode JSON safely
+                    $remarks_data = $attendance->candidate_remarks;
+
+                    if (is_array($remarks_data) && isset($remarks_data[$session]['remarks'])) {
+                        foreach ($remarks_data[$session]['remarks'] as $remark_entry) {
+                            $candidate_details[] = [
+                                'reg_no' => $remark_entry['registration_number'] ?? 'N/A',
+                                'remark' => $remark_entry['remark'] ?? 'N/A',
+                                'hall_code' => $attendance->hall_code ?? 'N/A',
+                                'district' => $attendance->center->district->district_name ?? 'N/A',
+                                'center' => $attendance->center->center_name ?? 'N/A',
+                                'center_code' => $attendance->center->center_code ?? 'N/A',
+                                'venue_name' => $attendance->ci->venue->venue_name ?? 'N/A',
+                            ];
+                        }
+                    }
                 }
             }
         }
-    
+        // dd($candidate_details);
         if (empty($candidate_details)) {
             return back()->with('error', 'No candidate remarks found for this session.');
         }
-    
+
         // Prepare final data for Blade
         $data = [
             'notification_no' => $notificationNo,
@@ -163,13 +170,13 @@ class CandidateRemarksController extends Controller
             'category' => $category,
             'candidate_details' => $candidate_details,
         ];
-    
+
         // Debugging output (You can remove this after testing)
         // dd($data);
-    
+
         // Render the Blade template
         $html = view('view_report.candidate_remarks_report.candidate_remarks_report_overall', $data)->render();
-    
+
         // Generate PDF using Browsershot
         $pdf = Browsershot::html($html)
             ->setOption('landscape', true)
@@ -193,14 +200,13 @@ class CandidateRemarksController extends Controller
             ->scale(1)
             ->format('A4')
             ->pdf();
-    
+
         // Define a unique filename for the report
         $filename = 'candidate_remarks_report_overall_' . time() . '.pdf';
-    
+
         // Return the PDF as a response
         return response($pdf)
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
     }
-    
 }

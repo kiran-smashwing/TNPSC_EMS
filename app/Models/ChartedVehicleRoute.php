@@ -17,7 +17,11 @@ class ChartedVehicleRoute extends Model
         'otl_locks',
         'gps_locks',
         'pc_details',
-        'escort_vehicle_details'
+        'escort_vehicle_details',
+        'handover_verification_details',
+        'handover_verification_status',
+        'used_otl_locks',
+        'charted_vehicle_verification',
     ];
 
     protected $casts = [
@@ -26,7 +30,9 @@ class ChartedVehicleRoute extends Model
         'otl_locks' => 'json',
         'gps_locks' => 'json',
         'pc_details' => 'json',
-        'escort_vehicle_details' => 'json'
+        'escort_vehicle_details' => 'json',
+        'charted_vehicle_verification' => 'json',
+
     ];
 
     public function escortstaffs()

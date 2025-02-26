@@ -6,6 +6,7 @@ use App\Models\ExamMaterialsScan;
 use App\Models\ExamMaterialsData;
 use App\Services\ExamAuditService;
 use App\Models\ExamSession;
+use App\Models\Currentexam;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -239,12 +240,16 @@ class ReceiveExamMaterialsController extends Controller
             ->groupBy('centers.center_code', 'centers.center_name')
             ->select('centers.center_name', 'centers.center_code')
             ->get();
-
+            // Get current exam session details
+        $session = Currentexam::with('examsession')->where('exam_main_no', $examId)->first();
+        $examDates = $session->examsession->groupBy(function ($item) {
+            return Carbon::parse($item->exam_sess_date)->format('d-m-Y');
+        })->keys();
+        // dd($examDates);
         //get center name for 
 
-        return view('my_exam.ExamMaterialsData.printer-to-hq-materials', compact('examMaterials', 'examId', 'totalExamMaterials', 'totalScanned', 'centers'));
+        return view('my_exam.ExamMaterialsData.printer-to-hq-materials', compact('examMaterials', 'examId', 'totalExamMaterials', 'totalScanned', 'examDates', 'centers'));
     }
-
     public function scanHQExamMaterials($examId, Request $request)
     {
         // Validate request

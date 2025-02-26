@@ -541,7 +541,7 @@ foreach ($savedCIIds as $ci) {
                                 confirmButtonText: 'OK'
                             }).then(() => {
                                 // Optionally redirect or refresh
-                                window.location.reload();
+                                window.location.href = "{{ route('my-exam.examTask', ['examid' => $exam->exam_main_no]) }}"; 
                             });
                         },
                         error: function(xhr) {

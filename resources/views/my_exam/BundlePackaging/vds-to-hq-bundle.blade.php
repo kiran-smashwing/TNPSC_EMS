@@ -117,6 +117,11 @@
                     justify-content: center;
                 }
             }
+
+            #swal2-html-container {
+                z-index: 9999 !important;
+                overflow: visible !important;
+            }
         </style>
     @endpush
     <!-- [ Pre-loader ] start -->
@@ -139,8 +144,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                  <h2 class="mb-0"></h2>
-                                                </div> -->
+                                                                                          <h2 class="mb-0"></h2>
+                                                                                        </div> -->
                         </div>
                     </div>
                 </div>
@@ -180,10 +185,11 @@
                         <div class="card-header">
                             <div class="d-sm-flex align-items-center justify-content-between">
                                 <h5 class="mb-3 mb-sm-0">Vanduty Staff to Headquarters</h5>
-                                <div>
-                                    <a href="{{ route('charted-vehicle-routes.create') }}"
-                                        class="btn btn-outline-success">Add Route</a>
-                                </div>
+                                <ul class="list-inline ms-auto  mb-0">
+                                    <li class="list-inline-item"><a href="#" class="badge bg-dark f-14">Received
+                                            {{ 1 }} /
+                                            {{ 1 }}</a></li>
+                                </ul>
                             </div>
                         </div>
                         <div class="card-body table-border-style">
@@ -210,53 +216,42 @@
                                         <i class="ti ti-refresh me-2"></i> Reset
                                     </button>
                                 </div>
+                                <div class="btn-container">
+                                    <a href="#" class="btn btn-light-primary d-flex align-items-center"
+                                        data-pc-animate="just-me" data-bs-toggle="modal" data-bs-target="#qrCodeModal">
+                                        <i class="feather icon-aperture mx-1"></i>Scan
+                                    </a>
+                                </div>
                             </form>
 
                             <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
                                 width="100%">
                                 <thead>
                                     <tr>
-                                        <th>Route no</th>
-                                        <th>Exam Notification</th>
-                                        <th>Vehicle No</th>
+                                        <th>Route No</th>
+                                        <th>Center Code</th>
+                                        <th>Hall No</th>
+                                        <th>Trunkbox Code</th>
                                         <th>OTL Locks</th>
-                                        <th>GPS Locks</th>
-                                        <th>District</th>
-                                        {{-- <th>Mobile team staff</th>
-                                        <th>Mobile team mobile no</th> --}}
+                                        <th>Materials Count</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($routes as $route)
+                                    @foreach ($groupedExamMaterials as $data)
                                         <tr>
-                                            <td>{{ $route->route_no }}</td>
-                                            <td>{{ $route->exam_notifications }}</td>
-                                            <td>{{ $route->charted_vehicle_no }}</td>
-                                            <td>{{ is_array($route->otl_locks) ? implode(', ', $route->otl_locks) : $route->otl_locks }}
-                                            </td>
-                                            <td>{{ is_array($route->gps_locks) ? implode(', ', $route->gps_locks) : $route->gps_locks }}
-                                            </td>
-                                            <td> {{ $route->district_codes }}</td>
+                                            <td>{{ $data['route_no'] }}</td>
+                                            <td>{{ $data['center_code'] }}</td>
+                                            <td>{{ $data['hall_code'] }}</td>
+                                            <td>{{ $data['trunkbox_qr_code'] }}</td>
+                                            <td>{{ implode(', ', $data['otl_codes']) }}</td>
+                                            <td>{{ $data['scanned_count'] }} / {{ $data['materials_count'] }}</td>
                                             <td>
-                                                <a href="{{ route('charted-vehicle-routes.edit', $route['id']) }}"
-                                                    class="avtar avtar-xs btn-light-success"><i
-                                                        class="ti ti-edit f-20"></i></a>
-                                                <a href="{{ route('viewTrunkboxes', $route['id']) }}"
-                                                    class="avtar avtar-xs btn-light-success"><i
-                                                        class="ti ti-checkbox  f-20"></i></a>
-                                                @hasPermission('verify-materials-handovered')
-                                                <a href="#" class="avtar avtar-xs btn-light-success"
-                                                    data-bs-toggle="modal" data-bs-target="#verifyAllMaterialsHandovered"
-                                                    data-route-id="{{ $route['id'] }}" onclick="setVehicleId(this)">
-                                                    <i class="ti ti-clipboard-check f-20"></i>
+                                                <a class="avtar avtar-xs btn-light-success bs-ajex-req"
+                                                    data-trunkbox="{{ $data['trunkbox_qr_code'] }}"
+                                                    data-otl="{{ json_encode($data['otl_codes']) }}">
+                                                    <i class="ti ti-checkbox f-20"></i>
                                                 </a>
-                                                @if (!empty($route->handover_verification_details))
-                                                    <a href="{{ route('bundle-packaging.report-handover-details', $route['id']) }}"
-                                                        class="avtar avtar-xs btn-light-success"><i
-                                                            class="ti ti-download f-20"></i></a>
-                                                @endif
-                                                @endhasPermission
                                             </td>
                                         </tr>
                                     @endforeach
@@ -270,19 +265,160 @@
         </div>
         <!-- [ Main Content ] end -->
         </div>
-        @include('modals.verify-all-materials-handovered')
+        @include('modals.qr-code-modal')
     </section>
     <!-- [ Main Content ] end -->
     @include('partials.footer')
 
     @push('scripts')
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="{{ asset('storage/assets/js/plugins/sweetalert2.all.min.js') }}"></script>
         @include('partials.datatable-export-js')
+        <script src="{{ asset('storage/assets/js/plugins/choices.min.js') }}"></script>
+
+        <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
+        <script>
+            function processQrCode(data) {
+                // Hide the modal using Bootstrap's modal method
+                const qrCodeModal = document.getElementById('qrCodeModal');
+                const modalInstance = bootstrap.Modal.getInstance(qrCodeModal);
+                modalInstance.hide();
+                fetch("{{ route('bundle-packaging.scan-chennai-disitrct-exam-materials', $examId) }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            qr_code: data
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        showAlert(data.status, data.message);
+                        $('#qrCodeModal').modal('hide'); // Close modal after successful scan
+                        // Update the total scanned and total exam materials count
+                    })
+                    .catch((error) => {
+                        showAlert(data.status, data.message);
+                        $('#qrCodeModal').modal('hide');
+                    });
+            }
+
+            function showAlert(type, message) {
+                // Map the type to SweetAlert2's icon options
+                let iconType;
+                switch (type) {
+                    case 'success':
+                        iconType = 'success';
+                        break;
+                    case 'error':
+                        iconType = 'error';
+                        break;
+                    case 'info':
+                        iconType = 'info';
+                        break;
+                    case 'warning':
+                        iconType = 'warning';
+                        break;
+                    default:
+                        iconType = 'info'; // Default to 'info' if type is unknown
+                }
+
+                // Use SweetAlert2 to display the alert
+                Swal.fire({
+                    icon: iconType,
+                    title: type.charAt(0).toUpperCase() + type.slice(1),
+                    text: message,
+                }).then((result) => {
+                    window.location.reload(); // Reload the page when "OK" is clicked
+                });
+            }
+        </script>
+        <script>
+            document.querySelectorAll('.bs-ajex-req').forEach(button => {
+                button.addEventListener('click', function() {
+                    let trunkboxQrCode = this.getAttribute('data-trunkbox');
+                    let otlCodes = JSON.parse(this.getAttribute('data-otl'));
+
+                    // Create multi-select dropdown options
+                    let optionsHtml = otlCodes.map(code =>
+                        `<option value="${code}">${code}</option>`
+                    ).join('');
+
+                    Swal.fire({
+                        title: 'Select Used OTL Codes',
+                        html: `
+            <div class="form-group">
+                <select class="form-select" 
+                    id="otlSelect" name="otlSelect[]" multiple>
+                    ${optionsHtml}
+                </select>
+            </div>
+            `,
+                        showCancelButton: true,
+                        confirmButtonText: 'Submit',
+                        didOpen: () => {
+                            // Initialize Choices.js on the select element after the modal is opened
+                            const choicesInstance = new Choices('#otlSelect', {
+                                removeItemButton: true,
+                                placeholderValue: 'Select OTL Codes',
+                                position: 'bottom',
+                                searchEnabled: true,
+                                searchChoices: true,
+                                multiple: true,
+                                itemSelectText: ''
+                            });
+                        },
+                        preConfirm: () => {
+                            let selectEl = document.getElementById('otlSelect');
+                            let selectedOptions = Array.from(selectEl.selectedOptions)
+                                .map(option => option.value);
+
+                            if (selectedOptions.length === 0) {
+                                Swal.showValidationMessage('Please select at least one OTL code');
+                                return false;
+                            }
+
+                            return {
+                                trunkboxQrCode,
+                                otlCodes: selectedOptions
+                            };
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch('{{ route('bundle-packaging.save-used-otl-codes') }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                    },
+                                    body: JSON.stringify({
+                                        ...result.value,
+                                        examId: '{{ $examId }}'
+                                    })
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    Swal.fire('Success!', 'OTL Codes updated successfully.',
+                                        'success');
+                                })
+                                .catch(error => {
+                                    Swal.fire('Error!', 'Something went wrong.', 'error');
+                                });
+                        }
+                    });
+                });
+            });
+        </script>
+
+        <script>
+            const centerSelect = new Choices('#otlSelect', {
+                removeItemButton: true,
+                placeholderValue: 'Select OTL Codes',
+                multiple: true,
+                itemSelectText: ''
+            });
+        </script>
     @endpush
 
     @include('partials.theme')
-
-
-
 @endsection

@@ -231,7 +231,7 @@
                                                         placeholder="ஒருங்கிணைந்த சிவில் சர்வீசஸ் தேர்வு - II (குரூப் II மற்றும் IIA சேவைகள்)">
                                                 </div>
                                             </div>
-                                            <div class="col-sm-6">
+                                            <!-- <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="exam_main_postname">Post Name <span
                                                             class="text-danger">*</span></label>
@@ -239,7 +239,7 @@
                                                         name="exam_main_postname" required
                                                         placeholder="Group II and IIA Services">
                                                 </div>
-                                            </div>
+                                            </div> -->
                                             <div class="col-sm-3">
                                                 <div class="mb-3 ">
                                                     <label class="form-label" for="exam_main_lastdate">Last Date For Apply

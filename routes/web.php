@@ -69,7 +69,7 @@ Route::get('/attendance-report-overall', [AttendanceReportController::class, 'ge
 Route::get('/api/get-dropdown-data', [AttendanceReportController::class, 'getDropdownData'])->name('attendance.dropdown');
 // Route::get('/attendance-report/filter', [AttendanceReportController::class, 'filterAttendanceReport'])->name('attendance-report.filter');
 Route::get('/ed-report', [EDController::class, 'generateEDReport'])->name('ed.report');
-Route::get('/vehicel-report', [Vehicle_SecurityController::class, 'generateVehicleReport'])->name('vehicel.report');
+
 // Qp_bookletcontroller
 Route::get('/qp-booklet', [Qp_BookletController::class, 'generateQpbookletReport'])->name('qp_booklet.report');
 // Qp_bookletcontroller
@@ -172,7 +172,7 @@ Route::middleware(['auth.multi'])->group(function () {
     });
     Route::prefix('completed-exam')->group(function () {
         Route::middleware(['auth.multi'])->group(function () {
-            Route::get('/completed-exam', [CompletedExamController::class, 'index'])->name('completed-exam');
+            Route::get('/', [CompletedExamController::class, 'index'])->name('completed-exam');
             Route::get('/completed-exam/task', [CompletedExamController::class, 'task'])->name('completed-exam.task');
             Route::get('/completed-exam/edit', [CompletedExamController::class, 'edit'])->name('completed-exam.edit');
         });
@@ -485,7 +485,10 @@ Route::prefix('bundle-packaging')->group(function () {
         Route::get('/mobileteam-to-district-bundle-packaging/{examId}', [BundlePackagingController::class, 'MobileTeamtoDistrict'])->name('bundle-packaging.mobileteam-to-district');
         Route::get('/mobileteam-to-center/{examId}', [BundlePackagingController::class, 'MobileTeamtoCenter'])->name('bundle-packaging.mobileteam-to-center');
         Route::post('/scan-disitrct-exam-materials/{examId}', [BundlePackagingController::class, 'scanDistrictExamMaterials'])->name('bundle-packaging.scan-disitrct-exam-materials');
+        Route::post('/scan-chennai-disitrct-exam-materials/{examId}', [BundlePackagingController::class, 'scanVandutyHQExamMaterials'])->name('bundle-packaging.scan-chennai-disitrct-exam-materials');
+        Route::post('/save-used-otl-codes', [BundlePackagingController::class, 'saveUsedOTLCodes'])->name('bundle-packaging.save-used-otl-codes');
         Route::get('/charted-vehicle-to-headquarters/{examId}', [BundlePackagingController::class, 'chartedVehicletoHeadquarters'])->name('bundle-packaging.charted-vehicle-to-headquarters');
+        Route::get('/vds-to-headquarters/{examId}', [BundlePackagingController::class, 'vanDutyStafftoHeadquarters'])->name('bundle-packaging.vanduty-staff-to-headquarters');
         Route::post('/scan-hq-exam-materials', [BundlePackagingController::class, 'scanHQExamMaterials'])->name('bundle-packaging.scan-hq-exam-materials');
         Route::post('/save-handover-details', [BundlePackagingController::class, 'saveHandoverDetails'])->name('bundle-packaging.save-handover-details');
         Route::get('/report-handover-details/{id}', [BundlePackagingController::class, 'reportHandoverDetails'])->name('bundle-packaging.report-handover-details');
@@ -531,6 +534,9 @@ Route::prefix('charted-vehicle-routes')->group(function () {
         Route::get('/view/{Id}', [ChartedVehicleRoutesController::class, 'viewRoute'])->name('charted-vehicle-routes.view');
         Route::post('/get-districts-for-exam', [ChartedVehicleRoutesController::class, 'getDistrictsForExamIDs'])->name('charted-vehicle-routes.get-districts-for-exam');
         Route::get('/downward-journey-routes', [ChartedVehicleRoutesController::class, 'downwardJourneyRoutes'])->name('charted-vehicle-routes.downward-journey-routes');
+        Route::post('/save-otl-lock-used', [ChartedVehicleRoutesController::class, 'saveOTLLockUsed'])->name('charted-vehicle-routes.save-otl-lock-used');
+        Route::post('/charted-vehicle-verification', [ChartedVehicleRoutesController::class, 'chartedVehicleVerification'])->name('charted.vehicle.verification');
+        Route::get('/vehicel-report/{id}', [ChartedVehicleRoutesController::class, 'generateVehicleReport'])->name('vehicel.report.download');
         Route::get('/view-trunk-boxes/{Id}', [ChartedVehicleRoutesController::class, 'viewTrunkboxes'])->name('viewTrunkboxes');
         Route::get('/generate-trunkbox-order/{Id}', [ChartedVehicleRoutesController::class, 'generateTrunkboxOrder'])->name('generateTrunkboxOrder');
         Route::post('/scan-trunkbox-order', [ChartedVehicleRoutesController::class, 'scanTrunkboxOrder'])->name('scanTrunkboxOrder');

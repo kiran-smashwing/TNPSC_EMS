@@ -97,12 +97,9 @@
             const updateSelectionState = () => {
                 const selectedCount = multipleChoices.getValue().length;
 
-                // Disable choices when 2 items are selected
                 if (selectedCount >= 2) {
-                    dropdown.disabled = true;
-                    multipleChoices.enable();
+                    multipleChoices.enable(); // Disables further selection but keeps selected items
                 } else {
-                    dropdown.disabled = false;
                     multipleChoices.enable();
                 }
             };

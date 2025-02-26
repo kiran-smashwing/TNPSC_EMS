@@ -153,7 +153,7 @@
                                     @endif
                                 @endforeach
 
-                                @if (session('auth_role') == 'headquarters' && $current_user->custom_role != 'VDS')
+                                @if (session('auth_role') == 'headquarters' )
                                     @php
                                         $is_apd_upload = $expectedCandidatesUpload !== null;
 
@@ -533,7 +533,7 @@
                                         </div>
                                     </li>
                                 @endif
-                                @if (session('auth_role') == 'headquarters' && $current_user->custom_role != 'VDS')
+                                @if (session('auth_role') == 'headquarters' )
                                     @php
                                         $is_halls_confirmed = $examVenueHallConfirmation !== null;
 
@@ -910,7 +910,7 @@
                                         </div>
                                     </li>
                                 @endhasPermission
-                                @if (session('auth_role') == 'headquarters' && $current_user->custom_role != 'VDS')
+                                @if (session('auth_role') == 'headquarters' )
                                     @php
                                         $is_received_printer_to_hq = $receiveMaterialsPrinterToHQ !== null;
                                         $metadata = null;
@@ -1067,6 +1067,7 @@
                                                                         class="feather icon-navigation mx-1"></i>Send
                                                                     Intimation</a>
                                                             @endhasPermission
+
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1074,7 +1075,7 @@
                                         </div>
                                     </li>
                                 @endhasPermission
-                                @if (session('auth_role') == 'headquarters' && $current_user->custom_role != 'VDS')
+                                @if (session('auth_role') == 'headquarters' )
                                     @php
                                         $is_qd_trunk_qr_upload = $examTrunkboxOTLData !== null;
 
@@ -1510,7 +1511,7 @@
                                         </div>
                                     </li>
                                 @endhasPermission
-                                {{-- @if (session('auth_role') == 'headquarters' && $current_user->custom_role != 'VDS')
+                                @if (session('auth_role') == 'headquarters' )
                                     @php
                                         $is_received_trunkbox_at_hq = $receiveTrunkboxToHQ !== null;
 
@@ -1554,7 +1555,7 @@
                                                     <div class="col">
                                                         <div class="popup-trigger">
                                                             <div class="h5 font-weight-bold">Receive All Materials from
-                                                                Charted Vehicle <small
+                                                               VanDuty Staff <small
                                                                     class="badge {{ $badgeClass }} ms-2">{{ $uploadStatus }}</small>
                                                             </div>
                                                             <div class="help-sm-hidden">
@@ -1579,7 +1580,7 @@
                                                         </div>
                                                         <div class="mt-2">
                                                             @hasPermission('verify-bundle-recevied-at-hq')
-                                                                <a href="{{ route('bundle-packaging.charted-vehicle-to-headquarters', $session->exam_main_no) }}"
+                                                                <a href="{{ route('bundle-packaging.vanduty-staff-to-headquarters', $session->exam_main_no) }}"
                                                                     class="me-2 btn btn-sm btn-light-info"><i
                                                                         class="feather icon-info mx-1"></i>Verify</a>
                                                             @endhasPermission
@@ -1589,7 +1590,8 @@
                                             </div>
                                         </div>
                                     </li>
-                                    @php
+                                    @endif
+                                    {{--     @php
                                         $is_materials_handover_verified = $materialsHandoverVerification !== null;
 
                                         $metadata = null;

@@ -172,14 +172,14 @@
                                                     value="{{ $exam->exam_main_nametamil }}">
                                             </div>
                                         </div>
-                                        <div class="col-sm-6">
+                                        {{-- <div class="col-sm-6">
                                             <div class="mb-3">
                                                 <label class="form-label" for="exam_main_postname">Post Name</label>
                                                 <input type="text" class="form-control" id="exam_main_postname"
                                                     name="exam_main_postname" disabled
                                                     value="{{ $exam->exam_main_postname }}">
                                             </div>
-                                        </div>
+                                        </div> --}}
                                         <div class="col-sm-3">
                                             <div class="mb-3">
                                                 <label class="form-label" for="exam_main_lastdate">Last Date For

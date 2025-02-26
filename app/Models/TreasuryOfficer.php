@@ -72,5 +72,5 @@ class TreasuryOfficer extends Authenticatable
     {
         return $this->belongsTo(District::class, 'tre_off_district_id', 'district_code');
     }
-    
+
 }

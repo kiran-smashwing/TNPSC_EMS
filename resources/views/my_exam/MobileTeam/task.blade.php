@@ -38,7 +38,7 @@
                             <div class="card-body">
                                 <nav class="navbar justify-content-between p-0 align-items-center">
                                     <h5><span class="text-primary">{{ $session->exam_main_notification }}</span>
-                                        - {{ $session->exam_main_name }} - {{ $session->exam_main_postname }}
+                                        - {{ $session->exam_main_name }} - {{ $session->examservice->examservice_name }}
                                         - <span class="text-warning"> {{ $session->exam_main_startdate }} </span>
                                     </h5>
                                     <div class="btn-group btn-group-sm help-filter" role="group"

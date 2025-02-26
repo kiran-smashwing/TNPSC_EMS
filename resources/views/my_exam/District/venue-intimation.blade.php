@@ -117,7 +117,7 @@
                                         </ul>
                                         <ul class="list-inline ms-auto me-auto mb-0 fs-5 ">
                                             <li class="list-inline-item">
-                                                <a href="#" class="badge bg-dark ">Requested
+                                                <a href="#" class="badge bg-dark ">Required
                                                     <span id="requested-count">0</span>
                                                 </a>
                                             </li>
@@ -413,7 +413,7 @@
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Success',
-                                text: 'Consent emails sent successfully',
+                                text: response.message,
                             }).then(() => {
                                 // Reload the page after the user acknowledges the success alert
                                 location.reload();

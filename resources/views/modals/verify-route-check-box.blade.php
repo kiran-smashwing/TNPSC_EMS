@@ -31,7 +31,7 @@
                             <div class="form-check mb-2">
                                 <input class="form-check-input input-primary" type="checkbox"
                                     id="OTLintacl" name="OTL_intacl">
-                                <label class="form-check-label" for="OTLintacl">Whether the OTL is intac?</label>
+                                <label class="form-check-label" for="OTLintacl">Whether the OTL is intact?</label>
                             </div>
                             <div class="form-check mb-2">
                                 <input class="form-check-input input-primary" type="checkbox"
@@ -43,6 +43,11 @@
                                 <input class="form-check-input input-primary" type="checkbox" id="onetimelocktrunkbox"
                                     name="one_time_lock_trunk_box">
                                 <label class="form-check-label" for="onetimelocktrunkbox">Whether the One Time Locks of the trunk boxes are intact?</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input input-primary" type="checkbox" id="numberonetimelocktrunkbox"
+                                    name="number_one_lock_trunk_box">
+                                <label class="form-check-label" for="numberonetimelocktrunkbox">Whether the numbers found on the One Time Locks have been verified with that available in the app?</label>
                             </div>
                             <div class="form-check mb-2">
                                 <input class="form-check-input input-primary" type="checkbox" id="verifiedavailabeapp"

@@ -40,7 +40,6 @@ class AuthorizationService
                     'create-charted-vehicle-route',
                     'edit-charted-vehicle-route',
                     'create-escort-staff',
-                    'create-exam-materails-route',
                     'view-all-districts',
                     'view-all-chief-invigilators',
                     'district-masters',
@@ -53,7 +52,6 @@ class AuthorizationService
                     'confirmExamVenueHalls',
                     'downlaodConfirmedExamHalls',
                     'heading',
-                    'create-exam-materials-route',
                     'view-all-examination-services',
                     'view-all-department',
                     'exam-heading',
@@ -73,7 +71,10 @@ class AuthorizationService
                     'ci-meeting',
                     'chv-routes',
                     'email-template',
-                    'route-edit'
+                    'route-edit',
+                    'download-meeting-qr',
+                    'create-ci-meetings',
+                    'create-vechicle-route  '
 
                 ],
             ],
@@ -122,6 +123,8 @@ class AuthorizationService
                     'current-exam',
                     'exam-completed',
                     'omr-qca-delivered',
+                    'create-exam-materails-route',
+                    'create-exam-materials-route',
                     // 'chv-routes',
                 ],
             ],

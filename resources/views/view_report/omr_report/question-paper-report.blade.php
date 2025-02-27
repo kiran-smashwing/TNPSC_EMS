@@ -278,18 +278,15 @@
 
                         <td>
                             @if (!empty($detail['replacement_photo']))
-                                <img src="{{ $detail['replacement_photo'] }}" alt="Replacement Photo"
-                                    style="width: 50px; height: 50px; object-fit: cover; border: 1px solid #ccc; padding: 2px;">
+                                <a href="{{ $detail['replacement_photo'] }}" target="_blank">
+                                    <img src="{{ $detail['replacement_photo'] }}" alt="Replacement Photo"
+                                        style="width: 50px; height: 50px; object-fit: cover; border: 1px solid #ccc; padding: 2px;">
+                                </a>
                             @else
                                 No Image
                             @endif
                         </td>
-
-
-
-
-
-                        <td>{{ $detail['replacement_reason'] }}</td>
+                         <td>{{ $detail['replacement_reason'] }}</td>
                     </tr>
                 @endforeach
             </tbody>

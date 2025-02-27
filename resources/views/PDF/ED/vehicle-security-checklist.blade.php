@@ -277,27 +277,27 @@
                 <tr>
                     <td>1</td>
                     <td>Whether the GPS lock is intact?</td>
-                    <td>{{ isset($charted_vehicle_verification['GPS_lock_intact']) ? ($charted_vehicle_verification['GPS_lock_intact'] ? 'Yes' : 'No') : 'Yes / No' }}</td>
+                    <td>{{ isset($charted_vehicle_verification['GPS_lock_intact']) ? ($charted_vehicle_verification['GPS_lock_intact'] ? 'Yes' : 'No') : 'No' }}</td>
                 </tr>
                 <tr>
                     <td>2</td>
                     <td>Whether the seal on the Single One Time Lock is intact?</td>
-                    <td>{{ isset($charted_vehicle_verification['one_GPS_lock_intact']) ? ($charted_vehicle_verification['one_GPS_lock_intact'] ? 'Yes' : 'No') : 'Yes / No' }}</td>
+                    <td>{{ isset($charted_vehicle_verification['one_GPS_lock_intact']) ? ($charted_vehicle_verification['one_GPS_lock_intact'] ? 'Yes' : 'No') : 'No' }}</td>
                 </tr>
                 <tr>
                     <td>3</td>
                     <td>Whether the OTL is intact?</td>
-                    <td>{{ isset($charted_vehicle_verification['one_GPS_lock_intact']) ? ($charted_vehicle_verification['one_GPS_lock_intact'] ? 'Yes' : 'No') : 'Yes / No' }}</td>
+                    <td>{{ isset($charted_vehicle_verification['one_GPS_lock_intact']) ? ($charted_vehicle_verification['one_GPS_lock_intact'] ? 'Yes' : 'No') : 'No' }}</td>
                 </tr>
                 <tr>
                     <td>4</td>
                     <td>Whether the trunk boxes have been arranged in the pre-determined order?</td>
-                    <td>{{ isset($charted_vehicle_verification['pre_determined_order']) ? ($charted_vehicle_verification['pre_determined_order'] ? 'Yes' : 'No') : 'Yes / No' }}</td>
+                    <td>{{ isset($charted_vehicle_verification['pre_determined_order']) ? ($charted_vehicle_verification['pre_determined_order'] ? 'Yes' : 'No') : 'No' }}</td>
                 </tr>
                 <tr>
                     <td>5</td>
                     <td>Whether the One Time Locks of the trunk boxes are intact?</td>
-                    <td>{{ isset($charted_vehicle_verification['one_time_lock_trunk_box']) ? ($charted_vehicle_verification['one_time_lock_trunk_box'] ? 'Yes' : 'No') : 'Yes / No' }}</td>
+                    <td>{{ isset($charted_vehicle_verification['one_time_lock_trunk_box']) ? ($charted_vehicle_verification['one_time_lock_trunk_box'] ? 'Yes' : 'No') : 'No' }}</td>
                 </tr>
                 <tr>
                     <td>6</td>
@@ -308,13 +308,13 @@
                     <td>7</td>
                     <td>Whether the numbers found on the One Time Locks have been verified with that available in the
                         app?</td>
-                        <td>{{ isset($charted_vehicle_verification['verified_availabe_app']) ? ($charted_vehicle_verification['verified_availabe_app'] ? 'Yes' : 'No') : 'Yes / No' }}</td>
+                        <td>{{ isset($charted_vehicle_verification['number_one_lock_trunk_box']) ? ($charted_vehicle_verification['number_one_lock_trunk_box'] ? 'Yes' : 'No') : 'No' }}</td>
                 </tr>
                 <tr>
                     <td>8</td>
                     <td>Whether the numbers found on the trunk boxes have been verified with that available in the app?
                     </td>
-                    <td>Not applicable</td>
+                    <td>{{ isset($charted_vehicle_verification['verified_availabe_app']) ? ($charted_vehicle_verification['verified_availabe_app'] ? 'Yes' : 'No') : 'No' }}</td>
                 </tr>
             </table>
 

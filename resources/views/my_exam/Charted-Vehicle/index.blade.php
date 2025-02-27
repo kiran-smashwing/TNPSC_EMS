@@ -181,10 +181,12 @@
                         <div class="card-header">
                             <div class="d-sm-flex align-items-center justify-content-between">
                                 <h5 class="mb-3 mb-sm-0">Charted Vehicle Route View</h5>
+                                @hasPermission('create-vechicle-route')
                                 <div>
                                     <a href="{{ route('charted-vehicle-routes.create') }}"
                                         class="btn btn-outline-success">Add Route</a>
                                 </div>
+                                @endhasPermission
                             </div>
                         </div>
                         <div class="card-body table-border-style">

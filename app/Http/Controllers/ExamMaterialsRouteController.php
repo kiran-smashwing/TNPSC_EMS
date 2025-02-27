@@ -30,7 +30,7 @@ class ExamMaterialsRouteController extends Controller
         $district_code = null;
 
         // Chennai district van duty staff route creation 
-        if (($role == 'headquarters' && $user->role->role_department == 'ID') || $user->district_code == '01') {
+        if (($role == 'headquarters' && $user->role->role_department == 'QD') || $user->district_code == '01') {
             $district_code = '01';
             $query = ExamMaterialRoutes::where('exam_id', $examId)
                 ->where('district_code', $district_code)
@@ -123,7 +123,7 @@ class ExamMaterialsRouteController extends Controller
         $district_code = null;
         // dd($role);
         // chennai disitrict van duty staff route creation 
-        if (($role == 'headquarters' && $user->role->role_department == 'ID') || $user->district_code == '01') {
+        if (($role == 'headquarters' && $user->role->role_department == 'QD') || $user->district_code == '01') {
             $role = Role::where('role_name', 'Van Duty Staff')->first();
             $mobileTeam = DepartmentOfficial::where(function ($query) {
                 $query->where('dept_off_role', '')
@@ -311,9 +311,12 @@ class ExamMaterialsRouteController extends Controller
         $mobileTeam = null;
         $role = session('auth_role');
         // chennai disitrict van duty staff route creation
-        if (($role == 'headquarters' && $user->role->role_department == 'ID') || $user->district_code == '01') {
+        if (($role == 'headquarters' && $user->role->role_department == 'QD') || $user->district_code == '01') {
             $role = Role::where('role_name', 'Van Duty Staff')->first();
-            $mobileTeam = DepartmentOfficial::where('dept_off_role', $role->role_id)->get();
+            $mobileTeam = DepartmentOfficial::where(function ($query) {
+                $query->where('dept_off_role', '')
+                    ->orWhereNull('dept_off_role');
+            })->get();
             $district_code = '01';
         } else {
             // get mobile team staffs for the user's district br role based
@@ -429,7 +432,7 @@ class ExamMaterialsRouteController extends Controller
         $user = $request->get('auth_user');
         $role = session('auth_role');
 
-        if (($role == 'headquarters' && $user->role->role_department == 'ID') || $user->district_code == '01') {
+        if (($role == 'headquarters' && $user->role->role_department == 'QD') || $user->district_code == '01') {
             $route = ExamMaterialRoutes::where('id', $id)->with(['district', 'department_official'])->first();
         } else {
             $route = ExamMaterialRoutes::where('id', $id)->with(['district', 'mobileTeam'])->first();

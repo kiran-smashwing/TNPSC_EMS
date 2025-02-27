@@ -39,7 +39,7 @@
                             <div class="card-body">
                                 <nav class="navbar justify-content-between p-0 align-items-center">
                                     <h5><span class="text-primary">{{ $session->exam_main_notification }}</span>
-                                        - {{ $session->exam_main_name }} - {{ $session->exam_main_postname }}
+                                        - {{ $session->exam_main_name }} - {{ $session->examservice->examservice_name }}
                                         - <span class="text-warning"> {{ $session->exam_main_startdate }} </span>
                                     </h5>
                                     <div class="btn-group btn-group-sm help-filter" role="group"
@@ -1062,11 +1062,11 @@
                                                                     class="me-2 btn btn-sm btn-light-info"><i
                                                                         class="feather icon-download mx-1"></i>Download</a>
                                                             @endhasPermission
-                                                            @hasPermission('create-ci-meetings')
+                                                            {{-- @hasPermission('create-ci-meetings')
                                                                 <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
                                                                         class="feather icon-navigation mx-1"></i>Send
                                                                     Intimation</a>
-                                                            @endhasPermission
+                                                            @endhasPermission --}}
 
                                                         </div>
                                                     </div>

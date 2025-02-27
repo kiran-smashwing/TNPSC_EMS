@@ -561,6 +561,7 @@ class ChartedVehicleRoutesController extends Controller
             'one_GPS_lock_intact' => 'sometimes|in:on,off',
             'OTL_intacl' => 'sometimes|in:on,off',
             'pre_determined_order' => 'sometimes|in:on,off',
+            'number_one_lock_trunk_box' => 'sometimes|in:on,off',
             'one_time_lock_trunk_box' => 'sometimes|in:on,off',
             'verified_availabe_app' => 'sometimes|in:on,off',
         ]);
@@ -587,6 +588,7 @@ class ChartedVehicleRoutesController extends Controller
                 'OTL_intacl' => $request->has('OTL_intacl'),
                 'pre_determined_order' => $request->has('pre_determined_order'),
                 'one_time_lock_trunk_box' => $request->has('one_time_lock_trunk_box'),
+                'number_one_lock_trunk_box' => $request->has('number_one_lock_trunk_box'),
                 'verified_availabe_app' => $request->has('verified_availabe_app'),
             ];
 

@@ -265,7 +265,7 @@ class ChartedVehicleRoutesController extends Controller
                     // Attach the specific user's OTL code to the route
                     $route->user_used_otl_code = $usedOtlCodes[$user->dept_off_id] ?? null;
                 });
-            
+
         }
         // Fetching exam notifications 
         foreach ($routes as $route) {
@@ -611,8 +611,8 @@ class ChartedVehicleRoutesController extends Controller
             return abort(404, 'Vehicle details not found.');
         }
         $charted_vehicle_verification = $vehicle_no_details->charted_vehicle_verification
-        ? $vehicle_no_details->charted_vehicle_verification
-        : [];
+            ? $vehicle_no_details->charted_vehicle_verification
+            : [];
         // dd($charted_vehicle_verification);
         // Get exam_id and make sure it's a string before processing
         $exam_id_string = $vehicle_no_details->exam_id;
@@ -673,7 +673,7 @@ class ChartedVehicleRoutesController extends Controller
         $exam_names_string = implode(', ', $exam_names);
         $exam_dates_string = implode(', ', $exam_dates);
         // Pass data to the Blade view
-        $html = view('PDF.ED.vehicle-security-checklist', compact('charted_vehicle_verification','vehicle_no_details', 'exam_data', 'exam_names_string', 'exam_dates_string', 'district_names_string'))->render();
+        $html = view('PDF.ED.vehicle-security-checklist', compact('charted_vehicle_verification', 'vehicle_no_details', 'exam_data', 'exam_names_string', 'exam_dates_string', 'district_names_string'))->render();
 
         // Generate PDF
         $pdf = Browsershot::html($html)
@@ -743,6 +743,47 @@ class ChartedVehicleRoutesController extends Controller
         $route->save();
         return response()->json(['success' => 'OTL code saved successfully.', 'used_otl_locks' => $usedOtlCodes]);
     }
+    public function saveGPSLockUsed(Request $request)
+    {
+        $request->validate([
+            'routeId' => 'required',
+            'gpsLock' => 'required',
+        ]);
+        // dd($request->validate);
+        // Check if the provided route exists in charted_vehicle_routes
+        $route = ChartedVehicleRoute::where('id', $request->routeId)
+            ->with('escortstaffs')
+            ->first();
+        if (!$route) {
+            return response()->json(['error' => 'Route does not exist.'], 404);
+        }
+
+        // Extract existing GPS locks
+        $routeGpsLocks = $route->gps_locks ?? [];
+        // Ensure GPS lock exists in the list of valid GPSs for this route
+        if (!in_array($request->gpsLock, $routeGpsLocks)) {
+            return response()->json(['error' => 'GPS lock does not exist for the provided route.'], 404);
+        }
+        // Get authenticated user ID
+        $userId = current_user()->dept_off_id;
+        // Decode existing used_gps_locks data
+        $usedGpsLocks = $route->used_gps_lock ?? [];
+
+        // Ensure user has not already locked a GPS code
+        if (isset($usedGpsLocks[$userId])) {
+            return response()->json(['error' => 'You have already locked a GPS code.'], 400);
+        }
+        // Append new entry for this user
+        $usedGpsLocks[$userId] = [
+            'gps_lock' => $request->gpsLock,
+            'locked_at' => now()->toDateTimeString() // Save timestamp
+        ];
+
+        // Update route with the new used_gps_lock data
+        $route->used_gps_lock = $usedGpsLocks;
+        $route->save();
+        return response()->json(['success' => 'GPS lock saved successfully.', 'used_gps_locks' => $usedGpsLocks]);
+    }
     public function generateAnnexure1BReport($Id)
     {
         // Fetch the route with all escort staff for the given charted vehicle ID and user
@@ -756,11 +797,38 @@ class ChartedVehicleRoutesController extends Controller
             'exam_names' => $exams->pluck('exam_main_name')->unique()->implode(', ')
         ];
         //get the districts from the escort staff
-        $route->district_codes = $route->escortstaffs
-            ->pluck('district_code')
-            ->unique()
-            ->implode(', ');
-        // dd($exams);
+        $route->district_names = $route->escortstaffs
+            ->pluck('district_code') // Get district codes
+            ->unique() // Remove duplicates
+            ->map(function ($code) {
+                return optional(\App\Models\District::where('district_code', $code)->first())->district_name;
+            })
+            ->filter() // Remove null values (if any)
+            ->implode(', '); // Convert to comma-separated string
+        $gpsLocks = collect($route->gps_locks)->filter()->toArray();
+
+        // Parse the used_gps_lock correctly
+        $usedGpsLocksData = is_array($route->used_gps_lock) ? $route->used_gps_lock : json_decode($route->used_gps_lock, true);
+        $usedGpsLocksData = $usedGpsLocksData ?: [];
+
+        // Find the latest lock by sorting the data
+        $latestLock = null;
+        $latestTime = '';
+
+        foreach ($usedGpsLocksData as $data) {
+            if (isset($data['gps_lock']) && isset($data['locked_at'])) {
+                if (empty($latestTime) || $data['locked_at'] > $latestTime) {
+                    $latestTime = $data['locked_at'];
+                    $latestLock = $data['gps_lock'];
+                }
+            }
+        }
+
+        $formattedGPSLocks = [];
+        foreach ($gpsLocks as $lock) {
+            $isUsed = ($lock === $latestLock);
+            $formattedGPSLocks[] = $lock . ($isUsed ? ' (used)' : '');
+        }
 
         $trunkBoxes = DB::table('exam_trunkbox_otl_data as e')
             ->leftJoin('exam_trunkbox_scans as s', 'e.id', '=', 's.exam_trunkbox_id')
@@ -790,7 +858,17 @@ class ChartedVehicleRoutesController extends Controller
         // Convert to arrays
         $trunkBoxes = $trunkBoxes->toArray();
         // Extract and format centers
-        $centers = collect($trunkBoxes)->pluck('center_codes')->flatten()->unique()->implode(', ');
+        $centers = collect($trunkBoxes)
+            ->pluck('center_codes') // Get all center codes
+            ->flatten() // Flatten if center codes are stored in arrays
+            ->unique() // Remove duplicate codes
+            ->map(function ($code) {
+                $center = \App\Models\Center::where('center_code', $code)->first();
+                return $center ? "{$code} - {$center->center_name}" : null;
+            })
+            ->filter() // Remove null values
+            ->implode(', '); // Convert to a comma-separated string
+
 
         // Extract and format halls grouped by center
         $hallMapping = [];
@@ -826,8 +904,8 @@ class ChartedVehicleRoutesController extends Controller
 
         // Find unused OTL locks
         $cvUnusedOtlLocks = array_diff($cvOtlLocks, $cvUsedOtlLocks);
-     
-     
+
+
         $allUnusedOtlLocks = [];
 
         foreach ($trunkBoxes as $item) {
@@ -882,9 +960,68 @@ class ChartedVehicleRoutesController extends Controller
 
         // dd($trunkBoxes);
         // Render the view for the ED report
-        $html = view('PDF.ED.annexure-1-b', compact('groupedExams', 'route', 'centers', 'halls', 'cvUnusedOtlLocks', 'cvUsedOtlLocks', 'unusedOtlString','examHalls'))->render();
+        $html = view('PDF.ED.annexure-1-b', compact('groupedExams', 'route','formattedGPSLocks','centers', 'halls', 'cvUnusedOtlLocks', 'cvUsedOtlLocks', 'unusedOtlString', 'examHalls'))->render();
 
         // Create the PDF with the necessary options
+        $pdf = Browsershot::html($html)
+            ->setOption('landscape', true) // Set landscape orientation
+            ->setOption('margin', [
+                'top' => '10mm',
+                'right' => '10mm',
+                'bottom' => '10mm',
+                'left' => '10mm'
+            ])
+            ->setOption('displayHeaderFooter', true)
+            ->setOption('headerTemplate', '<div></div>')
+            ->setOption('footerTemplate', '
+        <div style="font-size:10px;width:100%;text-align:center;">
+            Page <span class="pageNumber"></span> of <span class="totalPages"></span>
+        </div>
+        <div style="position: absolute; bottom: 5mm; right: 10px; font-size: 10px;">
+            IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . ' 
+        </div>')
+            ->setOption('preferCSSPageSize', true)
+            ->setOption('printBackground', true)
+            ->scale(1)
+            ->format('A4')  // Page size
+            ->pdf(); // Generate PDF
+
+        // Define a unique filename for the ED report
+        $filename = 'ed_statment_receiving_report_' . time() . '.pdf';
+
+        // Return the PDF as a response to be viewed inline
+        return response($pdf)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
+    }
+    public function getCvRoutesReport()
+    {
+
+        return view('view_report.cv_routes_report.index');
+    }
+    public function generateCvRoutesReport(Request $request)
+    {
+        $request->validate([
+            'notification_no' => 'required',
+        ]);
+        $notificationNo = $request->notification_no;
+        $exam = Currentexam::where('exam_main_notification', $notificationNo)->first();
+        if (!$exam) {
+            return back()->with('error', 'No exam found for the given notification number.');
+        }
+        $routes = ChartedVehicleRoute::whereJsonContains('exam_id', $exam->exam_main_no)->with('escortstaffs')->get();
+        if ($routes->isEmpty()) {
+            return back()->with('error', 'No charted vehicle routes found for the given exam.');
+        }
+        // dd($routes); 
+        // Extract and normalize exam IDs
+        $examIds = $routes->pluck('exam_id')->map(function ($examId) {
+            return $examId; // Keep the exam ID as is
+        })->flatten()->unique()->values()->toArray(); // Flatten and get unique values
+        // Fetch Exam Details
+        $examDetails = Currentexam::whereIn('exam_main_no', $examIds)->get();
+
+        $html = view('view_report.cv_routes_report.cv-routes-report', compact('routes', 'examDetails'))->render();
         $pdf = Browsershot::html($html)
             ->setOption('landscape', true) // Set landscape orientation
             ->setOption('margin', [

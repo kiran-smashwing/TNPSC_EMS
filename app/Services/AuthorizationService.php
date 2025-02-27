@@ -73,7 +73,8 @@ class AuthorizationService
                     'ci-meeting',
                     'chv-routes',
                     'email-template',
-                    'route-edit'
+                    'route-edit',
+                    'cv-routes-report',
 
                 ],
             ],

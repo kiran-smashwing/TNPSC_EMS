@@ -52,5 +52,10 @@ class ExamVenueConsent extends Model
     {
         return $this->belongsTo(Center::class, 'center_code', 'center_code');
     }
+    // Relationship with the VenueAssignedCI model
+    public function assignedCIs()
+    {
+        return $this->hasMany(VenueAssignedCI::class, 'venue_consent_id', 'id');
+    }
     
 }

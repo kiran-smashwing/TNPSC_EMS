@@ -140,6 +140,17 @@
                                             <!-- Centers will be dynamically populated -->
                                         </select>
                                     </div>
+                                    <div class="filter-item" style="max-width: 130px;">
+                                        <select class="form-select" id="examDateFilter" name="exam_date"
+                                            class="form-select">
+                                            @foreach ($examDates as $examDate)
+                                                <option value="{{ $examDate }}"
+                                                    {{ request('exam_date') == $examDate ? 'selected' : '' }}>
+                                                    {{ Carbon\Carbon::parse($examDate)->format('d-m-Y') }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                     <div class="filter-item">
                                         <div class="form-check form-switch custom-switch-v2 mb-1 mt-2 switch-lg">
                                             <input name="confirmed_only" type="checkbox"
@@ -183,7 +194,9 @@
                                                     <td>
                                                         <input class="form-check-input input-success venue-checkbox"
                                                             type="checkbox" name="venue_checkbox[]"
-                                                            {{ $item['venue']->is_confirmed == true ? 'checked' : '' }}
+                                                            {{ $item['ci']->is_confirmed ? 'checked' : '' }}
+                                                            data-ci-id="{{ $item['ci']['ci_id'] ?? '' }}"
+                                                            data-exam-date="{{ $item['ci']['exam_date'] ?? '' }}"
                                                             value="{{ $item['venue']->venue_id }}">
                                                     </td>
                                                     <td>{{ $item['venue']->venues->venue_name }}</td>
@@ -191,11 +204,11 @@
                                                     <td>{{ $item['venue']->venues->venue_email }}</td>
                                                     <td>{{ $item['venue']->venues->venue_phone }}</td>
                                                     <td>{{ $item['venue']->venues->venue_address }}</td>
-                                                    <td>{{ $item['exam_date'] ?? 'No Date' }}</td>
-                                                    <td>{{ $item['ci']['ci_name'] ?? 'No CI Assigned' }}</td>
-                                                    <td>{{ $item['ci']['ci_email'] ?? 'N/A' }}</td>
-                                                    <td>{{ $item['ci']['ci_phone'] ?? 'N/A' }}</td>
+                                                    <td>{{ $item['ci']->exam_date ?? 'No Date' }}</td>
+                                                    <td>{{ $item['ci']->chiefInvigilator->ci_name ?? 'No CI Assigned' }}
                                                     </td>
+                                                    <td>{{ $item['ci']->chiefInvigilator->ci_email ?? 'N/A' }}</td>
+                                                    <td>{{ $item['ci']->chiefInvigilator->ci_phone ?? 'N/A' }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -263,6 +276,7 @@
                     searchable: false, // Disable search for this column
                     visible: true, // Make the column visible
                 }],
+                paging: false, // Disable pagination
                 language: {
                     emptyTable: "Please select a district and center, or no venues have been confirmed yet.", // Custom message
                 }
@@ -327,10 +341,14 @@
                 checkedBoxes.each(function(index) {
                     const venueId = $(this).val();
                     const isChecked = $(this).is(':checked');
+                    const ciId = $(this).data('ci-id');
+                    const exam_date = $(this).data('exam-date');
                     venueList.push({
                         venue_id: venueId,
                         order: index,
-                        checked: isChecked
+                        checked: isChecked,
+                        ci_id: ciId,
+                        exam_date: exam_date
                     });
                 });
 

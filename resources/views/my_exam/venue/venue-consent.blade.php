@@ -531,7 +531,13 @@ foreach ($savedCIIds as $ci) {
                         data: formData,
                         processData: false,
                         contentType: false,
+                        beforeSend: function() {
+                            const loader = document.getElementById('loader');
+                            if (loader) loader.style.removeProperty('display');
+                        },
                         success: function(response) {
+                            const loader = document.getElementById('loader');
+                            if (loader) loader.style.display = 'none';
                             // Handle successful submission
                             Swal.fire({
                                 icon: 'success',
@@ -541,10 +547,14 @@ foreach ($savedCIIds as $ci) {
                                 confirmButtonText: 'OK'
                             }).then(() => {
                                 // Optionally redirect or refresh
-                                window.location.href = "{{ route('my-exam.examTask', ['examid' => $exam->exam_main_no]) }}"; 
+                                window.location.href =
+                                    "{{ route('my-exam.examTask', ['examid' => $exam->exam_main_no]) }}";
                             });
                         },
                         error: function(xhr) {
+                            const loader = document.getElementById('loader');
+                            if (loader) loader.style.display = 'none';
+
                             // Handle errors
                             Swal.fire({
                                 icon: 'error',

@@ -21,6 +21,7 @@ class ChartedVehicleRoute extends Model
         'handover_verification_details',
         'handover_verification_status',
         'used_otl_locks',
+        'used_gps_lock',
         'charted_vehicle_verification',
     ];
 

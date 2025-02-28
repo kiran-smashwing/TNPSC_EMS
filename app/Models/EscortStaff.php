@@ -32,5 +32,8 @@ class EscortStaff extends Model
     {
         return $this->belongsTo(District::class, 'district_code', 'district_code');
     }
+    public function departmentOfficials(){
+        return $this->belongsTo(DepartmentOfficial::class, 'tnpsc_staff_id', 'dept_off_id');
+    }
 }
 

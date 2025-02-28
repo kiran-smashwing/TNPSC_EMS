@@ -72,6 +72,7 @@ class AuthorizationService
                     'chv-routes',
                     'email-template',
                     'route-edit',
+                    'cv-routes-report',,
                     'download-meeting-qr',
                     'create-ci-meetings',
                     'create-vechicle-route  '

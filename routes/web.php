@@ -68,7 +68,6 @@ Route::get('/attendance-report-overall', [AttendanceReportController::class, 'ge
 //attendance-report
 Route::get('/api/get-dropdown-data', [AttendanceReportController::class, 'getDropdownData'])->name('attendance.dropdown');
 // Route::get('/attendance-report/filter', [AttendanceReportController::class, 'filterAttendanceReport'])->name('attendance-report.filter');
-Route::get('/ed-report', [EDController::class, 'generateEDReport'])->name('ed.report');
 
 // Qp_bookletcontroller
 Route::get('/qp-booklet', [Qp_BookletController::class, 'generateQpbookletReport'])->name('qp_booklet.report');
@@ -536,12 +535,15 @@ Route::prefix('charted-vehicle-routes')->group(function () {
         Route::post('/get-districts-for-exam', [ChartedVehicleRoutesController::class, 'getDistrictsForExamIDs'])->name('charted-vehicle-routes.get-districts-for-exam');
         Route::get('/downward-journey-routes', [ChartedVehicleRoutesController::class, 'downwardJourneyRoutes'])->name('charted-vehicle-routes.downward-journey-routes');
         Route::post('/save-otl-lock-used', [ChartedVehicleRoutesController::class, 'saveOTLLockUsed'])->name('charted-vehicle-routes.save-otl-lock-used');
+        Route::post('/save-gps-lock-used', [ChartedVehicleRoutesController::class, 'saveGPSLockUsed'])->name('charted-vehicle-routes.save-gps-lock-used');
         Route::post('/charted-vehicle-verification', [ChartedVehicleRoutesController::class, 'chartedVehicleVerification'])->name('charted.vehicle.verification');
         Route::get('/vehicel-report/{id}', [ChartedVehicleRoutesController::class, 'generateVehicleReport'])->name('vehicel.report.download');
         Route::get('/view-trunk-boxes/{Id}', [ChartedVehicleRoutesController::class, 'viewTrunkboxes'])->name('viewTrunkboxes');
         Route::get('/generate-trunkbox-order/{Id}', [ChartedVehicleRoutesController::class, 'generateTrunkboxOrder'])->name('generateTrunkboxOrder');
         Route::post('/scan-trunkbox-order', [ChartedVehicleRoutesController::class, 'scanTrunkboxOrder'])->name('scanTrunkboxOrder');
         Route::get('/generate-annexure-1B-report/{Id}', [ChartedVehicleRoutesController::class, 'generateAnnexure1BReport'])->name('charted-vehicle-routes.generateAnnexure1BReport');
+        Route::get('/get-cv-routes-report', [ChartedVehicleRoutesController::class, 'getCvRoutesReport'])->name('charted-vehicle-routes.getCvRoutesReport');
+        Route::get('/generate-cv-routes-report', [ChartedVehicleRoutesController::class, 'generateCvRoutesReport'])->name('charted-vehicle-routes.generateCvRoutesReport');
     });
 });
 

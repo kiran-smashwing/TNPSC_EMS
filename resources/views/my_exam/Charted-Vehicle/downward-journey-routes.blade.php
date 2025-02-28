@@ -261,10 +261,18 @@
                                                         class="ti ti-checkbox  f-20"></i></a>
                                                @hasPermission('otl-lock')
                                                 <a href='#'
-                                                    class="{{ $route->user_used_otl_code ? 'avtar avtar-xs btn-light-success"' : 'avtar avtar-xs btn-light-danger' }} lock-update"
+                                                    class="{{ $route->user_used_otl_code ? 'avtar avtar-xs btn-light-success' : 'avtar avtar-xs btn-light-danger' }} lock-update"
                                                     data-route-id="{{ $route->id }}"
+                                                    title= "Update OTL Locks"
                                                     data-otl="{{ json_encode($route->otl_locks) }}">
                                                     {!! $route->user_used_otl_code ? '<i class="ti ti-lock f-20"></i>' : '<i class="ti ti-lock-off f-20"></i>' !!}
+                                                </a>
+                                                <a href='#'
+                                                    class="{{ $route->used_gps_lock ? 'avtar avtar-xs btn-light-success' : 'avtar avtar-xs btn-light-danger' }} gps-lock-update"
+                                                    data-route-id="{{ $route->id }}"
+                                                    title= "Update GPS Lock"
+                                                    data-gps="{{ json_encode($route->gps_locks) }}">
+                                                    <i class="ti ti-gps f-20"></i>
                                                 </a>
                                                 @endhasPermission
                                                 @hasPermission('annexure-1-b.download')
@@ -365,6 +373,116 @@
                                 url: '{{ route('charted-vehicle-routes.save-otl-lock-used') }}',
                                 method: 'POST',
                                 data: JSON.stringify(result.value),
+                                contentType: 'application/json',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                beforeSend: function() {
+                                    const loader = document.getElementById('loader');
+                                    if (loader) loader.style.removeProperty(
+                                        'display'); // Show loader
+                                },
+                                success: function(data, textStatus, xhr) {
+                                    const loader = document.getElementById('loader');
+                                    if (loader) loader.style.display =
+                                        'none'; // Hide loader
+
+                                    if (xhr.status === 200) {
+                                        Swal.fire({
+                                            title: 'Success!',
+                                            text: data
+                                                .success, // Show dynamic success message
+                                            icon: 'success',
+                                            confirmButtonText: 'OK'
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                location
+                                                    .reload(); // Reload the page when "OK" is clicked
+                                            }
+                                        });
+                                    } else {
+                                        Swal.fire('Error!', data.error,
+                                            'error'); // Show dynamic error message
+                                    }
+                                },
+                                error: function(xhr) {
+                                    const loader = document.getElementById('loader');
+                                    if (loader) loader.style.display =
+                                        'none'; // Hide loader
+
+                                    let errorMessage = 'Something went wrong.';
+                                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                                        errorMessage = xhr.responseJSON
+                                            .error; // Get actual error message
+                                    }
+                                    Swal.fire('Error!', errorMessage, 'error');
+                                }
+                            });
+
+                        }
+                    });
+                });
+            });
+        </script>
+        <script>
+            document.querySelectorAll('.gps-lock-update').forEach(button => {
+                button.addEventListener('click', function() {
+                    let routeId = this.getAttribute('data-route-id');
+                    let otlCodes = JSON.parse(this.getAttribute('data-gps'));
+
+                    // Create multi-select dropdown options
+                    let optionsHtml = otlCodes.map(code =>
+                        `<option value="${code}">${code}</option>`
+                    ).join('');
+
+                    Swal.fire({
+                        title: 'Select Used GPS Lock', 
+                        html: `
+            <div class="form-group">
+                <select class="form-select" 
+                    id="gpsSelect" name="gpsSelect" >
+                    ${optionsHtml}
+                </select>
+            </div>
+            `,
+                        showCancelButton: true,
+                        confirmButtonText: 'Submit',
+                        didOpen: () => {
+                            // Initialize Choices.js on the select element after the modal is opened
+                            const choicesInstance = new Choices('#gpsSelect', {
+                                removeItemButton: true,
+                                placeholderValue: 'Select GPS Lock', 
+                                position: 'bottom',
+                                searchEnabled: false,
+                                searchChoices: false,
+                                multiple: false,
+                                itemSelectText: ''
+                            });
+                        },
+                        preConfirm: () => {
+                            let selectEl = document.getElementById('gpsSelect'); 
+                            let selectedOption = selectEl.value;
+
+                            if (!selectedOption) {
+                                Swal.showValidationMessage('Please select a GPS Lock'); 
+                                return false;
+                            }
+                            return {
+                                routeId: routeId,
+                                gpsLock: selectedOption 
+                            };
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            const loader = document.getElementById('loader');
+
+                            $.ajax({
+                                url: '{{ route('charted-vehicle-routes.save-gps-lock-used') }}',
+                                method: 'POST',
+                                data: JSON.stringify({
+                                    routeId: result.value.routeId,
+                                    gpsLock: result.value.gpsLock 
+                                }),
                                 contentType: 'application/json',
                                 headers: {
                                     'X-CSRF-TOKEN': '{{ csrf_token() }}'

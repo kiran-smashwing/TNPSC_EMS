@@ -186,13 +186,12 @@
                 <td><b>Route No:</b> {{ $route->route_no ?? 'N/A' }}</td>
                 <td colspan="3">
                     <b>GPS Lock Number:</b>
-                    {{ collect($route->gps_locks)->filter()->implode(', ') ?: 'N/A' }}
+                    {{ !empty($formattedGPSLocks) ? implode(', ', $formattedGPSLocks) : 'N/A' }}
                 </td>
-
-
+            
             </tr>
             <tr>
-                <td colspan="2"><b>District:</b> {{ $route->district_codes ?? 'N/A' }}</td>
+                <td colspan="2"><b>District:</b> {{ $route->district_names ?? 'N/A' }}</td>
                 <td colspan="1"><b>Access Card Number:</b></td>
 
             </tr>

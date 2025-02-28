@@ -29,9 +29,11 @@
                 </div>
                 <div class="modal-footer d-flex justify-content-between">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    @if(!$isBoxOpenTimeSet)
                     <button type="submit" class="btn btn-success">
                         <i class="feather icon-save me-2"></i>Save Time Details
                     </button>
+                    @endif
                 </div>
             </form>
         </div>

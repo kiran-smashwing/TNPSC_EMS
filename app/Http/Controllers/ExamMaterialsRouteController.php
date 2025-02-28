@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Currentexam;
 use Spatie\Browsershot\Browsershot;
 use App\Services\ExamAuditService;
+
 class ExamMaterialsRouteController extends Controller
 {
     protected $auditService;
@@ -147,7 +148,7 @@ class ExamMaterialsRouteController extends Controller
         $halls = ExamMaterialsData::where('exam_id', $examId)
             ->where('district_code', $district_code)
             ->join('centers', 'exam_materials_data.center_code', '=', 'centers.center_code')
-            ->groupBy('exam_materials_data.center_code', 'centers.center_name', 'exam_materials_data.hall_code', )
+            ->groupBy('exam_materials_data.center_code', 'centers.center_name', 'exam_materials_data.hall_code',)
             ->select(
                 'centers.center_name',
                 'exam_materials_data.center_code',
@@ -241,7 +242,7 @@ class ExamMaterialsRouteController extends Controller
         $route->district_code = $role == 'headquarters' ? '01' : $user->district_code;
         $route->save();
         //update the departmetofficals role to VDS role
-         if ($role == 'headquarters') {
+        if ($role == 'headquarters') {
             $departmentOfficial = DepartmentOfficial::findOrFail($validated['mobile_staff']);
             $departmentOfficial->custom_role = 'VDS';
             $departmentOfficial->save();
@@ -334,7 +335,7 @@ class ExamMaterialsRouteController extends Controller
         $halls = ExamMaterialsData::where('exam_id', $routes->exam_id)
             ->where('district_code', $district_code)
             ->join('centers', 'exam_materials_data.center_code', '=', 'centers.center_code')
-            ->groupBy('exam_materials_data.center_code', 'centers.center_name', 'exam_materials_data.hall_code', )
+            ->groupBy('exam_materials_data.center_code', 'centers.center_name', 'exam_materials_data.hall_code',)
             ->select(
                 'centers.center_name',
                 'exam_materials_data.center_code',
@@ -351,11 +352,11 @@ class ExamMaterialsRouteController extends Controller
         })->keys(); // Get only the keys (exam dates)
         // dd($centers);
         return view('my_exam.District.materials-route.edit', compact('routes', 'mobileTeam', 'centers', 'halls', 'examDates', 'user'));
-
     }
     public function updateRoute(Request $request, $id)
     {
         $route = ExamMaterialRoutes::findOrFail($id);
+
         $user = $request->get('auth_user');
         // Validate request
         $validated = $request->validate([
@@ -432,17 +433,45 @@ class ExamMaterialsRouteController extends Controller
         $user = $request->get('auth_user');
         $role = session('auth_role');
 
+        // dd($id, $user, $role); // Debugging
+
         if (($role == 'headquarters' && $user->role->role_department == 'QD') || $user->district_code == '01') {
             $route = ExamMaterialRoutes::where('id', $id)->with(['district', 'department_official'])->first();
         } else {
             $route = ExamMaterialRoutes::where('id', $id)->with(['district', 'mobileTeam'])->first();
         }
 
-        $routeData = [];
+        // dd($route); // Debugging
+
+        if (!$route) {
+            abort(404, 'Route not found');
+        }
 
         // Get center codes and halls array from JSON
         $centerCodes = is_string($route->center_code) ? json_decode($route->center_code, true) : $route->center_code;
         $hallCodes = is_string($route->hall_code) ? json_decode($route->hall_code, true) : $route->hall_code;
+
+        // Check if $hallCodes is an array before sorting
+        if (is_array($hallCodes)) {
+            foreach ($hallCodes as $key => &$hallList) {
+                if (is_array($hallList)) {
+                    sort($hallList, SORT_NATURAL | SORT_FLAG_CASE); // Ensure ascending order
+                }
+            }
+            unset($hallList); // Unset reference to avoid unexpected behavior
+        }
+
+        // Debugging
+        // dd($hallCodes);
+
+
+        // print_r($hallCodes); // Check the sorted array
+
+
+
+        // dd($centerCodes, $hallCodes); // Debugging
+
+        $routeData = [];
 
         foreach ($centerCodes as $centerCode) {
             $halls = isset($hallCodes[$centerCode]) ? $hallCodes[$centerCode] : [];
@@ -454,7 +483,10 @@ class ExamMaterialsRouteController extends Controller
                 ->where('exam_materials_data.district_code', $route->district_code)
                 ->where('exam_materials_data.center_code', $centerCode)
                 ->whereIn('exam_materials_data.hall_code', $halls)
+                ->orderBy('exam_materials_data.hall_code', 'asc') // Ensure sorting at query level
                 ->get();
+
+            // dd($venueData); // Debugging
 
             foreach ($venueData as $hall) {
                 // Create a unique key combining route number and hall code
@@ -483,7 +515,11 @@ class ExamMaterialsRouteController extends Controller
             ->with('currentexam')
             ->first();
 
+        // dd($routeData); // Debugging
+
         $mobileTeam = MobileTeamStaffs::where('mobile_id', $route->mobile_team_staff)->first();
+
+        // dd($mobileTeam); // Debugging
 
         $html = view('PDF.Route.center-routes', [
             'route' => $route,
@@ -492,6 +528,8 @@ class ExamMaterialsRouteController extends Controller
             'routeData' => $routeData,
             'user' => $user,
         ])->render();
+
+        // dd($html); // Debugging
 
         $pdf = Browsershot::html($html)
             ->setOption('landscape', true)
@@ -516,12 +554,12 @@ class ExamMaterialsRouteController extends Controller
             ->format('A4')
             ->pdf();
 
+        // dd($pdf); // Debugging
+
         $filename = 'meeting-qrcode-' . time() . '.pdf';
 
         return response($pdf)
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
     }
-
-
 }

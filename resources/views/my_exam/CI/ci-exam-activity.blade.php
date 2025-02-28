@@ -40,19 +40,30 @@
                         <div class="card">
                             <div class="card-body">
                                 <nav class="navbar justify-content-between p-0 align-items-center">
-                                    <h5><span class="text-primary">{{ $session->currentexam->exam_main_notification }}</span>
-                                        - {{ $session->currentexam->exam_main_name }} -
-                                        {{ $session->currentexam->examservice->examservice_name }} 
-                                        - <span class="text-warning"> {{ $session->currentexam->exam_main_startdate }}</span>
-                                    </h5>
-                                    {{-- <h5 class="mb-0 d-flex align-items-center">
-                                        <span
-                                            class="text-primary">{{ $session->currentexam->exam_main_notification }}</span>
-                                        - {{ $session->currentexam->exam_main_name }} -
-                                        {{ $session->currentexam->examservice->examservice_name }} -
-                                        <span
-                                            class="text-warning">&nbsp;{{ $session->currentexam->exam_main_startdate }}</span>
-                                    </h5> --}}
+                                    <div class = "row">
+                                        <h5><span
+                                                class="text-primary">{{ $session->currentexam->exam_main_notification }}</span>
+                                            - {{ $session->currentexam->exam_main_name }} -
+                                            {{ $session->currentexam->examservice->examservice_name }}
+                                            - <span class="text-warning">
+                                                {{ $session->currentexam->exam_main_startdate }}</span>
+                                        </h5>
+                                        <div class="d-flex">
+                                            <a href="#" title="Adequacy Check Notification" data-pc-animate="just-me"
+                                                data-bs-toggle="modal" data-bs-target="#adequacyCheckNotificationModal"
+                                                class="me-2 btn btn-sm btn-light-danger d-flex align-items-center">
+                                                <i class="material-icons-two-tone"
+                                                    style="font-size: 22px">assignment_turned_in</i>Exam Materials
+                                                Discrepancy
+                                            </a>
+                                            <a href="#" title="Emergency Alarm Notification" data-pc-animate="just-me"
+                                                data-bs-toggle="modal" data-bs-target="#emergencyAlarmNotificationModal"
+                                                class="me-2 btn btn-sm btn-light-danger d-flex align-items-center">
+                                                <i class="material-icons-two-tone"
+                                                    style="font-size: 22px">add_alert</i>Emergency Alarm
+                                            </a>
+                                        </div>
+                                    </div>
                                     <div class="btn-group btn-group-sm help-filter" role="group"
                                         aria-label="button groups sm">
                                         <!-- Add your buttons here if needed -->
@@ -79,18 +90,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <nav class="navbar justify-content-between p-0 align-items-center">
-                                    <div class="d-flex">
-                                        <a href="#" title="Adequacy Check Notification" data-pc-animate="just-me"
-                                            data-bs-toggle="modal" data-bs-target="#adequacyCheckNotificationModal"
-                                            class="me-2 btn btn-sm btn-light-danger">
-                                            <i style="font-size: 22px"></i>Exam Materials Discrepancy
-                                        </a>
-                                        <a href="#" title="Emergency Alarm Notification" data-pc-animate="just-me"
-                                            data-bs-toggle="modal" data-bs-target="#emergencyAlarmNotificationModal"
-                                            class="me-2 btn btn-sm btn-light-danger">
-                                            <i style="font-size: 22px"></i>Emergency Alarm Notifications
-                                        </a>
-                                    </div>
+
                                 </nav>
                             </div>
                         </div>
@@ -596,13 +596,23 @@
                                                                 </a>
                                                             @else --}}
                                                         <!-- Show Add Button if no candidate attendance data exists -->
-                                                        <a href="#" data-pc-animate="just-me"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#attendanceCandidateModal"
-                                                            class="me-2 btn btn-sm btn-light-info">
-                                                            <i class="feather icon-plus mx-1"></i>Add
-                                                        </a>
-                                                        {{-- @endif --}}
+                                                        @if (!is_null($candidateAttendance) && $candidateAttendance->candidate_attendance)
+                                                            <a href="#" data-pc-animate="just-me"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#attendanceCandidateModal"
+                                                                class="me-2 btn btn-sm btn-light-warning">
+                                                                <i class="feather icon-edit mx-1"></i>Edit
+                                                            </a>
+                                                        @else
+                                                            <a href="#" data-pc-animate="just-me"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#attendanceCandidateModal"
+                                                                class="me-2 btn btn-sm btn-light-info">
+                                                                <i class="feather icon-plus mx-1"></i>Add
+                                                            </a>
+                                                        @endif
+
+
 
                                                     </div>
                                                 </div>
@@ -923,7 +933,7 @@ $replacementTime = $hasReplacement
                                                 </div>
                                                 <div class="col">
                                                     <div class="popup-trigger">
-                                                        <div class="h5 font-weight-bold">Candidiate of Remarks  <small
+                                                        <div class="h5 font-weight-bold">Candidiate of Remarks <small
                                                                 class="badge {{ $badgeClass }} ms-2">{{ $taskStatus }}</small>
                                                         </div>
                                                         <div class="help-sm-hidden">
@@ -1398,18 +1408,32 @@ $replacementTime = $hasReplacement
 
         <script>
             $('#qpboxOpenTimeModal').on('shown.bs.modal', function() {
-                // Get the current time
-                const currentTime = new Date().toLocaleTimeString(); // Format as HH:MM:SS
+                // Get the saved time from Laravel blade (passed via a hidden input or directly in script)
+                let savedTime =
+                    "{{ $isBoxOpenTimeSet ? \Carbon\Carbon::parse($timingLog['qp_box_open_time'])->format('d-m-Y h:i A') : '' }}";
 
-                // Update the time display inside the modal
-                document.getElementById('timeDisplay').textContent = currentTime;
+                if (savedTime.trim() !== '') {
+                    // Show saved time if it exists
+                    document.getElementById('timeDisplay').textContent = savedTime;
+                } else {
+                    // Otherwise, show current time
+                    const currentTime = new Date().toLocaleTimeString(); // Format as HH:MM:SS
+                    document.getElementById('timeDisplay').textContent = currentTime;
+                }
             });
             $('#qpaperdistributiontime').on('shown.bs.modal', function() {
-                // Get the current time
-                const currentTime = new Date().toLocaleTimeString(); // Format as HH:MM:SS
+                // Get the saved time from Laravel Blade
+                let savedTime =
+                    "{{ $isBoxDistributionTimeSet ? \Carbon\Carbon::parse($timingLog['qp_box_distribution_time'])->format('d-m-Y h:i A') : '' }}";
 
-                // Update the time display inside the modal
-                document.getElementById('timeDisplayss').textContent = currentTime;
+                if (savedTime.trim() !== '') {
+                    // Show saved time if it exists
+                    document.getElementById('timeDisplayss').textContent = savedTime;
+                } else {
+                    // Otherwise, show current time
+                    const currentTime = new Date().toLocaleTimeString(); // Format as HH:MM:SS
+                    document.getElementById('timeDisplayss').textContent = currentTime;
+                }
             });
         </script>
 

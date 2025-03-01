@@ -73,7 +73,7 @@
                             <h5>Charted Vehicle Routes Report</h5>
                         </div>
                         <div class="card-body">
-                            <form action="{{ route('charted-vehicle-routes.generateCvRoutesReport') }}" method="GET" id="filterForm">
+                            <form action="{{ route('charted-vehicle-routes.generateCvRoutesReport') }}" target="_blank" method="GET" id="filterForm">
                                 @csrf
                                 <div class="row">
                                     <!-- Notification No -->

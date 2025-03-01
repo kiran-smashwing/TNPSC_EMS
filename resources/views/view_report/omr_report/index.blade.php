@@ -73,7 +73,7 @@
                             <h5>Filter Replacement of OMR/QCA</h5>
                         </div>
                         <div class="card-body">
-                            <form action="{{ route('omr-report.report.overall') }}" method="GET" id="filterForm">
+                            <form action="{{ route('omr-report.report.overall') }}" target="_blank" method="GET" id="filterForm">
                                  @csrf
                                 <div class="row">
                                     <!-- Notification No -->

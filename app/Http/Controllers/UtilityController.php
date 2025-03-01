@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Currentexam;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Spatie\Browsershot\Browsershot;
 // use NumberFormatter;
@@ -81,9 +82,26 @@ class UtilityController extends Controller
         // Pass the collection to the Blade template
         // return view('PDF.Reports.ci-utility-certificate', compact('exam_data', 'formattedDatesString', 'user', 'utility_answer', 'amount', 'amount_in_words'));
         $html = view('PDF.Reports.ci-utility-certificate', compact('exam_data', 'formattedDatesString', 'user', 'utility_answer', 'amount', 'amount_in_words', 'hall_code'))->render();
+        $examId = $examid; // Get exam ID
 
-        // Render the Blade view with the exam data
-        // Generate PDF using Browsershot
+        // Ensure all required fields exist
+        $districtCode = $user->district->district_code ?? 'N/A';
+        $centerCode = $user->center->center_code ?? 'N/A';
+        $venueCode = $user->venue->venue_code ?? 'N/A';
+        $hallCode = $hall_code ?? 'N/A';
+        
+        // Define the dynamic folder path
+        $folderPath = 'reports/utilization-report/' . $examId; // Folder for the specific exam
+        
+        // Ensure the folder exists
+        Storage::disk('public')->makeDirectory($folderPath);
+        
+        // Define the filename with all required details
+        $filename = 'utilization-report-' . $districtCode . '-' . $centerCode . '-' . $venueCode . '-' . $hallCode . '.pdf';
+        
+        // Full file path inside the dynamically created folder
+        $filePath = $folderPath . '/' . $filename;
+        Storage::disk('public')->makeDirectory($folderPath);
         $pdf = Browsershot::html($html)
             ->setOption('landscape', false)
             ->setOption('margin', [
@@ -108,8 +126,8 @@ class UtilityController extends Controller
             ->pdf();
 
         // Define a unique filename for the report
-        $filename = 'utilization-report-' . time() . '.pdf';
-
+       
+        Storage::disk('public')->put($filePath, $pdf);
         // Return the PDF response
         return response($pdf)
             ->header('Content-Type', 'application/pdf')

@@ -176,13 +176,8 @@
                                                 <td>{{ $data['ci_email'] }}</td>
                                                 <td>{{ $data['ci_phone'] }}</td>
                                                 <td>
-                                                    <a href="{{ route('download-consolidated-statement.report', [
-                                                        'exam_id' => $exam_main_no,
-                                                        'exam_date' => $exam_date,
-                                                        'session' => $session,
-                                                        'ci_id' => $data['ci_id'],
-                                                    ]) }}"
-                                                        class="btn btn-primary btn-sm">
+                                                    <a href="{{asset('storage/reports/consolidate-report/'.$data['exam_id'].'/'.'consolidate-report-'.$data['center_code'].'-'.$data['hall_code'].'-'.$exam_date.'-'.$session .'.pdf')}}"
+                                                        class="btn btn-primary btn-sm" target="_blank">
                                                         View
                                                     </a>
                                                 </td>

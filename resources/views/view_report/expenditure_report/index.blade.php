@@ -134,8 +134,9 @@
                                                 <td>{{ $data['totalAmountSpent'] ?? '0' }}</td>
                                                 <td>{{ $data['balanceAmount'] ?? '0' }}</td>
                                                 <td>
-                                                    <a href="{{ route('download.expenditure.report', ['examid' => $exam_main_no]) }}"
-                                                        class="me-2 btn btn-sm btn-light-success">
+                                                    
+                                                    <a href="{{asset('storage/reports/utilization-report/'.$exam_main_no.'/'.'utilization-report-'.$data['district_code'].'-'.$data['center_code'].'-'.$data['venue_code'].'-'.$data['hall_code'].'.pdf')}}"
+                                                        class="me-2 btn btn-sm btn-light-success" target="_blank">
                                                         <i class="feather icon-download mx-1"></i> View
                                                     </a>
                                                 </td>

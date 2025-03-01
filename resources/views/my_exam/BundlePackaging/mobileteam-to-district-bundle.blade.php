@@ -116,7 +116,7 @@
                     justify-content: center;
                 }
             }
-            
+
             #swal2-html-container {
                 z-index: 9999 !important;
                 overflow: visible !important;
@@ -143,8 +143,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                                                  <h2 class="mb-0"></h2>
-                                                                                </div> -->
+                                                                                              <h2 class="mb-0"></h2>
+                                                                                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -254,7 +254,7 @@
         </div>
         <!-- [ Main Content ] end -->
         </div>
-        @include('modals.qr-code-modal')
+        @include('modals.qr-code-bulk-modal')
     </section>
     <!-- [ Main Content ] end -->
     @include('partials.footer')
@@ -265,11 +265,21 @@
 
         <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
         <script>
-            function processQrCode(data) {
+            // Submit all scanned QR codes
+            document.getElementById("submitScannedCodesBtn").addEventListener("click", function() {
+                if (scannedCodes.length === 0) {
+                    alert("No exam materials scanned yet!");
+                    return;
+                }
                 // Hide the modal using Bootstrap's modal method
                 const qrCodeModal = document.getElementById('qrCodeModal');
                 const modalInstance = bootstrap.Modal.getInstance(qrCodeModal);
                 modalInstance.hide();
+                // Show loader before sending the request
+                const loader = document.getElementById('loader');
+                if (loader) {
+                    loader.style.removeProperty('display');
+                }
                 fetch("{{ route('bundle-packaging.scan-disitrct-exam-materials', $examId) }}", {
                         method: 'POST',
                         headers: {
@@ -277,20 +287,53 @@
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify({
-                            qr_code: data
+                            qr_codes: scannedCodes
                         })
                     })
                     .then(response => response.json())
                     .then(data => {
-                        showAlert(data.status, data.message);
-                        $('#qrCodeModal').modal('hide'); // Close modal after successful scan
-                        // Update the total scanned and total exam materials count
+                        // Process the returned results array to build a detailed message
+                        let successCount = 0;
+                        let errorCount = 0;
+                        let successMessages = [];
+                        let errorMessages = [];
+                        data.results.forEach(result => {
+                            if (result.status === 'success') {
+                                successCount++;
+                                successMessages.push(`QR: ${result.qr_code} - ${result.message}`);
+                            } else {
+                                errorCount++;
+                                errorMessages.push(`QR: ${result.qr_code} - ${result.message}`);
+                            }
+                        });
+                        let overallMessage = "";
+                        if (successCount > 0) {
+                            overallMessage += `${successCount} QR code(s) scanned successfully.\n` + successMessages
+                                .join("\n");
+                        }
+                        if (errorCount > 0) {
+                            overallMessage += `\n${errorCount} QR code(s) encountered errors:\n` + errorMessages
+                                .join("\n");
+                        }
+                        // Hide loader once the request completes
+                        if (loader) {
+                            loader.style.display = 'none';
+                        }
+                        // Show a detailed alert with the aggregated results
+                        showAlert(data.status, overallMessage);
+                        // Optionally clear the list after submission
+                        scannedCodes = [];
+                        updateScannedListUI();
                     })
                     .catch((error) => {
-                        showAlert(data.status, data.message);
-                        $('#qrCodeModal').modal('hide');
+                        // Hide loader once the request completes
+                        if (loader) {
+                            loader.style.display = 'none';
+                        }
+                        console.error("Submission error:", error);
+                        showAlert("error", "Submission failed");
                     });
-            }
+            });
 
             function showAlert(type, message) {
                 // Map the type to SweetAlert2's icon options
@@ -317,6 +360,7 @@
                     icon: iconType,
                     title: type.charAt(0).toUpperCase() + type.slice(1),
                     text: message,
+
                 }).then((result) => {
                     window.location.reload(); // Reload the page when "OK" is clicked
                 });

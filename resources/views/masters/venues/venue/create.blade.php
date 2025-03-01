@@ -254,6 +254,18 @@
                                                 </div>
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
+                                                        <label class="form-label ">Pin Code<span
+                                                                class="text-danger">*</span></label>
+                                                        <input type="number"
+                                                            class="form-control no-arrows @error('pin_code') is-invalid @enderror"
+                                                            id="pin_code" name="pin_code" placeholder="600001" required>
+                                                        @error('pin_code')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="mb-3">
                                                         <label class="form-label"for="password">Password<span
                                                                 class="text-danger">*</span></label>
                                                         <input type="password"
@@ -280,6 +292,17 @@
                                                         <textarea class="form-control @error('address') is-invalid @enderror" id="address" name="address" required
                                                             placeholder="Tamil Nadu Public Service Commission, TNPSC Road, Broadway, Chennai-600003."></textarea>
                                                         @error('address')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Landmark <span
+                                                                class="text-danger">*</span></label>
+                                                        <textarea class="form-control @error('landmark') is-invalid @enderror" id="landmark" name="landmark" required
+                                                            placeholder="NEAR TO NEW BUS STAND"></textarea>
+                                                        @error('landmark')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
                                                     </div>

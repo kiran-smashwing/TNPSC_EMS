@@ -109,21 +109,21 @@ class MyExamController extends Controller
                 ->first();
             if ($role == 'treasury') {
                 $receiveMaterialsPrinterToDistrict = ExamAuditLog::where('exam_id', $examId)
-                    ->where('task_type', 'receive_materials_printer_to_disitrct_treasury')
+                    ->where('task_type', 'receive_materials_printer_to_district_treasury')
                     ->where('user_id', $user->tre_off_id)
                     ->first();
                 $receiveBundleToDistrict = ExamAuditLog::where('exam_id', $examId)
-                    ->where('task_type', 'receive_bundle_to_disitrct_treasury')
+                    ->where('task_type', 'receive_bundle_to_district_treasury')
                     ->where('user_id', $user->tre_off_id)
                     ->first();
 
             } else {
                 $receiveMaterialsPrinterToDistrict = ExamAuditLog::where('exam_id', $examId)
-                    ->where('task_type', 'receive_materials_printer_to_disitrct_treasury')
+                    ->where('task_type', 'receive_materials_printer_to_district_treasury')
                     ->whereJsonContains('metadata->district_code', $user->district_code)
                     ->first();
                 $receiveBundleToDistrict = ExamAuditLog::where('exam_id', $examId)
-                    ->where('task_type', 'receive_bundle_to_disitrct_treasury')
+                    ->where('task_type', 'receive_bundle_to_district_treasury')
                     ->whereJsonContains('metadata->district_code', $user->district_code)
                     ->first();
             }

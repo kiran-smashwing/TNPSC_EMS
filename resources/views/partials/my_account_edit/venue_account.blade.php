@@ -1,21 +1,18 @@
-<form action="{{ route('venues.update', $venue->venue_id) }}" method="POST"
-    enctype="multipart/form-data">
+<form action="{{ route('venues.update', $venue->venue_id) }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method('PUT')
     <div class="row">
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                    aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
         @if (session('error'))
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                    aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
@@ -26,8 +23,7 @@
                         <li>{{ $error }}</li>
                     @endforeach
                 </ul>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                    aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
         <div class="col-lg-6">
@@ -39,8 +35,8 @@
                     <div class="row">
 
                         <div class="col-sm-12 text-center mb-3">
-                            <div class="user-upload wid-75" data-pc-animate="just-me"
-                                data-bs-toggle="modal" data-bs-target="#cropperModal">
+                            <div class="user-upload wid-75" data-pc-animate="just-me" data-bs-toggle="modal"
+                                data-bs-target="#cropperModal">
                                 <img src="{{ $venue->venue_image
                                     ? asset('storage/' . $venue->venue_image)
                                     : asset('storage/assets/images/user/venue.png') }}"
@@ -90,54 +86,46 @@
                         </div> --}}
                         <div class="col-sm-6">
                             <div class="mb-3">
-                                <label class="form-label" for="district">District <span class="text-danger">*</span></label>
+                                <label class="form-label" for="district">District <span
+                                        class="text-danger">*</span></label>
                                 <!-- Readonly input to display selected district name -->
-                                <input type="text" 
-                                       class="form-control @error('district') is-invalid @enderror" 
-                                       id="district_display" 
-                                       name="district_display" 
-                                       value="{{ $districts->firstWhere('district_code', $venue->venue_district_id)->district_name ?? 'Select District' }}" 
-                                       readonly>
+                                <input type="text" class="form-control @error('district') is-invalid @enderror"
+                                    id="district_display" name="district_display"
+                                    value="{{ $districts->firstWhere('district_code', $venue->venue_district_id)->district_name ?? 'Select District' }}"
+                                    readonly>
                                 <!-- Hidden input to submit the selected district code -->
-                                <input type="hidden" 
-                                       id="district" 
-                                       name="district" 
-                                       value="{{ $venue->venue_district_id }}">
+                                <input type="hidden" id="district" name="district"
+                                    value="{{ $venue->venue_district_id }}">
                                 @error('district')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
-                        
+
                         <div class="col-sm-6">
                             <div class="mb-3">
-                                <label class="form-label" for="center">Center <span class="text-danger">*</span></label>
+                                <label class="form-label" for="center">Center <span
+                                        class="text-danger">*</span></label>
                                 <!-- Readonly input to display selected center name -->
-                                <input type="text" 
-                                       class="form-control @error('center') is-invalid @enderror" 
-                                       id="center_display" 
-                                       name="center_display" 
-                                       value="{{ $centers->firstWhere('center_code', $venue->venue_center_id)->center_name ?? 'Select Center' }}" 
-                                       readonly>
+                                <input type="text" class="form-control @error('center') is-invalid @enderror"
+                                    id="center_display" name="center_display"
+                                    value="{{ $centers->firstWhere('center_code', $venue->venue_center_id)->center_name ?? 'Select Center' }}"
+                                    readonly>
                                 <!-- Hidden input to submit the selected center code -->
-                                <input type="hidden" 
-                                       id="center" 
-                                       name="center" 
-                                       value="{{ $venue->venue_center_id }}">
+                                <input type="hidden" id="center" name="center"
+                                    value="{{ $venue->venue_center_id }}">
                                 @error('center')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
-                        
+
                         <div class="col-sm-12">
                             <div class="mb-3">
                                 <label class="form-label" for="name">Venue Name<span
                                         class="text-danger">*</span></label>
-                                <input type="text"
-                                    class="form-control @error('venue_name') is-invalid @enderror"
-                                    id="venue_name" name="venue_name"
-                                    value="{{ old('name', $venue->venue_name) }}"
+                                <input type="text" class="form-control @error('venue_name') is-invalid @enderror"
+                                    id="venue_name" name="venue_name" value="{{ old('name', $venue->venue_name) }}"
                                     placeholder="Gov Hr Sec School" required>
                                 @error('venue_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -147,12 +135,10 @@
 
                         <div class="col-sm-6">
                             <div class="mb-3">
-                                <label class="form-label">Venue Code<span
-                                        class="text-danger">*</span></label>
+                                <label class="form-label">Venue Code<span class="text-danger">*</span></label>
                                 <input type="number"
                                     class="form-control @error('venue_code') is-invalid @enderror no-arrows"
-                                    id="venue_code" name="venue_code"
-                                    value="{{ old('name', $venue->venue_code) }}"
+                                    id="venue_code" name="venue_code" value="{{ old('name', $venue->venue_code) }}"
                                     placeholder="448966" required>
                                 @error('venue_code')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -163,8 +149,7 @@
                             <div class="mb-3">
                                 <label class="form-label" for="venue_code_provider">Venue Code
                                     Provider<span class="text-danger">*</span></label>
-                                <select
-                                    class="form-control @error('venue_code_provider') is-invalid @enderror"
+                                <select class="form-control @error('venue_code_provider') is-invalid @enderror"
                                     id="venue_code_provider" name="venue_code_provider" required>
                                     <option>Select Venue Code Provider</option>
                                     <option value="UDISE"
@@ -197,12 +182,10 @@
 
                         <div class="col-sm-6">
                             <div class="mb-3">
-                                <label class="form-label">Email<span
-                                        class="text-danger">*</span></label>
-                                <input type="email"
-                                    class="form-control @error('email') is-invalid @enderror"
-                                    id="email" value="{{ old('name', $venue->venue_email) }}"
-                                    name="email" placeholder="ceochn@***.in" required>
+                                <label class="form-label">Email<span class="text-danger">*</span></label>
+                                <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                    id="email" value="{{ old('name', $venue->venue_email) }}" name="email"
+                                    placeholder="ceochn@***.in" required>
                                 @error('email')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -212,10 +195,9 @@
                             <div class="mb-3">
                                 <label class="form-label" for="phone">Phone<span
                                         class="text-danger">*</span></label>
-                                <input type="tel"
-                                    class="form-control @error('phone') is-invalid @enderror"
-                                    id="phone" value="{{ old('name', $venue->venue_phone) }}"
-                                    name="phone" placeholder="9434***1212" required>
+                                <input type="tel" class="form-control @error('phone') is-invalid @enderror"
+                                    id="phone" value="{{ old('name', $venue->venue_phone) }}" name="phone"
+                                    placeholder="9434***1212" required>
                                 @error('phone')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -227,9 +209,8 @@
                                     Phone</label>
                                 <input type="tel"
                                     class="form-control @error('alternate_phone') is-invalid @enderror"
-                                    value="{{ old('name', $venue->venue_alternative_phone) }}"
-                                    id="alternative_phone" name="alternative_phone"
-                                    placeholder="O4448***762/9434***1212">
+                                    value="{{ old('name', $venue->venue_alternative_phone) }}" id="alternative_phone"
+                                    name="alternative_phone" placeholder="O4448***762/9434***1212">
                                 @error('alternate_phone')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -240,8 +221,8 @@
                             <div class="mb-3">
                                 <label class="form-label" for="type">Type<span
                                         class="text-danger">*</span></label>
-                                <select class="form-control @error('type') is-invalid @enderror"
-                                    id="type" name="type" required>
+                                <select class="form-control @error('type') is-invalid @enderror" id="type"
+                                    name="type" required>
                                     <option value="School"
                                         {{ old('type', $venue->venue_type) == 'School' ? 'selected' : '' }}>
                                         School</option>
@@ -262,9 +243,8 @@
                             <div class="mb-3">
                                 <label class="form-label" for="category">Category<span
                                         class="text-danger">*</span></label>
-                                <select
-                                    class="form-control @error('category') is-invalid @enderror"
-                                    id="category" name="category" required>
+                                <select class="form-control @error('category') is-invalid @enderror" id="category"
+                                    name="category" required>
                                     <option value="Government"
                                         {{ old('category', $venue->venue_category) == 'Government' ? 'selected' : '' }}>
                                         Government</option>
@@ -284,12 +264,21 @@
                         <div class="col-sm-6">
                             <div class="mb-3">
                                 <label class="form-label">Website</label>
-                                <input type="url"
-                                    class="form-control @error('website') is-invalid @enderror"
-                                    id="website" name="website"
-                                    value="{{ old('name', $venue->venue_website) }}"
+                                <input type="url" class="form-control @error('website') is-invalid @enderror"
+                                    id="website" name="website" value="{{ old('name', $venue->venue_website) }}"
                                     placeholder="https://chennai.nic.in/">
                                 @error('website')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="mb-3">
+                                <label class="form-label ">Pin Code<span class="text-danger">*</span></label>
+                                <input type="number" value="{{ old('pin_code', $venue->venue_pincode) }}"
+                                    class="form-control no-arrows @error('pin_code') is-invalid @enderror"
+                                    id="pin_code" name="pin_code" placeholder="600001" required>
+                                @error('pin_code')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -326,7 +315,16 @@
                                 @enderror
                             </div>
                         </div>
-
+                        <div class="col-sm-12">
+                            <div class="mb-3">
+                                <label class="form-label">Landmark <span class="text-danger">*</span></label>
+                                <textarea class="form-control @error('landmark') is-invalid @enderror" id="landmark" name="landmark" required
+                                    placeholder="NEAR TO NEW BUS STAND">{{ old('landmark', $venue->venue_landmark) }}</textarea>
+                                @error('landmark')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
                         <div class="col-sm-6">
                             <div class="mb-3">
                                 <label class="form-label" for="dt_railway">Distance from
@@ -349,8 +347,7 @@
                                 <input type="text" step="any"
                                     class="form-control @error('distance_from_treasury') is-invalid @enderror"
                                     value="{{ old('distance_from_treasury', $venue->venue_treasury_office) }}"
-                                    id="distance_from_treasury" name="distance_from_treasury"
-                                    placeholder="1.2km">
+                                    id="distance_from_treasury" name="distance_from_treasury" placeholder="1.2km">
                                 @error('distance_from_treasury')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -361,10 +358,9 @@
                                 <label class="form-label" for="longitude">longitude<span
                                         class="text-danger">*</span></label>
                                 <input type="number" step="any"
-                                    class="form-control @error('longitude') is-invalid @enderror"
-                                    id="longitude"
-                                    value="{{ old('longitude', $venue->venue_longitude) }}"
-                                    name="longitude" placeholder="11.2312312312312">
+                                    class="form-control @error('longitude') is-invalid @enderror" id="longitude"
+                                    value="{{ old('longitude', $venue->venue_longitude) }}" name="longitude"
+                                    placeholder="11.2312312312312">
                                 @error('longitude')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -375,9 +371,8 @@
                                 <label class="form-label" for="latitude">latitude<span
                                         class="text-danger">*</span></label>
                                 <input type="number" step="any"
-                                    class="form-control @error('latitude') is-invalid @enderror"
-                                    id="latitude" name="latitude"
-                                    value="{{ old('latitude', $venue->venue_latitude) }}"
+                                    class="form-control @error('latitude') is-invalid @enderror" id="latitude"
+                                    name="latitude" value="{{ old('latitude', $venue->venue_latitude) }}"
                                     placeholder="11.2312312312312">
                                 @error('latitude')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -385,8 +380,7 @@
                             </div>
                         </div>
                         <div class="col-sm-6  d-inline-flex justify-content-center mb-3">
-                            <a href="#"
-                                class="btn btn-success d-inline-flex  justify-content-center"><i
+                            <a href="#" class="btn btn-success d-inline-flex  justify-content-center"><i
                                     class="ti ti-current-location me-1"></i>Get Location
                                 Coordinates</a>
                         </div>
@@ -408,10 +402,9 @@
                             <div class="mb-3">
                                 <label class="form-label" for="bank_name">Bank Name</label>
                                 <input type="text" step="any"
-                                    class="form-control @error('bank_name') is-invalid @enderror"
-                                    id="bank_name"
-                                    value="{{ old('bank_name', $venue->venue_bank_name) }}"
-                                    name="bank_name" placeholder="State Bank Of India">
+                                    class="form-control @error('bank_name') is-invalid @enderror" id="bank_name"
+                                    value="{{ old('bank_name', $venue->venue_bank_name) }}" name="bank_name"
+                                    placeholder="State Bank Of India">
                                 @error('bank_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -422,8 +415,7 @@
                                 <label class="form-label" for="account_name">Account Name</label>
                                 <input type="text" step="any"
                                     class="form-control @error('account_name') is-invalid @enderror"
-                                    id="account_name"
-                                    value="{{ old('account_name', $venue->venue_account_name) }}"
+                                    id="account_name" value="{{ old('account_name', $venue->venue_account_name) }}"
                                     name="account_name" placeholder="Gov Hr Sec School">
                                 @error('account_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -449,9 +441,8 @@
                                 <label class="form-label" for="branch_name"> Branch
                                     Name</label>
                                 <input type="text" step="any"
-                                    class="form-control @error('branch_name') is-invalid @enderror"
-                                    id="branch_name" name="branch_name"
-                                    value="{{ old('branch_name', $venue->venue_branch_name) }}"
+                                    class="form-control @error('branch_name') is-invalid @enderror" id="branch_name"
+                                    name="branch_name" value="{{ old('branch_name', $venue->venue_branch_name) }}"
                                     placeholder="chennai">
                                 @error('branch_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -476,9 +467,9 @@
                                 <label class="form-label" for="ifsc"> IFSC
                                     Code</label>
                                 <input type="text" step="any"
-                                    class="form-control @error('ifsc') is-invalid @enderror"
-                                    id="ifsc" value="{{ old('ifsc', $venue->venue_ifsc) }}"
-                                    name="ifsc" placeholder="SBI000123">
+                                    class="form-control @error('ifsc') is-invalid @enderror" id="ifsc"
+                                    value="{{ old('ifsc', $venue->venue_ifsc) }}" name="ifsc"
+                                    placeholder="SBI000123">
                                 @error('ifsc')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

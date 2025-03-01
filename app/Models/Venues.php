@@ -31,6 +31,8 @@ class Venues extends Authenticatable
         'venue_website',
         'venue_password',
         'venue_address',
+        'venue_landmark',
+        'venue_pincode',
         'venue_distance_railway',
         'venue_treasury_office',
         'venue_longitude',

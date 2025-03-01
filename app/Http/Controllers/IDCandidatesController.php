@@ -577,44 +577,286 @@ class IDCandidatesController extends Controller
         // Retrieve the confirmed halls for the exam
         $confirmedHalls = ExamConfirmedHalls::where('exam_id', $examId)->get();
 
-        // Prepare the data for CSV export
-        $csvData = [];
-        foreach ($confirmedHalls as $hall) {
-            $hall->centername = Center::where('center_code', $hall->center_code)->first()->center_name ?? null;
-            $hall->venue = Venues::where('venue_code', $hall->venue_code)->first() ?? null;
-            $ci = ChiefInvigilator::where('ci_venue_id', $hall->venue_code)->where('ci_id', $hall->ci_id)->first() ?? null;
-            // Format the data for CSV export
-            $csvData[] = [
-                'Hall Code' => $hall->hall_code,
-                'CenterCode & Name' => $hall->center_code . ' - ' . $hall->centername,
-                'Hall Name' => $hall->venue->venue_name,
-                'Address' => $hall->venue->venue_address,
-                'Phone' => $hall->venue->venue_phone,
-                'GOVT OR PVT' => $hall->venue->venue_category,
-                'DIST. FROM COLL.' => $hall->venue->venue_treasury_office,
-                'DIST. FROM RLWY/BUS STN' => $hall->venue->venue_distance_railway,
-                'CI NAME & ADDRESS' => $ci->ci_name . ' - ' . $ci->ci_phone,
-                'CI PHONE' => $ci->ci_phone,
-                'CI EMAIL' => $ci->ci_email,
-                'EXAM DATE' => $hall->exam_date,
-                'EXAM SESSION' => $hall->exam_session,
-                'GPS_COORD' => $hall->venue->venue_latitude . ',' . $hall->venue->venue_longitude,
+        if (count($confirmedHalls) === 0) {
+            return redirect()->back()->with('error', 'No confirmed halls found for this exam.');
+        }
+
+        // Format the exam details for the main header
+        $examDate = $exam->exam_main_startdate ?? ''; // Add appropriate field for exam date
+        $examName = $exam->exam_main_name ?? ''; // Add appropriate field for exam name
+        $notificationNumber = $exam->exam_main_notification ?? ''; // Add appropriate field for notification number
+
+        // Format the main header text (everything in uppercase)
+        $mainHeaderText = strtoupper("NOTFN NO.{$notificationNumber}_{$examName} (DOE: {$examDate})");
+
+        // Create Excel file
+        $fileName = "confirmed_halls_exam_{$examId}.xlsx";
+
+        // Column headers
+        $columnHeaders = [
+            'HALL CODE',
+            'CENTRE CODE',
+            'CENTRE NAME',
+            'NAME OF THE SCHOOL/COLLEGE',
+            'ADDRESS 1',
+            'ADDRESS 2',
+            'PIN CODE',
+            'LAND MARK',
+            'PHONE',
+            'CAPACITY',
+            'GOVT OR PVT',
+            'DIST. FROM COLL.(KM)',
+            'DIST. FROM RLWY/BUS STN(KM)',
+            'COACH/MALP/REM/SENS',
+            'CI NAME / CI DESIGNATION',
+            'ADDRESS 1',
+            'ADDRESS 2',
+            'PIN CODE',
+            'CI MOBILE',
+            'MAIL ID',
+            'GPS COORDINATES'
+        ];
+
+        // Define specific column widths
+        $correctionFactor = 1.1; // Adjust this value as needed
+        $columnWidths = [
+            'A' => 4.89 * $correctionFactor,
+            'B' => 5.67 * $correctionFactor,
+            'C' => 14.56 * $correctionFactor,
+            'D' => 20.11 * $correctionFactor,
+            'E' => 16.82 * $correctionFactor,
+            'F' => 8.78 * $correctionFactor,
+            'G' => 6.22 * $correctionFactor,
+            'H' => 11.67 * $correctionFactor,
+            'I' => 5.56 * $correctionFactor,
+            'J' => 6.22 * $correctionFactor,
+            'K' => 5.56 * $correctionFactor,
+            'L' => 4.78 * $correctionFactor,
+            'M' => 6.67 * $correctionFactor,
+            'N' => 5.89 * $correctionFactor,
+            'O' => 17.78 * $correctionFactor,
+            'P' => 16.98 * $correctionFactor,
+            'Q' => 13.22 * $correctionFactor,
+            'R' => 5.67 * $correctionFactor,
+            'S' => 5.22 * $correctionFactor,
+            'T' => 10.78 * $correctionFactor,
+            'U' => 11.67 * $correctionFactor
+        ];
+
+        // Using PhpSpreadsheet
+        return response()->streamDownload(function () use ($confirmedHalls, $columnHeaders, $exam, $mainHeaderText, $columnWidths) {
+            $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+
+            // Get the highest column letter
+            $highestColumnIndex = count($columnHeaders);
+            $highestColumnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($highestColumnIndex);
+
+            // Add the main header spanning all columns in row 1
+            $sheet->setCellValue('A1', $mainHeaderText);
+            $sheet->mergeCells('A1:' . $highestColumnLetter . '1');
+
+            // Style the main header (Calibri 18 Bold)
+            $mainHeaderStyle = [
+                'font' => [
+                    'name' => 'Calibri',
+                    'bold' => true,
+                    'size' => 18
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000'] // Black thin border
+                    ]
+                ]
+            
             ];
-        }
+            $sheet->getStyle('A1:' . $highestColumnLetter . '1')->applyFromArray($mainHeaderStyle);
+            $sheet->getRowDimension(1)->setRowHeight(30);
 
-        // Generate the CSV string
-        $csvString = fopen('php://temp', 'r+');
-        fputcsv($csvString, array_keys($csvData[0]));
-        foreach ($csvData as $row) {
-            $row['Hall Code'] = "\t" . $row['Hall Code']; // Add tab space to Hall Code
-            fputcsv($csvString, $row);
-        }
-        rewind($csvString);
+            // Create column header style (Verdana 10 Bold)
+            $columnHeaderStyle = [
+                'font' => [
+                    'name' => 'Verdana',
+                    'bold' => true,
+                    'size' => 10
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                    'wrapText' => true
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000'] // Black thin border
+                    ]
+                ]            
+            ];
 
-        // Return the CSV string as a response
-        return response(stream_get_contents($csvString), 200)
-            ->header('Content-Type', 'text/csv')
-            ->header('Content-Disposition', 'attachment; filename="confirmed_halls_exam_' . $examId . '.csv"');
+            // Add column headers with styling spanning rows 2 and 3
+            foreach ($columnHeaders as $colIndex => $header) {
+                $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1);
+                $sheet->setCellValue($columnLetter . '2', $header);
+
+                // Merge cells for column header (rows 2 and 3)
+                $sheet->mergeCells($columnLetter . '2:' . $columnLetter . '3');
+
+                // Apply column header style
+                $sheet->getStyle($columnLetter . '2:' . $columnLetter . '3')->applyFromArray($columnHeaderStyle);
+            }
+
+            // Set row height for column header rows
+            $sheet->getRowDimension(2)->setRowHeight(81);
+            $sheet->getRowDimension(3)->setRowHeight(81);
+
+            // Set specific column widths
+            foreach ($columnWidths as $column => $width) {
+                $sheet->getColumnDimension($column)->setWidth($width);
+
+                // Disable autosize for columns with specific widths
+                $sheet->getColumnDimension($column)->setAutoSize(false);
+            }
+
+            // Standard data cell style with word wrap
+            $dataCellStyle = [
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                    'wrapText' => true
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000'] // Black thin border
+                    ]
+                ]
+            
+            ];
+
+            // Special vertical text alignment for columns I, R and S
+            $verticalTextStyle = [
+                'alignment' => [
+                    'textRotation' => 90, // Rotation for bottom-to-top text
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_BOTTOM,
+                    'wrapText' => true
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000'] // Black thin border
+                    ]
+                ]
+            
+            ];
+
+            // Add data (all in uppercase)
+            $rowIndex = 4; // Start data from row 4 since main header and column headers take rows 1-3
+            $totalCapacity = 0; // Initialize total capacity counter
+            foreach ($confirmedHalls as $hall) {
+                $ci = ChiefInvigilator::where('ci_venue_id', $hall->venue_code)
+                    ->where('ci_id', $hall->ci_id)
+                    ->first() ?? null;
+                // Get the capacity value and add to total
+                $capacity = intval($exam->exam_main_candidates_for_hall ?? '0');
+                $totalCapacity += $capacity;
+                // Format CI name and designation with line break
+                $ciNameDesignation = '';
+                if ($ci) {
+                    $ciNameDesignation = strtoupper($ci->ci_name) . ", " . "\n" . strtoupper($ci->ci_designation);
+                }
+
+                // Format the data (convert all to uppercase)
+                $rowData = [
+                    strtoupper($hall->hall_code),
+                    strtoupper($hall->center_code),
+                    strtoupper($hall->center->center_name),
+                    strtoupper($hall->venue->venue_name),
+                    strtoupper($hall->venue->venue_address),
+                    strtoupper(($hall->center->center_name . ', ' . ($hall->district->district_name ?? ''))),
+                    strtoupper($hall->venue->venue_pincode ?? 'N/A'),
+                    strtoupper($hall->venue->venue_landmark ?? 'N/A'),
+                    strtoupper($hall->venue->venue_phone),
+                    strtoupper($exam->exam_main_candidates_for_hall ?? '0'),
+                    strtoupper($hall->venue->venue_category),
+                    strtoupper($hall->venue->venue_treasury_office),
+                    strtoupper($hall->venue->venue_distance_railway),
+                    ' - ',
+                    $ciNameDesignation, // CI name and designation with line break
+                    strtoupper($hall->venue->venue_address),
+                    strtoupper(($hall->center->center_name . ', ' . ($hall->district->district_name ?? ''))),
+                    strtoupper($hall->venue->venue_pincode ?? 'N/A'),
+                    strtoupper($ci ? $ci->ci_phone : ''),
+                    strtoupper($ci ? $ci->ci_email : ''),
+                    strtoupper(($hall->venue->venue_latitude . ',' . $hall->venue->venue_longitude)),
+                ];
+
+                foreach ($rowData as $colIndex => $value) {
+                    $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1);
+                    $sheet->setCellValue($columnLetter . $rowIndex, $value);
+
+                    // Apply vertical text for columns R and S
+                    if ($columnLetter == 'I' || $columnLetter == 'R' || $columnLetter == 'S') {
+                        $sheet->getStyle($columnLetter . $rowIndex)->applyFromArray($verticalTextStyle);
+                    } else {
+                        // Apply standard word wrap style to all other data cells
+                        $sheet->getStyle($columnLetter . $rowIndex)->applyFromArray($dataCellStyle);
+                    }
+                }
+
+                // Set row height to 81 for data rows
+                $sheet->getRowDimension($rowIndex)->setRowHeight(91);
+
+                $rowIndex++;
+            }
+            // Add the total row at the bottom
+            $totalRowIndex = $rowIndex;
+
+            // Create total label that spans two columns (H and I)
+            $sheet->setCellValue('H' . $totalRowIndex, 'TOTAL');
+            $sheet->mergeCells('H' . $totalRowIndex . ':I' . $totalRowIndex);
+
+            // Add the total capacity value
+            $sheet->setCellValue('J' . $totalRowIndex, $totalCapacity);
+
+            // Style the total row
+            $totalStyle = [
+                'font' => [
+                    'name' => 'Calibri',
+                    'bold' => true,
+                    'size' => 14
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000'] // Black thin border
+                    ]
+                ]
+            
+            ];
+
+            // Apply bold Calibri 14 to the total row
+            $sheet->getStyle('H' . $totalRowIndex . ':J' . $totalRowIndex)->applyFromArray($totalStyle);
+
+            // Set appropriate row height for the total row
+            $sheet->getRowDimension($totalRowIndex)->setRowHeight(25);
+
+            // Create writer and output
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"'
+        ]);
     }
 
 

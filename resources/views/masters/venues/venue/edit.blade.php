@@ -30,9 +30,9 @@
             <div class="row">
                 <div class="col-sm-12">
                     <!-- <div class="card">
-                                  <div class="card-body py-0">
-                                     Your content here
-                                  </div> -->
+                                      <div class="card-body py-0">
+                                         Your content here
+                                      </div> -->
                 </div>
                 <div class="tab-content">
                     <div>
@@ -90,11 +90,13 @@
                                                 </div>
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="district">District <span class="text-danger">*</span></label>
-                                                        <select class="form-control @error('district') is-invalid @enderror" id="district" name="district" required>
+                                                        <label class="form-label" for="district">District <span
+                                                                class="text-danger">*</span></label>
+                                                        <select class="form-control @error('district') is-invalid @enderror"
+                                                            id="district" name="district" required>
                                                             <option value="">Select District</option>
                                                             @foreach ($districts as $district)
-                                                                <option value="{{ $district->district_code }}" 
+                                                                <option value="{{ $district->district_code }}"
                                                                     {{ $district->district_code == old('district', $venue->venue_district_id ?? '') ? 'selected' : '' }}>
                                                                     {{ $district->district_name }}
                                                                 </option>
@@ -105,14 +107,16 @@
                                                         @enderror
                                                     </div>
                                                 </div>
-                                                
+
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="center">Center <span class="text-danger">*</span></label>
-                                                        <select class="form-control @error('center') is-invalid @enderror" id="center" name="center" required>
+                                                        <label class="form-label" for="center">Center <span
+                                                                class="text-danger">*</span></label>
+                                                        <select class="form-control @error('center') is-invalid @enderror"
+                                                            id="center" name="center" required>
                                                             <option value="">Select Center</option>
                                                             @foreach ($centers as $center)
-                                                                <option value="{{ $center->center_code }}" 
+                                                                <option value="{{ $center->center_code }}"
                                                                     {{ $center->center_code == old('center', $venue->venue_center_id ?? '') ? 'selected' : '' }}>
                                                                     {{ $center->center_name }}
                                                                 </option>
@@ -123,7 +127,7 @@
                                                         @enderror
                                                     </div>
                                                 </div>
-                                                
+
 
                                                 <div class="col-sm-12">
                                                     <div class="mb-3">
@@ -291,6 +295,19 @@
                                                 </div>
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
+                                                        <label class="form-label ">Pin Code<span
+                                                                class="text-danger">*</span></label>
+                                                        <input type="number"
+                                                            value="{{ old('pin_code', $venue->venue_pincode) }}"
+                                                            class="form-control no-arrows @error('pin_code') is-invalid @enderror"
+                                                            id="pin_code" name="pin_code" placeholder="600001" required>
+                                                        @error('pin_code')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="mb-3">
                                                         <label class="form-label">Password <small>(leave blank to keep
                                                                 current)</small></label>
                                                         <input type="password"
@@ -321,7 +338,17 @@
                                                         @enderror
                                                     </div>
                                                 </div>
-
+                                                <div class="col-sm-12">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Landmark <span
+                                                                class="text-danger">*</span></label>
+                                                        <textarea class="form-control @error('landmark') is-invalid @enderror" id="landmark" name="landmark" required
+                                                            placeholder="NEAR TO NEW BUS STAND">{{ old('landmark', $venue->venue_landmark) }}</textarea>
+                                                        @error('landmark')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
                                                         <label class="form-label" for="dt_railway">Distance from
@@ -520,48 +547,49 @@
         });
     </script>
 
-<script>
-    // Check if jQuery is available
-    if (typeof jQuery === 'undefined') {
-        console.error('jQuery is not loaded. Please include it in your project.');
-    }
+    <script>
+        // Check if jQuery is available
+        if (typeof jQuery === 'undefined') {
+            console.error('jQuery is not loaded. Please include it in your project.');
+        }
 
-    $(document).ready(function() {
-        // Full list of centers from the server
-        const allCenters = @json($centers);
+        $(document).ready(function() {
+            // Full list of centers from the server
+            const allCenters = @json($centers);
 
-        // Handle district change event
-        $('#district').on('change', function() {
-            const selectedDistrictCode = $(this).val(); // Selected district code
-            const centerDropdown = $('#center'); // Center dropdown
+            // Handle district change event
+            $('#district').on('change', function() {
+                const selectedDistrictCode = $(this).val(); // Selected district code
+                const centerDropdown = $('#center'); // Center dropdown
 
-            // Clear previous options
-            centerDropdown.empty();
-            centerDropdown.append('<option value="">Select Center</option>');
+                // Clear previous options
+                centerDropdown.empty();
+                centerDropdown.append('<option value="">Select Center</option>');
 
-            if (selectedDistrictCode) {
-                // Filter centers by selected district
-                const filteredCenters = allCenters.filter(center => 
-                    center.center_district_id == selectedDistrictCode
-                );
-
-                // Populate centers
-                filteredCenters.forEach(center => {
-                    const selected = "{{ old('center', $venue->venue_center_id ?? '') }}" == center.center_code ? 'selected' : '';
-                    centerDropdown.append(
-                        `<option value="${center.center_code}" ${selected}>${center.center_name}</option>`
+                if (selectedDistrictCode) {
+                    // Filter centers by selected district
+                    const filteredCenters = allCenters.filter(center =>
+                        center.center_district_id == selectedDistrictCode
                     );
-                });
+
+                    // Populate centers
+                    filteredCenters.forEach(center => {
+                        const selected = "{{ old('center', $venue->venue_center_id ?? '') }}" ==
+                            center.center_code ? 'selected' : '';
+                        centerDropdown.append(
+                            `<option value="${center.center_code}" ${selected}>${center.center_name}</option>`
+                        );
+                    });
+                }
+            });
+
+            // Trigger change event on page load for pre-selection
+            const oldDistrict = "{{ old('district', $venue->venue_district_id ?? '') }}";
+            if (oldDistrict) {
+                $('#district').val(oldDistrict).trigger('change');
             }
         });
-
-        // Trigger change event on page load for pre-selection
-        const oldDistrict = "{{ old('district', $venue->venue_district_id ?? '') }}";
-        if (oldDistrict) {
-            $('#district').val(oldDistrict).trigger('change');
-        }
-    });
-</script>
+    </script>
 
 
 

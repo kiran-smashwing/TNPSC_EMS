@@ -1296,7 +1296,7 @@ $replacementTime = $hasReplacement
                                                                     class="feather icon-info mx-1"></i>verify</a>
                                                             @if ($is_consolidate_answered)
                                                                 <a href="{{ route('download.report', ['examId' => $session->currentexam->exam_main_no, 'exam_date' => $session->exam_sess_date, 'exam_session' => $session->exam_sess_session]) }}"
-                                                                    class="me-2 btn btn-sm btn-light-info">
+                                                                    class="me-2 btn btn-sm btn-light-info" target="_blank">
                                                                     <i class="feather icon-download mx-1"></i>Download
                                                                 </a>
                                                             @endif

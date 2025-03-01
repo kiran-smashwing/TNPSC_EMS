@@ -510,7 +510,7 @@
                                                                 Venue</div>
                                                         </div>
                                                         <div class="mt-2">
-                                                            @if (isset($venueConsents->consent_status))
+                                                            @if (isset($venueConsents->consent_status)&& $venueConsents->consent_status != 'requested')
                                                                 <a href="{{ route('venues.show-venue-consent', $session->exam_main_no) }}"
                                                                     class="me-2 btn btn-sm btn-light-primary m-2"><i
                                                                         class="feather icon-eye mx-1"></i>View</a>

@@ -15,6 +15,7 @@ use App\Models\ExamConfirmedHalls;
 use Illuminate\Http\Request;
 use App\Models\ExamMaterialsScan;
 use App\Models\ExamMaterialsData;
+use Illuminate\Support\Facades\Storage;
 use App\Models\QpBoxLog;
 use Spatie\Browsershot\Browsershot;
 
@@ -131,8 +132,8 @@ class CIConsolidateController extends Controller
         $formattedScribes = $scribeAssignments->map(
             fn($a) =>
             "{$a['reg_no']} (Scribe: " .
-            ($scribes[$a['scribe_id']]->scribe_name ?? 'N/A') . "/" .
-            ($scribes[$a['scribe_id']]->scribe_phone ?? 'N/A') . ")"
+                ($scribes[$a['scribe_id']]->scribe_name ?? 'N/A') . "/" .
+                ($scribes[$a['scribe_id']]->scribe_phone ?? 'N/A') . ")"
         )->all();
         $candidateRemarksData = CICandidateLogs::where('exam_id', $examId)
             ->where('ci_id', $user->ci_id)
@@ -276,35 +277,6 @@ class CIConsolidateController extends Controller
             ->select(DB::raw("consolidate_answer->'" . $exam_date . "'->'" . $exam_session . "' as consolidate_answer"))
             ->first();
         $consolidateChecklist = CIChecklist::where('ci_checklist_type', 'Self Declaration')->get();
-
-        // return view('PDF.Reports.ci-consolidate-report', compact(
-        //     'exam_data',
-        //     'exam_session_type',
-        //     'exam_date',
-        //     'user',
-        //     'hall_code',
-        //     'timeReceivingMaterial',
-        //     'qpboxTimeLog',
-        //     'nonPersonalisedOMRCandidates',
-        //     'blankOMRSheetCandidates',
-        //     'usedPencilCandidates',
-        //     'usedOtherPenCanidates',
-        //     'formattedScribes',
-        //     'wronglySeatedCandidates',
-        //     'usedOMRofOtherCandidates',
-        //     'indulgedMalpracticeCandidates',
-        //     'leftTheExamHallCandidates',
-        //     'formattedBundles',
-        //     'videographyAnswer',
-        //     'allocatedCount',
-        //     'totalAdditionalCandidates',
-        //     'candidateAttendance',
-        //     'totalQPsReceived',
-        //     'totalOMRsReceived',
-        //     'totalPaperReplacements',
-        //     'consolidateChecklist',
-        //     'consolidateAnswer'
-        // ));
         $html = view('PDF.Reports.ci-consolidate-report', compact(
             'exam_data',
             'exam_session_type',
@@ -333,7 +305,18 @@ class CIConsolidateController extends Controller
             'consolidateChecklist',
             'consolidateAnswer'
         ))->render();
+        $examId = $examId; // Ensure you get the correct exam ID
+        $examDate = \Carbon\Carbon::parse($exam_date)->format('d-m-Y'); // Format exam date
+        // Define the dynamic folder path
+        $folderPath = 'reports/consolidate-report/' . $examId; // Folder for the specific exam
 
+        // Ensure the folder exists
+        Storage::disk('public')->makeDirectory($folderPath);
+
+        // Define the filename with center code, hall code, and session type
+        $filename = 'consolidate-report-' . $user->center->center_code . '-' . $hall_code . '-'. $examDate . '-'. $exam_session_type . '.pdf';
+        // Full file path inside the dynamically created folder
+        $filePath = $folderPath . '/' . $filename;
         // Generate the PDF using Browsershot
         $pdf = Browsershot::html($html)
             ->setOption('landscape', false)
@@ -357,14 +340,9 @@ class CIConsolidateController extends Controller
             ->scale(1)
             ->format('A4')
             ->pdf();
-
-        // Define a unique filename for the report
-        $filename = 'consolidated-report-' . time() . '.pdf';
-
-        // Return the PDF as a response
+            Storage::disk('public')->put($filePath, $pdf);
         return response($pdf)
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
     }
-
 }

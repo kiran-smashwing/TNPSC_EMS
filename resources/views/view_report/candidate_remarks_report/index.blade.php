@@ -73,7 +73,7 @@
                             <h5>Filter Candidate Remarks</h5>
                         </div>
                         <div class="card-body">
-                            <form action="{{route('candidate-remarks.report.overall')}}" method="GET" id="filterForm">
+                            <form action="{{route('candidate-remarks.report.overall')}}" target="_blank" method="GET" id="filterForm">
                                 @csrf
                                 <div class="row">
                                     <!-- Notification No -->

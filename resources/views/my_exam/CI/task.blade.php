@@ -342,7 +342,7 @@
                                                                 class="feather icon-info mx-1"></i>Self declaration</a>
                                                         @if ($is_utility_answered)
                                                             <a href="{{ route('download.utilireport', ['examid' => $session->exam_main_no]) }}"
-                                                                class="me-2 btn btn-sm btn-light-info"><i
+                                                                class="me-2 btn btn-sm btn-light-info" target="_blank"><i
                                                                     class="feather icon-download mx-1"></i>Download</a>
                                                         @endif
                                                     </div>

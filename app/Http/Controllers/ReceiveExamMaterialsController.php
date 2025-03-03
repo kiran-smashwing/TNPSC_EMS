@@ -109,7 +109,7 @@ class ReceiveExamMaterialsController extends Controller
             if (!$examMaterials) {
                 $examMaterials = ExamMaterialsData::where([
                     'exam_id' => $examId,
-                    'qr_code' => $request->qr_code
+                    'qr_code' => $qr_code
                 ])
                     ->with('center')
                     ->with('district')
@@ -286,7 +286,8 @@ class ReceiveExamMaterialsController extends Controller
     {
         // Validate request
         $request->validate([
-            'qr_code' => 'required|string',
+            'qr_codes' => 'required|array',
+            'qr_codes.*' => 'required|string',
         ]);
 
         // Get authenticated user
@@ -305,105 +306,141 @@ class ReceiveExamMaterialsController extends Controller
                 'message' => 'User not found or not authorized'
             ], 403); // 403 is for authorization errors
         }
-        // Find exam materials
-        $examMaterials = ExamMaterialsData::where([
-            'exam_id' => $examId,
-            'district_code' => '01', //Only for Chennai District
-            'qr_code' => $request->qr_code
-        ])->first();
-
-        if (!$examMaterials) {
+        $results = [];        // To hold the result for each QR code
+        $successfulScans = []; // To hold details of successfully scanned codes
+        foreach ($request->qr_codes as $qr_code) {
+            // Trim whitespace and skip if empty
+            $qr_code = trim($qr_code);
+            if (empty($qr_code)) {
+                continue;
+            }
+            // Find exam materials
             $examMaterials = ExamMaterialsData::where([
                 'exam_id' => $examId,
-                'qr_code' => $request->qr_code
-            ])
-                ->with('center')
-                ->with('district')
-                ->first();
-            $msg = "This Qr Code belongs to the following District : " . $examMaterials->district->district_name . " , Center : " . $examMaterials->center->center_name . " , Hall Code: " . $examMaterials->hall_code;
-            return response()->json([
-                'status' => 'error',
-                'message' => $msg
-            ], 404);
-        }
+                'district_code' => '01', //Only for Chennai District
+                'qr_code' => $qr_code
+            ])->first();
 
-        // Check if already scanned
-        if (
-            ExamMaterialsScan::where([
+            if (!$examMaterials) {
+                $examMaterials = ExamMaterialsData::where([
+                    'exam_id' => $examId,
+                    'qr_code' => $qr_code
+                ])
+                    ->with('center')
+                    ->with('district')
+                    ->first();
+                if ($examMaterials) {
+                    $msg = "This QR Code belongs to District: "
+                        . $examMaterials->district->district_name
+                        . ", Center: "
+                        . $examMaterials->center->center_name
+                        . ", Hall Code: "
+                        . $examMaterials->hall_code;
+                    $results[] = [
+                        'qr_code' => $qr_code,
+                        'status' => 'error',
+                        'message' => $msg,
+                    ];
+                    continue;
+                } else {
+                    // Not found at all
+                    $results[] = [
+                        'qr_code' => $qr_code,
+                        'status' => 'error',
+                        'message' => "Exam material not found for QR code: $qr_code",
+                    ];
+                    continue;
+                }
+            }
+
+            // Check if already scanned
+            if (
+                ExamMaterialsScan::where([
+                    'exam_material_id' => $examMaterials->id,
+                ])->exists()
+            ) {
+                $results[] = [
+                    'qr_code' => $qr_code,
+                    'status' => 'error',
+                    'message' => 'QR code has already been scanned',
+                ];
+                continue;
+            }
+
+            // Create scan record in district scanned at because QD Receives Materials for Chennai District Instead of chennai district collectrate.  
+            ExamMaterialsScan::create([
                 'exam_material_id' => $examMaterials->id,
-            ])->exists()
-        ) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'QR code has already been scanned'
-            ], 409);
-        }
-
-        // Create scan record in district scanned at because QD Receives Materials for Chennai District Instead of chennai district collectrate.  
-        ExamMaterialsScan::create([
-            'exam_material_id' => $examMaterials->id,
-            'district_scanned_at' => now()
-        ]);
-        // Audit Logging
-        $currentUser = current_user();
-        $userName = $currentUser ? $currentUser->display_name : 'Unknown';
-        $metadata = ['user_name' => $userName];
-
-        $examMaterialDetails = [
-            'qr_code' => $request->qr_code,
-            'district' => $examMaterials->district->district_name,
-            'center' => $examMaterials->center->center_name,
-            'hall_code' => $examMaterials->hall_code,
-            'scan_time' => now()->toDateTimeString()
-        ];
-
-        // Check existing log
-        $existingLog = $this->auditService->findLog([
-            'exam_id' => $examId,
-            'task_type' => 'receive_materials_printer_to_hq',
-            'action_type' => 'qr_scan',
-        ]);
-
-        if ($existingLog) {
-            // Update existing log
-            $existingScans = $existingLog->after_state['scanned_codes'] ?? [];
-            $firstScan = $existingScans[0] ?? null; // Keep the first scan
-
-            // Update with first and current scan only
-            $updatedScans = [
-                $firstScan,
-                $examMaterialDetails // Current scan becomes the last scan
+                'district_scanned_at' => now()
+            ]);
+            // Prepare details for audit logging
+            $examMaterialDetails = [
+                'qr_code' => $qr_code,
+                'district' => $examMaterials->district->district_name,
+                'center' => $examMaterials->center->center_name,
+                'hall_code' => $examMaterials->hall_code,
+                'scan_time' => now()->toDateTimeString(),
             ];
 
-            $totalScans = ($existingLog->after_state['total_scanned'] ?? 0) + 1;
+            // Record a successful scan result
+            $results[] = [
+                'qr_code' => $qr_code,
+                'status' => 'success',
+                'message' => 'QR code scanned successfully',
+            ];
 
-            $this->auditService->updateLog(
-                logId: $existingLog->id,
-                metadata: $metadata,
-                afterState: [
-                    'scanned_codes' => $updatedScans,
-                    'total_scanned' => $totalScans
-                ],
-                description: "Scanned QR code: {$request->qr_code} (Total scanned: $totalScans)"
-            );
-        } else {
-            // Create new log for first scan
-            $this->auditService->log(
-                examId: $examId,
-                actionType: 'qr_scan',
-                taskType: 'receive_materials_printer_to_hq',
-                beforeState: null,
-                afterState: [
-                    'scanned_codes' => [$examMaterialDetails],
-                    'total_scanned' => 1
-                ],
-                description: "Initial QR code scan: {$request->qr_code}",
-                metadata: $metadata
-            );
+            $successfulScans[] = $examMaterialDetails;
+        }
+        if (count($successfulScans) > 0) {
+            // Audit Logging
+            $currentUser = current_user();
+            $userName = $currentUser ? $currentUser->display_name : 'Unknown';
+            $metadata = [
+                'user_name' => $userName,
+                'district_code' => '01',
+            ];
+
+            // Check existing log
+            $existingLog = $this->auditService->findLog([
+                'exam_id' => $examId,
+                'task_type' => 'receive_materials_printer_to_hq',
+                'action_type' => 'qr_scan',
+            ]);
+
+            if ($existingLog) {
+                // Update existing log
+                $existingScans = $existingLog->after_state['scanned_codes'] ?? [];
+                $updatedScans = array_merge($existingScans, $successfulScans);
+                $totalScans = ($existingLog->after_state['total_scanned'] ?? 0) + count($successfulScans);
+
+
+                $this->auditService->updateLog(
+                    logId: $existingLog->id,
+                    metadata: $metadata,
+                    afterState: [
+                        'scanned_codes' => $updatedScans,
+                        'total_scanned' => $totalScans
+                    ],
+                    description: "Bulk scanned QR codes (Total scanned: $totalScans)"
+                );
+            } else {
+                // Create new log for first scan
+                $this->auditService->log(
+                    examId: $examId,
+                    actionType: 'qr_scan',
+                    taskType: 'receive_materials_printer_to_hq',
+                    beforeState: null,
+                    afterState: [
+                        'scanned_codes' => $successfulScans,
+                        'total_scanned' => count($successfulScans)
+                    ],
+                    description: "Initial QR code scan",
+                    metadata: $metadata
+                );
+            }
         }
         return response()->json([
             'status' => 'success',
-            'message' => 'QR code scanned successfully'
+            'results' => $results,
         ], 200);
     }
 
@@ -447,7 +484,8 @@ class ReceiveExamMaterialsController extends Controller
     {
         // Validate request
         $request->validate([
-            'qr_code' => 'required|string',
+            'qr_codes' => 'required|array',
+            'qr_codes.*' => 'required|string',
         ]);
 
         // Get authenticated user
@@ -462,125 +500,153 @@ class ReceiveExamMaterialsController extends Controller
                 'message' => 'User not found or not authorized'
             ], 403); // 403 is for authorization errors
         }
-
-        // Find exam materials
-        $examMaterials = ExamMaterialsData::where([
-            'exam_id' => $examId,
-            'center_code' => $user->center_code,
-            'qr_code' => $request->qr_code
-        ])->first();
-
-        if (!$examMaterials) {
+        $results = [];        // To hold the result for each QR code
+        $successfulScans = []; // To hold details of successfully scanned codes
+        foreach ($request->qr_codes as $qr_code) {
+            // Trim whitespace and skip if empty
+            $qr_code = trim($qr_code);
+            if (empty($qr_code)) {
+                continue;
+            }
+            // Find exam materials
             $examMaterials = ExamMaterialsData::where([
                 'exam_id' => $examId,
-                'qr_code' => $request->qr_code
-            ])
-                ->with('center')
-                ->with('district')
-                ->first();
-            $msg = "This Qr Code belongs to the following District : " . $examMaterials->district->district_name . " , Center : " . $examMaterials->center->center_name . " , Hall Code: " . $examMaterials->hall_code;
-            return response()->json([
-                'status' => 'error',
-                'message' => $msg
-            ], 404);
-        }
-        // Check if already scanned with a valid timestamp
-        $existingScan = ExamMaterialsScan::where([
-            'exam_material_id' => $examMaterials->id,
-        ])->first();
+                'center_code' => $user->center_code,
+                'qr_code' => $qr_code
+            ])->first();
 
-        // Check if already scanned
-        if (
-            ExamMaterialsScan::where([
-                'exam_material_id' => $examMaterials->id,
-            ])->whereNotNull('center_scanned_at')->exists()
-        ) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'QR code has already been scanned'
-            ], 409);
-        }
+            if (!$examMaterials) {
+                $examMaterials = ExamMaterialsData::where([
+                    'exam_id' => $examId,
+                    'qr_code' => $qr_code
+                ])
+                    ->with('center')
+                    ->with('district')
+                    ->first();
+                if ($examMaterials) {
+                    $msg = "This QR Code belongs to District: "
+                        . $examMaterials->district->district_name
+                        . ", Center: "
+                        . $examMaterials->center->center_name
+                        . ", Hall Code: "
+                        . $examMaterials->hall_code;
+                    $results[] = [
+                        'qr_code' => $qr_code,
+                        'status' => 'error',
+                        'message' => $msg,
+                    ];
+                    continue;
+                } else {
+                    // Not found at all
+                    $results[] = [
+                        'qr_code' => $qr_code,
+                        'status' => 'error',
+                        'message' => "Exam material not found for QR code: $qr_code",
+                    ];
+                    continue;
+                }
+            }
+            // Check if already scanned (i.e. center_scanned_at is set)
+            if (
+                ExamMaterialsScan::where('exam_material_id', $examMaterials->id)
+                    ->whereNotNull('center_scanned_at')->exists()
+            ) {
+                $message = 'QR code has already been scanned';
+                $results[] = [
+                    'qr_code' => $qr_code,
+                    'status' => 'error',
+                    'message' => $message,
+                ];
+                continue;
+            }
+            // Check if there is an existing scan record
+            $existingScan = ExamMaterialsScan::where('exam_material_id', $examMaterials->id)->first();
 
-        // Update the existing record if center_scanned_at is null
-        if ($existingScan && !$existingScan->center_scanned_at) {
-            $existingScan->update([
-                'center_scanned_at' => now()
-            ]);
-        } else {
-            // Create a new record if no existing scan record is found
-            ExamMaterialsScan::create([
-                'exam_material_id' => $examMaterials->id,
-                'center_scanned_at' => now()
-            ]);
-        }
-        // Audit Logging
-        $currentUser = current_user();
-        $userName = $currentUser ? $currentUser->display_name : 'Unknown';
-        $metadata = [
-            'user_name' => $userName,
-            'district_code' => $currentUser->center_district_id,
-        ];
-
-        $tasktype = in_array($examMaterials->category, ['D1', 'D2'])
-            ? 'receive_materials_disitrct_to_center'
-            : 'receive_bundle_to_center';
-
-        $examMaterialDetails = [
-            'qr_code' => $request->qr_code,
-            'district' => $examMaterials->district->district_name,
-            'center' => $examMaterials->center->center_name,
-            'hall_code' => $examMaterials->hall_code,
-            'scan_time' => now()->toDateTimeString()
-        ];
-
-        // Check existing log
-        $existingLog = $this->auditService->findLog([
-            'exam_id' => $examId,
-            'task_type' => $tasktype,
-            'action_type' => 'qr_scan',
-            'user_id' => $user->center_id,
-        ]);
-
-        if ($existingLog) {
-            // Update existing log
-            $existingScans = $existingLog->after_state['scanned_codes'] ?? [];
-            $firstScan = $existingScans[0] ?? null; // Keep the first scan
-
-            // Update with first and current scan only
-            $updatedScans = [
-                $firstScan,
-                $examMaterialDetails // Current scan becomes the last scan
+            if ($existingScan && !$existingScan->center_scanned_at) {
+                // Update the record if not yet scanned
+                $existingScan->update([
+                    'center_scanned_at' => now()
+                ]);
+            } else {
+                // Otherwise create a new scan record
+                ExamMaterialsScan::create([
+                    'exam_material_id' => $examMaterials->id,
+                    'center_scanned_at' => now()
+                ]);
+            }
+            // Prepare details for audit logging
+            $examMaterialDetails = [
+                'qr_code' => $qr_code,
+                'district' => $examMaterials->district->district_name,
+                'center' => $examMaterials->center->center_name,
+                'hall_code' => $examMaterials->hall_code,
+                'scan_time' => now()->toDateTimeString(),
+            ];
+            // Record a successful scan result
+            $results[] = [
+                'qr_code' => $qr_code,
+                'status' => 'success',
+                'message' => 'QR code scanned successfully',
             ];
 
-            $totalScans = ($existingLog->after_state['total_scanned'] ?? 0) + 1;
+            $successfulScans[] = $examMaterialDetails;
+        }
+        if (count($successfulScans) > 0) {
+            // Audit Logging
+            $currentUser = current_user();
+            $userName = $currentUser ? $currentUser->display_name : 'Unknown';
+            $metadata = [
+                'user_name' => $userName,
+                'district_code' => $currentUser->center_district_id,
+            ];
 
-            $this->auditService->updateLog(
-                logId: $existingLog->id,
-                metadata: $metadata,
-                afterState: [
-                    'scanned_codes' => $updatedScans,
-                    'total_scanned' => $totalScans
-                ],
-                description: "Scanned QR code: {$request->qr_code} (Total scanned: $totalScans)"
-            );
-        } else {
-            // Create new log for first scan
-            $this->auditService->log(
-                examId: $examId,
-                actionType: 'qr_scan',
-                taskType: $tasktype,
-                beforeState: null,
-                afterState: [
-                    'scanned_codes' => [$examMaterialDetails],
-                    'total_scanned' => 1
-                ],
-                description: "Initial QR code scan: {$request->qr_code}",
-                metadata: $metadata
-            );
+            $tasktype = in_array($examMaterials->category, ['D1', 'D2'])
+                ? 'receive_materials_disitrct_to_center'
+                : 'receive_bundle_to_center';
+
+            // Check existing log
+            $existingLog = $this->auditService->findLog([
+                'exam_id' => $examId,
+                'task_type' => $tasktype,
+                'action_type' => 'qr_scan',
+                'user_id' => $user->center_id,
+            ]);
+
+            if ($existingLog) {
+                // Update existing log
+                $existingScans = $existingLog->after_state['scanned_codes'] ?? [];
+                $updatedScans = array_merge($existingScans, $successfulScans);
+                $totalScans = ($existingLog->after_state['total_scanned'] ?? 0) + count($successfulScans);
+
+
+                $this->auditService->updateLog(
+                    logId: $existingLog->id,
+                    metadata: $metadata,
+                    afterState: [
+                        'scanned_codes' => $updatedScans,
+                        'total_scanned' => $totalScans
+                    ],
+                    description: "Bulk scanned QR codes (Total scanned: $totalScans)"
+                );
+            } else {
+                // Create new log for first scan
+                $this->auditService->log(
+                    examId: $examId,
+                    actionType: 'qr_scan',
+                    taskType: $tasktype,
+                    beforeState: null,
+                    afterState: [
+                        'scanned_codes' => $successfulScans,
+                        'total_scanned' => count($successfulScans)
+                    ],
+                    description: "Initial bulk QR code scan",
+                    metadata: $metadata
+                );
+            }
         }
         return response()->json([
             'status' => 'success',
-            'message' => 'QR code scanned successfully'
+            'results' => $results,
         ], 200);
     }
 
@@ -633,7 +699,8 @@ class ReceiveExamMaterialsController extends Controller
     {
         // Validate request
         $request->validate([
-            'qr_code' => 'required|string',
+            'qr_codes' => 'required|array',
+            'qr_codes.*' => 'required|string',
         ]);
 
         // Get authenticated user
@@ -648,144 +715,170 @@ class ReceiveExamMaterialsController extends Controller
                 'message' => 'User not found or not authorized'
             ], 403); // 403 is for authorization errors
         }
-
-        // Find exam materials
-        $examMaterials = ExamMaterialsData::where([
-            'exam_id' => $examId,
-            'mobile_team_id' => $user->mobile_id,
-            'qr_code' => $request->qr_code
-        ])->first();
-
-        if (!$examMaterials) {
+        $results = [];       // To hold result for each QR code
+        $auditByDate = [];   // To accumulate audit info keyed by exam_date
+        foreach ($request->qr_codes as $qr_code) {
+            // Trim whitespace and skip if empty
+            $qr_code = trim($qr_code);
+            if (empty($qr_code)) {
+                continue;
+            }
+            // Find exam materials
             $examMaterials = ExamMaterialsData::where([
                 'exam_id' => $examId,
-                'qr_code' => $request->qr_code
-            ])
-                ->with('center')
-                ->with('district')
-                ->first();
+                'mobile_team_id' => $user->mobile_id,
+                'qr_code' => $qr_code
+            ])->first();
 
-            // Check if $examMaterials is still null
             if (!$examMaterials) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Invalid QR Code. No matching exam materials found.'
-                ], 404);
+                $examMaterials = ExamMaterialsData::where([
+                    'exam_id' => $examId,
+                    'qr_code' => $qr_code
+                ])
+                    ->with('center')
+                    ->with('district')
+                    ->first();
+                if ($examMaterials) {
+                    $msg = "This QR Code belongs to District: "
+                        . $examMaterials->district->district_name
+                        . ", Center: "
+                        . $examMaterials->center->center_name
+                        . ", Hall Code: "
+                        . $examMaterials->hall_code;
+                    $results[] = [
+                        'qr_code' => $qr_code,
+                        'status' => 'error',
+                        'message' => $msg,
+                    ];
+                    continue;
+                } else {
+                    // Not found at all
+                    $results[] = [
+                        'qr_code' => $qr_code,
+                        'status' => 'error',
+                        'message' => "Exam material not found for QR code: $qr_code",
+                    ];
+                    continue;
+                }
             }
+            // Check if the exam material has already been scanned (mobile_team_scanned_at is not null)
+            if (
+                ExamMaterialsScan::where('exam_material_id', $examMaterials->id)
+                    ->whereNotNull('mobile_team_scanned_at')->exists()
+            ) {
+                $results[] = [
+                    'qr_code' => $qr_code,
+                    'status' => 'error',
+                    'message' => 'QR code has already been scanned'
+                ];
+                continue;
+            }
+            // Update existing scan record if available; otherwise, create a new record
+            $existingScan = ExamMaterialsScan::where('exam_material_id', $examMaterials->id)->first();
+            if ($existingScan && !$existingScan->mobile_team_scanned_at) {
+                $existingScan->update([
+                    'mobile_team_scanned_at' => now()
+                ]);
+            } else {
+                ExamMaterialsScan::create([
+                    'exam_material_id' => $examMaterials->id,
+                    'mobile_team_scanned_at' => now()
+                ]);
+            }
+            // Prepare details for last scanned material
+            $lastScannedMaterial = [
+                'district' => $examMaterials->district->district_name ?? 'Unknown',
+                'center' => $examMaterials->center->center_name ?? 'Unknown',
+                'hall_code' => $examMaterials->hall_code ?? 'Unknown',
+                'scan_timestamp' => now()->toDateTimeString()
+            ];
+            // Prepare metadata for audit logging (using current scan's QR code)
+            $metadata = [
+                'user_name' => $user->display_name ?? 'Unknown',
+                'mobile_team_id' => $user->mobile_id ?? null,
+                'qr_code' => $qr_code,
+                'scan_time' => now()->toDateTimeString()
+            ];
 
-            // Construct the error message safely
-            $msg = "This QR Code belongs to the following District: " .
-                ($examMaterials->district->district_name ?? 'Unknown') .
-                ", Center: " . ($examMaterials->center->center_name ?? 'Unknown') .
-                ", Hall Code: " . ($examMaterials->hall_code ?? 'Unknown');
-
-            return response()->json([
-                'status' => 'error',
-                'message' => $msg
-            ], 404);
-        }
-
-        // Check if already scanned with a valid timestamp
-        $existingScan = ExamMaterialsScan::where([
-            'exam_material_id' => $examMaterials->id,
-        ])->first();
-
-        // Check if already scanned
-        if (
-            ExamMaterialsScan::where([
-                'exam_material_id' => $examMaterials->id,
-            ])->whereNotNull('mobile_team_scanned_at')->exists()
-        ) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'QR code has already been scanned'
-            ], 409);
-        }
-
-        // Update the existing record if mobile_team_scanned_at is null
-        if ($existingScan && !$existingScan->mobile_team_scanned_at) {
-            $existingScan->update([
-                'mobile_team_scanned_at' => now()
-            ]);
-        } else {
-            // Create a new record if no existing scan record is found
-            ExamMaterialsScan::create([
-                'exam_material_id' => $examMaterials->id,
-                'mobile_team_scanned_at' => now()
-            ]);
-        }
-
-        // Prepare metadata
-        $metadata = [
-            'user_name' => $user->display_name ?? 'Unknown',
-            'mobile_team_id' => $user->mobile_id ?? null,
-            'qr_code' => $request->qr_code,
-            'scan_time' => now()->toDateTimeString(),
-        ];
-        $tasktype = in_array($examMaterials->category, ['D1', 'D2']) ? 'receive_materials_to_mobileteam_staff' :
+            // Determine task type based on exam material category
+            $tasktype = in_array($examMaterials->category, ['D1', 'D2']) ? 'receive_materials_to_mobileteam_staff' :
             'receive_bundle_to_mobileteam_staff';
 
-        // Get current date
-        $scanDate = $examMaterials->exam_date;
+            // Get the exam date as string (used as key in audit log)
+            $scanDate = strval($examMaterials->exam_date);
 
-        // Retrieve existing audit log
-        $existingLog = $this->auditService->findLog([
-            'exam_id' => $examId,
-            'task_type' => $tasktype,
-            'user_id' => $user->mobile_id
-        ]);
+            // Accumulate audit data: for each date, update last scanned material and increment count
+            if (!isset($auditByDate[$scanDate])) {
+                $auditByDate[$scanDate] = [
+                    'last_scanned_material' => $lastScannedMaterial,
+                    'total_scans' => 1
+                ];
+            } else {
+                $auditByDate[$scanDate]['last_scanned_material'] = $lastScannedMaterial;
+                $auditByDate[$scanDate]['total_scans'] += 1;
+            }
 
-        // Prepare scan details
-        $lastScannedMaterial = [
-            'district' => $examMaterials->district->district_name ?? 'Unknown',
-            'center' => $examMaterials->center->center_name ?? 'Unknown',
-            'hall_code' => $examMaterials->hall_code ?? 'Unknown',
-            'scan_timestamp' => now()->toDateTimeString()
-        ];
+            // Record successful scan result
+            $results[] = [
+                'qr_code' => $qr_code,
+                'status' => 'success',
+                'message' => 'QR code scanned successfully'
+            ];
+        } // end foreach
+        // Update the audit log if there were any successful scans
+        if (!empty($auditByDate)) {
+            // Fetch existing audit log for this exam, task type, and van duty staff
+            $existingLog = $this->auditService->findLog([
+                'exam_id' => $examId,
+                'task_type' => $tasktype,
+                'user_id' => $user->mobile_id,
+            ]);
 
-        // Ensure `after_state` is an array
-        $afterState = $existingLog ? (is_array($existingLog->after_state) ? $existingLog->after_state : json_decode($existingLog->after_state, true)) : [];
+            if ($existingLog) {
+                $afterState = is_array($existingLog->after_state)
+                    ? $existingLog->after_state
+                    : json_decode($existingLog->after_state, true);
+                $scanHistory = isset($afterState['scans_by_date']) && is_array($afterState['scans_by_date'])
+                    ? $afterState['scans_by_date']
+                    : [];
 
-        // Ensure `scans_by_date` is an array
-        $scanHistory = isset($afterState['scans_by_date']) && is_array($afterState['scans_by_date']) ? $afterState['scans_by_date'] : [];
+                // Merge the new audit data with existing history
+                foreach ($auditByDate as $dateKey => $newData) {
+                    if (isset($scanHistory[$dateKey])) {
+                        $scanHistory[$dateKey]['total_scans'] += $newData['total_scans'];
+                        $scanHistory[$dateKey]['last_scanned_material'] = $newData['last_scanned_material'];
+                    } else {
+                        $scanHistory[$dateKey] = $newData;
+                    }
+                }
+                $updatedAfterState = ['scans_by_date' => $scanHistory];
 
-        // Ensure $scanDate is treated as a string
-        $scanDateKey = strval($scanDate);
-
-        // Update scan history for the specific date
-        $scanHistory[$scanDateKey] = [
-            'last_scanned_material' => $lastScannedMaterial,
-            'total_scans' => isset($scanHistory[$scanDateKey]) ? $scanHistory[$scanDateKey]['total_scans'] + 1 : 1
-        ];
-
-        // Prepare updated `after_state`
-        $updatedAfterState = [
-            'scans_by_date' => $scanHistory
-        ];
-
-        // Update or insert log entry
-        if ($existingLog) {
-            $this->auditService->updateLog(
-                logId: $existingLog->id,
-                metadata: $metadata,
-                afterState: $updatedAfterState,
-                description: "Updated scan details for $scanDate. Total scans: {$scanHistory[$scanDateKey]['total_scans']}"
-            );
-        } else {
-            $this->auditService->log(
-                examId: $examId,
-                actionType: 'qr_scan',
-                taskType: $tasktype,
-                beforeState: null,
-                afterState: $updatedAfterState,
-                description: "Initial scan recorded for $scanDate.",
-                metadata: $metadata
-            );
+                // Update audit log entry
+                $this->auditService->updateLog(
+                    logId: $existingLog->id,
+                    metadata: $metadata, // using metadata from the last processed scan
+                    afterState: $updatedAfterState,
+                    description: "Updated scan details for dates: " . implode(", ", array_keys($auditByDate))
+                );
+            } else {
+                // Create a new audit log entry if none exists
+                $this->auditService->log(
+                    examId: $examId,
+                    actionType: 'qr_scan',
+                    taskType: $tasktype,
+                    beforeState: null,
+                    afterState: [
+                        'scans_by_date' => $auditByDate
+                    ],
+                    description: "Initial scan recorded for dates: " . implode(", ", array_keys($auditByDate)),
+                    metadata: $metadata
+                );
+            }
         }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'QR code scanned successfully'
+            'results' => $results
         ], 200);
     }
 
@@ -842,7 +935,8 @@ class ReceiveExamMaterialsController extends Controller
     {
         // Validate request
         $request->validate([
-            'qr_code' => 'required|string',
+            'qr_codes' => 'required|array',
+            'qr_codes.*' => 'required|string',
         ]);
 
         // Get authenticated user
@@ -851,132 +945,180 @@ class ReceiveExamMaterialsController extends Controller
         $user = $guard ? $guard->user() : null;
 
         // Check authorization
-        if ($role !== 'headquarters' && $user->role->role_name !== 'Van Duty Staff' || !$user) {
+        if ($role !== 'headquarters' && $user->custom_role !== 'VDS' || !$user) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'User not found or not authorized'
             ], 403); // 403 is for authorization errors
         }
-
-        // Find exam materials
-        $examMaterials = ExamMaterialsData::where([
-            'exam_id' => $examId,
-            'mobile_team_id' => $user->dept_off_id,
-            'qr_code' => $request->qr_code
-        ])->first();
-
-        if (!$examMaterials) {
+        $results = [];       // To hold result for each QR code
+        $auditByDate = [];   // To accumulate audit info keyed by exam_date
+        // Process each QR code in the request
+        foreach ($request->qr_codes as $qr_code) {
+            $qr_code = trim($qr_code);
+            if (empty($qr_code)) {
+                continue; // Skip empty/whitespace-only codes
+            }
+            // Find exam materials
             $examMaterials = ExamMaterialsData::where([
                 'exam_id' => $examId,
-                'qr_code' => $request->qr_code
-            ])
-                ->with('center')
-                ->with('district')
-                ->first();
-            $msg = "This Qr Code belongs to the following District : " . $examMaterials->district->district_name . " , Center : " . $examMaterials->center->center_name . " , Hall Code: " . $examMaterials->hall_code;
-            return response()->json([
-                'status' => 'error',
-                'message' => $msg
-            ], 404);
-        }
-        // Check if already scanned with a valid timestamp
-        $existingScan = ExamMaterialsScan::where([
-            'exam_material_id' => $examMaterials->id,
-        ])->first();
+                'mobile_team_id' => $user->dept_off_id,
+                'qr_code' => $qr_code
+            ])->first();
 
-        // Check if already scanned
-        if (
-            ExamMaterialsScan::where([
-                'exam_material_id' => $examMaterials->id,
-            ])->whereNotNull('mobile_team_scanned_at')->exists()
-        ) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'QR code has already been scanned'
-            ], 409);
-        }
+            // If not found, try a broader lookup with relations
+            if (!$examMaterials) {
+                $examMaterials = ExamMaterialsData::where([
+                    'exam_id' => $examId,
+                    'qr_code' => $qr_code
+                ])
+                    ->with('center')
+                    ->with('district')
+                    ->first();
 
-        // Update the existing record if mobile_team_scanned_at is null
-        if ($existingScan && !$existingScan->mobile_team_scanned_at) {
-            $existingScan->update([
-                'mobile_team_scanned_at' => now()
+                if ($examMaterials) {
+                    $msg = "This QR Code belongs to District: "
+                        . $examMaterials->district->district_name
+                        . ", Center: "
+                        . $examMaterials->center->center_name
+                        . ", Hall Code: "
+                        . $examMaterials->hall_code;
+                    $results[] = [
+                        'qr_code' => $qr_code,
+                        'status' => 'error',
+                        'message' => $msg
+                    ];
+                    continue;
+                } else {
+                    $results[] = [
+                        'qr_code' => $qr_code,
+                        'status' => 'error',
+                        'message' => "Exam material not found for QR code: $qr_code"
+                    ];
+                    continue;
+                }
+            }
+            // Check if the exam material has already been scanned (mobile_team_scanned_at is not null)
+            if (
+                ExamMaterialsScan::where('exam_material_id', $examMaterials->id)
+                    ->whereNotNull('mobile_team_scanned_at')->exists()
+            ) {
+                $results[] = [
+                    'qr_code' => $qr_code,
+                    'status' => 'error',
+                    'message' => 'QR code has already been scanned'
+                ];
+                continue;
+            }
+            // Update existing scan record if available; otherwise, create a new record
+            $existingScan = ExamMaterialsScan::where('exam_material_id', $examMaterials->id)->first();
+            if ($existingScan && !$existingScan->mobile_team_scanned_at) {
+                $existingScan->update([
+                    'mobile_team_scanned_at' => now()
+                ]);
+            } else {
+                ExamMaterialsScan::create([
+                    'exam_material_id' => $examMaterials->id,
+                    'mobile_team_scanned_at' => now()
+                ]);
+            }
+
+            // Prepare details for last scanned material
+            $lastScannedMaterial = [
+                'district' => $examMaterials->district->district_name ?? 'Unknown',
+                'center' => $examMaterials->center->center_name ?? 'Unknown',
+                'hall_code' => $examMaterials->hall_code ?? 'Unknown',
+                'scan_timestamp' => now()->toDateTimeString()
+            ];
+
+            // Prepare metadata for audit logging (using current scan's QR code)
+            $metadata = [
+                'user_name' => $user->display_name ?? 'Unknown',
+                'van_duty_staff_id' => $user->dept_off_id ?? null,
+                'qr_code' => $qr_code,
+                'scan_time' => now()->toDateTimeString()
+            ];
+
+            // Determine task type based on exam material category
+            $tasktype = in_array($examMaterials->category, ['D1', 'D2'])
+                ? 'receive_materials_to_vanduty_staff'
+                : 'receive_bundle_to_vanduty_staff';
+
+            // Get the exam date as string (used as key in audit log)
+            $scanDate = strval($examMaterials->exam_date);
+
+            // Accumulate audit data: for each date, update last scanned material and increment count
+            if (!isset($auditByDate[$scanDate])) {
+                $auditByDate[$scanDate] = [
+                    'last_scanned_material' => $lastScannedMaterial,
+                    'total_scans' => 1
+                ];
+            } else {
+                $auditByDate[$scanDate]['last_scanned_material'] = $lastScannedMaterial;
+                $auditByDate[$scanDate]['total_scans'] += 1;
+            }
+
+            // Record successful scan result
+            $results[] = [
+                'qr_code' => $qr_code,
+                'status' => 'success',
+                'message' => 'QR code scanned successfully'
+            ];
+        } // end foreach
+        // Update the audit log if there were any successful scans
+        if (!empty($auditByDate)) {
+            // Fetch existing audit log for this exam, task type, and van duty staff
+            $existingLog = $this->auditService->findLog([
+                'exam_id' => $examId,
+                'task_type' => $tasktype,
+                'user_id' => $user->dept_off_id,
             ]);
-        } else {
-            // Create a new record if no existing scan record is found
-            ExamMaterialsScan::create([
-                'exam_material_id' => $examMaterials->id,
-                'mobile_team_scanned_at' => now()
-            ]);
+
+            if ($existingLog) {
+                $afterState = is_array($existingLog->after_state)
+                    ? $existingLog->after_state
+                    : json_decode($existingLog->after_state, true);
+                $scanHistory = isset($afterState['scans_by_date']) && is_array($afterState['scans_by_date'])
+                    ? $afterState['scans_by_date']
+                    : [];
+
+                // Merge the new audit data with existing history
+                foreach ($auditByDate as $dateKey => $newData) {
+                    if (isset($scanHistory[$dateKey])) {
+                        $scanHistory[$dateKey]['total_scans'] += $newData['total_scans'];
+                        $scanHistory[$dateKey]['last_scanned_material'] = $newData['last_scanned_material'];
+                    } else {
+                        $scanHistory[$dateKey] = $newData;
+                    }
+                }
+                $updatedAfterState = ['scans_by_date' => $scanHistory];
+
+                // Update audit log entry
+                $this->auditService->updateLog(
+                    logId: $existingLog->id,
+                    metadata: $metadata, // using metadata from the last processed scan
+                    afterState: $updatedAfterState,
+                    description: "Updated scan details for dates: " . implode(", ", array_keys($auditByDate))
+                );
+            } else {
+                // Create a new audit log entry if none exists
+                $this->auditService->log(
+                    examId: $examId,
+                    actionType: 'qr_scan',
+                    taskType: $tasktype,
+                    beforeState: null,
+                    afterState: [
+                        'scans_by_date' => $auditByDate
+                    ],
+                    description: "Initial scan recorded for dates: " . implode(", ", array_keys($auditByDate)),
+                    metadata: $metadata
+                );
+            }
         }
-        // Prepare last scanned material details
-        $lastScannedMaterial = [
-            'district' => $examMaterials->district->district_name ?? 'Unknown',
-            'center' => $examMaterials->center->center_name ?? 'Unknown',
-            'hall_code' => $examMaterials->hall_code ?? 'Unknown',
-            'scan_timestamp' => now()->toDateTimeString()
-        ];
 
-        // Prepare metadata
-        $metadata = [
-            'user_name' => $user->display_name ?? 'Unknown',
-            'van_duty_staff_id' => $user->dept_off_id ?? null,
-            'qr_code' => $request->qr_code,
-            'scan_time' => now()->toDateTimeString()
-        ];
-        $tasktype = in_array($examMaterials->category, ['D1', 'D2'])
-            ? 'receive_materials_to_vanduty_staff'
-            : 'receive_bundle_to_vanduty_staff';
-        // Get current date
-        $scanDate = $examMaterials->exam_date;
-
-        // Fetch existing audit log for total scan count
-        $existingLog = $this->auditService->findLog([
-            'exam_id' => $examId,
-            'task_type' => $tasktype,
-            'user_id' => $user->dept_off_id,
-        ]);
-
-        // Ensure `after_state` is an array
-        $afterState = $existingLog ? (is_array($existingLog->after_state) ? $existingLog->after_state : json_decode($existingLog->after_state, true)) : [];
-
-        // Ensure `scans_by_date` is an array
-        $scanHistory = isset($afterState['scans_by_date']) && is_array($afterState['scans_by_date']) ? $afterState['scans_by_date'] : [];
-
-        // Ensure $scanDate is treated as a string
-        $scanDateKey = strval($scanDate);
-
-        // Update scan history for the specific date
-        $scanHistory[$scanDateKey] = [
-            'last_scanned_material' => $lastScannedMaterial,
-            'total_scans' => isset($scanHistory[$scanDateKey]) ? $scanHistory[$scanDateKey]['total_scans'] + 1 : 1
-        ];
-
-        // Prepare updated `after_state`
-        $updatedAfterState = [
-            'scans_by_date' => $scanHistory
-        ];
-
-        if ($existingLog) {
-            $this->auditService->updateLog(
-                logId: $existingLog->id,
-                metadata: $metadata,
-                afterState: $updatedAfterState,
-                description: "Updated scan details for $scanDate. Total scans: {$scanHistory[$scanDateKey]['total_scans']}"
-            );
-        } else {
-            $this->auditService->log(
-                examId: $examId,
-                actionType: 'qr_scan',
-                taskType: $tasktype,
-                beforeState: null,
-                afterState: $updatedAfterState,
-                description: "Initial scan recorded for $scanDate.",
-                metadata: $metadata
-            );
-        }
         return response()->json([
             'status' => 'success',
-            'message' => 'QR code scanned successfully'
+            'results' => $results
         ], 200);
     }
     public function ciReceiveMaterialsFromMobileTeam(Request $request, $examId, $exam_date, $exam_session)

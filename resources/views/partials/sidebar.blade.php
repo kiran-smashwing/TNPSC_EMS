@@ -253,7 +253,7 @@
                                     <use xlink:href="#custom-data"></use>
                                 </svg>
                             </span>
-                            <span class="pc-mtext">Charted Vehicle Routes Report</span>
+                            <span class="pc-mtext">Charted Vehicle Routes</span>
                         </a>
                     </li>
                 @endhasPermission
@@ -290,7 +290,7 @@
                 @endhasPermission
                 @hasPermission('cv-routes-report')
                     <li class="pc-item"><a class="pc-link"
-                            href="{{route('charted-vehicle-routes.getCvRoutesReport')}}">Charted Vehicle Routes</a>
+                            href="{{route('charted-vehicle-routes.getCvRoutesReport')}}">Charted Vehicle Routes Report</a>
                     </li>
                 @endhasPermission
                 @hasPermission('emergency-alrm')

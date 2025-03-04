@@ -232,14 +232,14 @@
                                                 </div>
                                             </div>
                                             <!-- <div class="col-sm-6">
-                                                <div class="mb-3">
-                                                    <label class="form-label" for="exam_main_postname">Post Name <span
-                                                            class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control" id="exam_main_postname"
-                                                        name="exam_main_postname" required
-                                                        placeholder="Group II and IIA Services">
-                                                </div>
-                                            </div> -->
+                                                            <div class="mb-3">
+                                                                <label class="form-label" for="exam_main_postname">Post Name <span
+                                                                        class="text-danger">*</span></label>
+                                                                <input type="text" class="form-control" id="exam_main_postname"
+                                                                    name="exam_main_postname" required
+                                                                    placeholder="Group II and IIA Services">
+                                                            </div>
+                                                        </div> -->
                                             <div class="col-sm-3">
                                                 <div class="mb-3 ">
                                                     <label class="form-label" for="exam_main_lastdate">Last Date For Apply
@@ -647,6 +647,38 @@
                         });
                     }
                 });
+            });
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize Feather icons
+                feather.replace();
+
+                // Initialize datepickers
+
+                // Method 1: Using native JavaScript
+                const mainDateInput = document.getElementById('exam_main_startdate');
+                const subjectDateInput = document.getElementById('exam_date');
+
+                if (mainDateInput && subjectDateInput) {
+                    mainDateInput.addEventListener('change', function() {
+                        subjectDateInput.value = this.value;
+                    });
+                }
+
+                // Method 2: Using jQuery and Bootstrap Datepicker events
+                $('#exam_main_startdate').on('changeDate', function(e) {
+                    // Get the selected date
+                    const selectedDate = $(this).val();
+
+                    // Update the subject date input
+                    $('#exam_date').val(selectedDate);
+
+                    // Update the datepicker if needed
+                    // $('#exam_date').datepicker('update', selectedDate);
+                });
+
+                console.log('Date sync script initialized successfully');
             });
         </script>
     @endpush

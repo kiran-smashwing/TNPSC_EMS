@@ -87,13 +87,6 @@
 
                             </div>
                         </div>
-                        <div class="card">
-                            <div class="card-body">
-                                <nav class="navbar justify-content-between p-0 align-items-center">
-
-                                </nav>
-                            </div>
-                        </div>
 
                         @if (session('success'))
                             <div class="alert alert-success alert-dismissible fade show" role="alert">

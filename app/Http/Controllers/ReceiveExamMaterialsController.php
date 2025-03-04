@@ -137,7 +137,15 @@ class ReceiveExamMaterialsController extends Controller
                     continue;
                 }
             }
-
+            // Only accept exam materials of category D1 or D2
+            if (!in_array($examMaterials->category, ['D1', 'D2'])) {
+                $results[] = [
+                    'qr_code' => $qr_code,
+                    'status' => 'error',
+                    'message' => 'This QR code does not belong to QP Box or OMR Packet. Please scan the correct materials.'
+                ];
+                continue;
+            }
             // Check if already scanned
             if (
                 ExamMaterialsScan::where([
@@ -486,6 +494,7 @@ class ReceiveExamMaterialsController extends Controller
         $request->validate([
             'qr_codes' => 'required|array',
             'qr_codes.*' => 'required|string',
+            'source' => 'required|string',
         ]);
 
         // Get authenticated user
@@ -542,6 +551,28 @@ class ReceiveExamMaterialsController extends Controller
                         'qr_code' => $qr_code,
                         'status' => 'error',
                         'message' => "Exam material not found for QR code: $qr_code",
+                    ];
+                    continue;
+                }
+            }
+            // Category Validation based on source parameter
+            if ($request->source === 'district') {
+                // For district scanning, only accept materials with category D1 or D2.
+                if (!in_array($examMaterials->category, ['D1', 'D2'])) {
+                    $results[] = [
+                        'qr_code' => $qr_code,
+                        'status' => 'error',
+                        'message' => 'This QR code does not belong to a QP Box or OMR Packet. Please scan the correct materials.',
+                    ];
+                    continue;
+                }
+            } elseif ($request->source === 'mobileteam') {
+                // For mobileteam scanning, reject materials that are bundles (D1/D2)
+                if (in_array($examMaterials->category, ['D1', 'D2'])) {
+                    $results[] = [
+                        'qr_code' => $qr_code,
+                        'status' => 'error',
+                        'message' => 'This QR code does not belong to any Bundle. Please scan the correct bundle.',
                     ];
                     continue;
                 }
@@ -701,6 +732,7 @@ class ReceiveExamMaterialsController extends Controller
         $request->validate([
             'qr_codes' => 'required|array',
             'qr_codes.*' => 'required|string',
+            'source' => 'required|string',
         ]);
 
         // Get authenticated user
@@ -761,6 +793,28 @@ class ReceiveExamMaterialsController extends Controller
                     continue;
                 }
             }
+            // Category Validation based on source parameter
+            if ($request->source === 'treasury') {
+                // For district scanning, only accept materials with category D1 or D2.
+                if (!in_array($examMaterials->category, ['D1', 'D2'])) {
+                    $results[] = [
+                        'qr_code' => $qr_code,
+                        'status' => 'error',
+                        'message' => 'This QR code does not belong to a QP Box or OMR Packet. Please scan the correct materials.',
+                    ];
+                    continue;
+                }
+            } elseif ($request->source === 'ci') {
+                // For mobileteam scanning, reject materials that are bundles (D1/D2)
+                if (in_array($examMaterials->category, ['D1', 'D2'])) {
+                    $results[] = [
+                        'qr_code' => $qr_code,
+                        'status' => 'error',
+                        'message' => 'This QR code does not belong to any Bundle. Please scan the correct bundle.',
+                    ];
+                    continue;
+                }
+            }
             // Check if the exam material has already been scanned (mobile_team_scanned_at is not null)
             if (
                 ExamMaterialsScan::where('exam_material_id', $examMaterials->id)
@@ -802,7 +856,7 @@ class ReceiveExamMaterialsController extends Controller
 
             // Determine task type based on exam material category
             $tasktype = in_array($examMaterials->category, ['D1', 'D2']) ? 'receive_materials_to_mobileteam_staff' :
-            'receive_bundle_to_mobileteam_staff';
+                'receive_bundle_to_mobileteam_staff';
 
             // Get the exam date as string (used as key in audit log)
             $scanDate = strval($examMaterials->exam_date);
@@ -1167,6 +1221,7 @@ class ReceiveExamMaterialsController extends Controller
         // Validate request
         $request->validate([
             'qr_code' => 'required|string',
+            'source' => 'required|string',
         ]);
 
         // Get authenticated user
@@ -1197,11 +1252,37 @@ class ReceiveExamMaterialsController extends Controller
                 ->with('center')
                 ->with('district')
                 ->first();
-            $msg = "This Qr Code belongs to the following District : " . $examMaterials->district->district_name . " , Center : " . $examMaterials->center->center_name . " , Hall Code: " . $examMaterials->hall_code;
-            return response()->json([
-                'status' => 'error',
-                'message' => $msg
-            ], 404);
+            if ($examMaterials) {
+
+                $msg = "This Qr Code belongs to the following District : " . $examMaterials->district->district_name . " , Center : " . $examMaterials->center->center_name . " , Hall Code: " . $examMaterials->hall_code;
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $msg
+                ], 404);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Exam material not found for QR code: $request->qr_code"
+                ], 404);
+            }
+        }
+        // Category Validation based on source parameter
+        if ($request->source === 'mobileteam') {
+            // For district scanning, only accept materials with category D1 or D2.
+            if (!in_array($examMaterials->category, ['D1', 'D2'])) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This QR code does not belong to a QP Box or OMR Packet. Please scan the correct materials.',
+                ]);
+            }
+        } elseif ($request->source === 'ci') {
+            // For mobileteam scanning, reject materials that are bundles (D1/D2)
+            if (in_array($examMaterials->category, ['D1', 'D2'])) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This QR code does not belong to any Bundle. Please scan the correct bundle.',
+                ]);
+            }
         }
         // Check if already scanned with a valid timestamp
         $existingScan = ExamMaterialsScan::where([

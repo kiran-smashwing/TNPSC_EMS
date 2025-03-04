@@ -285,7 +285,8 @@
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify({
-                            qr_codes: scannedCodes
+                            qr_codes: scannedCodes,
+                            source:'ci'
                         })
                     })
                     .then(response => response.json())

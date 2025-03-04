@@ -159,6 +159,11 @@
                 const qrCodeModal = document.getElementById('qrCodeModal');
                 const modalInstance = bootstrap.Modal.getInstance(qrCodeModal);
                 modalInstance.hide();
+                // Show loader before sending the request
+                const loader = document.getElementById('loader');
+                if (loader) {
+                    loader.style.removeProperty('display');
+                }
                 fetch("{{ route('receive-exam-materials.scan-ci-exam-materials', $examId) }}", {
                         method: 'POST',
                         headers: {
@@ -166,18 +171,25 @@
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify({
-                            qr_code: data
+                            qr_code: data,
+                            source: 'ci'
                         })
                     })
                     .then(response => response.json())
                     .then(data => {
+                        // Hide loader once the request completes
+                        if (loader) {
+                            loader.style.display = 'none';
+                        }
                         showAlert(data.status, data.message);
-                        $('#qrCodeModal').modal('hide'); // Close modal after successful scan
-                        // Update the total scanned and total exam materials count
                     })
                     .catch((error) => {
+                        // Hide loader once the request completes
+                        if (loader) {
+                            loader.style.display = 'none';
+                        }
+                        console.error("Submission error:", error);
                         showAlert(data.status, data.message);
-                        $('#qrCodeModal').modal('hide');
                     });
             }
 

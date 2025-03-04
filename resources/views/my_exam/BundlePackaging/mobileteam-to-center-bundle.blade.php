@@ -270,7 +270,8 @@
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify({
-                            qr_codes: scannedCodes
+                            qr_codes: scannedCodes,
+                            source:'mobileteam'
                         })
                     })
                     .then(response => response.json())

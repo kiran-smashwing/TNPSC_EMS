@@ -138,7 +138,8 @@ class IDCandidatesController extends Controller
             ->select(
                 'district_code',
                 'center_code',
-                DB::raw('MAX(accommodation_required) as max_accommodation_required')
+                DB::raw('MAX(accommodation_required) as max_accommodation_required'),
+                DB::raw('MAX(expected_candidates) as expected_candidates')
             )
             ->where('exam_id', $examId)
             ->groupBy('district_code', 'center_code');
@@ -149,6 +150,7 @@ class IDCandidatesController extends Controller
             ->select(
                 'district_code',
                 DB::raw('SUM(max_accommodation_required) as total_accommodation_required'),
+                DB::raw('SUM(expected_candidates) as expected_candidates'),
                 DB::raw('COUNT(center_code) as center_count')
             )
             ->groupBy('district_code')
@@ -172,7 +174,7 @@ class IDCandidatesController extends Controller
             return [
                 'district_code' => $district->district_code,
                 'district_name' => $districtNames[$district->district_code] ?? 'Unknown',
-                'total_accommodation_required' => $district->total_accommodation_required,
+                'total_accommodation_required' => $district->total_accommodation_required > 0 ? $district->total_accommodation_required : $district->expected_candidates,
                 'center_count' => $district->center_count,
             ];
         });
@@ -185,12 +187,18 @@ class IDCandidatesController extends Controller
 
         // Extract email logs from the existing log's metadata
         $emailLogs = [];
+        $letterDetails = []; // Initialize letter details
+
         if ($existingLog && isset($existingLog->metadata)) {
             $metadata = is_string($existingLog->metadata) ? json_decode($existingLog->metadata, true) : $existingLog->metadata;
             if (isset($metadata['email_logs'])) {
                 $emailLogs = collect($metadata['email_logs'])->mapWithKeys(function ($log) {
                     return [$log['district_code'] => $log['sent_at']];
                 });
+            }
+            // Extract letter details if they exist
+            if (isset($metadata['letter_details'])) {
+                $letterDetails = $metadata['letter_details'];
             }
         }
 
@@ -205,7 +213,8 @@ class IDCandidatesController extends Controller
             'districts',
             'totalDistricts',
             'groupedDistrictCount',
-            'existingLog'
+            'existingLog',
+            'letterDetails'
         ));
     }
 
@@ -214,10 +223,16 @@ class IDCandidatesController extends Controller
         $request->validate([
             'exam_id' => 'required|string',
             'district_codes' => 'required|array|min:1',
+            'letter_no' => 'required|string',
+            'letter_date' => 'required|date',
+            'exam_controller' => 'required|string',
         ]);
 
         $examId = $request->input('exam_id');
         $districtCodes = $request->input('district_codes');
+        $letterNo = $request->input('letter_no');
+        $letterDate = $request->input('letter_date');
+        $examController = $request->input('exam_controller');
 
         // Retrieve the exam and its related candidates
         $exam = Currentexam::where('exam_main_no', $examId)->first();
@@ -241,7 +256,16 @@ class IDCandidatesController extends Controller
                 ->sum('accommodation_required');
             //todo: update the static email to district email  $district->district_email,
             // Send the email notification
-            Mail::to('sathishm@smashwing.com')->send(new AccommodationNotification($exam, $districtCode, $totalCandidates));
+            Mail::to('sathishm@smashwing.com')->send(
+                new AccommodationNotification(
+                    $exam,
+                    $district,
+                    $totalCandidates,
+                    $letterNo,
+                    $letterDate,
+                    $examController
+                )
+            );
 
             // Add district-specific log to the consolidated array
             $emailLogs[] = [
@@ -267,7 +291,12 @@ class IDCandidatesController extends Controller
         if ($existingLog) {
             // Decode existing metadata and merge new logs
             $existingMetadata = $existingLog->metadata;
-
+            // Update letter details in metadata
+            $existingMetadata['letter_details'] = [
+                'letter_no' => $letterNo,
+                'letter_date' => $letterDate,
+                'exam_controller' => $examController,
+            ];
             if (isset($existingMetadata['email_logs']) && is_array($existingMetadata['email_logs'])) {
                 // Merge new email logs with existing ones based on district_code
                 foreach ($emailLogs as $newLog) {
@@ -297,6 +326,11 @@ class IDCandidatesController extends Controller
             // Prepare metadata for new audit log
             $metadata = [
                 'exam_id' => $examId,
+                'letter_details' => [
+                    'letter_no' => $letterNo,
+                    'letter_date' => $letterDate,
+                    'exam_controller' => $examController,
+                ],
                 'email_logs' => $emailLogs,
             ];
 
@@ -673,7 +707,7 @@ class IDCandidatesController extends Controller
                         'color' => ['rgb' => '000000'] // Black thin border
                     ]
                 ]
-            
+
             ];
             $sheet->getStyle('A1:' . $highestColumnLetter . '1')->applyFromArray($mainHeaderStyle);
             $sheet->getRowDimension(1)->setRowHeight(30);
@@ -695,7 +729,7 @@ class IDCandidatesController extends Controller
                         'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
                         'color' => ['rgb' => '000000'] // Black thin border
                     ]
-                ]            
+                ]
             ];
 
             // Add column headers with styling spanning rows 2 and 3
@@ -735,7 +769,7 @@ class IDCandidatesController extends Controller
                         'color' => ['rgb' => '000000'] // Black thin border
                     ]
                 ]
-            
+
             ];
 
             // Special vertical text alignment for columns I, R and S
@@ -752,7 +786,7 @@ class IDCandidatesController extends Controller
                         'color' => ['rgb' => '000000'] // Black thin border
                     ]
                 ]
-            
+
             ];
 
             // Add data (all in uppercase)
@@ -841,7 +875,7 @@ class IDCandidatesController extends Controller
                         'color' => ['rgb' => '000000'] // Black thin border
                     ]
                 ]
-            
+
             ];
 
             // Apply bold Calibri 14 to the total row

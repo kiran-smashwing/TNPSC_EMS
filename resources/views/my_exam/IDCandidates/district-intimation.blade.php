@@ -1,7 +1,9 @@
 @extends('layouts.app')
 
 @section('title', 'Current Exam')
-
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('storage/assets/css/plugins/datepicker-bs5.min.css') }}" />
+@endpush
 @section('content')
 
     <!-- [ Pre-loader ] start -->
@@ -105,10 +107,10 @@
                                                 </a>
                                             </li>
                                         </ul>
-                                        <ul class="list-inline ms-auto mb-0">
+                                        {{-- <ul class="list-inline ms-auto mb-0">
                                             <li class="list-inline-item"><a href="#"
                                                     class="btn btn-outline-success">Save</a></li>
-                                        </ul>
+                                        </ul> --}}
                                     </div>
                                 </div>
                                 <div class="scroll-block chat-message">
@@ -121,7 +123,8 @@
                                                     <label class="form-label" for="letter_no">கடித எண்<span
                                                             class="text-danger">*</span></label>
                                                     <input type="text" class="form-control" id="letter_no"
-                                                        name="letter_no" required placeholder="20240719165037">
+                                                        name="letter_no" required placeholder="20240719165037"
+                                                        value="{{ $letterDetails['letter_no'] ?? '' }}">
                                                 </div>
                                             </div>
                                             <div class="col-sm-3">
@@ -130,7 +133,8 @@
                                                             class="text-danger">*</span></label>
                                                     <div class="input-group date">
                                                         <input type="text" name="letter_date" class="form-control"
-                                                            placeholder="05/20/2017" id="letter_date" />
+                                                            placeholder="05/20/2017" id="letter_date"
+                                                            value="{{ $letterDetails['letter_date'] ?? '' }}" />
                                                         <span class="input-group-text">
                                                             <i class="feather icon-calendar"></i>
                                                         </span>
@@ -143,7 +147,8 @@
                                                         அலுவலர்<span class="text-danger">*</span></label>
                                                     <input type="text" class="form-control" id="exam_controller"
                                                         name="exam_controller" required
-                                                        placeholder="திரு. ஜான் லூயிஸ், இ.ஆ.ப.,">
+                                                        placeholder="திரு. ஜான் லூயிஸ், இ.ஆ.ப.,"
+                                                        value="{{ $letterDetails['exam_controller'] ?? '' }}">
                                                 </div>
                                             </div>
 
@@ -151,167 +156,6 @@
                                     </div>
                                 </div>
 
-                            </div>
-                        </div>
-                        <div class="offcanvas-xxl offcanvas-end chat-offcanvas" tabindex="-1" id="offcanvas_User_info">
-                            <div class="offcanvas-header">
-                                <button class="btn-close" data-bs-dismiss="offcanvas"
-                                    data-bs-target="#offcanvas_User_info" aria-label="Close"></button>
-                            </div>
-                            <div class="offcanvas-body p-0">
-                                <div id="chat-user_info" class="collapse collapse-horizontal">
-                                    <div class="chat-user_info">
-                                        <div class="card">
-                                            <div class="text-center card-body position-relative pb-0">
-                                                <h5 class="text-start">Profile View</h5>
-                                                <div class="position-absolute end-0 top-0 p-3 d-none d-xxl-inline-flex">
-                                                    <a href="#"
-                                                        class="avtar avtar-xs btn-link-danger btn-pc-default"
-                                                        data-bs-toggle="collapse" data-bs-target="#chat-user_info">
-                                                        <i class="ti ti-x f-16"></i>
-                                                    </a>
-                                                </div>
-                                                <div class="chat-avtar d-inline-flex mx-auto">
-                                                    <img class="rounded-circle img-fluid wid-100"
-                                                        src="../assets/images/user/avatar-5.jpg" alt="User image" />
-                                                </div>
-                                                <h5 class="mb-0">Alene</h5>
-                                                <p class="text-muted text-sm">Sr. Customer Manager</p>
-                                                <div class="d-flex align-items-center justify-content-center mb-4">
-                                                    <i class="chat-badge bg-success me-2"></i>
-                                                    <span class="badge bg-light-success">Available</span>
-                                                </div>
-                                                <ul class="list-inline ms-auto mb-0">
-                                                    <li class="list-inline-item">
-                                                        <a href="#" class="avtar avtar-s btn-link-secondary">
-                                                            <i class="ti ti-phone-call f-18"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li class="list-inline-item">
-                                                        <a href="#" class="avtar avtar-s btn-link-secondary">
-                                                            <i class="ti ti-message-circle f-18"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li class="list-inline-item">
-                                                        <a href="#" class="avtar avtar-s btn-link-secondary">
-                                                            <i class="ti ti-video f-18"></i>
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                            <div class="scroll-block">
-                                                <div class="card-body">
-                                                    <div class="row mb-3">
-                                                        <div class="col-6">
-                                                            <div class="p-3 rounded bg-light-primary">
-                                                                <p class="mb-1">All File</p>
-                                                                <div class="d-flex align-items-center">
-                                                                    <i class="ti ti-folder f-22 text-primary"></i>
-                                                                    <h4 class="mb-0 ms-2">231</h4>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <div class="p-3 rounded bg-light-secondary">
-                                                                <p class="mb-1">All Link</p>
-                                                                <div class="d-flex align-items-center">
-                                                                    <i class="ti ti-link f-22 text-secondary"></i>
-                                                                    <h4 class="mb-0 ms-2">231</h4>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="form-check form-switch d-flex align-items-center justify-content-between p-0">
-                                                        <label class="form-check-label h5 mb-0"
-                                                            for="customSwitchemlnot1">Notification</label>
-                                                        <input class="form-check-input h5 m-0 position-relative"
-                                                            type="checkbox" id="customSwitchemlnot1" checked="" />
-                                                    </div>
-                                                    <hr class="my-3 border border-secondary-subtle" />
-                                                    <a class="btn border-0 p-0 text-start w-100" data-bs-toggle="collapse"
-                                                        href="#filtercollapse1">
-                                                        <div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                                                        <h5 class="mb-0">Information</h5>
-                                                    </a>
-                                                    <div class="collapse show" id="filtercollapse1">
-                                                        <div class="py-3">
-                                                            <div
-                                                                class="d-flex align-items-center justify-content-between mb-2">
-                                                                <p class="mb-0">Address</p>
-                                                                <p class="mb-0 text-muted">Port Narcos</p>
-                                                            </div>
-                                                            <div
-                                                                class="d-flex align-items-center justify-content-between mb-2">
-                                                                <p class="mb-0">Email</p>
-                                                                <p class="mb-0 text-muted">alene@company.com</p>
-                                                            </div>
-                                                            <div
-                                                                class="d-flex align-items-center justify-content-between mb-2">
-                                                                <p class="mb-0">Phone</p>
-                                                                <p class="mb-0 text-muted">380-293-0177</p>
-                                                            </div>
-                                                            <div class="d-flex align-items-center justify-content-between">
-                                                                <p class="mb-0">Last visited</p>
-                                                                <p class="mb-0 text-muted">2 hours</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <hr class="my-3 border border-secondary-subtle" />
-                                                    <a class="btn border-0 p-0 text-start w-100" data-bs-toggle="collapse"
-                                                        href="#filtercollapse2">
-                                                        <div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                                                        <h5 class="mb-0">File type</h5>
-                                                    </a>
-                                                    <div class="collapse show" id="filtercollapse2">
-                                                        <div class="py-3">
-                                                            <div class="d-flex align-items-center mb-2">
-                                                                <a href="#" class="avtar avtar-s btn-light-success">
-                                                                    <i class="ti ti-file-text f-20"></i>
-                                                                </a>
-                                                                <div class="flex-grow-1 ms-3">
-                                                                    <h6 class="mb-0">Document</h6>
-                                                                    <span class="text-muted text-sm">123 files,
-                                                                        193MB</span>
-                                                                </div>
-                                                                <a href="#"
-                                                                    class="avtar avtar-xs btn-link-secondary">
-                                                                    <i class="ti ti-chevron-right f-16"></i>
-                                                                </a>
-                                                            </div>
-                                                            <div class="d-flex align-items-center mb-2">
-                                                                <a href="#" class="avtar avtar-s btn-light-warning">
-                                                                    <i class="ti ti-photo f-20"></i>
-                                                                </a>
-                                                                <div class="flex-grow-1 ms-3">
-                                                                    <h6 class="mb-0">Photos</h6>
-                                                                    <span class="text-muted text-sm">53 files, 321MB</span>
-                                                                </div>
-                                                                <a href="#"
-                                                                    class="avtar avtar-xs btn-link-secondary">
-                                                                    <i class="ti ti-chevron-right f-16"></i>
-                                                                </a>
-                                                            </div>
-                                                            <div class="d-flex align-items-center mb-2">
-                                                                <a href="#" class="avtar avtar-s btn-light-primary">
-                                                                    <i class="ti ti-id f-20"></i>
-                                                                </a>
-                                                                <div class="flex-grow-1 ms-3">
-                                                                    <h6 class="mb-0">Other</h6>
-                                                                    <span class="text-muted text-sm">49 files, 193MB</span>
-                                                                </div>
-                                                                <a href="#"
-                                                                    class="avtar avtar-xs btn-link-secondary">
-                                                                    <i class="ti ti-chevron-right f-16"></i>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -326,6 +170,7 @@
     @include('partials.footer')
     @push('scripts')
         <script src="{{ asset('storage/assets/js/plugins/sweetalert2.all.min.js') }}"></script>
+        <script src="{{ asset('storage/assets/js/plugins/datepicker-full.min.js') }}"></script>
 
         <!-- [Page Specific JS] start -->
         <script>
@@ -344,6 +189,21 @@
         </script>
         <script>
             function sendSelectedDistricts(examId) {
+                // Retrieve input values
+                const letterNo = document.getElementById('letter_no').value.trim();
+                const letterDate = document.getElementById('letter_date').value.trim();
+                const examController = document.getElementById('exam_controller').value.trim();
+
+                // Validate that all required fields are filled
+                if (!letterNo || !letterDate || !examController) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Required Fields Missing',
+                        text: 'Please fill in Letter No, Letter Date, and Exam Controller before sending the mail.'
+                    });
+                    return;
+                }
+
                 // Get all checked checkboxes
                 const selectedCheckboxes = document.querySelectorAll('.district-checkbox:checked');
 
@@ -354,7 +214,10 @@
                 // Prepare data to send
                 const payload = {
                     exam_id: examId,
-                    district_codes: selectedDistrictCodes
+                    district_codes: selectedDistrictCodes,
+                    letter_no: letterNo,
+                    letter_date: letterDate,
+                    exam_controller: examController
                 };
                 console.log(payload);
 
@@ -422,6 +285,15 @@
             }
 
             document.addEventListener('DOMContentLoaded', function() {
+                // Initialize datepickers for existing elements
+                document.querySelectorAll('.input-group.date input').forEach(function(input) {
+                    new Datepicker(input, {
+                        buttonClass: 'btn',
+                        todayBtn: true,
+                        clearBtn: true,
+                        format: 'dd-mm-yyyy'
+                    });
+                });
                 // Get all district checkboxes
                 const checkboxes = document.querySelectorAll('.district-checkbox');
                 const selectedCountSpan = document.getElementById('selected-count');

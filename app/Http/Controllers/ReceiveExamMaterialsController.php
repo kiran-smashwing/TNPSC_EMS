@@ -360,7 +360,15 @@ class ReceiveExamMaterialsController extends Controller
                     continue;
                 }
             }
-
+            // Only accept exam materials of category D1 or D2
+            if (!in_array($examMaterials->category, ['D1', 'D2'])) {
+                $results[] = [
+                    'qr_code' => $qr_code,
+                    'status' => 'error',
+                    'message' => 'This QR code does not belong to QP Box or OMR Packet. Please scan the correct materials.'
+                ];
+                continue;
+            }
             // Check if already scanned
             if (
                 ExamMaterialsScan::where([
@@ -991,6 +999,7 @@ class ReceiveExamMaterialsController extends Controller
         $request->validate([
             'qr_codes' => 'required|array',
             'qr_codes.*' => 'required|string',
+            'source' => 'required|string',
         ]);
 
         // Get authenticated user
@@ -1048,6 +1057,28 @@ class ReceiveExamMaterialsController extends Controller
                         'qr_code' => $qr_code,
                         'status' => 'error',
                         'message' => "Exam material not found for QR code: $qr_code"
+                    ];
+                    continue;
+                }
+            }
+            // Category Validation based on source parameter
+            if ($request->source === 'headquarters') {
+                // For district scanning, only accept materials with category D1 or D2.
+                if (!in_array($examMaterials->category, ['D1', 'D2'])) {
+                    $results[] = [
+                        'qr_code' => $qr_code,
+                        'status' => 'error',
+                        'message' => 'This QR code does not belong to a QP Box or OMR Packet. Please scan the correct materials.',
+                    ];
+                    continue;
+                }
+            } elseif ($request->source === 'ci') {
+                // For mobileteam scanning, reject materials that are bundles (D1/D2)
+                if (in_array($examMaterials->category, ['D1', 'D2'])) {
+                    $results[] = [
+                        'qr_code' => $qr_code,
+                        'status' => 'error',
+                        'message' => 'This QR code does not belong to any Bundle. Please scan the correct bundle.',
                     ];
                     continue;
                 }

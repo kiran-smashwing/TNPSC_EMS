@@ -80,6 +80,15 @@ class CurrentExamController extends Controller
                     ->unique()
                     ->values();
                 break;
+            case 'headquarters':
+                if($user->custom_role == 'VDS'){
+                    $examIds = ExamMaterialRoutes::where('mobile_team_staff', $user->dept_off_id)
+                    ->pluck('exam_id')
+                    ->unique()
+                    ->values();
+                }
+                break;
+            default:
         }
     
         $examQuery = Currentexam::withCount('examsession')

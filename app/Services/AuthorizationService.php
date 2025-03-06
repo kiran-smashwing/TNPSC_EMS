@@ -138,7 +138,14 @@ class AuthorizationService
                     'exam-heading',
                     'current-exam',
                 ]
-            ]
+                ],
+            'ESCORT' => [
+                'ESCORT' => [
+                    'cv-down-updates',
+                    'route-edit',
+                    'otl-lock',
+                ]
+                ],
         ],
         'ci' => [
             'ci-meetings.ind',
@@ -198,14 +205,14 @@ class AuthorizationService
         if ($role === 'sw-admin') {
             return true; // sw-admin has access to everything
         }
-        if ($permission === 'cv-down-updates' || $permission === 'route-edit' || $permission === 'otl-lock') {
-            $user = auth()->guard('headquarters')->user();
+        // if ($permission === 'cv-down-updates' || $permission === 'route-edit' || $permission === 'otl-lock') {
+        //     $user = auth()->guard('headquarters')->user();
 
-            // Check if the user's dept_off_id exists in EscortStaff
-            if ($role === 'headquarters' && \App\Models\EscortStaff::where('tnpsc_staff_id', $user->dept_off_id)->exists()) {
-                return true;
-            }
-        }
+        //     // Check if the user's dept_off_id exists in EscortStaff
+        //     if ($role === 'headquarters' && \App\Models\EscortStaff::where('tnpsc_staff_id', $user->dept_off_id)->exists()) {
+        //         return true;
+        //     }
+        // }
         if ($permission === 'receive-exam-materials-from-printer' || $permission === 'receive-bundle-from-mobile-team') {
             $user = current_user();
             // Check if the user's dept_off_id exists in EscortStaff
@@ -225,6 +232,10 @@ class AuthorizationService
             if ($user->custom_role == 'VDS') {
                 $department = 'VDS';
                 $dept_role = 'VDS';
+            }
+            elseif ($user->custom_role == 'ESCORT') {
+                $department = 'ESCORT';
+                $dept_role = 'ESCORT';
             }
             // Check if the user has a role
             else if ($user && $user->role) {

@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Currentexam;
+use App\Models\ExamCandidatesProjection;
+use App\Models\ExamConfirmedHalls;
+use App\Models\ExamMaterialRoutes;
 use App\Models\ExamSession;
 use App\Models\ExamService;
+use App\Models\ExamVenueConsent;
 use App\Services\AuditLogger;
 use App\Services\ExamAuditService;
 use Illuminate\Http\Request;
@@ -23,27 +27,83 @@ class CurrentExamController extends Controller
         $this->auditService = $auditService;
     }
 
-  //  public function index()
+    //  public function index()
     //{
-        // Get today's date in 'DD-MM-YYYY' format (to match database format)
-      //  $today = Carbon::today()->format('d-m-Y');
+    // Get today's date in 'DD-MM-YYYY' format (to match database format)
+    //  $today = Carbon::today()->format('d-m-Y');
 
-        // Fetch only the current exams that have not yet ended (last date >= today)
-        //$exams = Currentexam::withCount('examsession')
-          //  ->whereRaw("TO_DATE(exam_main_lastdate, 'DD-MM-YYYY') >= TO_DATE(?, 'DD-MM-YYYY')", [$today])
-            //->orderBy('exam_main_createdat', 'desc')
-            //->get();
-        //return view('current_exam.index', compact('exams'));
+    // Fetch only the current exams that have not yet ended (last date >= today)
+    //$exams = Currentexam::withCount('examsession')
+    //  ->whereRaw("TO_DATE(exam_main_lastdate, 'DD-MM-YYYY') >= TO_DATE(?, 'DD-MM-YYYY')", [$today])
+    //->orderBy('exam_main_createdat', 'desc')
+    //->get();
+    //return view('current_exam.index', compact('exams'));
     //}
-  
-   public function index()
+
+    public function index()
     {
-        
-        $exams = Currentexam::withCount('examsession')
-            ->orderBy('exam_main_createdat', 'desc')
-            ->get();
+        $user = current_user();
+        $role = session('auth_role');
+        $examIds = null; // Initialize as null so we know if a filter should be applied
+    
+        switch ($role) {
+            case 'district':
+            case 'treasury':
+                $examIds = ExamCandidatesProjection::where('district_code', $user->district_code)
+                    ->pluck('exam_id')
+                    ->unique()
+                    ->values();
+                break;
+            case 'center':
+                $examIds = ExamCandidatesProjection::where('center_code', $user->center_code)
+                    ->pluck('exam_id')
+                    ->unique()
+                    ->values();
+                break;
+            case 'venue':
+                $examIds = ExamVenueConsent::where('venue_id', $user->venue_id)
+                    ->pluck('exam_id')
+                    ->unique()
+                    ->values();
+                break;
+            case 'mobile_team_staffs':
+                $examIds = ExamMaterialRoutes::where('mobile_team_staff', $user->mobile_id)
+                    ->pluck('exam_id')
+                    ->unique()
+                    ->values();
+                break;
+            case 'ci':
+                $examIds = ExamConfirmedHalls::where('ci_id', $user->ci_id)
+                    ->where('is_apd_uploaded', true)
+                    ->where('alloted_count', '>', 0)
+                    ->pluck('exam_id')
+                    ->unique()
+                    ->values();
+                break;
+            case 'headquarters':
+                if($user->custom_role == 'VDS'){
+                    $examIds = ExamMaterialRoutes::where('mobile_team_staff', $user->dept_off_id)
+                    ->pluck('exam_id')
+                    ->unique()
+                    ->values();
+                }
+                break;
+            default:
+        }
+    
+        $examQuery = Currentexam::withCount('examsession')
+            ->orderBy('exam_main_createdat', 'desc');
+    
+        // If a role-specific exam ID list is set, filter by it
+        if (!is_null($examIds)) {
+            $examQuery->whereIn('exam_main_no', $examIds);
+        }
+    
+        $exams = $examQuery->get();
+    
         return view('current_exam.index', compact('exams'));
     }
+    
 
     public function create()
     {

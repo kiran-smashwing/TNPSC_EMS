@@ -10,6 +10,9 @@
     <p><strong>Exam:</strong> {{ $exam->exam_main_name }}</p>
     <p><strong>District Code:</strong> {{ $districtCode }}</p>
     <p><strong>Total Candidates:</strong> {{ $totalCandidates }}</p>
+    <p><strong>Letter No:</strong> {{ $letterNo }}</p>
+    <p><strong>Letter Date:</strong> {{ $letterDate }}</p>
+    <p><strong>Exam Controller:</strong> {{ $examController }}</p>
     <p>Please make the necessary arrangements to accommodate the candidates.</p>
     <p>Thank you.</p>
 </body>

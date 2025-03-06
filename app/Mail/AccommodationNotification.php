@@ -19,11 +19,14 @@ class AccommodationNotification extends Mailable
      *
      * @return void
      */
-    public function __construct($exam, $districtCode, $totalCandidates)
+    public function __construct($exam, $districtCode, $totalCandidates, $letterNo, $letterDate, $examController)
     {
         $this->exam = $exam;
         $this->districtCode = $districtCode;
         $this->totalCandidates = $totalCandidates;
+        $this->letterNo = $letterNo;
+        $this->letterDate = $letterDate;
+        $this->examController = $examController;
     }
 
     /**

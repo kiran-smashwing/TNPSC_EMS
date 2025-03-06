@@ -675,7 +675,7 @@
                     $('#exam_date').val(selectedDate);
 
                     // Update the datepicker if needed
-                    // $('#exam_date').datepicker('update', selectedDate);
+                    //  $('#exam_date').datepicker('update', selectedDate);
                 });
 
                 console.log('Date sync script initialized successfully');

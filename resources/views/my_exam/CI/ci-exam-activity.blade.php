@@ -87,6 +87,13 @@
 
                             </div>
                         </div>
+                        {{-- <div class="card">
+                            <div class="card-body">
+                                <nav class="navbar justify-content-between p-0 align-items-center">
+
+                                </nav>
+                            </div>
+                        </div> --}}
 
                         @if (session('success'))
                             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -467,7 +474,7 @@
                                         isset($timingLog['qp_box_open_time']) && !empty($timingLog['qp_box_open_time']);
 
                                     // Set a status or badge class based on whether the time is set
-                                    $taskStatus = $isBoxOpenTimeSet ? 'Time Set' : 'Pending';
+                                    $taskStatus = $isBoxOpenTimeSet ? 'Time Catched' : 'Pending';
                                     $badgeClass = $isBoxOpenTimeSet ? 'bg-light-secondary' : 'bg-danger';
                                 @endphp
 
@@ -486,8 +493,10 @@
                                                         <div class="ms-3 ms-sm-0 mb-3 mb-sm-0">
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
+                                                                
                                                             </ul>
                                                         </div>
+                                                        {{-- <i data-feather="clock">:{{ $isBoxOpenTimeSet ? \Carbon\Carbon::parse(time: $timingLog['qp_box_open_time'])->format('h:i A') : '' }}</i> --}}
                                                     </div>
                                                 </div>
                                                 <div class="col">
@@ -514,10 +523,14 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
+                                                        @if (!is_null($isBoxOpenTimeSet))
+                                                        
+                                                        @else
                                                         <a href="#" data-pc-animate="just-me"
                                                             data-bs-toggle="modal" data-bs-target="#qpboxOpenTimeModal"
                                                             class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-clock mx-1"></i>Set Current Time</a>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </div>
@@ -751,7 +764,7 @@
                                         !empty($timingLog['qp_box_distribution_time']);
 
                                     // Optional: Set a status or badge class based on whether the time is set
-                                    $taskStatus = $isBoxDistributionTimeSet ? 'Time Set' : 'Pending';
+                                    $taskStatus = $isBoxDistributionTimeSet ? 'Time Catched' : 'Pending';
                                     $badgeClass = $isBoxDistributionTimeSet ? 'bg-light-secondary' : 'bg-danger';
                                 @endphp
                                 <li class="task-list-item">
@@ -798,11 +811,15 @@
                                                     <div class="mt-2">
                                                         {{-- <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a> --}}
-                                                        <a href="#" data-pc-animate="just-me"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#qpaperdistributiontime"
-                                                            class="me-2 btn btn-sm btn-light-info"><i
-                                                                class="feather icon-plus mx-1"></i>Set Current Time</a>
+                                                                @if (!is_null($isBoxDistributionTimeSet))
+                                                                @else
+                                                                <a href="#" data-pc-animate="just-me"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#qpaperdistributiontime"
+                                                                class="me-2 btn btn-sm btn-light-info"><i
+                                                                    class="feather icon-plus mx-1"></i>Set Current Time</a>
+                                                                @endif
+                                                       
                                                         {{-- <a href="#" class="me-2 btn btn-sm btn-light-info"><i
                                                                 class="feather icon-plus mx-1"></i>Add</a> --}}
                                                     </div>

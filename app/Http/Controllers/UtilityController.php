@@ -91,8 +91,7 @@ class UtilityController extends Controller
         $hallCode = $hall_code ?? 'N/A';
         
         // Define the dynamic folder path
-        $folderPath = 'reports/utilization-report/' . $examId; // Folder for the specific exam
-        
+        $folderPath = 'reports/' . $examId . '/utilization-report/';
         // Ensure the folder exists
         Storage::disk('public')->makeDirectory($folderPath);
         

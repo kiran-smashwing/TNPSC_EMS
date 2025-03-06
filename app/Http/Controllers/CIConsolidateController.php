@@ -111,18 +111,9 @@ class CIConsolidateController extends Controller
             ->selectRaw("scribes->'{$exam_session}' as selected_scribes")
             ->value('selected_scribes');
 
-        // Handle case where selectedScribeData is empty or null
-        // if (!$selectedScribeData) {
-        //     return []; // Return empty array if no data is found
-        // }
-
+        
         // Decode JSON data and extract assignments
         $scribeAssignments = collect(json_decode($selectedScribeData, true)['scribe_assignments'] ?? []);
-
-        // if ($scribeAssignments->isEmpty()) {
-        //     return []; // Return empty array if no assignments exist
-        // }
-
         // Fetch scribe details in a single query
         $scribes = Scribe::whereIn('scribe_id', $scribeAssignments->pluck('scribe_id')->unique())
             ->get()
@@ -308,7 +299,7 @@ class CIConsolidateController extends Controller
         $examId = $examId; // Ensure you get the correct exam ID
         $examDate = \Carbon\Carbon::parse($exam_date)->format('d-m-Y'); // Format exam date
         // Define the dynamic folder path
-        $folderPath = 'reports/consolidate-report/' . $examId; // Folder for the specific exam
+        $folderPath = 'reports/' . $examId . '/consolidate-report/'; // Folder for the specific exam
 
         // Ensure the folder exists
         Storage::disk('public')->makeDirectory($folderPath);

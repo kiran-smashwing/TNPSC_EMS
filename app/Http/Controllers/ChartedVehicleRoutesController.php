@@ -105,6 +105,16 @@ class ChartedVehicleRoutesController extends Controller
                     'ifhrms_no' => $escortstaff['revenue_ifhrms_no'] ?? null
                 ]
             ]);
+            //assign as TNPSC Custom Role to the department officals from the tnpsc_staff
+            $tnpsc_staff = DepartmentOfficial::where(
+                'dept_off_id',
+                $escortstaff['tnpsc_staff']
+            )->first();
+            if ($tnpsc_staff) {
+                $tnpsc_staff->custom_role = 'ESCORT';
+                $tnpsc_staff->save();
+            }
+
         }
 
         return redirect()->route('charted-vehicle-routes.index')
@@ -165,6 +175,7 @@ class ChartedVehicleRoutesController extends Controller
             // Delete existing escort staff
             EscortStaff::where('charted_vehicle_id', $route->id)->delete();
 
+
             // Create new escort staff
             foreach ($request->escortstaffs as $staff) {
                 EscortStaff::create([
@@ -182,6 +193,15 @@ class ChartedVehicleRoutesController extends Controller
                         'ifhrms_no' => $staff['revenue_ifhrms_no'] ?? null
                     ]
                 ]);
+                //assign as TNPSC Custom Role to the department officals from the tnpsc_staff
+                $tnpsc_staff = DepartmentOfficial::where(
+                    'dept_off_id',
+                    $staff['tnpsc_staff']
+                )->first();
+                if ($tnpsc_staff) {
+                    $tnpsc_staff->custom_role = 'ESCORT';
+                    $tnpsc_staff->save();
+                }
             }
         } else {
 
@@ -962,7 +982,7 @@ class ChartedVehicleRoutesController extends Controller
 
         // dd($trunkBoxes);
         // Render the view for the ED report
-        $html = view('PDF.ED.annexure-1-b', compact('groupedExams', 'route','formattedGPSLocks','centers', 'halls', 'cvUnusedOtlLocks', 'cvUsedOtlLocks', 'unusedOtlString', 'examHalls'))->render();
+        $html = view('PDF.ED.annexure-1-b', compact('groupedExams', 'route', 'formattedGPSLocks', 'centers', 'halls', 'cvUnusedOtlLocks', 'cvUsedOtlLocks', 'unusedOtlString', 'examHalls'))->render();
 
         // Create the PDF with the necessary options
         $pdf = Browsershot::html($html)

@@ -45,7 +45,7 @@ class CurrentExamController extends Controller
         $user = current_user();
         $role = session('auth_role');
         $examIds = null; // Initialize as null so we know if a filter should be applied
-    
+
         switch ($role) {
             case 'district':
             case 'treasury':
@@ -81,29 +81,33 @@ class CurrentExamController extends Controller
                     ->values();
                 break;
             case 'headquarters':
-                if($user->custom_role == 'VDS'){
+                if ($user->custom_role == 'VDS') {
                     $examIds = ExamMaterialRoutes::where('mobile_team_staff', $user->dept_off_id)
-                    ->pluck('exam_id')
-                    ->unique()
-                    ->values();
+                        ->pluck('exam_id')
+                        ->unique()
+                        ->values();
                 }
                 break;
             default:
         }
-    
+
         $examQuery = Currentexam::withCount('examsession')
             ->orderBy('exam_main_createdat', 'desc');
-    
+
         // If a role-specific exam ID list is set, filter by it
         if (!is_null($examIds)) {
             $examQuery->whereIn('exam_main_no', $examIds);
         }
-    
+
+        // Fetch only the current exams that have not yet ended (last date >= today)
+        $today = Carbon::now();
+        $examQuery->whereRaw("CAST(exam_main_lastdate AS DATE) + INTERVAL '2 days' >= ?", [$today]);
+
         $exams = $examQuery->get();
-    
+
         return view('current_exam.index', compact('exams'));
     }
-    
+
 
     public function create()
     {

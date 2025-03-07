@@ -3,6 +3,9 @@
 use App\Http\Controllers\AlertNotificationController;
 use App\Http\Controllers\DistrictCandidatesController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RoleController;
@@ -176,7 +179,7 @@ Route::middleware(['auth.multi'])->group(function () {
             Route::get('/completed-exam/edit', [CompletedExamController::class, 'edit'])->name('completed-exam.edit');
         });
     });
-   
+
     Route::get('/test-mail', [TestMailController::class, 'sendTestEmail']);
     Route::get('/password/reset', [AuthController::class, 'showResetForm'])->name('password.reset');
     //Qr Code Reader
@@ -196,23 +199,23 @@ Route::get('/treasury-officers/verify-email/{token}', [TreasuryOfficerController
 //District Route::prefix('district')->group(function () {
 Route::prefix('report')->group(function () {
     // Route::middleware(['auth.multi'])->group(function () {
-        Route::get('/attendance-report', [AttendanceReportController::class, 'index'])->name('attendance.report');
-        Route::get('/attendance-report-overall', [AttendanceReportController::class, 'generatecategorysender'])->name('attendance.report.overall');
-        Route::get('/expenditure-statment', [Expenditure_StatmentController::class, 'index'])->name('expenditure-statment.report');
-        Route::get('/filter-expenditure', [Expenditure_StatmentController::class, 'filterExpenditure'])->name('filter.expenditure');
-        Route::get('generate-exapenditure-certificate/{examid}', [Expenditure_StatmentController::class, 'generateexapenditureCertificate'])->name('download.expenditure.report');
-        Route::get('/expenditure-statment-overall', [Expenditure_StatmentController::class, 'generateexpenditureReport'])->name('expenditure-statment.report.overall');
-        Route::get('/omr-account', [Omr_AccountController::class, 'index'])->name('omr-account.report');
-        Route::get('/omr-report-overall', [Omr_AccountController::class, 'generateReport'])->name('omr-report.report.overall');
-        Route::get('/ci-attendace', [CiMeetingAttendanceController::class, 'index'])->name('ci-attendace.report');
-        Route::get('/ci-attendace-report-overall', [CiMeetingAttendanceController::class, 'generateCIMeetingReport'])->name('ci-attendace.report.overall');
-        Route::get('/consolidated-statement', [ConsolidatedStatementController::class, 'index'])->name('consolidated-statement.report');
-        Route::get('/download-consolidated-statement/{exam_id}/{exam_date}/{session}/{ci_id}', [ConsolidatedStatementController::class, 'generateconsolidatedReport'])->name('download-consolidated-statement.report');
-        Route::get('/consolidated-statement-overall', [ConsolidatedStatementController::class, 'filterConsolidatedStatement'])->name('consolidated-statement.report.overall');
-        Route::get('/candidate-remarks', [CandidateRemarksController::class, 'index'])->name('candidate-remarks.report');
-        Route::get('/candidate-remarks-report-overall', [CandidateRemarksController::class, 'generateCandidateRemarksReportOverall'])->name('candidate-remarks.report.overall');
-        Route::get('/exam-material-discrepancy', [ExamMaterialsDiscrepancyController::class, 'index'])->name('exam-material-discrepancy.report');
-        Route::get('/emergency-alarm-notification', [EmergencyAlarmNotificationsController::class, 'index'])->name('emergency-alarm-notification.report');
+    Route::get('/attendance-report', [AttendanceReportController::class, 'index'])->name('attendance.report');
+    Route::get('/attendance-report-overall', [AttendanceReportController::class, 'generatecategorysender'])->name('attendance.report.overall');
+    Route::get('/expenditure-statment', [Expenditure_StatmentController::class, 'index'])->name('expenditure-statment.report');
+    Route::get('/filter-expenditure', [Expenditure_StatmentController::class, 'filterExpenditure'])->name('filter.expenditure');
+    Route::get('generate-exapenditure-certificate/{examid}', [Expenditure_StatmentController::class, 'generateexapenditureCertificate'])->name('download.expenditure.report');
+    Route::get('/expenditure-statment-overall', [Expenditure_StatmentController::class, 'generateexpenditureReport'])->name('expenditure-statment.report.overall');
+    Route::get('/omr-account', [Omr_AccountController::class, 'index'])->name('omr-account.report');
+    Route::get('/omr-report-overall', [Omr_AccountController::class, 'generateReport'])->name('omr-report.report.overall');
+    Route::get('/ci-attendace', [CiMeetingAttendanceController::class, 'index'])->name('ci-attendace.report');
+    Route::get('/ci-attendace-report-overall', [CiMeetingAttendanceController::class, 'generateCIMeetingReport'])->name('ci-attendace.report.overall');
+    Route::get('/consolidated-statement', [ConsolidatedStatementController::class, 'index'])->name('consolidated-statement.report');
+    Route::get('/download-consolidated-statement/{exam_id}/{exam_date}/{session}/{ci_id}', [ConsolidatedStatementController::class, 'generateconsolidatedReport'])->name('download-consolidated-statement.report');
+    Route::get('/consolidated-statement-overall', [ConsolidatedStatementController::class, 'filterConsolidatedStatement'])->name('consolidated-statement.report.overall');
+    Route::get('/candidate-remarks', [CandidateRemarksController::class, 'index'])->name('candidate-remarks.report');
+    Route::get('/candidate-remarks-report-overall', [CandidateRemarksController::class, 'generateCandidateRemarksReportOverall'])->name('candidate-remarks.report.overall');
+    Route::get('/exam-material-discrepancy', [ExamMaterialsDiscrepancyController::class, 'index'])->name('exam-material-discrepancy.report');
+    Route::get('/emergency-alarm-notification', [EmergencyAlarmNotificationsController::class, 'index'])->name('emergency-alarm-notification.report');
     // });
 });
 Route::prefix('district')->group(function () {
@@ -433,6 +436,55 @@ Route::prefix('ci-paper-replacements')->group(function () {
         Route::post('/save-replacement-details', [CIPaperReplacementsController::class, 'saveReplacementDetails'])->name('save.replacement.details');
     });
 });
+Route::get('/view-consolidated-report', function (Request $request) {
+    try {
+        // Decrypt the file path
+        $decryptedPath = Crypt::decryptString($request->encryptedUrl);
+
+        // Get the absolute path
+        $filePath = storage_path('app/public/' . str_replace('storage/', '', $decryptedPath));
+
+        // Check if file exists
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found');
+        }
+
+        // Custom filename for download
+        $newFileName = 'Consolidated-Report-' . now()->format('Ymd') . '.pdf';
+
+        return response()->file($filePath, [
+            'Content-Disposition' => 'inline; filename="' . $newFileName . '"',
+            'Content-Type' => 'application/pdf',
+        ]);
+    } catch (\Exception $e) {
+        abort(404, 'Invalid URL');
+    }
+})->name('report.consolidated.view');
+Route::get('/view-report', function (Request $request) {
+    try {
+        // Decrypt the file path
+        $decryptedPath = Crypt::decryptString($request->encryptedUrl);
+
+        // Get the absolute path to the file
+        $filePath = storage_path('app/public/' . str_replace('storage/', '', $decryptedPath));
+
+        // Check if file exists
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found');
+        }
+
+        // Set the new file name (e.g., "Exam-Utilization-Report.pdf")
+        $newFileName = 'Utilization-Report-' . now()->format('Ymd') . '.pdf';
+
+        // Return the file as a download with the new name
+        return response()->file($filePath, [
+            'Content-Disposition' => 'inline; filename="' . $newFileName . '"',
+            'Content-Type' => 'application/pdf',
+        ]);
+    } catch (\Exception $e) {
+        abort(404, 'Invalid URL');
+    }
+})->name('report.view');
 Route::prefix('ci-candidate-log')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::post('/ci-candidates-log', [CICandidateLogsController::class, 'saveAdditionalcandidates'])->name('ci-candidates-log.savecandidates');

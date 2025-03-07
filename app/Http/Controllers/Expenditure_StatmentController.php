@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Currentexam;
 use Spatie\Browsershot\Browsershot;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Crypt;
 use App\Models\Center;
 use App\Models\CIChecklistAnswer;
 use Illuminate\Support\Facades\Log;
@@ -22,7 +23,8 @@ class Expenditure_StatmentController extends Controller
         $centers = center::all(); // Fetch all venues
         return view('view_report.expenditure_report.index', compact('districts', 'centers')); // Path matches the file created
     }
-    public function filterExpenditure(Request $request)
+   
+ public function filterExpenditure(Request $request)
     {
         $query = Currentexam::with('examservice');
 
@@ -58,6 +60,9 @@ class Expenditure_StatmentController extends Controller
                 // Decode utility_answer JSON safely
                 $utility = $item->utility_answer;
 
+                // Generate encrypted URL for each record
+                $encryptedUrl = Crypt::encryptString('storage/reports/' . $item->exam_id . '/utilization-report/utilization-report-' . optional($item->center->district)->district_code . '-' . optional($item->center)->center_code . '-' . optional($item->ci->venue)->venue_code . '-' . $item->hall_code . '.pdf');
+
                 return [
                     'id' => $item->id,
                     'district' => optional($item->center->district)->district_name ?? 'N/A',
@@ -70,6 +75,7 @@ class Expenditure_StatmentController extends Controller
                     'amountReceived' => $utility['amountReceived'] ?? '0',
                     'totalAmountSpent' => $utility['totalAmountSpent'] ?? '0',
                     'balanceAmount' => $utility['balanceAmount'] ?? '0',
+                    'encryptedUrl' => $encryptedUrl, // Pass encrypted URL
                 ];
             })->toArray(); // Ensure it's an array
         }
@@ -82,7 +88,8 @@ class Expenditure_StatmentController extends Controller
         ));
     }
 
-public function getDropdownData(Request $request)
+
+    public function getDropdownData(Request $request)
     {
         $notificationNo = $request->query('notification_no');
 
@@ -149,5 +156,4 @@ public function getDropdownData(Request $request)
             'centerCodeFromSession' => $centerCodeFromSession,
         ]);
     }
-   
 }

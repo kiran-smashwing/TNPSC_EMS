@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Spatie\Browsershot\Browsershot;
+use Illuminate\Support\Facades\Crypt;
 use App\Models\Currentexam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -101,39 +102,29 @@ class ConsolidatedStatementController extends Controller
     {
         $query = Currentexam::with('examservice');
 
-        // Filter by Notification No
         if ($request->filled('notification_no')) {
             $query->where('exam_main_notification', $request->notification_no);
         }
 
-        // Fetch the filtered results
         $exam_data = $query->get();
 
-        // Ensure there's at least one record before accessing properties
         if ($exam_data->isNotEmpty()) {
             $exam_main_no = $exam_data->first()->exam_main_no;
         } else {
             return redirect()->back()->with([
                 'error' => 'No exam data found.',
-                'statement_data' => [] // Ensure empty array is passed
+                'statement_data' => []
             ]);
         }
 
-        // ✅ Always define `$statement_data`
         $statement_data = [];
 
-        // Fetch Chief Invigilator details along with required fields
         $ci_data = CIChecklistAnswer::where('exam_id', $exam_main_no)
-            ->with([
-                'center.district', // Ensure center and district relationships exist
-                'venue'            // Ensure venue relationship exists
-            ])
+            ->with(['center.district', 'venue'])
             ->get();
 
         if ($ci_data->isNotEmpty()) {
-            // Extract required fields
             $statement_data = $ci_data->map(function ($item) {
-                // Fetch Chief Invigilator details for each `ci_id`
                 $ci_data_details = ChiefInvigilator::where('ci_id', $item->ci_id)
                     ->with(['venue'])
                     ->first();
@@ -153,15 +144,23 @@ class ConsolidatedStatementController extends Controller
             })->toArray();
         }
 
-        // ✅ Capture the session input from the request
-        $session = $request->input('session', ''); // Default empty if not provided
+        // Capture the session and exam date input
+        $session = $request->input('session', '');
         $exam_date = $request->input('exam_date', '');
+
+        // Construct the report file path
+        $reportPath = 'storage/reports/' . $exam_main_no . '/consolidate-report/consolidate-report-' . $exam_main_no . '-' . $exam_date . '-' . $session . '.pdf';
+
+        // Encrypt the report path
+        $encryptedUrl = Crypt::encryptString($reportPath);
+
         return view('view_report.consolidated_statement_report.index', compact(
             'exam_data',
             'exam_main_no',
             'statement_data',
-            'session', // Pass session to the Blade view
-            'exam_date'
+            'session',
+            'exam_date',
+            'encryptedUrl' // Pass encrypted URL to Blade view
         ));
     }
 }

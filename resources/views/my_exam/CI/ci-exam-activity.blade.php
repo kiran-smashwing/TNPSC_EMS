@@ -496,7 +496,7 @@
                                                                 
                                                             </ul>
                                                         </div>
-                                                        {{-- <i data-feather="clock">:{{ $isBoxOpenTimeSet ? \Carbon\Carbon::parse(time: $timingLog['qp_box_open_time'])->format('h:i A') : '' }}</i> --}}
+                                                        {{ $isBoxOpenTimeSet ? \Carbon\Carbon::parse(time: $timingLog['qp_box_open_time'])->format('h:i A') : '' }}
                                                     </div>
                                                 </div>
                                                 <div class="col">
@@ -523,13 +523,13 @@
                                                             Chief Invigilator</div>
                                                     </div>
                                                     <div class="mt-2">
-                                                        @if (!is_null($isBoxOpenTimeSet))
-                                                        
-                                                        @else
+                                                        @if (!$isBoxOpenTimeSet)
                                                         <a href="#" data-pc-animate="just-me"
                                                             data-bs-toggle="modal" data-bs-target="#qpboxOpenTimeModal"
                                                             class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-clock mx-1"></i>Set Current Time</a>
+                                                        @else
+                                                        
                                                         @endif
                                                     </div>
                                                 </div>
@@ -782,7 +782,9 @@
                                                             <ul
                                                                 class="text-sm-center list-unstyled mt-2 mb-0 d-inline-block">
                                                             </ul>
+                                                            
                                                         </div>
+                                                        {{ $isBoxDistributionTimeSet ? \Carbon\Carbon::parse(time: $timingLog['qp_box_distribution_time'])->format('h:i A') : '' }}
                                                     </div>
                                                 </div>
                                                 <div class="col">
@@ -811,13 +813,14 @@
                                                     <div class="mt-2">
                                                         {{-- <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a> --}}
-                                                                @if (!is_null($isBoxDistributionTimeSet))
-                                                                @else
+                                                                @if (!$isBoxDistributionTimeSet)
                                                                 <a href="#" data-pc-animate="just-me"
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#qpaperdistributiontime"
                                                                 class="me-2 btn btn-sm btn-light-info"><i
                                                                     class="feather icon-plus mx-1"></i>Set Current Time</a>
+                                                                @else
+                                                               
                                                                 @endif
                                                        
                                                         {{-- <a href="#" class="me-2 btn btn-sm btn-light-info"><i

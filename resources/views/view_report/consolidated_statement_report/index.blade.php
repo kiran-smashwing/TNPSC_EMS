@@ -176,10 +176,11 @@
                                                 <td>{{ $data['ci_email'] }}</td>
                                                 <td>{{ $data['ci_phone'] }}</td>
                                                 <td>
-                                                    <a href="{{ asset('storage/reports/'.$data['exam_id'].'/consolidate-report/consolidate-report-'.$data['center_code'].'-'.$data['hall_code'].'-'.$exam_date.'-'.$session.'.pdf') }}"
-                                                        class="btn btn-primary btn-sm" target="_blank">
-                                                        View
-                                                    </a>
+                                                    <a href="{{ route('report.consolidated.view', ['encryptedUrl' => $encryptedUrl]) }}" 
+                                                        class="btn btn-primary btn-sm" 
+                                                        target="_blank">
+                                                         View
+                                                     </a>
                                                 </td>
 
                                             </tr>

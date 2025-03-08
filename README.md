@@ -95,7 +95,7 @@ GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO smasgkcg_tnpsc_
 
 ### When to Use
 
-- Use this command when the user needs permissions for all sequences in the schema. This is useful for applications that dynamically interact with multiple sequences.
+-   Use this command when the user needs permissions for all sequences in the schema. This is useful for applications that dynamically interact with multiple sequences.
 
 ### Example
 
@@ -107,49 +107,56 @@ GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO smasgkcg_tnpsc_
 
 ### Notes
 
-- Replace `public` with the appropriate schema name if your sequences are not in the default `public` schema.
-- Replace `smasgkcg_tnpsc_ems_admin` with the database username that needs these permissions.
-- For better security, grant permissions only to the required sequences or roles if you do not need global permissions.
-
+-   Replace `public` with the appropriate schema name if your sequences are not in the default `public` schema.
+-   Replace `smasgkcg_tnpsc_ems_admin` with the database username that needs these permissions.
+-   For better security, grant permissions only to the required sequences or roles if you do not need global permissions.
 
 # PostgreSQL DateStyle Configuration
 
 To ensure consistent date formatting (DD-MM-YYYY) in PostgreSQL, update the DateStyle setting.
 
 ## Temporary Change (Session Only)
+
 ```sql
 SET DateStyle = 'ISO, DMY';
 ```
 
 ## Permanent Change (Database Level)
+
 ```sql
 ALTER DATABASE your_database_name SET DateStyle TO 'ISO, DMY';
 ```
 
-
 ## System-Wide Change (postgresql.conf)
+
 Edit the PostgreSQL configuration file and update:
+
 ```conf
 datestyle = 'ISO, DMY'
 ```
+
 Restart the PostgreSQL server after making this change.
 
 ## Verify the Setting
+
 ```sql
 SHOW DateStyle;
 ```
+
 # Editing the Default Apache SSL Configuration
 
 This guide outlines the steps to modify the default Apache SSL configuration for the EMS project hosted on `ems.smashsoft.site`.
 
 ## Prerequisites
-- Apache2 installed and running
-- Proper SSL certificates available
-- Sufficient permissions to modify configuration files
+
+-   Apache2 installed and running
+-   Proper SSL certificates available
+-   Sufficient permissions to modify configuration files
 
 ## Steps to Edit the Default Configuration
 
 ### 1. Backup the Default Configuration
+
 Before making any changes, create a backup of the default SSL configuration:
 
 ```bash
@@ -157,6 +164,7 @@ sudo cp /etc/apache2/sites-available/000-default-le-ssl.conf /etc/apache2/sites-
 ```
 
 ### 2. Edit the Default Configuration
+
 Open the default SSL configuration file:
 
 ```bash
@@ -195,6 +203,7 @@ Replace the existing content with the following configuration:
 ```
 
 ### 3. Reload Apache
+
 After saving the configuration file, reload Apache to apply the changes:
 
 ```bash
@@ -204,11 +213,13 @@ sudo systemctl reload apache2
 ## Verification
 
 ### 1. Check Apache Syntax
+
 Run the following command to verify the configuration syntax:
 
 ```bash
 sudo apachectl configtest
 ```
+
 If the syntax is correct, you should see:
 
 ```
@@ -216,6 +227,7 @@ Syntax OK
 ```
 
 ### 2. Test the WebSocket Connection
+
 Use `wscat` to test the WebSocket proxy:
 
 ```bash
@@ -230,14 +242,16 @@ Connected (press CTRL+C to quit)
 ```
 
 ## Notes
-- Ensure that `/path/to/ssl/cert.pem` and `/path/to/ssl/key.pem` are replaced with the actual SSL certificate and key paths.
-- If any errors occur, check Apache logs using:
-  ```bash
-  sudo journalctl -xe
-  ```
-- If the WebSocket connection fails, verify the proxy configuration and network connectivity.
+
+-   Ensure that `/path/to/ssl/cert.pem` and `/path/to/ssl/key.pem` are replaced with the actual SSL certificate and key paths.
+-   If any errors occur, check Apache logs using:
+    ```bash
+    sudo journalctl -xe
+    ```
+-   If the WebSocket connection fails, verify the proxy configuration and network connectivity.
 
 ## Conclusion
+
 Following these steps will properly configure the Apache SSL setup for `ems.smashsoft.site`, ensuring secure and efficient communication with WebSocket support.
 
 # Configuring Systemd for Laravel Queue and Reverb
@@ -245,13 +259,15 @@ Following these steps will properly configure the Apache SSL setup for `ems.smas
 This guide provides steps to create and manage systemd service units for Laravel queue workers and WebSocket servers.
 
 ## Prerequisites
-- A running Laravel application
-- Systemd available on your server
-- Proper permissions to create service files
+
+-   A running Laravel application
+-   Systemd available on your server
+-   Proper permissions to create service files
 
 ## Creating Systemd Services
 
 ### 1. Create a Systemd Unit for the Laravel Queue Worker
+
 Create a new service file for the Laravel queue worker:
 
 ```bash
@@ -281,6 +297,7 @@ WantedBy=multi-user.target
 Save and exit the file.
 
 ### 2. Create a Systemd Unit for the Laravel Reverb Server
+
 Create another service file for the Reverb server:
 
 ```bash
@@ -310,6 +327,7 @@ WantedBy=multi-user.target
 Save and exit the file.
 
 ### 3. Enable and Start the Services
+
 Reload systemd to recognize the new services:
 
 ```bash
@@ -331,6 +349,7 @@ sudo systemctl start laravel-reverb
 ```
 
 ### 4. Verify Service Status
+
 To check if the services are running properly, use:
 
 ```bash
@@ -339,13 +358,202 @@ sudo systemctl status laravel-reverb
 ```
 
 ## Notes
-- Ensure that `www-data` is the correct user for running Laravel. Adjust if necessary.
-- If any issues occur, check logs using:
-  ```bash
-  journalctl -u laravel-queue-worker --no-pager
-  journalctl -u laravel-reverb --no-pager
-  ```
-- Modify `ExecStart` commands based on Laravel's queue driver and environment requirements.
+
+-   Ensure that `www-data` is the correct user for running Laravel. Adjust if necessary.
+-   If any issues occur, check logs using:
+    ```bash
+    journalctl -u laravel-queue-worker --no-pager
+    journalctl -u laravel-reverb --no-pager
+    ```
+-   Modify `ExecStart` commands based on Laravel's queue driver and environment requirements.
 
 ## Conclusion
+
 Following these steps ensures that Laravel queue workers and Reverb run efficiently under systemd, providing stability and automatic restarts.
+
+# Configuring Laravel on a VPS Without `/public` in URL
+
+If you're hosting your Laravel application on a **VPS** and need to serve it without the `/public` in the URL, follow these steps.
+
+## 📌 Step 1: Identify the Active Apache Configuration File
+
+Run the following command to check the enabled virtual host configurations:
+
+```sh
+sudo apache2ctl -S
+```
+
+This will display the active Apache configurations. Look for:
+
+-   `000-default-le-ssl.conf` (for HTTPS)
+-   `000-default.conf` (for HTTP)
+
+You need to **modify both** to ensure proper redirection for HTTP and HTTPS.
+
+---
+
+## 📌 Step 2: Edit the Virtual Host Configuration
+
+Open both configuration files one by one:
+
+```sh
+sudo nano /etc/apache2/sites-enabled/000-default-le-ssl.conf
+sudo nano /etc/apache2/sites-enabled/000-default.conf
+```
+
+### 🔧 Update the `DocumentRoot`
+
+Find this line:
+
+```apache
+DocumentRoot /var/www/html/tnpsc
+```
+
+Change it to:
+
+```apache
+DocumentRoot /var/www/html/tnpsc/public
+```
+
+### 🔧 Update the `<Directory>` Section
+
+Ensure the following **exists** or **replace** any incorrect configuration:
+
+```apache
+<Directory /var/www/html/tnpsc/public>
+    AllowOverride All
+    Require all granted
+</Directory>
+```
+
+Save and exit: **Ctrl+O**, then **Enter**, and **Ctrl+X** to close.
+
+---
+
+## 📌 Step 3: Apply the Changes
+
+After making the changes, verify your Apache configuration:
+
+```sh
+sudo apache2ctl configtest
+```
+
+If the output says `Syntax OK`, proceed with restarting Apache:
+
+```sh
+sudo systemctl restart apache2
+```
+
+Now, check if your configuration is properly applied:
+
+```sh
+sudo apache2ctl -S
+```
+
+This should now display the `DocumentRoot` correctly pointing to:
+
+```sh
+/var/www/html/tnpsc/public
+```
+
+---
+
+# Removing `/public` from Laravel URLs on Shared Hosting
+
+If you're on **shared hosting** and cannot modify server configurations, follow these steps to remove `/public` from the URL.
+
+## 📌 Step 1: Create an `.htaccess` File in the Project Root
+
+Create a new `.htaccess` file in your **project root** (not inside `public/`):
+
+```apache
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(.*)$ public/$1 [L]
+    # Block direct access to sensitive files
+    <FilesMatch "^\.env|composer\.(json|lock)|package(-lock)?\.json|webpack\.mix\.js|phpunit\.xml|artisan$">
+      Order allow,deny
+      Deny from all
+    </FilesMatch>
+    
+    # Block access to sensitive directories
+    RedirectMatch 403 ^/app/?
+    RedirectMatch 403 ^/bootstrap/?
+    RedirectMatch 403 ^/config/?
+    RedirectMatch 403 ^/database/?
+    RedirectMatch 403 ^/resources/?
+    RedirectMatch 403 ^/routes/?
+    RedirectMatch 403 ^/storage/?
+    RedirectMatch 403 ^/tests/?
+    RedirectMatch 403 ^/vendor/?
+</IfModule>
+```
+
+---
+
+## 📌 Step 2: Modify the `.htaccess` in the `public/` Directory
+
+Open or create the `.htaccess` file inside the `public/` folder and **replace** its contents with:
+
+```apache
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+    RewriteBase /
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect Trailing Slashes...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+```
+
+---
+
+## 📌 Step 3: Create a Basic `index.php` in the Root Directory
+
+Create a new `index.php` file in your **project root** (same level as `.env`, `app/`, `bootstrap/`):
+
+```php
+<?php
+
+// Redirect all requests to public/index.php
+require_once __DIR__ . '/public/index.php';
+```
+
+---
+
+## 🚀 Final Steps
+
+1. **Clear Laravel Cache**  
+   Run these commands to ensure changes take effect:
+
+    ```sh
+    php artisan cache:clear
+    php artisan config:clear
+    php artisan view:clear
+    php artisan route:clear
+    ```
+
+2. **Check Your `.env` File**  
+   Make sure your `.env` file contains the correct URL settings:
+
+    ```env
+    APP_URL=https://yourdomain.com
+    ASSET_URL=https://yourdomain.com
+    ```
+
+Now your Laravel application should work **without needing `/public` in the URL**! 🎉  
+If you still experience issues, check your hosting provider’s settings for **mod_rewrite** support.

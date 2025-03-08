@@ -163,9 +163,11 @@ class ExamMaterialsRouteController extends Controller
         $examDates = $session->examsession->groupBy(function ($item) {
             return \Carbon\Carbon::parse($item->exam_sess_date)->format('d-m-Y');
         })->keys(); // Get only the keys (exam dates)
+        $lastRoute = ExamMaterialRoutes::where('exam_id', $examId)->where('district_code', $district_code)->max('route_no');
+        $lastRouteNumber = $lastRoute ? intval($lastRoute) : 1;
+        $newRouteNumber = str_pad(($lastRouteNumber + 1), 3, '0', STR_PAD_LEFT);
 
-
-        return view('my_exam.District.materials-route.create', compact('examId', 'mobileTeam', 'centers', 'halls', 'examDates', 'user'));
+        return view('my_exam.District.materials-route.create', compact('examId', 'mobileTeam', 'centers', 'halls', 'examDates', 'user','newRouteNumber'));
     }
 
     public function storeRoute(Request $request)
@@ -181,14 +183,15 @@ class ExamMaterialsRouteController extends Controller
             'exam_date' => 'required',
             'route_no' => [
                 'required',
-                function ($attribute, $value, $fail) use ($request) {
+                function ($attribute, $value, $fail) use ($request, $user) {
                     $examDate = \DateTime::createFromFormat('d-m-Y', $request->exam_date)->format('Y-m-d');
                     $exists = ExamMaterialRoutes::where('exam_id', $request->exam_id)
                         ->where('route_no', $value)
                         ->whereDate('exam_date', $examDate)
+                        ->where('district_code', $user->district_code ?? '01')
                         ->exists();
                     if ($exists) {
-                        $fail('The route number must be unique for the selected exam date and center.');
+                        $fail('The route number must be unique for the selected exam date.');
                     }
                 },
             ],

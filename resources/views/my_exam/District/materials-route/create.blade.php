@@ -73,7 +73,7 @@
                                                             class="text-danger">*</span></label>
                                                     <input type="text"
                                                         class="form-control  @error('route_no') is-invalid @enderror"
-                                                        id="route_no" value="{{ old('route_no') }}" name="route_no"
+                                                        id="route_no" value="{{ old('route_no', $newRouteNumber) }} " name="route_no"
                                                         placeholder="001" required>
                                                     @error('route_no')
                                                         <div class="invalid-feedback">{{ $message }}</div>

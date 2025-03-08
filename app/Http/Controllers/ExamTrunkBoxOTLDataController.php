@@ -29,12 +29,11 @@ class ExamTrunkBoxOTLDataController extends Controller
     {
         $header = ['Hall No', 'Trunk Box QR', 'OTL', 'Date'];
         $data = [
-            ['001', '0101121', '123456,123457', '03-08-2024'],
-            ['001', '0101122', '123456', '03-08-2024'],
-            ['001', '0101123', '123456,34567,21345', '03-08-2024'],
-            ['001', '0101124', '123456', '03-08-2024'],
-            ['001', '0101125', '123456,546743', '03-08-2024'],
-            ['001', '0101126', '123456,212345', '03-08-2024'],
+            ['001,002', '0101121', '123456,123457', '03-08-2024'],
+            ['003', '0101123', '123456,34567,21345', '03-08-2024'],
+            ['004', '0101124', '123456', '03-08-2024'],
+            ['005', '0101125', '123456,546743', '03-08-2024'],
+            ['006', '0101126', '123456,212345', '03-08-2024'],
         ];
         $callback = function () use ($header, $data) {
             $file = fopen('php://output', 'w');
@@ -129,11 +128,18 @@ class ExamTrunkBoxOTLDataController extends Controller
                 continue; // Skip this iteration if the row is empty
             }
             $totalRows++;
-            try {
-                // Validate the data for each field
-                $this->validateExamMaterialsQRCSVRow($data, $examId, $successfulInserts, $failedRows);
-            } catch (Exception $e) {
-                $failedRows[] = array_merge($data, ['error' => $e->getMessage()]);
+            // Assuming Hall Code is the first column
+            $hallCodes = explode(',', $data[0]); // Split hall codes if comma-separated
+
+            foreach ($hallCodes as $hallCode) {
+                $newData = $data; // Copy original row
+                $newData[0] = trim($hallCode); // Replace Hall Code with individual one
+
+                try {
+                    $this->validateExamMaterialsQRCSVRow($newData, $examId, $successfulInserts, $failedRows);
+                } catch (Exception $e) {
+                    $failedRows[] = array_merge($newData, ['error' => $e->getMessage()]);
+                }
             }
         }
         fclose($handle);
@@ -144,7 +150,7 @@ class ExamTrunkBoxOTLDataController extends Controller
             $failedCsvPath = $examId . '_ed_trunkbox_qr_otl_failed_rows_' . time() . '.csv';
             $filePath = storage_path('app/public/uploads/failed_csv_files/' . $failedCsvPath);
             $fp = fopen($filePath, 'w');
-            fputcsv($fp, ['Hall Code', 'Trunk Box', 'OTL',]);
+            fputcsv($fp, ['Hall Code', 'Trunk Box', 'OTL','Error']);
             foreach ($failedRows as $row) {
                 // Add a tab character or single quote before numbers to retain leading zeros in Excel
                 $row = array_map(function ($value) {
@@ -231,8 +237,8 @@ class ExamTrunkBoxOTLDataController extends Controller
 
             $centerCode = $parsedData['center_code'];
             // Split OTL codes by comma and encode as JSON 
-           // Split OTL codes by comma and encode as JSON 
-           $otlCodes = explode(',', trim($data[2]));
+            // Split OTL codes by comma and encode as JSON 
+            $otlCodes = explode(',', trim($data[2]));
             $otlCodes = json_encode($otlCodes);
             $examTrunkBoxOTLDuplicateData = ExamTrunkBoxOTLData::where('exam_id', $examId)
                 ->where('trunkbox_qr_code', trim($data[1]))

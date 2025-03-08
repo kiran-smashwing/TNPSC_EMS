@@ -21,14 +21,15 @@ class CIPaperReplacementsController extends Controller
     }
     public function saveReplacementDetails(Request $request)
     {
+        // dd($request->all());
         // Validate the incoming data
         $validated = $request->validate([
             'exam_id' => 'required|numeric',
             'exam_sess_date' => 'required|date',
             'exam_sess_session' => 'required|string',
             'registration_number' => 'required|string|max:255',
-            // 'replacement_type' => 'required|in:damaged,shortage',
-            'replacement_type_paper' => 'required',
+            'replacement_type' => 'required|in:damaged,shortage',
+            // 'replacement_type_paper' => 'required',
             'old_paper_number' => 'nullable|string|max:255', // Only for damaged
             'new_paper_number_damaged' => 'nullable|string|max:255', // Damaged type
             'new_paper_number_shortage' => 'nullable|string|max:255', // Shortage type
@@ -36,12 +37,10 @@ class CIPaperReplacementsController extends Controller
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // File upload
             'cropped_image' => 'nullable|string', // Base64 string
         ]);
-        //   dd($validated);
         // Determine the new paper number based on replacement type
         $newPaperNumber = $request->replacement_type === 'damaged'
             ? $validated['new_paper_number_damaged']
             : $validated['new_paper_number_shortage'];
-
         // Retrieve user and exam hall information
         $exam_date = $validated['exam_sess_date'];
         $sessions = $validated['exam_sess_session'];
@@ -111,10 +110,10 @@ class CIPaperReplacementsController extends Controller
         $exam_type = $session->exam_sess_type;
 
         if ($exam_type == 'Objective') {
-            $replacement_type = "OMR Sheet";
+            $replacement_type_paper = "OMR Sheet";
             // dd($replacement_type);
         } else {
-            $replacement_type = "Question Cum Answer Booklet";
+            $replacement_type_paper = "Question Cum Answer Booklet";
             // dd($replacement_type);
         }
         
@@ -124,8 +123,8 @@ class CIPaperReplacementsController extends Controller
                 'exam_date' => $validated['exam_sess_date'],
                 'exam_session' => $validated['exam_sess_session'],
                 'registration_number' => $validated['registration_number'],
-                'replacement_type' => $replacement_type,
-                'replacement_type_paper' => $validated['replacement_type_paper'],
+                'replacement_type' => $validated['replacement_type'],
+                'replacement_type_paper' => $replacement_type_paper,
                 'old_paper_number' => $validated['old_paper_number'], // Only for damaged
                 'new_paper_number' => $newPaperNumber, // Dynamic based on type
                 'replacement_reason' => $validated['replacement_reason'],

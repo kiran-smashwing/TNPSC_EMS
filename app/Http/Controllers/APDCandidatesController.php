@@ -212,6 +212,15 @@ class APDCandidatesController extends Controller
             throw new \Exception("Center code '$centerCode' not found.");
         }
 
+        //check if exam date & session exists
+        $examSession = $exam->examsession()
+            ->where('exam_sess_session', strtoupper($session))
+            ->where('exam_sess_date', $examDate) // Now comparing directly with dd-mm-yyyy
+            ->first();
+        if (!$examSession) {
+            throw new \Exception("Exam date '$examDate' and session '$session' not found.");
+        }
+
         $insertData = [
             'exam_id' => $examId,
             'center_code' => $centerCode,
@@ -226,7 +235,6 @@ class APDCandidatesController extends Controller
         \DB::table($table)->insert($insertData);
         $successfulInserts++;
     }
-
     /**
      * Log the upload action with metadata.
      */

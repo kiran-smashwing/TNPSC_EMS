@@ -2,6 +2,17 @@
 
 @section('title', 'Current Exam')
 
+@push('styles')
+    <style>
+        .venue-column {
+            max-width: 50%;
+            width: 50%;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            white-space: normal !important;
+        }
+    </style>
+@endpush
 @section('content')
 
     <!-- [ Pre-loader ] start -->
@@ -66,21 +77,6 @@
                                                                 </div>
                                                             </a>
                                                         @endforeach
-
-                                                        {{-- <a href="#"
-                                                            class="list-group-item list-group-item-action p-3">
-                                                            <div class="d-flex align-items-center">
-
-                                                                <div class="flex-grow-1 mx-2">
-                                                                    <h6 class="mb-0">Arni</h6>
-                                                                    <span class="text-sm text-muted">19-07-2024 12:00 PM
-                                                                     
-                                                                </div>
-                                                                <div class="chat-avtar text-md text-warning f-w-400 fs-5">
-                                                                    2201
-                                                                </div>
-                                                            </div>
-                                                        </a> --}}
                                                     </div>
                                                 </div>
                                             </div>
@@ -117,8 +113,8 @@
                                         </ul>
                                         <ul class="list-inline ms-auto me-auto mb-0 fs-5 ">
                                             <li class="list-inline-item">
-                                                <a href="#" class="badge bg-dark ">Required
-                                                    <span id="requested-count">0</span>
+                                                <a href="#" class="badge bg-dark ">Halls Required
+                                                    <span id="allotted-halls">0</span> / <span id="requested-count">0</span>
                                                 </a>
                                             </li>
                                             <li class="list-inline-item">
@@ -126,7 +122,7 @@
                                                     <span id="accepted-count">0</span>
                                                 </a>
                                             </li>
-                                            <li class="list-inline-item"><a href="#" class="badge bg-info"> Selected
+                                            <li class="list-inline-item"><a href="#" class="badge bg-info">Selected
                                                     <span id="selected-venues">0</span> / <span
                                                         id="total-venues">0</span></a></li>
                                         </ul>
@@ -148,7 +144,7 @@
                                                     <thead>
                                                         <tr>
                                                             <th>#</th>
-                                                            <th>Venue</th>
+                                                            <th width="40%">Venue</th>
                                                             <th>Contact</th>
                                                             <th>Halls </th>
                                                             <th>Status </th>
@@ -168,7 +164,8 @@
                                                                             @if ($venue->consent_status !== 'not_requested') checked @endif
                                                                             @if ($venue->consent_status !== 'not_requested' && $venue->consent_status !== 'saved') disabled @endif>
                                                                     </td>
-                                                                    <td data-venue-name="{{ $venue->venue_name }}">
+                                                                    <td class="venue-column"
+                                                                        data-venue-name="{{ $venue->venue_name }}">
                                                                         <b>{{ $venue->venue_name }}</b> <br>
                                                                         {{ $venue->venue_address }}
                                                                     </td>
@@ -251,6 +248,16 @@
                 function updateAcceptedCount($centerVenues) {
                     var acceptedCount = $centerVenues.find('td:contains("Accepted")').length;
                     $('#accepted-count').text(acceptedCount);
+                    // Update allotted halls count
+                    var allottedHalls = 0;
+                    $centerVenues.find('.venue-checkbox:checked').each(function() {
+                        var $select = $(this).closest('tr').find('select[name="allocationCount"]');
+                        var halls = parseInt($select.val()) / {{ $candidatesCountForEachHall }};
+                        if (!isNaN(halls)) {
+                            allottedHalls += halls;
+                        }
+                    });
+                    $('#allotted-halls').text(allottedHalls);
                 }
                 // Handle center selection
                 $('.center-list-item').click(function() {
@@ -275,6 +282,8 @@
 
                 // Handle venue checkbox selection
                 $(document).on('change', '.venue-checkbox', function() {
+                    var $centerVenues = $('.venue-row:visible');
+                    updateAcceptedCount($centerVenues);
                     updateSelectedVenuesCount();
                 });
 

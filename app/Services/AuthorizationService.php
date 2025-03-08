@@ -15,7 +15,7 @@ class AuthorizationService
                     'view-all-examination-services',
                     'exam-heading',
                     'current-exam',
-
+                    'exam-completed',
                 ],
             ],
             'APD' => [
@@ -97,6 +97,7 @@ class AuthorizationService
                     'verify-materials-handovered',
                     'exam-heading',
                     'current-exam',
+                    'exam-completed',
                     'cv-down-updates',
                 ],
             ],
@@ -137,6 +138,7 @@ class AuthorizationService
                 'VDS' => [
                     'exam-heading',
                     'current-exam',
+                    'exam-completed',
                 ]
                 ],
             'ESCORT' => [
@@ -179,21 +181,25 @@ class AuthorizationService
             'create-exam-materials-route',
             'exam-heading',
             'current-exam',
+            'exam-completed',
         ],
         'treasury' => [
             'receive-exam-materials-from-printer',
             'receive-bundle-from-mobile-team',
             'exam-heading',
             'current-exam',
+            'exam-completed',
             'scan-receive-disitrct-exam-materials',
         ],
         'center' => [
             'download-meeting-qr',
             'exam-heading',
             'current-exam',
+            'exam-completed',
         ],
         'mobile_team_staffs' => [
             'current-exam',
+            'exam-completed',
             'exam-heading',
         ],
         // Add other roles and their permissions

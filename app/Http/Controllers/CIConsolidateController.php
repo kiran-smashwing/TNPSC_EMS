@@ -21,6 +21,11 @@ use Spatie\Browsershot\Browsershot;
 
 class CIConsolidateController extends Controller
 {
+    public function __construct()
+    {
+        //apply the auth middleware to the entire controller
+        $this->middleware('auth.multi');
+    }
     /**
      * Generate a PDF Report.
      */

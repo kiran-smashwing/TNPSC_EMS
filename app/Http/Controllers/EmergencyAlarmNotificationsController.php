@@ -14,6 +14,11 @@ use App\Models\District;
 
 class EmergencyAlarmNotificationsController extends Controller
 {
+    public function __construct()
+    {
+        //apply the auth middleware to the entire controller
+        $this->middleware('auth.multi');
+    }
     public function index(Request $request)
     {
         $districts = District::all();

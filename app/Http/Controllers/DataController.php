@@ -3,10 +3,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Center;
 use App\Models\District;
-use Hash;
+use Illuminate\Support\Facades\Hash;
 
 class DataController extends Controller
 {
+    public function __construct()
+    {
+        //apply the auth middleware to the entire controller
+        $this->middleware('auth.multi');
+    }
     public function addData()
     {
         $jsonData = file_get_contents(public_path('centers.json'));

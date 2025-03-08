@@ -19,6 +19,11 @@ use App\Models\Currentexam;
 
 class ChartedVehicleRoutesController extends Controller
 {
+    public function __construct()
+    {
+        //apply the auth middleware to the entire controller
+        $this->middleware('auth.multi');
+    }
     public function index(Request $request)
     {
 

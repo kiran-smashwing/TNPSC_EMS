@@ -11,6 +11,11 @@ use App\Events\AdequacyCheckEvent;
 
 class AlertNotificationController extends Controller
 {
+    public function __construct()
+    {
+        //apply the auth middleware to the entire controller
+        $this->middleware('auth.multi');
+    }
     /**
      * Save Emergency Alert Notification
      */
@@ -90,9 +95,9 @@ class AlertNotificationController extends Controller
             'timestamp' => now()->toDateTimeString(),
         ];
         // In your controller where you dispatch the event
-        \Log::info('Dispatching emergency alert', ['data' => $alertData]);
+        // \Log::info('Dispatching emergency alert', ['data' => $alertData]);
         event(new EmergencyAlertEvent($alertData));
-        \Log::info('Emergency alert dispatched');
+        // \Log::info('Emergency alert dispatched');
         // Dispatch the event.
 
         return redirect()->back()->with('success', 'Emergency Alert saved successfully!');

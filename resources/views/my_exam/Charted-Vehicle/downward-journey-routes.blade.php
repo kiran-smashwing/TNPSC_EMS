@@ -252,7 +252,7 @@
                                                     </a>
                                                     @if (!empty($route->charted_vehicle_verification))
                                                     <a href="{{ route('vehicel.report.download', $route['id']) }}"
-                                                        class="avtar avtar-xs btn-light-success"><i
+                                                        class="avtar avtar-xs btn-light-success" target="_blank"><i
                                                             class="ti ti-download f-20"></i></a>
                                                 @endif
                                                 @endhasPermission
@@ -277,7 +277,7 @@
                                                 @endhasPermission
                                                 @hasPermission('annexure-1-b.download')
                                                     <a href="{{ route('charted-vehicle-routes.generateAnnexure1BReport', $route['id']) }}"
-                                                       title="Download Annexure 1-B Report" class="avtar avtar-xs btn-light-success"><i
+                                                       title="Download Annexure 1-B Report" class="avtar avtar-xs btn-light-success" target="_blank"><i
                                                             class="ti ti-download f-20"></i></a>
                                                 @endhasPermission
                                                 @hasPermission('verify-materials-handovered')
@@ -288,7 +288,7 @@
                                                     </a>
                                                     @if (!empty($route->handover_verification_details))
                                                         <a href="{{ route('bundle-packaging.report-handover-details', $route['id']) }}"
-                                                            class="avtar avtar-xs btn-light-success"><i
+                                                            class="avtar avtar-xs btn-light-success" target="_blank"><i
                                                                 class="ti ti-download f-20"></i></a>
                                                     @endif
                                                 @endhasPermission

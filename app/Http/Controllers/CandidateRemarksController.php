@@ -13,6 +13,11 @@ use App\Models\District;
 
 class CandidateRemarksController extends Controller
 {
+    public function __construct()
+    {
+        //apply the auth middleware to the entire controller
+        $this->middleware('auth.multi');
+    }
     public function index()
     {
         $districts = District::all(); // Fetch all districts

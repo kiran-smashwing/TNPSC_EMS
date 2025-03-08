@@ -26,76 +26,7 @@ class ChangePasswordController extends Controller
         //apply the auth middleware to the entire controller
         $this->middleware('auth.multi');
     }
-    // public function checkOldPassword(Request $request)
-    // {
-    //     $role = $request->role; // Get the user's role
-    //     $userId = $request->userId; // Pass the user's ID
-    //     $oldPassword = $request->old_password; // Old password input
-    
-    //     // Initialize variables
-    //     $user = null;
-    //     $passwordColumn = null;
-    
-    //     switch ($role) {
-    //         case 'district':
-    //             $user = District::find($userId);
-    //             $passwordColumn = 'district_password';
-    //             break;
-    
-    //         case 'center':
-    //             $user = Center::find($userId);
-    //             $passwordColumn = 'center_password';
-    //             break;
-    
-    //         case 'treasury':
-    //             $user = TreasuryOfficer::find($userId);
-    //             $passwordColumn = 'tre_off_password';
-    //             break;
-    
-    //         case 'mobile_team_staffs':
-    //             $user = MobileTeamStaffs::find($userId);
-    //             $passwordColumn = 'mobile_password';
-    //             break;
-    
-    //         case 'venue':
-    //             $user = Venues::find($userId);
-    //             $passwordColumn = 'venue_password';
-    //             break;
-    
-    //         case 'headquarters':
-    //             $user = DepartmentOfficial::find($userId);
-    //             $passwordColumn = 'dept_off_password';
-    //             break;
-    
-    //         case 'ci':
-    //             $user = ChiefInvigilator::find($userId);
-    //             $passwordColumn = 'ci_password';
-    //             break;
-    
-    //         default:
-    //             return response()->json(['status' => false, 'message' => 'Invalid role.']);
-    //     }
-    
-    //     // Check if the user exists
-    //     if (!$user) {
-    //         return response()->json([
-    //             'status' => false,
-    //             'message' => "User not found for role: $role, ID: $userId"
-    //         ]);
-    //     }
-    
-    //     // Check if the column exists on the model
-    //     if (!isset($user->{$passwordColumn})) {
-    //         return response()->json(['status' => false, 'message' => 'Password column not found.']);
-    //     }
-    
-    //     // Check if the old password matches
-    //     if (Hash::check($oldPassword, $user->{$passwordColumn})) {
-    //         return response()->json(['status' => true, 'message' => 'Password is correct.']);
-    //     } else {
-    //         return response()->json(['status' => false, 'message' => 'Old password is incorrect.']);
-    //     }
-    // }
+  
 
     public function updatePassword(Request $request)
     {

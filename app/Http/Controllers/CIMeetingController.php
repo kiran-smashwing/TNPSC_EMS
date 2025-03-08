@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 class CIMeetingController extends Controller
 {
+    public function __construct()
+    {
+        //apply the auth middleware to the entire controller
+        $this->middleware('auth.multi');
+    }
 
     public function index()
     {

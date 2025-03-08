@@ -1,7 +1,7 @@
 <nav class="pc-sidebar">
     <div class="navbar-wrapper">
         <div class="m-header">
-            <a href="../dashboard/index.html" class="b-brand text-primary">
+            <a href="{{ route('dashboard') }}" class="b-brand text-primary">
                 <!-- ========   Change your logo from here   ============ -->
                 <img src="{{ asset('storage/assets/images/logo-dark.png') }}" class="img-fluid logo-lg" alt="logo" />
                 {{-- <span class="badge bg-light-success rounded-pill ms-2 theme-version">v9.4.1</span> --}}

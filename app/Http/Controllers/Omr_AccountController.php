@@ -14,6 +14,11 @@ use Illuminate\Http\Request;
 
 class Omr_AccountController extends Controller
 {
+    public function __construct()
+    {
+        //apply the auth middleware to the entire controller
+        $this->middleware('auth.multi');
+    }
 
     public function index()
     {

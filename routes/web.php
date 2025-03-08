@@ -13,7 +13,6 @@ use App\Http\Controllers\CenterController;
 use App\Http\Controllers\TreasuryOfficerController;
 use App\Http\Controllers\MobileTeamStaffsController;
 use App\Http\Controllers\EscortStaffsController;
-use App\Http\Controllers\InspectionOfficersController;
 use App\Http\Controllers\ChiefInvigilatorsController;
 use App\Http\Controllers\InvigilatorsController;
 use App\Http\Controllers\ScribeController;
@@ -41,7 +40,6 @@ use App\Http\Controllers\ExamMaterialsDataController;
 use App\Http\Controllers\EDController;
 use App\Http\Controllers\Vehicle_SecurityController;
 use App\Http\Controllers\ReceiveExamMaterialsController;
-use App\Http\Controllers\Qp_BookletController;
 use App\Http\Controllers\Omr_AccountController;
 use App\Http\Controllers\Expenditure_StatmentController;
 use App\Http\Controllers\BundleReceivingReportController;
@@ -72,9 +70,7 @@ Route::get('/attendance-report-overall', [AttendanceReportController::class, 'ge
 Route::get('/api/get-dropdown-data', [AttendanceReportController::class, 'getDropdownData'])->name('attendance.dropdown');
 // Route::get('/attendance-report/filter', [AttendanceReportController::class, 'filterAttendanceReport'])->name('attendance-report.filter');
 
-// Qp_bookletcontroller
-Route::get('/qp-booklet', [Qp_BookletController::class, 'generateQpbookletReport'])->name('qp_booklet.report');
-// Qp_bookletcontroller
+
 // Route::get('/omr-account', [Omr_AccountController::class, 'generateOmraccountReport'])->name('omr-account.report');
 // Expenditure_StatmentController
 // Route::get('/expenditure-statment', [Expenditure_StatmentController::class, 'generateexpenditureReport'])->name('expenditure-statment.report');
@@ -119,9 +115,7 @@ Route::middleware(['auth.multi'])->group(function () {
     Route::get('/escort-staff/add', [EscortStaffsController::class, 'create'])->name('escort-staff.create');
     Route::get('/escort-staff/edit', [EscortStaffsController::class, 'edit'])->name('escort-staff.edit');
     // Inspection Officers routes
-    Route::get('/inspection-officer', [InspectionOfficersController::class, 'index'])->name('inspection-officer');
-    Route::get('/inspection-officer/add', [InspectionOfficersController::class, 'create'])->name('inspection-officer.create');
-    Route::get('/inspection-officer/edit', [InspectionOfficersController::class, 'edit'])->name('inspection-officer.edit');
+    
 
     // CI Assistants
     Route::get('/ci-assistant', [CIAssistantsController::class, 'index'])->name('ci-assistant');
@@ -182,10 +176,6 @@ Route::middleware(['auth.multi'])->group(function () {
 
     Route::get('/test-mail', [TestMailController::class, 'sendTestEmail']);
     Route::get('/password/reset', [AuthController::class, 'showResetForm'])->name('password.reset');
-    //Qr Code Reader
-    Route::get('/qr-code-reader', [QrCodeController::class, 'index'])->name('qr-code-reader');
-    //@todo:Remove this route after testing
-    Route::post('/process-qr-code', [QrCodeController::class, 'process'])->name('process-qr-code');
     // Add other protected routes here
 });
 

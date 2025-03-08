@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Auth;
 
 class RoleController extends Controller
 {
+    public function __construct()
+    {
+        //apply the auth middleware to the entire controller
+        $this->middleware('auth.multi');
+    }
     public function index()
     {
         $roles = Role::with('department_officer')->get(); // Retrieve all roles from the database

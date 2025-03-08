@@ -252,7 +252,7 @@
                                                     class="avtar avtar-xs btn-light-success"><i
                                                         class="ti ti-edit f-20"></i></a>
                                                 <a href="{{ route('exam-materials-route.view', $route['id']) }}"
-                                                    class="avtar avtar-xs btn-light-success"><i
+                                                    class="avtar avtar-xs btn-light-success" target="_blank"><i
                                                         class="ti ti-eye  f-20"></i></a>
                                             </td>
                                         </tr>

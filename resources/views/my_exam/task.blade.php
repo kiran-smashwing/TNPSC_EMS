@@ -1059,7 +1059,7 @@
                                                             @endhasPermission
                                                             @hasPermission('download-meeting-qr')
                                                                 <a href="{{ $meetingCodeGen ? route('district-candidates.generatePdf', ['qrCodeId' => $meetingCodeGen->id]) : '#' }}"
-                                                                    class="me-2 btn btn-sm btn-light-info"><i
+                                                                    class="me-2 btn btn-sm btn-light-info" target=""><i
                                                                         class="feather icon-download mx-1"></i>Download</a>
                                                             @endhasPermission
                                                             {{-- @hasPermission('create-ci-meetings')

@@ -259,18 +259,29 @@
                                                 </div>
                                             </div>
 
-
                                             <!-- Table for CI dropdown and candidates allocation -->
                                             <div class="mb-4">
                                                 <label class="form-label fw-bold">Chief Invigilator and Candidate
                                                     Allocation:</label>
+
                                                 @php
                                                     $sessionDates = $exam->examsession
                                                         ->pluck('exam_sess_date')
                                                         ->unique();
                                                     $totalCandidates = $venueConsents->expected_candidates_count ?? 0;
                                                     $candidatesPerHall = $exam->exam_main_candidates_for_hall;
+                                                    $ciCount = ceil($totalCandidates / $candidatesPerHall);
+
+                                                    // Group assigned CIs by exam date
+                                                    $assignedCIsByDate = [];
+                                                    foreach ($venueConsents->assignedCIs as $assignedCI) {
+                                                        $examDate = \Carbon\Carbon::parse(
+                                                            $assignedCI->exam_date,
+                                                        )->format('d-m-Y');
+                                                        $assignedCIsByDate[$examDate][] = $assignedCI->ci_id;
+                                                    }
                                                 @endphp
+
                                                 <table class="table table-bordered" id="responsiveTable">
                                                     <thead>
                                                         <tr>
@@ -283,48 +294,23 @@
                                                     </thead>
                                                     <tbody>
                                                         @php
-                                                            $sessionDates = $exam->examsession
-                                                                ->pluck('exam_sess_date')
-                                                                ->unique();
-
-                                                            $totalCandidates =
-                                                                $venueConsents->expected_candidates_count ?? 0;
-                                                            $ciCount = ceil(
-                                                                $totalCandidates / $exam->exam_main_candidates_for_hall,
-                                                            );
-
-                                                            // Decode chief invigilator data if it's a string
-$savedCIIds = is_string(
-    $venueConsents->chief_invigilator_data,
-)
-    ? json_decode(
-        $venueConsents->chief_invigilator_data,
-        true,
-    )
-    : $venueConsents->chief_invigilator_data ?? [];
-
-// Group saved CIs by exam date with indexes for tracking
-$savedCIIdsByDate = [];
-foreach ($savedCIIds as $ci) {
-    $examDate = \Carbon\Carbon::createFromFormat(
-        'Y-m-d',
-        $ci['exam_date'],
-    )->format('d-m-Y');
-    // Store CI IDs for each date
-    $savedCIIdsByDate[$examDate][] = $ci['ci_id'];
-                                                            }
-                                                        @endphp
-                                                        @php
                                                             $overallIndex = 0;
                                                         @endphp
                                                         @foreach ($sessionDates as $sessionDate)
+                                                            @php
+                                                                $formattedDate = \Carbon\Carbon::parse(
+                                                                    $sessionDate,
+                                                                )->format('d-m-Y');
+                                                                $savedCIIdsForDate =
+                                                                    $assignedCIsByDate[$formattedDate] ?? [];
+                                                            @endphp
 
                                                             @for ($i = 0; $i < $ciCount; $i++)
                                                                 <tr>
                                                                     <td>
                                                                         <input type="date" class="form-control"
                                                                             name="examDate[]"
-                                                                            value="{{ \Carbon\Carbon::createFromFormat('d-m-Y', $sessionDate)->format('Y-m-d') }}"
+                                                                            value="{{ \Carbon\Carbon::parse($sessionDate)->format('Y-m-d') }}"
                                                                             disabled>
                                                                     </td>
                                                                     <td>
@@ -333,25 +319,13 @@ foreach ($savedCIIds as $ci) {
                                                                             </option>
                                                                             @foreach ($chiefInvigilators as $ci)
                                                                                 @php
-                                                                                    $savedCiId = null;
-                                                                                    foreach ($savedCIIds as $savedCi) {
-                                                                                        if (
-                                                                                            \Carbon\Carbon::createFromFormat(
-                                                                                                'Y-m-d',
-                                                                                                $savedCi['exam_date'],
-                                                                                            )->format('d-m-Y') ==
-                                                                                                $sessionDate &&
-                                                                                            $savedCi['id'] ==
-                                                                                                $overallIndex
-                                                                                        ) {
-                                                                                            $savedCiId =
-                                                                                                $savedCi['ci_id'];
-                                                                                            break;
-                                                                                        }
-                                                                                    }
+                                                                                    $isSelected =
+                                                                                        isset($savedCIIdsForDate[$i]) &&
+                                                                                        $savedCIIdsForDate[$i] ==
+                                                                                            $ci->ci_id;
                                                                                 @endphp
                                                                                 <option value="{{ $ci->ci_id }}"
-                                                                                    {{ $ci->ci_id == $savedCiId ? 'selected' : '' }}>
+                                                                                    {{ $isSelected ? 'selected' : '' }}>
                                                                                     {{ $ci->ci_name }}
                                                                                 </option>
                                                                             @endforeach
@@ -377,7 +351,6 @@ foreach ($savedCIIds as $ci) {
                                                                 @endphp
                                                             @endfor
                                                         @endforeach
-                                                        <!-- You can add more rows as needed -->
                                                     </tbody>
                                                 </table>
                                             </div>

@@ -173,7 +173,7 @@
                                                 ? asset('storage/' . $user->profile_image)
                                                 : asset('storage/assets/images/user/avatar-1.jpg');
                                         // Set dynamic badge text and color
-                                        $uploadStatus = $is_apd_upload ? 'Uploaded' : 'Pending';
+                                        $uploadStatus = $is_apd_upload ? $metadata->status : 'Pending';
                                         $badgeClass = $is_apd_upload ? 'bg-light-secondary' : 'bg-danger';
 
                                     @endphp

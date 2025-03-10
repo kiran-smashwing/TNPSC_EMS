@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ProcessCandidatesCsv;
 use Illuminate\Http\Request;
 use App\Models\Currentexam;
 use App\Models\Center;
@@ -72,183 +73,27 @@ class APDCandidatesController extends Controller
             unlink($existingFile); // Delete old files
         }
 
-        // Read uploaded CSV file
-        $tempFilePath = $file->getPathname();
-        $rows = array_map('str_getcsv', file($tempFilePath));
-
-        // Open new file for writing
-        $fp = fopen($fullFilePath, 'w');
-
-        foreach ($rows as $row) {
-            if (!empty($row)) {
-                // Add tab space only to the first column
-                $row[0] = "\t" . $row[0];
-            }
-            fputcsv($fp, $row); // Save with correct column separation
-        }
-
-        fclose($fp);
+        // Move the file to storage
+        $file->move(storage_path("app/public/{$uploadedFilePath}"), $uploadedFileName);
         $uploadedFileUrl = asset('storage/' . $uploadedFilePath . $uploadedFileName);
 
-        // Retrieve exam and its sessions
-        $exam = Currentexam::where('exam_main_no', $examId)->with('examsession')->first();
-        if (!$exam) {
-            return redirect()->back()->with('error', 'Exam not found.');
-        }
-
-        // Open the CSV file
-        if (($handle = fopen($file->getRealPath(), 'r')) === false) {
-            return redirect()->back()->with('error', 'Failed to open the CSV file.');
-        }
-        // Remove UTF-8 BOM if present
-        $bom = fgets($handle, 4);
-        if (!str_starts_with($bom, "\xEF\xBB\xBF")) {
-            rewind($handle);
-        }
-        fgetcsv($handle); // Skip the header row
-
-        $table = 'exam_candidates_projection';
-        $currentTime = now();
-        $successfulInserts = 0;
-        $failedRows = [];
-        $totalRows = 0;
-
-        // Delete old failed rows CSV files before proceeding
-        $this->deleteOldFailedFiles($examId);
-
-        // Process each row from the CSV file
-        while (($data = fgetcsv($handle, 1000, ',')) !== false) {
-            $totalRows++;
-            try {
-                // Skip empty rows
-                if (empty(array_filter($data))) {
-                    continue;
-                }
-                // Validate the data for each field
-                $this->validateRow($data, $examId, $table, $currentTime, $exam, $successfulInserts, $failedRows);
-            } catch (\Exception $e) {
-                $failedRows[] = array_merge($data, ['error' => $e->getMessage()]);
+        // Add tab to the first column (optional pre-processing)
+        $rows = array_map('str_getcsv', file($fullFilePath));
+        $fp = fopen($fullFilePath, 'w');
+        foreach ($rows as $row) {
+            if (!empty($row)) {
+                $row[0] = "\t" . $row[0];
             }
+            fputcsv($fp, $row);
         }
-
-        fclose($handle);
-        // Handle failed rows and generate a CSV file for them
-        $failedCsvPath = null;
-        if (!empty($failedRows)) {
-            $failedCsvPath = 'failes_csv/' . $examId . '_failed_rows_' . time() . '.csv';
-            $filePath = storage_path('app/public/' . $failedCsvPath);
-            // Ensure the directory exists
-            if (!file_exists(storage_path('app/public/failes_csv'))) {
-                mkdir(storage_path('app/public/failes_csv'), 0777, true);
-            }
-            $fp = fopen($filePath, 'w');
-            fputcsv($fp, ['Center Code', 'Center Name', 'Exam Date', 'Session', 'Expected Candidates', 'Error']);
-            // Add tab prefix to each cell in failed rows
-            foreach ($failedRows as $row) {
-                $tabbedRow = array_map(function ($cell) {
-                    return "\t" . $cell;
-                }, $row);
-                fputcsv($fp, $tabbedRow);
-            }
-            fclose($fp);
-            session()->put('failed_csv_path', $failedCsvPath); // Store the file path in session for future download
-        } else {
-            session()->forget('failed_csv_path'); // Clear failed file path if none exist
-        }
-
-        // Log the upload action
-        $this->logUploadAction($exam, $examId, $successfulInserts, count($failedRows), $uploadedFileUrl, $failedCsvPath);
-
-        return redirect()->back()->with('success', "CSV processed: Total Rows: $totalRows, Successful: $successfulInserts, Failed: " . count($failedRows));
-    }
-    /**
-     * Validate each row of the CSV and insert the data.
-     */
-    private function validateRow($data, $examId, $table, $currentTime, $exam, &$successfulInserts, &$failedRows)
-    {
-        // Clean and format the center code
-        $centerCode = isset($data[0]) ? trim($data[0]) : ''; // Remove any leading/trailing spaces
-
-        // Validate center code is numeric after trimming
-        if (!is_numeric($centerCode)) {
-            throw new \Exception('Invalid or missing center code.');
-        }
-
-        // Format center code to ensure 4 digits with leading zeros
-        $centerCode = str_pad((string) $centerCode, 4, '0', STR_PAD_LEFT);
-
-        // Clean other data fields
-        $examDate = isset($data[1]) ? trim($data[1]) : '';
-        $session = isset($data[2]) ? trim($data[2]) : '';
-        $expectedCandidates = isset($data[3]) ? trim($data[3]) : '';
-
-        // Validate other fields
-        if (!$examDate || !\Carbon\Carbon::createFromFormat('d-m-Y', $examDate)) {
-            throw new \Exception('Invalid or missing exam date.');
-        }
-        if (!$session || !in_array(strtoupper($session), ['FN', 'AN'])) {
-            throw new \Exception('Invalid session. Must be FN or AN.');
-        }
-        if (!$expectedCandidates || !is_numeric($expectedCandidates)) {
-            throw new \Exception('Invalid or missing expected candidates count.');
-        }
-
-        // Check for duplicate entry
-        $duplicate = \DB::table($table)
-            ->where('exam_id', $examId)
-            ->where('center_code', $centerCode)
-            ->where('exam_date', \Carbon\Carbon::createFromFormat('d-m-Y', $examDate)->format('Y-m-d'))
-            ->where('session', strtoupper($session))
-            ->first();
-
-        if ($duplicate) {
-            $errorDetails = "Duplicate entry found. Existing data - Center Code: {$duplicate->center_code},  Exam Date: {$duplicate->exam_date}, Session: {$duplicate->session}, Expected Candidates: {$duplicate->expected_candidates}, Updated At: {$duplicate->updated_at}";
-            throw new \Exception($errorDetails);
-        }
-
-        // Check if center exists with formatted code
-        $center = Center::where('center_code', $centerCode)->first();
-        if (!$center) {
-            throw new \Exception("Center code '$centerCode' not found.");
-        }
-
-        //check if exam date & session exists
-        $examSession = $exam->examsession()
-            ->where('exam_sess_session', strtoupper($session))
-            ->where('exam_sess_date', $examDate) // Now comparing directly with dd-mm-yyyy
-            ->first();
-        if (!$examSession) {
-            throw new \Exception("Exam date '$examDate' and session '$session' not found.");
-        }
-
-        $insertData = [
-            'exam_id' => $examId,
-            'center_code' => $centerCode,
-            'district_code' => $center->district->district_code,
-            'exam_date' => \Carbon\Carbon::createFromFormat('d-m-Y', $examDate)->format('Y-m-d'),
-            'session' => strtoupper($session),
-            'expected_candidates' => $expectedCandidates,
-            'created_at' => $currentTime,
-            'updated_at' => $currentTime,
-        ];
-
-        \DB::table($table)->insert($insertData);
-        $successfulInserts++;
-    }
-    /**
-     * Log the upload action with metadata.
-     */
-    private function logUploadAction($exam, $examId, $successfulInserts, $failedCount, $uploadedFileUrl, $failedCsvPath)
-    {
+        fclose($fp);
+        // Create initial log entry with 'processing' status
         $currentUser = current_user();
         $userName = $currentUser ? $currentUser->display_name : 'Unknown';
-
-        $metadata = [
+        $initialMetadata = [
             'user_name' => $userName,
-            'successful_inserts' => $successfulInserts,
-            'failed_count' => $failedCount,
-            'uploaded_csv_link' => $uploadedFileUrl, // Include uploaded file link
-            'failed_csv_link' => $failedCsvPath ? asset('storage/' . $failedCsvPath) : null,
+            'status' => 'processing',
+            'uploaded_csv_link' => $uploadedFileUrl,
         ];
 
         // Check if a log already exists for this exam and task type
@@ -261,8 +106,7 @@ class APDCandidatesController extends Controller
             // Update the existing log
             $this->auditService->updateLog(
                 logId: $existingLog->id,
-                metadata: $metadata,
-                afterState: $exam->toArray(),
+                metadata: $initialMetadata,
                 description: 'Updated APD expected candidates CSV log'
             );
         } else {
@@ -271,27 +115,19 @@ class APDCandidatesController extends Controller
                 examId: $examId,
                 actionType: 'uploaded',
                 taskType: 'apd_expected_candidates_upload',
-                afterState: $exam->toArray(),
-                description: 'Uploaded APD expected candidates CSV',
-                metadata: $metadata
+                description: 'Started processing APD expected candidates CSV',
+                metadata: $initialMetadata
             );
         }
-    }
+        // Dispatch the job to process the CSV in the background
+        ProcessCandidatesCsv::dispatch($examId, $fullFilePath, $uploadedFileUrl,$currentUser);
 
-    /**
-     * Delete old failed rows CSV files before proceeding.
-     */
-    private function deleteOldFailedFiles($examId)
-    {
-        $failedCsvFiles = glob(storage_path('app/public/failes_csv/' . $examId . '_failed_rows_*.csv'));
+        return redirect()->back()->with('success', 'CSV file uploaded successfully. Processing will continue in the background, and you will receive an email upon completion.');
 
-        // Loop through and delete old failed CSV files
-        foreach ($failedCsvFiles as $file) {
-            if (file_exists($file)) {
-                unlink($file); // Delete the file
-            }
-        }
     }
+  
+   
+   
     /**
      * @param string $filename
      * @param array $data

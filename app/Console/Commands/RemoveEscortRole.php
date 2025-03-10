@@ -38,20 +38,41 @@ class RemoveEscortRole extends Command
             // Flatten the array in case exam_id is stored as JSON (string)
             $examIds = array_merge([], ...array_map(fn($id) => $id ?? [], $examIds));
             if (!empty($examIds)) {
-                // Get all exam dates for the collected exam IDs
-                $examDates = Currentexam::whereIn('exam_main_no', $examIds)
-                    ->pluck('exam_main_lastdate')
-                    ->toArray();
-                if (!empty($examDates)) {
-                    // Get the most recent exam date
-                    $latestExamDate = max($examDates);
+                // Fetch exams with their latest session dates
+                $exams = Currentexam::whereIn('exam_main_no', $examIds)
+                    ->with([
+                        'examsession' => function ($query) {
+                            $query->select('exam_sess_mainid', 'exam_sess_date')
+                                ->orderBy('exam_sess_date', 'desc');
+                        }
+                    ])
+                    ->get();
 
-                    // Only remove the role if the latest exam is older than the threshold
-                    if (Carbon::parse($latestExamDate)->lt($thresholdDate)) {
+                if ($exams->isNotEmpty()) {
+                    // Determine the latest session date across all exams
+                    $latestSessionDate = null;
+
+                    foreach ($exams as $exam) {
+                        $lastSessionDate = $exam->examsession->max('exam_sess_date');
+                        if ($lastSessionDate) {
+                            $parsedDate = Carbon::parse($lastSessionDate); // Assuming text is in a parseable format
+                            if (!$latestSessionDate || $parsedDate->gt($latestSessionDate)) {
+                                $latestSessionDate = $parsedDate;
+                            }
+                        }
+                    }
+
+                    // Only remove the role if the latest session date is older than the threshold
+                    if ($latestSessionDate && $latestSessionDate->lt($thresholdDate)) {
                         $user->custom_role = null;
                         $user->save();
-                        $this->info("Removed role from Official ID: {$user->dept_off_id} - Name: {$user->dept_off_name} - Last Exam: {$latestExamDate}");
+                        $this->info("Removed role from Official ID: {$user->dept_off_id} - Name: {$user->dept_off_name} - Last Session: {$latestSessionDate->toDateString()}");
                     }
+                } else {
+                    // If no exams have sessions, optionally remove the role (adjust logic as needed)
+                    $user->custom_role = null;
+                    $user->save();
+                    $this->info("Removed role from Official ID: {$user->dept_off_id} - Name: {$user->dept_off_name} - No sessions found");
                 }
             }
         }

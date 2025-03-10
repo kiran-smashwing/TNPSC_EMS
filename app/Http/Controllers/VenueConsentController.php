@@ -34,9 +34,9 @@ class VenueConsentController extends Controller
         // Retrieve exam and its sessions
         $exam = Currentexam::where('exam_main_no', $examId)->with(relations: ['examsession', 'examservice'])->first();
         //exam consent details 
-        $venueConsents = \DB::table('exam_venue_consent')
-            ->where('exam_id', $examId)
+        $venueConsents = ExamVenueConsent::where('exam_id', $examId)
             ->where('venue_id', $user->venue_id)
+            ->with('assignedCIs')
             ->first();
         //get ChiefInvigilator with venue id
         $chiefInvigilators = ChiefInvigilator::where('ci_venue_id', $user->venue_code)->get();
@@ -99,10 +99,10 @@ class VenueConsentController extends Controller
                     }
                 }
                 // Save the mapped data as JSON
-                $examVenueConsent->chief_invigilator_data = $mappedData;
+                // $examVenueConsent->chief_invigilator_data = $mappedData;
             } else {
                 // If consent is declined, remove any previously assigned CIs
-                $examVenueConsent->chief_invigilator_data = null;
+                // $examVenueConsent->chief_invigilator_data = null;
                 VenueAssignedCI::where('venue_consent_id', $examVenueConsent->id)->delete();
             }
             $examVenueConsent->save();

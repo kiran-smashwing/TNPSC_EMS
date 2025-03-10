@@ -19,7 +19,6 @@ return new class extends Migration {
             $table->text('consent_status')->default('pending'); // Consent status
             $table->boolean('email_sent_status')->default(false); // Email sent status
             $table->bigInteger('expected_candidates_count')->default(0); // Expected candidates count
-            $table->jsonb('chief_invigilator_data')->nullable();
             $table->boolean('is_confirmed')->default(false);
             $table->bigInteger('order_by_id')->nullable();
             $table->timestamps(0); // Handles created_at and updated_at

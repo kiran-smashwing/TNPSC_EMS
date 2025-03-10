@@ -91,17 +91,31 @@ class CurrentExamController extends Controller
             default:
         }
 
+        $today = now();
+
         $examQuery = Currentexam::withCount('examsession')
+            ->with([
+                'examsession' => function ($query) {
+                    $query->select('exam_sess_mainid', 'exam_sess_date')
+                        ->orderBy('exam_sess_date', 'desc');
+                }
+            ])
             ->orderBy('exam_main_createdat', 'desc');
 
-        // If a role-specific exam ID list is set, filter by it
+        // Filter by role-specific exam IDs if applicable
         if (!is_null($examIds)) {
             $examQuery->whereIn('exam_main_no', $examIds);
         }
 
-        // Fetch only the current exams that have not yet ended (last date >= today)
-        $today = Carbon::now();
-        $examQuery->whereRaw("CAST(exam_main_lastdate AS DATE) + INTERVAL '2 days' >= ?", [$today]);
+        // Subquery to get the last session date with explicit casting and filter completed exams
+        $examQuery->where(function ($query) use ($today) {
+            $query->whereExists(function ($subQuery) use ($today) {
+                $subQuery->selectRaw('MAX(CAST(exam_sess_date AS DATE))') // Cast text to date
+                    ->from('exam_session')
+                    ->whereColumn('exam_session.exam_sess_mainid', 'exam_main.exam_main_no')
+                    ->havingRaw("MAX(CAST(exam_sess_date AS DATE)) + INTERVAL '2 days' >= ?", [$today]);
+            })->orWhereDoesntHave('examsession'); // Handle exams with no sessions
+        });
 
         $exams = $examQuery->get();
 

@@ -6,7 +6,6 @@
     <style>
         .venue-column {
             max-width: 50%;
-            width: 50%;
             word-wrap: break-word !important;
             overflow-wrap: break-word !important;
             white-space: normal !important;

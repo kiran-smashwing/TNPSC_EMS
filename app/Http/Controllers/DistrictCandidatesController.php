@@ -239,7 +239,8 @@ class DistrictCandidatesController extends Controller
     }
     // Optional email sending method
     protected function sendVenueConsentEmail($venueId, $examId)
-    {
+    { 
+        return true;
         // Fetch venue details
         $venue = Venues::findOrFail($venueId);
         //TODO:Update the static mail to venue mail 

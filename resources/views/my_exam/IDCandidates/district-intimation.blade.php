@@ -53,6 +53,7 @@
                                                                         <input
                                                                             class="form-check-input input-success district-checkbox"
                                                                             type="checkbox"
+                                                                            checked
                                                                             data-district-id="{{ $district['district_code'] }}"
                                                                             data-district-code="{{ $district['district_code'] }}">
                                                                     </div>

@@ -37,6 +37,13 @@ class AccommodationNotification extends Mailable
     public function build()
     {
         return $this->subject('Accommodation Requirement Notification')
-                    ->view('email.accommodation_notification');
+                    ->view('email.accommodation_notification')
+                    ->with('exam', $this->exam)
+                    ->with('districtCode', $this->districtCode)
+                    ->with('totalCandidates', $this->totalCandidates)
+                    ->with('letterNo', $this->letterNo)
+                    ->with('letterDate', $this->letterDate)
+                    ->with('examController', $this->examController);
     }
+    
 }

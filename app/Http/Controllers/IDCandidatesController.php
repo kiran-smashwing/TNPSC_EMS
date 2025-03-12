@@ -259,7 +259,7 @@ class IDCandidatesController extends Controller
             Mail::to('sathishm@smashwing.com')->send(
                 new AccommodationNotification(
                     $exam,
-                    $district,
+                    $districtCode,
                     $totalCandidates,
                     $letterNo,
                     $letterDate,

@@ -70,6 +70,30 @@ class ChartedVehicleRoutesController extends Controller
             'escort_driver_licence_no' => 'required|string|max:255',
             'escort_driver_phone' => 'required|string|max:255',
         ]);
+        // Handle both string and array inputs for otl_locks and gps_lock
+        $otl_locks = $request->otl_locks;
+        if (is_array($otl_locks)) {
+            // If it's already an array, use the first element if it exists
+            $otl_locks = isset($otl_locks[0]) ? explode(',', $request->otl_locks[0]) : [];
+        } elseif (is_string($otl_locks)) {
+            // If it's a string, explode it
+            $otl_locks = explode(',', $otl_locks);
+        } else {
+            // Default to empty array if neither
+            $otl_locks = [];
+        }
+
+        $gps_locks = $request->gps_lock;
+        if (is_array($gps_locks)) {
+            // If it's already an array, use the first element if it exists
+            $gps_locks = isset($gps_locks[0]) ? explode(',', $request->gps_lock[0]) : [];
+        } elseif (is_string($gps_locks)) {
+            // If it's a string, explode it
+            $gps_locks = explode(',', $gps_locks);
+        } else {
+            // Default to empty array if neither
+            $gps_locks = [];
+        }
         $chartedVehicleRoute = ChartedVehicleRoute::create([
             'route_no' => $request->route_no,
             'exam_id' => $request->exam_id,
@@ -79,8 +103,8 @@ class ChartedVehicleRoutesController extends Controller
                 'licence_no' => $request->driver_licence_no,
                 'phone' => $request->phone
             ],
-            'otl_locks' => explode(',', $request->otl_locks),
-            'gps_locks' => explode(',', $request->gps_lock),
+            'otl_locks' => $otl_locks,
+            'gps_locks' => $gps_locks,
             'pc_details' => [
                 'name' => $request->police_constable,
                 'phone' => $request->police_constable_phone,
@@ -151,7 +175,30 @@ class ChartedVehicleRoutesController extends Controller
         $user = $request->get('auth_user');
 
         if ($user->role && $user->role->role_department == 'ID') {
+            // Handle both string and array inputs for otl_locks and gps_lock
+            $otl_locks = $request->otl_locks;
+            if (is_array($otl_locks)) {
+                // If it's already an array, use the first element if it exists
+                $otl_locks = isset($otl_locks[0]) ? explode(',', $request->otl_locks[0]) : [];
+            } elseif (is_string($otl_locks)) {
+                // If it's a string, explode it
+                $otl_locks = explode(',', $otl_locks);
+            } else {
+                // Default to empty array if neither
+                $otl_locks = [];
+            }
 
+            $gps_locks = $request->gps_lock;
+            if (is_array($gps_locks)) {
+                // If it's already an array, use the first element if it exists
+                $gps_locks = isset($gps_locks[0]) ? explode(',', $request->gps_lock[0]) : [];
+            } elseif (is_string($gps_locks)) {
+                // If it's a string, explode it
+                $gps_locks = explode(',', $gps_locks);
+            } else {
+                // Default to empty array if neither
+                $gps_locks = [];
+            }
             // Update route details
             $route->update([
                 'route_no' => $request->route_no,
@@ -162,8 +209,8 @@ class ChartedVehicleRoutesController extends Controller
                     'licence_no' => $request->driver_licence_no,
                     'phone' => $request->phone
                 ],
-                'gps_locks' => explode(',', $request->gps_locks[0]),
-                'otl_locks' => explode(',', $request->otl_locks[0]),
+                'otl_locks' => $otl_locks,
+                'gps_locks' => $gps_locks,
                 'pc_details' => [
                     'name' => $request->police_constable,
                     'phone' => $request->police_constable_phone,

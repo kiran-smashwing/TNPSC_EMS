@@ -8,6 +8,7 @@ use App\Models\District;
 use App\Models\ExamCandidatesProjection;
 use App\Models\ExamVenueConsent;
 use App\Models\VenueAssignedCI;
+use File;
 use Illuminate\Http\Request;
 use App\Models\Currentexam;
 use App\Services\ExamAuditService;
@@ -607,25 +608,20 @@ class IDCandidatesController extends Controller
         if (!$exam) {
             return redirect()->back()->with('error', 'Exam not found.');
         }
-
-        // Retrieve the confirmed halls for the exam
-        $confirmedHalls = ExamConfirmedHalls::where('exam_id', $examId)->get();
-
-        if (count($confirmedHalls) === 0) {
+    
+        // Retrieve confirmed halls and group by date
+        $confirmedHallsByDate = ExamConfirmedHalls::where('exam_id', $examId)
+            ->orderBy('center_code') // Order by center code first
+            ->orderBy('hall_code')   // Then order by hall code
+            ->get()
+            ->groupBy(function ($hall) {
+                return $hall->exam_date; // Assuming exam_date is the field storing the date
+            });
+    
+        if ($confirmedHallsByDate->isEmpty()) {
             return redirect()->back()->with('error', 'No confirmed halls found for this exam.');
         }
-
-        // Format the exam details for the main header
-        $examDate = $exam->exam_main_startdate ?? ''; // Add appropriate field for exam date
-        $examName = $exam->exam_main_name ?? ''; // Add appropriate field for exam name
-        $notificationNumber = $exam->exam_main_notification ?? ''; // Add appropriate field for notification number
-
-        // Format the main header text (everything in uppercase)
-        $mainHeaderText = strtoupper("NOTFN NO.{$notificationNumber}_{$examName} (DOE: {$examDate})");
-
-        // Create Excel file
-        $fileName = "confirmed_halls_exam_{$examId}.xlsx";
-
+    
         // Column headers
         $columnHeaders = [
             'HALL CODE',
@@ -650,9 +646,9 @@ class IDCandidatesController extends Controller
             'MAIL ID',
             'GPS COORDINATES'
         ];
-
-        // Define specific column widths
-        $correctionFactor = 1.1; // Adjust this value as needed
+    
+        // Column widths
+        $correctionFactor = 1.1;
         $columnWidths = [
             'A' => 4.89 * $correctionFactor,
             'B' => 5.67 * $correctionFactor,
@@ -676,136 +672,104 @@ class IDCandidatesController extends Controller
             'T' => 10.78 * $correctionFactor,
             'U' => 11.67 * $correctionFactor
         ];
-
-        // Using PhpSpreadsheet
-        return response()->streamDownload(function () use ($confirmedHalls, $columnHeaders, $exam, $mainHeaderText, $columnWidths) {
+    
+        // Initialize a temporary directory
+        $tempDir = storage_path('app/temp');
+        if (!File::exists($tempDir)) {
+            File::makeDirectory($tempDir, 0755, true);
+        }
+    
+        // Generate files for each date
+        foreach ($confirmedHallsByDate as $examDate => $confirmedHalls) {
+            $formattedDate = date('d-m-Y', strtotime($examDate));
+            $examName = $exam->exam_main_name ?? '';
+            $notificationNumber = $exam->exam_main_notification ?? '';
+            $mainHeaderText = strtoupper("NOTFN NO.{$notificationNumber}_{$examName} (DOE: {$formattedDate})");
+    
+            $fileName = "confirmed_halls_exam_{$examId}_{$formattedDate}.xlsx";
+            $filePath = "$tempDir/$fileName";
+    
             $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
             $sheet = $spreadsheet->getActiveSheet();
-
-            // Get the highest column letter
+    
+            // Highest column letter
             $highestColumnIndex = count($columnHeaders);
             $highestColumnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($highestColumnIndex);
-
-            // Add the main header spanning all columns in row 1
+    
+            // Main header
             $sheet->setCellValue('A1', $mainHeaderText);
-            $sheet->mergeCells('A1:' . $highestColumnLetter . '1');
-
-            // Style the main header (Calibri 18 Bold)
+            $sheet->mergeCells("A1:{$highestColumnLetter}1");
+            
             $mainHeaderStyle = [
-                'font' => [
-                    'name' => 'Calibri',
-                    'bold' => true,
-                    'size' => 18
-                ],
+                'font' => ['name' => 'Calibri', 'bold' => true, 'size' => 18],
                 'alignment' => [
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                     'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
                 ],
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                        'color' => ['rgb' => '000000'] // Black thin border
-                    ]
-                ]
-
+                'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
             ];
-            $sheet->getStyle('A1:' . $highestColumnLetter . '1')->applyFromArray($mainHeaderStyle);
+            $sheet->getStyle("A1:{$highestColumnLetter}1")->applyFromArray($mainHeaderStyle);
             $sheet->getRowDimension(1)->setRowHeight(30);
-
-            // Create column header style (Verdana 10 Bold)
+    
+            // Column headers
             $columnHeaderStyle = [
-                'font' => [
-                    'name' => 'Verdana',
-                    'bold' => true,
-                    'size' => 10
-                ],
+                'font' => ['name' => 'Verdana', 'bold' => true, 'size' => 10],
                 'alignment' => [
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                     'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
                     'wrapText' => true
                 ],
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                        'color' => ['rgb' => '000000'] // Black thin border
-                    ]
-                ]
+                'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
             ];
-
-            // Add column headers with styling spanning rows 2 and 3
+            
             foreach ($columnHeaders as $colIndex => $header) {
                 $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1);
-                $sheet->setCellValue($columnLetter . '2', $header);
-
-                // Merge cells for column header (rows 2 and 3)
-                $sheet->mergeCells($columnLetter . '2:' . $columnLetter . '3');
-
-                // Apply column header style
-                $sheet->getStyle($columnLetter . '2:' . $columnLetter . '3')->applyFromArray($columnHeaderStyle);
+                $sheet->setCellValue("{$columnLetter}2", $header);
+                $sheet->mergeCells("{$columnLetter}2:{$columnLetter}3");
+                $sheet->getStyle("{$columnLetter}2:{$columnLetter}3")->applyFromArray($columnHeaderStyle);
             }
-
-            // Set row height for column header rows
             $sheet->getRowDimension(2)->setRowHeight(81);
             $sheet->getRowDimension(3)->setRowHeight(81);
-
-            // Set specific column widths
+    
+            // Set column widths
             foreach ($columnWidths as $column => $width) {
                 $sheet->getColumnDimension($column)->setWidth($width);
-
-                // Disable autosize for columns with specific widths
                 $sheet->getColumnDimension($column)->setAutoSize(false);
             }
-
-            // Standard data cell style with word wrap
+    
+            // Data styles
             $dataCellStyle = [
                 'alignment' => [
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                     'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
                     'wrapText' => true
                 ],
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                        'color' => ['rgb' => '000000'] // Black thin border
-                    ]
-                ]
-
+                'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
             ];
-
-            // Special vertical text alignment for columns I, R and S
+    
             $verticalTextStyle = [
                 'alignment' => [
-                    'textRotation' => 90, // Rotation for bottom-to-top text
+                    'textRotation' => 90,
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                     'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_BOTTOM,
                     'wrapText' => true
                 ],
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                        'color' => ['rgb' => '000000'] // Black thin border
-                    ]
-                ]
-
+                'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
             ];
-
-            // Add data (all in uppercase)
-            $rowIndex = 4; // Start data from row 4 since main header and column headers take rows 1-3
-            $totalCapacity = 0; // Initialize total capacity counter
+    
+            // Add data
+            $rowIndex = 4;
+            $totalCapacity = 0;
             foreach ($confirmedHalls as $hall) {
                 $ci = ChiefInvigilator::where('ci_venue_id', $hall->venue_code)
                     ->where('ci_id', $hall->ci_id)
                     ->first() ?? null;
-                // Get the capacity value and add to total
+                
                 $capacity = intval($exam->exam_main_candidates_for_hall ?? '0');
                 $totalCapacity += $capacity;
-                // Format CI name and designation with line break
-                $ciNameDesignation = '';
-                if ($ci) {
-                    $ciNameDesignation = strtoupper($ci->ci_name) . ", " . "\n" . strtoupper($ci->ci_designation);
-                }
-
-                // Format the data (convert all to uppercase)
+    
+                $ciNameDesignation = $ci ? strtoupper($ci->ci_name) . ", " . "\n" . strtoupper($ci->ci_designation) : '';
+    
                 $rowData = [
                     strtoupper($hall->hall_code),
                     strtoupper($hall->center_code),
@@ -821,7 +785,7 @@ class IDCandidatesController extends Controller
                     strtoupper($hall->venue->venue_treasury_office),
                     strtoupper($hall->venue->venue_distance_railway),
                     ' - ',
-                    $ciNameDesignation, // CI name and designation with line break
+                    $ciNameDesignation,
                     strtoupper($hall->venue->venue_address),
                     strtoupper(($hall->center->center_name . ', ' . ($hall->district->district_name ?? ''))),
                     strtoupper($hall->venue->venue_pincode ?? 'N/A'),
@@ -829,69 +793,71 @@ class IDCandidatesController extends Controller
                     strtoupper($ci ? $ci->ci_email : ''),
                     strtoupper(($hall->venue->venue_latitude . ',' . $hall->venue->venue_longitude)),
                 ];
-
+    
                 foreach ($rowData as $colIndex => $value) {
                     $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1);
-                    $sheet->setCellValue($columnLetter . $rowIndex, $value);
-
-                    // Apply vertical text for columns R and S
-                    if ($columnLetter == 'I' || $columnLetter == 'R' || $columnLetter == 'S') {
-                        $sheet->getStyle($columnLetter . $rowIndex)->applyFromArray($verticalTextStyle);
+                    $sheet->setCellValue("{$columnLetter}{$rowIndex}", $value);
+                    if (in_array($columnLetter, ['I', 'R', 'S'])) {
+                        $sheet->getStyle("{$columnLetter}{$rowIndex}")->applyFromArray($verticalTextStyle);
                     } else {
-                        // Apply standard word wrap style to all other data cells
-                        $sheet->getStyle($columnLetter . $rowIndex)->applyFromArray($dataCellStyle);
+                        $sheet->getStyle("{$columnLetter}{$rowIndex}")->applyFromArray($dataCellStyle);
                     }
                 }
-
-                // Set row height to 81 for data rows
                 $sheet->getRowDimension($rowIndex)->setRowHeight(91);
-
                 $rowIndex++;
             }
-            // Add the total row at the bottom
+    
+            // Total row
             $totalRowIndex = $rowIndex;
-
-            // Create total label that spans two columns (H and I)
-            $sheet->setCellValue('H' . $totalRowIndex, 'TOTAL');
-            $sheet->mergeCells('H' . $totalRowIndex . ':I' . $totalRowIndex);
-
-            // Add the total capacity value
-            $sheet->setCellValue('J' . $totalRowIndex, $totalCapacity);
-
-            // Style the total row
+            $sheet->setCellValue("H{$totalRowIndex}", 'TOTAL');
+            $sheet->mergeCells("H{$totalRowIndex}:I{$totalRowIndex}");
+            $sheet->setCellValue("J{$totalRowIndex}", $totalCapacity);
+            
             $totalStyle = [
-                'font' => [
-                    'name' => 'Calibri',
-                    'bold' => true,
-                    'size' => 14
-                ],
+                'font' => ['name' => 'Calibri', 'bold' => true, 'size' => 14],
                 'alignment' => [
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                     'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
                 ],
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                        'color' => ['rgb' => '000000'] // Black thin border
-                    ]
-                ]
-
+                'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
             ];
-
-            // Apply bold Calibri 14 to the total row
-            $sheet->getStyle('H' . $totalRowIndex . ':J' . $totalRowIndex)->applyFromArray($totalStyle);
-
-            // Set appropriate row height for the total row
+            $sheet->getStyle("H{$totalRowIndex}:J{$totalRowIndex}")->applyFromArray($totalStyle);
             $sheet->getRowDimension($totalRowIndex)->setRowHeight(25);
-
-            // Create writer and output
+    
+            // Save file
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
-            $writer->save('php://output');
-        }, $fileName, [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"'
-        ]);
+            $writer->save($filePath);
+        }
+    
+        // Create zip file
+        $zipFileName = "confirmed_halls_exam_{$examId}_all_dates.zip";
+        $zipFilePath = "$tempDir/$zipFileName";
+    
+        $zip = new \ZipArchive();
+        if ($zip->open($zipFilePath, \ZipArchive::CREATE) === true) {
+            foreach ($confirmedHallsByDate as $examDate => $confirmedHalls) {
+                $formattedDate = date('d-m-Y', strtotime($examDate));
+                $fileName = "confirmed_halls_exam_{$examId}_{$formattedDate}.xlsx";
+                $filePath = "$tempDir/$fileName";
+                if (file_exists($filePath)) {
+                    $zip->addFile($filePath, $fileName);
+                }
+            }
+            $zip->close();
+        }
+    
+        // Clean up individual Excel files
+        foreach ($confirmedHallsByDate as $examDate => $confirmedHalls) {
+            $formattedDate = date('d-m-Y', strtotime($examDate));
+            $fileName = "confirmed_halls_exam_{$examId}_{$formattedDate}.xlsx";
+            $filePath = "$tempDir/$fileName";
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+        }
+    
+        // Download zip and delete after send
+        return response()->download($zipFilePath)->deleteFileAfterSend(true);
     }
-
-
 }
+

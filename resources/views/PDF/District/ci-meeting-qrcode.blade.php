@@ -213,7 +213,7 @@
             <p><strong> For Attendance Submission & Adequacy Checks:</strong>
             </p>
             <p>Log in to your account via the website: <a
-                    href="https://smashsoft.site/tnpsc-ems/">https://smashsoft.site/tnpsc-ems/</a>
+                    href="{{ url('/') }}">{{ url('/') }}</a>
                 <br><strong>OR</strong><br> Log in to your account via the app from Google Play Store: TNPSC EMS.
             </p>
         </div>

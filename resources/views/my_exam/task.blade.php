@@ -153,7 +153,7 @@
                                     @endif
                                 @endforeach
 
-                                @if (session('auth_role') == 'headquarters' )
+                                @if (session('auth_role') == 'headquarters')
                                     @php
                                         $is_apd_upload = $expectedCandidatesUpload !== null;
 
@@ -454,7 +454,12 @@
                                 @endhasPermission
                                 @if (session('auth_role') == 'venue')
                                     @php
-
+                                        $ciAssigned =
+                                            $venueConsents->consent_status != 'denied'
+                                                ? $venueConsents &&
+                                                    $venueConsents->assignedCIs &&
+                                                    count($venueConsents->assignedCIs) > 0
+                                                : 'true';
                                         $profileImage =
                                             $venueConsents && !empty($venueConsents->profile_image)
                                                 ? asset('storage/' . $venueConsents->profile_image)
@@ -497,11 +502,11 @@
                                                                             src="../assets/images/user/avatar-5.jpg"
                                                                             alt=""
                                                                             class="wid-20 rounded me-2 img-fluid" />Done by
-                                                                        <b>{{ $venueConsents->venueName ?? 'venue' }}</b>
+                                                                        <b>{{ $ciAssigned ? $venueConsents->venueName ?? 'venue' : 'Unknown' }}</b>
                                                                     </li>
                                                                     <li class="d-sm-inline-block d-block mt-1"><i
                                                                             class="wid-20 material-icons-two-tone text-center f-14 me-2">calendar_today</i>
-                                                                        {{ \Carbon\Carbon::parse($venueConsents->updated_at ?? '')->format('d-m-Y h:i A') }}
+                                                                        {{ $ciAssigned ? \Carbon\Carbon::parse($venueConsents->updated_at ?? '')->format('d-m-Y h:i A') : '' }}
                                                                     </li>
                                                                 </ul>
                                                             </div>
@@ -510,7 +515,7 @@
                                                                 Venue</div>
                                                         </div>
                                                         <div class="mt-2">
-                                                            @if (isset($venueConsents->consent_status)&& $venueConsents->consent_status != 'requested')
+                                                            @if (isset($venueConsents->consent_status) && $venueConsents->consent_status != 'requested')
                                                                 <a href="{{ route('venues.show-venue-consent', $session->exam_main_no) }}"
                                                                     class="me-2 btn btn-sm btn-light-primary m-2"><i
                                                                         class="feather icon-eye mx-1"></i>View</a>
@@ -533,7 +538,7 @@
                                         </div>
                                     </li>
                                 @endif
-                                @if (session('auth_role') == 'headquarters' )
+                                @if (session('auth_role') == 'headquarters')
                                     @php
                                         $is_halls_confirmed = $examVenueHallConfirmation !== null;
 
@@ -910,7 +915,7 @@
                                         </div>
                                     </li>
                                 @endhasPermission
-                                @if (session('auth_role') == 'headquarters' )
+                                @if (session('auth_role') == 'headquarters')
                                     @php
                                         $is_received_printer_to_hq = $receiveMaterialsPrinterToHQ !== null;
                                         $metadata = null;
@@ -1075,7 +1080,7 @@
                                         </div>
                                     </li>
                                 @endhasPermission
-                                @if (session('auth_role') == 'headquarters' )
+                                @if (session('auth_role') == 'headquarters')
                                     @php
                                         $is_qd_trunk_qr_upload = $examTrunkboxOTLData !== null;
 
@@ -1511,7 +1516,7 @@
                                         </div>
                                     </li>
                                 @endhasPermission
-                                @if (session('auth_role') == 'headquarters' )
+                                @if (session('auth_role') == 'headquarters')
                                     @php
                                         $is_received_trunkbox_at_hq = $receiveTrunkboxToHQ !== null;
 
@@ -1555,7 +1560,7 @@
                                                     <div class="col">
                                                         <div class="popup-trigger">
                                                             <div class="h5 font-weight-bold">Receive All Materials from
-                                                               VanDuty Staff <small
+                                                                VanDuty Staff <small
                                                                     class="badge {{ $badgeClass }} ms-2">{{ $uploadStatus }}</small>
                                                             </div>
                                                             <div class="help-sm-hidden">
@@ -1590,8 +1595,8 @@
                                             </div>
                                         </div>
                                     </li>
-                                    @endif
-                                    {{--     @php
+                                @endif
+                                {{--     @php
                                         $is_materials_handover_verified = $materialsHandoverVerification !== null;
 
                                         $metadata = null;

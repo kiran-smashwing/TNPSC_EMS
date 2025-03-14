@@ -258,6 +258,7 @@
                     });
                     $('#allotted-halls').text(allottedHalls);
                 }
+
                 // Handle center selection
                 $('.center-list-item').click(function() {
                     // Get the center code
@@ -284,6 +285,11 @@
                     var $centerVenues = $('.venue-row:visible');
                     updateAcceptedCount($centerVenues);
                     updateSelectedVenuesCount();
+                });
+                // Handle hall count dropdown changes
+                $(document).on('change', 'select[name="allocationCount"]', function() {
+                    var $centerVenues = $('.venue-row:visible');
+                    updateAcceptedCount($centerVenues);
                 });
 
                 function updateCenterInfo(centerElement, $centerVenues) {
@@ -392,7 +398,19 @@
                         });
                         return;
                     }
+                    const loader = document.getElementById('loader');
 
+                    // Function to hide loader
+                    function hideLoader() {
+                        if (loader) {
+                            loader.style.display = 'none';
+                        }
+                    }
+
+                    // Show loader
+                    if (loader) {
+                        loader.style.removeProperty('display');
+                    }
                     // Send AJAX request
                     $.ajax({
                         url: '{{ route('district-candidates.processVenueConsentEmail') }}', // Create this route in web.php
@@ -404,47 +422,66 @@
                             venues: selectedVenues,
                             action: action
                         },
-                        beforeSend: function() {
-                            // Show the loader before the request starts
-                            const loader = document.getElementById('loader');
-                            if (loader) {
-                                loader.style.removeProperty('display');
-                            }
-                        },
                         success: function(response) {
-                            // Hide the loader when the request is complete
-                            const loader = document.getElementById('loader');
-                            if (loader) {
-                                loader.style.display = 'none';
-                            }
-                            // Handle success
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success',
-                                text: response.message,
-                            }).then(() => {
-                                // Reload the page after the user acknowledges the success alert
-                                location.reload();
-                            });
+                            hideLoader(); // Always hide loader on success
 
-                            // Optionally update UI to reflect sent status
-                            selectedVenues.forEach(function(venue) {
-                                $(`input[data-venue-code="${venue.venue_id}"]`)
-                                    .closest('tr')
-                                    .find('.badge')
-                                    .removeClass('bg-light-warning')
-                                    .addClass('bg-light-info')
-                                    .text('Email Sent');
-                            });
+                            // Check if response is valid JSON and has success property
+                            if (response && typeof response === 'object' && response.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success',
+                                    text: response.message,
+                                }).then(() => {
+                                    location.reload();
+                                });
+
+                                if (action === 'send') {
+                                    selectedVenues.forEach(function(venue) {
+                                        $(`input[data-venue-code="${venue.venue_id}"]`)
+                                            .closest('tr')
+                                            .find('.badge')
+                                            .removeClass('bg-light-warning')
+                                            .addClass('bg-light-info')
+                                            .text('Email Sent');
+                                    });
+                                }
+                            } else {
+                                throw new Error('Invalid response format from server');
+                            }
                         },
-                        error: function(xhr) {
-                            // Handle error
+                        error: function(xhr, status, error) {
+                            hideLoader(); // Always hide loader on error
+
+                            let errorMessage = 'An unexpected error occurred';
+
+                            // Try to parse error response if it's JSON
+                            try {
+                                const response = JSON.parse(xhr.responseText);
+                                if (response.message) {
+                                    errorMessage = response.message;
+                                }
+                            } catch (e) {
+                                // If not JSON, use status text or generic message
+                                errorMessage = xhr.statusText || 'Failed to process request';
+                            }
+
+                            // Display error to user
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error',
-                                text: 'Failed to send consent emails',
+                                text: errorMessage,
                             });
-                            console.error(xhr.responseText);
+
+                            // Log detailed error information for debugging
+                            console.error('AJAX Error:', {
+                                status: status,
+                                error: error,
+                                response: xhr.responseText
+                            });
+                        },
+                        complete: function() {
+                            // Fallback to ensure loader is hidden even if success/error handlers fail
+                            hideLoader();
                         }
                     });
                 }

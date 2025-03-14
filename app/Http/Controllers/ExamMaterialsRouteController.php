@@ -164,7 +164,7 @@ class ExamMaterialsRouteController extends Controller
             return \Carbon\Carbon::parse($item->exam_sess_date)->format('d-m-Y');
         })->keys(); // Get only the keys (exam dates)
         $lastRoute = ExamMaterialRoutes::where('exam_id', $examId)->where('district_code', $district_code)->max('route_no');
-        $lastRouteNumber = $lastRoute ? intval($lastRoute) : 1;
+        $lastRouteNumber = $lastRoute ? intval($lastRoute) : 0;
         $newRouteNumber = str_pad(($lastRouteNumber + 1), 3, '0', STR_PAD_LEFT);
 
         return view('my_exam.District.materials-route.create', compact('examId', 'mobileTeam', 'centers', 'halls', 'examDates', 'user','newRouteNumber'));

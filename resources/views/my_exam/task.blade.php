@@ -819,8 +819,7 @@
                                                                 @endif
                                                             @endhasPermission
                                                             @hasPermission('upload-exam-materials-csv')
-                                                                @if (isset($metadata->failed_csv_link) &&
-                                                                        file_exists(public_path(str_replace(url('/'), '', $metadata->failed_csv_link))))
+                                                                @if (isset($metadata->failed_csv_link))
                                                                     <a href="{{ $metadata->failed_csv_link }}"
                                                                         class="me-3 btn btn-sm btn-light-danger">
                                                                         <i class="feather icon-download mx-1"></i>Failed
@@ -1164,8 +1163,7 @@
                                                                 @endif
                                                             @endhasPermission
                                                             @hasPermission('upload-trunk-box-otl-csv')
-                                                                @if (isset($metadata->failed_csv_link) &&
-                                                                        file_exists(public_path(str_replace(url('/'), '', $metadata->failed_csv_link))))
+                                                                @if (isset($metadata->failed_csv_link) )
                                                                     <a href="{{ $metadata->failed_csv_link }}"
                                                                         class="me-3 btn btn-sm btn-light-danger">
                                                                         <i class="feather icon-download mx-1"></i>Failed

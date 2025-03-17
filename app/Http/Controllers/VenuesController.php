@@ -28,7 +28,7 @@ class VenuesController extends Controller
 
         // Load necessary columns for dropdowns
         $districts = District::select(['district_code', 'district_name'])->get();
-        $centers = Center::select(['center_code', 'center_name'])->get();
+        $centers = Center::select(['center_code', 'center_name', 'center_district_id'])->get();
 
         return view('masters.venues.venue.index', compact( 'districts', 'centers'));
     }
@@ -61,9 +61,6 @@ class VenuesController extends Controller
         if ($request->filled('center')) {
             $query->where('venue_center_id', $request->input('center'));
         }
-
-        // Handle global search
-        // Handle global search
         if ($request->has('search') && !empty($request->input('search.value'))) {
             $searchValue = strtolower($request->input('search.value'));
             $query->where(function ($q) use ($searchValue) {

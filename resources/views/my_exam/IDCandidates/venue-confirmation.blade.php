@@ -204,7 +204,7 @@
                                                     <td>{{ $item['venue']->venues->venue_email }}</td>
                                                     <td>{{ $item['venue']->venues->venue_phone }}</td>
                                                     <td>{{ $item['venue']->venues->venue_address }}</td>
-                                                    <td>{{ $item['ci']->exam_date ?? 'No Date' }}</td>
+                                                    <td>{{ \Carbon\Carbon::parse($item['ci']->exam_date)->format('d-m-Y') ?? 'No Date' }}</td>
                                                     <td>{{ $item['ci']->chiefInvigilator->ci_name ?? 'No CI Assigned' }}
                                                     </td>
                                                     <td>{{ $item['ci']->chiefInvigilator->ci_email ?? 'N/A' }}</td>

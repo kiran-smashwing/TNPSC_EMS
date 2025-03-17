@@ -385,12 +385,14 @@
             }
             // Full list of centers
             const allCenters = @json($centers);
+            console.log("All Centers:", allCenters);
             // console.log(@json($districts));
             // District filter change event
             $('#districtFilter').on('change', function() {
                 const selectedDistrictCode = $(this).val();
                 // alert(selectedDistrictCode);
                 const centerDropdown = $('#centerFilter'); // Corrected to #centerFilter
+                console.log("Selected District Code:", selectedDistrictCode, "Type:", typeof selectedDistrictCode);
 
                 // Clear previous options
                 centerDropdown.empty();

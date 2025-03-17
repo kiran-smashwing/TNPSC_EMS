@@ -25,6 +25,10 @@ class ReceiveExamMaterialsController extends Controller
 
     public function printerToDistrictTreasury(Request $request, $examId)
     {
+        $exam = Currentexam::where('exam_main_no', $examId)->first();
+        if (!$exam) {
+            return redirect()->back()->with('error', 'Exam not found.');
+        }
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
         $user = $guard ? $guard->user() : null;
@@ -49,9 +53,13 @@ class ReceiveExamMaterialsController extends Controller
         $examMaterials = $query
             ->with([
                 'center',
-                'examMaterialsScan'
+                'examMaterialsScan',
             ])
             ->get();
+            $examDates = $exam->examsession->groupBy(function ($item) {
+                return Carbon::parse($item->exam_sess_date)->format('d-m-Y');
+            })->keys();
+            // dd($examDates);
         //total number of exam materials found for this user
         $totalExamMaterials = $examMaterials->count();
         //total number of exam materials scanned by the user
@@ -68,7 +76,7 @@ class ReceiveExamMaterialsController extends Controller
 
         //get center name for 
 
-        return view('my_exam.ExamMaterialsData.printer-to-disitrict-materials', compact('examMaterials', 'examId', 'totalExamMaterials', 'totalScanned', 'centers'));
+        return view('my_exam.ExamMaterialsData.printer-to-disitrict-materials', compact('examDates','examMaterials', 'examId', 'totalExamMaterials', 'totalScanned', 'centers'));
     }
 
     public function scanDistrictExamMaterials($examId, Request $request)

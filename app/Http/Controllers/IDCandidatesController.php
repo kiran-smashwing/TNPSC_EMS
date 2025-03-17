@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\AccommodationNotification;
 use App\Models\ExamConfirmedHalls;
 use App\Models\Venues;
+
 class IDCandidatesController extends Controller
 {
     protected $auditService;
@@ -401,7 +402,9 @@ class IDCandidatesController extends Controller
             ->where('ecp.exam_id', $examId)
             ->select('ecp.district_code', 'd.district_name')
             ->distinct()
+            ->orderBy('ecp.district_code', 'asc') 
             ->get();
+
 
         // Retrieve centers
         $centers = DB::table('exam_candidates_projection as ecp')
@@ -409,6 +412,7 @@ class IDCandidatesController extends Controller
             ->where('ecp.exam_id', $examId)
             ->select('ecp.center_code', 'c.center_name', 'ecp.district_code')
             ->distinct()
+            ->orderBy('ecp.center_code', 'asc') 
             ->get();
         //get all dates for the exam
         $examDates = $exam->examsession->groupBy(function ($item) {
@@ -892,6 +896,4 @@ class IDCandidatesController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $fileName . '"'
         ]);
     }
-
-
 }

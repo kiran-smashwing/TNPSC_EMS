@@ -190,6 +190,7 @@ class AuthorizationService
             'current-exam',
             'exam-completed',
             'scan-receive-disitrct-exam-materials',
+            'scan-bundle-packaging',
         ],
         'center' => [
             'download-meeting-qr',

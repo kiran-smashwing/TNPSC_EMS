@@ -204,12 +204,14 @@
                                         <i class="ti ti-refresh me-2"></i> Reset
                                     </button>
                                 </div>
+                                @hasPermission('scan-bundle-packaging')
                                 <div class="btn-container">
                                     <a href="#" class="btn btn-light-primary d-flex align-items-center"
                                         data-pc-animate="just-me" data-bs-toggle="modal" data-bs-target="#qrCodeModal">
                                         <i class="feather icon-aperture mx-1"></i>Scan
                                     </a>
                                 </div>
+                                @endhasPermission
                             </form>
 
                             <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
@@ -222,7 +224,9 @@
                                         <th>Trunkbox Code</th>
                                         <th>OTL Locks</th>
                                         <th>Materials Count</th>
+                                        @hasPermission('scan-bundle-packaging')
                                         <th>Actions</th>
+                                        @endhasPermission
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -234,6 +238,7 @@
                                             <td>{{ $data['trunkbox_qr_code'] }}</td>
                                             <td>{{ implode(', ', $data['otl_codes']) }}</td>
                                             <td>{{ $data['scanned_count'] }} / {{ $data['materials_count'] }}</td>
+                                            @hasPermission('scan-bundle-packaging')
                                             <td>
                                                 <a class="avtar avtar-xs btn-light-success bs-ajex-req"
                                                     data-trunkbox="{{ $data['trunkbox_qr_code'] }}"
@@ -241,6 +246,7 @@
                                                     <i class="ti ti-checkbox f-20"></i>
                                                 </a>
                                             </td>
+                                            @endhasPermission
                                         </tr>
                                     @endforeach
                                 </tbody>

@@ -226,10 +226,10 @@
                                         <th>Route No</th>
                                         <th>Center Code</th>
                                         <th>Hall No</th>
-                                        <th>Trunkbox Code</th>
-                                        <th>OTL Locks</th>
+                                        {{-- <th>Trunkbox Code</th> --}}
+                                        {{-- <th>OTL Locks</th> --}}
                                         <th>Materials Count</th>
-                                        <th>Actions</th>
+                                        {{-- <th>Actions</th> --}}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -238,16 +238,16 @@
                                             <td>{{ $data['route_no'] }}</td>
                                             <td>{{ $data['center_code'] }}</td>
                                             <td>{{ $data['hall_code'] }}</td>
-                                            <td>{{ $data['trunkbox_qr_code'] }}</td>
-                                            <td>{{ implode(', ', $data['otl_codes']) }}</td>
+                                            {{-- <td>{{ $data['trunkbox_qr_code'] }}</td> --}}
+                                            {{-- <td>{{ implode(', ', $data['otl_codes']) }}</td> --}}
                                             <td>{{ $data['scanned_count'] }} / {{ $data['materials_count'] }}</td>
-                                            <td>
+                                            {{-- <td>
                                                 <a class="avtar avtar-xs btn-light-success bs-ajex-req"
                                                     data-trunkbox="{{ $data['trunkbox_qr_code'] }}"
                                                     data-otl="{{ json_encode($data['otl_codes']) }}">
                                                     <i class="ti ti-checkbox f-20"></i>
-                                                </a>
-                                            </td>
+                                                </a> 
+                                            </td> --}}
                                         </tr>
                                     @endforeach
                                 </tbody>

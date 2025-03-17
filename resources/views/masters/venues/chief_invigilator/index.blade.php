@@ -150,8 +150,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                                                  <h2 class="mb-0"></h2>
-                                                                                </div> -->
+                                                                                                          <h2 class="mb-0"></h2>
+                                                                                                        </div> -->
                         </div>
                     </div>
                 </div>
@@ -201,55 +201,55 @@
 
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
-                            @if(session('auth_role')=='headquarters')
-                            <form id="filterForm" class="mb-3">
-                                {{-- District Filter --}}
-                                <div class="filter-item">
-                                    <select class="form-select" id="districtFilter" name="district">
-                                        <option value="">Select District</option>
-                                        @foreach ($districts as $district)
-                                            <option value="{{ $district->district_code }}"
-                                                {{ request('district') == $district->district_code ? 'selected' : '' }}>
-                                                {{ $district->district_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                            @if (session('auth_role') == 'headquarters')
+                                <form id="filterForm" class="mb-3">
+                                    {{-- District Filter --}}
+                                    <div class="filter-item">
+                                        <select class="form-select" id="districtFilter" name="district">
+                                            <option value="">Select District</option>
+                                            @foreach ($districts as $district)
+                                                <option value="{{ $district->district_code }}"
+                                                    {{ request('district') == $district->district_code ? 'selected' : '' }}>
+                                                    {{ $district->district_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
 
-                                {{-- Center Filter --}}
-                                <div class="filter-item">
-                                    <select class="form-select" id="centerFilter" name="center">
-                                        <option value="">Select Center</option>
-                                        {{-- @foreach ($centers as $center)
+                                    {{-- Center Filter --}}
+                                    <div class="filter-item">
+                                        <select class="form-select" id="centerFilter" name="center">
+                                            <option value="">Select Center</option>
+                                            {{-- @foreach ($centers as $center)
                                             <option value="{{ $center->ci_center_code }}"
                                                 {{ request('center') == $center->center_code ? 'selected' : '' }}>
                                                 {{ $center->center_name }}
                                             </option>
                                         @endforeach --}}
-                                    </select>
-                                </div>
+                                        </select>
+                                    </div>
 
-                                {{-- Venue Filter --}}
-                                
-                                <div class="filter-item">
-                                    <select class="form-select" id="venueFilter" name="venue">
-                                        <option value="">Select Venue</option>
-                                        {{-- @foreach ($venues as $venue)
+                                    {{-- Venue Filter --}}
+
+                                    <div class="filter-item">
+                                        <select class="form-select" id="venueFilter" name="venue">
+                                            <option value="">Select Venue</option>
+                                            {{-- @foreach ($venues as $venue)
                                             <option value="{{ $venue->ci_venue_code }}"
                                                 {{ request('venue') == $venue->venue_code ? 'selected' : '' }}>
                                                 {{ $venue->venue_name }}
                                             </option>
                                         @endforeach --}}
-                                    </select>
-                                </div>
-                           
+                                        </select>
+                                    </div>
 
-                                <div class="btn-container">
-                                    <button type="submit" class="btn btn-primary">Apply Filters</button>
-                                </div>
-                                <a href="{{ url()->current() }}" class="btn btn-secondary"><i
-                                        class="ti ti-refresh me-2"></i>Reset</a>
-                            </form>
+
+                                    <div class="btn-container">
+                                        <button type="submit" class="btn btn-primary">Apply Filters</button>
+                                    </div>
+                                    <a href="{{ url()->current() }}" class="btn btn-secondary"><i
+                                            class="ti ti-refresh me-2"></i>Reset</a>
+                                </form>
                             @endif
 
 
@@ -266,6 +266,7 @@
                                         <th>Action</th>
                                     </tr>
                                 </thead>
+
                             </table>
                         </div>
                     </div>
@@ -447,6 +448,17 @@
                             d.district = $('#districtFilter').val();
                             d.center = $('#centerFilter').val();
                             d.venue = $('#venueFilter').val();
+                        },
+                        complete: function(response) {
+                            if (response.responseJSON.data.length === 0) {
+                                // Hide the processing indicator
+                                $('#centersTable_processing').hide();
+
+                                // Append a custom message directly to the table body
+                                $('#centersTable tbody').html(
+                                    '<tr><td colspan="7" class="text-center">No chief invigilators found.</td></tr>'
+                                    );
+                            }
                         }
                     },
                     columns: [{
@@ -527,7 +539,9 @@
                     searching: true,
                     search: {
                         return: true
-                    }
+                    },
+
+
                 });
 
                 // Apply filters

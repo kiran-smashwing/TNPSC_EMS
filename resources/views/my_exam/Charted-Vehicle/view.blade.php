@@ -316,30 +316,35 @@
                                                             <div class="col-sm-6">
                                                                 <div class="mb-3"> <label class="form-label">District
                                                                         <span class="text-danger">*</span></label> <select
-                                                                        disabled
                                                                         name="escortstaffs[{{ $index }}][district]"
-                                                                        class="form-control district-dropdown" required>
+                                                                        class="form-control district-dropdown" required
+                                                                        data-selected-district="{{ $escortStaff->district_code }}">
                                                                         <!-- Options will be populated dynamically -->
                                                                     </select> </div>
                                                             </div>
                                                             <div class="col-sm-6">
-                                               <div class="mb-3">
-                                                  <label class="form-label">TNPSC Staff
-                                                     <span class="text-danger">*</span>
-                                                  </label>
-                                              <select disabled name="escortstaffs[{{ $index }}][tnpsc_staff]" class="form-control" required>
-                                                   <option disabled>Select TNPSC Staff</option>
-                                                      @foreach ($tnpscStaffs as $tnpscStaff)
-                                                  <option value="{{ $tnpscStaff->dept_off_id }}"
-                                                {{ $tnpscStaff->dept_off_id == ($escortStaff->tnpsc_staff_id ?? '') ? 'selected' : '' }}>
-                                                 {{ $tnpscStaff->dept_off_name }}
-                                                 @if ($tnpscStaff->role) - {{ $tnpscStaff->role->role_department }} {{ $tnpscStaff->role->role_name }}
-                                                   @endif
-                                                </option>
-                                                  @endforeach
-                                                         </select>
-                                                  </div>
-                                               </div>
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">TNPSC Staff
+                                                                        <span class="text-danger">*</span>
+                                                                    </label>
+                                                                    <select disabled
+                                                                        name="escortstaffs[{{ $index }}][tnpsc_staff]"
+                                                                        class="form-control" required>
+                                                                        <option disabled>Select TNPSC Staff</option>
+                                                                        @foreach ($tnpscStaffs as $tnpscStaff)
+                                                                            <option value="{{ $tnpscStaff->dept_off_id }}"
+                                                                                {{ $tnpscStaff->dept_off_id == ($escortStaff->tnpsc_staff_id ?? '') ? 'selected' : '' }}>
+                                                                                {{ $tnpscStaff->dept_off_name }}
+                                                                                @if ($tnpscStaff->role)
+                                                                                    -
+                                                                                    {{ $tnpscStaff->role->role_department }}
+                                                                                    {{ $tnpscStaff->role->role_name }}
+                                                                                @endif
+                                                                            </option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                            </div>
 
                                                             <div class="col-sm-6">
                                                                 <div class="mb-3"> <label class="form-label">SI Name
@@ -467,21 +472,24 @@
                     })
                     .catch(error => console.error('Error fetching districts:', error));
             }
-
             // Function to update district dropdowns for all cards 
             function updateDistrictDropdowns() {
                 document.querySelectorAll('.district-dropdown').forEach(select => {
-                    let selectedDistrict = select.getAttribute('data-selected-district');
-                    select.innerHTML = '<option disabled>Select District</option>';
-                    districts.forEach(district => {
-                        const option = document.createElement('option');
-                        option.value = district.district_code;
-                        option.textContent = district.district_name;
-                        if (district.district_code == selectedDistrict) {
-                            option.selected = true;
-                        }
-                        select.appendChild(option);
-                    });
+                    updateDistrictDropdown(select);
+                });
+            }
+            // Function to update district dropdown for a single card
+            function updateDistrictDropdown(select) {
+                let selectedDistrict = select.getAttribute('data-selected-district');
+                select.innerHTML = '<option disabled>Select District</option>';
+                districts.forEach(district => {
+                    const option = document.createElement('option');
+                    option.value = district.district_code;
+                    option.textContent = district.district_name;
+                    if (district.district_code == selectedDistrict) {
+                        option.selected = true;
+                    }
+                    select.appendChild(option);
                 });
             }
             // Initial fetching of districts based on the current exams 
@@ -513,4 +521,3 @@
 
     @include('partials.theme')
 @endsection
-

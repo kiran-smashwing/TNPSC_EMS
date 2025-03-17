@@ -143,8 +143,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                                                              <h2 class="mb-0"></h2>
-                                                                                            </div> -->
+                                                                                                  <h2 class="mb-0"></h2>
+                                                                                                </div> -->
                         </div>
                     </div>
                 </div>
@@ -367,10 +367,14 @@
             }
         </script>
         <script>
-            document.querySelectorAll('.bs-ajex-req').forEach(button => {
-                button.addEventListener('click', function() {
-                    let trunkboxQrCode = this.getAttribute('data-trunkbox');
-                    let otlCodes = JSON.parse(this.getAttribute('data-otl'));
+            document.addEventListener('DOMContentLoaded', function() {
+                // Use event delegation to handle clicks on .bs-ajex-req buttons
+                document.querySelector('#res-config tbody').addEventListener('click', function(event) {
+                    const button = event.target.closest('.bs-ajex-req');
+                    if (!button) return; // Exit if the click is not on a .bs-ajex-req button
+
+                    let trunkboxQrCode = button.getAttribute('data-trunkbox');
+                    let otlCodes = JSON.parse(button.getAttribute('data-otl'));
 
                     // Create multi-select dropdown options
                     let optionsHtml = otlCodes.map(code =>
@@ -380,13 +384,13 @@
                     Swal.fire({
                         title: 'Select Used OTL Codes',
                         html: `
-                <div class="form-group">
-                    <select class="form-select" 
-                        id="otlSelect" name="otlSelect[]" multiple>
-                        ${optionsHtml}
-                    </select>
-                </div>
-                `,
+                        <div class="form-group">
+                            <select class="form-select" 
+                                id="otlSelect" name="otlSelect[]" multiple>
+                                ${optionsHtml}
+                            </select>
+                        </div>
+                    `,
                         showCancelButton: true,
                         confirmButtonText: 'Submit',
                         didOpen: () => {

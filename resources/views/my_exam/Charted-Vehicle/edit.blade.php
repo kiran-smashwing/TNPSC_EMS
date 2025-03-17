@@ -95,7 +95,8 @@
                                                 <div class="mb-3">
                                                     <label class="form-label" for="exam_id">Exam<span
                                                             class="text-danger">*</span></label>
-                                                    <select  {{$canEdit == false ? 'disabled' : ''}} class="form-control @error('exam_id') is-invalid @enderror"
+                                                    <select {{ $canEdit == false ? 'disabled' : '' }}
+                                                        class="form-control @error('exam_id') is-invalid @enderror"
                                                         id="exam_id" name="exam_id[]" multiple required>
                                                         <option value="">Select Exam</option>
                                                         @foreach ($exams as $exam)
@@ -172,8 +173,9 @@
                                                 <div class="mb-3">
                                                     <label class="form-label">OTL Locks <span
                                                             class="text-danger">*</span></label>
-                                                    <input  {{$canEdit == false ? 'disabled' : ''}} type="text" class="form-control" id="otl_locks"
-                                                        name="otl_locks[]" placeholder="OTL Locks"
+                                                    <input {{ $canEdit == false ? 'disabled' : '' }} type="text"
+                                                        class="form-control" id="otl_locks" name="otl_locks[]"
+                                                        placeholder="OTL Locks"
                                                         value="{{ old('otl_locks', implode(',', $route->otl_locks ?? [])) }}">
                                                 </div>
                                             </div>
@@ -181,8 +183,9 @@
                                                 <div class="mb-3">
                                                     <label class="form-label">GPS Lock <span
                                                             class="text-danger">*</span></label>
-                                                    <input  {{$canEdit == false ? 'disabled' : ''}} type="text" class="form-control" id="gps_lock"
-                                                        name="gps_locks[]" placeholder="GPS Lock"
+                                                    <input {{ $canEdit == false ? 'disabled' : '' }} type="text"
+                                                        class="form-control" id="gps_lock" name="gps_locks[]"
+                                                        placeholder="GPS Lock"
                                                         value="{{ old('gps_locks', implode(',', $route->gps_locks ?? [])) }}">
                                                 </div>
                                             </div>
@@ -308,7 +311,7 @@
                                     <div class="card-header d-flex justify-content-between align-items-center">
                                         <h5>Escort Duty Staff for Each District</h5>
                                         @hasPermission('create-escort-staff')
-                                        <button type="button" class="btn btn-success add-card">Add Staff</button>
+                                            <button type="button" class="btn btn-success add-card">Add Staff</button>
                                         @endhasPermission
                                     </div>
                                     <div class="card-body">
@@ -330,27 +333,33 @@
                                                                 <div class="mb-3"> <label class="form-label">District
                                                                         <span class="text-danger">*</span></label> <select
                                                                         name="escortstaffs[{{ $index }}][district]"
-                                                                        class="form-control district-dropdown" required>
+                                                                        class="form-control district-dropdown" required
+                                                                        data-selected-district="{{ $escortStaff->district_code }}">
                                                                         <!-- Options will be populated dynamically -->
                                                                     </select> </div>
                                                             </div>
-                                                           <div class="col-sm-6">
-    <div class="mb-3">
-        <label class="form-label">TNPSC Staff <span class="text-danger">*</span></label>
-        <select {{ $canEdit == false ? 'disabled' : '' }} name="escortstaffs[{{ $index }}][tnpsc_staff]" class="form-control" required>
-            <option disabled>Select TNPSC Staff</option>
-            @foreach ($tnpscStaffs as $tnpscStaff)
-                <option value="{{ $tnpscStaff->dept_off_id }}"
-                    {{ $tnpscStaff->dept_off_id == ($escortStaff->tnpsc_staff_id ?? '') ? 'selected' : '' }}>
-                    {{ $tnpscStaff->dept_off_name }}
-                    @if (!empty($tnpscStaff->role))
-                        - {{ $tnpscStaff->role->role_department }} {{ $tnpscStaff->role->role_name }}
-                    @endif
-                </option>
-            @endforeach
-        </select>
-    </div>
-</div>
+                                                            <div class="col-sm-6">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">TNPSC Staff <span
+                                                                            class="text-danger">*</span></label>
+                                                                    <select {{ $canEdit == false ? 'disabled' : '' }}
+                                                                        name="escortstaffs[{{ $index }}][tnpsc_staff]"
+                                                                        class="form-control" required>
+                                                                        <option disabled>Select TNPSC Staff</option>
+                                                                        @foreach ($tnpscStaffs as $tnpscStaff)
+                                                                            <option value="{{ $tnpscStaff->dept_off_id }}"
+                                                                                {{ $tnpscStaff->dept_off_id == ($escortStaff->tnpsc_staff_id ?? '') ? 'selected' : '' }}>
+                                                                                {{ $tnpscStaff->dept_off_name }}
+                                                                                @if (!empty($tnpscStaff->role))
+                                                                                    -
+                                                                                    {{ $tnpscStaff->role->role_department }}
+                                                                                    {{ $tnpscStaff->role->role_name }}
+                                                                                @endif
+                                                                            </option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                            </div>
 
                                                             <div class="col-sm-6">
                                                                 <div class="mb-3"> <label class="form-label">SI Name
@@ -483,17 +492,21 @@
             // Function to update district dropdowns for all cards 
             function updateDistrictDropdowns() {
                 document.querySelectorAll('.district-dropdown').forEach(select => {
-                    let selectedDistrict = select.getAttribute('data-selected-district');
-                    select.innerHTML = '<option disabled>Select District</option>';
-                    districts.forEach(district => {
-                        const option = document.createElement('option');
-                        option.value = district.district_code;
-                        option.textContent = district.district_name;
-                        if (district.district_code == selectedDistrict) {
-                            option.selected = true;
-                        }
-                        select.appendChild(option);
-                    });
+                    updateDistrictDropdown(select);
+                });
+            }
+            // Function to update district dropdown for a single card
+            function updateDistrictDropdown(select) {
+                let selectedDistrict = select.getAttribute('data-selected-district');
+                select.innerHTML = '<option disabled>Select District</option>';
+                districts.forEach(district => {
+                    const option = document.createElement('option');
+                    option.value = district.district_code;
+                    option.textContent = district.district_name;
+                    if (district.district_code == selectedDistrict) {
+                        option.selected = true;
+                    }
+                    select.appendChild(option);
                 });
             }
             // Initial fetching of districts based on the current exams 
@@ -619,4 +632,3 @@
     </script>
     @include('partials.theme')
 @endsection
-

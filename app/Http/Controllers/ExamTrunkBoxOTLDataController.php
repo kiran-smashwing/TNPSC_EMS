@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ProcessTrunkBoxQRCsv;
 use App\Models\Center;
 use App\Models\ExamConfirmedHalls;
 use App\Models\ExamTrunkBoxOTLData;
@@ -69,241 +70,44 @@ class ExamTrunkBoxOTLDataController extends Controller
         $examId = $request->input('exam_id');
         $file = $request->file('csv_file');
         // Read the original file content
-        $originalContent = file_get_contents($file->getRealPath());
-
-        // Process the content to preserve leading zeros
-        $rows = array_map('str_getcsv', explode("\n", $originalContent));
-        // Define the path and pattern for existing files
         $uploadedFilePath = 'uploads/csv_files/';
-        $pattern = storage_path('app/public/' . $uploadedFilePath . 'ED_TRUNKBOX_QR_OTL' . $examId . '_uploaded_*');
-        // Find and delete existing files
-        $existingFiles = glob($pattern);
+        $uploadedFileName = 'QD_TRUNKBOX_QR_OTL' . $examId . '_uploaded_' . time() . '.csv';
+        $fullFilePath = storage_path("app/public/{$uploadedFilePath}{$uploadedFileName}");
+
+        $existingFiles = glob(storage_path("app/public/{$uploadedFilePath}{$examId}_uploaded_*"));
         foreach ($existingFiles as $existingFile) {
-            if (file_exists($existingFile)) {
-                unlink($existingFile);
-            }
+            unlink($existingFile); // Delete old files
         }
+
+        // Move the file to storage
+        $file->move(storage_path("app/public/{$uploadedFilePath}"), $uploadedFileName);
+        $uploadedFileUrl = asset('storage/' . $uploadedFilePath . $uploadedFileName);
+
         // Create new file with preserved formatting
         $uploadedFilePath = 'uploads/csv_files/';
-        $uploadedFileName = 'ED_TRUNKBOX_QR_OTL' . $examId . '_uploaded_' . time() . '.csv';
         $fullPath = storage_path('app/public/' . $uploadedFilePath . $uploadedFileName);
         // Ensure directory exists
         if (!file_exists(dirname($fullPath))) {
             mkdir(dirname($fullPath), 0777, true);
         }
 
-        // Write to new file with proper formatting
-        $fp = fopen($fullPath, 'w');
-        fprintf($fp, chr(0xEF) . chr(0xBB) . chr(0xBF)); // Add UTF-8 BOM
-
+        // Add tab to the first column (optional pre-processing)
+        $rows = array_map('str_getcsv', file($fullFilePath));
+        $fp = fopen($fullFilePath, 'w');
         foreach ($rows as $row) {
-            //skip first row heading
-            // Add a tab character or single quote before numbers to retain leading zeros in Excel
-            $row = array_map(function ($value) {
-                return "\t" . $value; // Adding a tab to force Excel to treat as text
-            }, $row);
+            if (!empty($row)) {
+                $row[0] = "\t" . $row[0];
+            }
+            fputcsv($fp, $row);
         }
         fclose($fp);
-        $uploadedFileUrl = url('storage/' . $uploadedFilePath . $uploadedFileName);
-
-        $data = array_map('str_getcsv', file($file->getRealPath()));
-
-        // Open the CSV file
-        if (($handle = fopen($file->getRealPath(), 'r')) === false) {
-            return redirect()->back()->with('error', 'Failed to open the CSV file.');
-        }
-
-        fgetcsv($handle); // Skip the header row
-        $successfulInserts = 0;
-        $failedRows = [];
-        $totalRows = 0;
-
-        // Delete old failed rows CSV files before proceeding
-        $this->deleteExamMaterialsQROldFailedFiles($examId);
-
-        // Process each row from the CSV file
-        while (($data = fgetcsv($handle, 1000, ',')) !== false) {
-            // Skip empty rows or rows with missing required fields
-            if (empty(array_filter($data))) {
-                continue; // Skip this iteration if the row is empty
-            }
-            $totalRows++;
-            // Assuming Hall Code is the first column
-            $hallCodes = explode(',', $data[0]); // Split hall codes if comma-separated
-
-            foreach ($hallCodes as $hallCode) {
-                $newData = $data; // Copy original row
-                $newData[0] = trim($hallCode); // Replace Hall Code with individual one
-
-                try {
-                    $this->validateExamMaterialsQRCSVRow($newData, $examId, $successfulInserts, $failedRows);
-                } catch (Exception $e) {
-                    $failedRows[] = array_merge($newData, ['error' => $e->getMessage()]);
-                }
-            }
-        }
-        fclose($handle);
-
-        // Handle failed rows and generate a CSV file for them
-        $failedCsvPath = null;
-        if (!empty($failedRows)) {
-            $failedCsvPath = $examId . '_ed_trunkbox_qr_otl_failed_rows_' . time() . '.csv';
-            $filePath = storage_path('app/public/uploads/failed_csv_files/' . $failedCsvPath);
-            $fp = fopen($filePath, 'w');
-            fputcsv($fp, ['Hall Code', 'Trunk Box', 'OTL','Error']);
-            foreach ($failedRows as $row) {
-                // Add a tab character or single quote before numbers to retain leading zeros in Excel
-                $row = array_map(function ($value) {
-                    return "\t" . $value; // Adding a tab to force Excel to treat as text
-                }, $row);
-                fputcsv($fp, $row);
-            }
-            fclose($fp);
-            session()->put('failed_csv_path', url('storage/uploads/failed_csv_files/' . $failedCsvPath));
-            // Store the file path in session for future download
-        } else {
-            session()->forget('failed_csv_path'); // Clear failed file path if none exist
-        }
-
-        // Log the upload action
-        $this->logExamTrunkBoxQROTLUploadAction($examId, $successfulInserts, count($failedRows), $uploadedFileUrl, $failedCsvPath);
-
-        return redirect()->back()->with('success', "CSV processed: Total Rows: $totalRows, Successful: $successfulInserts, Failed: " . count($failedRows));
-    }
-
-
-    private function parseQrCode($qrCodeString)
-    {
-        // Define the pattern for the Trunk Box QR code
-        $pattern = '/^(?<center_code>\d{4})(?<trunk_no>\d{3})$/';
-
-        // Match the pattern against the QR code string
-        if (preg_match($pattern, $qrCodeString, $matches)) {
-            return [
-                'center_code' => $matches['center_code'], // 4-digit center code
-                'trunk_no' => $matches['trunk_no'], // 3-digit trunk number
-            ];
-        }
-
-        return null; // No match found
-    }
-    /**
-     * Delete old failed rows CSV files before proceeding.
-     */
-    private function deleteExamMaterialsQROldFailedFiles($examId)
-    {
-        $failedCsvFiles = glob(storage_path('app/public/uploads/failed_csv_files/' . $examId . '_ed_trunkbox_qr_otl_failed_rows_*.csv'));
-
-        // Loop through and delete old failed CSV files
-        foreach ($failedCsvFiles as $file) {
-            if (file_exists($file)) {
-                unlink($file); // Delete the file
-            }
-        }
-    }
-    /**
-     * Validate each row of the CSV and insert the data.
-     */
-    private function validateExamMaterialsQRCSVRow($data, $examId, &$successfulInserts, &$failedRows)
-    {
-
-        // Validate center code, name, date, session, and expected candidates
-        if (!isset($data[0]) || !is_numeric($data[0])) {
-            throw new Exception('Invalid or missing Hall code.');
-        }
-        if (!isset($data[1]) || !is_numeric($data[1])) {
-            throw new Exception('Invalid or missing Trunkbox QR code.');
-        }
-        if (!isset($data[2]) || !is_string($data[2])) {
-            throw new Exception('Invalid or missing OTL Code.');
-        }
-        if (!isset($data[3]) || !is_string($data[3])) {
-            throw new Exception('Invalid or missing Date.');
-        }
-
-        if ($data) {
-            $qrCodeString = $data[1] ?? null; // Assuming the second column contains QR code data
-            $qrCodeString = trim($qrCodeString); // Removes \t and other whitespace
-            if (!$qrCodeString) {
-                $error = 'QR Code missing.';
-                throw new Exception($error);
-            }
-            // dd($qrCodeString);
-            $parsedData = $this->parseQrCode($qrCodeString);
-            if (!$parsedData) {
-                $error = 'QR Code format invalid.';
-                throw new Exception($error);
-            }
-
-            $centerCode = $parsedData['center_code'];
-            // Split OTL codes by comma and encode as JSON 
-            // Split OTL codes by comma and encode as JSON 
-            $otlCodes = explode(',', trim($data[2]));
-            $otlCodes = json_encode($otlCodes);
-            $examTrunkBoxOTLDuplicateData = ExamTrunkBoxOTLData::where('exam_id', $examId)
-                ->where('trunkbox_qr_code', trim($data[1]))
-                ->where('center_code', $centerCode)
-                ->where('hall_code', trim($data[0]))
-                ->where('otl_code', $otlCodes)
-                ->first();
-
-            if ($examTrunkBoxOTLDuplicateData) {
-                $errorDetails = "Duplicate Entry found. Existing data - Trunk BOX QR Code: " . $data[1] . " - Exam ID: " . $examId . " - Exam TRUNK BOX OTL Data ID: " . $examTrunkBoxOTLDuplicateData;
-                throw new Exception($errorDetails);
-            }
-            $center = Center::where('center_code', $parsedData['center_code'])->first();
-            if (!$center) {
-                $error = 'Center not found for the given QR code data.';
-                throw new Exception($error);
-            }
-            // Assuming $data[3] contains the date in some format
-            $examDate = date('Y-m-d', strtotime(trim($data[3])));
-            // dd($examId); 
-            //TODO: ADD Check for all other required conditions. 20241126092207
-            $hallConfirmed = ExamConfirmedHalls::where('exam_id', $examId)
-                ->where('center_code', $parsedData['center_code'])
-                ->where('hall_code', trim($data[0]))
-                ->where('exam_date', $examDate)
-                ->first();
-
-            if (!$hallConfirmed) {
-                $error = 'Hall not found for the given QR code data.';
-                throw new Exception($error);
-            }
-
-            $qrCodeEntries[] = [
-                'exam_id' => $examId,
-                'district_code' => $center->center_district_id,
-                'center_code' => $parsedData['center_code'],
-                'hall_code' => $hallConfirmed->hall_code,
-                'venue_code' => $hallConfirmed->venue_code,
-                'exam_date' => $hallConfirmed->exam_date,
-                'trunkbox_qr_code' => trim($data[1]),
-                'otl_code' => $otlCodes,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
-            ExamTrunkBoxOTLData::insert($qrCodeEntries);
-
-        } else {
-            throw new Exception('Invalid qr code model.');
-        }
-        $successfulInserts++;
-    }
-    /**
-     * Log the upload action with metadata.
-     */
-    private function logExamTrunkBoxQROTLUploadAction($examId, $successfulInserts, $failedCount, $uploadedFileUrl, $failedCsvPath)
-    {
+        // Create initial log entry with 'processing' status
         $currentUser = current_user();
         $userName = $currentUser ? $currentUser->display_name : 'Unknown';
-
-        $metadata = [
+        $initialMetadata = [
             'user_name' => $userName,
-            'successful_inserts' => $successfulInserts,
-            'failed_count' => $failedCount,
-            'uploaded_csv_link' => $uploadedFileUrl, // Include uploaded file link
-            'failed_csv_link' => $failedCsvPath ? url('storage/uploads/failed_csv_files/' . $failedCsvPath) : null,
+            'status' => 'processing',
+            'uploaded_csv_link' => $uploadedFileUrl,
         ];
 
         // Check if a log already exists for this exam and task type
@@ -316,8 +120,7 @@ class ExamTrunkBoxOTLDataController extends Controller
             // Update the existing log
             $this->auditService->updateLog(
                 logId: $existingLog->id,
-                metadata: $metadata,
-                afterState: null,
+                metadata: $initialMetadata,
                 description: 'Updated ED Exam Trunkbox QR & OTL Code'
             );
         } else {
@@ -326,11 +129,14 @@ class ExamTrunkBoxOTLDataController extends Controller
                 examId: $examId,
                 actionType: 'uploaded',
                 taskType: 'exam_trunkbox_qr_otl_upload',
-                afterState: null,
-                description: 'Updated ED Exam Trunkbox QR & OTL Code ',
-                metadata: $metadata
+                description: 'Started processing ED Exam Trunkbox QR CSV',
+                metadata: $initialMetadata
             );
         }
+        // Dispatch the job to process the CSV in the background
+        ProcessTrunkBoxQRCsv::dispatch($examId, $fullFilePath, $uploadedFileUrl, $currentUser);
+
+        return redirect()->back()->with('success', 'CSV file uploaded successfully. Processing will continue in the background, and you will receive an email upon completion.');
     }
 
 }

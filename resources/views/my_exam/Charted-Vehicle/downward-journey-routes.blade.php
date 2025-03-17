@@ -140,8 +140,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                                                  <h2 class="mb-0"></h2>
-                                                                                </div> -->
+                                                                                          <h2 class="mb-0"></h2>
+                                                                                        </div> -->
                         </div>
                     </div>
                 </div>
@@ -251,33 +251,32 @@
                                                         <i class="ti ti-clipboard-check f-20"></i>
                                                     </a>
                                                     @if (!empty($route->charted_vehicle_verification))
-                                                    <a href="{{ route('vehicel.report.download', $route['id']) }}"
-                                                        class="avtar avtar-xs btn-light-success" target="_blank"><i
-                                                            class="ti ti-download f-20"></i></a>
-                                                @endif
+                                                        <a href="{{ route('vehicel.report.download', $route['id']) }}"
+                                                            class="avtar avtar-xs btn-light-success" target="_blank"><i
+                                                                class="ti ti-download f-20"></i></a>
+                                                    @endif
                                                 @endhasPermission
                                                 <a href="{{ route('viewTrunkboxes', $route['id']) }}"
                                                     class="avtar avtar-xs btn-light-success"><i
                                                         class="ti ti-checkbox  f-20"></i></a>
-                                               @hasPermission('otl-lock')
-                                                <a href='#'
-                                                    class="{{ $route->user_used_otl_code ? 'avtar avtar-xs btn-light-success' : 'avtar avtar-xs btn-light-danger' }} lock-update"
-                                                    data-route-id="{{ $route->id }}"
-                                                    title= "Update OTL Locks"
-                                                    data-otl="{{ json_encode($route->otl_locks) }}">
-                                                    {!! $route->user_used_otl_code ? '<i class="ti ti-lock f-20"></i>' : '<i class="ti ti-lock-off f-20"></i>' !!}
-                                                </a>
-                                                <a href='#'
-                                                    class="{{ $route->used_gps_lock ? 'avtar avtar-xs btn-light-success' : 'avtar avtar-xs btn-light-danger' }} gps-lock-update"
-                                                    data-route-id="{{ $route->id }}"
-                                                    title= "Update GPS Lock"
-                                                    data-gps="{{ json_encode($route->gps_locks) }}">
-                                                    <i class="ti ti-gps f-20"></i>
-                                                </a>
+                                                @hasPermission('otl-lock')
+                                                    <a href='#'
+                                                        class="{{ $route->user_used_otl_code ? 'avtar avtar-xs btn-light-success' : 'avtar avtar-xs btn-light-danger' }} lock-update"
+                                                        data-route-id="{{ $route->id }}" title= "Update OTL Locks"
+                                                        data-otl="{{ json_encode($route->otl_locks) }}">
+                                                        {!! $route->user_used_otl_code ? '<i class="ti ti-lock f-20"></i>' : '<i class="ti ti-lock-off f-20"></i>' !!}
+                                                    </a>
+                                                    <a href='#'
+                                                        class="{{ $route->used_gps_lock ? 'avtar avtar-xs btn-light-success' : 'avtar avtar-xs btn-light-danger' }} gps-lock-update"
+                                                        data-route-id="{{ $route->id }}" title= "Update GPS Lock"
+                                                        data-gps="{{ json_encode($route->gps_locks) }}">
+                                                        <i class="ti ti-gps f-20"></i>
+                                                    </a>
                                                 @endhasPermission
                                                 @hasPermission('annexure-1-b.download')
                                                     <a href="{{ route('charted-vehicle-routes.generateAnnexure1BReport', $route['id']) }}"
-                                                       title="Download Annexure 1-B Report" class="avtar avtar-xs btn-light-success" target="_blank"><i
+                                                        title="Download Annexure 1-B Report"
+                                                        class="avtar avtar-xs btn-light-success" target="_blank"><i
                                                             class="ti ti-download f-20"></i></a>
                                                 @endhasPermission
                                                 @hasPermission('verify-materials-handovered')
@@ -318,10 +317,14 @@
         <script src="{{ asset('storage/assets/js/plugins/choices.min.js') }}"></script>
         <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
         <script>
-            document.querySelectorAll('.lock-update').forEach(button => {
-                button.addEventListener('click', function() {
-                    let routeId = this.getAttribute('data-route-id');
-                    let otlCodes = JSON.parse(this.getAttribute('data-otl'));
+            document.addEventListener('DOMContentLoaded', function() {
+                // Use event delegation to handle clicks on .lock-update buttons
+                document.querySelector('#res-config tbody').addEventListener('click', function(event) {
+                    const button = event.target.closest('.lock-update');
+                    if (!button) return; // Exit if the click is not on a .lock-update button
+
+                    let routeId = button.getAttribute('data-route-id');
+                    let otlCodes = JSON.parse(button.getAttribute('data-otl'));
 
                     // Create multi-select dropdown options
                     let optionsHtml = otlCodes.map(code =>
@@ -331,13 +334,13 @@
                     Swal.fire({
                         title: 'Select Used OTL Codes',
                         html: `
-            <div class="form-group">
-                <select class="form-select" 
-                    id="otlSelect" name="otlSelect" >
-                    ${optionsHtml}
-                </select>
-            </div>
-            `,
+                            <div class="form-group">
+                                <select class="form-select" 
+                                    id="otlSelect" name="otlSelect">
+                                    ${optionsHtml}
+                                </select>
+                            </div>
+                        `,
                         showCancelButton: true,
                         confirmButtonText: 'Submit',
                         didOpen: () => {
@@ -378,57 +381,57 @@
                                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                                 },
                                 beforeSend: function() {
-                                    const loader = document.getElementById('loader');
                                     if (loader) loader.style.removeProperty(
-                                        'display'); // Show loader
+                                    'display'); // Show loader
                                 },
                                 success: function(data, textStatus, xhr) {
-                                    const loader = document.getElementById('loader');
                                     if (loader) loader.style.display =
-                                        'none'; // Hide loader
+                                    'none'; // Hide loader
 
                                     if (xhr.status === 200) {
                                         Swal.fire({
                                             title: 'Success!',
                                             text: data
-                                                .success, // Show dynamic success message
+                                            .success, // Show dynamic success message
                                             icon: 'success',
                                             confirmButtonText: 'OK'
                                         }).then((result) => {
                                             if (result.isConfirmed) {
                                                 location
-                                                    .reload(); // Reload the page when "OK" is clicked
+                                            .reload(); // Reload the page when "OK" is clicked
                                             }
                                         });
                                     } else {
                                         Swal.fire('Error!', data.error,
-                                            'error'); // Show dynamic error message
+                                        'error'); // Show dynamic error message
                                     }
                                 },
                                 error: function(xhr) {
-                                    const loader = document.getElementById('loader');
                                     if (loader) loader.style.display =
-                                        'none'; // Hide loader
+                                    'none'; // Hide loader
 
                                     let errorMessage = 'Something went wrong.';
                                     if (xhr.responseJSON && xhr.responseJSON.error) {
                                         errorMessage = xhr.responseJSON
-                                            .error; // Get actual error message
+                                        .error; // Get actual error message
                                     }
                                     Swal.fire('Error!', errorMessage, 'error');
                                 }
                             });
-
                         }
                     });
                 });
             });
         </script>
         <script>
-            document.querySelectorAll('.gps-lock-update').forEach(button => {
-                button.addEventListener('click', function() {
-                    let routeId = this.getAttribute('data-route-id');
-                    let otlCodes = JSON.parse(this.getAttribute('data-gps'));
+            document.addEventListener('DOMContentLoaded', function() {
+                // Use event delegation to handle clicks on .gps-lock-update buttons
+                document.querySelector('#res-config tbody').addEventListener('click', function(event) {
+                    const button = event.target.closest('.gps-lock-update');
+                    if (!button) return; // Exit if the click is not on a .gps-lock-update button
+
+                    let routeId = button.getAttribute('data-route-id');
+                    let otlCodes = JSON.parse(button.getAttribute('data-gps'));
 
                     // Create multi-select dropdown options
                     let optionsHtml = otlCodes.map(code =>
@@ -436,22 +439,22 @@
                     ).join('');
 
                     Swal.fire({
-                        title: 'Select Used GPS Lock', 
+                        title: 'Select Used GPS Lock',
                         html: `
-            <div class="form-group">
-                <select class="form-select" 
-                    id="gpsSelect" name="gpsSelect" >
-                    ${optionsHtml}
-                </select>
-            </div>
-            `,
+                        <div class="form-group">
+                            <select class="form-select" 
+                                id="gpsSelect" name="gpsSelect">
+                                ${optionsHtml}
+                            </select>
+                        </div>
+                    `,
                         showCancelButton: true,
                         confirmButtonText: 'Submit',
                         didOpen: () => {
                             // Initialize Choices.js on the select element after the modal is opened
                             const choicesInstance = new Choices('#gpsSelect', {
                                 removeItemButton: true,
-                                placeholderValue: 'Select GPS Lock', 
+                                placeholderValue: 'Select GPS Lock',
                                 position: 'bottom',
                                 searchEnabled: false,
                                 searchChoices: false,
@@ -460,16 +463,16 @@
                             });
                         },
                         preConfirm: () => {
-                            let selectEl = document.getElementById('gpsSelect'); 
+                            let selectEl = document.getElementById('gpsSelect');
                             let selectedOption = selectEl.value;
 
                             if (!selectedOption) {
-                                Swal.showValidationMessage('Please select a GPS Lock'); 
+                                Swal.showValidationMessage('Please select a GPS Lock');
                                 return false;
                             }
                             return {
                                 routeId: routeId,
-                                gpsLock: selectedOption 
+                                gpsLock: selectedOption
                             };
                         }
                     }).then((result) => {
@@ -479,56 +482,49 @@
                             $.ajax({
                                 url: '{{ route('charted-vehicle-routes.save-gps-lock-used') }}',
                                 method: 'POST',
-                                data: JSON.stringify({
-                                    routeId: result.value.routeId,
-                                    gpsLock: result.value.gpsLock 
-                                }),
+                                data: JSON.stringify(result.value),
                                 contentType: 'application/json',
                                 headers: {
                                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                                 },
                                 beforeSend: function() {
-                                    const loader = document.getElementById('loader');
                                     if (loader) loader.style.removeProperty(
-                                        'display'); // Show loader
+                                    'display'); // Show loader
                                 },
                                 success: function(data, textStatus, xhr) {
-                                    const loader = document.getElementById('loader');
                                     if (loader) loader.style.display =
-                                        'none'; // Hide loader
+                                    'none'; // Hide loader
 
                                     if (xhr.status === 200) {
                                         Swal.fire({
                                             title: 'Success!',
                                             text: data
-                                                .success, // Show dynamic success message
+                                            .success, // Show dynamic success message
                                             icon: 'success',
                                             confirmButtonText: 'OK'
                                         }).then((result) => {
                                             if (result.isConfirmed) {
                                                 location
-                                                    .reload(); // Reload the page when "OK" is clicked
+                                            .reload(); // Reload the page when "OK" is clicked
                                             }
                                         });
                                     } else {
                                         Swal.fire('Error!', data.error,
-                                            'error'); // Show dynamic error message
+                                        'error'); // Show dynamic error message
                                     }
                                 },
                                 error: function(xhr) {
-                                    const loader = document.getElementById('loader');
                                     if (loader) loader.style.display =
-                                        'none'; // Hide loader
+                                    'none'; // Hide loader
 
                                     let errorMessage = 'Something went wrong.';
                                     if (xhr.responseJSON && xhr.responseJSON.error) {
                                         errorMessage = xhr.responseJSON
-                                            .error; // Get actual error message
+                                        .error; // Get actual error message
                                     }
                                     Swal.fire('Error!', errorMessage, 'error');
                                 }
                             });
-
                         }
                     });
                 });

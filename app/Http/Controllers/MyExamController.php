@@ -71,6 +71,7 @@ class MyExamController extends Controller
                 $venueConsents = ExamVenueConsent::where('exam_id', $examId)
                     ->where('venue_id', $user->venue_id)
                     ->where('consent_status', '!=', 'saved')
+                    ->with('assignedCIs')
                     ->first();
                 if (!$venueConsents) {
                     abort(404, 'Venue consent not found');

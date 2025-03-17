@@ -96,7 +96,7 @@ class ProcessMaterailsQRCsv implements ShouldQueue
             \Log::error("CSV Processing Failed: " . $errorMessage);
         }
 
-        $this->logUploadAction( $this->examId, $successfulInserts, count($failedRows), $this->uploadedFileUrl, $failedCsvPath, $this->currentUser);
+        $this->logUploadAction($this->examId, $successfulInserts, count($failedRows), $this->uploadedFileUrl, $failedCsvPath, $this->currentUser);
         $this->sendProcessingResultEmail($status, $successfulInserts, count($failedRows), $errorMessage, $failedCsvPath);
     }
     private function generateFailedCsv($failedRows)
@@ -161,11 +161,26 @@ class ProcessMaterailsQRCsv implements ShouldQueue
             $error = 'QR Code format invalid.';
             throw new \Exception($error);
         }
+        // Normalize the notification number from the QR code
+        $qrNotificationNo = $parsedData['notification_no']; // This is already in the "main format" (6 digits)
+
+        // Fetch the exam details for the provided exam ID (sub-exam ID)
+        $exam = Currentexam::where('exam_main_no',$examId)->first();
+        if (!$exam) {
+            throw new \Exception('Exam not found for the current exam ID.');
+        }
+
+        // Normalize the notification number from the database
+        $dbNotificationNo = preg_replace('/[^0-9]/', '', $exam->exam_main_notification); // Remove non-numeric characters
+
+        // Match the normalized notification numbers
+        if ($qrNotificationNo !== $dbNotificationNo) {
+            throw new \Exception('QR Code notification number does not match the exam notification number.');
+        }
         $dayToMatch = $parsedData['exam_date'];
         $examsession = $parsedData['exam_session'] == 'A' ? 'AN' : 'FN';
-        $notificationNo = preg_replace('/(\d{2})(\d{4})/', '$1/$2', $parsedData['notification_no']);
 
-        $exam = Currentexam::where('exam_main_notification', $notificationNo)
+        $exam = Currentexam::where('exam_main_no', $examId)
             ->with([
                 'examsession' => function ($query) use ($dayToMatch, $examsession) {
                     $query->whereRaw('EXTRACT(DAY FROM exam_sess_date::date) = ?', [$dayToMatch])
@@ -307,7 +322,7 @@ class ProcessMaterailsQRCsv implements ShouldQueue
         return null; // No pattern matched
     }
 
-    private function logUploadAction( $examId, $successfulInserts, $failedCount, $uploadedFileUrl, $failedCsvPath, $currentUser)
+    private function logUploadAction($examId, $successfulInserts, $failedCount, $uploadedFileUrl, $failedCsvPath, $currentUser)
     {
         $userName = $currentUser ? $currentUser->display_name : 'Unknown';
 

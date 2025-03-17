@@ -270,7 +270,7 @@
                                                         class="{{ $route->used_gps_lock ? 'avtar avtar-xs btn-light-success' : 'avtar avtar-xs btn-light-danger' }} gps-lock-update"
                                                         data-route-id="{{ $route->id }}" title= "Update GPS Lock"
                                                         data-gps="{{ json_encode($route->gps_locks) }}">
-                                                        <i class="ti ti-gps f-20"></i>
+                                                        {!! $route->used_gps_lock ? '<i class="ti ti-map-pin f-20"></i>' : '<i class="ti ti-map-pin-off f-20"></i>' !!}
                                                     </a>
                                                 @endhasPermission
                                                 @hasPermission('annexure-1-b.download')

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\UserEmailVerificationMail;
 use App\Models\ChiefInvigilator;
 use App\Models\Center;
 use App\Models\District;
@@ -235,17 +236,13 @@ class ChiefInvigilatorsController extends Controller
 
             // Send email verification email
             $verificationLink = route('chief-invigilator.verifyEmail', ['token' => urlencode($verificationToken)]);
-            $verificationData = [
-                'name' => $chiefInvigilator->ci_name,
-                'email' => $chiefInvigilator->ci_email,
-                'verification_link' => $verificationLink,
-            ];
-
-            Mail::send('email.chief_invigilator_verification', $verificationData, function ($message) use ($verificationData) {
-                $message->to($verificationData['email'])
-                    ->subject('Verify Your Email Address');
-            });
-
+            
+            if ($verificationLink) {
+                Mail::to($chiefInvigilator->ci_email)->send(new UserEmailVerificationMail($chiefInvigilator->ci_name, $chiefInvigilator->ci_email, $verificationLink)); // Use the common mailable
+            }
+            else{
+                throw new \Exception('Failed to generate verification link.');
+            }
             // Log the creation for auditing purposes
             AuditLogger::log('Chief Invigilator Created', ChiefInvigilator::class, $chiefInvigilator->ci_id, null, $chiefInvigilator->toArray());
 

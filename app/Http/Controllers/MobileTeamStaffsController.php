@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\UserEmailVerificationMail;
 use App\Models\MobileTeamStaffs;
 use App\Models\District;
 use Illuminate\Http\Request;
@@ -140,16 +141,14 @@ class MobileTeamStaffsController extends Controller
                     ->subject('Welcome to the Mobile Team');
             });
 
-            // Send the email verification link
-            Mail::send('email.mobile_verification', [
-                'name' => $mobileTeamMember->mobile_name,
-                'email' => $mobileTeamMember->mobile_email,
-                'verification_link' => route('mobile_team.verifyEmail', ['token' => urlencode($mobileTeamMember->verification_token)]),
-            ], function ($message) use ($mobileTeamMember) {
-                $message->to($mobileTeamMember->mobile_email)
-                    ->subject('Verify Your Email Address');
-            });
+            $verificationLink = route('mobile_team.verifyEmail', ['token' => urlencode($mobileTeamMember->verification_token)]);
 
+            if ($verificationLink) {
+                Mail::to($mobileTeamMember->mobile_email)->send(new UserEmailVerificationMail($mobileTeamMember->mobile_name, $mobileTeamMember->mobile_email, $verificationLink)); // Use the common mailable
+            }
+            else{
+                throw new \Exception('Failed to generate verification link.');
+            }
             // Redirect with success message
             return redirect()->route('mobile-team-staffs.index')
                 ->with('success', 'Mobile team member created successfully. Email verification link has been sent.');

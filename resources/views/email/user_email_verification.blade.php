@@ -252,7 +252,7 @@
         <div class="email-wrapper">
             <div class="email-header">
                 <div class="logo-container">
-                    <img src="{{ asset('storage/assets/images/watermark.png') }}" alt="Logo"
+                    <img src="{{ asset('storage/assets/images/watermark.png') }}"" alt="Logo"
                         class="logo-image">
                 </div>
                 <div class="header-content" style="margin: auto;">
@@ -265,8 +265,8 @@
                 <div class="greeting">வணக்கம் {{ $name }},</div>
 
                 <div class="message">
-                    தங்கள் கணக்கிற்கான கடவுச்சொல் புதுப்பிக்கப்பட்டுள்ளது. கீழே உள்ள நுழைவு விவரங்களைப் பயன்படுத்தி
-                    உங்கள் கணக்கிற்கு உள்நுழையவும்.
+                    உங்கள் கணக்கின் மின்னஞ்சல் முகவரியை உறுதிப்படுத்த வேண்டுமென கேட்டுக்கொள்கிறோம். 
+                    கீழே உள்ள பட்டனை கிளிக் செய்து உங்கள் மின்னஞ்சல் முகவரியை சரிபார்க்கவும்.
                 </div>
 
                 <div class="credentials-container">
@@ -274,18 +274,9 @@
                         <div class="credential-label">மின்னஞ்சல்:</div>
                         <div class="credential-value">{{ $email }}</div>
                     </div>
-                    <div class="credential-item">
-                        <div class="credential-label">கடவுச்சொல்:</div>
-                        <div class="credential-value">{{ $newPassword }}</div>
-                    </div>
                 </div>
-
-                <div class="message">
-                    பாதுகாப்பு காரணங்களுக்காக, உள்நுழைந்த பிறகு உங்கள் கடவுச்சொல்லை மாற்றுமாறு பரிந்துரைக்கிறோம்.
-                </div>
-
                 <center>
-                    <a href="{{ route('login') }}" class="action-button">உள்நுழைக</a>
+                    <a href="{{ $verification_link  }}" class="action-button">மின்னஞ்சலை உறுதிப்படுத்தவும்</a>
                 </center>
 
                 <div class="signature">

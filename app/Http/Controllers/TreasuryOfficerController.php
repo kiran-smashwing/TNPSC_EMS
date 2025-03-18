@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\UserEmailVerificationMail;
 use App\Models\TreasuryOfficer;
 use App\Models\Center;
 use App\Models\Venues;
@@ -143,17 +144,13 @@ class TreasuryOfficerController extends Controller
 
             // Send email verification link
             $verificationLink = route('treasury-officer.verifyEmail', ['token' => urlencode($verificationToken)]);
-            $verificationEmailData = [
-                'name' => $treasuryOfficer->tre_off_name,
-                'email' => $treasuryOfficer->tre_off_email,
-                'verification_link' => $verificationLink,
-            ];
 
-            Mail::send('email.treasury_officer_verification', $verificationEmailData, function ($message) use ($verificationEmailData) {
-                $message->to($verificationEmailData['email'])
-                    ->subject('Verify Your Email Address');
-            });
-
+            if ($verificationLink) {
+                Mail::to($treasuryOfficer->tre_off_email)->send(new UserEmailVerificationMail($treasuryOfficer->tre_off_name, $treasuryOfficer->tre_off_email, $verificationLink)); // Use the common mailable
+            }
+            else{
+                throw new \Exception('Failed to generate verification link.');
+            }
             // Log the creation
             AuditLogger::log('Treasury Officer Created', TreasuryOfficer::class, $treasuryOfficer->tre_off_id, null, $treasuryOfficer->toArray());
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\UserEmailVerificationMail;
 use App\Models\District;
 use App\Models\TreasuryOfficer;
 use App\Models\MobileTeamStaffs;
@@ -121,15 +122,14 @@ class DistrictController extends Controller
             });
 
             // Send the email verification link
-            Mail::send('email.district_verification', [
-                'name' => $district->district_name,
-                'email' => $district->district_email,
-                'verification_link' => route('district.verify', ['token' => $district->verification_token]),
-            ], function ($message) use ($district) {
-                $message->to($district->district_email)
-                    ->subject('Verify Your Email Address');
-            });
+            $verificationLink = route('district.verify', ['token' => urlencode($district->verification_token)]);
 
+            if ($verificationLink) {
+                Mail::to($district->district_email)->send(new UserEmailVerificationMail($district->district_name, $district->district_email,$verificationLink)); // Use the common mailable
+            }
+            else{
+                throw new \Exception('Failed to generate verification link.');
+            }
             // Redirect with success message
             return redirect()->route('district.index')
                 ->with('success', 'District created successfully. Email verification link has been sent.');

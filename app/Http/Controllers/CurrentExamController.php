@@ -62,6 +62,7 @@ class CurrentExamController extends Controller
                 break;
             case 'venue':
                 $examIds = ExamVenueConsent::where('venue_id', $user->venue_id)
+                    ->where('consent_status', '!=', 'saved')
                     ->pluck('exam_id')
                     ->unique()
                     ->values();

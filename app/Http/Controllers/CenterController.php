@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\UserEmailVerificationMail;
 use App\Models\Center;
 use App\Models\Venues;
 use App\Models\TreasuryOfficer;
@@ -198,16 +199,15 @@ class CenterController extends Controller
                     ->subject('Welcome to Our Platform');
             });
 
-            // Send the email verification link
-            Mail::send('email.center_verification', [
-                'name' => $center->center_name,
-                'email' => $center->center_email,
-                'verification_link' => route('center.verifyEmail', ['token' => urlencode($center->verification_token)]),
-            ], function ($message) use ($center) {
-                $message->to($center->center_email)
-                    ->subject('Verify Your Email Address');
-            });
+         
+            $verificationLink = route('center.verifyEmail', ['token' => urlencode($center->verification_token)]);
 
+            if ($verificationLink) {
+                Mail::to($center->center_email)->send(new UserEmailVerificationMail($center->center_name, $center->center_email, $verificationLink)); // Use the common mailable
+            }
+            else{
+                throw new \Exception('Failed to generate verification link.');
+            }
             // Redirect with success message
             return redirect()->route('centers.index')
                 ->with('success', 'Center created successfully. Email verification link has been sent.');

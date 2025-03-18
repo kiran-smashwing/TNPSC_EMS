@@ -56,4 +56,8 @@ class ExamMaterialsData extends Model
     {
         return $this->belongsTo(ExamMaterialsScan::class, 'id', 'exam_material_id');
     }
+    public function examsession()
+    {
+        return $this->hasMany(ExamSession::class, 'id', 'exam_materials_id');
+    }
 }

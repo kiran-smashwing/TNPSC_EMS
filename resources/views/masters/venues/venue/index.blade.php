@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                                                                      <h2 class="mb-0"></h2>
-                                                                                                    </div> -->
+                                                                                                                              <h2 class="mb-0"></h2>
+                                                                                                                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -200,7 +200,7 @@
                                     </select>
                                 </div>
                                 <div class="filter-item">
-                                    <select class="form-select" id="centerCodeFilter" name="center">
+                                    <select class="form-select" id="centerFilter" name="center">
                                         <option value="">Select Center name</option>
                                         @foreach ($centers as $center)
                                             <option value="{{ $center->center_code }}"
@@ -324,18 +324,24 @@
             });
         </script>
         <script>
+            // Check if jQuery is available
+            if (typeof jQuery === 'undefined') {
+                console.error('jQuery is not loaded. Please include it in your project.');
+            }
             // Full list of centers
             const allCenters = @json($centers);
-
-            // District dropdown change event
+            // console.log("All Centers:", allCenters);
+            // console.log(@json($districts));
+            // District filter change event
             $('#districtFilter').on('change', function() {
-
                 const selectedDistrictCode = $(this).val();
-                const centerDropdown = $('#centerCodeFilter');
+                // alert(selectedDistrictCode);
+                const centerDropdown = $('#centerFilter'); // Corrected to #centerFilter
+                // console.log("Selected District Code:", selectedDistrictCode, "Type:", typeof selectedDistrictCode);
 
                 // Clear previous options
                 centerDropdown.empty();
-                centerDropdown.append('<option value="">Select Center </option>');
+                centerDropdown.append('<option value="">Select Center</option>');
 
                 // Filter centers based on selected district
                 const filteredCenters = allCenters.filter(center =>
@@ -347,8 +353,8 @@
                     const selected = "{{ request('center') }}" == center.center_code ? 'selected' : '';
                     centerDropdown.append(
                         `<option value="${center.center_code}" ${selected}>
-                ${center.center_name}
-            </option>`
+                           ${center.center_name}
+                       </option>`
                     );
                 });
             });
@@ -361,6 +367,9 @@
                 }
             });
         </script>
+
+
+
         <script>
             $(document).ready(function() {
                 let table = $('#venuesTable').DataTable({
@@ -370,7 +379,7 @@
                         url: '{{ route('venues.json') }}',
                         data: function(d) {
                             d.district = $('#districtFilter').val();
-                            d.center = $('#centerCodeFilter').val();
+                            d.center = $('#centerFilter').val();
                         }
                     },
                     columns: [{
@@ -461,7 +470,7 @@
                 // Reset filters
                 $('.btn-secondary').on('click', function() {
                     $('#districtFilter').val('');
-                    $('#centerCodeFilter').val('');
+                    $('#centerFilter').val('');
                     $('#searchBox').val('');
                     table.search('').draw();
                 });

@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                                                                  <h2 class="mb-0"></h2>
-                                                                                                </div> -->
+                                                                                                      <h2 class="mb-0"></h2>
+                                                                                                    </div> -->
                         </div>
                     </div>
                 </div>
@@ -181,9 +181,15 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="filter-item">
-                                    <input type="date" class="form-control" id="examDateFilter" name="examDate"
-                                        value="{{ request('examDate') }}">
+                                <div class="filter-item" style="max-width: 130px;">
+                                    <select class="form-select" id="examDateFilter" name="exam_date" class="form-select">
+                                        @foreach ($examDates as $examDate)
+                                            <option value="{{ $examDate }}"
+                                                {{ request('exam_date') == $examDate ? 'selected' : '' }}>
+                                                {{ Carbon\Carbon::parse($examDate)->format('d-m-Y') }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div class="filter-item">
                                     <select class="form-select" id="examSessionFilter" name="examSession">
@@ -364,7 +370,6 @@
                 });
             }
         </script>
-    
     @endpush
 
     @include('partials.theme')

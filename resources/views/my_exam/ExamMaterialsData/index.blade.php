@@ -192,7 +192,7 @@
                     </div>
                     <div class="card-body table-border-style">
                         <!-- Filter options -->
-                        <form id="filterForm" class="mb-3">
+                        {{-- <form id="filterForm" class="mb-3">
                             <div class="filter-item">
                                 <select class="form-select" id="roleFilter" name="role">
                                     <option value="">Select Role</option>
@@ -220,7 +220,7 @@
                             <div class="btn-container">
                                 <button type="submit" class="btn btn-primary">Apply Filters</button>
                             </div>
-                        </form>
+                        </form> --}}
 
 
                         <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\UserAccountCreationMail;
 use App\Mail\UserEmailVerificationMail;
 use App\Models\MobileTeamStaffs;
 use App\Models\District;
@@ -131,15 +132,8 @@ class MobileTeamStaffsController extends Controller
             // Log the creation with the audit logger
             AuditLogger::log('Mobile Team Member Created', MobileTeamStaffs::class, $mobileTeamMember->mobile_id, null, $mobileTeamMember->toArray());
 
-            // Send the welcome email
-            Mail::send('email.mobile_team_created', [
-                'name' => $mobileTeamMember->mobile_name,
-                'email' => $mobileTeamMember->mobile_email,
-                'password' => $request->password, // Plain password for first login
-            ], function ($message) use ($mobileTeamMember) {
-                $message->to($mobileTeamMember->mobile_email)
-                    ->subject('Welcome to the Mobile Team');
-            });
+            // Send the common mailable for user account creation
+            Mail::to($mobileTeamMember->mobile_email)->send(new UserAccountCreationMail($mobileTeamMember->mobile_name, $mobileTeamMember->mobile_email, $validated['password'])); // Use the common mailable
 
             $verificationLink = route('mobile_team.verifyEmail', ['token' => urlencode($mobileTeamMember->verification_token)]);
 

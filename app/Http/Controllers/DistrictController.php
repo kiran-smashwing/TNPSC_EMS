@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\UserAccountCreationMail;
 use App\Mail\UserEmailVerificationMail;
 use App\Models\District;
 use App\Models\TreasuryOfficer;
@@ -112,14 +113,8 @@ class DistrictController extends Controller
             ]);
 
             // Send the welcome email
-            Mail::send('email.district_created', [
-                'name' => $district->district_name,
-                'email' => $district->district_email,
-                'password' => $request->password,
-            ], function ($message) use ($district) {
-                $message->to($district->district_email)
-                    ->subject('Welcome to Our Platform');
-            });
+      
+            Mail::to($district->district_email)->send(new UserAccountCreationMail($district->district_name, $district->district_email, $validated['password'])); // Use the common mailable
 
             // Send the email verification link
             $verificationLink = route('district.verify', ['token' => urlencode($district->verification_token)]);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\UserAccountCreationMail;
 use App\Mail\UserEmailVerificationMail;
 use App\Models\TreasuryOfficer;
 use App\Models\Center;
@@ -111,7 +112,6 @@ class TreasuryOfficerController extends Controller
             }
 
             // Hash the password
-            $plainPassword = $validated['password']; // Keep plain password for the email
             $validated['password'] = Hash::make($validated['password']);
 
             // Generate email verification token
@@ -130,17 +130,8 @@ class TreasuryOfficerController extends Controller
                 'verification_token' => $verificationToken, // Save the token for email verification
             ]);
 
-            // Send welcome email
-            $emailData = [
-                'name' => $treasuryOfficer->tre_off_name,
-                'email' => $treasuryOfficer->tre_off_email,
-                'password' => $plainPassword, // Plain password for the first login
-            ];
 
-            Mail::send('email.treasury_officer_created', $emailData, function ($message) use ($emailData) {
-                $message->to($emailData['email'])
-                    ->subject('Welcome to Treasury Management Platform');
-            });
+            Mail::to($treasuryOfficer->tre_off_email)->send(new UserAccountCreationMail($treasuryOfficer->tre_off_name, $treasuryOfficer->tre_off_email, $validated['password'])); // Use the common mailable
 
             // Send email verification link
             $verificationLink = route('treasury-officer.verifyEmail', ['token' => urlencode($verificationToken)]);

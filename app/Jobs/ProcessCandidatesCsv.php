@@ -125,6 +125,7 @@ class ProcessCandidatesCsv implements ShouldQueue
     {
         $subject = $status === 'completed' ? 'CSV Processing Completed' : 'CSV Processing Failed';
         $data = [
+            'taskType' => 'Expected Candidates',
             'status' => $status,
             'successfulInserts' => $successfulInserts,
             'failedCount' => $failedCount,

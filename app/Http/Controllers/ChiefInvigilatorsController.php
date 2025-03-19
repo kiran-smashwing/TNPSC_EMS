@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\UserAccountCreationMail;
 use App\Mail\UserEmailVerificationMail;
 use App\Models\ChiefInvigilator;
 use App\Models\Center;
@@ -222,17 +223,7 @@ class ChiefInvigilatorsController extends Controller
                 'verification_token' => $verificationToken, // Store the verification token
             ]);
 
-            // Send welcome email to Chief Invigilator
-            $emailData = [
-                'name' => $chiefInvigilator->ci_name,
-                'email' => $chiefInvigilator->ci_email,
-                'password' => $validated['password'], // Send plain password for first login
-            ];
-
-            Mail::send('email.chief_invigilator_created', $emailData, function ($message) use ($emailData) {
-                $message->to($emailData['email'])
-                    ->subject('Welcome to the Chief Invigilator Role');
-            });
+            Mail::to($chiefInvigilator->ci_email)->send(new UserAccountCreationMail($chiefInvigilator->ci_name, $chiefInvigilator->ci_email, $validated['password'])); // Use the common mailable
 
             // Send email verification email
             $verificationLink = route('chief-invigilator.verifyEmail', ['token' => urlencode($verificationToken)]);

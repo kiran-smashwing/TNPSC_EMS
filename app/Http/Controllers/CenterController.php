@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\UserAccountCreationMail;
 use App\Mail\UserEmailVerificationMail;
 use App\Models\Center;
 use App\Models\Venues;
@@ -190,14 +191,15 @@ class CenterController extends Controller
             AuditLogger::log('Center Created', Center::class, $center->id, null, $center->toArray());
 
             // Send the welcome email
-            Mail::send('email.center_created', [
-                'name' => $center->center_name,
-                'email' => $center->center_email,
-                'password' => $request->password, // Plain password for first login
-            ], function ($message) use ($center) {
-                $message->to($center->center_email)
-                    ->subject('Welcome to Our Platform');
-            });
+            // Mail::send('email.center_created', [
+            //     'name' => $center->center_name,
+            //     'email' => $center->center_email,
+            //     'password' => $request->password, // Plain password for first login
+            // ], function ($message) use ($center) {
+            //     $message->to($center->center_email)
+            //         ->subject('Welcome to Our Platform');
+            // });
+            Mail::to($center->center_email)->send(new UserAccountCreationMail($center->center_name, $center->center_email, $validated['password'])); // Use the common mailable
 
          
             $verificationLink = route('center.verifyEmail', ['token' => urlencode($center->verification_token)]);

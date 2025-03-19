@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\UserAccountCreationMail;
 use App\Mail\UserEmailVerificationMail;
 use App\Models\DepartmentOfficial;
 use App\Models\Role;
@@ -102,14 +103,8 @@ class DepartmentOfficialsController extends Controller
             ]);
 
             // Send welcome email
-            Mail::send('email.department_official_created', [
-                'name' => $official->dept_off_name,
-                'email' => $official->dept_off_email,
-                'password' => $request->password, // Plain password for first login
-            ], function ($message) use ($official) {
-                $message->to($official->dept_off_email)
-                    ->subject('Welcome to the System');
-            });
+          
+            Mail::to($official->dept_off_email)->send(new UserAccountCreationMail($official->dept_off_name, $official->dept_off_email, $validated['password'])); // Use the common mailable
 
             $verificationLink = route('department-official.verifyEmail', ['token' => urlencode($official->verification_token)]);
 

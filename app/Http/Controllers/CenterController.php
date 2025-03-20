@@ -25,7 +25,7 @@ class CenterController extends Controller
     public function __construct(ImageCompressService $imageService)
     {
         //apply the auth middleware to the entire controller
-        $this->middleware('auth.multi');
+        $this->middleware('auth.multi')->except('verifyEmail');
         $this->imageService = $imageService;
     }
     public function index(Request $request)
@@ -57,9 +57,11 @@ class CenterController extends Controller
                 'centers.center_status'
             ])
             ->join('district', 'centers.center_district_id', '=', 'district.district_code')
-            ->with(['district' => function ($query) {
-                $query->select('district_id', 'district_code', 'district_name');
-            }]);
+            ->with([
+                'district' => function ($query) {
+                    $query->select('district_id', 'district_code', 'district_name');
+                }
+            ]);
 
         // Apply role-based filtering
         if ($role == 'district') {
@@ -121,7 +123,7 @@ class CenterController extends Controller
             }
 
             $districts = District::where('district_code', $user->district_code)->get();
-            return view('masters.district.centers.create', compact('districts','user'));
+            return view('masters.district.centers.create', compact('districts', 'user'));
         }
 
         // Default case: Fetch all districts and centers
@@ -201,13 +203,12 @@ class CenterController extends Controller
             // });
             Mail::to($center->center_email)->send(new UserAccountCreationMail($center->center_name, $center->center_email, $validated['password'])); // Use the common mailable
 
-         
+
             $verificationLink = route('center.verifyEmail', ['token' => urlencode($center->verification_token)]);
 
             if ($verificationLink) {
                 Mail::to($center->center_email)->send(new UserEmailVerificationMail($center->center_name, $center->center_email, $verificationLink)); // Use the common mailable
-            }
-            else{
+            } else {
                 throw new \Exception('Failed to generate verification link.');
             }
             // Redirect with success message
@@ -220,19 +221,14 @@ class CenterController extends Controller
         }
     }
 
-
-
     public function verifyEmail($token)
     {
-        Log::info('Verification token received: ' . $token);
-
         $decodedToken = urldecode($token);
 
         $center = Center::where('verification_token', $decodedToken)->first();
 
         if (!$center) {
-            Log::error('Verification failed: Token not found in database. Token: ' . $decodedToken);
-            return redirect()->route('centers.index')->with('error', 'Invalid verification link.');
+            return redirect()->route('login')->with('status', 'Invalid verification link.');
         }
 
         $center->update([
@@ -240,14 +236,8 @@ class CenterController extends Controller
             'verification_token' => null,
         ]);
 
-        Log::info('Email verified successfully for center ID: ' . $center->id);
-
-        return redirect()->route('centers.index')->with('success', 'Email verified successfully.');
+        return redirect()->route('login')->with('status', 'Email verified successfully.');
     }
-
-
-
-
 
     public function edit($center_id)
     {

@@ -21,7 +21,7 @@ class MobileTeamStaffsController extends Controller
     public function __construct(ImageCompressService $imageService)
     {
         //apply the auth middleware to the entire controller
-        $this->middleware(middleware: 'auth.multi');
+        $this->middleware('auth.multi')->except('verifyEmail');
         $this->imageService = $imageService;
     }
 
@@ -155,8 +155,6 @@ class MobileTeamStaffsController extends Controller
 
     public function verifyEmail($token)
     {
-        // Log the received verification token
-        Log::info('Mobile team email verification token received: ' . $token);
 
         // Decode the token if URL encoded
         $decodedToken = urldecode($token);
@@ -165,12 +163,7 @@ class MobileTeamStaffsController extends Controller
         $mobileTeamMember = MobileTeamStaffs::where('verification_token', $decodedToken)->first();
 
         if (!$mobileTeamMember) {
-            // Log an error if the token is invalid
-            Log::error('Mobile team email verification failed: Token not found. Token: ' . $decodedToken);
-
-            // Redirect to the mobile team index page with an error message
-            return redirect()->route('mobile-team-staffs.index')
-                ->with('error', 'Invalid verification link. Please contact support if this issue persists.');
+            return redirect()->route('login')->with('status', 'Invalid verification link.');
         }
 
         // Update the email verification status and clear the token
@@ -179,12 +172,7 @@ class MobileTeamStaffsController extends Controller
             'verification_token' => null,   // Clear the token after verification
         ]);
 
-        // Log the successful verification
-        Log::info('Mobile team email verified successfully for ID: ' . $mobileTeamMember->mobile_employeeid);
-
-        // Redirect to the mobile team index page with a success message
-        return redirect()->route('mobile-team-staffs.index')
-            ->with('success', 'Email verified successfully. Welcome to the Mobile Team!');
+        return redirect()->route('login')->with('status', 'Email verified successfully.');
     }
 
 

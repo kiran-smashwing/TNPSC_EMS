@@ -23,7 +23,7 @@ class ChiefInvigilatorsController extends Controller
 
     public function __construct(ImageCompressService $imageService)
     {
-        $this->middleware('auth.multi');
+        $this->middleware('auth.multi')->except('verifyEmail');
         $this->imageService = $imageService;
     }
 
@@ -227,11 +227,10 @@ class ChiefInvigilatorsController extends Controller
 
             // Send email verification email
             $verificationLink = route('chief-invigilator.verifyEmail', ['token' => urlencode($verificationToken)]);
-            
+
             if ($verificationLink) {
                 Mail::to($chiefInvigilator->ci_email)->send(new UserEmailVerificationMail($chiefInvigilator->ci_name, $chiefInvigilator->ci_email, $verificationLink)); // Use the common mailable
-            }
-            else{
+            } else {
                 throw new \Exception('Failed to generate verification link.');
             }
             // Log the creation for auditing purposes
@@ -250,7 +249,6 @@ class ChiefInvigilatorsController extends Controller
 
     public function verifyEmail($token)
     {
-        Log::info('Verification token received: ' . $token);
 
         // Decode the token received in the URL
         $decodedToken = urldecode($token);
@@ -260,8 +258,7 @@ class ChiefInvigilatorsController extends Controller
 
         // Check if the Chief Invigilator exists with the provided token
         if (!$chiefInvigilator) {
-            Log::error('Verification failed: Token not found in database. Token: ' . $decodedToken);
-            return redirect()->route('chief-invigilators.index')->with('error', 'Invalid verification link.');
+            return redirect()->route('login')->with('status', 'Invalid verification link.');
         }
 
         // Update the Chief Invigilator record to mark email as verified and clear the verification token
@@ -270,10 +267,8 @@ class ChiefInvigilatorsController extends Controller
             'verification_token' => null, // Clear the verification token after successful verification
         ]);
 
-        Log::info('Email verified successfully for Chief Invigilator ID: ' . $chiefInvigilator->ci_id);
-
         // Redirect with a success message
-        return redirect()->route('chief-invigilators.index')->with('success', 'Email verified successfully.');
+        return redirect()->route('login')->with('status', 'Email verified successfully.');
     }
 
     public function edit($id)
@@ -397,7 +392,7 @@ class ChiefInvigilatorsController extends Controller
         $centerCount = optional($chiefInvigilator->district)->centers()->count() ?? 0;
         $venueCount = optional($chiefInvigilator->district)->venues()->count() ?? 0;
         $staffCount = (optional($chiefInvigilator->district)->treasuryOfficers()->count() ?? 0) +
-            (optional($chiefInvigilator->district)->mobileTeamStaffs()->count() ?? 0);
+        (optional($chiefInvigilator->district)->mobileTeamStaffs()->count() ?? 0);
 
         // Handle null venue
         $ci_count = optional($chiefInvigilator->venue)->chiefinvigilator()->count() ?? 0;

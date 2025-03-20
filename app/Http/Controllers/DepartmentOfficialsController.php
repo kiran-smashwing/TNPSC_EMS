@@ -22,7 +22,7 @@ class DepartmentOfficialsController extends Controller
     public function __construct(ImageCompressService $imageService)
     {
         //apply the auth middleware to the entire controller
-        $this->middleware('auth.multi');
+        $this->middleware('auth.multi')->except('verifyEmail');
         $this->imageService = $imageService;
     }
 
@@ -103,15 +103,14 @@ class DepartmentOfficialsController extends Controller
             ]);
 
             // Send welcome email
-          
+
             Mail::to($official->dept_off_email)->send(new UserAccountCreationMail($official->dept_off_name, $official->dept_off_email, $validated['password'])); // Use the common mailable
 
             $verificationLink = route('department-official.verifyEmail', ['token' => urlencode($official->verification_token)]);
 
             if ($verificationLink) {
-                Mail::to($official->dept_off_email)->send(new UserEmailVerificationMail( $official->dept_off_name,  $official->dept_off_email, $verificationLink)); // Use the common mailable
-            }
-            else{
+                Mail::to($official->dept_off_email)->send(new UserEmailVerificationMail($official->dept_off_name, $official->dept_off_email, $verificationLink)); // Use the common mailable
+            } else {
                 throw new \Exception('Failed to generate verification link.');
             }
             // Log the creation action
@@ -131,15 +130,13 @@ class DepartmentOfficialsController extends Controller
 
     public function verifyEmail($token)
     {
-        Log::info('Verification token received: ' . $token);
 
         $decodedToken = urldecode($token);
 
         $official = DepartmentOfficial::where('verification_token', $decodedToken)->first();
 
         if (!$official) {
-            Log::error('Verification failed: Token not found. Token: ' . $decodedToken);
-            return redirect()->route('department-officials.index')->with('error', 'Invalid verification link.');
+            return redirect()->route('login')->with('status', 'Invalid verification link.');
         }
 
         $official->update([
@@ -147,11 +144,8 @@ class DepartmentOfficialsController extends Controller
             'verification_token' => null, // Clear the token after verification
         ]);
 
-        Log::info('Email verified successfully for department officer ID: ' . $official->dept_off_emp_id);
-
-        return redirect()->route('department-officials.index')->with('success', 'Email verified successfully.');
+        return redirect()->route('login')->with('status', 'Email verified successfully.');
     }
-
 
     public function edit($id)
     {

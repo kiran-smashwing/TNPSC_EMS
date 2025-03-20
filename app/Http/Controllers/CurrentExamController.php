@@ -27,19 +27,6 @@ class CurrentExamController extends Controller
         $this->auditService = $auditService;
     }
 
-    //  public function index()
-    //{
-    // Get today's date in 'DD-MM-YYYY' format (to match database format)
-    //  $today = Carbon::today()->format('d-m-Y');
-
-    // Fetch only the current exams that have not yet ended (last date >= today)
-    //$exams = Currentexam::withCount('examsession')
-    //  ->whereRaw("TO_DATE(exam_main_lastdate, 'DD-MM-YYYY') >= TO_DATE(?, 'DD-MM-YYYY')", [$today])
-    //->orderBy('exam_main_createdat', 'desc')
-    //->get();
-    //return view('current_exam.index', compact('exams'));
-    //}
-
     public function index()
     {
         $user = current_user();
@@ -118,8 +105,8 @@ class CurrentExamController extends Controller
         });
 
         $exams = $examQuery->get();
-
-        return view('current_exam.index', compact('exams'));
+        $title = 'Current Exam';
+        return view('current_exam.index', compact('exams','title'));
     }
 
 

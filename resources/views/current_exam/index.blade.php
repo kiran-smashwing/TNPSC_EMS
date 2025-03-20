@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Exam Service')
+@section('title', $title)
 
 @section('content')
     @push('styles')

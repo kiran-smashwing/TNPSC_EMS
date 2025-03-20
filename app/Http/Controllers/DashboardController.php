@@ -36,8 +36,24 @@ class DashboardController extends Controller
         $today = Carbon::today()->format('Y-m-d'); // Ensure today's date is in 'YYYY-MM-DD' format
 
         // Convert text to date for PostgreSQL comparison
-        $currentsExamCount = Currentexam::whereRaw("TO_DATE(exam_main_lastdate, 'DD-MM-YYYY') >= TO_DATE(?, 'YYYY-MM-DD')", [$today])->count();
-        $completedExamCount = Currentexam::whereRaw("TO_DATE(exam_main_lastdate, 'DD-MM-YYYY') < TO_DATE(?, 'YYYY-MM-DD')", [$today])->count();
+        $currentsExamCount = Currentexam::where(function ($query) use ($today) {
+            $query->whereExists(function ($subQuery) use ($today) {
+                $subQuery->selectRaw("MAX(TO_DATE(exam_sess_date, 'DD-MM-YYYY'))")
+                    ->from('exam_session')
+                    ->whereColumn('exam_session.exam_sess_mainid', 'exam_main.exam_main_no') // Use correct table name
+                    ->havingRaw("MAX(TO_DATE(exam_sess_date, 'DD-MM-YYYY')) + INTERVAL '2 days' >= TO_DATE(?, 'YYYY-MM-DD')", [$today]);
+            })->orWhereDoesntHave('examsession');
+        })->count();
+
+        $completedExamCount = Currentexam::where(function ($query) use ($today) {
+            $query->whereExists(function ($subQuery) use ($today) {
+                $subQuery->selectRaw("MAX(TO_DATE(exam_sess_date, 'DD-MM-YYYY'))")
+                    ->from('exam_session')
+                    ->whereColumn('exam_session.exam_sess_mainid', 'exam_main.exam_main_no') // Ensure correct table reference
+                    ->havingRaw("MAX(TO_DATE(exam_sess_date, 'DD-MM-YYYY')) + INTERVAL '2 days' < TO_DATE(?, 'YYYY-MM-DD')", [$today]);
+            })->orWhereDoesntHave('examsession');
+        })->count();
+
         // Count Exams by Type
         $descriptiveExamCount = Currentexam::where('exam_main_type', 'Descriptive')->count();
         $objectiveExamCount = Currentexam::where('exam_main_type', 'Objective')->count();

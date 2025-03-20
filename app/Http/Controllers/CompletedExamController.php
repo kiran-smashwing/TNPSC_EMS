@@ -94,9 +94,9 @@ class CompletedExamController extends Controller
                     ->havingRaw("MAX(CAST(exam_sess_date AS DATE)) + INTERVAL '2 days' < ?", [$today]);
             })->orWhereDoesntHave('examsession'); // Handle exams with no sessions
         });
-
+        $title = 'Completed Exam';
         $exams = $examQuery->get();
 
-        return view('current_exam.index', compact('exams'));
+        return view('current_exam.index', compact('exams','title'));
     }
 }

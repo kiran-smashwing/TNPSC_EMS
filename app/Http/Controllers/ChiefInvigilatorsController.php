@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\UserAccountCreationMail;
+use App\Mail\UserEmailVerificationMail;
 use App\Models\ChiefInvigilator;
 use App\Models\Center;
 use App\Models\District;
@@ -221,31 +223,17 @@ class ChiefInvigilatorsController extends Controller
                 'verification_token' => $verificationToken, // Store the verification token
             ]);
 
-            // Send welcome email to Chief Invigilator
-            $emailData = [
-                'name' => $chiefInvigilator->ci_name,
-                'email' => $chiefInvigilator->ci_email,
-                'password' => $validated['password'], // Send plain password for first login
-            ];
-
-            Mail::send('email.chief_invigilator_created', $emailData, function ($message) use ($emailData) {
-                $message->to($emailData['email'])
-                    ->subject('Welcome to the Chief Invigilator Role');
-            });
+            Mail::to($chiefInvigilator->ci_email)->send(new UserAccountCreationMail($chiefInvigilator->ci_name, $chiefInvigilator->ci_email, $validated['password'])); // Use the common mailable
 
             // Send email verification email
             $verificationLink = route('chief-invigilator.verifyEmail', ['token' => urlencode($verificationToken)]);
-            $verificationData = [
-                'name' => $chiefInvigilator->ci_name,
-                'email' => $chiefInvigilator->ci_email,
-                'verification_link' => $verificationLink,
-            ];
-
-            Mail::send('email.chief_invigilator_verification', $verificationData, function ($message) use ($verificationData) {
-                $message->to($verificationData['email'])
-                    ->subject('Verify Your Email Address');
-            });
-
+            
+            if ($verificationLink) {
+                Mail::to($chiefInvigilator->ci_email)->send(new UserEmailVerificationMail($chiefInvigilator->ci_name, $chiefInvigilator->ci_email, $verificationLink)); // Use the common mailable
+            }
+            else{
+                throw new \Exception('Failed to generate verification link.');
+            }
             // Log the creation for auditing purposes
             AuditLogger::log('Chief Invigilator Created', ChiefInvigilator::class, $chiefInvigilator->ci_id, null, $chiefInvigilator->toArray());
 

@@ -134,6 +134,7 @@ class ProcessTrunkBoxQRCsv implements ShouldQueue
     {
         $subject = $status === 'completed' ? 'CSV Processing Completed' : 'CSV Processing Failed';
         $data = [
+            'taskType' => 'Trunk box and OTL Code',
             'status' => $status,
             'successfulInserts' => $successfulInserts,
             'failedCount' => $failedCount,

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\UserAccountCreationMail;
+use App\Mail\UserEmailVerificationMail;
 use App\Models\MobileTeamStaffs;
 use App\Models\District;
 use Illuminate\Http\Request;
@@ -130,26 +132,17 @@ class MobileTeamStaffsController extends Controller
             // Log the creation with the audit logger
             AuditLogger::log('Mobile Team Member Created', MobileTeamStaffs::class, $mobileTeamMember->mobile_id, null, $mobileTeamMember->toArray());
 
-            // Send the welcome email
-            Mail::send('email.mobile_team_created', [
-                'name' => $mobileTeamMember->mobile_name,
-                'email' => $mobileTeamMember->mobile_email,
-                'password' => $request->password, // Plain password for first login
-            ], function ($message) use ($mobileTeamMember) {
-                $message->to($mobileTeamMember->mobile_email)
-                    ->subject('Welcome to the Mobile Team');
-            });
+            // Send the common mailable for user account creation
+            Mail::to($mobileTeamMember->mobile_email)->send(new UserAccountCreationMail($mobileTeamMember->mobile_name, $mobileTeamMember->mobile_email, $validated['password'])); // Use the common mailable
 
-            // Send the email verification link
-            Mail::send('email.mobile_verification', [
-                'name' => $mobileTeamMember->mobile_name,
-                'email' => $mobileTeamMember->mobile_email,
-                'verification_link' => route('mobile_team.verifyEmail', ['token' => urlencode($mobileTeamMember->verification_token)]),
-            ], function ($message) use ($mobileTeamMember) {
-                $message->to($mobileTeamMember->mobile_email)
-                    ->subject('Verify Your Email Address');
-            });
+            $verificationLink = route('mobile_team.verifyEmail', ['token' => urlencode($mobileTeamMember->verification_token)]);
 
+            if ($verificationLink) {
+                Mail::to($mobileTeamMember->mobile_email)->send(new UserEmailVerificationMail($mobileTeamMember->mobile_name, $mobileTeamMember->mobile_email, $verificationLink)); // Use the common mailable
+            }
+            else{
+                throw new \Exception('Failed to generate verification link.');
+            }
             // Redirect with success message
             return redirect()->route('mobile-team-staffs.index')
                 ->with('success', 'Mobile team member created successfully. Email verification link has been sent.');

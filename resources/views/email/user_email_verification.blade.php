@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ta">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $data['status'] }} - {{ $data['taskType'] }} CSV Processing</title>
+    <title>மறந்துபோன கடவுச்சொல்</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
@@ -40,6 +40,7 @@
             display: flex;
             align-items: center;
             text-align: center;
+            /* Center everything by default */
             justify-content: space-between !important;
         }
 
@@ -93,12 +94,6 @@
             margin-bottom: 25px;
         }
 
-        p {
-            font-size: 15px;
-            color: #555;
-            margin-bottom: 15px;
-        }
-
         .credentials-container {
             background-color: #f8f9fc;
             border-radius: 12px;
@@ -118,7 +113,7 @@
         }
 
         .credential-label {
-            min-width: 150px;
+            min-width: 120px;
             font-weight: 600;
             color: #2a2a2a;
         }
@@ -128,6 +123,37 @@
             color: #2ca87f;
             font-weight: 500;
             word-break: break-all;
+        }
+
+        .action-button {
+            display: inline-block;
+            background-color: #2ca87f;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 14px 30px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 16px;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(44, 168, 127, 0.2);
+        }
+
+        .action-button:hover {
+            background-color: #238e6b;
+            box-shadow: 0 6px 15px rgba(44, 168, 127, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .signature {
+            margin-top: 35px;
+            padding-top: 20px;
+            border-top: 1px solid #eaeef3;
+            color: #555;
+        }
+
+        .signature p {
+            margin-bottom: 5px;
         }
 
         .bold {
@@ -203,11 +229,19 @@
             }
 
             .credential-item {
+                flex-direction: column;
                 align-items: flex-start;
             }
 
             .credential-label {
                 margin-bottom: 5px;
+            }
+
+            .action-button {
+                display: block;
+                text-align: center;
+                padding: 12px 20px;
+                font-size: 15px;
             }
         }
     </style>
@@ -218,7 +252,8 @@
         <div class="email-wrapper">
             <div class="email-header">
                 <div class="logo-container">
-                    <img src="{{ asset('storage/assets/images/watermark.png') }}" alt="Logo" class="logo-image">
+                    <img src="{{ asset('storage/assets/images/watermark.png') }}"" alt="Logo"
+                        class="logo-image">
                 </div>
                 <div class="header-content" style="margin: auto;">
                     <h3>தமிழ்நாடு அரசுப்பணியாளர் தேர்வாணையம்</h3>
@@ -227,36 +262,28 @@
             </div>
 
             <div class="email-body">
-                <div class="greeting">{{ $data['taskType'] }} CSV Processing Result</div>
+                <div class="greeting">வணக்கம் {{ $name }},</div>
+
                 <div class="message">
-                    Your {{ $data['taskType'] }} CSV file has been processed. Please find the processing results below:
+                    உங்கள் கணக்கின் மின்னஞ்சல் முகவரியை உறுதிப்படுத்த வேண்டுமென கேட்டுக்கொள்கிறோம். 
+                    கீழே உள்ள பட்டனை கிளிக் செய்து உங்கள் மின்னஞ்சல் முகவரியை சரிபார்க்கவும்.
                 </div>
 
                 <div class="credentials-container">
                     <div class="credential-item">
-                        <div class="credential-label">Status:</div>
-                        <div class="credential-value">{{ ucfirst($data['status']) }}</div>
-                    </div>
-                    <div class="credential-item">
-                        <div class="credential-label">Successful Inserts:</div>
-                        <div class="credential-value">{{ $data['successfulInserts'] }}</div>
-                    </div>
-                    <div class="credential-item">
-                        <div class="credential-label">Failed Rows:</div>
-                        <div class="credential-value">{{ $data['failedCount'] }}</div>
+                        <div class="credential-label">மின்னஞ்சல்:</div>
+                        <div class="credential-value">{{ $email }}</div>
                     </div>
                 </div>
+                <center>
+                    <a href="{{ $verification_link  }}" class="action-button">மின்னஞ்சலை உறுதிப்படுத்தவும்</a>
+                </center>
 
-                @if ($data['failedCsvLink'])
-                    <p>Some rows could not be processed. You can download a CSV file containing these rows and their
-                        error messages for review: <a href="{{ $data['failedCsvLink'] }}">Download Failed Rows</a></p>
-                @endif
-
-                @if ($data['errorMessage'])
-                    <p>Error: {{ $data['errorMessage'] }}</p>
-                @endif
-
-                <p>Uploaded CSV: <a href="{{ $data['uploadedCsvLink'] }}">Download</a></p>
+                <div class="signature">
+                    <p>நன்றி,</p>
+                    <p class="bold">சேவை குழு</p>
+                    <p>தமிழ்நாடு அரசுப் பணியாளர் தேர்வாணையம்</p>
+                </div>
             </div>
 
             <div class="email-footer">

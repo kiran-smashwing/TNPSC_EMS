@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\UserAccountCreationMail;
 use App\Models\Venues;
 use App\Models\Center;
 use App\Models\District;
@@ -216,16 +217,8 @@ class VenuesController extends Controller
             ]);
 
             // Sending email to the venue after creation
-            $emailData = [
-                'venue_name' => $venue->venue_name,
-                'venue_email' => $venue->venue_email,
-                'password' => $validated['password'], // Send the password for the first login
-            ];
+            Mail::to($venue->venue_email)->send(new UserAccountCreationMail($venue->venue_name, $venue->venue_email, $validated['password'])); // Use the common mailable
 
-            Mail::send('email.venue_created', $emailData, function ($message) use ($emailData) {
-                $message->to($emailData['venue_email'])
-                    ->subject('Venue Account Created');
-            });
 
             // Log the venue creation
             AuditLogger::log('Venue Created', Venues::class, $venue->venue_id, null, $venue->toArray());

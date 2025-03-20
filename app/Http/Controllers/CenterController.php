@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\UserAccountCreationMail;
+use App\Mail\UserEmailVerificationMail;
 use App\Models\Center;
 use App\Models\Venues;
 use App\Models\TreasuryOfficer;
@@ -189,25 +191,25 @@ class CenterController extends Controller
             AuditLogger::log('Center Created', Center::class, $center->id, null, $center->toArray());
 
             // Send the welcome email
-            Mail::send('email.center_created', [
-                'name' => $center->center_name,
-                'email' => $center->center_email,
-                'password' => $request->password, // Plain password for first login
-            ], function ($message) use ($center) {
-                $message->to($center->center_email)
-                    ->subject('Welcome to Our Platform');
-            });
+            // Mail::send('email.center_created', [
+            //     'name' => $center->center_name,
+            //     'email' => $center->center_email,
+            //     'password' => $request->password, // Plain password for first login
+            // ], function ($message) use ($center) {
+            //     $message->to($center->center_email)
+            //         ->subject('Welcome to Our Platform');
+            // });
+            Mail::to($center->center_email)->send(new UserAccountCreationMail($center->center_name, $center->center_email, $validated['password'])); // Use the common mailable
 
-            // Send the email verification link
-            Mail::send('email.center_verification', [
-                'name' => $center->center_name,
-                'email' => $center->center_email,
-                'verification_link' => route('center.verifyEmail', ['token' => urlencode($center->verification_token)]),
-            ], function ($message) use ($center) {
-                $message->to($center->center_email)
-                    ->subject('Verify Your Email Address');
-            });
+         
+            $verificationLink = route('center.verifyEmail', ['token' => urlencode($center->verification_token)]);
 
+            if ($verificationLink) {
+                Mail::to($center->center_email)->send(new UserEmailVerificationMail($center->center_name, $center->center_email, $verificationLink)); // Use the common mailable
+            }
+            else{
+                throw new \Exception('Failed to generate verification link.');
+            }
             // Redirect with success message
             return redirect()->route('centers.index')
                 ->with('success', 'Center created successfully. Email verification link has been sent.');

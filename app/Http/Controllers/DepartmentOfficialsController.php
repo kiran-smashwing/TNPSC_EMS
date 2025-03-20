@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\UserAccountCreationMail;
+use App\Mail\UserEmailVerificationMail;
 use App\Models\DepartmentOfficial;
 use App\Models\Role;
 use Illuminate\Http\Request;
@@ -101,25 +103,17 @@ class DepartmentOfficialsController extends Controller
             ]);
 
             // Send welcome email
-            Mail::send('email.department_official_created', [
-                'name' => $official->dept_off_name,
-                'email' => $official->dept_off_email,
-                'password' => $request->password, // Plain password for first login
-            ], function ($message) use ($official) {
-                $message->to($official->dept_off_email)
-                    ->subject('Welcome to the System');
-            });
+          
+            Mail::to($official->dept_off_email)->send(new UserAccountCreationMail($official->dept_off_name, $official->dept_off_email, $validated['password'])); // Use the common mailable
 
-            // Send email verification link
-            Mail::send('email.department_official_verification', [
-                'name' => $official->dept_off_name,
-                'email' => $official->dept_off_email,
-                'verification_link' => route('department-official.verifyEmail', ['token' => urlencode($official->verification_token)]),
-            ], function ($message) use ($official) {
-                $message->to($official->dept_off_email)
-                    ->subject('Verify Your Email Address');
-            });
+            $verificationLink = route('department-official.verifyEmail', ['token' => urlencode($official->verification_token)]);
 
+            if ($verificationLink) {
+                Mail::to($official->dept_off_email)->send(new UserEmailVerificationMail( $official->dept_off_name,  $official->dept_off_email, $verificationLink)); // Use the common mailable
+            }
+            else{
+                throw new \Exception('Failed to generate verification link.');
+            }
             // Log the creation action
             AuditLogger::log('Department Official Created', DepartmentOfficial::class, $official->dept_off_emp_id, null, $official->toArray());
 

@@ -388,6 +388,7 @@ Route::prefix('id-candidates')->group(function () {
         Route::get('/show-venue-confirmation-form/{examId}', [IDCandidatesController::class, 'showVenueConfirmationForm'])->name('id-candidates.show-venue-confirmation-form');
         Route::post('/save-venue-confirmation/{examId}', [IDCandidatesController::class, 'saveVenueConfirmation'])->name('id-candidates.save-venue-confirmation');
         Route::get('/export-confirmed-halls/{examId}', [IDCandidatesController::class, 'exportToCSV'])->name('id-candidates.export-confirmed-halls');
+        Route::get('/send-mail', [IDCandidatesController::class, 'sendIdToCollectorateEmail'])->name('id-candidates.send-mail');
     });
 });
 //disitrict-candidates Route::prefix('district-candidates')->group(function(){

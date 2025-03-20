@@ -12,6 +12,8 @@
    <script src="{{ asset('storage/assets/js/plugins/responsive.bootstrap5.min.js') }}"></script>
 
    <script>
+    $(document).ready(function() {
+        setTimeout(function() {
        $('#res-config').DataTable({
            responsive: true,
            dom: '<"container-fluid"<"row"<"col-md-4" B><"col-sm-12 col-md-8 d-flex justify-content-between align-items-center" l f>>>rtip',
@@ -38,6 +40,7 @@
                 loader.style.display = 'none';
             }
         }
-           
-       });
+        });
+    }, 100); // 300ms delay
+});
    </script>

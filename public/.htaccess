@@ -4,7 +4,7 @@
     </IfModule>
 
     RewriteEngine On
-    RewriteBase /ems/
+    RewriteBase /tnpsc-ems/
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .

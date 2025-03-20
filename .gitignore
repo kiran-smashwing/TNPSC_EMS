@@ -54,3 +54,5 @@ storage/dotenv-editor
 public/temp
 desktop.ini
 old-env
+.htaccess
+public/.htaccess

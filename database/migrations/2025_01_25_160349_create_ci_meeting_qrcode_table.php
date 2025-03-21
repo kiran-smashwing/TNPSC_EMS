@@ -21,6 +21,9 @@ return new class extends Migration {
             // Indexes for better query performance
             $table->index('exam_id');
             $table->index('district_code');
+
+            // Add compound indexes for lookups
+            $table->index(['exam_id', 'district_code', 'meeting_date_time']);
         });
     }
 

@@ -24,6 +24,10 @@ return new class extends Migration {
             // Index for performance optimization
             $table->index('exam_sess_mainid'); // Index on exam_sess_mainid for faster lookups
             $table->index('exam_sess_date'); // Index on exam_sess_date for optimized queries by date
+            
+            // Enhanced indexes
+            $table->index(['exam_sess_mainid', 'exam_sess_date', 'exam_sess_session']);
+            $table->index(['exam_sess_date', 'exam_sess_session']);
         });
     }
 

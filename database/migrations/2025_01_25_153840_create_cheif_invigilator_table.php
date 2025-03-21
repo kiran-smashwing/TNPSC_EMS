@@ -35,6 +35,14 @@ return new class extends Migration {
             $table->index('ci_id');
             $table->index('ci_venue_id');
 
+            // Enhanced composite indexes for common queries
+            $table->index(['ci_district_id', 'ci_center_id']);
+            $table->index(['ci_center_id', 'ci_venue_id']);
+            $table->index(['ci_email', 'ci_email_status', 'ci_status']);
+            
+            // Full text search index for name and email
+            $table->fullText(['ci_name', 'ci_email']);
+
             // Timestamps for created_at and updated_at
             $table->timestamps();
         });

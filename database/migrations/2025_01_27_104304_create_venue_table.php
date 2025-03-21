@@ -25,6 +25,8 @@ return new class extends Migration {
             $table->string('venue_website')->nullable();
             $table->text('venue_password');
             $table->text('venue_address');
+            $table->text('venue_pincode');
+            $table->text('venue_landmark');
             $table->string('venue_distance_railway')->nullable();
             $table->string('venue_treasury_office')->nullable();
             $table->string('venue_longitude')->nullable();
@@ -43,7 +45,14 @@ return new class extends Migration {
             $table->timestamp('venue_createdat')->useCurrent(); // Default current timestamp
 
             // Additional indexes for performance optimization
+            $table->index(['venue_code']);
             $table->index(['venue_district_id', 'venue_center_id','venue_code', 'venue_email']);
+            
+            // Composite indexes for common queries
+            $table->index(['venue_district_id','venue_center_id','venue_status']);
+            $table->index(['venue_id', 'venue_status']);
+            // Full text search
+            $table->fullText(['venue_name', 'venue_code', 'venue_email','venue_address', 'venue_landmark']);
         });
     }
 

@@ -27,9 +27,16 @@ return new class extends Migration {
             $table->timestamp('tre_off_createdat')->useCurrent(); // Default current timestamp with timezone
 
             // Additional indexing for better query performance
-            $table->index(['tre_off_district_id', 'tre_off_email']);
-            $table->index('tre_off_id');
+            $table->index(['tre_off_district_id']);
             $table->index('tre_off_email');
+
+            // Enhanced composite indexes
+            $table->index(['tre_off_district_id', 'tre_off_status']);
+            $table->index(['tre_off_employeeid', 'tre_off_status']);
+            
+            // Full text search
+            $table->fullText(['tre_off_name', 'tre_off_designation', 'tre_off_email']);
+            
         });
     }
 

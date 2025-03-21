@@ -19,6 +19,10 @@ return new class extends Migration {
             // Performance indexes
             $table->index('role_department'); // Index for department queries
             $table->index('role_name'); // Index for role name queries
+
+            // Add performance indexes
+            $table->index(['role_department', 'role_name']);
+            $table->fullText('role_name'); // For searching roles
         });
     }
 

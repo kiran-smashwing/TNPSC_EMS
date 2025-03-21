@@ -19,6 +19,13 @@ return new class extends Migration {
 
             // Indexes for optimization
             $table->index('exam_trunkbox_id'); // Index on exam_trunkbox_id for optimized queries
+
+            // Add indexes for timestamp queries
+            $table->index('dept_off_scanned_at');
+            $table->index('hq_scanned_at');
+            
+            // Add compound index for tracking
+            $table->index(['exam_trunkbox_id', 'dept_off_scanned_at', 'hq_scanned_at']);
         });
     }
 

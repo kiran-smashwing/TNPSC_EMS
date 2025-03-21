@@ -19,8 +19,6 @@ return new class extends Migration {
             $table->text('consent_status')->default('pending'); // Consent status
             $table->boolean('email_sent_status')->default(false); // Email sent status
             $table->bigInteger('expected_candidates_count')->default(0); // Expected candidates count
-            $table->boolean('is_confirmed')->default(false);
-            $table->bigInteger('order_by_id')->nullable();
             $table->timestamps(0); // Handles created_at and updated_at
 
             // Indexes for optimization
@@ -29,6 +27,11 @@ return new class extends Migration {
             $table->index('center_code'); // Index on center_code for filtering by center
             $table->index('district_code'); // Index on district_code for filtering by district
             $table->index('consent_status'); // Index on consent_status for filtering based on consent
+
+            // Enhanced composite indexes
+            $table->index(['exam_id', 'district_code', 'consent_status']);
+            $table->index(['exam_id', 'center_code', 'consent_status']); 
+            $table->index(['exam_id', 'venue_id', 'consent_status']);
         });
     }
 

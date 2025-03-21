@@ -28,6 +28,13 @@ return new class extends Migration {
             $table->index('invigilator_venue_id'); // Index on venue_id for performance on queries involving venue
             $table->index('invigilator_status'); // Index on invigilator_status for filtering active/inactive invigilators
             $table->index('invigilator_email'); // Index on email for faster lookups
+
+            // Add compound indexes
+            $table->index(['invigilator_venue_id', 'invigilator_status']);
+            
+            // Full text search
+            $table->fullText(['invigilator_name', 'invigilator_designation', 'invigilator_email']);
+            
         });
     }
 

@@ -31,6 +31,13 @@ return new class extends Migration {
 
             // Composite index for frequent queries on district_code, center_code, and exam_id
             $table->index(['district_code', 'center_code', 'hall_code','exam_id','exam_date']);
+
+            // Enhanced composite indexes 
+            $table->index(['exam_id', 'district_code', 'center_code', 'venue_code']);
+            $table->index(['exam_id', 'exam_date', 'exam_session', 'district_code']);
+            $table->index(['exam_id', 'ci_id']);
+            $table->index(['exam_id', 'ci_id', 'exam_date', 'exam_session']);
+            
         });
     }
 

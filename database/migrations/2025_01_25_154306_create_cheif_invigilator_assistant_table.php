@@ -30,6 +30,14 @@ return new class extends Migration {
             $table->index('cia_id');
             $table->index('cia_email');
 
+            // Enhanced composite indexes
+            $table->index(['cia_district_id', 'cia_center_id']);
+            $table->index(['cia_center_id', 'cia_venue_id']);
+            $table->index(['cia_email', 'cia_status']);
+            
+            // Full text search for name and email
+            $table->fullText(['cia_name', 'cia_email']);
+
             // Timestamps for created_at and updated_at
             $table->timestamps();
         });

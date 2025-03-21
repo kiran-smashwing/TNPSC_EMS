@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->timestamp('examservice_createdat')->useCurrent(); // Creation timestamp
             // Add index for performance optimization
             $table->index('examservice_code'); // Index on examservice_code for faster lookups
+            $table->fullText('examservice_name');
         });
     }
 

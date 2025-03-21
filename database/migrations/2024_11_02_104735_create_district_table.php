@@ -33,6 +33,17 @@ return new class extends Migration
             // Index for better query performance
             $table->index('district_email');
             $table->index('district_code');
+
+            // Enhanced composite indexes
+            $table->index(['district_code']);
+            $table->index(['district_email', 'district_email_status']);
+            // Full text search capabilities
+            $table->fullText(['district_name', 'district_address']);
+            // Enhanced performance indexes
+            $table->index(['district_email', 'district_status','district_email_status']); // Email with status            
+            // Composite indexes for common access patterns
+            $table->index(['district_code', 'district_name']);
+            $table->index(['district_email']);
         });
     }
 

@@ -29,6 +29,12 @@ return new class extends Migration {
 
             // Add composite index for performance optimization
             $table->index(['exam_id', 'route_no', 'center_code', 'district_code', 'exam_date']);
+
+            // Add optimized indexes for tracking
+            $table->index(['route_no', 'mobile_team_staff', 'exam_id']);
+            
+            // Add index for JSON fields
+            $table->index('hall_code', 'idx_hall_code_gin')->algorithm('gin');
         });
     }
 

@@ -29,6 +29,17 @@ return new class extends Migration {
 
             // Index for better query performance
             $table->index('dept_off_email');
+
+            // Enhanced composite indexes for common queries
+            $table->index(['dept_off_id', 'dept_off_status']);
+            $table->index(['dept_off_email', 'dept_off_email_status']);
+            
+            // Full text search capabilities
+            $table->fullText(['dept_off_name', 'dept_off_designation', 'dept_off_emp_id']);
+            
+            // Role based indexes
+            $table->index(['dept_off_id','dept_off_role', 'custom_role', 'dept_off_status']);
+            
         });
     }
 
@@ -37,6 +48,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('department_officers');
+        Schema::dropIfExists('department_officer');
     }
 };

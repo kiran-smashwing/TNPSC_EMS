@@ -23,6 +23,14 @@ return new class extends Migration {
             // Indexes for improved query performance
             $table->index(['exam_id', 'district_code', 'center_code', 'hall_code', 'ci_id']);
 
+            // Add compound indexes for common queries
+            $table->index(['exam_id', 'district_code']);
+            
+            // Add GIN index for adequacy check JSON
+            $table->index('adequacy_check', 'idx_adequacy_check_gin')->algorithm('gin');
+            
+            // Add index for CI attendance queries
+            $table->index(['ci_id', 'district_code']);
         });
     }
 

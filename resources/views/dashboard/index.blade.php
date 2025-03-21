@@ -331,6 +331,7 @@
 
     @push('scripts')
         <script src="{{ asset('storage/assets/js/plugins/apexcharts.min.js') }}"></script>
+        <script src="{{ asset('storage/assets/js/pages/dashboard-analytics.js') }}"></script>
         {{-- <script src="../assets/js/pages/dashboard-default.js"></script> --}}
         <script src="{{ asset('storage/assets/js/pages/dashboard-default.js') }}"></script>
         <!-- JavaScript for ApexCharts -->

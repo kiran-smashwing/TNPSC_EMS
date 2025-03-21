@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\UserAccountCreationMail;
+use App\Mail\UserEmailVerificationMail;
 use App\Models\Venues;
 use App\Models\Center;
 use App\Models\District;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use App\Services\ImageCompressService;
+use Str;
 
 class VenuesController extends Controller
 {
@@ -20,7 +22,7 @@ class VenuesController extends Controller
     public function __construct(ImageCompressService $imageService)
     {
         //apply the auth middleware to the entire controller
-        $this->middleware('auth.multi');
+        $this->middleware('auth.multi')->except('verifyEmail');
         $this->imageService = $imageService;
     }
 
@@ -31,7 +33,7 @@ class VenuesController extends Controller
         $districts = District::select(['district_code', 'district_name'])->get();
         $centers = Center::select(['center_code', 'center_name', 'center_district_id'])->get();
 
-        return view('masters.venues.venue.index', compact( 'districts', 'centers'));
+        return view('masters.venues.venue.index', compact('districts', 'centers'));
     }
 
 
@@ -185,6 +187,7 @@ class VenuesController extends Controller
 
             // Hashing the password
             $validated['venue_password'] = Hash::make($validated['password']);
+            $validated['verification_token'] = Str::random(64);
 
             // Creating the venue
             $venue = Venues::create([
@@ -214,12 +217,19 @@ class VenuesController extends Controller
                 'venue_branch_name' => $validated['branch_name'],
                 'venue_account_type' => $validated['account_type'],
                 'venue_ifsc' => $validated['ifsc'],
+                'verification_token' => $validated['verification_token'], // Verification token
             ]);
 
             // Sending email to the venue after creation
             Mail::to($venue->venue_email)->send(new UserAccountCreationMail($venue->venue_name, $venue->venue_email, $validated['password'])); // Use the common mailable
 
+            $verificationLink = route('venues.verifyEmail', ['token' => urlencode($venue->verification_token)]);
 
+            if ($verificationLink) {
+                Mail::to($venue->venue_email)->send(new UserEmailVerificationMail($venue->venue_name, $venue->venue_email, $verificationLink)); // Use the common mailable
+            } else {
+                throw new \Exception('Failed to generate verification link.');
+            }
             // Log the venue creation
             AuditLogger::log('Venue Created', Venues::class, $venue->venue_id, null, $venue->toArray());
 
@@ -230,7 +240,25 @@ class VenuesController extends Controller
                 ->with('error', 'Error creating venue: ' . $e->getMessage());
         }
     }
+    public function verifyEmail($token)
+    {
 
+        $decodedToken = urldecode($token);
+
+        $venue = Venues::where('verification_token', $decodedToken)->first();
+
+        if (!$venue) {
+            return redirect()->route('login')->with('status', 'Invalid verification link.');
+        }
+
+        $venue->update([
+            'venue_email_status' => true, // Updating the correct column for email verification
+            'verification_token' => null, // Clear the token after verification
+        ]);
+
+        
+        return redirect()->route('login')->with('status', 'Email verified successfully.');
+    }
     public function update(Request $request, $id)
     {
         // dd($request->all());

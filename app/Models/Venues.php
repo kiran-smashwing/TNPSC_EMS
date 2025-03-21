@@ -48,6 +48,7 @@ class Venues extends Authenticatable
         'venue_status',
         'venue_email_status',
         'remember_token',
+        'verification_token',
     ];
 
     // Add timestamp for createdat

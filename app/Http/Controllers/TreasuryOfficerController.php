@@ -23,7 +23,7 @@ class TreasuryOfficerController extends Controller
 
     public function __construct(ImageCompressService $imageService)
     {
-        // $this->middleware('auth:treasury_officers');
+        $this->middleware('auth.multi')->except('verifyEmail');
         $this->imageService = $imageService;
     }
 
@@ -63,7 +63,7 @@ class TreasuryOfficerController extends Controller
             }
 
             $districts = District::where('district_code', $user->district_code)->get();
-            return view('masters.district.treasury_officers.create', compact('districts','user'));
+            return view('masters.district.treasury_officers.create', compact('districts', 'user'));
         }
 
         // Default case: Fetch all districts and centers
@@ -138,8 +138,7 @@ class TreasuryOfficerController extends Controller
 
             if ($verificationLink) {
                 Mail::to($treasuryOfficer->tre_off_email)->send(new UserEmailVerificationMail($treasuryOfficer->tre_off_name, $treasuryOfficer->tre_off_email, $verificationLink)); // Use the common mailable
-            }
-            else{
+            } else {
                 throw new \Exception('Failed to generate verification link.');
             }
             // Log the creation
@@ -154,15 +153,13 @@ class TreasuryOfficerController extends Controller
 
     public function verifyEmail($token)
     {
-        Log::info('Verification token received: ' . $token);
 
         $decodedToken = urldecode($token);
 
         $treasuryOfficer = TreasuryOfficer::where('verification_token', $decodedToken)->first();
 
         if (!$treasuryOfficer) {
-            Log::error('Verification failed: Token not found in database. Token: ' . $decodedToken);
-            return redirect()->route('treasury-officers.index')->with('error', 'Invalid verification link.');
+            return redirect()->route('login')->with('status', 'Invalid verification link.');
         }
 
         $treasuryOfficer->update([
@@ -170,9 +167,7 @@ class TreasuryOfficerController extends Controller
             'verification_token' => null, // Clear verification token
         ]);
 
-        Log::info('Email verified successfully for Treasury Officer ID: ' . $treasuryOfficer->tre_off_id);
-
-        return redirect()->route('treasury-officers.index')->with('success', 'Email verified successfully.');
+        return redirect()->route('login')->with('status', 'Email verified successfully.');
     }
 
 

@@ -22,7 +22,7 @@ class DistrictController extends Controller
     public function __construct(ImageCompressService $imageService)
     {
 
-        $this->middleware('auth.multi');
+        $this->middleware('auth.multi')->except('verifyEmail');
         $this->imageService = $imageService;
     }
 
@@ -113,16 +113,15 @@ class DistrictController extends Controller
             ]);
 
             // Send the welcome email
-      
+
             Mail::to($district->district_email)->send(new UserAccountCreationMail($district->district_name, $district->district_email, $validated['password'])); // Use the common mailable
 
             // Send the email verification link
             $verificationLink = route('district.verify', ['token' => urlencode($district->verification_token)]);
 
             if ($verificationLink) {
-                Mail::to($district->district_email)->send(new UserEmailVerificationMail($district->district_name, $district->district_email,$verificationLink)); // Use the common mailable
-            }
-            else{
+                Mail::to($district->district_email)->send(new UserEmailVerificationMail($district->district_name, $district->district_email, $verificationLink)); // Use the common mailable
+            } else {
                 throw new \Exception('Failed to generate verification link.');
             }
             // Redirect with success message
@@ -138,15 +137,13 @@ class DistrictController extends Controller
 
     public function verifyEmail($token)
     {
-        Log::info('Verification token received: ' . $token);
 
         $decodedToken = urldecode($token);
 
         $district = District::where('verification_token', $decodedToken)->first();
 
         if (!$district) {
-            Log::error('Verification failed: Token not found in database. Token: ' . $decodedToken);
-            return redirect()->route('district.index')->with('error', 'Invalid verification link.');
+            return redirect()->route('login')->with('status', 'Invalid verification link.');
         }
 
         $district->update([
@@ -154,9 +151,7 @@ class DistrictController extends Controller
             'verification_token' => null,
         ]);
 
-        Log::info('Email verified successfully for district ID: ' . $district->district_id);
-
-        return redirect()->route('district.index')->with('success', 'Email verified successfully.');
+        return redirect()->route('login')->with('status', 'Email verified successfully.');
     }
 
 
@@ -273,7 +268,7 @@ class DistrictController extends Controller
         $centerCount = $district->centers()->count();  // Assuming 'centers' is a relationship in District model
         $venueCount = $district->venues()->count();    // Assuming 'venues' is a relationship in District model
         $staffCount = $district->treasuryOfficers()->count() + $district->mobileTeamStaffs()->count();
-        
+
         // Log view action
         AuditLogger::log('District Viewed', District::class, $district->district_id);
 

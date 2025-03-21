@@ -453,10 +453,7 @@ class IDCandidatesController extends Controller
                 ->first();
 
             if ($confirmedVenue) {
-                // Always update the order
-                $confirmedVenue->order_by_id = $order;
-                // Update confirmation status if checked
-                $confirmedVenue->is_confirmed = $isChecked;
+         
                 //If isChecked is true then genrate the halls for each ci in IDCandidatesController                // Save the changes
                 $confirmedVenue->save();
 

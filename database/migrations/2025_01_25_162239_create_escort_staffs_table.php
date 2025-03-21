@@ -23,6 +23,14 @@ return new class extends Migration {
             $table->index('district_code');
             $table->index('charted_vehicle_id');
             $table->index('tnpsc_staff_id');
+
+            // Add JSON indexes
+            $table->index('si_details', 'idx_si_details_gin')->algorithm('gin');
+            $table->index('revenue_staff_details', 'idx_revenue_staff_gin')->algorithm('gin');
+            
+            // Add compound indexes
+            $table->index(['charted_vehicle_id', 'district_code']);
+            $table->index(['charted_vehicle_id','tnpsc_staff_id', 'district_code']);
         });
     }
 

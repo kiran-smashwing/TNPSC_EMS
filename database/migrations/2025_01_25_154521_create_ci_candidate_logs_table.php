@@ -15,10 +15,10 @@ return new class extends Migration {
             $table->text('exam_id');
             $table->text('center_code');
             $table->text('hall_code');
+            $table->date('exam_date')->nullable();
             $table->jsonb('additional_details')->default(json_encode([]));
             $table->jsonb('candidate_remarks')->default(json_encode([]));
             $table->jsonb('omr_remarks')->nullable();
-            $table->date('exam_date')->nullable();
             $table->text('ci_id')->nullable();
             $table->jsonb('candidate_attendance')->nullable();
             // Timestamps for created_at and updated_at
@@ -27,6 +27,13 @@ return new class extends Migration {
             // Indexes for better query performance
             $table->index(['exam_id', 'center_code', 'hall_code', 'ci_id']);
 
+            // JSON field indexes
+            $table->index('additional_details', 'idx_additional_details_gin')->algorithm('gin');
+            $table->index('candidate_remarks', 'idx_candidate_remarks_gin')->algorithm('gin');
+            
+            // Composite indexes
+            $table->index(['exam_id', 'exam_date']);
+            $table->index(['exam_id', 'center_code', 'exam_date']);
         });
     }
 

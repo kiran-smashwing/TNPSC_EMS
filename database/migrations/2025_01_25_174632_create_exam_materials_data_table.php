@@ -29,6 +29,26 @@ return new class extends Migration {
 
             // Create a composite index for multiple columns
             $table->index(['exam_id', 'qr_code','district_code', 'center_code','mobile_team_id', 'ci_id']); // Composite index on exam_id, district_code, and center_code
+            // Added index on exam_date for filtering on date
+            $table->index('exam_date');
+
+            // Enhanced indexes for scanning/tracking
+            $table->index(['exam_id', 'qr_code']);
+            $table->index(['qr_code']);
+            $table->index(['district_code', 'center_code', 'exam_date']);
+            $table->index(['mobile_team_id', 'exam_date']);
+            $table->index(['ci_id', 'exam_date']);
+
+            // Enhanced indexes for material tracking
+            $table->index(['exam_id', 'qr_code', 'mobile_team_id']);
+            $table->index(['exam_id', 'qr_code', 'ci_id']);
+            $table->index(['exam_id', 'qr_code', 'district_code']);
+            $table->index(['exam_id', 'qr_code', 'center_code']);
+            
+            // QR code specific indexes
+            $table->index(['qr_code', 'category']);
+            $table->index(['qr_code', 'exam_date', 'exam_session']);
+            
           
         });
     }

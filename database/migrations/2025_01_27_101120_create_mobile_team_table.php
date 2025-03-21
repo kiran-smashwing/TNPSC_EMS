@@ -28,8 +28,15 @@ return new class extends Migration {
 
             // Performance indexes
             $table->index('mobile_district_id'); // Index for district-related queries
-            $table->id('mobile_id'); // Primary key with auto-increment
             $table->index('mobile_email'); // Index for filtering verified users
+
+            // Enhanced composite indexes for common queries
+            $table->index(['mobile_district_id', 'mobile_status']);
+            $table->index(['mobile_employeeid', 'mobile_status']);
+            
+            // Full text search capabilities 
+            $table->fullText(['mobile_name', 'mobile_designation', 'mobile_email']);
+                                    
         });
     }
 

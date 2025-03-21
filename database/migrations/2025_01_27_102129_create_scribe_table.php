@@ -26,7 +26,13 @@ return new class extends Migration {
             // Additional indexing for performance improvement
             $table->index(['scribe_district_id', 'scribe_center_id', 'scribe_venue_id']);
             $table->index('scribe_email');
-            $table->index('scribe_id');
+
+            // Enhanced composite indexes
+            $table->index(['scribe_venue_id', 'scribe_status']);
+            
+            // Full text search capabilities
+            $table->fullText(['scribe_name', 'scribe_designation','scribe_email']);
+            
         });
     }
 

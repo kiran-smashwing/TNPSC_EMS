@@ -22,6 +22,16 @@ return new class extends Migration {
 
             // Add index for better performance
             $table->index('exam_material_id'); // Index for exam_material_id
+
+            // Enhanced scan tracking indexes
+            $table->index(['exam_material_id', 'district_scanned_at', 'center_scanned_at','mobile_team_scanned_at', 'ci_scanned_at']);  // Track complete flow
+            
+            // Timeline analysis indexes
+            $table->index(['exam_material_id','district_scanned_at']);
+            $table->index(['exam_material_id','center_scanned_at']);
+            $table->index(['exam_material_id','mobile_team_scanned_at']);
+            $table->index(['exam_material_id','ci_scanned_at']);
+            
         });
     }
 

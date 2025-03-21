@@ -32,6 +32,15 @@ return new class extends Migration {
             $table->index('task_type');
             $table->index('role');
             $table->index('department');
+
+            // Enhanced JSONB indexes
+            $table->index('metadata', 'idx_metadata_gin')->algorithm('gin');
+            $table->index('before_state', 'idx_before_state_gin')->algorithm('gin');
+            $table->index('after_state', 'idx_after_state_gin')->algorithm('gin');
+            
+            // Full text search for descriptions
+            $table->fullText('description');
+            
         });
     }
 

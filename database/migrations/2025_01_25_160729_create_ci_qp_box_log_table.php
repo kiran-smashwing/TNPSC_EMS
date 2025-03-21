@@ -24,6 +24,13 @@ return new class extends Migration {
             $table->index(['exam_id','center_code', 'hall_code', 'ci_id']);
             $table->index('ci_id');
 
+            // Optimize JSONB column with GIN index
+            $table->index('qp_timing_log', 'idx_qp_timing_log_gin')->algorithm('gin');
+            
+            // Add composite indexes for common queries
+            $table->index(['exam_id', 'exam_date']);
+            $table->index(['center_code', 'hall_code', 'exam_date']);
+            $table->index(['ci_id', 'exam_date']);
         });
     }
 

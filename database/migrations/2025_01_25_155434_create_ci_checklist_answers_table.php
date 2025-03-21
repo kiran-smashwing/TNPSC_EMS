@@ -29,6 +29,15 @@ return new class extends Migration {
             // Indexes for better performance
             $table->index(['exam_id', 'center_code', 'hall_code', 'venue_code', 'ci_id']);
 
+            // Add composite indexes
+            $table->index(['exam_id', 'ci_id', 'exam_date']);
+            // Add GIN indexes for JSONB fields
+            $table->index('preliminary_answer', 'idx_preliminary_gin')->algorithm('gin');
+            $table->index('session_answer', 'idx_session_gin')->algorithm('gin');
+            $table->index('utility_answer', 'idx_utility_gin')->algorithm('gin');
+            $table->index('consolidate_answer', 'idx_consolidate_gin')->algorithm('gin');
+            $table->index('videography_answer', 'idx_videography_gin')->algorithm('gin');
+
         });
     }
 

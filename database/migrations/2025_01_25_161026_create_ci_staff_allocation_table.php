@@ -24,6 +24,15 @@ return new class extends Migration {
             $table->index('exam_id');
             $table->index('ci_id');
             $table->index('exam_date');
+
+            // Add GIN indexes for JSONB columns
+            $table->index('invigilators', 'idx_invigilators_gin')->algorithm('gin');
+            $table->index('assistants', 'idx_assistants_gin')->algorithm('gin');
+            $table->index('scribes', 'idx_scribes_gin')->algorithm('gin');
+            
+            // Add compound indexes for common queries
+            $table->index(['exam_id', 'exam_date']);
+            $table->index(['ci_id', 'exam_date']);
         });
     }
 

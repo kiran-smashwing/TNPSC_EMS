@@ -10,10 +10,6 @@ class ExamVenueConsent extends Model
     use HasFactory;
     protected $table = 'exam_venue_consent';
 
-    protected $casts = [
-        'is_confirmed' => 'boolean', // Cast as boolean
-        'order_by_id' => 'integer', // Cast as integer
-    ];
     // Define the fillable attributes for mass assignment
     protected $fillable = [
         'exam_id',
@@ -23,8 +19,6 @@ class ExamVenueConsent extends Model
         'consent_status',
         'email_sent_status',
         'expected_candidates_count',
-        'is_confirmed',
-        'order_by_id',
         'updated_at',
         'created_at',
     ];

@@ -34,6 +34,14 @@ return new class extends Migration {
             $table->index('center_district_id');
             $table->index('center_code');
             $table->index('center_email');
+
+            // Add composite indexes
+            $table->index(['center_district_id', 'center_code']);            
+            // Full text search capabilities
+            $table->fullText(['center_name', 'center_address']);
+            // Contact info indexes
+            $table->index(['center_phone', 'center_alternate_phone']);
+            $table->index(['center_email', 'center_email_status']);
         });
 
     }

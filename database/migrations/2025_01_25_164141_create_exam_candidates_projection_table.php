@@ -24,6 +24,10 @@ return new class extends Migration {
 
             // Add indexes for performance optimization
             $table->index(['exam_id', 'exam_date', 'center_code', 'district_code']); // Composite index for frequent queries
+
+            // Add compound indexes for common queries
+            $table->index(['exam_id', 'district_code']);
+            
         });
     }
 

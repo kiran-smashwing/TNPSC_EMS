@@ -12,14 +12,12 @@ return new class extends Migration {
     {
         Schema::create('ci_checklists', function (Blueprint $table) {
             $table->id('ci_checklist_id'); // Primary key with auto-increment
-            $table->string('ci_checklist_examid', 50)->nullable();
             $table->text('ci_checklist_type')->nullable();
             $table->text('ci_checklist_description')->nullable();
             $table->boolean('ci_checklist_status')->default(false);
             $table->timestamp('ci_checklist_createdat')->useCurrent();
 
             // Indexes for better performance on frequently queried columns
-            $table->index('ci_checklist_examid');
             $table->index('ci_checklist_id');
         });
     }

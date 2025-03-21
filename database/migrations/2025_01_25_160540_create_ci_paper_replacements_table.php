@@ -24,6 +24,7 @@ return new class extends Migration {
             $table->text('replacement_reason');
             $table->text('ci_id')->nullable();
             $table->text('replacement_photo')->nullable();
+            $table->text('replacement_type_paper')->nullable();
             $table->timestamps(0); // Laravel's automatic created_at and updated_at
 
             // Indexes for better query performance
@@ -35,6 +36,14 @@ return new class extends Migration {
             $table->index('exam_date');
             $table->index('exam_session');
             
+            // Add compound indexes for common lookups
+            $table->index(['exam_id', 'exam_date', 'exam_session']);
+            $table->index(['center_code', 'hall_code', 'exam_date']);
+            $table->index(['registration_number', 'exam_date']);
+            $table->index(['exam_id', 'center_code', 'ci_id']);
+            
+            // Index for tracking paper numbers
+            $table->index(['old_paper_number', 'new_paper_number']);
         });
     }
 

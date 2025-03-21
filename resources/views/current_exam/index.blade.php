@@ -180,7 +180,11 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="d-sm-flex align-items-center justify-content-between">
+                                @if (Route::is('current-exam.index'))
                                 <h5 class="mb-3 mb-sm-0">Current Exam list</h5>
+                                @elseif (Route::is('completed-exam'))
+                                <h5 class="mb-3 mb-sm-0">Completed Exam list</h5>
+                                @endif
                                 @hasPermission('current-exam.create')
                                     <div>
                                         <a href="{{ route('current-exam.create') }}" class="btn btn-outline-success">Add Exam

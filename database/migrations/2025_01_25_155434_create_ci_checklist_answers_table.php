@@ -30,7 +30,7 @@ return new class extends Migration {
             $table->index(['exam_id', 'center_code', 'hall_code', 'venue_code', 'ci_id']);
 
             // Add composite indexes
-            $table->index(['exam_id', 'ci_id', 'exam_date']);
+            $table->index(['exam_id', 'ci_id']);
             // Add GIN indexes for JSONB fields
             $table->index('preliminary_answer', 'idx_preliminary_gin')->algorithm('gin');
             $table->index('session_answer', 'idx_session_gin')->algorithm('gin');

@@ -12,10 +12,10 @@ return new class extends Migration {
     {
         Schema::create('treasury_officer', function (Blueprint $table) {
             $table->id('tre_off_id'); // Primary key with auto-increment
-            $table->string('tre_off_district_id', 50)->index(); // Indexed for performance
+            $table->string('tre_off_district_id', 50); // Indexed for performance
             $table->string('tre_off_name');
             $table->string('tre_off_designation');
-            $table->string('tre_off_phone')->index(); // Indexed for faster lookups
+            $table->string('tre_off_phone'); // Indexed for faster lookups
             $table->string('tre_off_email')->unique(); // Ensuring unique emails
             $table->string('tre_off_employeeid')->unique(); // Unique employee ID
             $table->string('tre_off_password');

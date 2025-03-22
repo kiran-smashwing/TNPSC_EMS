@@ -36,10 +36,6 @@ return new class extends Migration {
             // Added composite index for combined filtering
             $table->index(['exam_main_no', 'exam_main_type']);
 
-            // Enhanced indexes for common queries
-            $table->index(['exam_main_status', 'exam_main_startdate']); 
-            $table->index(['exam_main_type', 'exam_main_status']);
-            $table->index(['exam_main_service', 'exam_main_status']);
         });
     }
 

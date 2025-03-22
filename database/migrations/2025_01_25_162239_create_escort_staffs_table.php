@@ -15,8 +15,8 @@ return new class extends Migration {
             $table->bigInteger('charted_vehicle_id')->nullable();
             $table->string('district_code'); // District code
             $table->string('tnpsc_staff_id'); // TNPSC staff ID
-            $table->json('si_details')->nullable(); // SI details in JSON format
-            $table->json('revenue_staff_details')->nullable(); // Revenue staff details in JSON format
+            $table->jsonb('si_details')->nullable(); // SI details in JSON format
+            $table->jsonb('revenue_staff_details')->nullable(); // Revenue staff details in JSON format
             $table->timestamps(0); // Laravel's automatic created_at and updated_at timestamps
 
             // Index for better query performance
@@ -24,7 +24,7 @@ return new class extends Migration {
             $table->index('charted_vehicle_id');
             $table->index('tnpsc_staff_id');
 
-            // Add JSON indexes
+            // Add JSONB indexes
             $table->index('si_details', 'idx_si_details_gin')->algorithm('gin');
             $table->index('revenue_staff_details', 'idx_revenue_staff_gin')->algorithm('gin');
             

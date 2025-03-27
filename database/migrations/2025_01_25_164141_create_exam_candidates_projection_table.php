@@ -17,8 +17,8 @@ return new class extends Migration {
             $table->string('session', 10); // Session (length 10 characters)
             $table->string('center_code', 20); // Center code (length 20 characters)
             $table->string('district_code', 20); // District code (length 20 characters)
-            $table->text('expected_candidates')->nullable(); // Expected candidates count
-            $table->text('accommodation_required')->nullable(); // Accommodation required count
+            $table->integer('expected_candidates')->nullable(); // Expected candidates count
+            $table->integer('accommodation_required')->nullable(); // Accommodation required count
             $table->bigInteger('increment_percentage')->nullable(); // Increment percentage as big integer
             $table->timestamps(); // Laravel's automatic created_at and updated_at timestamps
 

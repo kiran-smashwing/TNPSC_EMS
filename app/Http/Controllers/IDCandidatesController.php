@@ -183,7 +183,7 @@ class IDCandidatesController extends Controller
         // Check if a consolidated log already exists
         $existingLog = $this->auditService->findLog([
             'exam_id' => $examId,
-            'task_type' => 'send_accommodation_email',
+            'task_type' => 'id_candidates_update_percentage',
         ]);
 
         // Extract email logs from the existing log's metadata
@@ -257,7 +257,7 @@ class IDCandidatesController extends Controller
                 ->sum('accommodation_required');
             //todo: update the static email to district email  $district->district_email,
             // Send the email notification
-            Mail::to('sathishm@smashwing.com')->send(
+            Mail::to('kiran@smashwing.com')->send(
                 new AccommodationNotification(
                     $exam,
                     $districtCode,
@@ -286,7 +286,7 @@ class IDCandidatesController extends Controller
         // Log the email operation
         $existingLog = $this->auditService->findLog([
             'exam_id' => $examId,
-            'task_type' => 'send_accommodation_email',
+            'task_type' => 'id_candidates_update_percentage',
         ]);
 
         if ($existingLog) {
@@ -338,7 +338,7 @@ class IDCandidatesController extends Controller
             $this->auditService->log(
                 examId: $examId,
                 actionType: 'sent',
-                taskType: 'send_accommodation_email',
+                taskType: 'id_candidates_update_percentage',
                 afterState: $exam->toArray(),
                 description: 'Sent accommodation email notifications.',
                 metadata: $metadata

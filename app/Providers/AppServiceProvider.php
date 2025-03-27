@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Blade;
+use Mail;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,6 +35,8 @@ class AppServiceProvider extends ServiceProvider
         Blade::directive('endhasPermission', function () {
             return "<?php endif; ?>";
         });
-
+        if (app()->environment('local', 'staging', 'testing')) {
+            Mail::alwaysTo('kiran@smashwing.com'); // Change this to your desired static email
+        }
     }
 }

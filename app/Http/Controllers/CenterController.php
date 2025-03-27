@@ -137,6 +137,7 @@ class CenterController extends Controller
     {
         $validated = $request->validate([
             'center_name' => 'required|string|max:255',
+            'district' => 'required|string|max:255',
             'center_code' => 'required|numeric|unique:centers',
             'email' => 'required|email|unique:centers,center_email',
             'phone' => 'required|string|max:15',
@@ -147,7 +148,7 @@ class CenterController extends Controller
             'latitude' => 'required|numeric',
             'cropped_image' => 'nullable|string'
         ]);
-
+    //    dd($validated);
         try {
             // Process the cropped image if present
             if (!empty($validated['cropped_image'])) {
@@ -176,6 +177,7 @@ class CenterController extends Controller
 
             // Create the center record
             $center = Center::create([
+                'center_district_id' => $validated['district'],
                 'center_name' => $validated['center_name'],
                 'center_code' => $validated['center_code'],
                 'center_email' => $validated['email'],

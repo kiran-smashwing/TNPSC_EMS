@@ -30,19 +30,27 @@ class ChiefInvigilatorsController extends Controller
 
     public function index(Request $request)
     {
+        $user = current_user();
+        $role = session('auth_role');
+        if ($role== "district") {
+            $centers = Center::orderBy('center_name')
+            ->where('center_district_id',$user->district_code)
+            ->get();
+        } else{
+            $centers = Center::orderBy('center_name')->get();
+            
+        }
         // Get only the districts for the filter dropdown
         $districts = District::orderBy('district_name')->get();
-
-        // Get centers and venues if needed for initial filter dropdowns
-        $centers = Center::orderBy('center_name')->get();
         $venues = Venues::orderBy('venue_name')->get();
 
-        return view('masters.venues.chief_invigilator.index', compact('districts', 'centers', 'venues'));
+        return view('masters.venues.chief_invigilator.index', compact('districts', 'centers', 'venues','role','user'));
     }
 
     // Add new method for JSON response
     public function getChiefInvigilatorsJson(Request $request)
     {
+        
         $query = ChiefInvigilator::query()
             ->select([
                 'ci_id',
@@ -59,9 +67,13 @@ class ChiefInvigilatorsController extends Controller
 
         // Apply role-based filter
         $role = session('auth_role');
+       
         if ($role == 'venue') {
             $user = $request->get('auth_user');
             $query->where('ci_venue_id', $user->venue_code);
+        }else if ($role == 'district') {
+            $user = $request->get('auth_user');
+            $query->where('ci_district_id', $user->district_code);
         }
 
         // Apply filters

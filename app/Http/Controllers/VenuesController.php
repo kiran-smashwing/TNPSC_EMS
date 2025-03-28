@@ -27,11 +27,19 @@ class VenuesController extends Controller
     }
 
     public function index(Request $request)
-    {
-
+    { 
+        $user = current_user();
+        $role = session('auth_role');
+        if ($role== "district") {
+            $centers = Center::select(['center_code', 'center_name', 'center_district_id'])
+            ->where('center_district_id',$user->district_code)
+            ->get();
+        } else{
+          $centers = Center::select(['center_code', 'center_name', 'center_district_id'])->get();
+        }
         // Load necessary columns for dropdowns
         $districts = District::select(['district_code', 'district_name'])->get();
-        $centers = Center::select(['center_code', 'center_name', 'center_district_id'])->get();
+        
 
         return view('masters.venues.venue.index', compact('districts', 'centers'));
     }
@@ -39,6 +47,8 @@ class VenuesController extends Controller
 
     public function getVenuesJson(Request $request)
     {
+        $user = current_user();
+        $role = session('auth_role');
         $query = Venues::query()
             ->select([
                 'venue_id',
@@ -57,7 +67,10 @@ class VenuesController extends Controller
             ]);
 
         // Apply filters
-        if ($request->filled('district')) {
+        if ($role== "district") {
+            $query->where('venue_district_id', $user->district_code);
+        }
+        else if ($request->filled('district')) {
             $query->where('venue_district_id', $request->input('district'));
         }
 

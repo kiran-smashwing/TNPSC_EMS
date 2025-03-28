@@ -124,6 +124,7 @@
                                         Invigilators </a>
                                 </li>
                             @endhasPermission
+                            @hasPermission('view-all-other-list')
                             <li class="pc-item"><a class="pc-link" href="{{ route('invigilators.index') }}">Invigilators
                                 </a>
                             </li>
@@ -131,6 +132,7 @@
                             </li>
                             <li class="pc-item"><a class="pc-link" href="{{ route('ci-assistant') }}">CI Assistants </a>
                             </li>
+                            @endhasPermission
                         </ul>
                     </li>
                 @endhasPermission

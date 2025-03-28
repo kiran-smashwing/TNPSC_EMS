@@ -150,8 +150,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                                                                          <h2 class="mb-0"></h2>
-                                                                                                        </div> -->
+                                                                                                              <h2 class="mb-0"></h2>
+                                                                                                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -201,21 +201,23 @@
 
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
-                            @if (session('auth_role') == 'headquarters')
+
+                            @hasPermission('ci-filter')
                                 <form id="filterForm" class="mb-3">
                                     {{-- District Filter --}}
-                                    <div class="filter-item">
-                                        <select class="form-select" id="districtFilter" name="district">
-                                            <option value="">Select District</option>
-                                            @foreach ($districts as $district)
-                                                <option value="{{ $district->district_code }}"
-                                                    {{ request('district') == $district->district_code ? 'selected' : '' }}>
-                                                    {{ $district->district_name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
+                                    @hasPermission('ci-district-filter')
+                                        <div class="filter-item">
+                                            <select class="form-select" id="districtFilter" name="district">
+                                                <option value="">Select District</option>
+                                                @foreach ($districts as $district)
+                                                    <option value="{{ $district->district_code }}"
+                                                        {{ request('district') == $district->district_code ? 'selected' : '' }}>
+                                                        {{ $district->district_name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    @endhasPermission
                                     {{-- Center Filter --}}
                                     <div class="filter-item">
                                         <select class="form-select" id="centerFilter" name="center">
@@ -250,7 +252,8 @@
                                     <a href="{{ url()->current() }}" class="btn btn-secondary"><i
                                             class="ti ti-refresh me-2"></i>Reset</a>
                                 </form>
-                            @endif
+                            @endhasPermission
+
 
 
                             <table id="centersTable" class="display table table-striped table-hover dt-responsive nowrap"
@@ -362,43 +365,53 @@
             if (typeof jQuery === 'undefined') {
                 console.error('jQuery is not loaded. Please include it in your project.');
             }
+
             // Full list of centers
             const allCenters = @json($centers);
-            // console.log(@json($districts));
-            // District filter change event
-            $('#districtFilter').on('change', function() {
-                const selectedDistrictCode = $(this).val();
-                // alert(selectedDistrictCode);
-                const centerDropdown = $('#centerFilter'); // Corrected to #centerFilter
-
-                // Clear previous options
-                centerDropdown.empty();
-                centerDropdown.append('<option value="">Select Center</option>');
-
-                // Filter centers based on selected district
-                const filteredCenters = allCenters.filter(center =>
-                    center.center_district_id == selectedDistrictCode
-                );
-
-                // Populate centers
-                filteredCenters.forEach(center => {
-                    const selected = "{{ request('center') }}" == center.center_code ? 'selected' : '';
-                    centerDropdown.append(
-                        `<option value="${center.center_code}" ${selected}>
-                    ${center.center_name}
-                </option>`
-                    );
-                });
-            });
-
-            // Trigger change event on page load to handle old/existing selections
+            const userRole = "{{ $role }}"; // Get the logged-in user's role
+            const userDistrict =
+            "{{ $user->district_code ?? '' }}"; // Get the logged-in user's district (if applicable)
+            console.log(userDistrict);
             $(document).ready(function() {
-                const oldDistrict = "{{ request('district') }}";
-                if (oldDistrict) {
-                    $('#districtFilter').val(oldDistrict).trigger('change');
+                const districtFilter = $('#districtFilter');
+                const centerFilter = $('#centerFilter');
+
+                // Function to filter centers based on district
+                function filterCenters(districtCode) {
+                    centerFilter.empty();
+                    centerFilter.append('<option value="">Select Center</option>');
+
+                    const filteredCenters = allCenters.filter(center => center.center_district_id == districtCode);
+                    filteredCenters.forEach(center => {
+                        const selected = "{{ request('center') }}" == center.center_code ? 'selected' : '';
+                        centerFilter.append(
+                            `<option value="${center.center_code}" ${selected}>
+                        ${center.center_name}
+                    </option>`
+                        );
+                    });
+                }
+
+                // Role-based filtering
+                if (userRole === 'district' && userDistrict) {
+                    // District user - Auto-select district & disable dropdown
+                    districtFilter.val(userDistrict).prop('disabled', true);
+                    filterCenters(userDistrict);
+                } else {
+                    // Department officer - Allow changing district
+                    districtFilter.on('change', function() {
+                        filterCenters($(this).val());
+                    });
+
+                    // Handle existing selections on page load
+                    const oldDistrict = "{{ request('district') }}";
+                    if (oldDistrict) {
+                        districtFilter.val(oldDistrict).trigger('change');
+                    }
                 }
             });
         </script>
+
 
         <script>
             // Full list of venues
@@ -457,7 +470,7 @@
                                 // Append a custom message directly to the table body
                                 $('#centersTable tbody').html(
                                     '<tr><td colspan="7" class="text-center">No chief invigilators found.</td></tr>'
-                                    );
+                                );
                             }
                         }
                     },

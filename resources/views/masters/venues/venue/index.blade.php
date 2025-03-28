@@ -188,6 +188,7 @@
                         </div>
                         <div class="card-body table-border-style">
                             <form id="filterForm" class="mb-3">
+                                @hasPermission('district-filter')
                                 <div class="filter-item">
                                     <select class="form-select" id="districtFilter" name="district">
                                         <option value="">Select District Name</option>
@@ -199,6 +200,7 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                @endhasPermission
                                 <div class="filter-item">
                                     <select class="form-select" id="centerFilter" name="center">
                                         <option value="">Select Center name</option>

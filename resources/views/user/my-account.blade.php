@@ -59,7 +59,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link" id="profile-tab-2" data-bs-toggle="tab" href="#profile-2"
                                         role="tab" aria-selected="true">
-                                        <i class="ti ti-file-text me-2"></i>My Account Details
+                                        <i class="ti ti-file-text me-2"></i>My Account Edit
                                     </a>
                                 </li>
                                 {{-- <li class="nav-item">

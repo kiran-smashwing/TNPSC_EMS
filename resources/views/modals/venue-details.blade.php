@@ -88,7 +88,30 @@
                                 @enderror
                             </div>
                         </div>
-
+                        <div class="col-sm-8">
+                            <div class="mb-3">
+                                <label class="form-label">Landmark <span
+                                        class="text-danger">*</span></label>
+                                <textarea class="form-control @error('landmark') is-invalid @enderror" id="landmark" name="landmark" required
+                                    placeholder="NEAR TO NEW BUS STAND">{{ old('landmark', $user->venue_landmark) }}</textarea>
+                                @error('landmark')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="mb-3">
+                                <label class="form-label ">Pin Code<span
+                                        class="text-danger">*</span></label>
+                                <input type="number"
+                                    value="{{ old('pin_code', $user->venue_pincode) }}"
+                                    class="form-control no-arrows @error('pin_code') is-invalid @enderror"
+                                    id="pin_code" name="pin_code" placeholder="600001" required>
+                                @error('pin_code')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
                         <div class="col-sm-4">
                             <div class="mb-3">
                                 <label class="form-label">Venue Code<span class="text-danger">*</span></label>

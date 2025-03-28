@@ -436,8 +436,13 @@
                                                             @hasPermission('showVenueIntimationForm')
                                                                 <a target="_blank"
                                                                     href="{{ route('district-candidates.showVenueIntimationForm', $session->exam_main_no) }}"
-                                                                    class="me-2 btn btn-sm btn-light-info"><i
+                                                                    class="me-2 btn btn-sm btn-light-primary m-2"><i
                                                                         class="feather icon-check-circle mx-1"></i>Select
+                                                                    Venues</a>
+                                                                <a target="_blank"
+                                                                    href="{{ route('district-candidates.reviewVenueIntimationForm', $session->exam_main_no) }}"
+                                                                    class="me-2 btn btn-sm btn-light-info"><i
+                                                                        class="feather icon-check-circle mx-1"></i>Review
                                                                     Venues</a>
                                                                 {{-- <a href="#" data-pc-animate="blur" data-bs-toggle="modal"
                                                                     data-bs-target="#sendConsentMailModel"

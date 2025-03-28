@@ -245,8 +245,8 @@
                                                 <label for="totalCandidates" class="form-label fw-bold">Total no of
                                                     Halls:</label>
                                                 <div class="col-sm-3 col-md-3">
-                                                    <select class="form-select" name="allocationCount" disabled>
-                                                        <option value="">No of Halls</option>
+                                                    <select class="form-select" name="allocationCount"
+                                                        id="hallCountDropdown">
                                                         @foreach (range(1, 5) as $hallCount)
                                                             <option
                                                                 value="{{ $hallCount * $exam->exam_main_candidates_for_hall }}"
@@ -254,6 +254,9 @@
                                                                 {{ $hallCount }} -
                                                                 {{ $hallCount * $exam->exam_main_candidates_for_hall }}
                                                             </option>
+                                                            @if ($venueConsents->expected_candidates_count == $hallCount * $exam->exam_main_candidates_for_hall)
+                                                                @break
+                                                            @endif>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -417,6 +420,139 @@
             });
         </script>
         <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const hallCountDropdown = document.getElementById('hallCountDropdown');
+                const ciTableBody = document.querySelector('#responsiveTable tbody');
+                const sessionDates = @json($sessionDates); // Pass session dates from backend
+                const chiefInvigilators = @json($chiefInvigilators); // Pass CI data from backend
+
+                // Function to generate a single CI table row
+                function createCIRow(examDate, savedCIIdsForDate, index) {
+                    const row = document.createElement('tr');
+
+                    // Exam Date
+                    const dateCell = document.createElement('td');
+                    const dateInput = document.createElement('input');
+                    dateInput.type = 'date';
+                    dateInput.className = 'form-control';
+                    dateInput.name = 'examDate[]';
+                    dateInput.value = examDate;
+                    dateInput.disabled = true;
+                    dateCell.appendChild(dateInput);
+                    row.appendChild(dateCell);
+
+                    // Chief Invigilator Dropdown
+                    const ciCell = document.createElement('td');
+                    const ciSelect = document.createElement('select');
+                    ciSelect.className = 'form-select';
+                    ciSelect.name = 'ciName[]';
+
+                    // Add default option
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = 'Select Chief Invigilator';
+                    ciSelect.appendChild(defaultOption);
+
+                    // Add CI options
+                    chiefInvigilators.forEach(ci => {
+                        const option = document.createElement('option');
+                        option.value = ci.ci_id;
+                        option.textContent = ci.ci_name;
+                        if (savedCIIdsForDate && savedCIIdsForDate[index] === ci.ci_id) {
+                            option.selected = true;
+                        }
+                        ciSelect.appendChild(option);
+                    });
+
+                    ciCell.appendChild(ciSelect);
+                    row.appendChild(ciCell);
+
+                    // Designation, Email, Phone
+                    ['Designation', 'Email', 'Phone'].forEach((field, idx) => {
+                        const cell = document.createElement('td');
+                        const input = document.createElement('input');
+                        input.type = idx === 1 ? 'email' : 'text';
+                        input.className = 'form-control';
+                        input.name = `ci${field}[]`;
+                        input.placeholder = field;
+                        input.disabled = true;
+                        cell.appendChild(input);
+                        row.appendChild(cell);
+                    });
+
+                    return row;
+                }
+
+                // Function to update CI table based on hall count
+                function updateCITable(hallCount) {
+                    const exam_candidate_count = {{ $exam->exam_main_candidates_for_hall }};
+                    hallCount = hallCount / exam_candidate_count;
+                    ciTableBody.innerHTML = ''; // Clear existing rows
+
+                    sessionDates.forEach(sessionDate => {
+                        // Convert dd-mm-yyyy to yyyy-mm-dd for compatibility with JavaScript Date
+                        const [day, month, year] = sessionDate.split('-');
+                        const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+
+                        // Retrieve saved CI IDs for the formatted date
+                        const savedCIIdsForDate = @json($assignedCIsByDate)[formattedDate] || [];
+
+                        // Generate rows for the selected hall count
+                        for (let i = 0; i < hallCount; i++) {
+                            const row = createCIRow(formattedDate, savedCIIdsForDate, i);
+                            ciTableBody.appendChild(row);
+                        }
+                    });
+                }
+                // Event listener for CI dropdowns to prevent duplicate selection
+                $(document).on('change', 'select[name="ciName[]"]', function() {
+                    const currentRow = $(this).closest('tr');
+                    const currentDate = currentRow.find('input[name="examDate[]"]').val();
+                    const selectedCIId = $(this).val();
+                    if (selectedCIId === '') {
+                        return; // Skip validation if no CI is selected
+                    }
+                    // Check all other rows for the same date
+                    let duplicateFound = false;
+                    $('select[name="ciName[]"]').each(function() {
+                        const row = $(this).closest('tr');
+                        const rowDate = row.find('input[name="examDate[]"]').val();
+                        const rowCIId = $(this).val();
+
+                        if (rowDate === currentDate && rowCIId === selectedCIId && row[0] !==
+                            currentRow[0]) {
+                            duplicateFound = true;
+                            return false; // Exit the loop early
+                        }
+                    });
+
+                    if (duplicateFound) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Duplicate CI Selection',
+                            text: 'This Chief Invigilator is already assigned to another hall on the same date.',
+                            confirmButtonText: 'OK'
+                        });
+                        $(this).val(''); // Reset the dropdown
+                        $(this).focus(); // Focus back on the dropdown
+                    } else {
+                        // Update CI details
+                        updateCIDetails(this);
+                    }
+                });
+                // Event listener for hall count dropdown
+                hallCountDropdown.addEventListener('change', function() {
+                    const selectedHallCount = parseInt(this.value);
+                    if (selectedHallCount > 0) {
+                        updateCITable(selectedHallCount);
+                    } else {
+                        ciTableBody.innerHTML = ''; // Clear table if no halls are selected
+                    }
+                });
+
+            });
+        </script>
+        <script>
             // Store Chief Invigilators data as a JavaScript object for easy lookup
             const chiefInvigilators = @json($chiefInvigilators);
 
@@ -475,6 +611,24 @@
 
 
                     if (consentValue === 'accept') {
+                        // Check if all CI dropdowns are selected
+                        let allCIsSelected = true;
+                        $('select[name="ciName[]"]').each(function() {
+                            if ($(this).val() === '') {
+                                allCIsSelected = false;
+                                return false; // Exit the loop early
+                            }
+                        });
+
+                        if (!allCIsSelected) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Incomplete Selection',
+                                text: 'Please select a Chief Invigilator for each row.',
+                                confirmButtonText: 'OK'
+                            });
+                            return; // Prevent form submission
+                        }
                         const ciExamData = [];
 
                         // Collect Chief Invigilator IDs and their respective exam dates

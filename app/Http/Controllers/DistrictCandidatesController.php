@@ -6,6 +6,7 @@ use App\Models\CIMeetingQrcode;
 use App\Models\District;
 use App\Services\ExamAuditService;
 use App\Models\ExamVenueConsent;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VenueConsentMail;
@@ -88,6 +89,60 @@ class DistrictCandidatesController extends Controller
             ->distinct('center_code')
             ->count('center_code');
         return view('my_exam.District.venue-intimation', compact('examId', 'current_exam', 'examCenters', 'user', 'totalCenters', 'totalCentersFromProjection', 'allvenues', 'candidatesCountForEachHall'));
+    }
+    public function reviewVenueIntimationForm(Request $request, $examId)
+    {
+        // Retrieve the exam
+        $exam = Currentexam::where('exam_main_no', $examId)->first();
+        if (!$exam) {
+            return redirect()->back()->with('error', 'Exam not found.');
+        }
+        $user = current_user();
+        // Retrieve filters from the request
+        $selectedDistrict = $user->district_code;
+        $selectedCenter = $request->input('center_code');
+        $selectedDate = $request->input('exam_date');
+
+        // Query confirmed venues and assigned CI
+        $confirmedVenuesQuery = ExamVenueConsent::where('exam_id', $examId)
+            ->where('consent_status', 'accepted')
+            ->with(['venues', 'assignedCIs.chiefInvigilator'])
+            ->where('district_code', $selectedDistrict)
+            ->where('center_code', $selectedCenter);
+
+
+        $confirmedVenues = $confirmedVenuesQuery->get();
+        $venuesWithCIs = collect();
+
+        foreach ($confirmedVenues as $venue) {
+            foreach ($venue->assignedCIs as $ci) {
+                if (Carbon::parse($ci->exam_date)->format('d-m-Y') == $selectedDate) {
+                    $venuesWithCIs->push([
+                        'venue' => $venue,
+                        'ci' => $ci,
+                    ]);
+                }
+            }
+        }
+        // Order venues by latest update
+        $venuesWithCIs = $venuesWithCIs->sortBy('ci.order_by_id')->values();
+        // Retrieve districts
+
+        // Retrieve centers
+        $centers = DB::table('exam_candidates_projection as ecp')
+            ->join('centers as c', 'ecp.center_code', '=', 'c.center_code')
+            ->where('ecp.exam_id', $examId)
+            ->where('ecp.district_code', $user->district_code)
+            ->select('ecp.center_code', 'c.center_name', 'ecp.district_code')
+            ->distinct()
+            ->get();
+        //get all dates for the exam
+        $examDates = $exam->examsession->groupBy(function ($item) {
+            return Carbon::parse($item->exam_sess_date)->format('d-m-Y');
+        })->keys();
+        // Pass data to the view
+        return view('my_exam.District.review-venue-intimation', compact('exam', 'confirmedVenues', 'centers', 'selectedDistrict', 'selectedCenter','examDates', 'venuesWithCIs'));
+
     }
     public function processVenueConsentEmail(Request $request)
     {
@@ -260,7 +315,7 @@ class DistrictCandidatesController extends Controller
     }
     // Optional email sending method
     protected function sendVenueConsentEmail($venueId, $examId)
-    { 
+    {
         return true;
         // Fetch venue details
         $venue = Venues::findOrFail($venueId);

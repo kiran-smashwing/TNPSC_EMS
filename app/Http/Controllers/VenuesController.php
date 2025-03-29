@@ -131,8 +131,20 @@ class VenuesController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
+        $role = session('auth_role');
+        $user = $request->get('auth_user');
+        if ($role == 'district') {
+            // Ensure $user exists before accessing properties
+            if (!$user) {
+                return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);
+            }
+            $districts = District::where('district_code', $user->district_code)->get();// Retrieve all districts
+            // dd($districts);
+            $centers = Center::all(); // Retrieve all centers
+            return view('masters.venues.venue.create', compact('districts', 'centers'));
+        }
         $districts = District::all(); // Retrieve all districts
         $centers = Center::all(); // Retrieve all centers
         return view('masters.venues.venue.create', compact('districts', 'centers'));
@@ -396,8 +408,20 @@ class VenuesController extends Controller
                 ->with('error', 'Error updating venue: ' . $e->getMessage());
         }
     }
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
+        $role = session('auth_role');
+        $user = $request->get('auth_user');
+        if ($role == 'district') {
+            // Ensure $user exists before accessing properties
+            if (!$user) {
+                return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);
+            }
+            $districts = District::where('district_code', $user->district_code)->get();// Retrieve all districts
+             $venue = Venues::with(['district', 'center'])->findOrFail($id);
+            $centers = Center::all(); // Retrieve all centers
+            return view('masters.venues.venue.edit', compact('venue','districts', 'centers','user'));
+        }
         $districts = District::all(); // Retrieve all districts
         $centers = Center::all(); // Retrieve all centers
         $venue = Venues::with(['district', 'center'])->findOrFail($id);

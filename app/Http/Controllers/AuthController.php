@@ -55,17 +55,34 @@ class AuthController extends Controller
         $remember = isset($validated['remember']) && $validated['remember'] === 'on';
         $role = $validated['role'];
 
-        $throttleKey = strtolower($role) . '|' . $email;
+        // Create a unique throttle key based on role, email, and IP
+        $throttleKey = strtolower($email) . '|' . $request->ip();
 
+        // Check for rate limiting
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
-            return back()->withErrors([
-                'email' => __('auth.throttle', [
-                    'seconds' => $seconds,
-                    'minutes' => ceil($seconds / 60),
-                ]),
-            ])->withInput($request->only('email'));
+
+            // Log the rate limit hit
+            Log::warning('Rate limit hit for login attempt', [
+                'email' => $email,
+                'role' => $role,
+                'ip' => $request->ip(),
+                'seconds_remaining' => $seconds
+            ]);
+
+            return back()
+                ->withErrors([
+                    'email' => __('auth.throttle', [
+                        'seconds' => $seconds,
+                        'minutes' => ceil($seconds / 60),
+                    ])
+                ])
+                ->with('throttle', $seconds)
+                ->withInput($request->only('email', 'role'));
         }
+
+        // Increment the rate limiter counter
+        RateLimiter::hit($throttleKey);
 
         // Clear all existing sessions
         $request->session()->flush();
@@ -75,6 +92,9 @@ class AuthController extends Controller
         $user = null;
         $userId = null;
 
+        // Add a small delay to prevent brute force attacks
+        usleep(rand(100000, 500000)); // Random delay between 100ms and 500ms
+
         switch ($role) {
             case 'district':
                 $success = Auth::guard('district')->attempt([
@@ -83,7 +103,7 @@ class AuthController extends Controller
                 ], $remember);
                 if ($success) {
                     $user = Auth::guard('district')->user();
-                    $userId = $user->district_id; // Using district_id instead of id
+                    $userId = $user->district_id;
                 }
                 break;
             case 'center':
@@ -129,10 +149,25 @@ class AuthController extends Controller
                 }
                 break;
             case 'headquarters':
-                $success = Auth::guard('headquarters')->attempt([
-                    'dept_off_email' => $email,
-                    'password' => $password
-                ], $remember);
+                $users = DepartmentOfficial::where('dept_off_email', $email)->get();
+                // Filter users who have the role 'headquarters'
+                $filteredUsers = $users->filter(function ($user) {
+                    return !is_null($user->dept_off_role) && trim($user->dept_off_role) !== '';
+                });
+
+                $success = '';
+                if ($filteredUsers->count() === 1) {
+                    $user = $filteredUsers->first();
+                    // Securely verify the password
+                    if (Hash::check($password, $user->dept_off_password)) {
+                        $success = Auth::guard('headquarters')->loginUsingId($user->dept_off_id, $remember);
+                        $userId = $user->dept_off_id;
+                    } else {
+                        $success = false; // Incorrect password
+                    }
+                } else {
+                    $success = false; // No valid single user found
+                }
                 if ($success) {
                     $user = Auth::guard('headquarters')->user();
                     $userId = $user->dept_off_id; // Adjust this based on your treasury table's ID column
@@ -151,43 +186,12 @@ class AuthController extends Controller
         }
 
         if ($success && $user) {
+            // Clear rate limiter on successful login
             RateLimiter::clear($throttleKey);
 
-            // Store essential session data with the correct ID
-        
+            // Store essential session data
+            $display_role = $this->getDisplayRole($role);
 
-            switch ($role) {
-                case 'district':
-                    $display_role = "District Collectorates";
-                    break;
-
-                case 'center':
-                    $display_role = "Centers/Sub Treasuries";
-                    break;
-
-                case 'treasury':
-                    $display_role = "District Treasuries";
-                    break;
-
-                case 'mobile_team_staffs':
-                    $display_role = "Mobile Teams";
-                    break;
-
-                case 'venue':
-                    $display_role = "Venues";
-                    break;
-
-                case 'headquarters':
-                    $display_role = "Department Officials";
-                    break;
-
-                case 'ci':
-                    $display_role = "Chief Invigilators";
-                    break;
-            }
-
-
-            // Store essential session data with the correct ID
             session([
                 'auth_role' => $role,
                 'athu_display_role' => $display_role,
@@ -200,7 +204,7 @@ class AuthController extends Controller
                 session()->put('user_agent', $request->userAgent());
             }
 
-            // Log the audit with the correct ID
+            // Log successful login
             AuditLogger::log(
                 'User Login',
                 get_class($user),
@@ -216,12 +220,30 @@ class AuthController extends Controller
             return redirect()->intended('/dashboard');
         }
 
-        RateLimiter::hit($throttleKey);
+        // Log failed login attempt
+        Log::warning('Failed login attempt', [
+            'email' => $email,
+            'role' => $role,
+            'ip' => $request->ip()
+        ]);
 
+        return back()
+            ->withErrors(['email' => __('auth.failed')])
+            ->withInput($request->only('email', 'role'));
+    }
 
-        return back()->withErrors([
-            'email' => __('auth.failed'),
-        ])->withInput($request->only('email'));
+    private function getDisplayRole(string $role): string
+    {
+        return match ($role) {
+            'district' => "District Collectorates",
+            'center' => "Centers/Sub Treasuries",
+            'treasury' => "District Treasuries",
+            'mobile_team_staffs' => "Mobile Teams",
+            'venue' => "Venues",
+            'headquarters' => "Department Officials",
+            'ci' => "Chief Invigilators",
+            default => ucfirst($role)
+        };
     }
 
     public function showAdminLogin()

@@ -49,6 +49,7 @@ class VenueConsentController extends Controller
         $request->validate([
             'consent' => 'required|in:accept,decline',
             'ciExamData' => 'required_if:consent,accept|json',
+            'venueCapacity' => 'required_if:consent,accept|numeric|min:1',
         ]);
         try {
             $role = session('auth_role');
@@ -65,9 +66,19 @@ class VenueConsentController extends Controller
                     'message' => 'Venue consent not found.'
                 ], 404);
             }
+
             // Update existing exam venue consent
             $examVenueConsent->consent_status = $request->consent == 'accept' ? 'accepted' : 'denied';
+            
+            // Store venue capacity if consent is accepted
+            if ($request->consent == 'accept') {
+                $examVenueConsent->venue_max_capacity = $request->venueCapacity;
+            } else {
+                $examVenueConsent->venue_max_capacity = null;
+            }
+            
             $examVenueConsent->save();
+
             // If consent is accepted, process and save ciExamData
             if ($request->consent == 'accept') {
                 $ciExamData = json_decode($request->ciExamData, true);
@@ -77,8 +88,6 @@ class VenueConsentController extends Controller
                         'message' => 'Invalid format for Chief Invigilator data.'
                     ], 422);
                 }
-                    // Map and save the data
-                    $mappedData = [];
 
                 // Delete previous CI assignments for this exam and venue
                 VenueAssignedCI::where('venue_consent_id', $examVenueConsent->id)->delete();
@@ -91,21 +100,13 @@ class VenueConsentController extends Controller
                             'exam_date' => $data['exam_date'],
                             'ci_id' => $data['ci_id'],
                         ]);
-                        $mappedData[] = [
-                            'id' => $data['id'],
-                            'exam_date' => $data['exam_date'],
-                            'ci_id' => $data['ci_id']
-                        ];
                     }
                 }
-                // Save the mapped data as JSON
-                // $examVenueConsent->chief_invigilator_data = $mappedData;
             } else {
                 // If consent is declined, remove any previously assigned CIs
-                // $examVenueConsent->chief_invigilator_data = null;
                 VenueAssignedCI::where('venue_consent_id', $examVenueConsent->id)->delete();
             }
-            $examVenueConsent->save();
+
             // Return a success response
             return response()->json([
                 'message' => 'Your consent has been recorded successfully.'

@@ -19,6 +19,7 @@ class ExamVenueConsent extends Model
         'consent_status',
         'email_sent_status',
         'expected_candidates_count',
+        'venue_max_capacity',
         'updated_at',
         'created_at',
     ];

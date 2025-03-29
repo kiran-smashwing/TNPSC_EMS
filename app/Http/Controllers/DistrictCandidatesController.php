@@ -140,8 +140,22 @@ class DistrictCandidatesController extends Controller
         $examDates = $exam->examsession->groupBy(function ($item) {
             return Carbon::parse($item->exam_sess_date)->format('d-m-Y');
         })->keys();
+
+        $accommodation_required = \DB::table('exam_candidates_projection')
+            ->select(
+                \DB::raw('MAX(accommodation_required) as total_accommodation')
+            )
+            ->where('exam_id', $examId)
+            ->where('district_code', $user->district_code)
+            ->where('center_code', $selectedCenter)
+            ->where('exam_date', $selectedDate)
+            ->groupBy('center_code')
+            ->value('total_accommodation');
+        $candidatesCountForEachHall = Currentexam::where('exam_main_no', $examId)
+            ->value('exam_main_candidates_for_hall');
+        $confirmedVenuesCount = $venuesWithCIs->count() * $candidatesCountForEachHall ?? 0;
         // Pass data to the view
-        return view('my_exam.District.review-venue-intimation', compact('exam', 'confirmedVenues', 'centers', 'selectedDistrict', 'selectedCenter','examDates', 'venuesWithCIs'));
+        return view('my_exam.District.review-venue-intimation', compact('exam', 'confirmedVenues', 'centers', 'selectedDistrict', 'selectedCenter', 'examDates', 'venuesWithCIs', 'accommodation_required','confirmedVenuesCount'));
 
     }
     public function processVenueConsentEmail(Request $request)

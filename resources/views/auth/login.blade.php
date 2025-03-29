@@ -31,15 +31,23 @@
                             @csrf
                             <div class="mb-3 d-flex align-items-center">
                                 {{-- <h6 class="f-w-500 mb-0 me-2">Role:</h6> --}}
-                                <select name="role" class="form-select @error('role') is-invalid @enderror" aria-label="Select Role" required>
+                                <select name="role" class="form-select @error('role') is-invalid @enderror"
+                                    aria-label="Select Role" required>
                                     <option selected disabled>Select Role</option>
-                                    <option value="headquarters" {{ old('role') == 'headquarters' ? 'selected' : '' }}>Department Officials</option>
-                                    <option value="district" {{ old('role') == 'district' ? 'selected' : '' }}>District Collectorates</option>
-                                    <option value="center" {{ old('role') == 'center' ? 'selected' : '' }}>Centers/Sub Treasuries</option>
-                                    <option value="treasury" {{ old('role') == 'treasury' ? 'selected' : '' }}>District Treasuries</option>
-                                    <option value="mobile_team_staffs" {{ old('role') == 'mobile_team_staffs' ? 'selected' : '' }}>Mobile Teams</option>
-                                    <option value="venue" {{ old('role') == 'venue' ? 'selected' : '' }}>Venues(Schools/Colleges)</option>
-                                    <option value="ci" {{ old('role') == 'ci' ? 'selected' : '' }}>Chief Invigilators</option>
+                                    <option value="headquarters" {{ old('role') == 'headquarters' ? 'selected' : '' }}>
+                                        Department Officials</option>
+                                    <option value="district" {{ old('role') == 'district' ? 'selected' : '' }}>District
+                                        Collectorates</option>
+                                    <option value="center" {{ old('role') == 'center' ? 'selected' : '' }}>Centers/Sub
+                                        Treasuries</option>
+                                    <option value="treasury" {{ old('role') == 'treasury' ? 'selected' : '' }}>District
+                                        Treasuries</option>
+                                    <option value="mobile_team_staffs"
+                                        {{ old('role') == 'mobile_team_staffs' ? 'selected' : '' }}>Mobile Teams</option>
+                                    <option value="venue" {{ old('role') == 'venue' ? 'selected' : '' }}>
+                                        Venues(Schools/Colleges)</option>
+                                    <option value="ci" {{ old('role') == 'ci' ? 'selected' : '' }}>Chief Invigilators
+                                    </option>
                                 </select>
                                 @error('role')
                                     <span class="invalid-feedback" role="alert">
@@ -80,13 +88,13 @@
                                     </h6>
                                 @endif
                             </div>
+                            <div class="alert alert-warning mt-3" id="rateLimitMessage" style="display: none;">
+                                Too many login attempts. Please try again in <span id="countdown"></span> seconds.
+                            </div>
                             <div class="d-grid mt-4">
                                 <button type="submit" class="btn btn-primary" id="loginButton">
                                     {{ __('Login') }}
                                 </button>
-                            </div>
-                            <div class="alert alert-warning mt-3" id="rateLimitMessage" style="display: none;">
-                                Too many login attempts. Please try again in <span id="countdown"></span> seconds.
                             </div>
                             <div class="auth-footer mt-4">
                                 <p class="m-0 w-100 text-center">By signing in, you confirm to have read TNPSC EMS <a
@@ -102,34 +110,52 @@
                                 const rateLimitMessage = document.getElementById('rateLimitMessage');
                                 const countdownElement = document.getElementById('countdown');
 
-                                let seconds = {{ session('seconds', 0) }};
+                                // Retrieve the remaining seconds from the server (passed via session)
+                                let seconds = {{ session('throttle', 0) }};
 
                                 if (seconds > 0) {
-                                    localStorage.setItem('rateLimitSeconds', seconds);
-                                } else {
-                                    const storedSeconds = localStorage.getItem('rateLimitSeconds');
-                                    if (storedSeconds) {
-                                        seconds = parseInt(storedSeconds, 10);
-                                    }
-                                }
-
-                                if (seconds > 0) {
+                                    // Show the rate limit message and disable the login button
                                     rateLimitMessage.style.display = 'block';
                                     loginButton.disabled = true;
 
+                                    // Start the countdown timer
                                     const countdownInterval = setInterval(() => {
                                         if (seconds > 0) {
-                                            seconds--;
+                                            // Update the countdown display
                                             countdownElement.textContent = seconds;
-                                            localStorage.setItem('rateLimitSeconds', seconds);
+                                            seconds--;
                                         } else {
+                                            // When the countdown ends, enable the login button and hide the message
                                             clearInterval(countdownInterval);
-                                            localStorage.removeItem('rateLimitSeconds');
                                             loginButton.disabled = false;
                                             rateLimitMessage.style.display = 'none';
                                         }
-                                    }, 1000);
+                                    }, 1000); // Update every second
                                 }
+                                const emailInput = document.getElementById('floatingInput');
+                                const roleSelect = document.querySelector('select[name="role"]');
+
+                                // Disable form submission if no role is selected
+                                function updateButtonState() {
+                                    loginButton.disabled = !roleSelect.value || !emailInput.value;
+                                }
+
+                                roleSelect.addEventListener('change', updateButtonState);
+                                emailInput.addEventListener('input', updateButtonState);
+
+                                // Initial state
+                                updateButtonState();
+
+                                // Add basic input validation
+                                emailInput.addEventListener('input', function() {
+                                    const email = this.value;
+                                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                    if (!emailRegex.test(email)) {
+                                        this.setCustomValidity('Please enter a valid email address');
+                                    } else {
+                                        this.setCustomValidity('');
+                                    }
+                                });
                             });
                         </script>
 

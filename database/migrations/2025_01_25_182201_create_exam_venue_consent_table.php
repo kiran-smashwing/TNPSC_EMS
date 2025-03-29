@@ -19,6 +19,7 @@ return new class extends Migration {
             $table->text('consent_status')->default('pending'); // Consent status
             $table->boolean('email_sent_status')->default(false); // Email sent status
             $table->bigInteger('expected_candidates_count')->default(0); // Expected candidates count
+            $table->bigInteger('venue_max_capacity')->default(0);
             $table->timestamps(0); // Handles created_at and updated_at
 
             // Indexes for optimization

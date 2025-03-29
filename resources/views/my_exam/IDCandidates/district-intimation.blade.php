@@ -27,8 +27,8 @@
             <div class="row">
                 <!-- [ sample-page ] start -->
                 <div class="col-sm-12">
-                    <div class="chat-wrapper">
-                        <div class="offcanvas-xxl offcanvas-start chat-offcanvas" tabindex="-1" id="offcanvas_User_list">
+                   
+                        <div class="offcanvas-xxl offcanvas-start offcanvas-full" tabindex="-1" id="offcanvas_User_list">
                             <div class="offcanvas-header">
                                 <button class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#offcanvas_User_list"
                                     aria-label="Close"></button>
@@ -66,8 +66,8 @@
                                                                     </div>
                                                                     <div class="chat-avtar">
                                                                         <span class="chat-badge-status text-warning">
-                                                                            {{ $district['total_accommodation_required'] }}
-                                                                        </span>
+                                                                            {{ $district['total_accommodation_required'] }} Candidates
+                                                                        </span>                                                                        
                                                                     </div>
                                                                 </div>
                                                             </a>
@@ -91,7 +91,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="chat-content">
+                        {{-- <div class="chat-content">
                             <div class="card mb-0">
                                 <div class="card-header p-3">
                                     <div class="d-flex align-items-center">
@@ -111,12 +111,12 @@
                                         {{-- <ul class="list-inline ms-auto mb-0">
                                             <li class="list-inline-item"><a href="#"
                                                     class="btn btn-outline-success">Save</a></li>
-                                        </ul> --}}
+                                        </ul> 
                                     </div>
                                 </div>
                                 <div class="scroll-block chat-message">
                                     <div class="card-body">
-                                        {{-- <form action="{{ route('collectorates.store') }}" method="POST" enctype="multipart/form-data"> --}}
+                                        {{-- <form action="{{ route('collectorates.store') }}" method="POST" enctype="multipart/form-data">
                                         @csrf
                                         <div class="row">
                                             <div class="col-sm-3">
@@ -158,8 +158,9 @@
                                 </div>
 
                             </div>
-                        </div>
-                    </div>
+                        </div> --}}
+                        {{-- <div class="chat-wrapper">
+                    </div> --}}
                 </div>
                 <!-- [ sample-page ] end -->
             </div>

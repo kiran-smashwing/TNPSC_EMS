@@ -30,9 +30,9 @@
             <div class="row">
                 <div class="col-sm-12">
                     <!-- <div class="card">
-                                      <div class="card-body py-0">
-                                         Your content here
-                                      </div> -->
+                                          <div class="card-body py-0">
+                                             Your content here
+                                          </div> -->
                 </div>
                 <div class="tab-content">
                     <div>
@@ -92,16 +92,26 @@
                                                     <div class="mb-3">
                                                         <label class="form-label" for="district">District <span
                                                                 class="text-danger">*</span></label>
-                                                        <select class="form-control @error('district') is-invalid @enderror"
-                                                            id="district" name="district" required>
-                                                            <option value="">Select District</option>
-                                                            @foreach ($districts as $district)
-                                                                <option value="{{ $district->district_code }}"
-                                                                    {{ $district->district_code == old('district', $venue->venue_district_id ?? '') ? 'selected' : '' }}>
-                                                                    {{ $district->district_name }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
+                                                                @if(session('auth_role') === 'district')
+                                                                <!-- Readonly District Dropdown for District Users -->
+                                                                <select class="form-control" id="district" name="district" disabled>
+                                                                    <option value="{{ $user->district_code }}" selected>
+                                                                        {{ $districts->firstWhere('district_code',$user->district_code)->district_name ?? 'N/A' }}
+                                                                    </option>
+                                                                </select>
+                                                                <input type="hidden" name="district" value="{{ $user->district_code }}">
+                                                            @else
+                                                                <!-- Editable District Dropdown for Other Users -->
+                                                                <select class="form-control @error('district') is-invalid @enderror" id="district" name="district" required>
+                                                                    <option value="">Select District</option>
+                                                                    @foreach ($districts as $district)
+                                                                        <option value="{{ $district->district_code }}"
+                                                                            {{ $district->district_code == old('district', $venue->venue_district_id ?? '') ? 'selected' : '' }}>
+                                                                            {{ $district->district_name }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            @endif
                                                         @error('district')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -547,49 +557,64 @@
         });
     </script>
 
-    <script>
-        // Check if jQuery is available
-        if (typeof jQuery === 'undefined') {
-            console.error('jQuery is not loaded. Please include it in your project.');
+   <script>
+    // Check if jQuery is available
+    if (typeof jQuery === 'undefined') {
+        console.error('jQuery is not loaded. Please include it in your project.');
+    }
+
+    $(document).ready(function() {
+        // Full list of centers from the server
+        const allCenters = @json($centers);
+        const districtDropdown = $('#district');
+        const centerDropdown = $('#center');
+
+        // Get the authenticated user's details
+        const userRole = "{{ auth()->user()->role ?? '' }}";
+        const userDistrict = "{{ auth()->user()->venue_district_id ?? '' }}";
+        const userCenter = "{{ auth()->user()->venue_center_id ?? '' }}";
+
+        // Preselected values for editing
+        const oldDistrict = "{{ old('district', $venue->venue_district_id ?? '') }}";
+        const oldCenter = "{{ old('center', $venue->venue_center_id ?? '') }}";
+
+        function populateCenters(districtCode) {
+            // Clear previous options
+            centerDropdown.empty();
+            centerDropdown.append('<option value="">Select Center</option>');
+
+            if (districtCode) {
+                // Filter centers based on selected district
+                const filteredCenters = allCenters.filter(center => center.center_district_id == districtCode);
+
+                // Populate centers dropdown
+                filteredCenters.forEach(center => {
+                    const selected = (oldCenter == center.center_code || userCenter == center.center_code) ? 'selected' : '';
+                    centerDropdown.append(
+                        `<option value="${center.center_code}" ${selected}>${center.center_name}</option>`
+                    );
+                });
+            }
         }
 
-        $(document).ready(function() {
-            // Full list of centers from the server
-            const allCenters = @json($centers);
-
-            // Handle district change event
-            $('#district').on('change', function() {
-                const selectedDistrictCode = $(this).val(); // Selected district code
-                const centerDropdown = $('#center'); // Center dropdown
-
-                // Clear previous options
-                centerDropdown.empty();
-                centerDropdown.append('<option value="">Select Center</option>');
-
-                if (selectedDistrictCode) {
-                    // Filter centers by selected district
-                    const filteredCenters = allCenters.filter(center =>
-                        center.center_district_id == selectedDistrictCode
-                    );
-
-                    // Populate centers
-                    filteredCenters.forEach(center => {
-                        const selected = "{{ old('center', $venue->venue_center_id ?? '') }}" ==
-                            center.center_code ? 'selected' : '';
-                        centerDropdown.append(
-                            `<option value="${center.center_code}" ${selected}>${center.center_name}</option>`
-                        );
-                    });
-                }
-            });
-
-            // Trigger change event on page load for pre-selection
-            const oldDistrict = "{{ old('district', $venue->venue_district_id ?? '') }}";
-            if (oldDistrict) {
-                $('#district').val(oldDistrict).trigger('change');
-            }
+        // Handle district change event
+        districtDropdown.on('change', function() {
+            populateCenters($(this).val());
         });
-    </script>
+
+        // Apply logic based on user role
+        if (userRole === 'district' && userDistrict) {
+            // If user is a district admin, auto-select & disable district dropdown
+            districtDropdown.val(userDistrict).prop('disabled', true);
+            populateCenters(userDistrict);
+        } else {
+            // For other roles, allow district selection
+            if (oldDistrict) {
+                districtDropdown.val(oldDistrict).trigger('change');
+            }
+        }
+    });
+</script>
 
 
 

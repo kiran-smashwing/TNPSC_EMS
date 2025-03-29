@@ -90,7 +90,12 @@
                                                         <select class="form-control @error('district') is-invalid @enderror" id="district" name="district" required>
                                                             <option value="">Select District</option>
                                                             @foreach ($districts as $district)
-                                                                <option value="{{ $district->district_code }}">{{ $district->district_name }}</option>
+                                                                {{-- <option value="{{ $district->district_code }}">{{ $district->district_name }}</option> --}}
+                                                                <option value="{{ $district->district_code }}"
+                                                                    {{ isset($user) && $user->district_code == $district->district_code ? 'selected' : '' }}
+                                                                    {{ old('district') == $district->district_code ? 'selected' : '' }}>
+                                                                    {{ $district->district_name }}
+                                                                </option>
                                                             @endforeach
                                                         </select>
                                                         @error('district')
@@ -494,40 +499,60 @@
     <script>
         // Full list of centers
         const allCenters = @json($centers);
-
-        // District dropdown change event
-        $('#district').on('change', function() {
-            const selectedDistrictCode = $(this).val();
-            const centerDropdown = $('#center');
-
-            // Clear previous options
-            centerDropdown.empty();
-            centerDropdown.append('<option value="">Select Center Name</option>');
-
-            // Filter centers based on selected district
-            const filteredCenters = allCenters.filter(center =>
-                center.center_district_id == selectedDistrictCode
-            );
-
-            // Populate centers
-            filteredCenters.forEach(center => {
-                const selected = "{{ old('center') }}" == center.center_code ? 'selected' : '';
-                centerDropdown.append(
-                    `<option value="${center.center_code}" ${selected}>
-                        ${center.center_name}
-                    </option>`
-                );
-            });
-        });
-
-        // Trigger change event on page load to handle old/existing selections
+        const userRole = "{{session('auth_role') }}"; // Get the logged-in user's role
+        const userDistrict = "{{ $user->district_code ?? '' }}"; // Get the logged-in user's district (if applicable)
+    
         $(document).ready(function() {
-            const oldDistrict = "{{ old('district', $user->venue_district_id ?? '') }}";
-            if (oldDistrict) {
-                $('#district').val(oldDistrict).trigger('change');
+        const districtDropdown = $('#district');
+        const centerDropdown = $('#center');
+    
+            function filterCenters(selectedDistrictCode) {
+                // Clear previous options
+                centerDropdown.empty();
+                centerDropdown.append('<option value="">Select Center Name</option>');
+    
+                // Filter centers based on selected district
+                const filteredCenters = allCenters.filter(center =>
+                    center.center_district_id == selectedDistrictCode
+                );
+    
+                // Populate centers
+                filteredCenters.forEach(center => {
+                    const selected = "{{ old('center') }}" == center.center_code ? 'selected' : '';
+                    centerDropdown.append(
+                        `<option value="${center.center_code}" ${selected}>
+                            ${center.center_name}
+                        </option>`
+                    );
+                });
+    
+                // Trigger old center selection if exists
+                const oldCenter = "{{ old('center') }}";
+                if (oldCenter) {
+                    centerDropdown.val(oldCenter);
+                }
+            }
+    
+            // Handle role-based district selection
+            if (userRole === 'district' && userDistrict) {
+                // Auto-select district & disable dropdown for district users
+                districtDropdown.val(userDistrict).prop('disabled', true);
+                filterCenters(userDistrict);
+            } else {
+                // Allow district selection for other roles
+                districtDropdown.on('change', function() {
+                    filterCenters($(this).val());
+                });
+    
+                // Handle existing selections on page load
+                const oldDistrict = "{{ request('district') }}";
+                if (oldDistrict) {
+                    districtDropdown.val(oldDistrict).trigger('change');
+                }
             }
         });
     </script>
+    
     @endpush
 
     @include('partials.theme')

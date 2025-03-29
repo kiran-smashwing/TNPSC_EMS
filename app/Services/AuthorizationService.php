@@ -167,7 +167,6 @@ class AuthorizationService
             'heading',
             'view-all-other-list',
             'view-all-chief-invigilators',
-            'ci-filter',
             'ci-district-filter',
             'exam-heading',
             'current-exam',

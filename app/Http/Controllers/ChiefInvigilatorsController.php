@@ -32,25 +32,24 @@ class ChiefInvigilatorsController extends Controller
     {
         $user = current_user();
         $role = session('auth_role');
-        if ($role== "district") {
+        if ($role == "district") {
             $centers = Center::orderBy('center_name')
-            ->where('center_district_id',$user->district_code)
-            ->get();
-        } else{
+                ->where('center_district_id', $user->district_code)
+                ->get();
+        } else {
             $centers = Center::orderBy('center_name')->get();
-            
         }
         // Get only the districts for the filter dropdown
         $districts = District::orderBy('district_name')->get();
         $venues = Venues::orderBy('venue_name')->get();
 
-        return view('masters.venues.chief_invigilator.index', compact('districts', 'centers', 'venues','role','user'));
+        return view('masters.venues.chief_invigilator.index', compact('districts', 'centers', 'venues', 'role', 'user'));
     }
 
     // Add new method for JSON response
     public function getChiefInvigilatorsJson(Request $request)
     {
-        
+
         $query = ChiefInvigilator::query()
             ->select([
                 'ci_id',
@@ -67,11 +66,11 @@ class ChiefInvigilatorsController extends Controller
 
         // Apply role-based filter
         $role = session('auth_role');
-       
+
         if ($role == 'venue') {
             $user = $request->get('auth_user');
             $query->where('ci_venue_id', $user->venue_code);
-        }else if ($role == 'district') {
+        } else if ($role == 'district') {
             $user = $request->get('auth_user');
             $query->where('ci_district_id', $user->district_code);
         }
@@ -132,7 +131,7 @@ class ChiefInvigilatorsController extends Controller
     {
         $role = session('auth_role');
         $user = $request->get('auth_user');
-
+        // dd($user);
         if ($role == 'venue') {
             // Ensure $user exists before accessing properties
             if (!$user) {
@@ -142,6 +141,17 @@ class ChiefInvigilatorsController extends Controller
             $venues = Venues::where('venue_id', $user->venue_id)->get();
             $centers = Center::where('center_code', $user->venue_center_id)->get();
             $districts = District::where('district_code', $user->venue_district_id)->get();
+
+            return view('masters.venues.chief_invigilator.create', compact('venues', 'centers', 'districts', 'user'));
+        }
+        if ($role == 'district') {
+            // Ensure $user exists before accessing properties
+            if (!$user) {
+                return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);
+            }
+            $districts = District::where('district_code', $user->district_code)->get();
+            $venues = Venues::all();
+            $centers = Center::all();
 
             return view('masters.venues.chief_invigilator.create', compact('venues', 'centers', 'districts', 'user'));
         }
@@ -404,7 +414,7 @@ class ChiefInvigilatorsController extends Controller
         $centerCount = optional($chiefInvigilator->district)->centers()->count() ?? 0;
         $venueCount = optional($chiefInvigilator->district)->venues()->count() ?? 0;
         $staffCount = (optional($chiefInvigilator->district)->treasuryOfficers()->count() ?? 0) +
-        (optional($chiefInvigilator->district)->mobileTeamStaffs()->count() ?? 0);
+            (optional($chiefInvigilator->district)->mobileTeamStaffs()->count() ?? 0);
 
         // Handle null venue
         $ci_count = optional($chiefInvigilator->venue)->chiefinvigilator()->count() ?? 0;

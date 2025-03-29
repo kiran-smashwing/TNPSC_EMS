@@ -91,6 +91,7 @@
                                                         @foreach ($districts as $district)
                                                             <option value="{{ $district->district_code }}"
                                                                 {{ isset($user) && $user->venue_district_id == $district->district_code ? 'selected' : '' }}
+                                                                {{ isset($user) && $user->district_code == $district->district_code ? 'selected' : '' }}
                                                                 {{ old('district') == $district->district_code ? 'selected' : '' }}>
                                                                 {{ $district->district_name }}
                                                             </option>
@@ -99,8 +100,10 @@
                                                     @if (session('auth_role') == 'venue')
                                                         <input type="hidden" name="district"
                                                             value="{{ $user->venue_district_id }}">
+                                                    @elseif (session('auth_role') == 'district')
+                                                    <input type="hidden" name="district"
+                                                    value="{{ $user->district_code }}">
                                                     @endif
-
                                                     @error('district')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -264,44 +267,71 @@
         <script src="{{ asset('storage/assets/js/plugins/croppr.min.js') }}"></script>
         <script src="{{ asset('storage/assets/js/pages/page-croper.js') }}"></script>
         <script>
-            // Full list of centers
-            const allCenters = @json($centers);
-
-            // District dropdown change event
-            $('#district').on('change', function() {
-                const selectedDistrictCode = $(this).val();
-                const centerDropdown = $('#center');
-
-                // Clear previous options
-                centerDropdown.empty();
-                centerDropdown.append('<option value="">Select Center Name</option>');
-
-                // Filter centers based on selected district
-                const filteredCenters = allCenters.filter(center =>
-                    center.center_district_id == selectedDistrictCode
-                );
-
-                // Populate centers
-                filteredCenters.forEach(center => {
-                    const selected = "{{ old('center') }}" == center.center_code ? 'selected' : '';
-                    const selectedCenter = "{{ $user->venue_center_id }}" == center.center_code ? 'selected' :
-                        '';
-                    centerDropdown.append(
-                        `<option value="${center.center_code}" ${selected} ${selectedCenter} >
-                            ${center.center_name}
-                        </option>`
-                    );
-                });
-            });
-
-            // Trigger change event on page load to handle old/existing selections
             $(document).ready(function() {
-                const oldDistrict = "{{ old('district', $user->venue_district_id ?? '') }}";
-                if (oldDistrict) {
-                    $('#district').val(oldDistrict).trigger('change');
+                // Full list of centers from the server
+                const allCenters = @json($centers);
+                const userRole = "{{ session('auth_role') }}"; // Logged-in user's role
+                const userDistrict = "{{ $user->district_code ?? '' }}"; // Logged-in user's district
+                const userCenter = "{{ $user->venue_center_id ?? '' }}"; // Logged-in user's center
+                console.log(allCenters, userRole, userDistrict)
+        
+                const districtDropdown = $('#district');
+                const centerDropdown = $('#center');
+        
+                function filterCenters(selectedDistrictCode) {
+                    // Clear previous options
+                    centerDropdown.empty().append('<option value="">Select Center Name</option>');
+        
+                    if (selectedDistrictCode) {
+                        // Filter centers based on selected district
+                        const filteredCenters = allCenters.filter(center =>
+                            center.center_district_id == selectedDistrictCode
+                        );
+        
+                        // Populate centers
+                        filteredCenters.forEach(center => {
+                            const isSelected = center.center_code == "{{ old('center', $user->venue_center_id) }}" ? 'selected' : '';
+                            centerDropdown.append(
+                                `<option value="${center.center_code}" ${isSelected}>${center.center_name}</option>`
+                            );
+                        });
+        
+                        // Ensure the correct center is selected
+                        const oldCenter = "{{ old('center', $user->venue_center_id) }}";
+                        if (oldCenter) {
+                            centerDropdown.val(oldCenter);
+                        }
+                    }
+                }
+        
+                // Handle role-based district selection
+                if (userRole === 'district' && userDistrict) {
+                    // District user - Auto-select district & disable dropdown
+                    districtDropdown.val(userDistrict).prop('disabled', true);
+                    filterCenters(userDistrict);
+                } 
+                else if (userRole === 'venue' && userDistrict && userCenter) {
+                    // Venue user - Pre-select district and center
+                    districtDropdown.val(userDistrict);
+                    filterCenters(userDistrict);
+                    centerDropdown.val(userCenter);
+                } 
+                else {
+                    // Other users - Allow district selection
+                    districtDropdown.on('change', function() {
+                        filterCenters($(this).val());
+                    });
+        
+                    // Handle old selections on page load
+                    const oldDistrict = "{{ old('district', request('district')) }}";
+                    if (oldDistrict) {
+                        districtDropdown.val(oldDistrict).trigger('change');
+                    }
                 }
             });
         </script>
+        
+        
         <script>
             // Full list of venues
             const allVenues = @json($venues);

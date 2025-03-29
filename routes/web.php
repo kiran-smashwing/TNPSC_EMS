@@ -397,6 +397,7 @@ Route::prefix('id-candidates')->group(function () {
 Route::prefix('district-candidates')->group(function () {
     Route::middleware(['auth.multi'])->group(function () {
         Route::get('/show-venue-intimation-form/{examId}', [DistrictCandidatesController::class, 'showVenueIntimationForm'])->name('district-candidates.showVenueIntimationForm');
+        Route::get('/review-venue-intimation-form/{examId}', [DistrictCandidatesController::class, 'reviewVenueIntimationForm'])->name('district-candidates.reviewVenueIntimationForm');
         Route::post('/process-venue-consent-email', [DistrictCandidatesController::class, 'processVenueConsentEmail'])->name('district-candidates.processVenueConsentEmail');
         Route::post('/clear-saved-venues', [DistrictCandidatesController::class, 'clearSavedVenues'])->name('district-candidates.clearSavedVenues');
         Route::post('/generate-qrcode', [DistrictCandidatesController::class, 'generateQRCode'])->name('generate.qrcode');

@@ -98,36 +98,53 @@ class DistrictCandidatesController extends Controller
             return redirect()->back()->with('error', 'Exam not found.');
         }
         $user = current_user();
+    
         // Retrieve filters from the request
         $selectedDistrict = $user->district_code;
         $selectedCenter = $request->input('center_code');
         $selectedDate = $request->input('exam_date');
-
+    
         // Query confirmed venues and assigned CI
         $confirmedVenuesQuery = ExamVenueConsent::where('exam_id', $examId)
             ->where('consent_status', 'accepted')
             ->with(['venues', 'assignedCIs.chiefInvigilator'])
             ->where('district_code', $selectedDistrict)
             ->where('center_code', $selectedCenter);
-
-
+    
         $confirmedVenues = $confirmedVenuesQuery->get();
         $venuesWithCIs = collect();
-
+    
         foreach ($confirmedVenues as $venue) {
+            // Calculate candidate distribution for each venue
+            $venueMaxCapacity = $venue->venue_max_capacity;
+            $candidatesPerHall = $exam->exam_main_candidates_for_hall;
+    
+            $remainingCandidates = $venueMaxCapacity;
+            $ciIndex = 0;
+    
             foreach ($venue->assignedCIs as $ci) {
                 if (Carbon::parse($ci->exam_date)->format('d-m-Y') == $selectedDate) {
+                    // Distribute candidates among CIs
+                    $candidatesForCI = min($candidatesPerHall, $remainingCandidates);
+                    $remainingCandidates -= $candidatesForCI;
+    
                     $venuesWithCIs->push([
                         'venue' => $venue,
                         'ci' => $ci,
+                        'candidates_count' => $candidatesForCI, // Add candidate count for this CI
                     ]);
+    
+                    // Stop assigning candidates if no more candidates are left
+                    if ($remainingCandidates <= 0) {
+                        break;
+                    }
                 }
             }
         }
+    
         // Order venues by latest update
         $venuesWithCIs = $venuesWithCIs->sortBy('ci.order_by_id')->values();
-        // Retrieve districts
-
+    
         // Retrieve centers
         $centers = DB::table('exam_candidates_projection as ecp')
             ->join('centers as c', 'ecp.center_code', '=', 'c.center_code')
@@ -136,11 +153,12 @@ class DistrictCandidatesController extends Controller
             ->select('ecp.center_code', 'c.center_name', 'ecp.district_code')
             ->distinct()
             ->get();
-        //get all dates for the exam
+    
+        // Get all dates for the exam
         $examDates = $exam->examsession->groupBy(function ($item) {
             return Carbon::parse($item->exam_sess_date)->format('d-m-Y');
         })->keys();
-
+    
         $accommodation_required = \DB::table('exam_candidates_projection')
             ->select(
                 \DB::raw('MAX(accommodation_required) as total_accommodation')
@@ -151,12 +169,27 @@ class DistrictCandidatesController extends Controller
             ->where('exam_date', $selectedDate)
             ->groupBy('center_code')
             ->value('total_accommodation');
+    
+        $confirmedVenuesCapacity = ExamVenueConsent::where('exam_id', $examId)
+            ->where('district_code', $user->district_code)
+            ->where('center_code', $selectedCenter)
+            ->sum('venue_max_capacity');
+    
         $candidatesCountForEachHall = Currentexam::where('exam_main_no', $examId)
             ->value('exam_main_candidates_for_hall');
-        $confirmedVenuesCount = $venuesWithCIs->count() * $candidatesCountForEachHall ?? 0;
+    
         // Pass data to the view
-        return view('my_exam.District.review-venue-intimation', compact('exam', 'confirmedVenues', 'centers', 'selectedDistrict', 'selectedCenter', 'examDates', 'venuesWithCIs', 'accommodation_required','confirmedVenuesCount'));
-
+        return view('my_exam.District.review-venue-intimation', compact(
+            'exam',
+            'confirmedVenues',
+            'centers',
+            'selectedDistrict',
+            'selectedCenter',
+            'examDates',
+            'venuesWithCIs',
+            'accommodation_required',
+            'confirmedVenuesCapacity'
+        ));
     }
     public function processVenueConsentEmail(Request $request)
     {

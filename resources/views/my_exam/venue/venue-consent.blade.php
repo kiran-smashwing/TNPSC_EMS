@@ -243,18 +243,22 @@
                                             <!-- Input for total number of candidates -->
                                             <div class="mb-4 row">
                                                 <div class="col-sm-4">
-                                                    <label for="allottedCandidates" class="form-label fw-bold">Allotted Candidates:</label>
-                                                    <input type="text" class="form-control" id="allottedCandidates" 
-                                                        value="{{ $venueConsents->expected_candidates_count ?? 0 }}" disabled>
+                                                    <label for="allottedCandidates" class="form-label fw-bold">Allotted
+                                                        Candidates:</label>
+                                                    <input type="text" class="form-control" id="allottedCandidates"
+                                                        value="{{ $venueConsents->expected_candidates_count ?? 0 }}"
+                                                        disabled>
                                                 </div>
                                                 <div class="col-sm-4">
-                                                    <label for="canidatesPerHall" class="form-label fw-bold">Total Candidates (Max per Hall):</label>
-                                                    <input type="text" class="form-control" id="canidatesPerHall" 
+                                                    <label for="canidatesPerHall" class="form-label fw-bold">Total
+                                                        Candidates (Max per Hall):</label>
+                                                    <input type="text" class="form-control" id="canidatesPerHall"
                                                         value="{{ $exam->exam_main_candidates_for_hall ?? 0 }}" disabled>
                                                 </div>
                                                 <div class="col-sm-4">
-                                                    <label for="venueCapacity" class="form-label fw-bold">Venue Capacity (Max Candidates):</label>
-                                                    <input type="number" class="form-control" id="venueCapacity" 
+                                                    <label for="venueCapacity" class="form-label fw-bold">Venue Capacity
+                                                        (Max Candidates):</label>
+                                                    <input type="number" class="form-control" id="venueCapacity"
                                                         name="venueCapacity" placeholder="Enter venue capacity"
                                                         value="{{ $venueConsents->venue_max_capacity ?? '' }}" required>
                                                 </div>
@@ -262,13 +266,19 @@
 
                                             <!-- Table for CI dropdown and candidates allocation -->
                                             <div class="mb-4">
-                                                <label class="form-label fw-bold">Chief Invigilator and Candidate Allocation:</label>
+                                                <label class="form-label fw-bold">Chief Invigilator and Candidate
+                                                    Allocation:</label>
 
                                                 @php
                                                     $sessionDates = $exam->examsession
                                                         ->pluck('exam_sess_date')
                                                         ->unique();
-                                                    $totalCandidates = $venueConsents->expected_candidates_count ?? 0;
+                                                    $totalCandidates =
+                                                        empty($venueConsents->venue_max_capacity) ||
+                                                        !is_numeric($venueConsents->venue_max_capacity) ||
+                                                        (int) $venueConsents->venue_max_capacity <= 0
+                                                            ? $venueConsents->expected_candidates_count
+                                                            : (int) $venueConsents->venue_max_capacity;
                                                     $candidatesPerHall = $exam->exam_main_candidates_for_hall;
                                                     $ciCount = ceil($totalCandidates / $candidatesPerHall);
 
@@ -516,7 +526,7 @@
 
                 // Initial table generation if venue capacity exists
                 if (venueCapacityInput.value) {
-                    updateCITable(parseInt(venueCapacityInput.value));
+                    // updateCITable(parseInt(venueCapacityInput.value));
                 }
 
                 // Event listener for CI dropdowns to prevent duplicate selection
@@ -524,7 +534,7 @@
                     const currentRow = $(this).closest('tr');
                     const currentDate = currentRow.find('input[name="examDate[]"]').val();
                     const selectedCIId = $(this).val();
-                    
+
                     if (selectedCIId === '') {
                         return; // Skip validation if no CI is selected
                     }
@@ -536,7 +546,8 @@
                         const rowDate = row.find('input[name="examDate[]"]').val();
                         const rowCIId = $(this).val();
 
-                        if (rowDate === currentDate && rowCIId === selectedCIId && row[0] !== currentRow[0]) {
+                        if (rowDate === currentDate && rowCIId === selectedCIId && row[0] !==
+                            currentRow[0]) {
                             duplicateFound = true;
                             return false; // Exit the loop early
                         }

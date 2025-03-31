@@ -113,7 +113,10 @@
                             <div class="card-header">
                                 <div class="d-sm-flex align-items-center justify-content-between">
                                     <h5 class="mb-3 mb-sm-0">Review Confirmed Venues</h5>
-
+                                    <div>
+                                        <h5 class="mb-3 mb-sm-0">Required : {{ $confirmedVenuesCapacity }} /
+                                            {{ $accommodation_required ?? 0 }}</h5>
+                                    </div>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -185,6 +188,7 @@
                                                 <th>CI NAME</th>
                                                 <th>CI EMAIL</th>
                                                 <th>CI PHONE</th>
+                                                <th>CANDIDATES COUNT</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -204,11 +208,13 @@
                                                     <td>{{ $item['venue']->venues->venue_email }}</td>
                                                     <td>{{ $item['venue']->venues->venue_phone }}</td>
                                                     <td>{{ $item['venue']->venues->venue_address }}</td>
-                                                    <td>{{ \Carbon\Carbon::parse($item['ci']->exam_date)->format('d-m-Y') ?? 'No Date' }}</td>
+                                                    <td>{{ \Carbon\Carbon::parse($item['ci']->exam_date)->format('d-m-Y') ?? 'No Date' }}
+                                                    </td>
                                                     <td>{{ $item['ci']->chiefInvigilator->ci_name ?? 'No CI Assigned' }}
                                                     </td>
                                                     <td>{{ $item['ci']->chiefInvigilator->ci_email ?? 'N/A' }}</td>
                                                     <td>{{ $item['ci']->chiefInvigilator->ci_phone ?? 'N/A' }}</td>
+                                                    <td>{{ $item['candidates_count'] ?? 0 }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -225,24 +231,41 @@
                                                 <th>CI NAME</th>
                                                 <th>CI EMAIL</th>
                                                 <th>CI PHONE</th>
+                                                <th>CANDIDATES COUNT</th>
                                             </tr>
                                         </tfoot>
                                     </table>
-                                    <div class="row mt-3">
-                                        <div class="col-12">
-                                            <form id="venueConfirmationForm"
-                                                action="{{ route('id-candidates.save-venue-confirmation', $exam->exam_main_no) }}"
-                                                method="POST">
-                                                @csrf
-                                                <input type="hidden" name="exam_id" value="{{ $exam->exam_main_no }}">
-                                                <input type="hidden" id="selectedVenuesOrder" name="selected_venues"
-                                                    value="">
-                                                <input type="hidden" name="center_code" value="{{ $selectedCenter }}">
+                                   
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <form id="venueConfirmationForm"
+                                            action="{{ route('id-candidates.save-venue-confirmation', $exam->exam_main_no) }}"
+                                            method="POST">
+                                            @csrf
+                                            <input type="hidden" name="exam_id" value="{{ $exam->exam_main_no }}">
+                                            <input type="hidden" id="selectedVenuesOrder" name="selected_venues"
+                                                value="">
+                                            <input type="hidden" name="center_code" value="{{ $selectedCenter }}">
+                                            <input type="hidden" id="examDateInput" name="exam_date" value="{{ request('exam_date') }}">
+                                            <!-- Add Confirm All Dates Checkbox -->
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="form-check form-switch custom-switch-v2 d-flex align-items-center mb-0">
+                                                    <!-- Checkbox -->
+                                                    <input name="confirm_all_dates" type="checkbox" 
+                                                           class="form-check-input input-light-success" 
+                                                           id="confirmAllDates" checked>
+                                                    <!-- Label -->
+                                                    <label class="form-label ms-2 mb-0" style="margin-top: 2px" for="confirmAllDates">Confirm All Dates</label>
+                                                </div>
+                                                <!-- Save Confirmation Button -->
                                                 <button type="submit" class="btn btn-success save-venue-confirmation">
                                                     Save Confirmation
                                                 </button>
-                                            </form>
-                                        </div>
+                                            </div>
+                                            
+                                            
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -343,12 +366,14 @@
                     const isChecked = $(this).is(':checked');
                     const ciId = $(this).data('ci-id');
                     const exam_date = $(this).data('exam-date');
+                    const candidatesCount = $(this).closest('tr').find('td:last-child').text();
                     venueList.push({
                         venue_id: venueId,
                         order: index,
                         checked: isChecked,
                         ci_id: ciId,
-                        exam_date: exam_date
+                        exam_date: exam_date,
+                        candidates_count: candidatesCount
                     });
                 });
 

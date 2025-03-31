@@ -114,7 +114,7 @@
                                 <div class="d-sm-flex align-items-center justify-content-between">
                                     <h5 class="mb-3 mb-sm-0">Review Confirmed Venues</h5>
                                     <div>
-                                        <h5 class="mb-3 mb-sm-0">Required : {{ $confirmedVenuesCount }} / {{$accommodation_required}}</h5>
+                                        <h5 class="mb-3 mb-sm-0">Required : {{ $confirmedVenuesCapacity }} / {{$accommodation_required}}</h5>
                                     </div>
                                 </div>
                             </div>
@@ -172,6 +172,7 @@
                                                 <th>CI NAME</th>
                                                 <th>CI EMAIL</th>
                                                 <th>CI PHONE</th>
+                                                <th>CANDIDATES COUNT</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -188,6 +189,7 @@
                                                     </td>
                                                     <td>{{ $item['ci']->chiefInvigilator->ci_email ?? 'N/A' }}</td>
                                                     <td>{{ $item['ci']->chiefInvigilator->ci_phone ?? 'N/A' }}</td>
+                                                    <td>{{ $item['candidates_count'] ?? 0 }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>

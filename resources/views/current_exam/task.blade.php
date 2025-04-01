@@ -236,7 +236,7 @@
                                                                 class="feather icon-chevrons-up mx-1"></i>Increase
                                                             Count</a>
                                                         <a href="#" class="me-2 btn btn-sm btn-light-info m-2"><i
-                                                                class="feather icon-download mx-1"></i>Download CSV</a>
+                                                                class="feather icon-download mx-1"></i>Download Excel</a>
                                                         <a href="{{ route('current-exam.intimateCollectorate') }}"
                                                             class="me-3 btn btn-sm btn-light-warning m-2"><i
                                                                 class="feather icon-navigation mx-1"></i>Send

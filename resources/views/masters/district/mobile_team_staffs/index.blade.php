@@ -191,14 +191,6 @@
                             <!-- Filter options -->
                             @hasPermission('mobile-team-staffs-filter')
                             <form id="filterForm" class="mb-3">
-                                {{-- <div class="filter-item">
-                                    <select class="form-select" id="roleFilter" name="role">
-                                        <option value="">Select Role</option>
-                                        <option value="AD">AD</option>
-                                        <option value="Manager">Manager</option>
-                                        <option value="Staff">Staff</option>
-                                    </select>
-                                </div> --}}
                                 <div class="filter-item">
                                     <select class="form-select" id="districtFilter" name="district">
                                         <option value="">Select District Name</option>
@@ -210,14 +202,6 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                {{-- <div class="filter-item">
-                                    <select class="form-select" id="centerCodeFilter" name="centerCode">
-                                        <option value="">Select Center Code</option>
-                                        <option value="00101">00101</option>
-                                        <option value="00102">00102</option>
-                                        <option value="00103">00103</option>
-                                    </select>
-                                </div> --}}
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                                 </div>

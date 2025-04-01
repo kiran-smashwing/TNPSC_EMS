@@ -348,8 +348,7 @@
                                                                 @if ($is_id_updated_count)
                                                                     <a href="{{ route('id-candidates.download-updated-count-csv', $session->exam_main_no) }}"
                                                                         class="me-2 btn btn-sm btn-light-info m-2"><i
-                                                                            class="feather icon-download mx-1"></i>Download
-                                                                        CSV</a>
+                                                                            class="feather icon-download mx-1"></i>Download Excel</a>
                                                                 @endif
                                                             @endhasPermission
                                                             @hasPermission('update-percentage')

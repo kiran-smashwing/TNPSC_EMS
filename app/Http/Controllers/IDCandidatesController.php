@@ -383,13 +383,31 @@ class IDCandidatesController extends Controller
         $confirmedVenues = $confirmedVenuesQuery->get();
         $venuesWithCIs = collect();
 
+
         foreach ($confirmedVenues as $venue) {
+            // Calculate candidate distribution for each venue
+            $venueMaxCapacity = $venue->venue_max_capacity;
+            $candidatesPerHall = $exam->exam_main_candidates_for_hall;
+
+            $remainingCandidates = $venueMaxCapacity;
+            $ciIndex = 0;
+
             foreach ($venue->assignedCIs as $ci) {
                 if (Carbon::parse($ci->exam_date)->format('d-m-Y') == $selectedDate) {
+                    // Distribute candidates among CIs
+                    $candidatesForCI = min($candidatesPerHall, $remainingCandidates);
+                    $remainingCandidates -= $candidatesForCI;
+
                     $venuesWithCIs->push([
                         'venue' => $venue,
                         'ci' => $ci,
+                        'candidates_count' => $candidatesForCI, // Add candidate count for this CI
                     ]);
+
+                    // Stop assigning candidates if no more candidates are left
+                    if ($remainingCandidates <= 0) {
+                        break;
+                    }
                 }
             }
         }
@@ -415,14 +433,30 @@ class IDCandidatesController extends Controller
         $examDates = $exam->examsession->groupBy(function ($item) {
             return Carbon::parse($item->exam_sess_date)->format('d-m-Y');
         })->keys();
+
+        $accommodation_required = \DB::table('exam_candidates_projection')
+            ->select(
+                \DB::raw('MAX(accommodation_required) as total_accommodation')
+            )
+            ->where('exam_id', $examId)
+            ->where('district_code', $selectedDistrict)
+            ->where('center_code', $selectedCenter)
+            ->where('exam_date', $selectedDate)
+            ->groupBy('center_code')
+            ->value('total_accommodation');
+
+        $confirmedVenuesCapacity = ExamVenueConsent::where('exam_id', $examId)
+            ->where('district_code', $selectedDistrict)
+            ->where('center_code', $selectedCenter)
+            ->sum('venue_max_capacity');
+
+        $candidatesCountForEachHall = Currentexam::where('exam_main_no', $examId)
+            ->value('exam_main_candidates_for_hall');
         // Pass data to the view
-        return view('my_exam.IDCandidates.venue-confirmation', compact('exam', 'confirmedVenues', 'districts', 'examDates', 'centers', 'selectedDistrict', 'selectedCenter', 'confirmedOnly', 'venuesWithCIs'));
+        return view('my_exam.IDCandidates.venue-confirmation', compact('exam', 'confirmedVenues', 'districts', 'examDates', 'centers', 'selectedDistrict', 'selectedCenter', 'confirmedOnly', 'venuesWithCIs', 'accommodation_required', 'confirmedVenuesCapacity', 'candidatesCountForEachHall'));
     }
     public function saveVenueConfirmation(Request $request, $examId)
     {
-        //  dd($request->all());
-        // Retrieve the exam
-
         // Validate the request
         $validate = $request->validate([
             'selected_venues' => 'required|string',
@@ -433,58 +467,63 @@ class IDCandidatesController extends Controller
         if (!is_array($venuesData)) {
             return redirect()->back()->with('error', 'Invalid venue data.');
         }
+        // Check if "Confirm All Dates" is selected
+        $confirmAllDates = $request->has('confirm_all_dates') && $request->input('confirm_all_dates') === 'on';
+        $examDates = $confirmAllDates ? $this->getAllExamDates($examId) : [$request->input('exam_date')];
         // Process each venue
         $confirmedInRequest = 0; // Track venues confirmed in this request
-        foreach ($venuesData as $venueInfo) {
-            // Extract venue details
-            $venueId = $venueInfo['venue_id'];
-            $order = $venueInfo['order'];
-            $isChecked = $venueInfo['checked'];
-            $ciId = $venueInfo['ci_id'];
-            $examDate = $venueInfo['exam_date'] ?? null;
+        foreach ($examDates as $examDate) {
+            foreach ($venuesData as $venueInfo) {
+                // Extract venue details
+                $venueId = $venueInfo['venue_id'];
+                $order = $venueInfo['order'];
+                $isChecked = $venueInfo['checked'];
+                $ciId = $venueInfo['ci_id'];
+                $currentExamDate = $confirmAllDates ? $examDate : ($venueInfo['exam_date'] ?? null);
+                // Count confirmed venues in this request
+                if ($isChecked) {
+                    $confirmedInRequest++;
+                }
 
-            // Count confirmed venues in this request
-            if ($isChecked) {
-                $confirmedInRequest++;
-            }
-            // Find the existing venue consent record
-            $confirmedVenue = ExamVenueConsent::where('exam_id', $examId)
-                ->where('venue_id', $venueId)
-                ->first();
-
-            if ($confirmedVenue) {
-         
-                //If isChecked is true then genrate the halls for each ci in IDCandidatesController                // Save the changes
-                $confirmedVenue->save();
-
-                // Check if the CI already exists in the new venue_assigned_ci table
-                $venueCI = VenueAssignedCI::where('venue_consent_id', $confirmedVenue->id)
-                    ->where('ci_id', $ciId)
-                    ->where('exam_date', $examDate)
+                // Find the existing venue consent record
+                $confirmedVenue = ExamVenueConsent::where('exam_id', $examId)
+                    ->where('venue_id', $venueId)
                     ->first();
 
-                if ($venueCI) {
-                    // Update existing CI assignment
-                    $venueCI->update([
-                        'order_by_id' => $order,
-                        'is_confirmed' => $isChecked,
-                    ]);
-                } else {
-                    // Create a new CI assignment
-                    VenueAssignedCI::create([
-                        'venue_consent_id' => $confirmedVenue->id,
-                        'ci_id' => $ciId,
-                        'exam_date' => $examDate,
-                        'order_by_id' => $order,
-                        'is_confirmed' => $isChecked,
-                    ]);
+                if ($confirmedVenue) {
+
+                    // Check if the CI already exists in the new venue_assigned_ci table
+                    $venueCI = VenueAssignedCI::where('venue_consent_id', $confirmedVenue->id)
+                        ->where('ci_id', $ciId)
+                        ->where('exam_date', $currentExamDate)
+                        ->first();
+
+                    if ($venueCI) {
+                        // Update existing CI assignment
+                        $venueCI->update([
+                            'order_by_id' => $order,
+                            'is_confirmed' => $isChecked,
+                        ]);
+
+                        // If unchecked, remove the corresponding hall from ExamConfirmedHalls
+                        if (!$isChecked) {
+                            ExamConfirmedHalls::where('exam_id', $examId)
+                                ->where('venue_code', $confirmedVenue->venues->venue_code)
+                                ->where('ci_id', $ciId)
+                                ->where('exam_date', $currentExamDate)
+                                ->delete();
+                        }
+                    } else {
+                        return redirect()->back()->with('error', 'Venue CI not found.');
+                    }
                 }
             }
         }
+
         $exam = Currentexam::where('exam_main_no', $examId)
             ->with([
-                'examsession' => function ($query) use ($venuesData) {
-                    $query->where('exam_sess_date', Carbon::parse($venuesData[0]['exam_date'])->format('d-m-Y'));
+                'examsession' => function ($query) use ($examDate) {
+                    $query->where('exam_sess_date', Carbon::parse($examDate)->format('d-m-Y'));
                 }
             ])
             ->first();
@@ -508,14 +547,19 @@ class IDCandidatesController extends Controller
                 ->orderBy('order_by_id', 'asc')
                 ->get();
 
-
-            // dd($confirmedVenues);
             if ($confirmedVenues) {
                 foreach ($confirmedVenues as $venueAssigned) {
                     $venuecode = $venueAssigned->venueConsent->venues->venue_code ?? null;
 
                     // Format hall code to be 3 digits (e.g., 001, 002, ...)
                     $hallCode = str_pad($hallCodeCounter, 3, '0', STR_PAD_LEFT);
+
+                    // Find the matching venue data to get the candidate count
+                    $venueData = collect($venuesData)->first(function ($item) use ($venueAssigned) {
+                        return $item['venue_id'] == $venueAssigned->venueConsent->venue_id &&
+                            $item['ci_id'] == $venueAssigned->ci_id &&
+                            $item['exam_date'] == $venueAssigned->exam_date;
+                    });
 
                     // Create or update the hall record
                     ExamConfirmedHalls::updateOrCreate(
@@ -531,7 +575,7 @@ class IDCandidatesController extends Controller
                         [
                             'hall_code' => $hallCode,
                             'is_apd_uploaded' => false,
-                            'alloted_count' => null,
+                            'alloted_count' => $venueData ? $venueData['candidates_count'] : null,
                         ]
                     );
                     // Increment hall code for the next CI
@@ -597,7 +641,16 @@ class IDCandidatesController extends Controller
         // Redirect back to the confirmation form with success message
         return redirect()->back()->with('success', 'Venues re-order and confirmation updated successfully.');
     }
-
+    private function getAllExamDates($examId)
+    {
+        $exam = Currentexam::where('exam_main_no', $examId)->with('examsession')->first();
+        if (!$exam || $exam->examsession->isEmpty()) {
+            return [];
+        }
+        return $exam->examsession->pluck('exam_sess_date')->map(function ($date) {
+            return Carbon::parse($date)->format('Y-m-d');
+        })->toArray();
+    }
     public function exportToCSV($examId)
     {
         // Retrieve the exam
@@ -605,20 +658,28 @@ class IDCandidatesController extends Controller
         if (!$exam) {
             return redirect()->back()->with('error', 'Exam not found.');
         }
-    
-        // Retrieve confirmed halls and group by date
-        $confirmedHallsByDate = ExamConfirmedHalls::where('exam_id', $examId)
-            ->orderBy('center_code') // Order by center code first
-            ->orderBy('hall_code')   // Then order by hall code
-            ->get()
-            ->groupBy(function ($hall) {
-                return $hall->exam_date; // Assuming exam_date is the field storing the date
-            });
-    
-        if ($confirmedHallsByDate->isEmpty()) {
+
+        // Get the first date and first session
+        $firstSession = $exam->examsession->first();
+        if (!$firstSession) {
+            return redirect()->back()->with('error', 'No exam sessions found.');
+        }
+
+        $firstDate = Carbon::parse($firstSession->exam_sess_date)->format('d-m-Y');
+        $firstSessionNo = $firstSession->exam_sess_session;
+
+        // Retrieve confirmed halls for the first date and session
+        $confirmedHalls = ExamConfirmedHalls::where('exam_id', $examId)
+            ->where('exam_date', $firstSession->exam_sess_date)
+            ->where('exam_session', $firstSessionNo)
+            ->orderBy('center_code')
+            ->orderBy('hall_code')
+            ->get();
+
+        if ($confirmedHalls->isEmpty()) {
             return redirect()->back()->with('error', 'No confirmed halls found for this exam.');
         }
-    
+
         // Column headers
         $columnHeaders = [
             'HALL CODE',
@@ -643,7 +704,7 @@ class IDCandidatesController extends Controller
             'MAIL ID',
             'GPS COORDINATES'
         ];
-    
+
         // Column widths
         $correctionFactor = 1.1;
         $columnWidths = [
@@ -669,192 +730,162 @@ class IDCandidatesController extends Controller
             'T' => 10.78 * $correctionFactor,
             'U' => 11.67 * $correctionFactor
         ];
-    
+
         // Initialize a temporary directory
         $tempDir = storage_path('app/temp');
         if (!File::exists($tempDir)) {
             File::makeDirectory($tempDir, 0755, true);
         }
-    
-        // Generate files for each date
-        foreach ($confirmedHallsByDate as $examDate => $confirmedHalls) {
-            $formattedDate = date('d-m-Y', strtotime($examDate));
-            $examName = $exam->exam_main_name ?? '';
-            $notificationNumber = $exam->exam_main_notification ?? '';
-            $mainHeaderText = strtoupper("NOTFN NO.{$notificationNumber}_{$examName} (DOE: {$formattedDate})");
-    
-            $fileName = "confirmed_halls_exam_{$examId}_{$formattedDate}.xlsx";
-            $filePath = "$tempDir/$fileName";
-    
-            $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-            $sheet = $spreadsheet->getActiveSheet();
-    
-            // Highest column letter
-            $highestColumnIndex = count($columnHeaders);
-            $highestColumnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($highestColumnIndex);
-    
-            // Main header
-            $sheet->setCellValue('A1', $mainHeaderText);
-            $sheet->mergeCells("A1:{$highestColumnLetter}1");
-            
-            $mainHeaderStyle = [
-                'font' => ['name' => 'Calibri', 'bold' => true, 'size' => 18],
-                'alignment' => [
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                    'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
-                ],
-                'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
+
+        // Create Excel file
+        $examName = $exam->exam_main_name ?? '';
+        $notificationNumber = $exam->exam_main_notification ?? '';
+        $mainHeaderText = strtoupper("NOTFN NO.{$notificationNumber}_{$examName} (DOE: {$firstDate})");
+
+        $fileName = "confirmed_halls_exam_{$examId}_{$firstDate}.xlsx";
+        $filePath = "$tempDir/$fileName";
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Highest column letter
+        $highestColumnIndex = count($columnHeaders);
+        $highestColumnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($highestColumnIndex);
+
+        // Main header
+        $sheet->setCellValue('A1', $mainHeaderText);
+        $sheet->mergeCells("A1:{$highestColumnLetter}1");
+
+        $mainHeaderStyle = [
+            'font' => ['name' => 'Calibri', 'bold' => true, 'size' => 18],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
+            ],
+            'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
+        ];
+        $sheet->getStyle("A1:{$highestColumnLetter}1")->applyFromArray($mainHeaderStyle);
+        $sheet->getRowDimension(1)->setRowHeight(30);
+
+        // Column headers
+        $columnHeaderStyle = [
+            'font' => ['name' => 'Verdana', 'bold' => true, 'size' => 10],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                'wrapText' => true
+            ],
+            'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
+        ];
+
+        foreach ($columnHeaders as $colIndex => $header) {
+            $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1);
+            $sheet->setCellValue("{$columnLetter}2", $header);
+            $sheet->mergeCells("{$columnLetter}2:{$columnLetter}3");
+            $sheet->getStyle("{$columnLetter}2:{$columnLetter}3")->applyFromArray($columnHeaderStyle);
+        }
+        $sheet->getRowDimension(2)->setRowHeight(81);
+        $sheet->getRowDimension(3)->setRowHeight(81);
+
+        // Set column widths
+        foreach ($columnWidths as $column => $width) {
+            $sheet->getColumnDimension($column)->setWidth($width);
+            $sheet->getColumnDimension($column)->setAutoSize(false);
+        }
+
+        // Data styles
+        $dataCellStyle = [
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                'wrapText' => true
+            ],
+            'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
+        ];
+
+        $verticalTextStyle = [
+            'alignment' => [
+                'textRotation' => 90,
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_BOTTOM,
+                'wrapText' => true
+            ],
+            'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
+        ];
+
+        // Add data
+        $rowIndex = 4;
+        $totalCapacity = 0;
+        foreach ($confirmedHalls as $hall) {
+            $ci = ChiefInvigilator::where('ci_venue_id', $hall->venue_code)
+                ->where('ci_id', $hall->ci_id)
+                ->first() ?? null;
+
+            $capacity = intval($hall->alloted_count ?? '0');
+            $totalCapacity += $capacity;
+
+            $ciNameDesignation = $ci ? strtoupper($ci->ci_name) . ", " . "\n" . strtoupper($ci->ci_designation) : '';
+
+            $rowData = [
+                strtoupper($hall->hall_code),
+                strtoupper($hall->center_code),
+                strtoupper($hall->center->center_name),
+                strtoupper($hall->venue->venue_name),
+                strtoupper($hall->venue->venue_address),
+                strtoupper(($hall->center->center_name . ', ' . ($hall->district->district_name ?? ''))),
+                strtoupper($hall->venue->venue_pincode ?? 'N/A'),
+                strtoupper($hall->venue->venue_landmark ?? 'N/A'),
+                strtoupper($hall->venue->venue_phone),
+                strtoupper($hall->alloted_count ?? '0'),
+                strtoupper($hall->venue->venue_category),
+                strtoupper($hall->venue->venue_treasury_office),
+                strtoupper($hall->venue->venue_distance_railway),
+                ' - ',
+                $ciNameDesignation,
+                strtoupper($hall->venue->venue_address),
+                strtoupper(($hall->center->center_name . ', ' . ($hall->district->district_name ?? ''))),
+                strtoupper($hall->venue->venue_pincode ?? 'N/A'),
+                strtoupper($ci ? $ci->ci_phone : ''),
+                strtoupper($ci ? $ci->ci_email : ''),
+                strtoupper(($hall->venue->venue_latitude . ',' . $hall->venue->venue_longitude)),
             ];
-            $sheet->getStyle("A1:{$highestColumnLetter}1")->applyFromArray($mainHeaderStyle);
-            $sheet->getRowDimension(1)->setRowHeight(30);
-    
-            // Column headers
-            $columnHeaderStyle = [
-                'font' => ['name' => 'Verdana', 'bold' => true, 'size' => 10],
-                'alignment' => [
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                    'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
-                    'wrapText' => true
-                ],
-                'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
-            ];
-            
-            foreach ($columnHeaders as $colIndex => $header) {
+
+            foreach ($rowData as $colIndex => $value) {
                 $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1);
-                $sheet->setCellValue("{$columnLetter}2", $header);
-                $sheet->mergeCells("{$columnLetter}2:{$columnLetter}3");
-                $sheet->getStyle("{$columnLetter}2:{$columnLetter}3")->applyFromArray($columnHeaderStyle);
-            }
-            $sheet->getRowDimension(2)->setRowHeight(81);
-            $sheet->getRowDimension(3)->setRowHeight(81);
-    
-            // Set column widths
-            foreach ($columnWidths as $column => $width) {
-                $sheet->getColumnDimension($column)->setWidth($width);
-                $sheet->getColumnDimension($column)->setAutoSize(false);
-            }
-    
-            // Data styles
-            $dataCellStyle = [
-                'alignment' => [
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                    'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
-                    'wrapText' => true
-                ],
-                'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
-            ];
-    
-            $verticalTextStyle = [
-                'alignment' => [
-                    'textRotation' => 90,
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                    'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_BOTTOM,
-                    'wrapText' => true
-                ],
-                'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
-            ];
-    
-            // Add data
-            $rowIndex = 4;
-            $totalCapacity = 0;
-            foreach ($confirmedHalls as $hall) {
-                $ci = ChiefInvigilator::where('ci_venue_id', $hall->venue_code)
-                    ->where('ci_id', $hall->ci_id)
-                    ->first() ?? null;
-                
-                $capacity = intval($exam->exam_main_candidates_for_hall ?? '0');
-                $totalCapacity += $capacity;
-    
-                $ciNameDesignation = $ci ? strtoupper($ci->ci_name) . ", " . "\n" . strtoupper($ci->ci_designation) : '';
-    
-                $rowData = [
-                    strtoupper($hall->hall_code),
-                    strtoupper($hall->center_code),
-                    strtoupper($hall->center->center_name),
-                    strtoupper($hall->venue->venue_name),
-                    strtoupper($hall->venue->venue_address),
-                    strtoupper(($hall->center->center_name . ', ' . ($hall->district->district_name ?? ''))),
-                    strtoupper($hall->venue->venue_pincode ?? 'N/A'),
-                    strtoupper($hall->venue->venue_landmark ?? 'N/A'),
-                    strtoupper($hall->venue->venue_phone),
-                    strtoupper($exam->exam_main_candidates_for_hall ?? '0'),
-                    strtoupper($hall->venue->venue_category),
-                    strtoupper($hall->venue->venue_treasury_office),
-                    strtoupper($hall->venue->venue_distance_railway),
-                    ' - ',
-                    $ciNameDesignation,
-                    strtoupper($hall->venue->venue_address),
-                    strtoupper(($hall->center->center_name . ', ' . ($hall->district->district_name ?? ''))),
-                    strtoupper($hall->venue->venue_pincode ?? 'N/A'),
-                    strtoupper($ci ? $ci->ci_phone : ''),
-                    strtoupper($ci ? $ci->ci_email : ''),
-                    strtoupper(($hall->venue->venue_latitude . ',' . $hall->venue->venue_longitude)),
-                ];
-    
-                foreach ($rowData as $colIndex => $value) {
-                    $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1);
-                    $sheet->setCellValue("{$columnLetter}{$rowIndex}", $value);
-                    if (in_array($columnLetter, ['I', 'R', 'S'])) {
-                        $sheet->getStyle("{$columnLetter}{$rowIndex}")->applyFromArray($verticalTextStyle);
-                    } else {
-                        $sheet->getStyle("{$columnLetter}{$rowIndex}")->applyFromArray($dataCellStyle);
-                    }
-                }
-                $sheet->getRowDimension($rowIndex)->setRowHeight(91);
-                $rowIndex++;
-            }
-    
-            // Total row
-            $totalRowIndex = $rowIndex;
-            $sheet->setCellValue("H{$totalRowIndex}", 'TOTAL');
-            $sheet->mergeCells("H{$totalRowIndex}:I{$totalRowIndex}");
-            $sheet->setCellValue("J{$totalRowIndex}", $totalCapacity);
-            
-            $totalStyle = [
-                'font' => ['name' => 'Calibri', 'bold' => true, 'size' => 14],
-                'alignment' => [
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                    'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
-                ],
-                'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
-            ];
-            $sheet->getStyle("H{$totalRowIndex}:J{$totalRowIndex}")->applyFromArray($totalStyle);
-            $sheet->getRowDimension($totalRowIndex)->setRowHeight(25);
-    
-            // Save file
-            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
-            $writer->save($filePath);
-        }
-    
-        // Create zip file
-        $zipFileName = "confirmed_halls_exam_{$examId}_all_dates.zip";
-        $zipFilePath = "$tempDir/$zipFileName";
-    
-        $zip = new \ZipArchive();
-        if ($zip->open($zipFilePath, \ZipArchive::CREATE) === true) {
-            foreach ($confirmedHallsByDate as $examDate => $confirmedHalls) {
-                $formattedDate = date('d-m-Y', strtotime($examDate));
-                $fileName = "confirmed_halls_exam_{$examId}_{$formattedDate}.xlsx";
-                $filePath = "$tempDir/$fileName";
-                if (file_exists($filePath)) {
-                    $zip->addFile($filePath, $fileName);
+                $sheet->setCellValue("{$columnLetter}{$rowIndex}", $value);
+                if (in_array($columnLetter, ['I', 'R', 'S'])) {
+                    $sheet->getStyle("{$columnLetter}{$rowIndex}")->applyFromArray($verticalTextStyle);
+                } else {
+                    $sheet->getStyle("{$columnLetter}{$rowIndex}")->applyFromArray($dataCellStyle);
                 }
             }
-            $zip->close();
+            $sheet->getRowDimension($rowIndex)->setRowHeight(91);
+            $rowIndex++;
         }
-    
-        // Clean up individual Excel files
-        foreach ($confirmedHallsByDate as $examDate => $confirmedHalls) {
-            $formattedDate = date('d-m-Y', strtotime($examDate));
-            $fileName = "confirmed_halls_exam_{$examId}_{$formattedDate}.xlsx";
-            $filePath = "$tempDir/$fileName";
-            if (file_exists($filePath)) {
-                unlink($filePath);
-            }
-        }
-    
-        // Download zip and delete after send
-        return response()->download($zipFilePath)->deleteFileAfterSend(true);
+
+        // Total row
+        $totalRowIndex = $rowIndex;
+        $sheet->setCellValue("H{$totalRowIndex}", 'TOTAL');
+        $sheet->mergeCells("H{$totalRowIndex}:I{$totalRowIndex}");
+        $sheet->setCellValue("J{$totalRowIndex}", $totalCapacity);
+
+        $totalStyle = [
+            'font' => ['name' => 'Calibri', 'bold' => true, 'size' => 14],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
+            ],
+            'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]]
+        ];
+        $sheet->getStyle("H{$totalRowIndex}:J{$totalRowIndex}")->applyFromArray($totalStyle);
+        $sheet->getRowDimension($totalRowIndex)->setRowHeight(25);
+
+        // Save file
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $writer->save($filePath);
+
+        // Download file and delete after send
+        return response()->download($filePath)->deleteFileAfterSend(true);
     }
 }
 

@@ -62,12 +62,12 @@
                                                                         <h6 class="mb-0 center-name">
                                                                             {{ $center->details->center_name }}</h6>
                                                                         <span class="text-sm text-muted required-halls">
-                                                                            Required Halls -
-                                                                            {{ ceil($center->total_accommodation / $current_exam->exam_main_candidates_for_hall) }}
+                                                                            Required Seats -
+                                                                            {{ ceil($center->total_accommodation ) }}
                                                                         </span>
                                                                     </div>
                                                                     <p hidden id="requested">
-                                                                        {{ ceil($center->total_accommodation / $current_exam->exam_main_candidates_for_hall) }}
+                                                                        {{ ceil($center->total_accommodation ) }}
                                                                     </p>
                                                                     <div
                                                                         class="chat-avtar text-md text-warning f-w-400 fs-5">
@@ -112,8 +112,8 @@
                                         </ul>
                                         <ul class="list-inline ms-auto me-auto mb-0 fs-5 ">
                                             <li class="list-inline-item">
-                                                <a href="#" class="badge bg-dark ">Halls Required
-                                                    <span id="allotted-halls">0</span> / <span id="requested-count">0</span>
+                                                <a href="#" class="badge bg-dark "> Required
+                                                    <span id="allotted-candidates">0</span> / <span id="requested-count">0</span>
                                                 </a>
                                             </li>
                                             <li class="list-inline-item">
@@ -145,7 +145,7 @@
                                                             <th>#</th>
                                                             <th width="40%">Venue</th>
                                                             <th>Contact</th>
-                                                            <th>Halls </th>
+                                                            <th>Candidates</th>
                                                             <th>Status </th>
                                                         </tr>
                                                     </thead>
@@ -173,18 +173,10 @@
                                                                         {{ $venue->venue_phone }}
                                                                     </td>
                                                                     <td>
-                                                                        <select class="form-select" name="allocationCount"
+                                                                        <input type="text" class="form-control candidate-count-input" 
+                                                                            placeholder="Enter Total Candidate Count"
+                                                                            value="{{ $venue->halls_count }}"
                                                                             @if ($venue->halls_count !== 0 && $venue->consent_status !== 'saved') disabled @endif>
-                                                                            <option value="">No of Halls</option>
-                                                                            @foreach (range(1, 5) as $hallCount)
-                                                                                <option
-                                                                                    value="{{ $hallCount * $candidatesCountForEachHall }}"
-                                                                                    @if ($venue->halls_count == $hallCount * $candidatesCountForEachHall) selected @endif>
-                                                                                    {{ $hallCount }} -
-                                                                                    {{ $hallCount * $candidatesCountForEachHall }}
-                                                                                </option>
-                                                                            @endforeach
-                                                                        </select>
                                                                     </td>
                                                                     <td>
                                                                         @if ($venue->consent_status === 'not_requested')
@@ -247,16 +239,14 @@
                 function updateAcceptedCount($centerVenues) {
                     var acceptedCount = $centerVenues.find('td:contains("Accepted")').length;
                     $('#accepted-count').text(acceptedCount);
-                    // Update allotted halls count
-                    var allottedHalls = 0;
+                    // Update allotted candidates count
+                    var allottedCandidates = 0;
                     $centerVenues.find('.venue-checkbox:checked').each(function() {
-                        var $select = $(this).closest('tr').find('select[name="allocationCount"]');
-                        var halls = parseInt($select.val()) / {{ $candidatesCountForEachHall }};
-                        if (!isNaN(halls)) {
-                            allottedHalls += halls;
-                        }
+                        var $input = $(this).closest('tr').find('.candidate-count-input');
+                        var candidates = parseInt($input.val()) || 0;
+                        allottedCandidates += candidates;
                     });
-                    $('#allotted-halls').text(allottedHalls);
+                    $('#allotted-candidates').text(allottedCandidates);
                 }
 
                 // Handle center selection
@@ -286,8 +276,9 @@
                     updateAcceptedCount($centerVenues);
                     updateSelectedVenuesCount();
                 });
-                // Handle hall count dropdown changes
-                $(document).on('change', 'select[name="allocationCount"]', function() {
+
+                // Handle candidate count input changes
+                $(document).on('input', '.candidate-count-input', function() {
                     var $centerVenues = $('.venue-row:visible');
                     updateAcceptedCount($centerVenues);
                 });
@@ -359,15 +350,13 @@
                     var selectedVenues = [];
                     $('.venue-row:visible .venue-checkbox:checked').not(':disabled').each(function() {
                         var venueId = $(this).data('venue-code');
-                        var hallCount = $(this).closest('tr').find('select[name="allocationCount"]')
-                            .val();
-                        var venueName = $(this).closest('tr').find('td[data-venue-name]').data(
-                            'venue-name'); // Get venue name
+                        var candidateCount = $(this).closest('tr').find('.candidate-count-input').val();
+                        var venueName = $(this).closest('tr').find('td[data-venue-name]').data('venue-name');
 
                         selectedVenues.push({
                             venue_id: venueId,
                             venue_name: venueName,
-                            halls_count: hallCount
+                            halls_count: candidateCount
                         });
                     });
 
@@ -380,21 +369,21 @@
                         });
                         return;
                     }
-                    // Validate halls not selected
-                    var venuesWithoutHalls = selectedVenues.filter(function(venue) {
-                        return venue.halls_count === 0 || venue.halls_count === null || venue
-                            .halls_count === undefined || venue.halls_count === '';
+
+                    // Validate candidate counts
+                    var venuesWithoutCandidates = selectedVenues.filter(function(venue) {
+                        return !venue.halls_count || venue.halls_count === 0 || isNaN(venue.halls_count);
                     });
 
-                    if (venuesWithoutHalls.length > 0) {
-                        var venueNames = venuesWithoutHalls.map(function(venue) {
+                    if (venuesWithoutCandidates.length > 0) {
+                        var venueNames = venuesWithoutCandidates.map(function(venue) {
                             return venue.venue_name;
                         }).join(' || ');
 
                         Swal.fire({
                             icon: 'warning',
-                            title: 'Halls Not Selected',
-                            html: `Please select at least one hall for the following venues:<br><strong>${venueNames}</strong>`,
+                            title: 'Candidate Count Required',
+                            html: `Please enter candidate count for the following venues:<br><strong>${venueNames}</strong>`,
                         });
                         return;
                     }

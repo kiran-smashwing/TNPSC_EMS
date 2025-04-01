@@ -241,24 +241,26 @@
                                         <!-- Additional fields to show when "accept" is selected -->
                                         <div id="additionalFields" class="d-none">
                                             <!-- Input for total number of candidates -->
-                                            <div class="mb-4 row ">
-                                                <label for="totalCandidates" class="form-label fw-bold">Total no of
-                                                    Halls:</label>
-                                                <div class="col-sm-3 col-md-3">
-                                                    <select class="form-select" name="allocationCount"
-                                                        id="hallCountDropdown">
-                                                        @foreach (range(1, 5) as $hallCount)
-                                                            <option
-                                                                value="{{ $hallCount * $exam->exam_main_candidates_for_hall }}"
-                                                                @if ($venueConsents->expected_candidates_count == $hallCount * $exam->exam_main_candidates_for_hall) selected @endif>
-                                                                {{ $hallCount }} -
-                                                                {{ $hallCount * $exam->exam_main_candidates_for_hall }}
-                                                            </option>
-                                                            @if ($venueConsents->expected_candidates_count == $hallCount * $exam->exam_main_candidates_for_hall)
-                                                                @break
-                                                            @endif>
-                                                        @endforeach
-                                                    </select>
+                                            <div class="mb-4 row">
+                                                <div class="col-sm-4">
+                                                    <label for="allottedCandidates" class="form-label fw-bold">Allotted
+                                                        Candidates:</label>
+                                                    <input type="text" class="form-control" id="allottedCandidates"
+                                                        value="{{ $venueConsents->expected_candidates_count ?? 0 }}"
+                                                        disabled>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <label for="canidatesPerHall" class="form-label fw-bold">Total
+                                                        Candidates (Max per Hall):</label>
+                                                    <input type="text" class="form-control" id="canidatesPerHall"
+                                                        value="{{ $exam->exam_main_candidates_for_hall ?? 0 }}" disabled>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <label for="venueCapacity" class="form-label fw-bold">Venue Capacity
+                                                        (Max Candidates):</label>
+                                                    <input type="number" class="form-control" id="venueCapacity"
+                                                        name="venueCapacity" placeholder="Enter venue capacity"
+                                                        value="{{ $venueConsents->venue_max_capacity ?? '' }}" required>
                                                 </div>
                                             </div>
 
@@ -271,7 +273,12 @@
                                                     $sessionDates = $exam->examsession
                                                         ->pluck('exam_sess_date')
                                                         ->unique();
-                                                    $totalCandidates = $venueConsents->expected_candidates_count ?? 0;
+                                                    $totalCandidates =
+                                                        empty($venueConsents->venue_max_capacity) ||
+                                                        !is_numeric($venueConsents->venue_max_capacity) ||
+                                                        (int) $venueConsents->venue_max_capacity <= 0
+                                                            ? $venueConsents->expected_candidates_count
+                                                            : (int) $venueConsents->venue_max_capacity;
                                                     $candidatesPerHall = $exam->exam_main_candidates_for_hall;
                                                     $ciCount = ceil($totalCandidates / $candidatesPerHall);
 
@@ -421,10 +428,11 @@
         </script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const hallCountDropdown = document.getElementById('hallCountDropdown');
+                const venueCapacityInput = document.getElementById('venueCapacity');
                 const ciTableBody = document.querySelector('#responsiveTable tbody');
-                const sessionDates = @json($sessionDates); // Pass session dates from backend
-                const chiefInvigilators = @json($chiefInvigilators); // Pass CI data from backend
+                const sessionDates = @json($sessionDates);
+                const chiefInvigilators = @json($chiefInvigilators);
+                const exam_candidate_count = {{ $exam->exam_main_candidates_for_hall }};
 
                 // Function to generate a single CI table row
                 function createCIRow(examDate, savedCIIdsForDate, index) {
@@ -483,10 +491,15 @@
                     return row;
                 }
 
-                // Function to update CI table based on hall count
-                function updateCITable(hallCount) {
-                    const exam_candidate_count = {{ $exam->exam_main_candidates_for_hall }};
-                    hallCount = hallCount / exam_candidate_count;
+                // Function to update CI table based on venue capacity
+                function updateCITable(venueCapacity) {
+                    if (!venueCapacity || venueCapacity <= 0) {
+                        ciTableBody.innerHTML = '';
+                        return;
+                    }
+
+                    // Calculate number of halls needed
+                    const hallCount = Math.ceil(venueCapacity / exam_candidate_count);
                     ciTableBody.innerHTML = ''; // Clear existing rows
 
                     sessionDates.forEach(sessionDate => {
@@ -497,21 +510,35 @@
                         // Retrieve saved CI IDs for the formatted date
                         const savedCIIdsForDate = @json($assignedCIsByDate)[formattedDate] || [];
 
-                        // Generate rows for the selected hall count
+                        // Generate rows for the calculated hall count
                         for (let i = 0; i < hallCount; i++) {
                             const row = createCIRow(formattedDate, savedCIIdsForDate, i);
                             ciTableBody.appendChild(row);
                         }
                     });
                 }
+
+                // Event listener for venue capacity input
+                venueCapacityInput.addEventListener('input', function() {
+                    const capacity = parseInt(this.value) || 0;
+                    updateCITable(capacity);
+                });
+
+                // Initial table generation if venue capacity exists
+                if (venueCapacityInput.value) {
+                    // updateCITable(parseInt(venueCapacityInput.value));
+                }
+
                 // Event listener for CI dropdowns to prevent duplicate selection
                 $(document).on('change', 'select[name="ciName[]"]', function() {
                     const currentRow = $(this).closest('tr');
                     const currentDate = currentRow.find('input[name="examDate[]"]').val();
                     const selectedCIId = $(this).val();
+
                     if (selectedCIId === '') {
                         return; // Skip validation if no CI is selected
                     }
+
                     // Check all other rows for the same date
                     let duplicateFound = false;
                     $('select[name="ciName[]"]').each(function() {
@@ -540,16 +567,6 @@
                         updateCIDetails(this);
                     }
                 });
-                // Event listener for hall count dropdown
-                hallCountDropdown.addEventListener('change', function() {
-                    const selectedHallCount = parseInt(this.value);
-                    if (selectedHallCount > 0) {
-                        updateCITable(selectedHallCount);
-                    } else {
-                        ciTableBody.innerHTML = ''; // Clear table if no halls are selected
-                    }
-                });
-
             });
         </script>
         <script>
@@ -585,7 +602,7 @@
             }
 
             // Attach event listener to CI dropdowns
-            $(document).on('change', 'select[name="ciName[]"]:not(:disabled)', function() {
+            $(document).on('change', 'select[name="ciName[]"] option:selected', function() {
                 updateCIDetails(this);
             });
 
@@ -611,12 +628,24 @@
 
 
                     if (consentValue === 'accept') {
+                        // Check if venue capacity is entered
+                        const venueCapacity = $('#venueCapacity').val();
+                        if (!venueCapacity || venueCapacity <= 0) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Venue Capacity Required',
+                                text: 'Please enter the venue capacity.',
+                                confirmButtonText: 'OK'
+                            });
+                            return;
+                        }
+
                         // Check if all CI dropdowns are selected
                         let allCIsSelected = true;
                         $('select[name="ciName[]"]').each(function() {
                             if ($(this).val() === '') {
                                 allCIsSelected = false;
-                                return false; // Exit the loop early
+                                return false;
                             }
                         });
 
@@ -627,8 +656,9 @@
                                 text: 'Please select a Chief Invigilator for each row.',
                                 confirmButtonText: 'OK'
                             });
-                            return; // Prevent form submission
+                            return;
                         }
+
                         const ciExamData = [];
 
                         // Collect Chief Invigilator IDs and their respective exam dates
@@ -638,17 +668,16 @@
 
                             if (ciId) {
                                 ciExamData.push({
-                                    id: index, // added index as id
+                                    id: index,
                                     exam_date: examDate,
                                     ci_id: ciId
                                 });
                             }
                         });
-                        console.log(ciExamData);
 
                         // Append additional data
                         formData.append('ciExamData', JSON.stringify(ciExamData));
-                        formData.append('expectedCandidatesCount', $('select[name="allocationCount"]').val());
+                        formData.append('venueCapacity', $('#venueCapacity').val());
                     }
 
                     // Send AJAX request

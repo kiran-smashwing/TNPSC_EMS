@@ -113,7 +113,9 @@
                             <div class="card-header">
                                 <div class="d-sm-flex align-items-center justify-content-between">
                                     <h5 class="mb-3 mb-sm-0">Review Confirmed Venues</h5>
-
+                                    <div>
+                                        <h5 class="mb-3 mb-sm-0">Required : {{ $confirmedVenuesCapacity }} / {{$accommodation_required}}</h5>
+                                    </div>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -170,6 +172,7 @@
                                                 <th>CI NAME</th>
                                                 <th>CI EMAIL</th>
                                                 <th>CI PHONE</th>
+                                                <th>CANDIDATES COUNT</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -186,6 +189,7 @@
                                                     </td>
                                                     <td>{{ $item['ci']->chiefInvigilator->ci_email ?? 'N/A' }}</td>
                                                     <td>{{ $item['ci']->chiefInvigilator->ci_phone ?? 'N/A' }}</td>
+                                                    <td>{{ $item['candidates_count'] ?? 0 }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -221,7 +225,6 @@
         <!-- datatable Js -->
         <script src="{{ asset('storage/assets/js/plugins/dataTables.min.js') }}"></script>
         <script src="{{ asset('storage/assets/js/plugins/dataTables.bootstrap5.min.js') }}"></script>
-        <script src="{{ asset('storage/assets/js/plugins/dataTables.rowReorder.min.js') }}"></script>
         <script>
             // [ Reorder Events ]
             var rowevents = $('#reorder-events').DataTable({
@@ -232,9 +235,7 @@
                 }
             });
         </script>
-    
-     
-   
+       
     @endpush
 
     @include('partials.theme')

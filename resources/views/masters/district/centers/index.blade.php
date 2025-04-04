@@ -200,20 +200,6 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                {{-- <div class="filter-item">
-
-
-                                    <select class="form-select" id="centerCodeFilter" name="centerCode">
-                                        <option value="">Select Center Name</option>
-
-                                        {{-- @foreach ($centerCodes as $centerCode)
-                                            <option value="{{ $centerCode->center_code }}"
-                                                {{ request('centerCode') == $centerCode->center_code ? 'selected' : '' }}>
-                                                {{ $centerCode->center_name}} 
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div> --}}
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
 

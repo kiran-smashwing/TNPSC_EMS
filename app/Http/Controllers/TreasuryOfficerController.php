@@ -6,6 +6,7 @@ use App\Mail\UserAccountCreationMail;
 use App\Mail\UserEmailVerificationMail;
 use App\Models\TreasuryOfficer;
 use App\Models\Center;
+use Illuminate\Support\Facades\DB;
 use App\Models\Venues;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -28,27 +29,91 @@ class TreasuryOfficerController extends Controller
     }
 
     public function index(Request $request)
+{
+    $role = session('auth_role');
+    $user_details = $request->get('auth_user');
+    $user_district_code = $user_details->district_code ?? null;
+
+    $query = TreasuryOfficer::with('district');
+
+    if (!empty($user_district_code)) {
+        $query->where('tre_off_district_id', $user_district_code);
+    }
+
+    if ($request->filled('district')) {
+        $query->where('tre_off_district_id', $request->district);
+    }
+
+    $treasuryOfficers = $query->orderBy('tre_off_name')->get();
+    $districts = District::all();
+
+    return view('masters.district.treasury_officers.index', compact('treasuryOfficers', 'districts'));
+}
+
+    
+    
+
+    private function getFilteredData(Request $request, $role)
     {
-        // Get user details
-        $role = session('auth_role');
         $user_details = $request->get('auth_user');
-        $user_district_code = $user_details->district_code ?? null;
 
-        // Start the query for Treasury Officers with the district relationship
-        $query = TreasuryOfficer::with('district');
+        $centersQuery = TreasuryOfficer::query()
+            ->select([
+                'mobile_team.mobile_id',
+                'mobile_team.mobile_district_id',
+                'mobile_team.mobile_name',
+                'mobile_team.mobile_designation',
+                'mobile_team.mobile_phone',
+                'mobile_team.mobile_email',
+                'mobile_team.mobile_employeeid',
+                'centers.center_code', // include this if needed for ordering/display
+            ])
+            ->join('district', 'mobile_team.mobile_district_id', '=', 'district.district_code')
+            ->join('centers', 'centers.center_district_id', '=', 'mobile_team.mobile_district_id') // required join
+            ->with([
+                'district' => function ($query) {
+                    $query->select('district_id', 'district_code', 'district_name');
+                }
+            ]);
 
-        // If the user has a district_code, only show data for that district
-        if (!empty($user_district_code)) {
-            $query->where('tre_off_district_id', $user_district_code);
+        // Apply role-based filtering
+        if ($role === 'district') {
+            $districtCode = $user_details->district_code ?? null;
+            if ($districtCode) {
+                $centersQuery->where('mobile_team.mobile_district_id', $districtCode);
+            }
         }
 
-        // Fetch Treasury Officers based on the above logic
-        $treasuryOfficers = $query->orderBy('tre_off_name')->get();
+        // Apply additional filters from request
+        if ($request->filled('district')) {
+            $centersQuery->where('mobile_team.mobile_district_id', $request->district);
+        }
 
-        // Fetch all districts (for dropdown or display purposes)
-        $districts = District::all();
+        if ($request->filled('centerCode')) {
+            $centersQuery->where('centers.center_code', $request->centerCode);
+        }
 
-        return view('masters.district.treasury_officers.index', compact('treasuryOfficers', 'districts'));
+        // Get centers
+        $centers = $centersQuery->orderBy('centers.center_code')->get();
+
+        // Get districts
+        $districts = District::select('district_code', 'district_name')
+            ->whereExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('mobile_team')
+                    ->whereColumn('mobile_team.mobile_district_id', 'district.district_code');
+            })
+            ->orderBy('district_name')
+            ->get();
+
+        // Get center codes
+        $centerCodes = Center::select('center_code', 'center_name', 'center_district_id')
+            ->whereNotNull('center_code')
+            ->distinct()
+            ->orderBy('center_name')
+            ->get();
+
+        return compact('centers', 'districts', 'centerCodes');
     }
     public function create(Request $request)
     {

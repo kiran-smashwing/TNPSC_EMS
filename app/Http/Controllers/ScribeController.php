@@ -56,13 +56,19 @@ class ScribeController extends Controller
         $scribes = $query->orderBy('scribe_name')->get();
 
         // Fetch all districts (for dropdown)
-        $districts = District::all();
-
+        $districts = District::select('district_code', 'district_name')
+            ->orderBy('district_name')
+            ->get();
+        // dd($districts);
         // Fetch all centers (for dropdown)
-        $centers = Center::all();
+        $centers = Center::select('center_code', 'center_name', 'center_district_id')
+            ->orderBy('center_name')
+            ->get();
 
         // Fetch all venues (for dropdown)
-        $venues = Venues::all();
+        $venues = Venues::select('venue_code', 'venue_name', 'venue_center_id')
+            ->orderBy('venue_name')
+            ->get();
 
         // Return the view with the necessary data
         return view('masters.venues.scribe.index', compact('scribes', 'districts', 'centers', 'venues'));

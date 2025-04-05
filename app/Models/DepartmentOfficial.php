@@ -31,6 +31,13 @@ class DepartmentOfficial extends Authenticatable
         'dept_off_createdat',
         'custom_role',
     ];
+
+     // Hide sensitive fields from array or JSON output
+     protected $hidden = [
+        'dept_off_password',
+        'remember_token',
+        'verification_token', // Uncomment if applicable
+    ];
     // Add timestamp for createdat
     protected static function boot()
     {
@@ -59,12 +66,7 @@ class DepartmentOfficial extends Authenticatable
 
         return '/assets/images/user/avatar-4.jpg';
     }
-
-    protected $hidden = [
-        'dept_off_password', // Hide the password when retrieving data
-    ];
-
-    public function getAuthPassword()
+        public function getAuthPassword()
     {
         return $this->dept_off_password;
     }

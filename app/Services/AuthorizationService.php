@@ -157,6 +157,7 @@ class AuthorizationService
             'ci-meetings.ind',
             'ci-meetings.attendance-QRcode-scan',
             'venues-masters',
+            'view-all-other-list',
             'heading',
             'exam-heading',
             'current-exam',

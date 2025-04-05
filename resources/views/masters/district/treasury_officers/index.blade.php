@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                      <h2 class="mb-0"></h2>
-                                    </div> -->
+                                          <h2 class="mb-0"></h2>
+                                        </div> -->
                         </div>
                     </div>
                 </div>
@@ -190,28 +190,20 @@
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
                             @hasPermission('treasury-officers-filter')
-                            <form id="filterForm" class="mb-3">
-                                {{-- <div class="filter-item">
-                                    <select class="form-select" id="roleFilter" name="role">
-                                        <option value="">Select Role</option>
-                                        <option value="AD">AD</option>
-                                        <option value="Manager">Manager</option>
-                                        <option value="Staff">Staff</option>
-                                    </select>
-                                </div> --}}
-                                <div class="filter-item">
-
-                                    <select class="form-select" id="districtFilter" name="district">
-                                        <option value="">Select District Name</option>
-                                        @foreach ($districts as $district)
-                                            <option value="{{ $district->tre_off_district_id }}"
-                                                {{ request('district') == $district->tre_off_district_id }}>
-                                                {{ $district->district_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                {{-- <div class="filter-item">
+                                <form id="filterForm" method="GET" action="{{ route('treasury-officers.index') }}"
+                                    class="mb-3">
+                                    <div class="filter-item">
+                                        <select class="form-select" id="districtFilter" name="district">
+                                            <option value="">Select District Name</option>
+                                            @foreach ($districts as $district)
+                                                <option value="{{ $district->district_code }}"
+                                                    {{ request('district') == $district->district_code ? 'selected' : '' }}>
+                                                    {{ $district->district_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    {{-- <div class="filter-item">
                                     <select class="form-select" id="centerCodeFilter" name="centerCode">
                                         <option value="">Select Center Code</option>
                                         <option value="00101">00101</option>
@@ -219,14 +211,14 @@
                                         <option value="00103">00103</option>
                                     </select>
                                 </div> --}}
-                                <div class="btn-container">
-                                    <button type="submit" class="btn btn-primary">Apply Filters</button>
-                                </div>
-                                <a href="{{ url()->current() }}" class="btn btn-secondary"><i
-                                        class="ti ti-refresh me-2"></i>Reset</a>
-                                <!-- Reset Filters Button -->
+                                    <div class="btn-container">
+                                        <button type="submit" class="btn btn-primary">Apply Filters</button>
+                                    </div>
+                                    <a href="{{ url()->current() }}" class="btn btn-secondary"><i
+                                            class="ti ti-refresh me-2"></i>Reset</a>
+                                    <!-- Reset Filters Button -->
 
-                            </form>
+                                </form>
                             @endhasPermission
 
                             <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
@@ -316,7 +308,7 @@
                 // Use event delegation on the document or a parent container
                 document.body.addEventListener('click', function(e) {
                     const button = e.target.closest(
-                    '.status-toggle'); // Check if the clicked element is the toggle button
+                        '.status-toggle'); // Check if the clicked element is the toggle button
 
                     if (button) {
                         e.preventDefault(); // Prevent default link behavior

@@ -265,10 +265,10 @@
                                                         <i class="ti ti-edit f-20"></i>
                                                     </a>
                                                 @endhasPermission
-                                                <a href="#" class="avtar avtar-xs btn-light-success"
+                                                {{-- <a href="#" class="avtar avtar-xs btn-light-success"
                                                     title="Change Status (Active or Inactive)">
                                                     <i class="ti ti-toggle-left f-20"></i> <!-- Toggle icon -->
-                                                </a>
+                                                </a> --}}
                                             </td>
                                         </tr>
                                     @endforeach

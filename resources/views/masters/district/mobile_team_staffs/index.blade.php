@@ -190,13 +190,13 @@
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
                             @hasPermission('mobile-team-staffs-filter')
-                            <form id="filterForm" class="mb-3">
+                            <form id="filterForm" method="GET" action="{{ route('mobile-team-staffs.index') }}" class="mb-3">
                                 <div class="filter-item">
                                     <select class="form-select" id="districtFilter" name="district">
                                         <option value="">Select District Name</option>
                                         @foreach ($districts as $district)
-                                            <option value="{{ $district->mobile_district_id }}"
-                                                {{ request('district') == $district->mobile_district_id}}>
+                                            <option value="{{ $district->district_code }}"
+                                                {{ request('district') == $district->district_code ? 'selected' : '' }}>
                                                 {{ $district->district_name }}
                                             </option>
                                         @endforeach
@@ -204,6 +204,7 @@
                                 </div>
                                 <div class="btn-container">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
+
                                 </div>
                                 <a href="{{ url()->current() }}" class="btn btn-secondary"><i
                                         class="ti ti-refresh me-2"></i>Reset</a>

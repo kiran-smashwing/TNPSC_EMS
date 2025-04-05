@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendCIConfirmationEmail;
 use App\Models\CIMeetingQrcode;
 use App\Models\District;
+use App\Models\ExamConfirmedHalls;
 use App\Services\ExamAuditService;
 use App\Models\ExamVenueConsent;
 use Carbon\Carbon;
@@ -98,42 +100,42 @@ class DistrictCandidatesController extends Controller
             return redirect()->back()->with('error', 'Exam not found.');
         }
         $user = current_user();
-    
+
         // Retrieve filters from the request
         $selectedDistrict = $user->district_code;
         $selectedCenter = $request->input('center_code');
         $selectedDate = $request->input('exam_date');
-    
+
         // Query confirmed venues and assigned CI
         $confirmedVenuesQuery = ExamVenueConsent::where('exam_id', $examId)
             ->where('consent_status', 'accepted')
             ->with(['venues', 'assignedCIs.chiefInvigilator'])
             ->where('district_code', $selectedDistrict)
             ->where('center_code', $selectedCenter);
-    
+
         $confirmedVenues = $confirmedVenuesQuery->get();
         $venuesWithCIs = collect();
-    
+
         foreach ($confirmedVenues as $venue) {
             // Calculate candidate distribution for each venue
             $venueMaxCapacity = $venue->venue_max_capacity;
             $candidatesPerHall = $exam->exam_main_candidates_for_hall;
-    
+
             $remainingCandidates = $venueMaxCapacity;
             $ciIndex = 0;
-    
+
             foreach ($venue->assignedCIs as $ci) {
                 if (Carbon::parse($ci->exam_date)->format('d-m-Y') == $selectedDate) {
                     // Distribute candidates among CIs
                     $candidatesForCI = min($candidatesPerHall, $remainingCandidates);
                     $remainingCandidates -= $candidatesForCI;
-    
+
                     $venuesWithCIs->push([
                         'venue' => $venue,
                         'ci' => $ci,
                         'candidates_count' => $candidatesForCI, // Add candidate count for this CI
                     ]);
-    
+
                     // Stop assigning candidates if no more candidates are left
                     if ($remainingCandidates <= 0) {
                         break;
@@ -141,10 +143,10 @@ class DistrictCandidatesController extends Controller
                 }
             }
         }
-    
+
         // Order venues by latest update
         $venuesWithCIs = $venuesWithCIs->sortBy('ci.order_by_id')->values();
-    
+
         // Retrieve centers
         $centers = DB::table('exam_candidates_projection as ecp')
             ->join('centers as c', 'ecp.center_code', '=', 'c.center_code')
@@ -153,12 +155,12 @@ class DistrictCandidatesController extends Controller
             ->select('ecp.center_code', 'c.center_name', 'ecp.district_code')
             ->distinct()
             ->get();
-    
+
         // Get all dates for the exam
         $examDates = $exam->examsession->groupBy(function ($item) {
             return Carbon::parse($item->exam_sess_date)->format('d-m-Y');
         })->keys();
-    
+
         $accommodation_required = \DB::table('exam_candidates_projection')
             ->select(
                 \DB::raw('MAX(accommodation_required) as total_accommodation')
@@ -169,15 +171,15 @@ class DistrictCandidatesController extends Controller
             ->where('exam_date', $selectedDate)
             ->groupBy('center_code')
             ->value('total_accommodation');
-    
+
         $confirmedVenuesCapacity = ExamVenueConsent::where('exam_id', $examId)
             ->where('district_code', $user->district_code)
             ->where('center_code', $selectedCenter)
             ->sum('venue_max_capacity');
-    
+
         $candidatesCountForEachHall = Currentexam::where('exam_main_no', $examId)
             ->value('exam_main_candidates_for_hall');
-    
+
         // Pass data to the view
         return view('my_exam.District.review-venue-intimation', compact(
             'exam',
@@ -243,7 +245,7 @@ class DistrictCandidatesController extends Controller
                         throw new \Exception("Exam not found for ID: {$request->exam_id}");
                     }
                     // Send actual email to venue
-                    $this->sendVenueConsentEmail($venue['venue_id'], $currentExam);
+                    $this->sendVenueConsentEmail($venue, $currentExam);
                 }
             }
             // Log the action using the AuditService
@@ -361,14 +363,14 @@ class DistrictCandidatesController extends Controller
         ]);
     }
     // Optional email sending method
-    protected function sendVenueConsentEmail($venueId, $examId)
+    protected function sendVenueConsentEmail($venue, $exam)
     {
-        return true;
+        // dd($venue, $exam);
+        // return true;
         // Fetch venue details
-        $venue = Venues::findOrFail($venueId);
-        //TODO:Update the static mail to venue mail 
+        $venueData = Venues::findOrFail($venue['venue_id']);
         // Prepare and send email
-        Mail::to("sathishm@smashwing.com")->send(new VenueConsentMail($venue, $examId));
+        Mail::to($venueData->venue_email)->send(new VenueConsentMail($venue, $venueData, $exam));
     }
     //QRCODE  generation  function 
     public function generateQRCode(Request $request)
@@ -397,6 +399,19 @@ class DistrictCandidatesController extends Controller
             ->where('exam_id', $examId)
             ->where('district_code', $user->district_code ?? '01')
             ->first();
+        //     $CIs = ExamConfirmedHalls::selectRaw('
+        //     ci_id, 
+        //     MIN(id) as id, 
+        //     ARRAY_AGG(DISTINCT hall_code) as hall_codes,
+        //     ARRAY_AGG(DISTINCT exam_date) as exam_dates,
+        // ')
+        //         ->where('exam_id', $examId)
+        //         ->where('district_code', $user->district_code ?? '01')
+        //         ->groupBy('ci_id')
+        //         ->get();
+        //     dd($CIs);
+        // SendCIConfirmationEmail::dispatch($examId, $user->district_code ?? '01');
+
         if ($qrCode) {
             // Update only the meeting date and time without modifying the QR code
             DB::table('ci_meeting_qrcode')

@@ -224,16 +224,16 @@ class IDCandidatesController extends Controller
         $request->validate([
             'exam_id' => 'required|string',
             'district_codes' => 'required|array|min:1',
-            'letter_no' => 'required|string',
-            'letter_date' => 'required|date',
-            'exam_controller' => 'required|string',
+            // 'letter_no' => 'required|string',
+            // 'letter_date' => 'required|date',
+            // 'exam_controller' => 'required|string',
         ]);
 
         $examId = $request->input('exam_id');
         $districtCodes = $request->input('district_codes');
-        $letterNo = $request->input('letter_no');
-        $letterDate = $request->input('letter_date');
-        $examController = $request->input('exam_controller');
+        // $letterNo = $request->input('letter_no');
+        // $letterDate = $request->input('letter_date');
+        // $examController = $request->input('exam_controller');
 
         // Retrieve the exam and its related candidates
         $exam = Currentexam::where('exam_main_no', $examId)->first();
@@ -255,16 +255,15 @@ class IDCandidatesController extends Controller
                 ->where('exam_id', $examId)
                 ->where('district_code', $districtCode)
                 ->sum('accommodation_required');
-            //todo: update the static email to district email  $district->district_email,
             // Send the email notification
-            Mail::to('kiran@smashwing.com')->send(
+            Mail::to($district->district_email)->send(
                 new AccommodationNotification(
                     $exam,
-                    $districtCode,
+                    $district,
                     $totalCandidates,
-                    $letterNo,
-                    $letterDate,
-                    $examController
+                    // $letterNo,
+                    // $letterDate,
+                    // $examController
                 )
             );
 
@@ -293,11 +292,11 @@ class IDCandidatesController extends Controller
             // Decode existing metadata and merge new logs
             $existingMetadata = $existingLog->metadata;
             // Update letter details in metadata
-            $existingMetadata['letter_details'] = [
-                'letter_no' => $letterNo,
-                'letter_date' => $letterDate,
-                'exam_controller' => $examController,
-            ];
+            // $existingMetadata['letter_details'] = [
+            //     'letter_no' => $letterNo,
+            //     'letter_date' => $letterDate,
+            //     'exam_controller' => $examController,
+            // ];
             if (isset($existingMetadata['email_logs']) && is_array($existingMetadata['email_logs'])) {
                 // Merge new email logs with existing ones based on district_code
                 foreach ($emailLogs as $newLog) {
@@ -327,11 +326,11 @@ class IDCandidatesController extends Controller
             // Prepare metadata for new audit log
             $metadata = [
                 'exam_id' => $examId,
-                'letter_details' => [
-                    'letter_no' => $letterNo,
-                    'letter_date' => $letterDate,
-                    'exam_controller' => $examController,
-                ],
+                // 'letter_details' => [
+                //     'letter_no' => $letterNo,
+                //     'letter_date' => $letterDate,
+                //     'exam_controller' => $examController,
+                // ],
                 'email_logs' => $emailLogs,
             ];
 

@@ -2,65 +2,58 @@
 
 namespace App\Mail;
 
+use App\Models\ExamSession;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 class VenueConsentMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+ 
     public $venue;
     public $exam;
-    public $loginUrl;
+    public $venueData;
+
+    public $examDates;
+
 
     /**
      * Create a new message instance.
      */
-    public function __construct($venue, $exam)
+    public function __construct($venue,$venueData, $exam)
     {
         $this->venue = $venue;
+        $this->venueData = $venueData;
         $this->exam = $exam;
-        $this->loginUrl = route('login'); // Assuming you have a named route for venue login
+        $examsession = ExamSession::where('exam_sess_mainid', $exam->exam_main_no)->get();
+        $this->examDates =  $examsession
+        ->groupBy(function ($item) {
+            return Carbon::parse($item->exam_sess_date)->format('d-m-Y');
+        })
+        ->keys()
+        ->toArray(); // Convert to array    
     }
 
     /**
-     * Get the message envelope.
-     */
-    public function envelope(): Envelope
-    {
-        return new Envelope(
-            subject: 'Exam Venue Consent Request - ' . $this->exam->exam_main_name,
-        );
-    }
-
-    /**
-     * Get the message content definition.
-     */
-    public function content(): Content
-    {
-        return new Content(
-            markdown: 'email.venue_consent_simple',
-            with: [
-                'venueName' => $this->venue->venue_name,
-                'venueAddress' => $this->venue->venue_address,
-                'examName' => $this->exam->exam_main_name,
-                'examDate' => $this->exam->exam_main_startdate,
-                'requiredHalls' => ceil($this->venue->total_accommodation / 200),
-                'loginUrl' => $this->loginUrl
-            ]
-        );
-    }
-
-    /**
-     * Get the attachments for the message.
+     * Build the message.
      *
-     * @return array
+     * @return $this
      */
-    public function attachments(): array
+    public function build()
     {
-        return [];
+        return $this->subject('Intimation and Request for Consent – Venue Allocation for Upcoming TNPSC Examination ')
+                    ->view('email.venue_consent_simple')
+                    ->with( [
+                        'venueName' => $this->venueData->venue_name,
+                        'venueAddress' => $this->venueData->venue_address,
+                        'examName' => $this->exam->exam_main_nametamil,
+                        'examDate' => $this->exam->exam_main_startdate,
+                        'examDates' => $this->examDates,
+                        'requiredSeats' => $this->venue['halls_count'],
+                    ]);
     }
 }

@@ -72,68 +72,68 @@ class MobileTeamStaffsController extends Controller
     }
 
 
-    private function getFilteredData(Request $request, $role)
-    {
-        $user_details = $request->get('auth_user');
+    // private function getFilteredData(Request $request, $role)
+    // {
+    //     $user_details = $request->get('auth_user');
 
-        $centersQuery = MobileTeamStaffs::query()
-            ->select([
-                'mobile_team.mobile_id',
-                'mobile_team.mobile_district_id',
-                'mobile_team.mobile_name',
-                'mobile_team.mobile_designation',
-                'mobile_team.mobile_phone',
-                'mobile_team.mobile_email',
-                'mobile_team.mobile_employeeid',
-                'centers.center_code', // include this if needed for ordering/display
-            ])
-            ->join('district', 'mobile_team.mobile_district_id', '=', 'district.district_code')
-            ->join('centers', 'centers.center_district_id', '=', 'mobile_team.mobile_district_id') // required join
-            ->with([
-                'district' => function ($query) {
-                    $query->select('district_id', 'district_code', 'district_name');
-                }
-            ]);
+    //     $centersQuery = MobileTeamStaffs::query()
+    //         ->select([
+    //             'mobile_team.mobile_id',
+    //             'mobile_team.mobile_district_id',
+    //             'mobile_team.mobile_name',
+    //             'mobile_team.mobile_designation',
+    //             'mobile_team.mobile_phone',
+    //             'mobile_team.mobile_email',
+    //             'mobile_team.mobile_employeeid',
+    //             'centers.center_code', // include this if needed for ordering/display
+    //         ])
+    //         ->join('district', 'mobile_team.mobile_district_id', '=', 'district.district_code')
+    //         ->join('centers', 'centers.center_district_id', '=', 'mobile_team.mobile_district_id') // required join
+    //         ->with([
+    //             'district' => function ($query) {
+    //                 $query->select('district_id', 'district_code', 'district_name');
+    //             }
+    //         ]);
 
-        // Apply role-based filtering
-        if ($role === 'district') {
-            $districtCode = $user_details->district_code ?? null;
-            if ($districtCode) {
-                $centersQuery->where('mobile_team.mobile_district_id', $districtCode);
-            }
-        }
+    //     // Apply role-based filtering
+    //     if ($role === 'district') {
+    //         $districtCode = $user_details->district_code ?? null;
+    //         if ($districtCode) {
+    //             $centersQuery->where('mobile_team.mobile_district_id', $districtCode);
+    //         }
+    //     }
 
-        // Apply additional filters from request
-        if ($request->filled('district')) {
-            $centersQuery->where('mobile_team.mobile_district_id', $request->district);
-        }
+    //     // Apply additional filters from request
+    //     if ($request->filled('district')) {
+    //         $centersQuery->where('mobile_team.mobile_district_id', $request->district);
+    //     }
 
-        if ($request->filled('centerCode')) {
-            $centersQuery->where('centers.center_code', $request->centerCode);
-        }
+    //     if ($request->filled('centerCode')) {
+    //         $centersQuery->where('centers.center_code', $request->centerCode);
+    //     }
 
-        // Get centers
-        $centers = $centersQuery->orderBy('centers.center_code')->get();
+    //     // Get centers
+    //     $centers = $centersQuery->orderBy('centers.center_code')->get();
 
-        // Get districts
-        $districts = District::select('district_code', 'district_name')
-            ->whereExists(function ($query) {
-                $query->select(DB::raw(1))
-                    ->from('mobile_team')
-                    ->whereColumn('mobile_team.mobile_district_id', 'district.district_code');
-            })
-            ->orderBy('district_name')
-            ->get();
+    //     // Get districts
+    //     $districts = District::select('district_code', 'district_name')
+    //         ->whereExists(function ($query) {
+    //             $query->select(DB::raw(1))
+    //                 ->from('mobile_team')
+    //                 ->whereColumn('mobile_team.mobile_district_id', 'district.district_code');
+    //         })
+    //         ->orderBy('district_name')
+    //         ->get();
 
-        // Get center codes
-        $centerCodes = Center::select('center_code', 'center_name', 'center_district_id')
-            ->whereNotNull('center_code')
-            ->distinct()
-            ->orderBy('center_name')
-            ->get();
+    //     // Get center codes
+    //     $centerCodes = Center::select('center_code', 'center_name', 'center_district_id')
+    //         ->whereNotNull('center_code')
+    //         ->distinct()
+    //         ->orderBy('center_name')
+    //         ->get();
 
-        return compact('centers', 'districts', 'centerCodes');
-    }
+    //     return compact('centers', 'districts', 'centerCodes');
+    // }
 
 
 
@@ -329,7 +329,8 @@ class MobileTeamStaffsController extends Controller
             if ($request->filled('password')) {
                 $validated['district_password'] = Hash::make($validated['password']);
             }
-
+            $role = session('auth_role');
+            $user = current_user();
             // Prepare data for update, including the new image path if it exists
             $updateData = [
                 'mobile_district_id' => $validated['district'],
@@ -340,7 +341,9 @@ class MobileTeamStaffsController extends Controller
                 'mobile_phone' => $validated['phone'],
                 'mobile_password' => $validated['district_password'] ?? $staffMember->mobile_password
             ];
-
+            if ($user->role && $user->role->role_department == 'ID') {
+                $updateData['mobile_district_id'] = $validated['district'];
+            }
             // Add new image path to update data if present
             if ($newImagePath) {
                 $updateData['mobile_image'] = $newImagePath;

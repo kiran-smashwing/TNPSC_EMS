@@ -245,7 +245,8 @@ class CIAssistantsController extends Controller
                 // Set new image path to be saved in the database
                 $newImagePath = $imagePath;
             }
-
+            $role = session('auth_role');
+            $user = current_user();
             // Prepare data for updating the CI Assistant record
             $updateData = [
                 'cia_name' => $validated['name'],
@@ -256,7 +257,16 @@ class CIAssistantsController extends Controller
                 'cia_center_id' => $validated['center'],
                 'cia_venue_id' => $validated['venue'],
             ];
-
+            if ($role == 'district') {
+                // $updateData['cia_district_id'] = $validated['district'];
+                $updateData[ 'cia_center_id'] = $validated['center'];
+                $updateData['cia_venue_id'] = $validated['venue'];
+            }
+            elseif ($user->role && $user->role->role_department == 'ID') {
+                $updateData['cia_district_id'] = $validated['district'];
+                $updateData[ 'cia_center_id'] = $validated['center'];
+                $updateData['cia_venue_id'] = $validated['venue'];
+            }
             // Add the new image path if it's provided
             if ($newImagePath) {
                 $updateData['cia_image'] = $newImagePath;

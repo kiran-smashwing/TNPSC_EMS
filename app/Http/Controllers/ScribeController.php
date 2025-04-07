@@ -267,7 +267,18 @@ class ScribeController extends Controller
                 'scribe_center_id' => $validated['center'],
                 'scribe_venue_id' => $validated['venue'],
             ];
-
+            $role = session('auth_role');
+            $user = current_user();
+            if ($role == 'district') {
+                // $updateData['scribe_district_id'] = $validated['district'];
+                $updateData[ 'scribe_center_id'] = $validated['center'];
+                $updateData['scribe_venue_id'] = $validated['venue'];
+            }
+            elseif ($user->role && $user->role->role_department == 'ID') {
+                $updateData['scribe_district_id'] = $validated['district'];
+                $updateData[ 'scribe_center_id'] = $validated['center'];
+                $updateData['scribe_venue_id'] = $validated['venue'];
+            }
             // Add the new image path if it's provided
             if ($newImagePath) {
                 $updateData['scribe_image'] = $newImagePath;

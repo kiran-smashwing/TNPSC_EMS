@@ -295,6 +295,8 @@ class TreasuryOfficerController extends Controller
             if ($request->filled('password')) {
                 $validated['password'] = Hash::make($validated['password']);
             }
+            $role = session('auth_role');
+            $user = current_user();
             // Prepare data for update, including the new image path if it exists
             $updateData = [
                 'tre_off_district_id' => $validated['district'],
@@ -305,6 +307,9 @@ class TreasuryOfficerController extends Controller
                 'tre_off_employeeid' => $validated['employeeid'],
                 'tre_off_password' => $validated['password'] ?? $treasuryOfficer->tre_off_password
             ];
+            if ($user->role && $user->role->role_department == 'ID') {
+                $updateData['tre_off_district_id'] = $validated['district'];
+            }
 
             // Add new image path to update data if present
             if ($newImagePath) {

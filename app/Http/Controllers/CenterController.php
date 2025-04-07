@@ -300,6 +300,8 @@ class CenterController extends Controller
             if ($request->filled('password')) {
                 $validated['center_password'] = Hash::make($validated['password']);
             }
+            $role = session('auth_role');
+            $user = current_user();
             $updateData = [
                 'center_district_id' => $validated['district'],
                 'center_name' => $validated['center_name'],
@@ -312,7 +314,9 @@ class CenterController extends Controller
                 'center_longitude' => $validated['longitude'],
                 'center_latitude' => $validated['latitude'],
             ];
-
+            if ($user->role && $user->role->role_department == 'ID') {
+                $updateData['center_district_id'] = $validated['district'];
+            }
             // Add new image path to update data if present
             if ($newImagePath) {
                 $updateData['center_image'] = $newImagePath;

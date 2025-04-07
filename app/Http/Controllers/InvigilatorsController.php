@@ -258,7 +258,8 @@ class InvigilatorsController extends Controller
                 $newImagePath = $imagePath;
             }
 
-
+            $role = session('auth_role');
+            $user = current_user();
             // Prepare data for update, including new image path if it exists
             $updateData = [
                 'invigilator_district_id' => $validated['district'],
@@ -271,7 +272,16 @@ class InvigilatorsController extends Controller
 
 
             ];
-
+            if ($role == 'district') {
+                // $updateData['ci_district_id'] = $validated['district'];
+                $updateData[ 'invigilator_center_id'] = $validated['center'];
+                $updateData['invigilator_venue_id'] = $validated['venue'];
+            }
+            elseif ($user->role && $user->role->role_department == 'ID') {
+                $updateData['invigilator_district_id'] = $validated['district'];
+                $updateData[ 'invigilator_venue_id'] = $validated['center'];
+                $updateData['invigilator_venue_id'] = $validated['venue'];
+            }
             // Add new image path to update data if present
             if ($newImagePath) {
                 $updateData['invigilator_image'] = $newImagePath;

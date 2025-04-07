@@ -679,7 +679,7 @@ class BundlePackagingController extends Controller
         $routes = ChartedVehicleRoute::whereJsonContains('exam_id', $examId)->get();
         // Fetching exam notifications 
         foreach ($routes as $route) {
-            $examIds = $route->exam_id; // Assuming this is how you fetch the exam IDs array 
+            $examIds = $route->exam_id; 
             $exams = Currentexam::whereIn('exam_main_no', $examIds)->get();
             $route->exam_notifications = $exams->pluck('exam_main_notification')->implode(', ');
         }

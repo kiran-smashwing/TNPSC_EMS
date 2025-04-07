@@ -33,11 +33,11 @@ class MyExamController extends Controller
         $this->middleware('auth.multi');
     }
 
-    public function index()
-    {
-        $exams = Currentexam::all(); // Fetch all exams with their related exam sessions
-        return view('my_exam.index', compact('exams')); // Pass the exam to
-    }
+    // public function index()
+    // {
+    //     $exams = Currentexam::all(); // Fetch all exams with their related exam sessions
+    //     return view('my_exam.index', compact('exams')); // Pass the exam to
+    // }
     public function task(Request $request, $examId)
     {
         $role = session('auth_role');

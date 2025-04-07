@@ -14,7 +14,7 @@ use App\Models\District;
 
 use Illuminate\Http\Request;
 
-class Expenditure_StatmentController extends Controller
+class ExpenditureStatmentController extends Controller
 {
     public function __construct()
     {

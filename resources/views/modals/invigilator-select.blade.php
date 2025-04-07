@@ -3,7 +3,7 @@
     aria-labelledby="invigilatorSelectModalLabel" aria-hidden="true">
     <div class="modal-dialog ">
         <div class="modal-content">
-            <form id="invigilator-form" action="{{ route('save-invigilator.details') }}" method="POST">
+            <form id="invigilator-form" action="{{ route('staffalloment.save-invigilator-details') }}" method="POST">
                 @csrf
                 <input type="hidden" name="exam_id" value="{{ $session->currentexam->exam_main_no }}">
                 <input type="hidden" name="exam_sess_date" value="{{ $session->exam_sess_date }}">

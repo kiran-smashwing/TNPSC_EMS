@@ -50,7 +50,7 @@
         $(document).ready(function() {
             // Function to fetch and display the allotment details
             function fetchAllotmentDetails() {
-                fetch("{{ route('view-invigilator-allocate') }}", {
+                fetch("{{ route('staffalloment.view-invigilator-allocate') }}", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

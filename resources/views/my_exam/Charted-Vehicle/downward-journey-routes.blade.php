@@ -256,9 +256,11 @@
                                                                 class="ti ti-download f-20"></i></a>
                                                     @endif
                                                 @endhasPermission
+                                                @hasPermission('viewTrunkboxes')
                                                 <a href="{{ route('viewTrunkboxes', $route['id']) }}"
                                                     class="avtar avtar-xs btn-light-success"><i
                                                         class="ti ti-checkbox  f-20"></i></a>
+                                                @endhasPermission
                                                 @hasPermission('otl-lock')
                                                     <a href='#'
                                                         class="{{ $route->user_used_otl_code ? 'avtar avtar-xs btn-light-success' : 'avtar avtar-xs btn-light-danger' }} lock-update"

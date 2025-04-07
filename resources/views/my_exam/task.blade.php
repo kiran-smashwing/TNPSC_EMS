@@ -1583,7 +1583,7 @@
                                                             <div class="h5 mt-3"><i
                                                                     class="material-icons-two-tone f-16 me-1">apartment</i>
                                                                 ED
-                                                                - Officer</div>
+                                                                - Section Officer</div>
                                                         </div>
                                                         <div class="mt-2">
                                                             @hasPermission('verify-bundle-recevied-at-hq')

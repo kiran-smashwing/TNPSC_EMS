@@ -1237,7 +1237,7 @@ $replacementTime = $hasReplacement
                                                     <div class="mt-2">
                                                         {{-- <a href="#" class="me-2 btn btn-sm btn-light-primary"><i
                                                                 class="feather icon-eye mx-1"></i>View</a> --}}
-                                                        <a href="{{ route('ci.bundlepackaging.view', [
+                                                        <a href="{{ route('bundle-packaging.ci-view', [
                                                             'examId' => $session->currentexam->exam_main_no,
                                                             'exam_date' => $session->exam_sess_date,
                                                             'exam_session' => $session->exam_sess_session,

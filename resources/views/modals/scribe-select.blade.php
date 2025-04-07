@@ -3,7 +3,7 @@
     aria-labelledby="scribeSelectModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="{{ route('update.scribe.details', [$session->currentexam->exam_main_no, $session->exam_sess_date, $ci_id]) }}" method="POST">
+            <form action="{{ route('staffalloment.update-scribe-details', [$session->currentexam->exam_main_no, $session->exam_sess_date, $ci_id]) }}" method="POST">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="exam_id" value="{{ $session->currentexam->exam_main_no }}">

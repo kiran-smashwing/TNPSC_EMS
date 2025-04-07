@@ -89,7 +89,7 @@
                             <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                         </a>
                         <ul class="pc-submenu">
-                            @hasPermission('view-all-districts')
+                            @hasPermission('district.index')
                                 <li class="pc-item"><a class="pc-link" href="{{ route('district.index') }}">District
                                         Collectorates </a></li>
                             @endhasPermission
@@ -185,7 +185,7 @@
                         <span class="pc-mtext">My Exams</span>
                     </a>
                 </li> --}}
-                @hasPermission('current-exam')
+                @hasPermission('current-exam.index')
                     <li class="pc-item">
                         <a href="{{ route('current-exam.index') }}" class="pc-link">
                             <span class="pc-micon">
@@ -271,7 +271,7 @@
                         </a>
                     </li>
                 @endhasPermission
-                @hasPermission('exam-completed')
+                @hasPermission('completed-exam.index')
                     <li class="pc-item">
                         <a href="{{ route('completed-exam') }}" class="pc-link">
                             <span class="pc-micon">

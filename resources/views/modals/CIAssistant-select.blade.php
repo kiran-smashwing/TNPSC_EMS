@@ -5,7 +5,7 @@
         <div class="modal-content">
             <!-- Form Blade Template -->
             <form
-                action="{{ route('update.ci-assistant-details', [$session->currentexam->exam_main_no, $session->exam_sess_date, $ci_id]) }}"
+                action="{{ route('staffalloment.update-ci-assistant-details', [$session->currentexam->exam_main_no, $session->exam_sess_date, $ci_id]) }}"
                 method="POST">
                 @csrf
                 @method('PUT')

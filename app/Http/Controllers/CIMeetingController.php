@@ -15,10 +15,7 @@ class CIMeetingController extends Controller
         $this->middleware('auth.multi');
     }
 
-    public function index()
-    {
-        return view('my_exam.CI.ci-meeting');
-    }
+ 
     /**
      * Handle QR code scan and store attendance details
      *

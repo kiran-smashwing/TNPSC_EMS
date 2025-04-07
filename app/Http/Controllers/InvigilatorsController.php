@@ -55,16 +55,22 @@ class InvigilatorsController extends Controller
 
         // Fetch filtered invigilators
         $invigilators = $query->orderBy('invigilator_name')->get();
+        // dd($invigilators);
 
         // Fetch all districts (for dropdown)
-        $districts = District::all();
-
+        $districts = District::select('district_code', 'district_name')
+            ->orderBy('district_name')
+            ->get();
+        // dd($districts);
         // Fetch all centers (for dropdown)
-        $centers = Center::all();
+        $centers = Center::select('center_code', 'center_name', 'center_district_id')
+            ->orderBy('center_name')
+            ->get();
 
         // Fetch all venues (for dropdown)
-        $venues = Venues::all();
-
+        $venues = Venues::select('venue_code', 'venue_name', 'venue_center_id')
+            ->orderBy('venue_name')
+            ->get();
         // Return the view with the necessary data
         return view('masters.venues.invigilator.index', compact('invigilators', 'districts', 'centers', 'venues'));
     }
@@ -252,7 +258,8 @@ class InvigilatorsController extends Controller
                 $newImagePath = $imagePath;
             }
 
-
+            $role = session('auth_role');
+            $user = current_user();
             // Prepare data for update, including new image path if it exists
             $updateData = [
                 'invigilator_district_id' => $validated['district'],
@@ -265,7 +272,16 @@ class InvigilatorsController extends Controller
 
 
             ];
-
+            if ($role == 'district') {
+                // $updateData['ci_district_id'] = $validated['district'];
+                $updateData[ 'invigilator_center_id'] = $validated['center'];
+                $updateData['invigilator_venue_id'] = $validated['venue'];
+            }
+            elseif ($user->role && $user->role->role_department == 'ID') {
+                $updateData['invigilator_district_id'] = $validated['district'];
+                $updateData[ 'invigilator_venue_id'] = $validated['center'];
+                $updateData['invigilator_venue_id'] = $validated['venue'];
+            }
             // Add new image path to update data if present
             if ($newImagePath) {
                 $updateData['invigilator_image'] = $newImagePath;

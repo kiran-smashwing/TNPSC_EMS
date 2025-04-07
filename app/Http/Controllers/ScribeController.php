@@ -56,13 +56,19 @@ class ScribeController extends Controller
         $scribes = $query->orderBy('scribe_name')->get();
 
         // Fetch all districts (for dropdown)
-        $districts = District::all();
-
+        $districts = District::select('district_code', 'district_name')
+            ->orderBy('district_name')
+            ->get();
+        // dd($districts);
         // Fetch all centers (for dropdown)
-        $centers = Center::all();
+        $centers = Center::select('center_code', 'center_name', 'center_district_id')
+            ->orderBy('center_name')
+            ->get();
 
         // Fetch all venues (for dropdown)
-        $venues = Venues::all();
+        $venues = Venues::select('venue_code', 'venue_name', 'venue_center_id')
+            ->orderBy('venue_name')
+            ->get();
 
         // Return the view with the necessary data
         return view('masters.venues.scribe.index', compact('scribes', 'districts', 'centers', 'venues'));
@@ -261,7 +267,18 @@ class ScribeController extends Controller
                 'scribe_center_id' => $validated['center'],
                 'scribe_venue_id' => $validated['venue'],
             ];
-
+            $role = session('auth_role');
+            $user = current_user();
+            if ($role == 'district') {
+                // $updateData['scribe_district_id'] = $validated['district'];
+                $updateData[ 'scribe_center_id'] = $validated['center'];
+                $updateData['scribe_venue_id'] = $validated['venue'];
+            }
+            elseif ($user->role && $user->role->role_department == 'ID') {
+                $updateData['scribe_district_id'] = $validated['district'];
+                $updateData[ 'scribe_center_id'] = $validated['center'];
+                $updateData['scribe_venue_id'] = $validated['venue'];
+            }
             // Add the new image path if it's provided
             if ($newImagePath) {
                 $updateData['scribe_image'] = $newImagePath;

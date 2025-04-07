@@ -35,6 +35,12 @@ class District extends Authenticatable
         'verification_token',
     ];
 
+     // Hide sensitive fields from array or JSON output
+     protected $hidden = [
+        'district_password',
+        'remember_token',
+        'verification_token', // Uncomment if applicable
+    ];
 
     // Add timestamp for createdat
     protected static function boot()

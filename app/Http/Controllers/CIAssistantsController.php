@@ -53,9 +53,19 @@ class CIAssistantsController extends Controller
         $ciAssistants = $query->orderBy('cia_name')->paginate(10);
 
         // Fetch all districts, centers, and venues
-        $districts = District::all();
-        $centers = Center::all();
-        $venues = Venues::all();
+        $districts = District::select('district_code', 'district_name')
+            ->orderBy('district_name')
+            ->get();
+        // dd($districts);
+        // Fetch all centers (for dropdown)
+        $centers = Center::select('center_code', 'center_name', 'center_district_id')
+            ->orderBy('center_name')
+            ->get();
+
+        // Fetch all venues (for dropdown)
+        $venues = Venues::select('venue_code', 'venue_name', 'venue_center_id')
+            ->orderBy('venue_name')
+            ->get();
 
         // Return the view with data
         return view('masters.venues.ci_assistants.index', compact('ciAssistants', 'districts', 'centers', 'venues'));
@@ -235,7 +245,8 @@ class CIAssistantsController extends Controller
                 // Set new image path to be saved in the database
                 $newImagePath = $imagePath;
             }
-
+            $role = session('auth_role');
+            $user = current_user();
             // Prepare data for updating the CI Assistant record
             $updateData = [
                 'cia_name' => $validated['name'],
@@ -246,7 +257,16 @@ class CIAssistantsController extends Controller
                 'cia_center_id' => $validated['center'],
                 'cia_venue_id' => $validated['venue'],
             ];
-
+            if ($role == 'district') {
+                // $updateData['cia_district_id'] = $validated['district'];
+                $updateData[ 'cia_center_id'] = $validated['center'];
+                $updateData['cia_venue_id'] = $validated['venue'];
+            }
+            elseif ($user->role && $user->role->role_department == 'ID') {
+                $updateData['cia_district_id'] = $validated['district'];
+                $updateData[ 'cia_center_id'] = $validated['center'];
+                $updateData['cia_venue_id'] = $validated['venue'];
+            }
             // Add the new image path if it's provided
             if ($newImagePath) {
                 $updateData['cia_image'] = $newImagePath;

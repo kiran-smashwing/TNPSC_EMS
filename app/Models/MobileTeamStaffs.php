@@ -32,7 +32,12 @@ class MobileTeamStaffs extends Authenticatable
         'verification_token',
     ];
 
-   
+    // Hide sensitive fields from array or JSON output
+    protected $hidden = [
+        'mobile_password',
+        'remember_token',
+        'verification_token', // Uncomment if applicable
+    ];
     protected static function boot()
     {
         parent::boot();

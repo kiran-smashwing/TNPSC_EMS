@@ -34,6 +34,11 @@ class Center extends Authenticatable
         'remember_token',
         'verification_token',
     ];
+    protected $hidden = [
+        'center_password',
+        'remember_token',
+        'verification_token',
+    ];
 
     protected static function boot()
     {

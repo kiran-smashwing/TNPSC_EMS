@@ -33,15 +33,25 @@ class ChiefInvigilatorsController extends Controller
         $user = current_user();
         $role = session('auth_role');
         if ($role == "district") {
-            $centers = Center::orderBy('center_name')
-                ->where('center_district_id', $user->district_code)
-                ->get();
+            $centers = Center::select('center_code', 'center_name','center_district_id')
+            ->where('center_district_id', $user->district_code)
+            ->orderBy('center_name')
+            ->get();
+        
         } else {
-            $centers = Center::orderBy('center_name')->get();
+            $centers = Center::select('center_code', 'center_name','center_district_id')
+            ->orderBy('center_name')
+            ->get();
         }
         // Get only the districts for the filter dropdown
-        $districts = District::orderBy('district_name')->get();
-        $venues = Venues::orderBy('venue_name')->get();
+        $districts = District::select('district_code', 'district_name')
+            ->orderBy('district_name')
+            ->get();
+        $venues = Venues::select('venue_code', 'venue_name', 'venue_center_id')
+            ->orderBy('venue_name')
+            ->get();
+
+        // dd($venues);
 
         return view('masters.venues.chief_invigilator.index', compact('districts', 'centers', 'venues', 'role', 'user'));
     }
@@ -118,7 +128,6 @@ class ChiefInvigilatorsController extends Controller
         }
 
         $chiefInvigilators = $query->get();
-
         return response()->json([
             'draw' => intval($request->input('draw')),
             'recordsTotal' => $totalRecords,
@@ -367,6 +376,8 @@ class ChiefInvigilatorsController extends Controller
             if ($request->filled('password')) {
                 $validated['ci_password'] = Hash::make($validated['password']);
             }
+            $role = session('auth_role');
+            $user = current_user();
             // Update the Chief Invigilator
             // Prepare data for update, including the new image path if it exists
             $updateData = [
@@ -381,6 +392,16 @@ class ChiefInvigilatorsController extends Controller
                 'ci_email' => $validated['email'],
                 'ci_password' => $validated['ci_password'] ?? $chiefInvigilator->ci_password, // Use the old password if not updated
             ];
+            if ($role == 'district') {
+                // $updateData['ci_district_id'] = $validated['district'];
+                $updateData[ 'ci_center_id'] = $validated['center'];
+                $updateData['ci_venue_id'] = $validated['venue'];
+            }
+            elseif ($user->role && $user->role->role_department == 'ID') {
+                $updateData['ci_district_id'] = $validated['district'];
+                $updateData[ 'ci_center_id'] = $validated['center'];
+                $updateData['ci_venue_id'] = $validated['venue'];
+            }
             // Add new image path to update data if present
             if ($newImagePath) {
                 $updateData['ci_image'] = $newImagePath;

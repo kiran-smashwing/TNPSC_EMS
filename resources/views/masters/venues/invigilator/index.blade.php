@@ -385,11 +385,12 @@
             }
             // Full list of centers
             const allCenters = @json($centers);
-            console.log("All Centers:", allCenters);
+            // console.log("All Centers:", allCenters);
             // console.log(@json($districts));
             // District filter change event
             $('#districtFilter').on('change', function() {
                 const selectedDistrictCode = $(this).val();
+                console.log("🎯 Selected District Code:", selectedDistrictCode, "| Type:", typeof selectedDistrictCode);
                 // alert(selectedDistrictCode);
                 const centerDropdown = $('#centerFilter'); // Corrected to #centerFilter
                 console.log("Selected District Code:", selectedDistrictCode, "Type:", typeof selectedDistrictCode);
@@ -402,6 +403,7 @@
                 const filteredCenters = allCenters.filter(center =>
                     center.center_district_id == selectedDistrictCode
                 );
+                // console.log("🔍 Filtered Centers for district", selectedDistrictCode, ":", filteredCenters);
 
                 // Populate centers
                 filteredCenters.forEach(center => {
@@ -417,7 +419,9 @@
             // Trigger change event on page load to handle old/existing selections
             $(document).ready(function() {
                 const oldDistrict = "{{ request('district') }}";
+                
                 if (oldDistrict) {
+                    // console.log("📦 Old district from request:", oldDistrict);
                     $('#districtFilter').val(oldDistrict).trigger('change');
                 }
             });

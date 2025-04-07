@@ -34,6 +34,7 @@ class ChiefInvigilator extends Authenticatable
     ];
     protected $hidden = [
         'ci_password',
+        'remember_token',
     ];
     // Add timestamp for createdat
     protected static function boot()

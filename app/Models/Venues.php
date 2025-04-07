@@ -51,6 +51,12 @@ class Venues extends Authenticatable
         'verification_token',
     ];
 
+     // Hide sensitive fields from array or JSON output
+     protected $hidden = [
+        'venue_password',
+        'remember_token',
+        'verification_token',
+    ];
     // Add timestamp for createdat
     protected static function boot()
     {

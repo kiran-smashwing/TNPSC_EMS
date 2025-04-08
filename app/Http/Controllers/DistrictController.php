@@ -161,7 +161,8 @@ class DistrictController extends Controller
 
     public function edit($id)
     {
-        $district = District::findOrFail($id);
+        $ids = decrypt($id);
+        $district = District::findOrFail($ids);
         return view('masters.district.collectorate.edit', compact('district'));
     }
 
@@ -264,7 +265,8 @@ class DistrictController extends Controller
 
     public function show($id)
     {
-        $district = District::findOrFail($id);
+        $ids = decrypt($id);
+        $district = District::findOrFail($ids);
         $centerCount = $district->centers()->count();  // Assuming 'centers' is a relationship in District model
         $venueCount = $district->venues()->count();    // Assuming 'venues' is a relationship in District model
         $staffCount = $district->treasuryOfficers()->count() + $district->mobileTeamStaffs()->count();
@@ -291,7 +293,8 @@ class DistrictController extends Controller
     public function toggleStatus($id)
     {
         try {
-            $district = District::findOrFail($id);
+            $ids = decrypt($id);
+            $district = District::findOrFail($ids);
 
             // Get current status before update
             $oldStatus = $district->district_status;

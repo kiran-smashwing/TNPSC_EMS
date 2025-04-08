@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                              <h2 class="mb-0"></h2>
-                                                            </div> -->
+                                                                  <h2 class="mb-0"></h2>
+                                                                </div> -->
                         </div>
                     </div>
                 </div>
@@ -268,17 +268,17 @@
                                             <td>{{ $invigilator->invigilator_phone }}</td>
 
                                             <td>
-                                                <a href="{{ route('invigilators.show', ['id' => $invigilator->invigilator_id]) }}"
+                                                <a href="{{ route('invigilators.show', ['id' => encrypt($invigilator->invigilator_id)]) }}"
                                                     class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-eye f-20"></i>
                                                 </a>
-                                                <a href="{{ route('invigilators.edit', ['id' => $invigilator->invigilator_id]) }}"
+                                                <a href="{{ route('invigilators.edit', ['id' => encrypt($invigilator->invigilator_id)]) }}"
                                                     class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-edit f-20"></i>
                                                 </a>
                                                 <a href="#"
                                                     class="avtar avtar-xs status-toggle {{ $invigilator->invigilator_status ? 'btn-light-success' : 'btn-light-danger' }}"
-                                                    data-invigilator-id="{{ $invigilator->invigilator_id }}"
+                                                    data-invigilator-id="{{ encrypt($invigilator->invigilator_id) }}"
                                                     title="Change Status (Active or Inactive)">
                                                     <i
                                                         class="ti ti-toggle-{{ $invigilator->invigilator_status ? 'right' : 'left' }} f-20"></i>
@@ -419,7 +419,7 @@
             // Trigger change event on page load to handle old/existing selections
             $(document).ready(function() {
                 const oldDistrict = "{{ request('district') }}";
-                
+
                 if (oldDistrict) {
                     // console.log("📦 Old district from request:", oldDistrict);
                     $('#districtFilter').val(oldDistrict).trigger('change');

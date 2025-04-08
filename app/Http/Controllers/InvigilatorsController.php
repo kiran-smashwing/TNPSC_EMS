@@ -191,8 +191,9 @@ class InvigilatorsController extends Controller
 
     public function edit($id)
     {
+        $ids = decrypt($id);
         // Fetch the specific invigilator by ID
-        $invigilator = Invigilator::findOrFail($id);
+        $invigilator = Invigilator::findOrFail($ids);
         // Fetch any necessary data to display in the form (e.g., venues, centers)
         $venues = Venues::all(); // Or use a filter if necessary
         $centers = Center::all(); // Same as above
@@ -309,7 +310,8 @@ class InvigilatorsController extends Controller
     public function toggleStatus($id)
     {
         try {
-            $invigilator = Invigilator::findOrFail($id);
+            $ids = decrypt($id);
+           $invigilator = Invigilator::findOrFail($ids);
 
             // Get current status before update
             $oldStatus = $invigilator->invigilator_status;
@@ -345,8 +347,10 @@ class InvigilatorsController extends Controller
 
     public function show($id)
     {
+        $ids = decrypt($id);
+        
         // Fetch the invigilator with its related district, venue, and center using eager loading
-        $invigilator = Invigilator::with(['district', 'venue', 'center'])->findOrFail($id);
+        $invigilator = Invigilator::with(['district', 'venue', 'center'])->findOrFail($ids);
 
         // Handle null district
         $centerCount = optional($invigilator->district)->centers()->count() ?? 0;

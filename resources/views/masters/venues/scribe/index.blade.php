@@ -267,17 +267,17 @@
                                             {{-- <td>{{ $scribe->scribe_email }}</td> --}}
                                             <td>{{ $scribe->scribe_phone }}</td>
                                             <td>
-                                                <a href="{{ route('scribes.show', $scribe->scribe_id) }}"
+                                                <a href="{{ route('scribes.show', encrypt($scribe->scribe_id)) }}"
                                                     class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-eye f-20"></i>
                                                 </a>
-                                                <a href="{{ route('scribes.edit', $scribe->scribe_id) }}"
+                                                <a href="{{ route('scribes.edit', encrypt($scribe->scribe_id)) }}"
                                                     class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-edit f-20"></i>
                                                 </a>
                                                 <a href="#"
                                                     class="avtar avtar-xs status-toggle {{ $scribe->scribe_status ? 'btn-light-success' : 'btn-light-danger' }}"
-                                                    data-scribe-id="{{ $scribe->scribe_id }}"
+                                                    data-scribe-id="{{ encrypt($scribe->scribe_id) }}"
                                                     title="Change Status (Active or Inactive)">
                                                     <i
                                                         class="ti ti-toggle-{{ $scribe->scribe_status ? 'right' : 'left' }} f-20"></i>

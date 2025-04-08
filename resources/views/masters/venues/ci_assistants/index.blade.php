@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                          <h2 class="mb-0"></h2>
-                                                        </div> -->
+                                                              <h2 class="mb-0"></h2>
+                                                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -190,44 +190,44 @@
                         </div>
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
-                            @if(session('auth_role')=='headquarters')
-                            <form id="filterForm" class="mb-3">
-                                <div class="filter-item">
-                                    <select class="form-select" id="districtFilter" name="district">
-                                        <option value="">Select District Name</option>
-                                        @foreach ($districts as $district)
-                                            <option value="{{ $district->district_code }}">
-                                                {{ $district->district_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                            @if (session('auth_role') == 'headquarters')
+                                <form id="filterForm" class="mb-3">
+                                    <div class="filter-item">
+                                        <select class="form-select" id="districtFilter" name="district">
+                                            <option value="">Select District Name</option>
+                                            @foreach ($districts as $district)
+                                                <option value="{{ $district->district_code }}">
+                                                    {{ $district->district_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
 
 
-                                <!-- Center Filter -->
-                                <div class="filter-item">
-                                    <select class="form-select" id="centerFilter" name="center">
-                                        <option value="">Select Center Name</option>
-                                    </select>
-                                </div>
+                                    <!-- Center Filter -->
+                                    <div class="filter-item">
+                                        <select class="form-select" id="centerFilter" name="center">
+                                            <option value="">Select Center Name</option>
+                                        </select>
+                                    </div>
 
-                                <!-- Venue Filter -->
-                                <div class="filter-item">
-                                    <select class="form-select" id="venueFilter" name="venue">
-                                        <option value="">Select Venue Name</option>
-                                    </select>
-                                </div>
+                                    <!-- Venue Filter -->
+                                    <div class="filter-item">
+                                        <select class="form-select" id="venueFilter" name="venue">
+                                            <option value="">Select Venue Name</option>
+                                        </select>
+                                    </div>
 
 
 
-                                <!-- Buttons -->
-                                <div class="btn-container">
-                                    <button type="submit" class="btn btn-primary">Apply Filters</button>
-                                </div>
-                                <a href="{{ url()->current() }}" class="btn btn-secondary"><i
-                                        class="ti ti-refresh me-2"></i>Reset</a>
-                            </form>
-                             @endif
+                                    <!-- Buttons -->
+                                    <div class="btn-container">
+                                        <button type="submit" class="btn btn-primary">Apply Filters</button>
+                                    </div>
+                                    <a href="{{ url()->current() }}" class="btn btn-secondary"><i
+                                            class="ti ti-refresh me-2"></i>Reset</a>
+                                </form>
+                            @endif
 
                             <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
                                 width="100%">
@@ -269,21 +269,24 @@
                                             {{-- <td>{{ $assistant->cia_email }}</td> --}}
                                             <td>{{ $assistant->cia_phone }}</td>
                                             <td>
-                                                <a href="{{ route('ci-assistant.show', $assistant->cia_id) }}"
+                                                <a href="{{ route('ci-assistant.show', encrypt($assistant->cia_id)) }}"
                                                     class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-eye f-20"></i>
                                                 </a>
-                                                <a href="{{ route('ci-assistant.edit', $assistant->cia_id) }}"
+
+                                                <a href="{{ route('ci-assistant.edit', encrypt($assistant->cia_id)) }}"
                                                     class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-edit f-20"></i>
                                                 </a>
+
                                                 <a href="#"
                                                     class="avtar avtar-xs status-toggle {{ $assistant->cia_status ? 'btn-light-success' : 'btn-light-danger' }}"
-                                                    data-ci-assistant-id="{{ $assistant->cia_id }}"
+                                                    data-ci-assistant-id="{{ encrypt($assistant->cia_id) }}"
                                                     title="Change Status (Active or Inactive)">
                                                     <i
                                                         class="ti ti-toggle-{{ $assistant->cia_status ? 'right' : 'left' }} f-20"></i>
                                                 </a>
+
 
                                             </td>
                                         </tr>
@@ -322,7 +325,7 @@
 
                     // Get the CI Assistant ID from the data attribute
                     const ciAssistantId = button.dataset.ciAssistantId;
-
+                    // console.log (ciAssistantId);
                     // Send the request to toggle the status
                     fetch(`{{ url('/') }}/ci-assistant/${ciAssistantId}/toggle-status`, {
                             method: 'POST',

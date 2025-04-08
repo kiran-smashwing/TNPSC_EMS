@@ -268,20 +268,21 @@
                                                 @endif
                                             </td>
                                             <td class="text-center">
-                                                <a href="{{ route('treasury-officers.show', $officer->tre_off_id) }}"
+                                                <a href="{{ route('treasury-officers.show', encrypt($officer->tre_off_id)) }}"
                                                     class="avtar avtar-xs btn-light-success" title="View">
                                                     <i class="ti ti-eye f-20"></i>
                                                 </a>
-                                                <a href="{{ route('treasury-officers.edit', $officer->tre_off_id) }}"
+                                            
+                                                <a href="{{ route('treasury-officers.edit', encrypt($officer->tre_off_id)) }}"
                                                     class="avtar avtar-xs btn-light-success" title="Edit">
                                                     <i class="ti ti-edit f-20"></i>
                                                 </a>
+                                            
                                                 <a href="#"
                                                     class="avtar avtar-xs status-toggle {{ $officer->tre_off_status ? 'btn-light-success' : 'btn-light-danger' }}"
-                                                    data-officer-id="{{ $officer->tre_off_id }}"
+                                                    data-officer-id="{{ encrypt($officer->tre_off_id) }}"
                                                     title="Change Status (Active or Inactive)">
-                                                    <i
-                                                        class="ti ti-toggle-{{ $officer->tre_off_status ? 'right' : 'left' }} f-20"></i>
+                                                    <i class="ti ti-toggle-{{ $officer->tre_off_status ? 'right' : 'left' }} f-20"></i>
                                                 </a>
                                             </td>
                                         </tr>

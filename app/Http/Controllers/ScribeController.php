@@ -187,7 +187,8 @@ class ScribeController extends Controller
     public function edit($id)
     {
         // Fetch the specific scribe record by its ID
-        $scribe = Scribe::findOrFail($id);
+        $ids = decrypt($id);
+        $scribe = Scribe::findOrFail($ids);
 
         // Fetch the necessary data for dropdowns
         $venues = Venues::all();
@@ -299,7 +300,8 @@ class ScribeController extends Controller
 
     public function show($id)
     {
-        $scribe = Scribe::with(['district', 'venue', 'center'])->findOrFail($id);
+        $ids = decrypt($id);
+        $scribe = Scribe::with(['district', 'venue', 'center'])->findOrFail($ids);
 
         // Handle null district
         $centerCount = optional($scribe->district)->centers()->count() ?? 0;
@@ -318,7 +320,8 @@ class ScribeController extends Controller
     public function toggleStatus($id)
     {
         try {
-            $scribe = Scribe::findOrFail($id);
+            $ids = decrypt($id);
+            $scribe = Scribe::findOrFail($ids);
 
             // Get current status before update
             $oldStatus = $scribe->scribe_status;

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\UserAccountCreationMail;
 use App\Mail\UserEmailVerificationMail;
 use App\Models\ChiefInvigilator;
+use Illuminate\Support\Facades\Crypt;
 use App\Models\Center;
 use App\Models\District;
 use App\Models\Venues;
@@ -33,15 +34,14 @@ class ChiefInvigilatorsController extends Controller
         $user = current_user();
         $role = session('auth_role');
         if ($role == "district") {
-            $centers = Center::select('center_code', 'center_name','center_district_id')
-            ->where('center_district_id', $user->district_code)
-            ->orderBy('center_name')
-            ->get();
-        
+            $centers = Center::select('center_code', 'center_name', 'center_district_id')
+                ->where('center_district_id', $user->district_code)
+                ->orderBy('center_name')
+                ->get();
         } else {
-            $centers = Center::select('center_code', 'center_name','center_district_id')
-            ->orderBy('center_name')
-            ->get();
+            $centers = Center::select('center_code', 'center_name', 'center_district_id')
+                ->orderBy('center_name')
+                ->get();
         }
         // Get only the districts for the filter dropdown
         $districts = District::select('district_code', 'district_name')
@@ -127,7 +127,11 @@ class ChiefInvigilatorsController extends Controller
             $query->orderBy($columnName, $columnDir);
         }
 
-        $chiefInvigilators = $query->get();
+        $chiefInvigilators = $query->get()->toArray();
+
+        foreach ($chiefInvigilators as &$ci) {
+            $ci['ci_id'] = Crypt::encrypt($ci['ci_id']);
+        }
         return response()->json([
             'draw' => intval($request->input('draw')),
             'recordsTotal' => $totalRecords,
@@ -304,10 +308,12 @@ class ChiefInvigilatorsController extends Controller
 
     public function edit($id)
     {
+        $ids = Crypt::decrypt($id); // 🔐 Decrypt the ID first
+        // dd($ids);
         $venues = Venues::all(); // Retrieve all venues
         $centers = Center::all(); // Retrieve all centers
         $districts = District::all(); // Retrieve all districts
-        $chiefInvigilator = ChiefInvigilator::findOrFail($id); // Retrieve the specific Chief Invigilator
+        $chiefInvigilator = ChiefInvigilator::findOrFail($ids); // Retrieve the specific Chief Invigilator
 
         return view('masters.venues.chief_invigilator.edit', compact('chiefInvigilator', 'venues', 'centers', 'districts'));
     }
@@ -394,12 +400,11 @@ class ChiefInvigilatorsController extends Controller
             ];
             if ($role == 'district') {
                 // $updateData['ci_district_id'] = $validated['district'];
-                $updateData[ 'ci_center_id'] = $validated['center'];
+                $updateData['ci_center_id'] = $validated['center'];
                 $updateData['ci_venue_id'] = $validated['venue'];
-            }
-            elseif ($user->role && $user->role->role_department == 'ID') {
+            } elseif ($user->role && $user->role->role_department == 'ID') {
                 $updateData['ci_district_id'] = $validated['district'];
-                $updateData[ 'ci_center_id'] = $validated['center'];
+                $updateData['ci_center_id'] = $validated['center'];
                 $updateData['ci_venue_id'] = $validated['venue'];
             }
             // Add new image path to update data if present
@@ -429,7 +434,8 @@ class ChiefInvigilatorsController extends Controller
     }
     public function show($id)
     {
-        $chiefInvigilator = ChiefInvigilator::with(['district', 'venue', 'center'])->findOrFail($id);
+        $ids = Crypt::decrypt($id); // 🔐 Decrypt the ID first
+        $chiefInvigilator = ChiefInvigilator::with(['district', 'venue', 'center'])->findOrFail($ids);
 
         // Handle null district
         $centerCount = optional($chiefInvigilator->district)->centers()->count() ?? 0;
@@ -460,7 +466,8 @@ class ChiefInvigilatorsController extends Controller
     public function toggleStatus($id)
     {
         try {
-            $chiefInvigilator = ChiefInvigilator::findOrFail($id);
+            $ids = Crypt::decrypt($id); // 🔐 Decrypt the ID first
+            $chiefInvigilator = ChiefInvigilator::findOrFail($ids);
 
             // Get current status before update
             $oldStatus = $chiefInvigilator->ci_status;

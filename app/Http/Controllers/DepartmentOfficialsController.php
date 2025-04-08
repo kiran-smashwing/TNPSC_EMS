@@ -158,6 +158,11 @@ class DepartmentOfficialsController extends Controller
     public function update(Request $request, $id)
     {
         // Find the DepartmentOfficial by ID
+        $user=current_user();
+        if($user->role && $user->role->role_department !== 'ID'){
+            $id=$user->dept_off_id;
+        }
+       
         $official = DepartmentOfficial::findOrFail($id);
         $messages = [
             'role.required' => 'Please select a role',

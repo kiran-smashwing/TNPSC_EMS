@@ -15,6 +15,13 @@ class SecurityHeaders
      */
     public function handle(Request $request, Closure $next): Response
     {
+        $this->validateHostHeader($request);
+        $allowedMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
+
+        if (!in_array(strtoupper($request->method()), $allowedMethods)) {
+            abort(405, 'Method Not Allowed');
+        }
+
         $response = $next($request);
         // Perform additional security checks
         $input = $request->all();
@@ -61,7 +68,7 @@ class SecurityHeaders
                 $decodedValue = $value;
                 $jsonDecoded = is_array($value) ? $value : null;
             }
-        
+
             if (is_array($jsonDecoded)) {
                 // Skip direct checks if it's valid JSON; process recursively
                 checkValue($jsonDecoded, $patterns);
@@ -74,20 +81,63 @@ class SecurityHeaders
             // Check plain values
             checkValue($decodedValue, $patterns);
         }
-        
+
 
         // Add security headers
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
         $response->headers->set('X-XSS-Protection', '1; mode=block');
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
-        // Content Security Policy (CSP)
-        // $response->headers->set('Content-Security-Policy', "default-src 'self'; img-src 'self' data: https://*; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*; style-src 'self' 'unsafe-inline' https://*;");
-        // $response->headers->set('Content-Security-Policy',"default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data:;object-src 'none';base-uri 'self';form-action 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com");
+
+        // Content Security Policy (CSP) - Permissive to avoid breaking frontend
+        $response->headers->set('Content-Security-Policy', "default-src 'self' https: http: data:; " .
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; " .
+            "style-src 'self' 'unsafe-inline' https: http:; " .
+            "img-src 'self' data: https: http:; " .
+            "font-src 'self' data: https: http:; " .
+            "connect-src 'self' https: http:; " .
+            "object-src 'none'; " .
+            "base-uri 'self'; " .
+            "form-action 'self' https:; " .
+            "frame-ancestors 'self';");
+
         $response->headers->set('Permissions-Policy', 'camera=self, microphone=(), geolocation=self, fullscreen=self');
         $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
         $response->headers->set('Expect-CT', 'max-age=86400, enforce');
         $response->headers->set('Cache-Control', 'private, no-cache, must-revalidate');
         return $response;
+    }
+    /**
+     * Validate the Host header to prevent Host Header Injection.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return void
+     */
+    protected function validateHostHeader(Request $request): void
+    {
+        // Define allowed hosts (e.g., from config or environment)
+        $allowedHosts = [
+            parse_url(config('app.url'), PHP_URL_HOST), // our primary app URL 
+            'localhost',       // For local development
+        ];
+
+        // Get the Host header from the request
+        $host = strtolower($request->header('Host'));
+
+        // Remove port if present (e.g., "example.com:80" -> "example.com")
+        $host = preg_replace('/:\d+$/', '', $host);
+
+        // Check if the Host header is in the allowed list
+        if (!in_array($host, array_map('strtolower', $allowedHosts), true)) {
+            // Log the suspicious request
+            \Log::warning('Host Header Injection attempt detected', [
+                'host' => $host,
+                'ip' => $request->ip(),
+                'url' => $request->fullUrl(),
+            ]);
+
+            // Reject the request with a 400 Bad Request status
+            abort(400, 'Invalid Host header');
+        }
     }
 }

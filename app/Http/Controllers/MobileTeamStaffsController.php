@@ -265,8 +265,8 @@ class MobileTeamStaffsController extends Controller
 
     public function edit($mobile_id)
     {
-
-        $mobileTeamStaff = MobileTeamStaffs::findOrFail($mobile_id);
+        $mobile_ids = decrypt($mobile_id);
+        $mobileTeamStaff = MobileTeamStaffs::findOrFail($mobile_ids);
         $districts = District::all(); // Fetch all districts
         return view('masters.district.mobile_team_staffs.edit', compact('mobileTeamStaff', 'districts'));
     }
@@ -372,8 +372,8 @@ class MobileTeamStaffsController extends Controller
     }
     public function show($id)
     {
-
-        $team = MobileTeamStaffs::with('district')->findOrFail($id); // Ensure MobileTeam is the correct model
+        $ids = decrypt($id);
+        $team = MobileTeamStaffs::with('district')->findOrFail($ids); // Ensure MobileTeam is the correct model
         // Count of centers, venues, and members related to the district
         $centerCount = $team->district->centers()->count();  // Assuming 'centers' is a relationship in District model
         $venueCount = $team->district->venues()->count();
@@ -383,7 +383,8 @@ class MobileTeamStaffsController extends Controller
     public function toggleStatus($id)
     {
         try {
-            $staffMember = MobileTeamStaffs::findOrFail($id);
+            $ids = decrypt($id);
+            $staffMember = MobileTeamStaffs::findOrFail($ids);
 
             // Get current status before update
             $oldStatus = $staffMember->mobile_status;

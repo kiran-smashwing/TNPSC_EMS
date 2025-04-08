@@ -7,6 +7,7 @@ use App\Mail\UserEmailVerificationMail;
 use App\Models\Venues;
 use App\Models\Center;
 use App\Models\District;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Services\AuditLogger;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use App\Services\ImageCompressService;
-use Str;
+use Illuminate\Support\Str;
 
 class VenuesController extends Controller
 {
@@ -27,19 +28,19 @@ class VenuesController extends Controller
     }
 
     public function index(Request $request)
-    { 
+    {
         $user = current_user();
         $role = session('auth_role');
-        if ($role== "district") {
+        if ($role == "district") {
             $centers = Center::select(['center_code', 'center_name', 'center_district_id'])
-            ->where('center_district_id',$user->district_code)
-            ->get();
-        } else{
-          $centers = Center::select(['center_code', 'center_name', 'center_district_id'])->get();
+                ->where('center_district_id', $user->district_code)
+                ->get();
+        } else {
+            $centers = Center::select(['center_code', 'center_name', 'center_district_id'])->get();
         }
         // Load necessary columns for dropdowns
         $districts = District::select(['district_code', 'district_name'])->get();
-        
+
 
         return view('masters.venues.venue.index', compact('districts', 'centers'));
     }
@@ -67,10 +68,9 @@ class VenuesController extends Controller
             ]);
 
         // Apply filters
-        if ($role== "district") {
+        if ($role == "district") {
             $query->where('venue_district_id', $user->district_code);
-        }
-        else if ($request->filled('district')) {
+        } else if ($request->filled('district')) {
             $query->where('venue_district_id', $request->input('district'));
         }
 
@@ -121,7 +121,11 @@ class VenuesController extends Controller
         }
 
         // Get results
-        $venues = $query->get();
+        $venues = $query->get()->toArray();
+
+        foreach ($venues as &$venue) {
+            $venue['venue_id'] = Crypt::encrypt($venue['venue_id']);
+        }
 
         return response()->json([
             'draw' => intval($request->input('draw')),
@@ -140,7 +144,7 @@ class VenuesController extends Controller
             if (!$user) {
                 return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);
             }
-            $districts = District::where('district_code', $user->district_code)->get();// Retrieve all districts
+            $districts = District::where('district_code', $user->district_code)->get(); // Retrieve all districts
             // dd($districts);
             $centers = Center::all(); // Retrieve all centers
             return view('masters.venues.venue.create', compact('districts', 'centers'));
@@ -281,7 +285,7 @@ class VenuesController extends Controller
             'verification_token' => null, // Clear the token after verification
         ]);
 
-        
+
         return redirect()->route('login')->with('status', 'Email verified successfully.');
     }
     public function update(Request $request, $id)
@@ -401,7 +405,6 @@ class VenuesController extends Controller
             } else {
                 return redirect()->back()->with('success', 'Venue updated successfully');
             }
-
         } catch (\Exception $e) {
             // Handle any errors
             return back()->withInput()
@@ -410,6 +413,8 @@ class VenuesController extends Controller
     }
     public function edit(Request $request, $id)
     {
+        $ids = Crypt::decrypt($id); // 🔐 Decrypt the ID first
+        // dd($ids);
         $role = session('auth_role');
         $user = $request->get('auth_user');
         if ($role == 'district') {
@@ -417,14 +422,14 @@ class VenuesController extends Controller
             if (!$user) {
                 return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);
             }
-            $districts = District::where('district_code', $user->district_code)->get();// Retrieve all districts
-             $venue = Venues::with(['district', 'center'])->findOrFail($id);
+            $districts = District::where('district_code', $user->district_code)->get(); // Retrieve all districts
+            $venue = Venues::with(['district', 'center'])->findOrFail($ids);
             $centers = Center::all(); // Retrieve all centers
-            return view('masters.venues.venue.edit', compact('venue','districts', 'centers','user'));
+            return view('masters.venues.venue.edit', compact('venue', 'districts', 'centers', 'user'));
         }
         $districts = District::all(); // Retrieve all districts
         $centers = Center::all(); // Retrieve all centers
-        $venue = Venues::with(['district', 'center'])->findOrFail($id);
+        $venue = Venues::with(['district', 'center'])->findOrFail($ids);
         return view('masters.venues.venue.edit', compact('venue', 'districts', 'centers'));
     }
     public function toggleStatus($id)
@@ -465,8 +470,9 @@ class VenuesController extends Controller
 
     public function show($id)
     {
+        $ids = Crypt::decrypt($id);
         // Fetch the venue with its related district and center in one query using eager loading
-        $venue = Venues::with(['district', 'center'])->findOrFail($id);
+        $venue = Venues::with(['district', 'center'])->findOrFail($ids);
         $centerCount = $venue->district->centers()->count();  // Assuming 'centers' is a relationship in District model
         $venueCount = $venue->district->venues()->count();
         $staffCount = $venue->district->treasuryOfficers()->count() + $venue->district->mobileTeamStaffs()->count();

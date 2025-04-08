@@ -243,7 +243,8 @@ class CenterController extends Controller
 
     public function edit($center_id)
     {
-        $center = Center::findOrFail($center_id); // Retrieves the center by its ID
+        $ids = decrypt($center_id);
+        $center = Center::findOrFail($ids); // Retrieves the center by its ID
         $districts = District::all(); // Fetch all districts
         return view('masters.district.centers.edit', compact('center', 'districts'));
     }
@@ -347,8 +348,9 @@ class CenterController extends Controller
 
     public function show($id)
     {
+        $ids = decrypt($id);
         // Find the center by ID and load the related district
-        $center = Center::with('district')->findOrFail($id);
+        $center = Center::with('district')->findOrFail($ids);
 
         $centerCount = $center->district->centers()->count();  // Assuming 'centers' is a relationship in District model
         $venueCount = $center->district->venues()->count();
@@ -371,7 +373,8 @@ class CenterController extends Controller
     public function toggleStatus($id)
     {
         try {
-            $center = Center::findOrFail($id);
+            $ids = decrypt($id);
+            $center = Center::findOrFail($ids);
 
             // Get current status before update
             $oldStatus = $center->center_status;

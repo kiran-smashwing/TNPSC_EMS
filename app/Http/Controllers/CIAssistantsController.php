@@ -174,8 +174,9 @@ class CIAssistantsController extends Controller
 
     public function edit($id)
     {
+        $ids = decrypt($id);
         // Fetch the specific CI Assistant record by its ID
-        $ciAssistant = CIAssistant::findOrFail($id);
+        $ciAssistant = CIAssistant::findOrFail($ids);
 
         // Fetch data for dropdowns
         $venues = Venues::all();
@@ -288,8 +289,9 @@ class CIAssistantsController extends Controller
     public function toggleStatus($id)
     {
         try {
+            $ids = decrypt($id);
             // Find the CI Assistant by ID
-            $ciAssistant = CIAssistant::findOrFail($id);
+            $ciAssistant = CIAssistant::findOrFail($ids);
 
             // Get the current status before updating
             $oldStatus = $ciAssistant->cia_status;
@@ -323,8 +325,9 @@ class CIAssistantsController extends Controller
 
     public function show($id)
     {
+        $ids = decrypt($id);
         // Retrieve the CI Assistant record by ID, or fail if not found
-        $ciAssistant = CIAssistant::with(['district', 'venue', 'center'])->findOrFail($id);
+        $ciAssistant = CIAssistant::with(['district', 'venue', 'center'])->findOrFail($ids);
 
         // Handle null district
         $centerCount = optional($ciAssistant->district)->centers()->count() ?? 0;

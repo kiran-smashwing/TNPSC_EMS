@@ -238,7 +238,8 @@ class TreasuryOfficerController extends Controller
 
     public function edit($id)
     {
-        $treasuryOfficer = TreasuryOfficer::findOrFail($id);
+        $ids = decrypt($id);
+        $treasuryOfficer = TreasuryOfficer::findOrFail($ids);
         $districts = District::all(); // Fetch all districts
         return view('masters.district.treasury_officers.edit', compact('treasuryOfficer', 'districts'));
     }
@@ -336,8 +337,9 @@ class TreasuryOfficerController extends Controller
 
     public function show($id)
     {
+        $ids = decrypt($id);
         // Find the Treasury Officer by ID and load the related district
-        $treasuryOfficer = TreasuryOfficer::with('district')->findOrFail($id);
+        $treasuryOfficer = TreasuryOfficer::with('district')->findOrFail($ids);
 
         // Count of centers, venues, and members related to the district
         $centerCount = $treasuryOfficer->district->centers()->count();  // Assuming 'centers' is a relationship in District model
@@ -382,7 +384,8 @@ class TreasuryOfficerController extends Controller
     public function toggleStatus($id)
     {
         try {
-            $treasuryOfficer = TreasuryOfficer::findOrFail($id);
+            $ids = decrypt($id);
+            $treasuryOfficer = TreasuryOfficer::findOrFail($ids);
 
             // Get current status before update
             $oldStatus = $treasuryOfficer->tre_off_status;

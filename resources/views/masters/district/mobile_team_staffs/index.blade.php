@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                              <h2 class="mb-0"></h2>
-                            </div> -->
+                                  <h2 class="mb-0"></h2>
+                                </div> -->
                         </div>
                     </div>
                 </div>
@@ -190,25 +190,26 @@
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
                             @hasPermission('mobile-team-staffs-filter')
-                            <form id="filterForm" method="GET" action="{{ route('mobile-team-staffs.index') }}" class="mb-3">
-                                <div class="filter-item">
-                                    <select class="form-select" id="districtFilter" name="district">
-                                        <option value="">Select District Name</option>
-                                        @foreach ($districts as $district)
-                                            <option value="{{ $district->district_code }}"
-                                                {{ request('district') == $district->district_code ? 'selected' : '' }}>
-                                                {{ $district->district_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="btn-container">
-                                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                                <form id="filterForm" method="GET" action="{{ route('mobile-team-staffs.index') }}"
+                                    class="mb-3">
+                                    <div class="filter-item">
+                                        <select class="form-select" id="districtFilter" name="district">
+                                            <option value="">Select District Name</option>
+                                            @foreach ($districts as $district)
+                                                <option value="{{ $district->district_code }}"
+                                                    {{ request('district') == $district->district_code ? 'selected' : '' }}>
+                                                    {{ $district->district_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="btn-container">
+                                        <button type="submit" class="btn btn-primary">Apply Filters</button>
 
-                                </div>
-                                <a href="{{ url()->current() }}" class="btn btn-secondary"><i
-                                        class="ti ti-refresh me-2"></i>Reset</a>
-                            </form>
+                                    </div>
+                                    <a href="{{ url()->current() }}" class="btn btn-secondary"><i
+                                            class="ti ti-refresh me-2"></i>Reset</a>
+                                </form>
                             @endhasPermission
 
                             <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
@@ -260,21 +261,25 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <a href="{{ route('mobile-team-staffs.show', ['id' => $team->mobile_id]) }}"
+                                                <a href="{{ route('mobile-team-staffs.show', ['id' => encrypt($team->mobile_id)]) }}"
                                                     class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-eye f-20"></i>
                                                 </a>
-                                                <a href="{{ route('mobile-team-staffs.edit', $team->mobile_id) }}"
-                                                    class="avtar avtar-xs btn-light-success"><i
-                                                        class="ti ti-edit f-20"></i></a>
+
+                                                <a href="{{ route('mobile-team-staffs.edit', encrypt($team->mobile_id)) }}"
+                                                    class="avtar avtar-xs btn-light-success">
+                                                    <i class="ti ti-edit f-20"></i>
+                                                </a>
+
                                                 <a href="#"
                                                     class="avtar avtar-xs status-toggle {{ $team->mobile_status ? 'btn-light-success' : 'btn-light-danger' }}"
-                                                    data-mobile-id="{{ $team->mobile_id }}"
+                                                    data-mobile-id="{{ encrypt($team->mobile_id) }}"
                                                     title="Change Status (Active or Inactive)">
                                                     <i
                                                         class="ti ti-toggle-{{ $team->mobile_status ? 'right' : 'left' }} f-20"></i>
                                                 </a>
                                             </td>
+
                                         </tr>
                                     @endforeach
                                 </tbody>

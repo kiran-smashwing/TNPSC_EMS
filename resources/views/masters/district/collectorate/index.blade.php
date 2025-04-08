@@ -243,17 +243,17 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <a href="{{ route('district.show', $district->district_id) }}"
+                                                <a href="{{ route('district.show', encrypt($district->district_id)) }}"
                                                     class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-eye f-20"></i>
                                                 </a>
-                                                <a href="{{ route('district.edit', $district->district_id) }}"
+                                                <a href="{{ route('district.edit', encrypt($district->district_id)) }}"
                                                     class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-edit f-20"></i>
                                                 </a>
                                                 <a href="#"
                                                     class="avtar avtar-xs status-toggle {{ $district->district_status ? 'btn-light-success' : 'btn-light-danger' }}"
-                                                    data-district-id="{{ $district->district_id }}"
+                                                    data-district-id="{{ encrypt($district->district_id) }}"
                                                     title="Change Status (Active or Inactive)">
                                                     <i
                                                         class="ti ti-toggle-{{ $district->district_status ? 'right' : 'left' }} f-20"></i>

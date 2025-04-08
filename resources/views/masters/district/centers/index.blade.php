@@ -188,25 +188,25 @@
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
                             @hasPermission('center-filters')
-                            <form id="filterForm" method="GET" action="{{ route('centers.index') }}" class="mb-3">
-                                <div class="filter-item">
-                                    <select class="form-select" id="districtFilter" name="district">
-                                        <option value="">Select District Name</option>
-                                        @foreach ($districts as $district)
-                                            <option value="{{ $district->district_code }}"
-                                                {{ request('district') == $district->district_code ? 'selected' : '' }}>
-                                                {{ $district->district_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="btn-container">
-                                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                                <form id="filterForm" method="GET" action="{{ route('centers.index') }}" class="mb-3">
+                                    <div class="filter-item">
+                                        <select class="form-select" id="districtFilter" name="district">
+                                            <option value="">Select District Name</option>
+                                            @foreach ($districts as $district)
+                                                <option value="{{ $district->district_code }}"
+                                                    {{ request('district') == $district->district_code ? 'selected' : '' }}>
+                                                    {{ $district->district_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="btn-container">
+                                        <button type="submit" class="btn btn-primary">Apply Filters</button>
 
-                                </div>
-                                <a href="{{ url()->current() }}" class="btn btn-secondary"><i
-                                        class="ti ti-refresh me-2"></i>Reset</a>
-                            </form>
+                                    </div>
+                                    <a href="{{ url()->current() }}" class="btn btn-secondary"><i
+                                            class="ti ti-refresh me-2"></i>Reset</a>
+                                </form>
                             @endhasPermission
                             <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
                                 style="width: 100%">
@@ -255,17 +255,19 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <a href="{{ route('centers.show', $center->center_id) }}"
+                                                <a href="{{ route('centers.show', encrypt($center->center_id)) }}"
                                                     class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-eye f-20"></i>
                                                 </a>
-                                                <a href="{{ route('centers.edit', $center->center_id) }}"
+
+                                                <a href="{{ route('centers.edit', encrypt($center->center_id)) }}"
                                                     class="avtar avtar-xs btn-light-success">
                                                     <i class="ti ti-edit f-20"></i>
                                                 </a>
+
                                                 <a href="#"
                                                     class="avtar avtar-xs status-toggle {{ $center->center_status ? 'btn-light-success' : 'btn-light-danger' }}"
-                                                    data-center-id="{{ $center->center_id }}"
+                                                    data-center-id="{{ encrypt($center->center_id) }}"
                                                     title="Change Status (Active or Inactive)">
                                                     <i
                                                         class="ti ti-toggle-{{ $center->center_status ? 'right' : 'left' }} f-20"></i>
@@ -295,7 +297,7 @@
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const tableContainer = document.querySelector(
-                'body'); // Replace with a specific parent container selector if available
+                    'body'); // Replace with a specific parent container selector if available
 
                 tableContainer.addEventListener('click', function(e) {
                     const button = e.target.closest('.status-toggle');

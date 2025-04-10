@@ -693,8 +693,6 @@ Route::prefix('charted-vehicle-routes')->group(function () {
             ->middleware('role.permission:viewTrunkboxes');
         Route::get('/generate-trunkbox-order/{Id}', [ChartedVehicleRoutesController::class, 'generateTrunkboxOrder'])->name('generateTrunkboxOrder')
             ->middleware('role.permission:generateTrunkboxOrder');
-        // Route::post('/scan-trunkbox-order', [ChartedVehicleRoutesController::class, 'scanTrunkboxOrder'])->name('scanTrunkboxOrder')
-        //     ->middleware('role.permission:scanTrunkboxOrder');
         Route::get('/generate-annexure-1B-report/{Id}', [ChartedVehicleRoutesController::class, 'generateAnnexure1BReport'])->name('charted-vehicle-routes.generateAnnexure1BReport')
             ->middleware('role.permission:charted-vehicle-routes.generateAnnexure1BReport');
         Route::get('/get-cv-routes-report', [ChartedVehicleRoutesController::class, 'getCvRoutesReport'])->name('charted-vehicle-routes.getCvRoutesReport')
@@ -726,71 +724,49 @@ Route::prefix('alert-notification')->group(function () {
             ->middleware('role.permission:alert-notification.adequacy-check');
     });
 });
-
-// Route::get('/run-function', [DataController::class, 'addData']);
-
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
 //TODO: Complete permission for reports and other routes below
 //PDF
-//center_attenance_report
-Route::get('/attendance-report', [AttendanceReportController::class, 'generateAttendanceReport'])->name('download.attendanceReport');
-//district_attenance_report
-Route::get('/attendance-report-district', [AttendanceReportController::class, 'generateAttendanceReportDistrict'])->name('download.attendanceReportdistrict');
-//Overall_attenance_report
-Route::get('/attendance-report-overall', [AttendanceReportController::class, 'generateAttendanceReportOverall'])->name('download.attendanceReportoverall');
 //attendance-report
-Route::get('/api/get-dropdown-data', [AttendanceReportController::class, 'getDropdownData'])->name('attendance.dropdown');
-// Route::get('/attendance-report/filter', [AttendanceReportController::class, 'filterAttendanceReport'])->name('attendance-report.filter');
 
-
-// Route::get('/omr-account', [Omr_AccountController::class, 'generateOmraccountReport'])->name('omr-account.report');
-// ExpenditureStatmentController
-// Route::get('/expenditure-statment', [ExpenditureStatmentController::class, 'generateexpenditureReport'])->name('expenditure-statment.report');
-// ExpenditureStatmentController
+//unwanted
 Route::get('/bundle-receiving', [BundleReceivingReportController::class, 'generatebundlereceivingReport'])->name('bundle-receiving.report');
 
 //Reports
 Route::prefix('report')->group(function () {
-    // Route::middleware(['auth.multi','check.session'])->group(function () {
-    Route::get('/attendance-report', [AttendanceReportController::class, 'index'])->name('attendance.report');
-    Route::get('/attendance-report-overall', [AttendanceReportController::class, 'generatecategorysender'])->name('attendance.report.overall');
-    Route::get('/expenditure-statment', [ExpenditureStatmentController::class, 'index'])->name('expenditure-statment.report');
-    Route::get('/filter-expenditure', [ExpenditureStatmentController::class, 'filterExpenditure'])->name('filter.expenditure');
-    Route::get('generate-exapenditure-certificate/{examid}', [ExpenditureStatmentController::class, 'generateexapenditureCertificate'])->name('download.expenditure.report');
-    Route::get('/expenditure-statment-overall', [ExpenditureStatmentController::class, 'generateexpenditureReport'])->name('expenditure-statment.report.overall');
-    Route::get('/omr-account', [Omr_AccountController::class, 'index'])->name('omr-account.report');
-    Route::get('/omr-report-overall', [Omr_AccountController::class, 'generateReport'])->name('omr-report.report.overall');
-    Route::get('/ci-attendace', [CiMeetingAttendanceController::class, 'index'])->name('ci-attendace.report');
-    Route::get('/ci-attendace-report-overall', [CiMeetingAttendanceController::class, 'generateCIMeetingReport'])->name('ci-attendace.report.overall');
-    Route::get('/consolidated-statement', [ConsolidatedStatementController::class, 'index'])->name('consolidated-statement.report');
-    Route::get('/download-consolidated-statement/{exam_id}/{exam_date}/{session}/{ci_id}', [ConsolidatedStatementController::class, 'generateconsolidatedReport'])->name('download-consolidated-statement.report');
-    Route::get('/consolidated-statement-overall', [ConsolidatedStatementController::class, 'filterConsolidatedStatement'])->name('consolidated-statement.report.overall');
-    Route::get('/candidate-remarks', [CandidateRemarksController::class, 'index'])->name('candidate-remarks.report');
-    Route::get('/candidate-remarks-report-overall', [CandidateRemarksController::class, 'generateCandidateRemarksReportOverall'])->name('candidate-remarks.report.overall');
-    Route::get('/exam-material-discrepancy', [ExamMaterialsDiscrepancyController::class, 'index'])->name('exam-material-discrepancy.report');
-    Route::get('/emergency-alarm-notification', [EmergencyAlarmNotificationsController::class, 'index'])->name('emergency-alarm-notification.report');
-    // });
-});
+    Route::middleware(['auth.multi'])->group(function () {
+    Route::get('/api/get-dropdown-data', [AttendanceReportController::class, 'getDropdownData'])->name('attendance.dropdown')->middleware('role.permission:attendance.dropdown');
+    Route::get('/attendance-report', [AttendanceReportController::class, 'index'])->name('attendance.report')->middleware('role.permission:attendance.report');
+    Route::get('/attendance-report-overall', [AttendanceReportController::class, 'generatecategorysender'])->name('attendance.report.overall')->middleware('role.permission:attendance.report.overall');
+    Route::get('/expenditure-statment', [ExpenditureStatmentController::class, 'index'])->name('expenditure-statment.report')->middleware('role.permission:expenditure-statment.report');
+    Route::get('/filter-expenditure', [ExpenditureStatmentController::class, 'filterExpenditure'])->name('filter.expenditure')->middleware('role.permission:filter.expenditure');
+    Route::get('/omr-account', [Omr_AccountController::class, 'index'])->name('omr-account.report')->middleware('role.permission:omr-account.report');
+    Route::get('/omr-report-overall', [Omr_AccountController::class, 'generateReport'])->name('omr-report.report.overall')->middleware('role.permission:omr-report.report.overall');
+    Route::get('/ci-attendace', [CiMeetingAttendanceController::class, 'index'])->name('ci-attendace.report')->middleware('role.permission:ci-attendace.report');
+    Route::get('/ci-attendace-report-overall', [CiMeetingAttendanceController::class, 'generateCIMeetingReport'])->name('ci-attendace.report.overall')->middleware('role.permission:ci-attendace.report.overall');
+    Route::get('/consolidated-statement', [ConsolidatedStatementController::class, 'index'])->name('consolidated-statement.report')->middleware('role.permission:consolidated-statement.report');
+    Route::get('/candidate-remarks', [CandidateRemarksController::class, 'index'])->name('candidate-remarks.report')->middleware('role.permission:candidate-remarks.report');
+    Route::get('/candidate-remarks-report-overall', [CandidateRemarksController::class, 'generateCandidateRemarksReportOverall'])->name('candidate-remarks.report.overall')->middleware('role.permission:candidate-remarks.report.overall');
+    Route::get('/exam-material-discrepancy', [ExamMaterialsDiscrepancyController::class, 'index'])->name('exam-material-discrepancy.report')->middleware('role.permission:exam-material-discrepancy.report');
+    Route::get('/emergency-alarm-notification', [EmergencyAlarmNotificationsController::class, 'index'])->name('emergency-alarm-notification.report')->middleware('role.permission:emergency-alarm-notification.report');
+    });
+}); 
 
 
 Route::get('/view-consolidated-report', function (Request $request) {
     try {
         // Decrypt the file path
         $decryptedPath = Crypt::decryptString($request->encryptedUrl);
-
         // Get the absolute path
         $filePath = storage_path('app/public/' . str_replace('storage/', '', $decryptedPath));
-
-        // Check if file exists
+       // Check if file exists
         if (!file_exists($filePath)) {
             abort(404, 'File not found');
         }
-
         // Custom filename for download
         $newFileName = 'Consolidated-Report-' . now()->format('Ymd') . '.pdf';
-
         return response()->file($filePath, [
             'Content-Disposition' => 'inline; filename="' . $newFileName . '"',
             'Content-Type' => 'application/pdf',
@@ -798,7 +774,7 @@ Route::get('/view-consolidated-report', function (Request $request) {
     } catch (\Exception $e) {
         abort(404, 'Invalid URL');
     }
-})->name('report.consolidated.view');
+})->name('report.consolidated.view')->middleware('role.permission:report.consolidated.view');
 Route::get('/view-report', function (Request $request) {
     try {
         // Decrypt the file path
@@ -806,15 +782,12 @@ Route::get('/view-report', function (Request $request) {
 
         // Get the absolute path to the file
         $filePath = storage_path('app/public/' . str_replace('storage/', '', $decryptedPath));
-
         // Check if file exists
         if (!file_exists($filePath)) {
             abort(404, 'File not found');
         }
-
         // Set the new file name (e.g., "Exam-Utilization-Report.pdf")
         $newFileName = 'Utilization-Report-' . now()->format('Ymd') . '.pdf';
-
         // Return the file as a download with the new name
         return response()->file($filePath, [
             'Content-Disposition' => 'inline; filename="' . $newFileName . '"',
@@ -823,4 +796,4 @@ Route::get('/view-report', function (Request $request) {
     } catch (\Exception $e) {
         abort(404, 'Invalid URL');
     }
-})->name('report.view');
+})->name('report.view')->middleware('role.permission:report.view');

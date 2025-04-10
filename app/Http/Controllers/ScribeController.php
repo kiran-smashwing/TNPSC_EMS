@@ -201,8 +201,29 @@ class ScribeController extends Controller
 
     public function update(Request $request, $id)
     {
+        $user = current_user();
+        $role = session('auth_role');
+        $scribe = null;
+        if ($user->role && $user->role->role_department !== 'ID' && $role !== "district") {
+            //myaccount
+            $scribe = Scribe::findOrFail($user->scribe_id);
+        } elseif ($role === 'district') {
+            //only distrrict
+            $scribe = Scribe::where('scribe_district_id', $user->district_code)
+                ->where('scribe_id', $id)
+                ->firstOrFail();
+        } elseif ($role === 'ci' || $role === 'venue') {
+            //only CI
+            $venue_code = $role == 'ci'? $user->ci_venue_id : $user->venue_code;
+            $scribe = Scribe::where('scribe_venue_id', $venue_code)
+                ->where('scribe_id', $id)
+                ->firstOrFail();
+        } else {
+            //comman
+            $scribe = Scribe::findOrFail($id);
+        }
         // Find the scribe record by ID
-        $scribe = Scribe::findOrFail($id);
+        // $scribe = Scribe::findOrFail($id);
         $messages = [
             'district.required' => 'Please select a district',
             'district.numeric' => 'Please select a valid district',

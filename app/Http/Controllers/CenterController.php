@@ -251,6 +251,22 @@ class CenterController extends Controller
 
     public function update(Request $request, $id)
     {
+
+         $user = current_user();
+        $role = session('auth_role');
+        $center = null;
+        if ($user->role && $user->role->role_department !== 'ID' && $role !== "district") {
+            //myaccount
+            $center = Center::findOrFail($user->center_id);
+        } elseif ($role === 'district') {
+            //only distrrict
+            $center = Center::where('center_district_id', $user->district_code)
+                ->where('center_id', $id)
+                ->firstOrFail();
+        } else {
+            //comman
+            $center = Center::findOrFail($id);
+        }
         $center = Center::findOrFail($id);
         $messages = [
             'district.required' => 'Please select a district',

@@ -298,6 +298,9 @@ class VenuesController extends Controller
     }
     public function update(Request $request, $id)
     {
+        $user = current_user();
+        $role = session('auth_role');
+
         // dd($request->all());
         $user = current_user();
         $role = session('auth_role');

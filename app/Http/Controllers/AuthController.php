@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\UserEmailVerificationMail;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -31,7 +32,7 @@ class AuthController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('guest')->except('logout');
+        $this->middleware('guest')->except('logout','resendVerificationEmail');
     }
 
     public function showLogin()
@@ -70,6 +71,18 @@ class AuthController extends Controller
                 'seconds_remaining' => $seconds
             ]);
 
+            // Determine if the request expects a JSON response (e.g., API call) or a web redirect
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => __('auth.throttle', [
+                        'seconds' => $seconds,
+                        'minutes' => ceil($seconds / 60),
+                    ]),
+                    'throttle' => $seconds,
+                ], 429); // Too Many Requests
+            }
+
+            // For web requests, return a redirect with errors as before
             return back()
                 ->withErrors([
                     'email' => __('auth.throttle', [
@@ -146,6 +159,10 @@ class AuthController extends Controller
                 if ($success) {
                     $user = Auth::guard('venue')->user();
                     $userId = $user->venue_id; // Adjust this based on your treasury table's ID column
+                    // Check verification status
+                    if (!$user->venue_email_status) {
+                        session(['show_verification_alert' => true]);
+                    }
                 }
                 break;
             case 'headquarters':
@@ -191,17 +208,25 @@ class AuthController extends Controller
 
             // Store essential session data
             $display_role = $this->getDisplayRole($role);
-
+            // Store the device fingerprint in the session
+            // Generate and store the initial device fingerprint
+            $deviceFingerprint = $_COOKIE['device_fingerprint'] ?? null;
+            if (!$deviceFingerprint) {
+                return redirect()->route('login')
+                    ->with('error', 'Security verification failed. Please try again.')
+                    ->withInput($request->except('password'));
+            }
             session([
                 'auth_role' => $role,
                 'athu_display_role' => $display_role,
                 'auth_id' => $userId,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'device_fingerprint' => $deviceFingerprint
             ]);
 
             if ($remember) {
                 session()->put('auth.password_confirmed_at', time());
-                session()->put('ip_address', $request->ip());
-                session()->put('user_agent', $request->userAgent());
             }
 
             // Log successful login
@@ -217,7 +242,7 @@ class AuthController extends Controller
                 ]
             );
 
-            return redirect()->intended('/dashboard');
+            return redirect()->intended('/myaccount');
         }
 
         // Log failed login attempt
@@ -693,5 +718,29 @@ class AuthController extends Controller
         }
 
         return back()->withErrors(['password' => [__($status)]]);
+    }
+
+    public function resendVerificationEmail()
+    {
+        $role = session('auth_role');
+
+        $user = current_user();
+        $verification_token = Str::random(64);
+
+        $venue = Venues::where('venue_id', $user->venue_id)->first();
+        if ($venue) {
+            $venue->verification_token = $verification_token;
+            $venue->save();
+            $verificationLink = route('venues.verifyEmail', ['token' => urlencode($venue->verification_token)]);
+
+            if ($verificationLink) {
+                Mail::to($venue->venue_email)->send(new UserEmailVerificationMail($venue->venue_name, $venue->venue_email, $verificationLink)); // Use the common mailable
+            } else {
+                throw new Exception('Failed to generate verification link.');
+            }
+            return redirect()->route('venues.verifyEmail', ['token'=> urlencode($verification_token)]);
+        } else {
+            throw new Exception('Venue not found.');
+        }
     }
 }

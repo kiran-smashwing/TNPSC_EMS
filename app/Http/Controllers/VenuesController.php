@@ -7,6 +7,7 @@ use App\Mail\UserEmailVerificationMail;
 use App\Models\Venues;
 use App\Models\Center;
 use App\Models\District;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -271,13 +272,17 @@ class VenuesController extends Controller
     }
     public function verifyEmail($token)
     {
-
+        $currentRole = session('auth_role');
         $decodedToken = urldecode($token);
 
         $venue = Venues::where('verification_token', $decodedToken)->first();
 
         if (!$venue) {
-            return redirect()->route('login')->with('status', 'Invalid verification link.');
+            if (Auth::guard($currentRole)->check()) {
+                return redirect()->route('dashboard')->with('status', 'Invalid verification link.');
+            } else {
+                return redirect()->route('login')->with('status', 'Invalid verification link.');
+            }
         }
 
         $venue->update([
@@ -285,13 +290,30 @@ class VenuesController extends Controller
             'verification_token' => null, // Clear the token after verification
         ]);
 
-
-        return redirect()->route('login')->with('status', 'Email verified successfully.');
+        if (Auth::guard($currentRole)->check()) {
+            return redirect()->route('dashboard')->with('status', 'Email verified successfully.');
+        } else {
+            return redirect()->route('login')->with('status', 'Email verified successfully.');
+        }
     }
     public function update(Request $request, $id)
     {
         // dd($request->all());
-        $venue = Venues::findOrFail($id);
+        $user = current_user();
+        $role = session('auth_role');
+        $venue = null;
+
+        // Determine venue based on user role
+        if ($user->role && $user->role->role_department !== 'ID' && $role !== "district") {
+            $venue = Venues::findOrFail($user->venue_id);
+        } elseif ($role === 'district') {
+            $venue = Venues::where('venue_district_id', $user->district_code)
+                ->where('venue_id', $id)
+                ->firstOrFail();
+        } else {
+            $venue = Venues::findOrFail($id);
+        }
+
         // Validate the incoming request
         $messages = [
             'district.required' => 'Please select a district',

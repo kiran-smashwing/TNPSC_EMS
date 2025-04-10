@@ -149,8 +149,22 @@
     <script src="{{ asset('storage/assets/js/fonts/custom-font.js') }}"></script>
     <script src="{{ asset('storage/assets/js/pcoded.js') }}"></script>
     <script src="{{ asset('storage/assets/js/plugins/feather.min.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+        integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     {{-- <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script> --}}
+    <script src="https://openfpcdn.io/fingerprintjs/v4"></script>
+    <script>
+        const fpPromise = import('https://openfpcdn.io/fingerprintjs/v4')
+            .then(FingerprintJS => FingerprintJS.load());
+
+        fpPromise.then(fp => fp.get()).then(result => {
+            const fingerprint = result.visitorId;
+            // Attach the fingerprint to all fetch() requests
+            document.cookie = "device_fingerprint=" + fingerprint +
+                "; path=/; SameSite=Lax; Secure";
+        });
+    </script>
 
     <script>
         var savedTheme = localStorage.getItem('theme') || 'light';
@@ -334,12 +348,12 @@
         });
     </script>
 
-<script>
-    var user = @json($user);
+    <script>
+        var user = @json($user);
 
-    if (user && user.role && user.role.role_department === 'MCD') {
-        // Initialize Echo using Reverb settings from your environment
-           // Modified Echo initialization with detailed logging
+        if (user && user.role && user.role.role_department === 'MCD') {
+            // Initialize Echo using Reverb settings from your environment
+            // Modified Echo initialization with detailed logging
             window.Echo = new Echo({
                 broadcaster: 'pusher',
                 key: '{{ env('REVERB_APP_KEY') }}',
@@ -400,9 +414,36 @@
             window.Echo.connector.pusher.connection.bind('error', function(error) {
                 console.error('Pusher Error:', error);
             });
-    }
-</script>
+        }
+    </script>
+    @if (session('show_verification_alert'))
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+        <form id="resendVerificationForm" action="{{ route('user.resend-verification-link') }}" method="POST"
+            style="display: none;">
+            @csrf
+        </form>
+
+        <script>
+            Swal.fire({
+                icon: 'warning',
+                title: 'Email Not Verified!',
+                html: 'Please verify your email by clicking on the link sent to your inbox.<br><br>' +
+                    '<button id="resendBtn" class="swal2-confirm swal2-styled" style="background-color:#3085d6;">Click here to resend</button>',
+                showConfirmButton: false
+            });
+
+            document.addEventListener('DOMContentLoaded', function() {
+                document.getElementById('resendBtn')?.addEventListener('click', function() {
+                    document.getElementById('resendVerificationForm').submit();
+                });
+            });
+        </script>
+    @endif
+
+    @php
+        session()->forget('show_verification_alert');
+    @endphp
 
     <!-- [Body] end -->
 </body>

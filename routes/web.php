@@ -64,6 +64,8 @@ use App\Http\Controllers\EmergencyAlarmNotificationsController;
 Route::get('/', function () {
     return redirect()->route('dashboard'); // Redirect to the dashboard
 });
+Route::get('venues/verify/{token}', [VenuesController::class, 'verifyEmail'])->name('venues.verifyEmail');
+
 // Authentication routes 
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -78,7 +80,6 @@ Route::middleware(['guest'])->group(function () {
     Route::post('password/reset', [AuthController::class, 'resetPassword'])->name('password.update');
     Route::get('password/check-email', [AuthController::class, 'showCheckEmail'])->name('password.check-email');
     // Email verification routes
-    Route::get('venues/verify/{token}', [VenuesController::class, 'verifyEmail'])->name('venues.verifyEmail');
     Route::get('/district/verify/{token}', [DistrictController::class, 'verifyEmail'])->name('district.verify');
     Route::get('/center/verify/{token}', [CenterController::class, 'verifyEmail'])->name('center.verifyEmail');
     Route::get('/department-official/verify/{token}', [DepartmentOfficialsController::class, 'verifyEmail'])->name('department-official.verifyEmail');
@@ -89,7 +90,7 @@ Route::middleware(['guest'])->group(function () {
 });
 
 // Protected routes (require user to be logged in) 
-Route::middleware(['auth.multi'])->group(function () {
+Route::middleware(['auth.multi','check.session'])->group(function () {
     // Dashboard routes
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     // MyAccount routes 
@@ -99,14 +100,16 @@ Route::middleware(['auth.multi'])->group(function () {
     // todo: -change in the perfixes
     // Route::post('/check-old-password', [ChangePasswordController::class, 'checkOldPassword'])->name('password.check');
     Route::post('/change-password', [ChangePasswordController::class, 'updatePassword'])->name('password.update');
-
+    //email verification link
     // Route::get('/test-mail', [TestMailController::class, 'sendTestEmail']);
     // Add other protected routes here
+    Route::post('/resend-verification-link', [AuthController::class, 'resendVerificationEmail'])->name('user.resend-verification-link');
+
 });
 
 // CI Assistants
 Route::prefix('ci-assistant')->group(function () {
-    Route::middleware(['auth.multi', 'role.permission:ci-assistant.index'])->group(function () {
+    Route::middleware(['auth.multi','check.session', 'role.permission:ci-assistant.index'])->group(function () {
         Route::get('/', [CIAssistantsController::class, 'index'])
             ->name('ci-assistant');
         Route::get('/add', [CIAssistantsController::class, 'create'])
@@ -132,7 +135,7 @@ Route::prefix('ci-assistant')->group(function () {
 
 // Role
 Route::prefix('role')->group(function () {
-    Route::middleware(['auth.multi', 'role.permission:role.index'])->group(function () {
+    Route::middleware(['auth.multi','check.session','role.permission:role.index'])->group(function () {
         Route::get('/', [RoleController::class, 'index'])
             ->name('role')
             ->middleware('role.permission:role.index');
@@ -153,7 +156,7 @@ Route::prefix('role')->group(function () {
 
 // CI CheckList
 Route::prefix('ci-checklist')->group(function () {
-    Route::middleware(['auth.multi', 'role.permission:ci-checklist.index'])->group(function () {
+    Route::middleware(['auth.multi','check.session','role.permission:ci-checklist.index'])->group(function () {
         Route::get('/', [CIChecklistController::class, 'index'])
             ->name('ci-checklist')
             ->middleware('role.permission:ci-checklist.index');
@@ -177,21 +180,21 @@ Route::prefix('ci-checklist')->group(function () {
 
 //Current Exam 
 Route::prefix('support')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::get('/support', [SupportController::class, 'index'])->name('support');
     });
 });
 
 //completed-exam
 Route::prefix('completed-exam')->group(function () {
-    Route::middleware(['auth.multi', 'role.permission:completed-exam.index'])->group(function () {
+    Route::middleware(['auth.multi','check.session','role.permission:completed-exam.index'])->group(function () {
         Route::get('/', [CompletedExamController::class, 'index'])->name('completed-exam');
     });
 });
 
 //District
 Route::prefix('district')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::get('/', [DistrictController::class, 'index'])->name('district.index')
             ->middleware('role.permission:district.index');
         Route::get('/create', [DistrictController::class, 'create'])->name('district.create')
@@ -212,7 +215,7 @@ Route::prefix('district')->group(function () {
 });
 //treasury-officers 
 Route::prefix('treasury-officers')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::get('/', [TreasuryOfficerController::class, 'index'])->name('treasury-officers.index')
             ->middleware('role.permission:treasury-officers.index');
         Route::get('/create', [TreasuryOfficerController::class, 'create'])->name('treasury-officers.create')
@@ -234,7 +237,7 @@ Route::prefix('treasury-officers')->group(function () {
 
 //centers 
 Route::prefix('centers')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::get('/', [CenterController::class, 'index'])->name('centers.index')
             ->middleware('role.permission:centers.index');
         Route::get('/create', [CenterController::class, 'create'])->name('centers.create')
@@ -255,7 +258,7 @@ Route::prefix('centers')->group(function () {
 });
 //mobile-team-staffs
 Route::prefix('mobile-team-staffs')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::get('/', [MobileTeamStaffsController::class, 'index'])->name('mobile-team-staffs.index')
             ->middleware('role.permission:mobile-team.index');
         Route::get('/create', [MobileTeamStaffsController::class, 'create'])->name('mobile-team-staffs.create')
@@ -276,7 +279,7 @@ Route::prefix('mobile-team-staffs')->group(function () {
 });
 //venues
 Route::prefix('venues')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::get('/', [VenuesController::class, 'index'])->name('venues.index')
             ->middleware('role.permission:venues.index');
         Route::get('/json', [VenuesController::class, 'getVenuesJson'])->name('venues.json')
@@ -305,7 +308,7 @@ Route::prefix('venues')->group(function () {
 });
 //invigilators
 Route::prefix('invigilators')->group(function () {
-    Route::middleware(['auth.multi', 'role.permission:invigilators.index'])->group(function () {
+    Route::middleware(['auth.multi','check.session','role.permission:invigilators.index'])->group(function () {
         Route::get('/', [InvigilatorsController::class, 'index'])->name('invigilators.index')
             ->middleware('role.permission:invigilators.index');
         Route::get('/create', [InvigilatorsController::class, 'create'])->name('invigilators.create')
@@ -327,7 +330,7 @@ Route::prefix('invigilators')->group(function () {
 
 //scribes
 Route::prefix('scribes')->group(function () {
-    Route::middleware(['auth.multi', 'role.permission:scribes.index'])->group(function () {
+    Route::middleware(['auth.multi','check.session','role.permission:scribes.index'])->group(function () {
         Route::get('/', [ScribeController::class, 'index'])->name('scribes.index')
             ->middleware('role.permission:scribes.index');
         Route::get('/create', [ScribeController::class, 'create'])->name('scribes.create')
@@ -348,7 +351,7 @@ Route::prefix('scribes')->group(function () {
 });
 //chief-invigilators
 Route::prefix('chief-invigilators')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::get('/', [ChiefInvigilatorsController::class, 'index'])->name('chief-invigilators.index')
             ->middleware('role.permission:chief-invigilators.index');
         Route::get('/json', [ChiefInvigilatorsController::class, 'getChiefInvigilatorsJson'])->name('chief-invigilators.json')
@@ -371,7 +374,7 @@ Route::prefix('chief-invigilators')->group(function () {
 });
 //exam-services
 Route::prefix('exam-services')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::get('/', [ExamServiceController::class, 'index'])->name('exam-services.index')
             ->middleware('role.permission:exam-services.index');
         Route::get('/create', [ExamServiceController::class, 'create'])->name('exam-services.create')
@@ -392,7 +395,7 @@ Route::prefix('exam-services')->group(function () {
 });
 //department-officials
 Route::prefix('department-officials')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::get('/', [DepartmentOfficialsController::class, 'index'])->name('department-officials.index')
             ->middleware('role.permission:department-officials.index');
         Route::get('/create', [DepartmentOfficialsController::class, 'create'])->name('department-officials.create')
@@ -414,7 +417,7 @@ Route::prefix('department-officials')->group(function () {
 
 //current-exam
 Route::prefix('current-exam')->group(function () {
-    Route::middleware(['auth.multi', 'role.permission:current-exam.index'])->group(function () {
+    Route::middleware(['auth.multi','check.session','role.permission:current-exam.index'])->group(function () {
         Route::get('/', [CurrentExamController::class, 'index'])->name('current-exam.index')
             ->middleware('role.permission:current-exam.index');
         Route::get('/create', [CurrentExamController::class, 'create'])->name('current-exam.create')
@@ -448,7 +451,7 @@ Route::prefix('my-exam')->group(function () {
 
 //apd-candidates
 Route::prefix('apd-candidates')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::get('/download-sample-csv', [APDCandidatesController::class, 'downloadSampleCsv'])->name('apd-candidates.download-sample-csv')
             ->middleware('role.permission:apd-candidates.download-sample-csv');
         Route::post('/upload-candidates-csv', [APDCandidatesController::class, 'uploadCandidatesCsv'])->name('apd-candidates.upload-candidates-csv')
@@ -462,7 +465,7 @@ Route::prefix('apd-candidates')->group(function () {
 
 //id-candidates
 Route::prefix('id-candidates')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::post('/update-percentage', [IDCandidatesController::class, 'updatePercentage'])->name('id-candidates.update-percentage')
             ->middleware('role.permission:id-candidates.update-percentage');
         Route::get('/download-updated-count-csv/{examId}', [IDCandidatesController::class, 'downloadUpdatedCountCsv'])->name('id-candidates.download-updated-count-csv')
@@ -483,7 +486,7 @@ Route::prefix('id-candidates')->group(function () {
 });
 //district-candidates
 Route::prefix('district-candidates')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::get('/show-venue-intimation-form/{examId}', [DistrictCandidatesController::class, 'showVenueIntimationForm'])->name('district-candidates.showVenueIntimationForm')
             ->middleware('role.permission:district-candidates.show-venue-intimation-form');
         Route::get('/review-venue-intimation-form/{examId}', [DistrictCandidatesController::class, 'reviewVenueIntimationForm'])->name('district-candidates.reviewVenueIntimationForm')
@@ -500,7 +503,7 @@ Route::prefix('district-candidates')->group(function () {
 });
 //ci-meetings
 Route::prefix('ci-meetings')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::post('/attendance-QRcode-scan', [CIMeetingController::class, 'handleAttendanceQRCodeScan'])->name('ci-meetings.attendance-QRcode-scan')
             ->middleware('role.permission:ci-meetings.attendance-QRcode-scan');
         Route::post('/update-adequacy-check', [CIMeetingController::class, 'updateAdequacyCheck'])->name('ci-meetings.updateAdequacyCheck')
@@ -509,7 +512,7 @@ Route::prefix('ci-meetings')->group(function () {
 });
 //ci-reports
 Route::prefix('ci-reports')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::get('/generate-utilization-certificate/{examid}', [UtilityController::class, 'generateUtilizationCertificate'])->name('download.utilireport')
             ->middleware('role.permission:ci-reports.generate-utilization-certificate');
         Route::get('/ci-consolidate-report/{examId}/{exam_date}/{exam_session}', [CIConsolidateController::class, 'generateReport'])->name('download.report')
@@ -518,7 +521,7 @@ Route::prefix('ci-reports')->group(function () {
 });
 //qp-box-log
 Route::prefix('qp-box-log')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::post('/qp-box-open', [QpBoxlogController::class, 'saveTime'])->name('qp-box-open.save-time')
             ->middleware('role.permission:qp-box-log.save-time');
         Route::post('/qp-box-distribution', [QpBoxlogController::class, 'saveqpboxdistributiontimeTime'])->name('qp-box-distribution.save-time')
@@ -527,14 +530,14 @@ Route::prefix('qp-box-log')->group(function () {
 });
 //ci-paper-replacements
 Route::prefix('ci-paper-replacements')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::post('/save-replacement-details', [CIPaperReplacementsController::class, 'saveReplacementDetails'])->name('save.replacement.details')
             ->middleware('role.permission:ci-paper-replacements.save-replacement-details');
     });
 });
 //ci-candidates-log
 Route::prefix('ci-candidates-log')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::post('/ci-candidates-log', [CICandidateLogsController::class, 'saveAdditionalcandidates'])->name('ci-candidates-log.savecandidates')
             ->middleware('role.permission:ci-candidates-log.savecandidates');
         Route::post('/ci-candidates-remarks', [CICandidateLogsController::class, 'saveRemarkcandidates'])->name('ci-candidates-remark.saveremarks')
@@ -547,7 +550,7 @@ Route::prefix('ci-candidates-log')->group(function () {
 });
 //ci-checklist
 Route::prefix('ci-checklist')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::post('/save', [CIPreliminaryCheckController::class, 'saveChecklist'])->name('ci-checklist.save')
             ->middleware('role.permission:ci-checklist.save');
         Route::post('/ci-session-save', [CIPreliminaryCheckController::class, 'saveSessionChecklist'])->name('ci-session-checklist.save')
@@ -562,7 +565,7 @@ Route::prefix('ci-checklist')->group(function () {
 });
 //ci-staffalloment
 Route::prefix('ci-staffalloment')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::post('/save-invigilator-details', [ExamStaffAllotmentController::class, 'saveInvigilatorDetails'])->name('staffalloment.save-invigilator-details')
             ->middleware('role.permission:staffalloment.save-invigilator-details');
         Route::post('/staffalloment.view-invigilator-allocate', [ExamStaffAllotmentController::class, 'allocateHallsRandomly'])->name('staffalloment.view-invigilator-allocate')
@@ -575,7 +578,7 @@ Route::prefix('ci-staffalloment')->group(function () {
 });
 //exam-materials
 Route::prefix('exam-materials')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::get('/download-sample-csv', [ExamMaterialsDataController::class, 'downloadSampleCsv'])->name('exam-materials.download-sample-csv')
             ->middleware('role.permission:exam-materials.download-sample-csv');
         Route::post('/upload', [ExamMaterialsDataController::class, 'uploadCsv'])->name('exam-materials.upload')
@@ -586,7 +589,7 @@ Route::prefix('exam-materials')->group(function () {
 });
 //bundle-packaging
 Route::prefix('bundle-packaging')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::get('/ci-bundlepackaging/{examId}/{exam_date}/{exam_session}', [BundlePackagingController::class, 'ciBundlepackagingView'])->name('bundle-packaging.ci-view')
             ->middleware('role.permission:bundle-packaging.ci-view');
         Route::get('/ci-to-mobileteam-bundle-packaging/{examId}/{examDate}', [BundlePackagingController::class, 'CItoMobileTeam'])->name('bundle-packaging.ci-to-mobileteam')
@@ -613,7 +616,7 @@ Route::prefix('bundle-packaging')->group(function () {
 });
 
 Route::prefix('receive-exam-materials')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::get('/printer-to-disitrct-treasury/{examId}', [ReceiveExamMaterialsController::class, 'printerToDistrictTreasury'])->name('receive-exam-materials.printer-to-disitrict-treasury')
             ->middleware('role.permission:receive-exam-materials.printer-to-disitrict-treasury');
         Route::post('/scan-disitrct-exam-materials/{examId}', [ReceiveExamMaterialsController::class, 'scanDistrictExamMaterials'])->name('receive-exam-materials.scan-disitrct-exam-materials')
@@ -643,7 +646,7 @@ Route::prefix('receive-exam-materials')->group(function () {
 
 //exam-materials-route
 Route::prefix('exam-materials-route')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::get('/{examId}', [ExamMaterialsRouteController::class, 'index'])->name('exam-materials-route.index')
             ->middleware('role.permission:exam-materials-route.index');
         Route::get('/create/{examId}', [ExamMaterialsRouteController::class, 'createRoute'])->name('exam-materials-route.create')
@@ -661,7 +664,7 @@ Route::prefix('exam-materials-route')->group(function () {
 
 //charted-vehicle-routes
 Route::prefix('charted-vehicle-routes')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::get('/', [ChartedVehicleRoutesController::class, 'index'])->name('charted-vehicle-routes.index')
             ->middleware('role.permission:charted-vehicle-routes.index');
         Route::get('/create', [ChartedVehicleRoutesController::class, 'createRoute'])->name('charted-vehicle-routes.create')
@@ -703,7 +706,7 @@ Route::prefix('charted-vehicle-routes')->group(function () {
 
 //trunkbox-qr-otl-data
 Route::prefix('exam-trunkbox-qr-otl-data')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::get('/download-sample-csv', [ExamTrunkBoxOTLDataController::class, 'downloadSampleCsv'])->name('exam-trunkbox-qr-otl-data.download-sample-csv')
             ->middleware('role.permission:exam-trunkbox-qr-otl-data.download-sample-csv');
         Route::post('/upload', [ExamTrunkBoxOTLDataController::class, 'uploadCsv'])->name('exam-trunkbox-qr-otl-data.upload')
@@ -715,7 +718,7 @@ Route::prefix('exam-trunkbox-qr-otl-data')->group(function () {
 
 
 Route::prefix('alert-notification')->group(function () {
-    Route::middleware(['auth.multi'])->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
         // Add your new alert notification routes
         Route::post('/save-emergency-alert', [AlertNotificationController::class, 'saveEmergencyAlert'])->name('alert-notification.emergency-alert')
             ->middleware('role.permission:alert-notification.emergency-alert');
@@ -750,7 +753,7 @@ Route::get('/bundle-receiving', [BundleReceivingReportController::class, 'genera
 
 //Reports
 Route::prefix('report')->group(function () {
-    // Route::middleware(['auth.multi'])->group(function () {
+    // Route::middleware(['auth.multi','check.session'])->group(function () {
     Route::get('/attendance-report', [AttendanceReportController::class, 'index'])->name('attendance.report');
     Route::get('/attendance-report-overall', [AttendanceReportController::class, 'generatecategorysender'])->name('attendance.report.overall');
     Route::get('/expenditure-statment', [ExpenditureStatmentController::class, 'index'])->name('expenditure-statment.report');

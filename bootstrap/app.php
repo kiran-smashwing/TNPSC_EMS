@@ -14,8 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+
+
         $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
-        $middleware->append(\App\Http\Middleware\CheckSession::class);
         $middleware->append(\App\Http\Middleware\SanitizeInput::class);
         // Add the multi-auth middleware
         $middleware->alias([
@@ -24,6 +25,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'role.permission' => \App\Http\Middleware\RolePermissionMiddleware::class,
             // Add the redirect if authenticated middleware
             'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+            // Add the check session middleware
+            'check.session' => \App\Http\Middleware\CheckSession::class
         ]);
     })
 

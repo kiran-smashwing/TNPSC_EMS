@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->text('ci_name')->nullable();
             $table->text('ci_email')->nullable()->unique();
             $table->text('ci_phone')->nullable();
+            $table->text('ci_employee_id')->nullable();
             $table->text('ci_alternative_phone')->nullable();
             $table->text('ci_designation')->nullable();
             $table->text('ci_password');
@@ -43,8 +44,6 @@ return new class extends Migration {
             // Full text search index for name and email
             $table->fullText(['ci_name', 'ci_email']);
 
-            // Timestamps for created_at and updated_at
-            $table->timestamps();
         });
     }
 

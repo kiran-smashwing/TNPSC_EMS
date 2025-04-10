@@ -19,8 +19,12 @@
         <div class="pc-content">
             <!-- [ Main Content ] start -->
             <div class="row">
+                @if (session('status'))
+                    <div class="alert alert-info alert-dismissible fade show" role="alert">{{ session('status') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
                 <div class="col-md-6">
-
                     <div class="row">
                         <!-- First Card -->
                         <div class="col-md-6">
@@ -298,25 +302,25 @@
                                 <div class="col-6 col-lg-6 col-xxl-6">
                                     <div class="overview-product-legends">
                                         <span>Objective Exams</span>
-                                        <h6 class="mb-0">{{$objectiveExamCount}}</h6>
+                                        <h6 class="mb-0">{{ $objectiveExamCount }}</h6>
                                     </div>
                                 </div>
                                 <div class="col-6 col-lg-6 col-xxl-6">
                                     <div class="overview-product-legends">
                                         <span>Descriptive Exams</span>
-                                        <h6 class="mb-0">{{$descriptiveExamCount}}</h6>
+                                        <h6 class="mb-0">{{ $descriptiveExamCount }}</h6>
                                     </div>
                                 </div>
                                 <div class="col-6 col-lg-6 col-xxl-6">
                                     <div class="overview-product-legends">
                                         <span>Objective & Descriptive Exams</span>
-                                        <h6 class="mb-0">{{$objDescExamCount}}</h6>
+                                        <h6 class="mb-0">{{ $objDescExamCount }}</h6>
                                     </div>
                                 </div>
                                 <div class="col-6 col-lg-6 col-xxl-6">
                                     <div class="overview-product-legends">
                                         <span>CBT Exams</span>
-                                        <h6 class="mb-0">{{$cbtExamCount}}</h6>
+                                        <h6 class="mb-0">{{ $cbtExamCount }}</h6>
                                     </div>
                                 </div>
                             </div>

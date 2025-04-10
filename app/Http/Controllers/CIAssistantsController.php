@@ -189,8 +189,29 @@ class CIAssistantsController extends Controller
 
     public function update(Request $request, $id)
     {
+        $user = current_user();
+        $role = session('auth_role');
+        $ciAssistant = null;
+        if ($user->role && $user->role->role_department !== 'ID' && $role !== "district") {
+            //myaccount
+            $ciAssistant = CIAssistant::findOrFail($user->cia_id);
+        } elseif ($role === 'district') {
+            //only distrrict
+            $ciAssistant = CIAssistant::where('cia_district_id', $user->district_code)
+                ->where('cia_id', $id)
+                ->firstOrFail();
+        } elseif ($role === 'ci' || $role === 'venue') {
+            //only CI
+            $venue_code = $role == 'ci'? $user->ci_venue_id : $user->venue_code;
+            $ciAssistant = CIAssistant::where('cia_venue_id', $venue_code)
+                ->where('cia_id', $id)
+                ->firstOrFail();
+        } else {
+            //comman
+            $ciAssistant = CIAssistant::findOrFail($id);
+        }
         // Find the CI Assistant record by ID
-        $ciAssistant = CIAssistant::findOrFail($id);
+        // $ciAssistant = CIAssistant::findOrFail($id);
         $messages = [
             'district.required' => 'Please select a district',
             'district.numeric' => 'Please select a valid district',

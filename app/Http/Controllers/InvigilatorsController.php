@@ -204,7 +204,28 @@ class InvigilatorsController extends Controller
 
     public function update(Request $request, $id)
     {
-        $invigilator = Invigilator::findOrFail($id);
+        $user = current_user();
+        $role = session('auth_role');
+        $invigilator = null;
+        if ($user->role && $user->role->role_department !== 'ID' && $role !== "district") {
+            //myaccount
+            $invigilator = Invigilator::findOrFail($user->invigilator_id);
+        } elseif ($role === 'district') {
+            //only distrrict
+            $invigilator = Invigilator::where('invigilator_district_id', $user->district_code)
+                ->where('invigilator_id', $id)
+                ->firstOrFail();
+        } elseif ($role === 'ci' || $role === 'venue') {
+            //only CI
+            $venue_code = $role == 'ci'? $user->ci_venue_id : $user->venue_code;
+            $invigilator = Invigilator::where('invigilator_venue_id', $venue_code)
+                ->where('invigilator_id', $id)
+                ->firstOrFail();
+        } else {
+            //comman
+            $invigilator = Invigilator::findOrFail($id);
+        }
+        // $invigilator = Invigilator::findOrFail($id);
         // Validate incoming request data
         $messages = [
             'district.required' => 'Please select a district',

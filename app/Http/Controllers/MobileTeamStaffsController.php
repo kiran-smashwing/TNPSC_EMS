@@ -272,8 +272,23 @@ class MobileTeamStaffsController extends Controller
     }
     public function update(Request $request, $id)
     {
+        $user = current_user();
+        $role = session('auth_role');
+        $staffMember = null;
+        if ($user->role && $user->role->role_department !== 'ID' && $role !== "district") {
+            //myaccount
+            $staffMember = MobileTeamStaffs::findOrFail($user->mobile_id);
+        } elseif ($role === 'district') {
+            //only distrrict
+            $staffMember = MobileTeamStaffs::where('mobile_district_id', $user->district_code)
+                ->where('mobile_id', $id)
+                ->firstOrFail();
+        } else {
+            //comman
+            $staffMember = MobileTeamStaffs::findOrFail($id);
+        }
         // Find the mobile team staff member by ID
-        $staffMember = MobileTeamStaffs::findOrFail($id);
+        // $staffMember = MobileTeamStaffs::findOrFail($id);
         $messages = [
             'district.required' => 'Please select a district',
             'district.integer' => 'Please select a valid district',

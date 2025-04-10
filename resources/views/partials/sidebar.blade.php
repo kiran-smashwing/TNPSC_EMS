@@ -310,8 +310,6 @@
                             Attendance</a>
                     </li>
                 @endhasPermission
-                {{-- <li class="pc-item"><a class="pc-link" href="{{ route('expenditure-statment.report.overall') }}">Candidate pdf</a>
-                </li> --}}
                 @hasPermission('replacement-omr-qca')
                     <li class="pc-item"><a class="pc-link" href="{{ route('omr-account.report') }}">Replacement of
                             OMR/QCA</a>
@@ -332,9 +330,6 @@
                             Statement</a>
                     </li>
                 @endhasPermission
-            
-                {{-- <li class="pc-item"><a class="pc-link" href="{{ route('vehicel.report') }}">Vehicel Report</a>
-                    </li> --}}
                 @hasPermission('ci-meeting')
                     <li class="pc-item"><a class="pc-link" href="{{ route('ci-attendace.report') }}">CI Meeting
                             Attendance</a>

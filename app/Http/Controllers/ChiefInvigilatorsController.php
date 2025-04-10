@@ -322,7 +322,22 @@ class ChiefInvigilatorsController extends Controller
 
     public function update(Request $request, $id)
     {
-        $chiefInvigilator = ChiefInvigilator::findOrFail($id);
+        $user = current_user();
+        $role = session('auth_role');
+        $chiefInvigilator = null;
+        if ($user->role && $user->role->role_department !== 'ID' && $role !== "district") {
+            //myaccount
+            $chiefInvigilator = ChiefInvigilator::findOrFail($user->ci_id);
+        } elseif ($role === 'district') {
+            //only distrrict
+            $chiefInvigilator = ChiefInvigilator::where('ci_district_id', $user->district_code)
+                ->where('ci_id', $id)
+                ->firstOrFail();
+        } else {
+            //comman
+            $chiefInvigilator = ChiefInvigilator::findOrFail($id);
+        }
+        // $chiefInvigilator = ChiefInvigilator::findOrFail($id);
         $messages = [
             'district.required' => 'Please select a district',
             'district.integer' => 'Please select a valid district',

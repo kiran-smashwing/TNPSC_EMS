@@ -246,7 +246,22 @@ class TreasuryOfficerController extends Controller
 
     public function update(Request $request, $id)
     {
-        $treasuryOfficer = TreasuryOfficer::findOrFail($id);
+        $user = current_user();
+        $role = session('auth_role');
+        $treasuryOfficer = null;
+        if ($user->role && $user->role->role_department !== 'ID' && $role !== "district") {
+            //myaccount
+            $treasuryOfficer = TreasuryOfficer::findOrFail($user->tre_off_id);
+        } elseif ($role === 'district') {
+            //only distrrict
+            $treasuryOfficer = TreasuryOfficer::where('tre_off_district_id', $user->district_code)
+                ->where('tre_off_id', $id)
+                ->firstOrFail();
+        } else {
+            //comman
+            $treasuryOfficer = TreasuryOfficer::findOrFail($id);
+        }
+        // $treasuryOfficer = TreasuryOfficer::findOrFail($id);
 
         $validated = $request->validate([
             'district' => 'required|numeric',

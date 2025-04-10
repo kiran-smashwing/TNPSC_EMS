@@ -290,8 +290,25 @@ class VenuesController extends Controller
     }
     public function update(Request $request, $id)
     {
+        $user = current_user();
+        $role = session('auth_role');
+        $venue = null;
+
+        // Determine venue based on user role
+        if ($user->role && $user->role->role_department !== 'ID' && $role !== "district") {
+            //myaccount
+            $venue = Venues::findOrFail($user->venue_id);
+        } elseif ($role === 'district') {
+            //only distrrict
+            $venue = Venues::where('venue_district_id', $user->district_code)
+                ->where('venue_id', $id)
+                ->firstOrFail();
+        } else {
+            //comman
+            $venue = Venues::findOrFail($id);
+        }
         // dd($request->all());
-        $venue = Venues::findOrFail($id);
+        // $venue = Venues::findOrFail($id);
         // Validate the incoming request
         $messages = [
             'district.required' => 'Please select a district',

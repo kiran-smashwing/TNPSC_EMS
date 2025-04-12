@@ -2,10 +2,7 @@
 
 namespace App\Mail;
 
-use App\Models\ExamSession;
-use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
@@ -14,27 +11,27 @@ class VenueBulkMail extends Mailable
     use Queueable, SerializesModels;
 
 
-    public $venue, $plainPassword, $verificationToken;
+    public $venue;
+    public $password;
+    public $token;
 
-    public function __construct($venue, $plainPassword, $verificationToken)
+    public function __construct($venue, $password, $token)
     {
         $this->venue = $venue;
-        $this->plainPassword = $plainPassword;
-        $this->verificationToken = $verificationToken;
+        $this->password = $password;
+        $this->token = $token;
     }
 
     public function build()
     {
-        $link = url('/venue/verify-email/' . $this->verificationToken);
+        $verificationLink = route('venues.verifyEmail', ['token' => urlencode($this->token)]);
 
-        return $this->subject('Your Venue Login Details')
-            ->view('emails.venue_account')
+        return $this->subject('TNPSC EMS போர்டலுக்கான உங்களது பயனர் கணக்கு விவரங்கள் மற்றும் பயனர் வழிகாட்டி')
+            ->view('email.venue_user_welcome')
             ->with([
-                'venueName' => $this->venue->venue_name,
-                'email' => $this->venue->venue_email,
-                'password' => $this->plainPassword,
-                'verificationLink' => $link,
+                'venue_email' => $this->venue->venue_email,
+                'password' => $this->password,
+                'verificationLink' => $verificationLink,
             ]);
     }
-
 }

@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                      <h2 class="mb-0"></h2>
-                                    </div> -->
+                                          <h2 class="mb-0"></h2>
+                                        </div> -->
                         </div>
                     </div>
                 </div>
@@ -151,6 +151,30 @@
             <!-- [ Main Content ] start -->
 
             <div class="row">
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
                 <!-- [ basic-table ] start -->
                 <div class="col-xl-12">
                     <div class="card">
@@ -234,7 +258,7 @@
                                                     <h6 class="mb-0">{{ $official->dept_off_name }}</h6>
                                                 </div>
                                             </td>
-                                            <td>{{ $official->role->role_name ?? 'N/A'}}</td>
+                                            <td>{{ $official->role->role_name ?? 'N/A' }}</td>
                                             <td>{{ $official->role->role_department ?? 'N/A' }}</td>
                                             <td>{{ $official->dept_off_email }}</td>
                                             <td>{{ $official->dept_off_phone }}</td>

@@ -32,7 +32,7 @@ class AuthController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('guest')->except('logout','resendVerificationEmail');
+        $this->middleware('guest')->except('logout', 'resendVerificationEmail');
     }
 
     public function showLogin()
@@ -168,28 +168,42 @@ class AuthController extends Controller
             case 'headquarters':
                 $users = DepartmentOfficial::where('dept_off_email', $email)->get();
                 // Filter users who have the role 'headquarters'
+                // Filter users who have at least one valid role
                 $filteredUsers = $users->filter(function ($user) {
-                    return !is_null($user->dept_off_role) && trim($user->dept_off_role) !== '';
+                    return (!empty($user->dept_off_role) || !empty($user->custom_role));
                 });
+
+                if ($filteredUsers->isEmpty()) {
+                    return redirect()->back()->withErrors([
+                        'email' => 'You have not been assigned to any department or role. Please contact your administrator.',
+                    ])->withInput($request->except('password'));
+                }
 
                 $success = '';
                 if ($filteredUsers->count() === 1) {
                     $user = $filteredUsers->first();
                     // Securely verify the password
+
                     if (Hash::check($password, $user->dept_off_password)) {
                         $success = Auth::guard('headquarters')->loginUsingId($user->dept_off_id, $remember);
                         $userId = $user->dept_off_id;
                     } else {
-                        $success = false; // Incorrect password
+                        return redirect()->back()->withErrors([
+                            'password' => 'Incorrect password. Please try again or reset it using "Forgot Password".',
+                        ]);
                     }
                 } else {
-                    $success = false; // No valid single user found
+                    return redirect()->back()->withErrors([
+                        'email' => 'Multiple accounts found with valid roles. Please contact support.',
+                    ]);
                 }
                 if ($success) {
                     $user = Auth::guard('headquarters')->user();
                     $userId = $user->dept_off_id; // Adjust this based on your treasury table's ID column
                 }
                 break;
+
+
             case 'ci':
                 $success = Auth::guard('ci')->attempt([
                     'ci_email' => $email,
@@ -738,7 +752,7 @@ class AuthController extends Controller
             } else {
                 throw new Exception('Failed to generate verification link.');
             }
-            return redirect()->route('venues.verifyEmail', ['token'=> urlencode($verification_token)]);
+            return redirect()->route('venues.verifyEmail', ['token' => urlencode($verification_token)]);
         } else {
             throw new Exception('Venue not found.');
         }

@@ -153,9 +153,9 @@
         integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     {{-- <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script> --}}
-    <script src="https://openfpcdn.io/fingerprintjs/v4"></script>
-    <script>
-        const fpPromise = import('https://openfpcdn.io/fingerprintjs/v4')
+    <script type="module" src="{{ asset('storage/assets/js/plugins/fingerprintjs/v4.js') }}"></script>
+    <script type="module">
+        const fpPromise = import("{{ asset('storage/assets/js/plugins/fingerprintjs/v4.js') }}")
             .then(FingerprintJS => FingerprintJS.load());
 
         fpPromise.then(fp => fp.get()).then(result => {

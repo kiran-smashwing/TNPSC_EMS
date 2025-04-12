@@ -36,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
             return "<?php endif; ?>";
         });
         if (app()->environment('local', 'staging', 'testing','production')) {
-            Mail::alwaysTo('kiran232377@gmail.com'); // Change this to your desired static email
+            Mail::alwaysTo('kiran@smashwing.com'); // Change this to your desired static email
         }
     }
 }

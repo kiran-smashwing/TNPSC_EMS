@@ -37,6 +37,6 @@ class UserAccountCreationMail extends Mailable
     public function build()
     {
         return $this->subject('Welcome to TNPSC EMS, ' . $this->name . '! Your Account Details Inside.')
-                    ->view('email.user_account_created');
+                    ->view('emails.user_account_created');
     }
 }

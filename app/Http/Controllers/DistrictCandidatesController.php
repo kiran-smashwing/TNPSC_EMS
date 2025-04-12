@@ -399,18 +399,6 @@ class DistrictCandidatesController extends Controller
             ->where('exam_id', $examId)
             ->where('district_code', $user->district_code ?? '01')
             ->first();
-        //     $CIs = ExamConfirmedHalls::selectRaw('
-        //     ci_id, 
-        //     MIN(id) as id, 
-        //     ARRAY_AGG(DISTINCT hall_code) as hall_codes,
-        //     ARRAY_AGG(DISTINCT exam_date) as exam_dates,
-        // ')
-        //         ->where('exam_id', $examId)
-        //         ->where('district_code', $user->district_code ?? '01')
-        //         ->groupBy('ci_id')
-        //         ->get();
-        //     dd($CIs);
-        // SendCIConfirmationEmail::dispatch($examId, $user->district_code ?? '01');
 
         if ($qrCode) {
             // Update only the meeting date and time without modifying the QR code
@@ -420,6 +408,24 @@ class DistrictCandidatesController extends Controller
                     'meeting_date_time' => $meetingDateTime,
                     'updated_at' => now(),
                 ]);
+            // Run the query
+            //$meetingDetails = CIMeetingQrcode::where('exam_id', $examId)->where('district_code', $user->district_code ?? '01')->first();
+            // dd($meetingDetails);
+        //     $CIs = ExamConfirmedHalls::selectRaw('
+        //     ci_id, 
+        //     MIN(id) as id, 
+        //     ARRAY_AGG(DISTINCT hall_code) as hall_codes,
+        //     ARRAY_AGG(DISTINCT exam_date) as exam_dates,
+        //     ARRAY_AGG(DISTINCT exam_session) as exam_sessions
+        // ')
+        //         ->where('exam_id', $examId)
+        //         ->where('district_code', $user->district_code ?? '01')
+        //         ->with('chiefInvigilator')
+        //         ->limit(1)
+        //         ->groupBy('ci_id')
+        //         ->get();
+        //     dd($CIs);
+            SendCIConfirmationEmail::dispatch($examId, $user->district_code ?? '01');
 
             return redirect()->route('district-candidates.generatePdf', ['qrCodeId' => $qrCode->id])
                 ->with('success', 'Meeting date and time updated successfully.');

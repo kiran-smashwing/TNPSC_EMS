@@ -46,7 +46,7 @@ class VenueConsentMail extends Mailable
     public function build()
     {
         return $this->subject('Intimation and Request for Consent – Venue Allocation for Upcoming TNPSC Examination ')
-                    ->view('email.venue_consent_simple')
+                    ->view('emails.venue_consent_simple')
                     ->with( [
                         'venueName' => $this->venueData->venue_name,
                         'venueAddress' => $this->venueData->venue_address,

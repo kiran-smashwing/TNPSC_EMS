@@ -22,7 +22,7 @@ class CsvProcessingResult extends Mailable
     public function build()
     {
         return $this->subject($this->subject)
-            ->view('email.csv_processing_result')
+            ->view('emails.csv_processing_result')
             ->with('data', $this->data);
     }
 }

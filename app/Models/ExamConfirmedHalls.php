@@ -59,5 +59,9 @@ class ExamConfirmedHalls extends Model
     {
         return $this->belongsTo(Currentexam::class, 'exam_id', 'exam_main_no');
     }
+    public function chiefInvigilator()
+    {
+        return $this->belongsTo(ChiefInvigilator::class, 'ci_id', 'ci_id');
+    }
 
 }

@@ -37,6 +37,6 @@ class UserEmailVerificationMail extends Mailable
     public function build()
     {
         return $this->subject('Verify Your Email Address - TNPSC EMS')
-                    ->view('email.user_email_verification');
+                    ->view('emails.user_email_verification');
     }
 }

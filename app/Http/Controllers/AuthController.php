@@ -404,7 +404,7 @@ class AuthController extends Controller
         ], [
             'password.regex' => 'Your Password must include at least one letter, number, and special character.',
             'termsAndConditions.accepted' => 'You must agree to the terms and conditions.',
-            'email.unique' => 'Thsi email is already associated with an existing account.',
+            'emails.unique' => 'Thsi email is already associated with an existing account.',
         ]);
 
         // Create the new user
@@ -637,7 +637,7 @@ class AuthController extends Controller
             $model::where($emailColumn, $email)->update([$passwordColumn => $hashedPassword]);
 
             // Send the new password via email
-            Mail::send('email.password_reset', [
+            Mail::send('emails.password_reset', [
                 'newPassword' => $newPassword,
                 'email' => $email,
                 'name' => $user->$nameColumn,

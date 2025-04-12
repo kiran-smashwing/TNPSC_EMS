@@ -195,7 +195,7 @@ class CenterController extends Controller
             AuditLogger::log('Center Created', Center::class, $center->id, null, $center->toArray());
 
             // Send the welcome email
-            // Mail::send('email.center_created', [
+            // Mail::send('emails.center_created', [
             //     'name' => $center->center_name,
             //     'email' => $center->center_email,
             //     'password' => $request->password, // Plain password for first login

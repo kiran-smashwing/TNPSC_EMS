@@ -48,7 +48,7 @@ class AccommodationNotification extends Mailable
     public function build()
     {
         return $this->subject('Request for Venue Securing for Upcoming TNPSC Examination')
-                    ->view('email.accommodation_notification')
+                    ->view('emails.accommodation_notification')
                     ->with( [
                         'exam' => $this->exam,
                         'district' => $this->district,

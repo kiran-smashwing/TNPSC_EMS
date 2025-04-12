@@ -27,7 +27,7 @@ class VenueBulkMail extends Mailable
         $verificationLink = route('venues.verifyEmail', ['token' => urlencode($this->token)]);
 
         return $this->subject('TNPSC EMS போர்டலுக்கான உங்களது பயனர் கணக்கு விவரங்கள் மற்றும் பயனர் வழிகாட்டி')
-            ->view('email.venue_user_welcome')
+            ->view('emails.venue_user_welcome')
             ->with([
                 'venue_email' => $this->venue->venue_email,
                 'password' => $this->password,

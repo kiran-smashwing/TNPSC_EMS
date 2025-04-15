@@ -32,6 +32,10 @@ class VenueBulkMail extends Mailable
                 'venue_email' => $this->venue->venue_email,
                 'password' => $this->password,
                 'verificationLink' => $verificationLink,
+            ])
+            ->attach(public_path('storage/assets/assets/TNPSC_EMS_Venue_Module.pdf'), [
+                'as' => 'TNPSCUserGuide.pdf',
+                'mime' => 'application/pdf',
             ]);
     }
 }

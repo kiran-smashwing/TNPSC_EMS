@@ -374,7 +374,7 @@ class MobileTeamStaffsController extends Controller
 
             // Log staff member update with old and new values (assuming you have a logging mechanism)
             AuditLogger::log('Mobile Team Staff Updated', MobileTeamStaffs::class, $staffMember->mobile_id, $oldValues, $changedValues);
-            if (url()->previous() === route('mobile-team-staffs.edit', $id)) {
+            if (Str::contains(url()->previous(), '/mobile-team-staffs/') && Str::contains(url()->previous(), '/edit')) {
                 return redirect()->route('mobile-team-staffs.index')
                     ->with('success', 'Mobile team staff updated successfully.');
             } else {

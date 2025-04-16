@@ -424,7 +424,7 @@ class VenuesController extends Controller
             // Log venue update with old and new values
             AuditLogger::log('Venue Updated', Venues::class, $venue->venue_id, $oldValues, $changedValues);
             // Redirect back with success message
-            if (url()->previous() === route('venues.edit', $id)) {
+            if (Str::contains(url()->previous(), '/venues/') && Str::contains(url()->previous(), '/edit')) {
                 return redirect()->route('venues.index')
                     ->with('success', 'Venue updated successfully');
             } else {

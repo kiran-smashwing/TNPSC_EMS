@@ -254,7 +254,7 @@ class DistrictController extends Controller
 
             // Log district update with old and new values
             AuditLogger::log('District Updated', District::class, $district->district_id, $oldValues, $changedValues);
-            if (url()->previous() === route('district.edit', $id)) {
+            if (Str::contains(url()->previous(), '/district/') && Str::contains(url()->previous(), '/edit')) {
                 return redirect()->route('district.index')
                     ->with('success', 'District updated successfully');
             } else {

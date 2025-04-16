@@ -349,7 +349,7 @@ class CenterController extends Controller
 
             // Log district update with old and new values
             AuditLogger::log('Center Updated', Center::class, $center->center_id, $oldValues, $changedValues);
-            if (url()->previous() === route('centers.edit', $id)) {
+            if (Str::contains(url()->previous(), '/centers/') && Str::contains(url()->previous(), '/edit')) {
                 return redirect()->route('centers.index')
                     ->with('success', 'Center updated successfully');
             } else {

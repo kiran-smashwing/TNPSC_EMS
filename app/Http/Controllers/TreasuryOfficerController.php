@@ -339,7 +339,7 @@ class TreasuryOfficerController extends Controller
             $oldValues = array_intersect_key($oldValues, $changedValues);
             // Log the update
             AuditLogger::log('Treasury Officer Updated', TreasuryOfficer::class, $treasuryOfficer->tre_off_id, $oldValues, $changedValues);
-            if (url()->previous() === route('treasury-officers.edit', $id)) {
+            if (Str::contains(url()->previous(), '/treasury-officers/') && Str::contains(url()->previous(), '/edit')) {
                 return redirect()->route('treasury-officers.index')
                     ->with('success', 'Treasury Officer updated successfully');
             } else {

@@ -155,17 +155,36 @@
     {{-- <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script> --}}
     <script type="module" src="{{ asset('storage/assets/js/plugins/fingerprintjs/v4.js') }}"></script>
     <script type="module">
-        const fpPromise = import("{{ asset('storage/assets/js/plugins/fingerprintjs/v4.js') }}")
-            .then(FingerprintJS => FingerprintJS.load());
+        import FingerprintJS from '{{ asset('storage/assets/js/plugins/fingerprintjs/v4.js') }}';
 
-        fpPromise.then(fp => fp.get()).then(result => {
-            const fingerprint = result.visitorId;
-            // Attach the fingerprint to all fetch() requests
-            document.cookie = "device_fingerprint=" + fingerprint +
-                "; path=/; SameSite=Lax; Secure";
+        const getCookie = (name) => {
+            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            return match ? decodeURIComponent(match[2]) : null;
+        };
+
+        const setCookie = (name, value) => {
+            document.cookie = `${name}=${encodeURIComponent(value)}; path=/; SameSite=Lax; Secure`;
+        };
+
+        FingerprintJS.load().then(fp => fp.get()).then(result => {
+            const realFingerprint = result.visitorId;
+            const headers = new Headers();
+            headers.append("Device-Fingerprint", realFingerprint);
+            // Initial set (first load)
+            if (getCookie('device_fingerprint') !== realFingerprint) {
+                setCookie('device_fingerprint', realFingerprint);
+            }
+
+            // 🔁 Keep monitoring for tampering every 2 seconds
+            setInterval(() => {
+                const current = getCookie('device_fingerprint');
+                if (current !== realFingerprint) {
+                    console.warn('[Security] Fingerprint cookie tampered. Restoring.');
+                    setCookie('device_fingerprint', realFingerprint);
+                }
+            }, 2000); // Check every 2 seconds
         });
     </script>
-
     <script>
         var savedTheme = localStorage.getItem('theme') || 'light';
         layout_change(savedTheme);

@@ -262,7 +262,7 @@
             </div>
 
             <div class="email-body">
-                <div class="greeting">வணக்கம் {{ $name }},</div>
+                <div class="greeting">வணக்கம் ,</div>
 
                 <div class="message">
                     உங்கள் கணக்கின் மின்னஞ்சல் முகவரியை உறுதிப்படுத்த வேண்டுமென கேட்டுக்கொள்கிறோம். 

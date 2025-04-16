@@ -8,6 +8,7 @@ use App\Models\District;
 use App\Models\TreasuryOfficer;
 use App\Models\MobileTeamStaffs;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use App\Services\AuditLogger;
 use Illuminate\Support\Facades\Mail;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Services\ImageCompressService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class DistrictController extends Controller
 {
@@ -137,27 +139,29 @@ class DistrictController extends Controller
 
     public function verifyEmail($token)
     {
-
+        $currentRole = session('auth_role');
         $decodedToken = urldecode($token);
 
         $district = District::where('verification_token', $decodedToken)->first();
 
         if (!$district) {
-            return redirect()->route('login')->with('status', 'Invalid verification link.');
+            if (Auth::guard($currentRole)->check()) {
+                return redirect()->route('dashboard')->with('status', 'Your email is already verified, or the verification link is invalid.');
+            } else {
+                return redirect()->route('login')->with('status', 'Your email is already verified, or the verification link is invalid.');
+            }
         }
 
         $district->update([
             'district_email_status' => true,
             'verification_token' => null,
         ]);
-
-        return redirect()->route('login')->with('status', 'Email verified successfully.');
+        if (Auth::guard($currentRole)->check()) {
+            return redirect()->route('dashboard')->with('status', 'Email verified successfully.');
+        } else {
+            return redirect()->route('login')->with('status', 'Email verified successfully.');
+        }
     }
-
-
-
-
-
 
     public function edit($id)
     {
@@ -323,6 +327,41 @@ class DistrictController extends Controller
                 'message' => 'Failed to update district status',
                 'details' => $e->getMessage(),  // Optional
             ], 500);
+        }
+    }
+
+    //send email to all districts by updating password of all districts and verififcation links
+    public function sendEmail()
+    {
+        $districts = District::whereNotNull('district_email')->limit(2)->get();
+
+        foreach ($districts as $district) {
+            try {
+                $plainPassword = Str::random(10);
+                $token = Str::random(64);
+
+                $district->district_password = Hash::make($plainPassword);
+                $district->verification_token = $token;
+                $district->save();
+                // Send the email verification link
+                $verificationLink = route('district.verify', ['token' => urlencode($token)]);
+                Mail::to($district->district_email)->send(new UserAccountCreationMail($district->district_name, $district->district_email, $plainPassword,$verificationLink)); // Use the common mailable
+                // Enhanced success log
+                Log::info('Mail Sent', [
+                    'email' => $district->district_email,
+                    'district_id' => $district->district_id,
+                    'time' => Carbon::now()->toDateTimeString(),
+                ]);
+            } catch (\Exception $e) {
+                // Enhanced error log
+                Log::error('Mail Failed', [
+                    'email' => $district->district_email,
+                    'district_id' => $district->district_id,
+                    'error' => $e->getMessage(),
+                    'time' => Carbon::now()->toDateTimeString(),
+                ]);
+            }
+
         }
     }
 }

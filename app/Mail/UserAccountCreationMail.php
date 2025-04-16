@@ -14,6 +14,7 @@ class UserAccountCreationMail extends Mailable
     public $name;
     public $email;
     public $password;
+    public $verification_link;
 
     /**
      * Create a new message instance.
@@ -21,12 +22,14 @@ class UserAccountCreationMail extends Mailable
      * @param string $name
      * @param string $email
      * @param string $password
+     * @param string $verification_link
      */
-    public function __construct($name, $email, $password)
+    public function __construct($name, $email, $password,$verification_link)
     {
         $this->name = $name;
         $this->email = $email;
         $this->password = $password;
+        $this->verification_link = $verification_link;
     }
 
     /**

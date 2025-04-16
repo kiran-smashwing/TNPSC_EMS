@@ -31,6 +31,7 @@ class ChiefInvigilator extends Authenticatable
         'ci_email_status',
         'ci_createdat',
         'remember_token',
+        'ci_employee_id',
     ];
     protected $hidden = [
         'ci_password',

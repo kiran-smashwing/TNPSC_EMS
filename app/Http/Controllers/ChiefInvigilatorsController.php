@@ -251,7 +251,7 @@ class ChiefInvigilatorsController extends Controller
                 'ci_designation' => $validated['designation'],
                 'ci_phone' => $validated['phone'],
                 'ci_alternative_phone' => $validated['alternative_phone'],
-                'ci_id' => $validated['employee_id'],
+                'ci_employee_id' => $validated['employee_id'],
                 'ci_email' => $validated['email'],
                 'ci_password' => $validated['ci_password'], // Hash the password
                 'ci_image' => $validated['image'] ?? null, // Store image if provided
@@ -409,7 +409,7 @@ class ChiefInvigilatorsController extends Controller
                 'ci_designation' => $validated['designation'],
                 'ci_phone' => $validated['phone'],
                 'ci_alternative_phone' => $validated['alternative_phone'],
-                'ci_id' => $validated['employee_id'],
+                'ci_employee_id' => $validated['employee_id'],
                 'ci_email' => $validated['email'],
                 'ci_password' => $validated['ci_password'] ?? $chiefInvigilator->ci_password, // Use the old password if not updated
             ];
@@ -436,10 +436,12 @@ class ChiefInvigilatorsController extends Controller
             $oldValues = array_intersect_key($oldValues, $changedValues);
             // Log district update with old and new values
             AuditLogger::log('Chief Invigilator Updated', ChiefInvigilator::class, $chiefInvigilator->ci_id, $oldValues, $changedValues);
-            if (url()->previous() === route('chief-invigilators.edit', $id)) {
+            if (Str::contains(url()->previous(), '/chief-invigilators/') && Str::contains(url()->previous(), '/edit')) {
+
                 return redirect()->route('chief-invigilators.index')
                     ->with('success', 'Chief Invigilator updated successfully');
             } else {
+
                 return redirect()->back()->with('success', 'Chief Invigilator updated successfully');
             }
         } catch (\Exception $e) {

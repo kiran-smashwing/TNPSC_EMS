@@ -85,7 +85,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-8 col-xxl-9">
+                        {{-- <div class="col-lg-8 col-xxl-9">
                             <div class="card">
                                 <div class="card-header">
                                     <h5>Demo Videos</h5>
@@ -106,7 +106,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>

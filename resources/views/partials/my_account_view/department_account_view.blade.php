@@ -59,18 +59,18 @@
     </div>
     <div class="col-lg-8 col-xxl-9">
         <div class="card">
-            <div class="card-header">
+            {{-- <div class="card-header">
                 <h5>Demo Videos</h5>
-            </div>
+            </div> --}}
             <div class="card-body pc-component">
                 <div id="carouselExampleFade" class="carousel slide carousel-fade"
                     data-bs-ride="carousel">
                     <div class="carousel-inner">
-                        <div class="carousel-item active">
-                            <video class="img-fluid d-block w-100" controls>
-                                <source src="../assets/videos/video-1.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
+                        <div class="carousel-item active text-center p-4">
+                            <p>
+                                User Guide Document - 
+                                <a href="#" target="_blank">Click Here</a>
+                            </p>
                         </div>
                       
                     </div>

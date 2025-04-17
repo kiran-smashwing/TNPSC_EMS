@@ -78,39 +78,19 @@
             </div>
             <div class="col-lg-8 col-xxl-9">
                 <div class="card">
-                    <div class="card-header">
+                    {{-- <div class="card-header">
                         <h5>User Guide Video - District Collectorate</h5>
-                    </div>
+                    </div> --}}
                     <div class="card-body pc-component">
                         <div data-bs-ride="carousel" class="carousel slide carousel-fade" id="carouselExampleFade">
                             <div class="carousel-inner">
-                                <div class="carousel-item active">
-                                    <video controls="" class="img-fluid d-block w-100">
-                                        <source type="video/mp4" src="../assets/videos/video-1.mp4">
-                                        Your browser does not support the video tag.
-                                    </video>
+                                <div class="carousel-item active text-center p-4">
+                                    <p>
+                                        User Guide Document - 
+                                        <a href="{{ asset('storage/user_guide/TNPSC EMS-DIstrict Module.pdf') }}" target="_blank">Click Here</a>
+                                    </p>
                                 </div>
-                                {{-- <div class="carousel-item">
-                                <video controls="" class="img-fluid d-block w-100">
-                                    <source type="video/mp4" src="../assets/videos/video-2.mp4">
-                                    Your browser does not support the video tag.
-                                </video>
-                            </div> --}}
-                                {{-- <div class="carousel-item">
-                                <video controls="" class="img-fluid d-block w-100">
-                                    <source type="video/mp4" src="../assets/videos/video-3.mp4">
-                                    Your browser does not support the video tag.
-                                </video>
-                            </div> --}}
-                            </div>
-                            {{-- <a data-bs-slide="prev" role="button" href="#carouselExampleFade" class="carousel-control-prev">
-                            <span aria-hidden="true" class="carousel-control-prev-icon"></span>
-                            <span class="sr-only">Previous</span>
-                        </a> --}}
-                            {{-- <a data-bs-slide="next" role="button" href="#carouselExampleFade" class="carousel-control-next">
-                            <span aria-hidden="true" class="carousel-control-next-icon"></span>
-                            <span class="sr-only">Next</span>
-                        </a> --}}
+                             </div>
                         </div>
                     </div>
                 </div>

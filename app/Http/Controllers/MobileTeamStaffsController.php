@@ -348,7 +348,7 @@ class MobileTeamStaffsController extends Controller
             $user = current_user();
             // Prepare data for update, including the new image path if it exists
             $updateData = [
-                'mobile_district_id' => $validated['district'],
+                // 'mobile_district_id' => $validated['district'],
                 'mobile_name' => $validated['name'],
                 'mobile_employeeid' => $validated['employee_id'],
                 'mobile_designation' => $validated['designation'],

@@ -148,7 +148,7 @@ class CenterController extends Controller
             'latitude' => 'required|numeric',
             'cropped_image' => 'nullable|string'
         ]);
-    //    dd($validated);
+        //    dd($validated);
         try {
             // Process the cropped image if present
             if (!empty($validated['cropped_image'])) {
@@ -252,20 +252,20 @@ class CenterController extends Controller
     public function update(Request $request, $id)
     {
 
-         $user = current_user();
+        $user = current_user();
         $role = session('auth_role');
         $center = null;
-        if ($user->role && $user->role->role_department !== 'ID' && $role !== "district") {
-            //myaccount
-            $center = Center::findOrFail($user->center_id);
+        if ($user->role && $user->role->role_department == 'ID') {
+            //comman
+            $center = Center::findOrFail($id);
         } elseif ($role === 'district') {
             //only distrrict
             $center = Center::where('center_district_id', $user->district_code)
                 ->where('center_id', $id)
                 ->firstOrFail();
         } else {
-            //comman
-            $center = Center::findOrFail($id);
+            //myaccount
+            $center = Center::findOrFail($user->center_id);
         }
         $center = Center::findOrFail($id);
         $messages = [
@@ -320,7 +320,6 @@ class CenterController extends Controller
             $role = session('auth_role');
             $user = current_user();
             $updateData = [
-                'center_district_id' => $validated['district'],
                 'center_name' => $validated['center_name'],
                 'center_code' => $validated['center_code'],
                 'center_email' => $validated['email'],

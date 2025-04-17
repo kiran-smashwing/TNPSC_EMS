@@ -192,9 +192,9 @@ class CIAssistantsController extends Controller
         $user = current_user();
         $role = session('auth_role');
         $ciAssistant = null;
-        if ($user->role && $user->role->role_department !== 'ID' && $role !== "district") {
-            //myaccount
-            $ciAssistant = CIAssistant::findOrFail($user->cia_id);
+        if ($user->role && $user->role->role_department == 'ID') {
+            //comman
+            $ciAssistant = CIAssistant::findOrFail($id);
         } elseif ($role === 'district') {
             //only distrrict
             $ciAssistant = CIAssistant::where('cia_district_id', $user->district_code)
@@ -202,13 +202,13 @@ class CIAssistantsController extends Controller
                 ->firstOrFail();
         } elseif ($role === 'ci' || $role === 'venue') {
             //only CI
-            $venue_code = $role == 'ci'? $user->ci_venue_id : $user->venue_code;
+            $venue_code = $role == 'ci' ? $user->ci_venue_id : $user->venue_code;
             $ciAssistant = CIAssistant::where('cia_venue_id', $venue_code)
                 ->where('cia_id', $id)
                 ->firstOrFail();
         } else {
-            //comman
-            $ciAssistant = CIAssistant::findOrFail($id);
+            //myaccount
+            $ciAssistant = CIAssistant::findOrFail($user->cia_id);
         }
         // Find the CI Assistant record by ID
         // $ciAssistant = CIAssistant::findOrFail($id);
@@ -275,18 +275,15 @@ class CIAssistantsController extends Controller
                 // 'cia_email' => $validated['email'],
                 'cia_phone' => $validated['phone'],
                 'cia_designation' => $validated['designation'],
-                'cia_district_id' => $validated['district'],
-                'cia_center_id' => $validated['center'],
-                'cia_venue_id' => $validated['venue'],
+
             ];
             if ($role == 'district') {
                 // $updateData['cia_district_id'] = $validated['district'];
-                $updateData[ 'cia_center_id'] = $validated['center'];
+                $updateData['cia_center_id'] = $validated['center'];
                 $updateData['cia_venue_id'] = $validated['venue'];
-            }
-            elseif ($user->role && $user->role->role_department == 'ID') {
+            } elseif ($user->role && $user->role->role_department == 'ID') {
                 $updateData['cia_district_id'] = $validated['district'];
-                $updateData[ 'cia_center_id'] = $validated['center'];
+                $updateData['cia_center_id'] = $validated['center'];
                 $updateData['cia_venue_id'] = $validated['venue'];
             }
             // Add the new image path if it's provided
@@ -354,7 +351,7 @@ class CIAssistantsController extends Controller
         $centerCount = optional($ciAssistant->district)->centers()->count() ?? 0;
         $venueCount = optional($ciAssistant->district)->venues()->count() ?? 0;
         $staffCount = (optional($ciAssistant->district)->treasuryOfficers()->count() ?? 0) +
-            (optional($ciAssistant->district)->mobileTeamStaffs()->count() ?? 0);
+        (optional($ciAssistant->district)->mobileTeamStaffs()->count() ?? 0);
 
         // Handle null venue
         $ci_count = optional($ciAssistant->venue)->chiefinvigilator()->count() ?? 0;

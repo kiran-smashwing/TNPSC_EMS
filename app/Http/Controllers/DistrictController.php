@@ -334,8 +334,51 @@ class DistrictController extends Controller
     public function sendEmail()
     {
         $districts = District::whereNotNull('district_email')->limit(2)->get();
-
+        $alreadySent = [
+            'collrari@nic.in',
+            'collrtup@nic.in',
+            'collr-kki@gov.in',
+            'collrtpt@gmail.com',
+            'collrnlg@gmail.com',
+            'collrrmd@nic.in',
+            'collrslm@nic.in',
+            'gsectionthanjavur@gmail.com',
+            'collrthn@nic.in',
+            'collrtnv@nic.in',
+            'collrpdk@nic.in',
+            'collrtvr@nic.in',
+            'collrtvm@nic.in',
+            'collrtut@nic.in',
+            'collrvpm@gmail.com',
+            'collr-myd@nic.in',
+            'collrngpisection@gmail.com',
+            'collrnmk@nic.in',
+            'collrcud@nic.in',
+            'collrvel@nic.in',
+            'collrvnr@nic.in',
+            'dmtahsildar.pmb@tn.gov.in',
+            'collrmdu@nic.in',
+            'collectorateerode@gmail.com',
+            'collrkar@nic.in',
+            'collrkkm@nic.in',
+            'collrsvg@nic.in',
+            'ceochn@nic.in',
+            'collr-cpt@gov.in',
+            'collr-rpt@gov.in',
+            'collrcbe@nic.in',
+            'collrtlr@nic.in',
+            'collrtry@nic.in',
+            'usection7kpm@gmail.com',
+            'collrkgi@nic.in',
+            // Add more if needed
+        ];
         foreach ($districts as $district) {
+            // 🚫 Skip if email was already sent
+            if (in_array($district->district_email, $alreadySent)) {
+                // continue;
+            }
+            print_r($district->district_email);
+            dd(in_array($district->district_email, $alreadySent));
             try {
                 $plainPassword = Str::random(10);
                 $token = Str::random(64);
@@ -345,7 +388,7 @@ class DistrictController extends Controller
                 $district->save();
                 // Send the email verification link
                 $verificationLink = route('district.verify', ['token' => urlencode($token)]);
-                Mail::to($district->district_email)->send(new UserAccountCreationMail($district->district_name, $district->district_email, $plainPassword,$verificationLink)); // Use the common mailable
+                Mail::to($district->district_email)->send(new UserAccountCreationMail($district->district_name, $district->district_email, $plainPassword, $verificationLink)); // Use the common mailable
                 // Enhanced success log
                 Log::info('Mail Sent', [
                     'email' => $district->district_email,

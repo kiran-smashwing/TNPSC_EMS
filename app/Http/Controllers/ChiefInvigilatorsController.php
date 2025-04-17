@@ -325,17 +325,22 @@ class ChiefInvigilatorsController extends Controller
         $user = current_user();
         $role = session('auth_role');
         $chiefInvigilator = null;
-        if ($user->role && $user->role->role_department !== 'ID' && $role !== "district") {
-            //myaccount
-            $chiefInvigilator = ChiefInvigilator::findOrFail($user->ci_id);
-        } elseif ($role === 'district') {
+        if ($role === 'district') {
             //only distrrict
             $chiefInvigilator = ChiefInvigilator::where('ci_district_id', $user->district_code)
                 ->where('ci_id', $id)
                 ->firstOrFail();
-        } else {
+        } elseif ($role === 'venue') {
+            //only venue
+            $chiefInvigilator = ChiefInvigilator::where('ci_venue_id', $user->venue_code)
+                ->where('ci_id', $id)
+                ->firstOrFail();
+        } elseif (!empty($user->role) && $user->role->role_department == 'ID') {
             //comman
             $chiefInvigilator = ChiefInvigilator::findOrFail($id);
+        } else {
+            //myaccount
+            $chiefInvigilator = ChiefInvigilator::findOrFail($user->ci_id);
         }
         // $chiefInvigilator = ChiefInvigilator::findOrFail($id);
         $messages = [
@@ -402,9 +407,6 @@ class ChiefInvigilatorsController extends Controller
             // Update the Chief Invigilator
             // Prepare data for update, including the new image path if it exists
             $updateData = [
-                'ci_district_id' => $validated['district'],
-                'ci_center_id' => $validated['center'],
-                'ci_venue_id' => $validated['venue'],
                 'ci_name' => $validated['name'],
                 'ci_designation' => $validated['designation'],
                 'ci_phone' => $validated['phone'],

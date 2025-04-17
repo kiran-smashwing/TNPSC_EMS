@@ -157,71 +157,59 @@
                         <div class="card-header">
                             <div class="d-sm-flex align-items-center justify-content-between">
                                 <h5 class="mb-3 mb-sm-0">Support</h5>
-                                {{-- <div>
-                                    <a href="{{ route('completed-exam.create') }}" class="btn btn-outline-success">Add Exam
-                                    </a>
-                                </div> --}}
                             </div>
                         </div>
                         <div class="card-body table-border-style">
-                            <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
+                         
+                            <table class="display table table-striped table-hover dt-responsive nowrap"
                                 width="100%">
                                 <thead>
                                     <tr>
-                                        <th>#</th>
-                                        <th>Department Officials</th>
-                                        <th>Phone</th>
-                                        <th>E-mail</th>
+                                        <th>S.No</th>
+                                        <th>Department Name & Section</th>
+                                        <th>Contact Number(s)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
                                     <td>1</td>
-                                    <td>Infrastructure Department - ID</td>
-                                    <td>09597469631</td>
-                                    <td>id@mail.com</td>
+                                    <td>Infrastructure Department - ID (Technical Support for TNPSC EMS App)</td>
+                                    <td>044-25300385, 303, 302, 440</td>
                                 </tr>
                                 <tr>
                                     <td>2</td>
                                     <td>Application Processing Department - APD</td>
-                                    <td>8593457629</td>
-                                    <td>apd@mail.com</td>
+                                    <td>044-25300318, 439</td>
                                 </tr>
                                 <tr>
                                     <td>3</td>
-                                    <td>Rules Notification Department - RND</td>
-                                    <td>8576847560</td>
-                                    <td>rnd@mail.com</td>
+                                    <td>Rules Notification Department - RND-TECH</td>
+                                    <td>044-25300312</td>
                                 </tr>
                                 <tr>
                                     <td>4</td>
                                     <td>Evaluation Department - ED</td>
-                                    <td>7684567893</td>
-                                    <td>ed@mail.com</td>
+                                    <td>8072356547</td>
                                 </tr>
                                 <tr>
                                     <td>5</td>
                                     <td>Confidential Department - QD</td>
-                                    <td>6381345673</td>
-                                    <td>qd@mail.com</td>
+                                    <td>044-25300353</td>
                                 </tr>
                                 <tr>
                                     <td>6</td>
                                     <td>Vehicles Machineries Department - VMD</td>
-                                    <td>9597469631</td>
-                                    <td>vmd@mail.com</td>
+                                    <td>044-25300444</td>
                                 </tr>
                                 <tr>
                                     <td>7</td>
                                     <td>Verification Stationary Department - VSD</td>
-                                    <td>9574567382</td>
-                                    <td>vsd@mail.com</td>
+                                    <td>044-25300326</td>
                                 </tr>
                                 <tr>
                                     <td>8</td>
                                     <td>Monitoring Coordination Department - MCD</td>
-                                    <td>7684567893</td>
-                                    <td>mcd@mail.com</td>
+                                    <td>044-25300305</td>
                                 </tr>
                                 </tbody>
 

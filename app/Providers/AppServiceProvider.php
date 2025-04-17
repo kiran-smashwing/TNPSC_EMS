@@ -35,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
         Blade::directive('endhasPermission', function () {
             return "<?php endif; ?>";
         });
-        if (app()->environment('local', 'staging', 'testing','production')) {
+        if (app()->environment('local', 'staging', 'testing')) {
             Mail::alwaysTo('kiran@smashwing.com'); // Change this to your desired static email
         }
     }

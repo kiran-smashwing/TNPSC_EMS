@@ -425,7 +425,7 @@ class DistrictCandidatesController extends Controller
         //         ->groupBy('ci_id')
         //         ->get();
         //     dd($CIs);
-            SendCIConfirmationEmail::dispatch($examId, $user->district_code ?? '01');
+            // SendCIConfirmationEmail::dispatch($examId, $user->district_code ?? '01');
 
             return redirect()->route('district-candidates.generatePdf', ['qrCodeId' => $qrCode->id])
                 ->with('success', 'Meeting date and time updated successfully.');

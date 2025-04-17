@@ -91,7 +91,7 @@ class SecurityHeaders
 
         // Content Security Policy (CSP) - Permissive to avoid breaking frontend
         $response->headers->set('Content-Security-Policy', "default-src 'self' https: http: data:; " .
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; " .
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http: blob:; " .
             "style-src 'self' 'unsafe-inline' https: http:; " .
             "img-src 'self' data: https: http:; " .
             "font-src 'self' data: https: http:; " .

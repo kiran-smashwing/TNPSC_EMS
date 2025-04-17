@@ -146,9 +146,9 @@ class DistrictController extends Controller
 
         if (!$district) {
             if (Auth::guard($currentRole)->check()) {
-                return redirect()->route('dashboard')->with('status', 'Invalid verification link.');
+                return redirect()->route('dashboard')->with('status', 'Your email is already verified, or the verification link is invalid.');
             } else {
-                return redirect()->route('login')->with('status', 'Invalid verification link.');
+                return redirect()->route('login')->with('status', 'Your email is already verified, or the verification link is invalid.');
             }
         }
 
@@ -333,7 +333,7 @@ class DistrictController extends Controller
     //send email to all districts by updating password of all districts and verififcation links
     public function sendEmail()
     {
-        $districts = District::limit(2)->get();
+        $districts = District::whereNotNull('district_email')->limit(2)->get();
 
         foreach ($districts as $district) {
             try {
@@ -343,14 +343,9 @@ class DistrictController extends Controller
                 $district->district_password = Hash::make($plainPassword);
                 $district->verification_token = $token;
                 $district->save();
-
-                Mail::to($district->district_email)->send(new UserAccountCreationMail($district->district_name, $district->district_email, $plainPassword)); // Use the common mailable
                 // Send the email verification link
                 $verificationLink = route('district.verify', ['token' => urlencode($token)]);
-
-                if ($verificationLink) {
-                    Mail::to($district->district_email)->send(new UserEmailVerificationMail($district->district_name, $district->district_email, $verificationLink)); // Use the common mailable
-                }
+                Mail::to($district->district_email)->send(new UserAccountCreationMail($district->district_name, $district->district_email, $plainPassword,$verificationLink)); // Use the common mailable
                 // Enhanced success log
                 Log::info('Mail Sent', [
                     'email' => $district->district_email,
@@ -366,6 +361,7 @@ class DistrictController extends Controller
                     'time' => Carbon::now()->toDateTimeString(),
                 ]);
             }
+
         }
     }
 }

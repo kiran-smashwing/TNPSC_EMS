@@ -320,7 +320,7 @@ class CenterController extends Controller
             $role = session('auth_role');
             $user = current_user();
             $updateData = [
-                'center_district_id' => $validated['district'],
+                // 'center_district_id' => $validated['district'],
                 'center_name' => $validated['center_name'],
                 'center_code' => $validated['center_code'],
                 'center_email' => $validated['email'],

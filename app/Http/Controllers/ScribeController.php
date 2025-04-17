@@ -285,9 +285,9 @@ class ScribeController extends Controller
                 // 'scribe_email' => $validated['mail'],
                 'scribe_phone' => $validated['phone'],
                 'scribe_designation' => $validated['designation'],
-                'scribe_district_id' => $validated['district'],
-                'scribe_center_id' => $validated['center'],
-                'scribe_venue_id' => $validated['venue'],
+                // 'scribe_district_id' => $validated['district'],
+                // 'scribe_center_id' => $validated['center'],
+                // 'scribe_venue_id' => $validated['venue'],
             ];
             $role = session('auth_role');
             $user = current_user();

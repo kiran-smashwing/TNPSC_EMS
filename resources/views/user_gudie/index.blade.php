@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Support')
+@section('title', 'User Guide')
 
 @section('content')
     @push('styles')
@@ -156,72 +156,102 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="d-sm-flex align-items-center justify-content-between">
-                                <h5 class="mb-3 mb-sm-0">Support</h5>
-                                {{-- <div>
-                                    <a href="{{ route('completed-exam.create') }}" class="btn btn-outline-success">Add Exam
-                                    </a>
-                                </div> --}}
+                                <h5 class="mb-3 mb-sm-0">User Guide</h5>
                             </div>
                         </div>
                         <div class="card-body table-border-style">
-                            <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
+                            <table class="display table table-striped table-hover dt-responsive nowrap"
                                 width="100%">
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Department Officials</th>
-                                        <th>Phone</th>
-                                        <th>E-mail</th>
+                                        <th>Title</th>
+                                        <th>View/Download</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
                                     <td>1</td>
-                                    <td>Infrastructure Department - ID</td>
-                                    <td>09597469631</td>
-                                    <td>id@mail.com</td>
+                                    <td>DIstrict</td>
+                                    <td>
+                                        <a href="{{ asset('storage/user_guide/TNPSC EMS-DIstrict Module.pdf') }}" 
+                                        target="_blank" 
+                                        class="btn btn-outline-success">
+                                         View
+                                     </a>
+                                     </td>
                                 </tr>
                                 <tr>
                                     <td>2</td>
-                                    <td>Application Processing Department - APD</td>
-                                    <td>8593457629</td>
-                                    <td>apd@mail.com</td>
+                                    <td>Center(Taluks)</td>
+                                    <td><a href="#" 
+                                        target="_blank" 
+                                        class="btn btn-outline-success">
+                                         View
+                                     </a></td>
                                 </tr>
                                 <tr>
                                     <td>3</td>
-                                    <td>Rules Notification Department - RND</td>
-                                    <td>8576847560</td>
-                                    <td>rnd@mail.com</td>
+                                    <td>District Treasuries</td>
+                                    <td><a href="#" 
+                                        target="_blank" 
+                                        class="btn btn-outline-success">
+                                         View
+                                     </a></td>
                                 </tr>
                                 <tr>
                                     <td>4</td>
-                                    <td>Evaluation Department - ED</td>
-                                    <td>7684567893</td>
-                                    <td>ed@mail.com</td>
+                                    <td>Mobile Teams</td>
+                                    <td><a href="#" 
+                                        target="_blank" 
+                                        class="btn btn-outline-success">
+                                         View
+                                     </a></td>
                                 </tr>
                                 <tr>
                                     <td>5</td>
-                                    <td>Confidential Department - QD</td>
-                                    <td>6381345673</td>
-                                    <td>qd@mail.com</td>
+                                    <td>Venues(Schools/Colleges)</td>
+                                    <td><a href="{{ asset('storage/user_guide/TNPSC EMS Venue Module.pdf') }}" 
+                                        target="_blank" 
+                                        class="btn btn-outline-success">
+                                         View
+                                     </a></td>
                                 </tr>
                                 <tr>
                                     <td>6</td>
-                                    <td>Vehicles Machineries Department - VMD</td>
-                                    <td>9597469631</td>
-                                    <td>vmd@mail.com</td>
+                                    <td>Chief Invigilators</td>
+                                    <td><a href="#" 
+                                        target="_blank" 
+                                        class="btn btn-outline-success">
+                                         View
+                                     </a></td>
                                 </tr>
                                 <tr>
                                     <td>7</td>
-                                    <td>Verification Stationary Department - VSD</td>
-                                    <td>9574567382</td>
-                                    <td>vsd@mail.com</td>
+                                    <td>Department Officials</td>
+                                    <td><a href="#" 
+                                        target="_blank" 
+                                        class="btn btn-outline-success">
+                                         View
+                                     </a></td>
                                 </tr>
                                 <tr>
                                     <td>8</td>
-                                    <td>Monitoring Coordination Department - MCD</td>
-                                    <td>7684567893</td>
-                                    <td>mcd@mail.com</td>
+                                    <td>Department Officials - Escort Officials</td>
+                                    <td><a href="#" 
+                                        target="_blank" 
+                                        class="btn btn-outline-success">
+                                         View
+                                     </a></td>
+                                </tr>
+                                <tr>
+                                    <td>9</td>
+                                    <td>Department Officials - Van Duty Staffs</td>
+                                    <td><a href="#" 
+                                        target="_blank" 
+                                        class="btn btn-outline-success">
+                                         View
+                                     </a></td>
                                 </tr>
                                 </tbody>
 

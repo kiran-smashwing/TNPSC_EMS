@@ -176,7 +176,7 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-8 col-xxl-6">
+                    <!-- <div class="col-lg-8 col-xxl-6">
                         <div class="card">
                             <div class="card-header">
                                 <h5>User Guide Video - Mobile Team Staff</h5>
@@ -194,7 +194,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <!-- [ Main Content ] end -->

@@ -151,17 +151,17 @@
             </div>
             <div class="col-lg-4 col-xxl-6">
                 <div class="card">
-                    <div class="card-header">
+                    {{-- <div class="card-header">
                         <h5>User Guide Video - Center (Taluks)</h5>
-                    </div>
+                    </div> --}}
                     <div class="card-body pc-component">
                         <div data-bs-ride="carousel" class="carousel slide carousel-fade" id="carouselExampleFade">
                             <div class="carousel-inner">
-                                <div class="carousel-item active">
-                                    <video controls="" class="img-fluid d-block w-100">
-                                        <source type="video/mp4" src="../assets/videos/video-1.mp4">
-                                        Your browser does not support the video tag.
-                                    </video>
+                                <div class="carousel-item active text-center p-4">
+                                    <p>
+                                        User Guide Document - 
+                                        <a href="#" target="_blank">Click Here</a>
+                                    </p>
                                 </div>
                             </div>
                         </div>

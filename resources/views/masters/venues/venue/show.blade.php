@@ -328,7 +328,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-8 col-xxl-12">
+                        <!-- <div class="col-lg-8 col-xxl-12">
                             <div class="card">
                                 <div class="card-header">
                                     <h5>User Guide Video - Venue</h5>
@@ -347,7 +347,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>

@@ -275,9 +275,9 @@ class CIAssistantsController extends Controller
                 // 'cia_email' => $validated['email'],
                 'cia_phone' => $validated['phone'],
                 'cia_designation' => $validated['designation'],
-                'cia_district_id' => $validated['district'],
-                'cia_center_id' => $validated['center'],
-                'cia_venue_id' => $validated['venue'],
+                // 'cia_district_id' => $validated['district'],
+                // 'cia_center_id' => $validated['center'],
+                // 'cia_venue_id' => $validated['venue'],
             ];
             if ($role == 'district') {
                 // $updateData['cia_district_id'] = $validated['district'];

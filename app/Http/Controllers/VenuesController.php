@@ -385,8 +385,8 @@ class VenuesController extends Controller
             }
             // Prepare data for update, including the new image path if it exists
             $updateData = [
-                'venue_district_id' => $validated['district'],
-                'venue_center_id' => $validated['center'],
+                // 'venue_district_id' => $validated['district'],
+                // 'venue_center_id' => $validated['center'],
                 'venue_name' => $validated['venue_name'],
                 'venue_code' => $validated['venue_code'],
                 'venue_codeprovider' => $validated['venue_code_provider'],
@@ -411,6 +411,16 @@ class VenuesController extends Controller
                 'venue_account_type' => $validated['account_type'],
                 'venue_ifsc' => $validated['ifsc'],
             ];
+            if ($role == 'district') {
+                // $updateData['ci_district_id'] = $validated['district'];
+                $updateData[ 'venue_district_id'] = $validated['center'];
+                // $updateData['invigilator_venue_id'] = $validated['venue'];
+            }
+            elseif ($user->role && $user->role->role_department == 'ID') {
+                $updateData['venue_district_id'] = $validated['district'];
+                $updateData[ 'venue_center_id'] = $validated['center'];
+                // $updateData['invigilator_venue_id'] = $validated['venue'];
+            }
             // Add new image path to update data if present
             if ($newImagePath) {
                 $updateData['venue_image'] = $newImagePath;

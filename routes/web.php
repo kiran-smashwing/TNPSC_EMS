@@ -55,6 +55,7 @@ use App\Http\Controllers\ConsolidatedStatementController;
 use App\Http\Controllers\ChartedVehicleRoutesController;
 use App\Http\Controllers\CandidateRemarksController;
 use App\Http\Controllers\SupportController;
+use App\Http\Controllers\UserGuideController;
 use App\Http\Controllers\ExamMaterialsDiscrepancyController;
 use App\Http\Controllers\EmergencyAlarmNotificationsController;
 
@@ -182,6 +183,11 @@ Route::prefix('ci-checklist')->group(function () {
 Route::prefix('support')->group(function () {
     Route::middleware(['auth.multi','check.session'])->group(function () {
         Route::get('/support', [SupportController::class, 'index'])->name('support');
+    });
+});
+Route::prefix('user_guide')->group(function () {
+    Route::middleware(['auth.multi','check.session'])->group(function () {
+        Route::get('/user_guide', [UserGuideController::class, 'index'])->name('user_guide');
     });
 });
 

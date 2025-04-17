@@ -376,6 +376,14 @@
                         </ul>
                     </li>
                 @endhasPermission
+                <li class="pc-item">
+                    <a href="{{ route('user_guide') }}" class="pc-link">
+                        <span class="pc-micon">
+                            <i class="fas fa-user-circle"></i>
+                        </span>
+                        <span class="pc-mtext"></span>User Guide
+                    </a>
+                </li>
                 @hasPermission('email-template')
                     {{-- <li class="pc-item pc-caption">
                         <label> Email</label>

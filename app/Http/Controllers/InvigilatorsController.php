@@ -284,9 +284,9 @@ class InvigilatorsController extends Controller
             $user = current_user();
             // Prepare data for update, including new image path if it exists
             $updateData = [
-                'invigilator_district_id' => $validated['district'],
-                'invigilator_center_id' => $validated['center'],
-                'invigilator_venue_id' => $validated['venue'],
+                // 'invigilator_district_id' => $validated['district'],
+                // 'invigilator_center_id' => $validated['center'],
+                // 'invigilator_venue_id' => $validated['venue'],
                 'invigilator_name' => $validated['name'],
                 // 'invigilator_email' => $validated['mail'],
                 'invigilator_phone' => $validated['phone'],

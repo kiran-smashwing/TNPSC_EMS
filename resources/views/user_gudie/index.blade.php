@@ -172,7 +172,7 @@
                                 <tbody>
                                     <tr>
                                     <td>1</td>
-                                    <td>DIstrict</td>
+                                    <td>District</td>
                                     <td>
                                         <a href="{{ asset('storage/user_guide/TNPSC EMS-DIstrict Module.pdf') }}" 
                                         target="_blank" 

@@ -50,6 +50,7 @@ class DistrictCandidatesController extends Controller
             ->select(
                 'center_code',
                 \DB::raw('MAX(accommodation_required) as total_accommodation'),
+                \DB::raw('MAX(expected_candidates) as expected_candidates'),
                 \DB::raw('COUNT(*) as session_count')
             )
             ->where('exam_id', $examId)

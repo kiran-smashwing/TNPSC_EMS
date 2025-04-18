@@ -558,6 +558,19 @@ class AuthController extends Controller
             'email' => 'required|email',
         ]);
 
+        $email = $request->email;
+        $role = $request->role;
+        $key = Str::lower("reset-password:" . $email . ':' . $request->ip());
+
+        // 2) Throttle: max 5 attempts per hour per email
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            $min = ceil(RateLimiter::availableIn($key) / 60);
+            return back()->withErrors([
+                'email' => "Too many reset attempts. Please try again in {$min} minute(s).",
+            ]);
+        }
+    
+        RateLimiter::hit($key, 3600); // Store attempt for 1 hour
         // Map roles to their corresponding Eloquent models, password column names, and email column names
         $roleModelMap = [
             'headquarters' => [

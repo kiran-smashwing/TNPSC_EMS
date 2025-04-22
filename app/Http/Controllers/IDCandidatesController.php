@@ -255,25 +255,31 @@ class IDCandidatesController extends Controller
                 ->where('exam_id', $examId)
                 ->where('district_code', $districtCode)
                 ->sum('accommodation_required');
-            // Send the email notification
-            Mail::to($district->district_email)->send(
-                new AccommodationNotification(
-                    $exam,
-                    $district,
-                    $totalCandidates,
-                    // $letterNo,
-                    // $letterDate,
-                    // $examController
-                )
-            );
+            try {
+                // Send the email notification
+                Mail::to($district->district_email)->send(
+                    new AccommodationNotification(
+                        $exam,
+                        $district,
+                        $totalCandidates,
+                        // $letterNo,
+                        // $letterDate,
+                        // $examController
+                    )
+                );
 
-            // Add district-specific log to the consolidated array
-            $emailLogs[] = [
-                'district_code' => $districtCode,
-                'district_email' => $district->district_email,
-                'total_candidates' => $totalCandidates,
-                'sent_at' => now()->toDateTimeString(),
-            ];
+                // ✅ Only log if email is sent without exception
+                $emailLogs[] = [
+                    'district_code' => $districtCode,
+                    'district_email' => $district->district_email,
+                    'total_candidates' => $totalCandidates,
+                    'sent_at' => now()->toDateTimeString(),
+                ];
+            } catch (\Exception $e) {
+                \Log::error("Failed to send accommodation email to district {$districtCode} ({$district->district_email}): " . $e->getMessage());
+                // Don't log unsuccessful sends
+                continue;
+            }
         }
 
         // If no emails were sent, return an error response

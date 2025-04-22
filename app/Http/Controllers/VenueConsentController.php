@@ -69,14 +69,17 @@ class VenueConsentController extends Controller
 
             // Update existing exam venue consent
             $examVenueConsent->consent_status = $request->consent == 'accept' ? 'accepted' : 'denied';
-            
+
             // Store venue capacity if consent is accepted
             if ($request->consent == 'accept') {
-                $examVenueConsent->venue_max_capacity = $request->venueCapacity;
+                // Prevent update if capacity already exists
+                if (is_null($examVenueConsent->venue_max_capacity)) {
+                    $examVenueConsent->venue_max_capacity = $request->venueCapacity;
+                }
             } else {
                 $examVenueConsent->venue_max_capacity = null;
             }
-            
+
             $examVenueConsent->save();
 
             // If consent is accepted, process and save ciExamData

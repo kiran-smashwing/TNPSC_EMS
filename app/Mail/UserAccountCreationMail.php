@@ -14,7 +14,7 @@ class UserAccountCreationMail extends Mailable
     public $name;
     public $email;
     public $password;
-    public $verification_link;
+    // public $verification_link;
 
     /**
      * Create a new message instance.
@@ -22,14 +22,13 @@ class UserAccountCreationMail extends Mailable
      * @param string $name
      * @param string $email
      * @param string $password
-     * @param string $verification_link
      */
-    public function __construct($name, $email, $password,$verification_link)
+    public function __construct($name, $email, $password)
     {
         $this->name = $name;
         $this->email = $email;
         $this->password = $password;
-        $this->verification_link = $verification_link;
+        // $this->verification_link = $verification_link;
     }
 
     /**
@@ -40,10 +39,6 @@ class UserAccountCreationMail extends Mailable
     public function build()
     {
         return $this->subject('Welcome to TNPSC EMS, ' . $this->name . '! Your Account Details Inside.')
-                    ->view('emails.user_account_created')
-                    ->attach(public_path('storage/assets/assets/TNPSC EMS-District Module.pdf'), [
-                        'as' => 'TNPSCUserGuide.pdf',
-                        'mime' => 'application/pdf',
-                    ]);
+                    ->view('emails.user_account_created');
     }
 }

@@ -173,7 +173,8 @@
                                                 ? asset('storage/' . $user->profile_image)
                                                 : asset('storage/assets/images/user/avatar-1.jpg');
                                         // Set dynamic badge text and color
-                                        $uploadStatus = $is_apd_upload && isset($metadata->status) ? $metadata->status : 'Pending';
+                                        $uploadStatus =
+                                            $is_apd_upload && isset($metadata->status) ? $metadata->status : 'Pending';
                                         $badgeClass = $is_apd_upload ? 'bg-light-secondary' : 'bg-danger';
 
                                     @endphp
@@ -348,7 +349,8 @@
                                                                 @if ($is_id_updated_count)
                                                                     <a href="{{ route('id-candidates.download-updated-count-csv', $session->exam_main_no) }}"
                                                                         class="me-2 btn btn-sm btn-light-info m-2"><i
-                                                                            class="feather icon-download mx-1"></i>Download Excel</a>
+                                                                            class="feather icon-download mx-1"></i>Download
+                                                                        Excel</a>
                                                                 @endif
                                                             @endhasPermission
                                                             @hasPermission('update-percentage')
@@ -1070,6 +1072,14 @@
                                                                     class="me-2 btn btn-sm btn-light-info" target=""><i
                                                                         class="feather icon-download mx-1"></i>Download</a>
                                                             @endhasPermission
+                                                            @hasPermission('create-ci-meetings')
+                                                                <a href="javascript:void(0);"
+                                                                    title="Send meeting intimation and exam confirmation to CI"
+                                                                    class="me-2 btn btn-sm btn-light-info"
+                                                                    onclick="confirmSendIntimation('{{ route('district-candidates.ci-meeting-intimation', $session->exam_main_no) }}')">
+                                                                    <i class="feather icon-send mx-1"></i>Send Intimation
+                                                                </a>
+                                                            @endhasPermission
                                                             {{-- @hasPermission('create-ci-meetings')
                                                                 <a href="#" class="me-3 btn btn-sm btn-light-warning"><i
                                                                         class="feather icon-navigation mx-1"></i>Send
@@ -1167,7 +1177,7 @@
                                                                 @endif
                                                             @endhasPermission
                                                             @hasPermission('upload-trunk-box-otl-csv')
-                                                                @if (isset($metadata->failed_csv_link) )
+                                                                @if (isset($metadata->failed_csv_link))
                                                                     <a href="{{ $metadata->failed_csv_link }}"
                                                                         class="me-3 btn btn-sm btn-light-danger">
                                                                         <i class="feather icon-download mx-1"></i>Failed
@@ -1745,7 +1755,29 @@
                 });
             }
         </script>
-
+        @hasPermission('download-meeting-qr')
+            <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
+            <script>
+                function confirmSendIntimation(url) {
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: 'You cannot send the intimation again for 4 hours as the mails cannot be sent repeatedly in bulk.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, send it!',
+                        cancelButtonText: 'No, cancel!',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Send the request to the backend after user confirmation
+                            window.location.href = url;
+                        } else {
+                            Swal.fire('Cancelled', 'Your action has been cancelled.', 'error');
+                        }
+                    });
+                }
+            </script>
+        @endhasPermission
         <!-- [Page Specific JS] end -->
     @endpush
 

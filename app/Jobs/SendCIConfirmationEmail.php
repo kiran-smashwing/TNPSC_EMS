@@ -44,17 +44,28 @@ class SendCIConfirmationEmail implements ShouldQueue
         array_to_string(ARRAY_AGG(DISTINCT exam_date), \',\') as exam_dates,
         array_to_string(ARRAY_AGG(DISTINCT exam_session), \',\') as exam_sessions
     ')
-        ->where('exam_id', $this->examId)
-        ->where('district_code', $this->districtCode)
-        ->with('chiefInvigilator')
-        ->limit(1)
-        ->groupBy('ci_id')  
-        ->get();
-    
+            ->where('exam_id', $this->examId)
+            ->where('district_code', $this->districtCode)
+            ->with('chiefInvigilator')
+            ->groupBy('ci_id')
+            ->get();
+
 
         $exam = Currentexam::where('exam_main_no', $this->examId)->first();
         foreach ($CIs as $CI) {
-            Mail::to($CI->chiefInvigilator->ci_email)->send(new CIConfirmationMail($exam, $CI, $meetingDetails));
+            try {
+                Mail::to($CI->chiefInvigilator->ci_email)->send(new CIConfirmationMail($exam, $CI, $meetingDetails));
+            } catch (\Throwable $e) {
+                \Log::error('Failed to send CI confirmation email', [
+                    'email' => $CI->chiefInvigilator->ci_email,
+                    'ci_id' => $CI->ci_id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+
+            // Sleep for 1.85 seconds to prevent email rate limits
+            usleep(1850000); // 1.85 seconds
+
         }
     }
 }

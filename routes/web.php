@@ -514,6 +514,8 @@ Route::prefix('district-candidates')->group(function () {
             ->middleware('role.permission:generate.qrcode');
         Route::get('/generatePdf/{qrCodeId}', [DistrictCandidatesController::class, 'generatePdf'])->name('district-candidates.generatePdf')
             ->middleware('role.permission:district-candidates.generatePdf');
+        Route::get('/ci-meeting-intimation/{examId}', [DistrictCandidatesController::class, 'sendCIMeetingIntimation'])->name('district-candidates.ci-meeting-intimation')
+        ->middleware('role.permission:generate.qrcode');
     });
 });
 //ci-meetings

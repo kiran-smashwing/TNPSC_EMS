@@ -21,6 +21,7 @@ use Endroid\QrCode\ErrorCorrectionLevel;
 use Endroid\QrCode\RoundBlockSizeMode;
 use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Browsershot\Browsershot;
 
@@ -409,24 +410,7 @@ class DistrictCandidatesController extends Controller
                     'meeting_date_time' => $meetingDateTime,
                     'updated_at' => now(),
                 ]);
-            // Run the query
-            //$meetingDetails = CIMeetingQrcode::where('exam_id', $examId)->where('district_code', $user->district_code ?? '01')->first();
-            // dd($meetingDetails);
-        //     $CIs = ExamConfirmedHalls::selectRaw('
-        //     ci_id, 
-        //     MIN(id) as id, 
-        //     ARRAY_AGG(DISTINCT hall_code) as hall_codes,
-        //     ARRAY_AGG(DISTINCT exam_date) as exam_dates,
-        //     ARRAY_AGG(DISTINCT exam_session) as exam_sessions
-        // ')
-        //         ->where('exam_id', $examId)
-        //         ->where('district_code', $user->district_code ?? '01')
-        //         ->with('chiefInvigilator')
-        //         ->limit(1)
-        //         ->groupBy('ci_id')
-        //         ->get();
-        //     dd($CIs);
-            // SendCIConfirmationEmail::dispatch($examId, $user->district_code ?? '01');
+
 
             return redirect()->route('district-candidates.generatePdf', ['qrCodeId' => $qrCode->id])
                 ->with('success', 'Meeting date and time updated successfully.');
@@ -595,6 +579,30 @@ class DistrictCandidatesController extends Controller
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
     }
-
+    public function sendCIMeetingIntimation($examId)
+    {
+        $user = current_user();
+        $districtCode = $user->district_code ?? '01';
+        $cacheKey = "ci_meeting_mail_sent_{$examId}_{$districtCode}";
+    
+        // Define rate limit for this user within the given period (4 hours in this case)
+        $limit = 1; // 1 attempt
+        $timeFrame = 240; // 240 minutes (4 hours)
+    
+        // Check if the user has exceeded the rate limit
+        if (RateLimiter::tooManyAttempts($cacheKey, $limit)) {
+            // Get the time remaining for the next attempt
+            $secondsUntilAvailable = RateLimiter::availableIn($cacheKey);
+            return redirect()->back()->with('error', "You have already sent the intimation. Please try again in " . gmdate("H:i:s", $secondsUntilAvailable));
+        }
+    
+        // Allow the user to proceed, and record the attempt
+        RateLimiter::hit($cacheKey, $timeFrame * 60); // Time frame in seconds
+    
+        // Dispatch job to send emails
+        SendCIConfirmationEmail::dispatch($examId, $districtCode);
+    
+        return redirect()->back()->with('success', 'CI Meeting intimation emails are being sent in the background. You can re-initiate this action after 4 hours.');
+    }
 
 }

@@ -260,7 +260,9 @@
                                                         (Max Candidates):</label>
                                                     <input type="number" class="form-control" id="venueCapacity"
                                                         name="venueCapacity" placeholder="Enter venue capacity"
-                                                        value="{{ $venueConsents->venue_max_capacity ?? '' }}" required>
+                                                        value="{{ $venueConsents->venue_max_capacity ?? '' }}"        
+                                                        {{ isset($venueConsents->venue_max_capacity) && $venueConsents->venue_max_capacity !== '' ? 'disabled' : '' }} 
+                                                        required>
                                                 </div>
                                             </div>
 

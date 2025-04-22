@@ -313,7 +313,12 @@
                     </div>
                     <div class="credential-item">
                         <div class="credential-label">தேர்வு தேதி:</div>
-                        <div class="credential-value">{{ $CI->exam_dates }}</div>
+                        <div class="credential-value">
+                            @php
+                                $dates = explode(',', $CI->exam_dates);
+                            @endphp
+                            {{ implode(', ', array_map(fn($date) => \Carbon\Carbon::parse($date)->format('d-m-Y'), $dates)) }}
+                        </div>
                     </div>
                     <div class="credential-item">
                         <div class="credential-label">ஹால் எண்:</div>
@@ -331,12 +336,12 @@
                     </div>
                 </div>
 
-                <h3>TNPSC EMS செயலி பதிவிறக்க:</h3>
-                <p style="margin-top:12px">TNPSC EMS செயலியை Google Play Store-இல் பதிவிறக்கம் செய்யவும்:</p>
+                <p style="margin-top:12px">TNPSC EMS கணக்கிற்குள் உள்நுழைய:</p>
                 <center>
-                    <a href="{{ env('PLAYSTORE_URL') }}" class="action-button">TNPSC EMS செயலி பதிவிறக்கம் செய்ய </a>
+                    <a href="{{ route('login') }}" class="action-button">உங்கள் கணக்கிற்குள் உள்நுழைக</a>
                     <p>👆 இங்கே கிளிக் செய்யவும்</p>
                 </center>
+
                 <h3 class="section-title">முக்கிய குறிப்பு:</h3>
                 <div class="message">
                     இந்த மின்னஞ்சல் மூலம் வழங்கப்பட்ட தகவல்கள் உங்களுக்கு ஒதுக்கப்பட்டுள்ள தேர்வு பொறுப்புகளை

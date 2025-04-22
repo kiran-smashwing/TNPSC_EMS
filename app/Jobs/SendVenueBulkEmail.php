@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -20,7 +21,7 @@ use Carbon\Carbon;
 class SendVenueBulkEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
+    public $timeout = 0;
     /**
      * Create a new job instance.
      */
@@ -34,23 +35,34 @@ class SendVenueBulkEmail implements ShouldQueue
      */
     public function handle(): void
     {
-        // $venues = Venues::whereNull('venue_password')
-        //     ->whereNotNull('venue_email')
-        //     ->get();
+        $venues = Venues::whereNotNull('venue_email')
+        ->where('venue_email', '~*', '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$')
+        ->where('venue_password', 'EMS@Venue@25')
+        ->whereIn( 
+            DB::raw('LOWER(venue_email)'),
+            function ($query) {
+                $query->select(DB::raw('LOWER(venue_email)'))
+                      ->from('venue')
+                      ->groupBy(DB::raw('LOWER(venue_email)'))
+                      ->havingRaw('COUNT(*) = 1');
+            }
+        )
+        ->get();
         //get 10 venues
-        $venues = Venues::whereNotNull('venue_email')->limit(3)->get();
+        // $venues = Venues::whereNotNull('venue_email')->limit(3)->get();
 
         foreach ($venues as $venue) {
             try {
                 $plainPassword = Str::random(10);
                 $token = Str::random(64);
+              
+
+                Mail::to($venue->venue_email)->send(new VenueBulkMail($venue, $plainPassword, $token));
 
                 $venue->venue_password = Hash::make($plainPassword);
                 $venue->verification_token = $token;
                 $venue->save();
-
-                Mail::to($venue->venue_email)->send(new VenueBulkMail($venue, $plainPassword, $token));
-
+                 
                 // Enhanced success log
                 Log::channel('venue_email')->info('Mail Sent', [
                     'email' => $venue->venue_email,
@@ -67,7 +79,8 @@ class SendVenueBulkEmail implements ShouldQueue
                 ]);
             }
 
-            sleep(9); // prevent throttling
+            usleep(1850000); // prevent throttling
         }
     }
 }
+ 

@@ -94,8 +94,6 @@ Route::middleware(['guest'])->group(function () {
     Route::get('password/reset/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
     Route::post('password/reset', [AuthController::class, 'resetPassword'])->name('password.update');
     Route::get('password/check-email', [AuthController::class, 'showCheckEmail'])->name('password.check-email');
-
-
 });
 
 // Protected routes (require user to be logged in) 
@@ -113,7 +111,6 @@ Route::middleware(['auth.multi', 'check.session'])->group(function () {
     // Route::get('/test-mail', [TestMailController::class, 'sendTestEmail']);
     // Add other protected routes here
     Route::post('/resend-verification-link', [AuthController::class, 'resendVerificationEmail'])->name('user.resend-verification-link');
-
 });
 
 // CI Assistants
@@ -194,7 +191,7 @@ Route::prefix('support')->group(function () {
     });
 });
 Route::prefix('user_guide')->group(function () {
-    Route::middleware(['auth.multi','check.session'])->group(function () {
+    Route::middleware(['auth.multi', 'check.session'])->group(function () {
         Route::get('/user_guide', [UserGuideController::class, 'index'])->name('user_guide');
     });
 });
@@ -812,3 +809,18 @@ Route::get('/view-report', function (Request $request) {
         abort(404, 'Invalid URL');
     }
 })->name('report.view')->middleware('role.permission:report.view');
+//User Guide route
+Route::get('/user-guide/view/{encPath}/{filename}', function ($encPath, $filename) {
+    try {
+        $decryptedPath = Crypt::decrypt($encPath);
+        $fullPath = 'public/' . $decryptedPath . '/' . $filename;
+
+        if (!Storage::exists($fullPath)) {
+            abort(404);
+        }
+
+        return response()->file(storage_path('app/' . $fullPath));
+    } catch (\Exception $e) {
+        abort(403, 'Invalid file path.');
+    }
+})->name('view.encrypted.userguide');

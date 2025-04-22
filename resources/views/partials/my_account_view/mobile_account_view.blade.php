@@ -154,11 +154,11 @@
         </div>
     </div>
 
-    <div class="col-lg-8 col-xxl-6">
+    {{-- <div class="col-lg-8 col-xxl-6">
         <div class="card">
-            {{-- <div class="card-header">
+            <div class="card-header">
                 <h5>User Guide Video - Mobile Team Staff</h5>
-            </div> --}}
+            </div>
             <div class="card-body pc-component">
                 <div id="carouselExampleFade" class="carousel slide carousel-fade" data-bs-ride="carousel">
                     <div class="carousel-inner">
@@ -172,5 +172,5 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 </div>

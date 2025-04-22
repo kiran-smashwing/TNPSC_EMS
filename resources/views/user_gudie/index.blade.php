@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                      <h2 class="mb-0"></h2>
-                    </div> -->
+                                  <h2 class="mb-0"></h2>
+                                </div> -->
                         </div>
                     </div>
                 </div>
@@ -160,99 +160,84 @@
                             </div>
                         </div>
                         <div class="card-body table-border-style">
-                            <table class="display table table-striped table-hover dt-responsive nowrap"
-                                width="100%">
+                            <table class="display table table-striped table-hover dt-responsive nowrap" width="100%">
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Title</th>
-                                        <th>View/Download</th>
+                                        <th>User Category</th>
+                                        <th>View / Download</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                    <td>1</td>
-                                    <td>District</td>
-                                    <td>
-                                        <a href="{{ asset('storage/user_guide/TNPSC EMS-DIstrict Module.pdf') }}" 
-                                        target="_blank" 
-                                        class="btn btn-outline-success">
-                                         View
-                                     </a>
-                                     </td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>Center(Taluks)</td>
-                                    <td><a href="#" 
-                                        target="_blank" 
-                                        class="btn btn-outline-success">
-                                         View
-                                     </a></td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>District Treasuries</td>
-                                    <td><a href="#" 
-                                        target="_blank" 
-                                        class="btn btn-outline-success">
-                                         View
-                                     </a></td>
-                                </tr>
-                                <tr>
-                                    <td>4</td>
-                                    <td>Mobile Teams</td>
-                                    <td><a href="#" 
-                                        target="_blank" 
-                                        class="btn btn-outline-success">
-                                         View
-                                     </a></td>
-                                </tr>
-                                <tr>
-                                    <td>5</td>
-                                    <td>Venues(Schools/Colleges)</td>
-                                    <td><a href="{{ asset('storage/user_guide/TNPSC EMS Venue Module.pdf') }}" 
-                                        target="_blank" 
-                                        class="btn btn-outline-success">
-                                         View
-                                     </a></td>
-                                </tr>
-                                <tr>
-                                    <td>6</td>
-                                    <td>Chief Invigilators</td>
-                                    <td><a href="#" 
-                                        target="_blank" 
-                                        class="btn btn-outline-success">
-                                         View
-                                     </a></td>
-                                </tr>
-                                <tr>
-                                    <td>7</td>
-                                    <td>Department Officials</td>
-                                    <td><a href="#" 
-                                        target="_blank" 
-                                        class="btn btn-outline-success">
-                                         View
-                                     </a></td>
-                                </tr>
-                                <tr>
-                                    <td>8</td>
-                                    <td>Department Officials - Escort Officials</td>
-                                    <td><a href="#" 
-                                        target="_blank" 
-                                        class="btn btn-outline-success">
-                                         View
-                                     </a></td>
-                                </tr>
-                                <tr>
-                                    <td>9</td>
-                                    <td>Department Officials - Van Duty Staffs</td>
-                                    <td><a href="#" 
-                                        target="_blank" 
-                                        class="btn btn-outline-success">
-                                         View
-                                     </a></td>
-                                </tr>
+                                        @php
+                                            use Illuminate\Support\Facades\Crypt;
+                                            $encPath = Crypt::encrypt('user_guide');
+                                        @endphp
+                                        <td>1</td>
+                                        <td>District Collectorates</td>
+                                        <td>
+                                            <a href="{{ route('view.encrypted.userguide', ['encPath' => $encPath, 'filename' => 'TNPSC EMS-DIstrict Module.pdf']) }}"
+                                                target="_blank" class="btn btn-outline-success">View</a>
+
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>Center(Taluks)</td>
+                                        <td><a href="#" target="_blank" class="btn btn-outline-success">
+                                                View
+                                            </a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>3</td>
+                                        <td>District Treasuries</td>
+                                        <td><a href="#" target="_blank" class="btn btn-outline-success">
+                                                View
+                                            </a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>4</td>
+                                        <td>Mobile Teams Staffs</td>
+                                        <td><a href="#" target="_blank" class="btn btn-outline-success">
+                                                View
+                                            </a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>5</td>
+                                        <td>Venues(Schools/Colleges)</td>
+                                        <td><a href="{{ route('view.encrypted.userguide', ['encPath' => $encPath, 'filename' => 'TNPSC EMS-DIstrict Module.pdf']) }}"
+                                                target="_blank" class="btn btn-outline-success">View</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>6</td>
+                                        <td>Chief Invigilators</td>
+                                        <td><a href="#" target="_blank" class="btn btn-outline-success">
+                                                View
+                                            </a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>7</td>
+                                        <td>Department Officials</td>
+                                        <td><a href="#" target="_blank" class="btn btn-outline-success">
+                                                View
+                                            </a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>8</td>
+                                        <td>Department Officials - Escort Officials</td>
+                                        <td><a href="#" target="_blank" class="btn btn-outline-success">
+                                                View
+                                            </a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>9</td>
+                                        <td>Department Officials - Van Duty Staffs</td>
+                                        <td><a href="#" target="_blank" class="btn btn-outline-success">
+                                                View
+                                            </a></td>
+                                    </tr>
                                 </tbody>
 
                             </table>

@@ -413,7 +413,7 @@ class VenuesController extends Controller
             ];
             if ($role == 'district') {
                 // $updateData['ci_district_id'] = $validated['district'];
-                $updateData[ 'venue_district_id'] = $validated['center'];
+                $updateData[ 'venue_center_id'] = $validated['center'];
                 // $updateData['invigilator_venue_id'] = $validated['venue'];
             }
             elseif ($user->role && $user->role->role_department == 'ID') {

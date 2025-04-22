@@ -86,7 +86,7 @@
                         <div class="col-lg-12">
                             <div class="card">
                                 <div class="card-header">
-                                    <h5>Exam Details</h5>
+                                    <h5>Exam Detail</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
@@ -391,6 +391,31 @@
         <!-- Include jQuery -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
+        <script>
+            window.addEventListener('load', function() {
+                setTimeout(function() {
+                    Swal.fire({
+                        title: 'குறிப்பு',
+                        html: `
+                            <div style="text-align: left;">
+                                தயவுசெய்து உங்கள் முகவரி மற்றும் பிற விவரங்களை கவனமாகச் சரிபார்த்து உறுதிப்படுத்துங்கள்.<br><br>
+                                இந்த விவரங்கள் அதிகாரப்பூர்வ நோக்கங்களுக்காகவும் ஹால் டிக்கெட்டுகளில் அச்சிடப்படுவதற்காகவும் பயன்படுத்தப்படும்.<br><br>
+                                தவறான தகவல்கள் இருந்தால், அதற்கு நீங்களே முழுமையாக பொறுப்பாக இருப்பீர்கள்.
+                            </div>
+                        `,
+                        icon: 'warning',
+                        confirmButtonText: 'உறுதிப்படுத்து'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            console.log('Details confirmed!');
+                            // Add any logic you need here
+                        }
+                    });
+                }, 1000); // Show after 1 second
+            });
+        </script>
+
+
 
         <script>
             $(document).ready(function() {

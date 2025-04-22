@@ -63,11 +63,11 @@
                                                                             {{ $center->details->center_name }}</h6>
                                                                         <span class="text-sm text-muted required-halls">
                                                                             Required Seats -
-                                                                            {{ ceil($center->total_accommodation ) }}
+                                                                            {{ ceil($center->total_accommodation > 0 ? $center->total_accommodation : $center->expected_candidates) }}
                                                                         </span>
                                                                     </div>
                                                                     <p hidden id="requested">
-                                                                        {{ ceil($center->total_accommodation ) }}
+                                                                        {{ ceil($center->total_accommodation > 0 ? $center->total_accommodation : $center->expected_candidates) }}
                                                                     </p>
                                                                     <div
                                                                         class="chat-avtar text-md text-warning f-w-400 fs-5">
@@ -113,7 +113,8 @@
                                         <ul class="list-inline ms-auto me-auto mb-0 fs-5 ">
                                             <li class="list-inline-item">
                                                 <a href="#" class="badge bg-dark "> Required
-                                                    <span id="allotted-candidates">0</span> / <span id="requested-count">0</span>
+                                                    <span id="allotted-candidates">0</span> / <span
+                                                        id="requested-count">0</span>
                                                 </a>
                                             </li>
                                             <li class="list-inline-item">
@@ -127,6 +128,12 @@
                                         </ul>
                                         <ul class="list-inline ms-auto mb-0">
                                             <li class="list-inline-item">
+                                                <div class="d-flex justify-content-end mb-3">
+                                                    <input style="width:100% !important" type="text" class="form-control w-25"
+                                                        placeholder="Search venues..." id="venueSearch">
+                                                </div>
+                                            </li>
+                                            <li class="list-inline-item">
                                                 <a href="#" class="btn btn-outline-danger clear-saved-venue">Clear</a>
                                             </li>
                                             <li class="list-inline-item"><a href="#"
@@ -137,6 +144,7 @@
                                 <div class="scroll-block chat-message">
                                     <div class="card-body">
                                         <div class="row">
+                                         
                                             <!-- Table for Venue Allocation with Editable Columns -->
                                             <div class="mb-4">
                                                 <table class="table table-bordered" id="responsiveTable">
@@ -173,7 +181,8 @@
                                                                         {{ $venue->venue_phone }}
                                                                     </td>
                                                                     <td>
-                                                                        <input type="text" class="form-control candidate-count-input" 
+                                                                        <input type="text"
+                                                                            class="form-control candidate-count-input"
                                                                             placeholder="Enter Total Candidate Count"
                                                                             value="{{ $venue->halls_count }}"
                                                                             @if ($venue->halls_count !== 0 && $venue->consent_status !== 'saved') disabled @endif>
@@ -222,6 +231,17 @@
     @include('partials.footer')
     @push('scripts')
         <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
+       
+        <script>
+            document.getElementById('venueSearch').addEventListener('keyup', function () {
+                let searchValue = this.value.toLowerCase();
+                document.querySelectorAll('#responsiveTable tbody tr').forEach(row => {
+                    row.style.display = row.innerText.toLowerCase().includes(searchValue) ? '' : 'none';
+                });
+            });
+        </script>
+        
+
         <script>
             $(document).ready(function() {
                 // Select/Deselect all venues

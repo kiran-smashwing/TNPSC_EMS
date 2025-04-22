@@ -76,11 +76,11 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-8 col-xxl-9">
+            {{-- <div class="col-lg-8 col-xxl-9">
                 <div class="card">
                     {{-- <div class="card-header">
                         <h5>User Guide Video - District Collectorate</h5>
-                    </div> --}}
+                    </div>
                     <div class="card-body pc-component">
                         <div data-bs-ride="carousel" class="carousel slide carousel-fade" id="carouselExampleFade">
                             <div class="carousel-inner">
@@ -94,7 +94,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
         </div>
     </div>
 </div>

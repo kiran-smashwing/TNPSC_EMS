@@ -439,16 +439,24 @@ class IDCandidatesController extends Controller
             return Carbon::parse($item->exam_sess_date)->format('d-m-Y');
         })->keys();
 
-        $accommodation_required = \DB::table('exam_candidates_projection')
+        $data = \DB::table('exam_candidates_projection')
             ->select(
-                \DB::raw('MAX(accommodation_required) as total_accommodation')
+                \DB::raw('MAX(accommodation_required) as total_accommodation'),
+                \DB::raw('MAX(expected_candidates) as expected_candidates'),
             )
             ->where('exam_id', $examId)
             ->where('district_code', $selectedDistrict)
             ->where('center_code', $selectedCenter)
             ->where('exam_date', $selectedDate)
             ->groupBy('center_code')
-            ->value('total_accommodation');
+            ->first();
+        $accommodation_required = 0;
+
+        if ($data) {
+            $accommodation_required = ($data->total_accommodation > 0)
+                ? $data->total_accommodation
+                : $data->expected_candidates;
+        }
 
         $confirmedVenuesCapacity = ExamVenueConsent::where('exam_id', $examId)
             ->where('district_code', $selectedDistrict)

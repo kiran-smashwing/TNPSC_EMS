@@ -350,7 +350,7 @@
                                                                     <a href="{{ route('id-candidates.download-updated-count-csv', $session->exam_main_no) }}"
                                                                         class="me-2 btn btn-sm btn-light-info m-2"><i
                                                                             class="feather icon-download mx-1"></i>Download
-                                                                        Excel</a>
+                                                                        CSV</a>
                                                                 @endif
                                                             @endhasPermission
                                                             @hasPermission('update-percentage')
@@ -624,7 +624,7 @@
                                                                     <a href="{{ route('id-candidates.export-confirmed-halls', $session->exam_main_no) }}"
                                                                         class="me-2 btn btn-sm btn-light-info"><i
                                                                             class="feather icon-download mx-1"></i>Download
-                                                                        CSV</a>
+                                                                            Excel</a>
                                                                 @endif
                                                             @endhasPermission
                                                         </div>
@@ -1270,7 +1270,7 @@
                                                             </div>
                                                             <div class="h5 mt-3"><i
                                                                     class="material-icons-two-tone f-16 me-1">apartment</i>
-                                                                {{ $role == 'headquarters' ? 'ID - Section Officer' : 'District Collectorate' }}
+                                                                {{ $role == 'headquarters' ? 'QD - Section Officer' : 'District Collectorate' }}
                                                             </div>
                                                         </div>
                                                         <div class="mt-2">

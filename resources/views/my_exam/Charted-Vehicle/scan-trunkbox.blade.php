@@ -243,10 +243,10 @@
     <!-- [ Main Content ] end -->
     @include('partials.footer')
     @php
-        $scanRoute =
-            $user->role?->role_department == 'ED'
-                ? route('bundle-packaging.scan-hq-exam-materials')
-                : route('scanTrunkboxOrder');
+        // $scanRoute =
+        //     $user->role?->role_department == 'ED'
+        //         ? route('bundle-packaging.scan-hq-exam-materials')
+        //         : route('scanTrunkboxOrder');
     @endphp
     @push('scripts')
         @include('partials.datatable-export-js')

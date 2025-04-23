@@ -239,7 +239,7 @@ class AuthorizationService
                     'my-exam.examTask',
                     'bundle-packaging.save-handover-details',
                     'charted-vehicle-routes.downward-journey-routes',
-                    'viewTrunkboxes',
+                    'bundle-packaging.report-handover-details',
                 ],
             ],
             'VSD' => [

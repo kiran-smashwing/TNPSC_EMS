@@ -19,7 +19,7 @@
                             alt="User image" />
                     </div>
                     <h5 class="mb-0">{{ $official->dept_off_name }}</h5>
-                    <p class="text-muted text-sm">{{ $roles_role->role_department }} - {{ $roles_role->role_name }}</p>
+                    <p class="text-muted text-sm">{{ $official->custom_role ? $official->custom_role :  $roles_role->role_department .' - '. $roles_role->role_name }}</p>
                     {{-- <hr class="my-3 border border-secondary-subtle" /> --}}
                     {{-- <div class="row g-3">
                         <div class="col-4">

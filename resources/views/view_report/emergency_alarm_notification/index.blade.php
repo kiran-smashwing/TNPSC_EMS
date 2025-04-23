@@ -110,15 +110,18 @@
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="alertType" class="form-label">Alert Type</label>
-                                        <select name="alertType" id="alertType" class="form-control">
-                                            <option value="" {{ $filters['alertType'] == 'all' ? 'selected' : '' }}>
+                                        <select name="alertType" id="alertType" class="form-control" disabled>
+                                            {{-- <option value="" {{ $filters['alertType'] == 'all' ? 'selected' : '' }}>
                                                 All</option>
                                             <option value="Emergency Alert"
                                                 {{ $filters['alertType'] == 'Emergency Alert' ? 'selected' : '' }}>Emergency Alert
+                                            </option> --}}
+                                            <option value="Emergency Alert"
+                                                selected>Emergency Alert
                                             </option>
-                                            <option value="Adequacy Check"
+                                            {{-- <option value="Adequacy Check"
                                                 {{ $filters['alertType'] == 'Adequacy Check' ? 'selected' : '' }}>Adequacy Check
-                                            </option>
+                                            </option> --}}
                                         </select>
                                     </div>
 

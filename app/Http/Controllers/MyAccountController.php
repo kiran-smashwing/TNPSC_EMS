@@ -68,7 +68,8 @@ class MyAccountController extends Controller
         } elseif ($role == 'mobile_team_staffs') {
         } elseif ($role == 'headquarters') {
             $official = DepartmentOfficial::findOrFail($userId);
-            $roles_role = Role::findOrFail($official->dept_off_role);
+            $roles_role = $official->dept_off_role ? Role::findOrFail($official->dept_off_role) : null;
+
             $roles = Role::all();
 
             return view('user.my-account', compact('official', 'roles', 'roles_role', 'role'));

@@ -100,7 +100,7 @@
                                     class="form-control @error('center_name') is-invalid @enderror"
                                     id="center_name" name="center_name"
                                     value="{{ old('center_name', $center->center_name) }}"
-                                    placeholder="Alandur" required>
+                                    placeholder="Alandur" readonly required>
                                 @error('center_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -115,7 +115,7 @@
                                     class="form-control no-arrows @error('center_code') is-invalid @enderror"
                                     id="center_code" name="center_code"
                                     value="{{ old('center_code', $center->center_code) }}"
-                                    placeholder="0102" required>
+                                    placeholder="0102" readonly required>
                                 @error('center_code')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

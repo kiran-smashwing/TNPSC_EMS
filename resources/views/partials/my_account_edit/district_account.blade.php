@@ -57,7 +57,7 @@
                                     class="form-control @error('district_name') is-invalid @enderror"
                                     id="district_name" name="district_name"
                                     value="{{ old('district_name', $district->district_name) }}"
-                                    required>
+                                    readonly required>
                                 @error('district_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -71,6 +71,7 @@
                                     class="form-control no-arrows @error('district_code') is-invalid @enderror"
                                     id="district_code" name="district_code"
                                     value="{{ old('district_code', $district->district_code) }}"
+                                    readonly
                                     required>
                                 @error('district_code')
                                     <div class="invalid-feedback">{{ $message }}</div>

@@ -25,6 +25,7 @@ use App\Models\MobileTeamStaffs;
 use App\Models\Venues;
 use App\Models\ChiefInvigilator;
 use App\Models\DepartmentOfficial;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 
 
@@ -557,20 +558,38 @@ class AuthController extends Controller
             'role' => 'required|string',
             'email' => 'required|email',
         ]);
-
         $email = $request->email;
         $role = $request->role;
+        // Rate limiter keys
         $key = Str::lower("reset-password:" . $email . ':' . $request->ip());
+        $cooldownKey = $key . ':cooldown';
 
-        // 2) Throttle: max 5 attempts per hour per email
-        if (RateLimiter::tooManyAttempts($key, 5)) {
-            $min = ceil(RateLimiter::availableIn($key) / 60);
+        // Limit: max 5 attempts per hour
+        $maxAttempts = 5;
+        $decaySeconds = 3600; // 1 hour
+
+        // Cooldown: must wait 60 seconds between attempts
+        $cooldownSeconds = 60;
+
+        // Check max hourly limit
+        if (RateLimiter::tooManyAttempts($key, $maxAttempts)) {
+            $availableIn = ceil(RateLimiter::availableIn($key) / 60);
             return back()->withErrors([
-                'email' => "Too many reset attempts. Please try again in {$min} minute(s).",
+                'email' => "Too many reset attempts. Please try again in {$availableIn} minute(s).",
             ]);
         }
-    
-        RateLimiter::hit($key, 3600); // Store attempt for 1 hour
+
+        // Check cooldown between individual attempts
+        if (RateLimiter::tooManyAttempts($cooldownKey, 1)) {
+            $wait = RateLimiter::availableIn($cooldownKey);
+            return back()->withErrors([
+                'email' => "Please wait {$wait} seconds before trying again.",
+            ]);
+        }
+
+        // Record attempts
+        RateLimiter::hit($key, $decaySeconds); // Count towards hourly limit
+        RateLimiter::hit($cooldownKey, $cooldownSeconds); // 60 sec cooldown
         // Map roles to their corresponding Eloquent models, password column names, and email column names
         $roleModelMap = [
             'headquarters' => [
@@ -665,7 +684,7 @@ class AuthController extends Controller
             ]);
 
             return redirect()->route('password.check-email')->with('email', $email);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error sending password reset email', [
                 'email' => $email,
                 'role' => $role,
@@ -747,25 +766,49 @@ class AuthController extends Controller
         return back()->withErrors(['password' => [__($status)]]);
     }
 
-    public function resendVerificationEmail()
+    public function resendVerificationEmail(Request $request)
     {
-        $role = session('auth_role');
-
         $user = current_user();
-        $verification_token = Str::random(64);
+        $key = 'resend-verification:' . $user->id;
 
+        // Limit: 4 attempts per hour
+        $maxAttempts = 4;
+        $decaySeconds = 3600; // 1 hour
+
+        // Minimum gap between attempts: 60 seconds
+        $minIntervalKey = $key . ':interval';
+
+        if (RateLimiter::tooManyAttempts($key, $maxAttempts)) {
+            $availableIn = RateLimiter::availableIn($key);
+            throw new TooManyRequestsHttpException($availableIn, 'Too many requests. Try again in ' . ceil($availableIn / 60) . ' minutes.');
+        }
+
+        if (RateLimiter::tooManyAttempts($minIntervalKey, 1)) {
+            $wait = RateLimiter::availableIn($minIntervalKey);
+            throw new TooManyRequestsHttpException($wait, 'Please wait ' . $wait . ' seconds before trying again.');
+        }
+
+        // Register the attempts
+        RateLimiter::hit($key, $decaySeconds); // Count toward hourly limit
+        RateLimiter::hit($minIntervalKey, 60); // Minimum 1-minute cooldown
+
+        // Proceed with email logic
+        $verification_token = Str::random(64);
         $venue = Venues::where('venue_id', $user->venue_id)->first();
+
         if ($venue) {
             $venue->verification_token = $verification_token;
             $venue->save();
-            $verificationLink = route('venues.verifyEmail', ['token' => urlencode($venue->verification_token)]);
 
-            if ($verificationLink) {
-                Mail::to($venue->venue_email)->send(new UserEmailVerificationMail($venue->venue_name, $venue->venue_email, $verificationLink)); // Use the common mailable
-            } else {
-                throw new Exception('Failed to generate verification link.');
-            }
-            return redirect()->route('venues.verifyEmail', ['token' => urlencode($verification_token)]);
+            $verificationLink = route('venues.verifyEmail', ['token' => urlencode($verification_token)]);
+            Mail::to($venue->venue_email)->send(new UserEmailVerificationMail(
+                $venue->venue_name,
+                $venue->venue_email,
+                $verificationLink
+            ));
+
+            return redirect()->route('dashboard')
+                ->with('status', 'Verification email resent successfully. Please check your inbox.');
         } else {
             throw new Exception('Venue not found.');
         }

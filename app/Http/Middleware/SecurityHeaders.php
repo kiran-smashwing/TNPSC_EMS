@@ -82,7 +82,12 @@ class SecurityHeaders
             checkValue($decodedValue, $patterns);
         }
 
+        // Get the request host (works both for local and production)
+        $host = $request->getHost();
+        $scheme = $request->isSecure() ? 'wss' : 'ws';
 
+        // Allow other domains if needed (optional, useful for local dev tools or services)
+        $connectSources = "'self' https: http: {$scheme}://{$host}:6001 {$scheme}://{$host}:8080";
         // Add security headers
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
         $response->headers->set('X-XSS-Protection', '1; mode=block');
@@ -95,7 +100,7 @@ class SecurityHeaders
             "style-src 'self' 'unsafe-inline' https: http:; " .
             "img-src 'self' data: https: http:; " .
             "font-src 'self' data: https: http:; " .
-            "connect-src 'self' https: http:; " .
+            "connect-src {$connectSources}; " .
             "object-src 'none'; " .
             "base-uri 'self'; " .
             "form-action 'self' https:; " .

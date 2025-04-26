@@ -179,11 +179,11 @@
                                             @foreach ($venuesWithCIs as $key => $item)
                                                 <tr>
                                                     <td>{{ $key + 1 }}</td>
-                                                    <td>{{ $item['venue']->venues->venue_name }}</td>
-                                                    <td>{{ $item['venue']->venues->venue_code }}</td>
-                                                    <td>{{ $item['venue']->venues->venue_email }}</td>
-                                                    <td>{{ $item['venue']->venues->venue_phone }}</td>
-                                                    <td>{{ $item['venue']->venues->venue_address }}</td>
+                                                    <td>{{ $item['venue']->venues->venue_name ?? 'No Venue Name' }}</td>
+                                                    <td>{{ $item['venue']->venues->venue_code ?? 'No Venue Code'}}</td>
+                                                    <td>{{ $item['venue']->venues->venue_email ?? '' }}</td>
+                                                    <td>{{ $item['venue']->venues->venue_phone ?? '' }}</td>
+                                                    <td>{{ $item['venue']->venues->venue_address ?? ''}}</td>
                                                     <td>{{ \Carbon\Carbon::parse($item['ci']->exam_date)->format('d-m-Y') ?? 'No Date' }}</td>
                                                     <td>{{ $item['ci']->chiefInvigilator->ci_name ?? 'No CI Assigned' }}
                                                     </td>

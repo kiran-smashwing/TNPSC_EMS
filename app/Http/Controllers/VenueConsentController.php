@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Center;
 use App\Models\District;
 use App\Models\Currentexam;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use App\Services\ExamAuditService;
 use App\Models\ChiefInvigilator;
@@ -46,6 +47,7 @@ class VenueConsentController extends Controller
 
     public function submitVenueConsentForm(Request $request, $examId)
     {
+        // dd($request->all());
         $request->validate([
             'consent' => 'required|in:accept,decline',
             'ciExamData' => 'required_if:consent,accept|json',
@@ -55,6 +57,64 @@ class VenueConsentController extends Controller
             $role = session('auth_role');
             $guard = $role ? Auth::guard($role) : null;
             $user = $guard ? $guard->user() : null;
+            // Get exam details for validation
+            $exam = Currentexam::where('exam_main_no', $examId)
+                ->with(['examsession'])
+                ->first();
+            $maxCandidatesPerHall = $exam->exam_main_candidates_for_hall;
+            $examSessionDates = $exam->examsession->pluck('exam_sess_date')
+                ->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))
+                ->unique()
+                ->values()
+                ->toArray();
+            // Validate CI data if consent accepted
+            if ($request->consent === 'accept') {
+                $ciExamData = json_decode($request->ciExamData, true);
+
+                if (!is_array($ciExamData)) {
+                    return response()->json([
+                        'message' => 'Invalid format for Chief Invigilator data.'
+                    ], 422);
+                }
+                $venueCapacity = (int) $request->venueCapacity;
+                $dateTotals = [];
+
+                foreach ($ciExamData as $entry) {
+                    // Validate required fields
+                    if (!isset($entry['exam_date'], $entry['ci_id'], $entry['candidate_count'])) {
+                        return response()->json([
+                            'message' => 'Missing required fields in CI data'
+                        ], 422);
+                    }
+
+                    // Validate candidate count
+                    $count = (int) $entry['candidate_count'];
+                    if ($count < 1 || $count > $maxCandidatesPerHall) {
+                        return response()->json([
+                            'message' => "Invalid candidate count for CI {$entry['ci_id']}"
+                        ], 422);
+                    }
+
+                    // Validate exam date
+                    if (!in_array($entry['exam_date'], $examSessionDates)) {
+                        return response()->json([
+                            'message' => "Invalid exam date: {$entry['exam_date']}"
+                        ], 422);
+                    }
+
+                    // Track date totals
+                    $dateTotals[$entry['exam_date']] = ($dateTotals[$entry['exam_date']] ?? 0) + $count;
+                }
+
+                // Validate venue capacity per date
+                foreach ($dateTotals as $date => $total) {
+                    if ($total > $venueCapacity) {
+                        return response()->json([
+                            'message' => "Total candidates for $date exceeds venue capacity"
+                        ], 422);
+                    }
+                }
+            }
 
             // Retrieve the venue's existing consent for the exam
             $examVenueConsent = ExamVenueConsent::where('exam_id', $examId)
@@ -84,13 +144,7 @@ class VenueConsentController extends Controller
 
             // If consent is accepted, process and save ciExamData
             if ($request->consent == 'accept') {
-                $ciExamData = json_decode($request->ciExamData, true);
 
-                if (!is_array($ciExamData)) {
-                    return response()->json([
-                        'message' => 'Invalid format for Chief Invigilator data.'
-                    ], 422);
-                }
 
                 // Delete previous CI assignments for this exam and venue
                 VenueAssignedCI::where('venue_consent_id', $examVenueConsent->id)->delete();
@@ -102,6 +156,7 @@ class VenueConsentController extends Controller
                             'venue_consent_id' => $examVenueConsent->id,
                             'exam_date' => $data['exam_date'],
                             'ci_id' => $data['ci_id'],
+                            'candidate_count' => $data['candidate_count'],
                         ]);
                     }
                 }

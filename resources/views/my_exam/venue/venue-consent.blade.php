@@ -250,8 +250,8 @@
                                                         disabled>
                                                 </div>
                                                 <div class="col-sm-4">
-                                                    <label for="canidatesPerHall" class="form-label fw-bold">Total
-                                                        Candidates (Max per Hall):</label>
+                                                    <label for="canidatesPerHall" class="form-label fw-bold">Max
+                                                        Candidates per CI (Single Hall):</label>
                                                     <input type="text" class="form-control" id="canidatesPerHall"
                                                         value="{{ $exam->exam_main_candidates_for_hall ?? 0 }}" disabled>
                                                 </div>
@@ -260,8 +260,8 @@
                                                         (Max Candidates):</label>
                                                     <input type="number" class="form-control" id="venueCapacity"
                                                         name="venueCapacity" placeholder="Enter venue capacity"
-                                                        value="{{ $venueConsents->venue_max_capacity ?? '' }}"        
-                                                        {{ isset($venueConsents->venue_max_capacity) && $venueConsents->venue_max_capacity !== '' ? 'disabled' : '' }} 
+                                                        value="{{ $venueConsents->venue_max_capacity ?? '' }}"
+                                                        {{ isset($venueConsents->venue_max_capacity) && $venueConsents->venue_max_capacity !== '' ? 'disabled' : '' }}
                                                         required>
                                                 </div>
                                             </div>
@@ -290,7 +290,10 @@
                                                         $examDate = \Carbon\Carbon::parse(
                                                             $assignedCI->exam_date,
                                                         )->format('d-m-Y');
-                                                        $assignedCIsByDate[$examDate][] = $assignedCI->ci_id;
+                                                        $assignedCIsByDate[$examDate][] = [
+                                                            'ci_id' => $assignedCI->ci_id,
+                                                            'candidate_count' => $assignedCI->candidate_count,
+                                                        ];
                                                     }
                                                 @endphp
 
@@ -302,6 +305,7 @@
                                                             <th>Designation</th>
                                                             <th>E-mail</th>
                                                             <th>Phone Number</th>
+                                                            <th>No. of Candidates</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -333,8 +337,9 @@
                                                                                 @php
                                                                                     $isSelected =
                                                                                         isset($savedCIIdsForDate[$i]) &&
-                                                                                        $savedCIIdsForDate[$i] ==
-                                                                                            $ci->ci_id;
+                                                                                        $savedCIIdsForDate[$i][
+                                                                                            'ci_id'
+                                                                                        ] == $ci->ci_id;
                                                                                 @endphp
                                                                                 <option value="{{ $ci->ci_id }}"
                                                                                     {{ $isSelected ? 'selected' : '' }}>
@@ -356,6 +361,14 @@
                                                                         <input type="tel" class="form-control"
                                                                             name="ciPhone[]" placeholder="Phone Number"
                                                                             disabled>
+                                                                    </td>
+                                                                    <td width="10%">
+                                                                        <input type="number" class="form-control"
+                                                                            name="ciCandidateCount[]"
+                                                                            placeholder="No. of Candidates" min="1"
+                                                                            step="1"
+                                                                            max="{{ $exam->exam_main_candidates_for_hall ?? 0 }}"
+                                                                            value="{{ $savedCIIdsForDate[$i]['candidate_count'] ?? '' }}">
                                                                     </td>
                                                                 </tr>
                                                                 @php
@@ -514,6 +527,18 @@
                         cell.appendChild(input);
                         row.appendChild(cell);
                     });
+                    // Candidate Count Input
+                    const candidateCountCell = document.createElement('td');
+                    const candidateCountInput = document.createElement('input');
+                    candidateCountInput.type = 'number';
+                    candidateCountInput.className = 'form-control';
+                    candidateCountInput.name = 'ciCandidateCount[]';
+                    candidateCountInput.placeholder = 'No. of Candidates';
+                    candidateCountInput.min = 1;
+                    candidateCountInput.step = 1;
+                    candidateCountInput.max = exam_candidate_count;
+                    candidateCountCell.appendChild(candidateCountInput);
+                    row.appendChild(candidateCountCell);
 
                     return row;
                 }
@@ -644,6 +669,85 @@
         </script>
         <script>
             $(document).ready(function() {
+                const venueCapacityInput = document.getElementById('venueCapacity');
+                const ciTableBody = document.querySelector('#responsiveTable tbody');
+                const sessionDates = @json($sessionDates);
+                const chiefInvigilators = @json($chiefInvigilators);
+                const maxCandidatesPerHall = {{ $exam->exam_main_candidates_for_hall }};
+                let savedVenueCapacity = {{ $venueConsents->venue_max_capacity ?? 0 }};
+
+                // Function to validate candidate counts
+                function validateCandidateCounts() {
+                    let isValid = true;
+                    const dateWiseCandidateCounts = {}; // To track total candidates per date
+
+                    $('input[name="ciCandidateCount[]"]').each(function(index) {
+                        const candidateCount = parseInt($(this).val());
+                        const examDate = $(`input[name="examDate[]"]`).eq(index).val();
+
+                        // Check if candidate count is mandatory
+                        if (!candidateCount || candidateCount <= 0) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Candidate Count Required',
+                                text: 'Please enter a valid candidate count for all rows.',
+                                confirmButtonText: 'OK'
+                            });
+                            isValid = false;
+                            return false; // Exit the loop early
+                        }
+
+                        // Check if candidate count exceeds the maximum allowed per CI
+                        if (candidateCount > maxCandidatesPerHall) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Invalid Candidate Count',
+                                text: `Candidate count cannot exceed ${maxCandidatesPerHall} for a single hall.`,
+                                confirmButtonText: 'OK'
+                            });
+                            isValid = false;
+                            return false; // Exit the loop early
+                        }
+
+                        // Aggregate candidate counts by date
+                        if (!dateWiseCandidateCounts[examDate]) {
+                            dateWiseCandidateCounts[examDate] = 0;
+                        }
+                        dateWiseCandidateCounts[examDate] += candidateCount;
+                    });
+
+                    // Check if total candidates for a date exceed the venue's maximum capacity
+                    if (isValid) {
+                        const venueCapacity = parseInt(venueCapacityInput.value) || savedVenueCapacity;
+
+                        for (const [date, totalCandidates] of Object.entries(dateWiseCandidateCounts)) {
+                            const formattedDate = new Date(date).toLocaleDateString('en-GB').replaceAll('/', '-');
+                            if (totalCandidates > venueCapacity) {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Exceeding Venue Capacity',
+                                    text: `Total candidates (${totalCandidates}) for date ${formattedDate} exceed the venue's maximum capacity (${venueCapacity}).`,
+                                    confirmButtonText: 'OK'
+                                });
+                                isValid = false;
+                                break; // Exit the loop early
+                            } else if (totalCandidates < venueCapacity) {
+                                // Alert if total candidates are less than the venue's maximum capacity
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Underutilized Venue Capacity',
+                                    text: `Total candidates (${totalCandidates}) for date ${formattedDate} are less than the venue's maximum capacity (${venueCapacity}). Please allocate the remaining candidates to maximize utilization.`,
+                                    confirmButtonText: 'OK'
+                                });
+                                isValid = false;
+                                break; // Exit the loop early
+                            }
+                        }
+                    }
+
+                    return isValid;
+                }
+
                 $('#venueConsentForm').on('submit', function(e) {
                     e.preventDefault();
 
@@ -652,8 +756,6 @@
 
                     // Prepare form data
                     const formData = new FormData(this);
-
-
                     if (consentValue === 'accept') {
                         // Check if venue capacity is entered
                         const venueCapacity = $('#venueCapacity').val();
@@ -685,19 +787,25 @@
                             });
                             return;
                         }
-
+                        // Validate candidate counts
+                        if (!validateCandidateCounts()) {
+                            return;
+                        }
                         const ciExamData = [];
 
                         // Collect Chief Invigilator IDs and their respective exam dates
                         $('input[name="examDate[]"]').each(function(index) {
                             const examDate = $(this).val();
                             const ciId = $(`select[name="ciName[]"]`).eq(index).val();
+                            const candidateCount = $(`input[name="ciCandidateCount[]"]`).eq(index)
+                                .val();
 
                             if (ciId) {
                                 ciExamData.push({
                                     id: index,
                                     exam_date: examDate,
-                                    ci_id: ciId
+                                    ci_id: ciId,
+                                    candidate_count: candidateCount // Added candidate count to the data
                                 });
                             }
                         });

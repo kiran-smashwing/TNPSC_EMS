@@ -114,6 +114,21 @@
                                 <div class="d-sm-flex align-items-center justify-content-between">
                                     <h5 class="mb-3 mb-sm-0">Review Confirmed Venues</h5>
                                     <div>
+                                      <!-- District Excel Button -->
+<a href="#" 
+class="me-2 btn btn-sm btn-light-primary" 
+onclick="validateFilters('district')">
+<i class="feather icon-download mx-1"></i>District Excel
+</a>
+
+<!-- Center Excel Button -->
+<a href="#" 
+class="me-2 btn btn-sm btn-light-primary" 
+onclick="validateFilters('center')">
+<i class="feather icon-download mx-1"></i>Center Excel
+</a>
+                                    </div>
+                                    <div>
                                         <h5 class="mb-3 mb-sm-0">Required : {{ $confirmedVenuesCapacity }} /
                                             {{ $accommodation_required ?? 0 }}</h5>
                                     </div>
@@ -203,11 +218,11 @@
                                                             data-exam-date="{{ $item['ci']['exam_date'] ?? '' }}"
                                                             value="{{ $item['venue']->venue_id }}">
                                                     </td>
-                                                    <td>{{ $item['venue']->venues->venue_name }}</td>
-                                                    <td>{{ $item['venue']->venues->venue_code }}</td>
-                                                    <td>{{ $item['venue']->venues->venue_email }}</td>
-                                                    <td>{{ $item['venue']->venues->venue_phone }}</td>
-                                                    <td>{{ $item['venue']->venues->venue_address }}</td>
+                                                    <td>{{ $item['venue']->venues->venue_name ?? 'N/A' }}</td>
+                                                    <td>{{ $item['venue']->venues->venue_code ?? 'N/A' }}</td>
+                                                    <td>{{ $item['venue']->venues->venue_email ?? 'N/A' }}</td>
+                                                    <td>{{ $item['venue']->venues->venue_phone ?? 'N/A' }}</td>
+                                                    <td>{{ $item['venue']->venues->venue_address ?? 'N/A' }}</td>
                                                     <td>{{ \Carbon\Carbon::parse($item['ci']->exam_date)->format('d-m-Y') ?? 'No Date' }}
                                                     </td>
                                                     <td>{{ $item['ci']->chiefInvigilator->ci_name ?? 'No CI Assigned' }}
@@ -235,7 +250,7 @@
                                             </tr>
                                         </tfoot>
                                     </table>
-                                   
+
                                 </div>
                                 <div class="row mt-3">
                                     <div class="col-12">
@@ -247,24 +262,27 @@
                                             <input type="hidden" id="selectedVenuesOrder" name="selected_venues"
                                                 value="">
                                             <input type="hidden" name="center_code" value="{{ $selectedCenter }}">
-                                            <input type="hidden" id="examDateInput" name="exam_date" value="{{ request('exam_date') }}">
+                                            <input type="hidden" id="examDateInput" name="exam_date"
+                                                value="{{ request('exam_date') }}">
                                             <!-- Add Confirm All Dates Checkbox -->
                                             <div class="d-flex justify-content-between align-items-center">
-                                                <div class="form-check form-switch custom-switch-v2 d-flex align-items-center mb-0">
+                                                <div
+                                                    class="form-check form-switch custom-switch-v2 d-flex align-items-center mb-0">
                                                     <!-- Checkbox -->
-                                                    <input name="confirm_all_dates" type="checkbox" 
-                                                           class="form-check-input input-light-success" 
-                                                           id="confirmAllDates" checked>
+                                                    <input name="confirm_all_dates" type="checkbox"
+                                                        class="form-check-input input-light-success" id="confirmAllDates"
+                                                        checked>
                                                     <!-- Label -->
-                                                    <label class="form-label ms-2 mb-0" style="margin-top: 2px" for="confirmAllDates">Confirm All Dates</label>
+                                                    <label class="form-label ms-2 mb-0" style="margin-top: 2px"
+                                                        for="confirmAllDates">Confirm All Dates</label>
                                                 </div>
                                                 <!-- Save Confirmation Button -->
                                                 <button type="submit" class="btn btn-success save-venue-confirmation">
                                                     Save Confirmation
                                                 </button>
                                             </div>
-                                            
-                                            
+
+
                                         </form>
                                     </div>
                                 </div>
@@ -285,6 +303,8 @@
         <script src="{{ asset('storage/assets/js/plugins/dataTables.min.js') }}"></script>
         <script src="{{ asset('storage/assets/js/plugins/dataTables.bootstrap5.min.js') }}"></script>
         <script src="{{ asset('storage/assets/js/plugins/dataTables.rowReorder.min.js') }}"></script>
+        <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js')}}"></script>
+
         <script>
             // [ Reorder Events ]
             var rowevents = $('#reorder-events').DataTable({
@@ -402,6 +422,36 @@
                     }
                 }
             });
+        </script>
+        <script>
+            function validateFilters(type) {
+                // Get the selected district and center
+                const selectedDistrict = document.getElementById('districtFilter').value;
+                const selectedCenter = document.getElementById('centerCodeFilter').value;
+        
+                // Check if both district and center are selected
+                if (!selectedDistrict || !selectedCenter) {
+                    Swal.fire({
+                        title: 'Filters Not Applied!',
+                        text: 'Please select both a district and a center, then apply filters to download the Excel file.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+        
+                // Construct the URL based on the type (district or center)
+                const examId = "{{ $exam->exam_main_no }}";
+                let url = '';
+                if (type === 'district') {
+                    url = `{{ route('id-candidates.export-confirmed-halls', ['examId' => $exam->exam_main_no]) }}?district_code=${selectedDistrict}`;
+                } else if (type === 'center') {
+                    url = `{{ route('id-candidates.export-confirmed-halls', ['examId' => $exam->exam_main_no]) }}?center_code=${selectedCenter}`;
+                }
+        
+                // Redirect to the constructed URL
+                window.location.href = url;
+            }
         </script>
     @endpush
 

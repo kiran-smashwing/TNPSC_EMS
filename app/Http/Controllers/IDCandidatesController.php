@@ -391,28 +391,28 @@ class IDCandidatesController extends Controller
 
         foreach ($confirmedVenues as $venue) {
             // Calculate candidate distribution for each venue
-            $venueMaxCapacity = $venue->venue_max_capacity;
-            $candidatesPerHall = $exam->exam_main_candidates_for_hall;
+            // $venueMaxCapacity = $venue->venue_max_capacity;
+            // $candidatesPerHall = $exam->exam_main_candidates_for_hall;
 
-            $remainingCandidates = $venueMaxCapacity;
-            $ciIndex = 0;
+            // $remainingCandidates = $venueMaxCapacity;
+            // $ciIndex = 0;
 
             foreach ($venue->assignedCIs as $ci) {
                 if (Carbon::parse($ci->exam_date)->format('d-m-Y') == $selectedDate) {
                     // Distribute candidates among CIs
-                    $candidatesForCI = min($candidatesPerHall, $remainingCandidates);
-                    $remainingCandidates -= $candidatesForCI;
+                    // $candidatesForCI = min($candidatesPerHall, $remainingCandidates);
+                    // $remainingCandidates -= $candidatesForCI;
 
                     $venuesWithCIs->push([
                         'venue' => $venue,
                         'ci' => $ci,
-                        'candidates_count' => $candidatesForCI, // Add candidate count for this CI
+                        'candidates_count' => $ci->candidate_count, // Add candidate count for this CI
                     ]);
 
                     // Stop assigning candidates if no more candidates are left
-                    if ($remainingCandidates <= 0) {
-                        break;
-                    }
+                    // if ($remainingCandidates <= 0) {
+                    //     break;
+                    // }
                 }
             }
         }
@@ -474,7 +474,7 @@ class IDCandidatesController extends Controller
         $validate = $request->validate([
             'selected_venues' => 'required|string',
         ]);
-
+        // dd($request->all());
         // Parse the JSON string
         $venuesData = json_decode($validate['selected_venues'], true);
         if (!is_array($venuesData)) {
@@ -497,12 +497,10 @@ class IDCandidatesController extends Controller
                 if ($isChecked) {
                     $confirmedInRequest++;
                 }
-
                 // Find the existing venue consent record
                 $confirmedVenue = ExamVenueConsent::where('exam_id', $examId)
                     ->where('venue_id', $venueId)
                     ->first();
-
                 if ($confirmedVenue) {
 
                     // Check if the CI already exists in the new venue_assigned_ci table
@@ -510,14 +508,13 @@ class IDCandidatesController extends Controller
                         ->where('ci_id', $ciId)
                         ->where('exam_date', $currentExamDate)
                         ->first();
-
+                    // dd($venueCI);
                     if ($venueCI) {
                         // Update existing CI assignment
                         $venueCI->update([
                             'order_by_id' => $order,
                             'is_confirmed' => $isChecked,
                         ]);
-
                         // If unchecked, remove the corresponding hall from ExamConfirmedHalls
                         if (!$isChecked) {
                             ExamConfirmedHalls::where('exam_id', $examId)
@@ -531,68 +528,70 @@ class IDCandidatesController extends Controller
                     }
                 }
             }
-        }
 
-        $exam = Currentexam::where('exam_main_no', $examId)
-            ->with([
-                'examsession' => function ($query) use ($examDate) {
-                    $query->where('exam_sess_date', Carbon::parse($examDate)->format('d-m-Y'));
-                }
-            ])
-            ->first();
-        if ($exam->examsession->isEmpty()) {
-            return redirect()->back()->with('error', 'Exam not found.');
-        }
 
-        $examSessions = $exam->examsession;
-        // Generate halls for each session, starting from hall code 001 for each CI
+            $exam = Currentexam::where('exam_main_no', $examId)
+                ->with([
+                    'examsession' => function ($query) use ($examDate) {
+                        $query->where('exam_sess_date', Carbon::parse($examDate)->format('d-m-Y'));
+                    }
+                ])
+                ->first();
+            if ($exam->examsession->isEmpty()) {
+                return redirect()->back()->with('error', 'Exam not found.');
+            }
+            $examSessions = $exam->examsession;
+            // Generate halls for each session, starting from hall code 001 for each CI
+            foreach ($examSessions as $session) {
+                $hallCodeCounter = 1;
+                // Get confirmed venues based on `venue_assigned_ci` table for the specific exam date
+                $confirmedVenues = VenueAssignedCI::with('venueConsent.venues')
+                    ->where('is_confirmed', true)
+                    ->whereHas('venueConsent', function ($query) use ($examId, $request) {
+                        $query->where('exam_id', $examId)
+                            ->where('center_code', $request->center_code);
+                    })
+                    ->where('exam_date', $session->exam_sess_date)
+                    ->orderBy('order_by_id', 'asc')
+                    ->get();
+                if ($confirmedVenues) {
+                    foreach ($confirmedVenues as $venueAssigned) {
+                        // dd($venueAssigned->venueConsent->venues);
+                        $venuecode = $venueAssigned->venueConsent->venues->venue_code ?? null;
 
-        foreach ($examSessions as $session) {
-            $hallCodeCounter = 1;
-            // Get confirmed venues based on `venue_assigned_ci` table for the specific exam date
-            $confirmedVenues = VenueAssignedCI::with('venueConsent')
-                ->where('is_confirmed', true)
-                ->whereHas('venueConsent', function ($query) use ($examId, $request) {
-                    $query->where('exam_id', $examId)
-                        ->where('center_code', $request->center_code);
-                })
-                ->where('exam_date', $session->exam_sess_date)
-                ->orderBy('order_by_id', 'asc')
-                ->get();
+                        // Format hall code to be 3 digits (e.g., 001, 002, ...)
+                        $hallCode = str_pad($hallCodeCounter, 3, '0', STR_PAD_LEFT);
+                        // Find the matching venue data to get the candidate count
+                        // $venueData = collect($venuesData)->first(function ($item) use ($venueAssigned) {
+                        //     return $item['venue_id'] == $venueAssigned->venueConsent->venue_id &&
+                        //         $item['ci_id'] == $venueAssigned->ci_id &&
+                        //         $item['exam_date'] == $venueAssigned->exam_date;
+                        // });
+                        $venueData = VenueAssignedCI::where('venue_consent_id', $venueAssigned->venueConsent->id)
+                            ->where('ci_id', $venueAssigned->ci_id)
+                            ->where('exam_date', $venueAssigned->exam_date)
+                            ->first();
 
-            if ($confirmedVenues) {
-                foreach ($confirmedVenues as $venueAssigned) {
-                    $venuecode = $venueAssigned->venueConsent->venues->venue_code ?? null;
-
-                    // Format hall code to be 3 digits (e.g., 001, 002, ...)
-                    $hallCode = str_pad($hallCodeCounter, 3, '0', STR_PAD_LEFT);
-
-                    // Find the matching venue data to get the candidate count
-                    $venueData = collect($venuesData)->first(function ($item) use ($venueAssigned) {
-                        return $item['venue_id'] == $venueAssigned->venueConsent->venue_id &&
-                            $item['ci_id'] == $venueAssigned->ci_id &&
-                            $item['exam_date'] == $venueAssigned->exam_date;
-                    });
-
-                    // Create or update the hall record
-                    ExamConfirmedHalls::updateOrCreate(
-                        [
-                            'exam_id' => $examId,
-                            'venue_code' => $venuecode,
-                            'district_code' => $venueAssigned->venueConsent->district_code,
-                            'center_code' => $venueAssigned->venueConsent->center_code,
-                            'ci_id' => $venueAssigned->ci_id,
-                            'exam_date' => $venueAssigned->exam_date,
-                            'exam_session' => $session->exam_sess_session,
-                        ],
-                        [
-                            'hall_code' => $hallCode,
-                            'is_apd_uploaded' => false,
-                            'alloted_count' => $venueData ? $venueData['candidates_count'] : null,
-                        ]
-                    );
-                    // Increment hall code for the next CI
-                    $hallCodeCounter++;
+                        // Create or update the hall record
+                        ExamConfirmedHalls::updateOrCreate(
+                            [
+                                'exam_id' => $examId,
+                                'venue_code' => $venuecode,
+                                'district_code' => $venueAssigned->venueConsent->district_code,
+                                'center_code' => $venueAssigned->venueConsent->center_code,
+                                'ci_id' => $venueAssigned->ci_id,
+                                'exam_date' => $venueAssigned->exam_date,
+                                'exam_session' => $session->exam_sess_session,
+                            ],
+                            [
+                                'hall_code' => $hallCode,
+                                'is_apd_uploaded' => false,
+                                'alloted_count' => $venueData ? $venueData->candidate_count : 0,
+                            ]
+                        );
+                        // Increment hall code for the next CI
+                        $hallCodeCounter++;
+                    }
                 }
             }
         }
@@ -664,7 +663,7 @@ class IDCandidatesController extends Controller
             return Carbon::parse($date)->format('Y-m-d');
         })->toArray();
     }
-    public function exportToCSV($examId)
+    public function exportToCSV($examId, Request $request)
     {
         // Retrieve the exam
         $exam = Currentexam::where('exam_main_no', $examId)->first();
@@ -681,11 +680,21 @@ class IDCandidatesController extends Controller
         $firstDate = Carbon::parse($firstSession->exam_sess_date)->format('d-m-Y');
         $firstSessionNo = $firstSession->exam_sess_session;
 
-        // Retrieve confirmed halls for the first date and session
-        $confirmedHalls = ExamConfirmedHalls::where('exam_id', $examId)
+        // Initialize the query for confirmed halls
+        $query = ExamConfirmedHalls::where('exam_id', $examId)
             ->where('exam_date', $firstSession->exam_sess_date)
-            ->where('exam_session', $firstSessionNo)
-            ->orderBy('center_code')
+            ->where('exam_session', $firstSessionNo);
+
+        // Apply filters if provided
+        if ($request->has('district_code')) {
+            $query->where('district_code', $request->input('district_code'));
+        }
+        if ($request->has('center_code')) {
+            $query->where('center_code', $request->input('center_code'));
+        }
+
+        // Retrieve confirmed halls
+        $confirmedHalls = $query->orderBy('center_code')
             ->orderBy('hall_code')
             ->get();
 

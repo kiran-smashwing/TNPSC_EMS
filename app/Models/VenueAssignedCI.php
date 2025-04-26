@@ -23,6 +23,7 @@ class VenueAssignedCI extends Model
         'created_at',
         'is_confirmed',
         'order_by_id',
+        'candidate_count',
     ];
     // Relationship with the Venue Consent Model
     public function venueConsent()

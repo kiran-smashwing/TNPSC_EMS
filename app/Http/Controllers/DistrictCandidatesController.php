@@ -120,28 +120,29 @@ class DistrictCandidatesController extends Controller
 
         foreach ($confirmedVenues as $venue) {
             // Calculate candidate distribution for each venue
-            $venueMaxCapacity = $venue->venue_max_capacity;
-            $candidatesPerHall = $exam->exam_main_candidates_for_hall;
+            // $venueMaxCapacity = $venue->venue_max_capacity;
+            // $candidatesPerHall = $exam->exam_main_candidates_for_hall;
 
-            $remainingCandidates = $venueMaxCapacity;
-            $ciIndex = 0;
+            // $remainingCandidates = $venueMaxCapacity;
+            // $ciIndex = 0;
 
             foreach ($venue->assignedCIs as $ci) {
+                // dd($ci);
                 if (Carbon::parse($ci->exam_date)->format('d-m-Y') == $selectedDate) {
                     // Distribute candidates among CIs
-                    $candidatesForCI = min($candidatesPerHall, $remainingCandidates);
-                    $remainingCandidates -= $candidatesForCI;
+                    // $candidatesForCI = min($candidatesPerHall, $remainingCandidates);
+                    // $remainingCandidates -= $candidatesForCI;
 
                     $venuesWithCIs->push([
                         'venue' => $venue,
                         'ci' => $ci,
-                        'candidates_count' => $candidatesForCI, // Add candidate count for this CI
+                        'candidates_count' => $ci->candidate_count, // Add candidate count for this CI
                     ]);
 
                     // Stop assigning candidates if no more candidates are left
-                    if ($remainingCandidates <= 0) {
-                        break;
-                    }
+                    // if ($remainingCandidates <= 0) {
+                    //     break;
+                    // }
                 }
             }
         }

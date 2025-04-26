@@ -18,6 +18,7 @@ return new class extends Migration
             $table->date('exam_date');
             $table->boolean('is_confirmed')->nullable();
             $table->unsignedBigInteger('order_by_id')->nullable();
+            $table->unsignedBigInteger('candidate_count')->nullable();
             $table->timestamps(); // Automatically manages created_at and updated_at
 
             // Add composite indexes for assignment queries

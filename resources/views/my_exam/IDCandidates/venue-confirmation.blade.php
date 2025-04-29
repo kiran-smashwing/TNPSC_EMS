@@ -114,19 +114,17 @@
                                 <div class="d-sm-flex align-items-center justify-content-between">
                                     <h5 class="mb-3 mb-sm-0">Review Confirmed Venues</h5>
                                     <div>
-                                      <!-- District Excel Button -->
-<a href="#" 
-class="me-2 btn btn-sm btn-light-primary" 
-onclick="validateFilters('district')">
-<i class="feather icon-download mx-1"></i>District Excel
-</a>
+                                        <!-- District Excel Button -->
+                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"
+                                            onclick="validateFilters('district')">
+                                            <i class="feather icon-download mx-1"></i>District Excel
+                                        </a>
 
-<!-- Center Excel Button -->
-<a href="#" 
-class="me-2 btn btn-sm btn-light-primary" 
-onclick="validateFilters('center')">
-<i class="feather icon-download mx-1"></i>Center Excel
-</a>
+                                        <!-- Center Excel Button -->
+                                        <a href="#" class="me-2 btn btn-sm btn-light-primary"
+                                            onclick="validateFilters('center')">
+                                            <i class="feather icon-download mx-1"></i>Center Excel
+                                        </a>
                                     </div>
                                     <div>
                                         <h5 class="mb-3 mb-sm-0">Required : {{ $confirmedVenuesCapacity }} /
@@ -194,6 +192,7 @@ onclick="validateFilters('center')">
                                             <tr>
                                                 <th>S.No</th>
                                                 <th>#</th>
+                                                <th>Actions</th>
                                                 <th>VENUE NAME</th>
                                                 <th>VENUE CODE</th>
                                                 <th>E-MAIL</th>
@@ -204,6 +203,7 @@ onclick="validateFilters('center')">
                                                 <th>CI EMAIL</th>
                                                 <th>CI PHONE</th>
                                                 <th>CANDIDATES COUNT</th>
+
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -218,6 +218,11 @@ onclick="validateFilters('center')">
                                                             data-exam-date="{{ $item['ci']['exam_date'] ?? '' }}"
                                                             value="{{ $item['venue']->venue_id }}">
                                                     </td>
+                                                    <td><a href="{{ route('id-candidates.edit-venue-consent', ['examId' => $exam->exam_main_no, 'venueId' => $item['venue']->venue_id]) }}"
+                                                        target="_blank"  class="me-3 btn btn-sm btn-light-warning">
+                                                         <i class="feather icon-edit mx-1"></i>
+                                                      </a>                                                     
+                                                     </td>
                                                     <td>{{ $item['venue']->venues->venue_name ?? 'N/A' }}</td>
                                                     <td>{{ $item['venue']->venues->venue_code ?? 'N/A' }}</td>
                                                     <td>{{ $item['venue']->venues->venue_email ?? 'N/A' }}</td>
@@ -229,7 +234,9 @@ onclick="validateFilters('center')">
                                                     </td>
                                                     <td>{{ $item['ci']->chiefInvigilator->ci_email ?? 'N/A' }}</td>
                                                     <td>{{ $item['ci']->chiefInvigilator->ci_phone ?? 'N/A' }}</td>
-                                                    <td>{{ $item['candidates_count'] ?? 0 }}</td>
+                                                    <td contenteditable="true" class="editable-candidates">
+                                                        {{ $item['candidates_count'] ?? 0 }}</td>
+                                                   
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -237,6 +244,7 @@ onclick="validateFilters('center')">
                                             <tr>
                                                 <th>S.No</th>
                                                 <th>#</th>
+                                                <th>Actions</th>
                                                 <th>VENUE NAME</th>
                                                 <th>VENUE CODE</th>
                                                 <th>E-MAIL</th>
@@ -303,22 +311,29 @@ onclick="validateFilters('center')">
         <script src="{{ asset('storage/assets/js/plugins/dataTables.min.js') }}"></script>
         <script src="{{ asset('storage/assets/js/plugins/dataTables.bootstrap5.min.js') }}"></script>
         <script src="{{ asset('storage/assets/js/plugins/dataTables.rowReorder.min.js') }}"></script>
-        <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js')}}"></script>
+        <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
 
         <script>
             // [ Reorder Events ]
             var rowevents = $('#reorder-events').DataTable({
                 rowReorder: true,
                 rowReorder: {
-                    selector: 'td:not(:first-child):not(:nth-child(2))' // Allow checkbox in second column to be clicked
+                    selector: 'td:not(:first-child):not(:nth-child(2)):not(:nth-child(3))' // Allow checkbox in second column to be clicked
                 },
                 columnDefs: [{
-                    targets: 0, // Checkbox column
-                    orderable: true, // Disable ordering for this column
-                    className: 'reorder-disabled', // Prevent drag behavior
-                    searchable: false, // Disable search for this column
-                    visible: true, // Make the column visible
-                }],
+                        targets: 0, // Checkbox column
+                        orderable: true, // Disable ordering for this column
+                        className: 'reorder-disabled', // Prevent drag behavior
+                        searchable: false, // Disable search for this column
+                        visible: true, // Make the column visible
+                    },
+                    {
+                        targets: 1, // Candidates Count column (0-based index)
+                        orderable: false, // Disable ordering for this column
+                        searchable: false, // Disable search for this column
+                        className: 'editable-cell', // Add a class for styling/editing
+                    }
+                ],
                 paging: false, // Disable pagination
                 language: {
                     emptyTable: "Please select a district and center, or no venues have been confirmed yet.", // Custom message
@@ -337,6 +352,7 @@ onclick="validateFilters('center')">
 
                 $('#result').html('Event result:<br>' + result);
             });
+          
         </script>
         <script>
             // Full list of centers
@@ -428,7 +444,7 @@ onclick="validateFilters('center')">
                 // Get the selected district and center
                 const selectedDistrict = document.getElementById('districtFilter').value;
                 const selectedCenter = document.getElementById('centerCodeFilter').value;
-        
+
                 // Check if both district and center are selected
                 if (!selectedDistrict || !selectedCenter) {
                     Swal.fire({
@@ -439,16 +455,18 @@ onclick="validateFilters('center')">
                     });
                     return;
                 }
-        
+
                 // Construct the URL based on the type (district or center)
                 const examId = "{{ $exam->exam_main_no }}";
                 let url = '';
                 if (type === 'district') {
-                    url = `{{ route('id-candidates.export-confirmed-halls', ['examId' => $exam->exam_main_no]) }}?district_code=${selectedDistrict}`;
+                    url =
+                        `{{ route('id-candidates.export-confirmed-halls', ['examId' => $exam->exam_main_no]) }}?district_code=${selectedDistrict}`;
                 } else if (type === 'center') {
-                    url = `{{ route('id-candidates.export-confirmed-halls', ['examId' => $exam->exam_main_no]) }}?center_code=${selectedCenter}`;
+                    url =
+                        `{{ route('id-candidates.export-confirmed-halls', ['examId' => $exam->exam_main_no]) }}?center_code=${selectedCenter}`;
                 }
-        
+
                 // Redirect to the constructed URL
                 window.location.href = url;
             }

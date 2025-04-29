@@ -201,6 +201,8 @@ class AuthorizationService
                     'generateTrunkboxOrder',
                     'charted-vehicle-routes.getCvRoutesReport',
                     'charted-vehicle-routes.generateCvRoutesReport',
+                    'id-candidates.edit-venue-consent',
+                    'id-candidates.update-venue-consent',
                 ],
             ],
             'ED' => [

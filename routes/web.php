@@ -316,6 +316,8 @@ Route::prefix('venues')->group(function () {
             ->middleware('role.permission:venues.submit-venue-consent');
         Route::get('/{id}/show-venue-consent', [VenueConsentController::class, 'showVenueConsentForm'])->name('venues.show-venue-consent')
             ->middleware('role.permission:venues.show-venue-consent');
+
+
     });
 });
 //invigilators
@@ -494,6 +496,11 @@ Route::prefix('id-candidates')->group(function () {
             ->middleware('role.permission:id-candidates.export-confirmed-halls');
         Route::get('/send-mail', [IDCandidatesController::class, 'sendIdToCollectorateEmail'])->name('id-candidates.send-mail')
             ->middleware('role.permission:id-candidates.send-mail');
+        Route::get('/{examId}/edit-venue-consent/{venueId}', [IDCandidatesController::class, 'editVenueConsentForm'])
+            ->name('id-candidates.edit-venue-consent')
+            ->middleware('role.permission:id-candidates.edit-venue-consent');
+        Route::post('/{id}/update-venue-consent', [IDCandidatesController::class, 'updateVenueConsentForm'])->name('id-candidates.update-venue-consent')
+            ->middleware('role.permission:id-candidates.update-venue-consent');
     });
 });
 //district-candidates
@@ -512,7 +519,7 @@ Route::prefix('district-candidates')->group(function () {
         Route::get('/generatePdf/{qrCodeId}', [DistrictCandidatesController::class, 'generatePdf'])->name('district-candidates.generatePdf')
             ->middleware('role.permission:district-candidates.generatePdf');
         Route::get('/ci-meeting-intimation/{examId}', [DistrictCandidatesController::class, 'sendCIMeetingIntimation'])->name('district-candidates.ci-meeting-intimation')
-        ->middleware('role.permission:generate.qrcode');
+            ->middleware('role.permission:generate.qrcode');
     });
 });
 //ci-meetings

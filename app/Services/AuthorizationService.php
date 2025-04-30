@@ -478,6 +478,8 @@ class AuthorizationService
             'exam-materials-route.create',
             'exam-materials-route.edit',
             'exam-materials-route.view',
+            'district-candidates.exportExcel',
+            'district-candidates.resendVenueRequest',
         ],
         'treasury' => [
             'receive-exam-materials-from-printer',

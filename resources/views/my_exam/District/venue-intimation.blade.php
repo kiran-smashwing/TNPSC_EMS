@@ -10,6 +10,13 @@
             overflow-wrap: break-word !important;
             white-space: normal !important;
         }
+
+        .btn-sm,
+        .btn-group-sm>.btn,
+        .introjs-tooltip .btn-group-sm>.introjs-button {
+            --bs-btn-padding-y: 0.15rem !important;
+            --bs-btn-padding-x: 0.9em !important;
+        }
     </style>
 @endpush
 @section('content')
@@ -112,6 +119,14 @@
                                         </ul>
                                         <ul class="list-inline ms-auto me-auto mb-0 fs-5 ">
                                             <li class="list-inline-item">
+                                                <a href="#" class="me-2 btn btn-sm btn-light-primary"
+                                                    onclick="validateFilters('district')">
+                                                    <i class="feather icon-download mx-1"></i> Excel
+                                                </a>
+                                            </li>
+                                        </ul>
+                                        <ul class="list-inline ms-auto me-auto mb-0 fs-5 ">
+                                            <li class="list-inline-item">
                                                 <a href="#" class="badge bg-dark "> Required
                                                     <span id="allotted-candidates">0</span> / <span
                                                         id="requested-count">0</span>
@@ -129,8 +144,9 @@
                                         <ul class="list-inline ms-auto mb-0">
                                             <li class="list-inline-item">
                                                 <div class="d-flex justify-content-end mb-3">
-                                                    <input style="width:100% !important" type="text" class="form-control w-25"
-                                                        placeholder="Search venues..." id="venueSearch">
+                                                    <input style="width:100% !important" type="text"
+                                                        class="form-control w-25" placeholder="Search venues..."
+                                                        id="venueSearch">
                                                 </div>
                                             </li>
                                             <li class="list-inline-item">
@@ -144,7 +160,7 @@
                                 <div class="scroll-block chat-message">
                                     <div class="card-body">
                                         <div class="row">
-                                         
+
                                             <!-- Table for Venue Allocation with Editable Columns -->
                                             <div class="mb-4">
                                                 <table class="table table-bordered" id="responsiveTable">
@@ -194,6 +210,13 @@
                                                                         @elseif ($venue->consent_status === 'requested')
                                                                             <span class="badge bg-light-info">Email
                                                                                 Sent</span>
+                                                                            <br>
+                                                                            <button style="font-size: 12px;"
+                                                                                class="btn btn-sm btn-outline-primary resend-button mt-1"
+                                                                                data-venue-id="{{ $venue->venue_id }}"
+                                                                                data-candidate-count="{{ $venue->halls_count }}">
+                                                                                Resend
+                                                                            </button>
                                                                         @elseif ($venue->consent_status === 'accepted')
                                                                             <span
                                                                                 class="badge bg-light-success">Accepted</span>
@@ -231,16 +254,16 @@
     @include('partials.footer')
     @push('scripts')
         <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
-       
+
         <script>
-            document.getElementById('venueSearch').addEventListener('keyup', function () {
+            document.getElementById('venueSearch').addEventListener('keyup', function() {
                 let searchValue = this.value.toLowerCase();
                 document.querySelectorAll('#responsiveTable tbody tr').forEach(row => {
                     row.style.display = row.innerText.toLowerCase().includes(searchValue) ? '' : 'none';
                 });
             });
         </script>
-        
+
 
         <script>
             $(document).ready(function() {
@@ -392,9 +415,8 @@
 
                     // Validate candidate counts
                     var venuesWithoutCandidates = selectedVenues.filter(function(venue) {
-                        return !venue.halls_count || venue.halls_count === 0 || isNaN(venue.halls_count);
+                        return !venue.halls_count || venue.halls_count == 0 || isNaN(venue.halls_count);
                     });
-
                     if (venuesWithoutCandidates.length > 0) {
                         var venueNames = venuesWithoutCandidates.map(function(venue) {
                             return venue.venue_name;
@@ -581,6 +603,202 @@
                                             .responseJSON?.message ||
                                             'Unknown error',
                                     });
+                                }
+                            });
+                        }
+                    });
+                });
+            });
+        </script>
+        <script>
+            function validateFilters(type) {
+                // Prevent default behavior of the link
+                event.preventDefault();
+
+                // Get the currently selected center code
+                var centerCode = $('.center-list-item.list-group-item-success').data('center-code');
+
+                // Validate that a center is selected
+                if (!centerCode) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'No Center Selected',
+                        text: 'Please select a center before exporting to Excel.',
+                    });
+                    return;
+                }
+
+                // Show loader if needed
+                const loader = document.getElementById('loader');
+                if (loader) {
+                    loader.style.removeProperty('display');
+                }
+
+                // Send AJAX request to the server
+                $.ajax({
+                    url: '{{ route('district-candidates.exportExcel') }}', // Replace with your actual route
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        center_code: centerCode,
+                        exam_id: '{{ $examId }}',
+                        type: type // Optional: Pass the type if needed for filtering
+                    },
+                    xhrFields: {
+                        responseType: 'blob' // This is important for downloading files
+                    },
+                    success: function(response) {
+                        // Hide loader
+                        if (loader) {
+                            loader.style.display = 'none';
+                        }
+
+                        // Create a temporary anchor element to trigger the file download
+                        var blob = new Blob([response], {
+                            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                        });
+                        var link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = `center_${centerCode}_export.xlsx`; // Set the file name
+                        link.click();
+
+                        // Optionally notify the user
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Export Successful',
+                            text: 'The Excel file has been downloaded successfully.',
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        // Hide loader
+                        if (loader) {
+                            loader.style.display = 'none';
+                        }
+
+                        let errorMessage = 'An unexpected error occurred while exporting the file.';
+
+                        // Try to parse error response if it's JSON
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response.message) {
+                                errorMessage = response.message;
+                            }
+                        } catch (e) {
+                            // If not JSON, use status text or generic message
+                            errorMessage = xhr.statusText || 'Failed to export the file.';
+                        }
+
+                        // Display error to the user
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Export Failed',
+                            text: errorMessage,
+                        });
+
+                        // Log detailed error information for debugging
+                        console.error('AJAX Error:', {
+                            status: status,
+                            error: error,
+                            response: xhr.responseText
+                        });
+                    }
+                });
+            }
+        </script>
+        {{-- resend button script --}}
+        <script>
+            $(document).ready(function() {
+                // Handle Resend Button Click
+                $(document).on('click', '.resend-button', function() {
+                    // Get venue ID and current candidate count from the button's data attributes
+                    var venueId = $(this).data('venue-id');
+                    var currentCandidateCount = $(this).data('candidate-count');
+
+                    // Show SweetAlert with an input field for editing the candidate count
+                    Swal.fire({
+                        title: 'Confirm Candidate Count',
+                        input: 'number',
+                        inputValue: currentCandidateCount,
+                        inputAttributes: {
+                            min: 0, // Ensure only positive numbers are allowed
+                            step: 1 // Increment by 1
+                        },
+                        showCancelButton: true,
+                        confirmButtonText: 'Submit',
+                        cancelButtonText: 'Cancel',
+                        inputValidator: (value) => {
+                            if (!value || value <= 0) {
+                                return 'Please enter a valid candidate count.';
+                            }
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            var newCandidateCount = result.value;
+
+                            // Show loader if needed
+                            const loader = document.getElementById('loader');
+                            if (loader) {
+                                loader.style.removeProperty('display');
+                            } // Function to hide loader
+                            function hideLoader() {
+                                if (loader) {
+                                    loader.style.display = 'none';
+                                }
+                            }
+
+                            // Send AJAX request to update the candidate count
+                            $.ajax({
+                                url: '{{ route('district-candidates.resendVenueRequest') }}', // Create this route in web.php
+                                method: 'POST',
+                                data: {
+                                    _token: '{{ csrf_token() }}',
+                                    venue_id: venueId,
+                                    candidate_count: newCandidateCount,
+                                    exam_id: '{{ $examId }}'
+                                },
+                                success: function(response) {
+                                    hideLoader(); // Always hide loader on error
+
+                                    if (response.success) {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Success',
+                                            text: response.message,
+                                        }).then(() => {
+                                            location
+                                                .reload(); // Reload the page to reflect changes
+                                        });
+                                    } else {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: response.message ||
+                                                'Failed to update candidate count.',
+                                        });
+                                    }
+                                },
+                                error: function(xhr) {
+                                    hideLoader(); // Always hide loader on error
+
+                                    let errorMessage = 'An unexpected error occurred.';
+                                    try {
+                                        const response = JSON.parse(xhr.responseText);
+                                        if (response.message) {
+                                            errorMessage = response.message;
+                                        }
+                                    } catch (e) {
+                                        errorMessage = xhr.statusText ||
+                                            'Failed to process request.';
+                                    }
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: errorMessage,
+                                    });
+                                },
+                                complete: function() {
+                                    // Fallback to ensure loader is hidden even if success/error handlers fail
+                                    hideLoader();
                                 }
                             });
                         }

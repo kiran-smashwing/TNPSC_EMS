@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                                                                                              <h2 class="mb-0"></h2>
-                                                                                                                            </div> -->
+                                                                                                                                                              <h2 class="mb-0"></h2>
+                                                                                                                                                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -189,17 +189,17 @@
                         <div class="card-body table-border-style">
                             <form id="filterForm" class="mb-3">
                                 @hasPermission('district-filter')
-                                <div class="filter-item">
-                                    <select class="form-select" id="districtFilter" name="district">
-                                        <option value="">Select District Name</option>
-                                        @foreach ($districts as $district)
-                                            <option value="{{ $district->district_code }}"
-                                                {{ request('district') == $district->district_code ? 'selected' : '' }}>
-                                                {{ $district->district_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                    <div class="filter-item">
+                                        <select class="form-select" id="districtFilter" name="district">
+                                            <option value="">Select District Name</option>
+                                            @foreach ($districts as $district)
+                                                <option value="{{ $district->district_code }}"
+                                                    {{ request('district') == $district->district_code ? 'selected' : '' }}>
+                                                    {{ $district->district_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                 @endhasPermission
                                 <div class="filter-item">
                                     <select class="form-select" id="centerFilter" name="center">
@@ -252,6 +252,7 @@
 
     @push('scripts')
         @include('partials.datatable-export-js')
+        <script src="{{ asset('storage/assets/js/plugins/sweetalert2.all.min.js') }}"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const tableContainer = document.querySelector('body'); // Parent element of all toggles
@@ -448,6 +449,12 @@
             title="Change Status (Active or Inactive)">
             <i class="ti ti-toggle-${data.venue_status ? 'right' : 'left'} f-20"></i>
         </a>
+            <a href="#"
+               class="avtar avtar-xs btn-light-danger delete-venue"
+               data-venue-id="${data.venue_id}">
+               <i class="ti ti-trash f-20"></i>
+            </a>
+
         `.replace(/:id/g, data.venue_id);
                             }
                         }
@@ -475,6 +482,91 @@
                     $('#centerFilter').val('');
                     $('#searchBox').val('');
                     table.search('').draw();
+                });
+            });
+        </script>
+        <script>
+            $(document).on('click', '.delete-venue', function(e) {
+                e.preventDefault();
+                const venueId = $(this).data('venue-id');
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This action cannot be undone!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#e3342f',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Use a form submission approach to handle the DELETE request properly
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = `/venues/${venueId}`;
+                        form.style.display = 'none';
+
+                        // Add CSRF token
+                        const csrfField = document.createElement('input');
+                        csrfField.type = 'hidden';
+                        csrfField.name = '_token';
+                        csrfField.value = '{{ csrf_token() }}';
+                        form.appendChild(csrfField);
+
+                        // Add method spoofing field for DELETE
+                        const methodField = document.createElement('input');
+                        methodField.type = 'hidden';
+                        methodField.name = '_method';
+                        methodField.value = 'DELETE';
+                        form.appendChild(methodField);
+
+                        // Add to document and submit
+                        document.body.appendChild(form);
+
+                        const deleteUrl = "{{ route('venues.destroy', ':id') }}".replace(':id', venueId);
+
+                        fetch(deleteUrl, {
+                                method: 'post',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                },
+                                credentials: 'same-origin'
+                            })
+                            .then(response => {
+                                // First convert to JSON regardless of status
+                                return response.json().then(data => {
+                                    // If response is not OK, throw error with message from server
+                                    if (!response.ok) {
+                                        throw new Error(data.message ||
+                                            'Error occurred while deleting');
+                                    }
+                                    return data;
+                                });
+                            })
+                            .then(data => {
+                                Swal.fire({
+                                    title: 'Deleted!',
+                                    text: data.message || 'Venue deleted successfully.',
+                                    icon: 'success',
+                                    confirmButtonColor: '#3085d6'
+                                }).then(() => {
+                                    // Make sure to refresh the table after the alert is closed
+                                    $('#venuesTable').DataTable().ajax.reload();
+                                });
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: error.message ||
+                                        'Failed to delete venue. Please try again.',
+                                    icon: 'error',
+                                    confirmButtonColor: '#3085d6'
+                                });
+                            });
+                    }
                 });
             });
         </script>

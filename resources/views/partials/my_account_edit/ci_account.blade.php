@@ -222,7 +222,7 @@
                             </div>
                         </div>
 
-                        <div class="col-sm-6">
+                        {{-- <div class="col-sm-6">
                             <div class="mb-3">
                                 <label class="form-label" for="alternative_phone">Alternative
                                     Phone
@@ -236,7 +236,7 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div>
+                        </div> --}}
 
                         {{-- <div class="col-sm-6">
                             <div class="mb-3">

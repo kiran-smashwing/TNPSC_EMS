@@ -869,7 +869,7 @@ class IDCandidatesController extends Controller
                 strtoupper(($hall->center->center_name . ', ' . ($hall->district->district_name ?? ''))),
                 strtoupper($hall->venue->venue_pincode ?? 'N/A'),
                 strtoupper($ci ? $ci->ci_phone : ''),
-                strtoupper($ci ? $ci->ci_email : ''),
+                $ci ? $ci->ci_email : '',
                 strtoupper(($hall->venue->venue_latitude . ',' . $hall->venue->venue_longitude)),
             ];
 
@@ -1011,7 +1011,7 @@ class IDCandidatesController extends Controller
                 ->first();
 
             if (!$examVenueConsent) {
-                return response()->json([
+                return response()->json([ 
                     'message' => 'Venue consent not found.'
                 ], 404);
             }

@@ -25,6 +25,7 @@ return new class extends Migration {
             $table->string('venue_website')->nullable();
             $table->text('venue_password');
             $table->text('venue_address');
+            $table->text('venue_address_2')->nullable();
             $table->text('venue_pincode');
             $table->text('venue_landmark');
             $table->string('venue_distance_railway')->nullable();

@@ -303,6 +303,17 @@
                                                 </div>
                                                 <div class="col-sm-12">
                                                     <div class="mb-3">
+                                                        <label class="form-label">Address2<span
+                                                                class="text-danger">*</span></label>
+                                                        <textarea class="form-control @error('address2') is-invalid @enderror" id="address2" name="address2" required
+                                                            placeholder="Chennai TK & DT"></textarea>
+                                                        @error('address2')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="mb-3">
                                                         <label class="form-label">Landmark <span
                                                                 class="text-danger">*</span></label>
                                                         <textarea class="form-control @error('landmark') is-invalid @enderror" id="landmark" name="landmark" required

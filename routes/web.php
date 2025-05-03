@@ -304,22 +304,21 @@ Route::prefix('venues')->group(function () {
             ->middleware('role.permission:venues.edit');
         Route::put('/{id}', [VenuesController::class, 'update'])->name('venues.update')
             ->middleware('role.permission:venues.edit');
+        Route::post('/destroy/{id}', [VenuesController::class, 'destroy'])->name('venues.destroy')
+            ->middleware(['role.permission:venues.destroy', 'throttle:10,1']);
         Route::get('/{id}', [VenuesController::class, 'show'])->name('venues.show')
             ->middleware('role.permission:venues.show');
         Route::post('/{id}/toggle-status', [VenuesController::class, 'toggleStatus'])->name('venues.toggle-status')
             ->middleware('role.permission:venues.toggle-status');
-        Route::delete('/{id}', [VenuesController::class, 'destroy'])->name('venues.destroy')
-            ->middleware('role.permission:venues.destroy');
         Route::get('/{id}/venue-consent', [VenueConsentController::class, 'showVenueConsentForm'])->name('venues.venue-consent')
             ->middleware('role.permission:venues.venue-consent');
         Route::post('/{id}/venue-consent', [VenueConsentController::class, 'submitVenueConsentForm'])->name('venues.submit-venue-consent')
             ->middleware('role.permission:venues.submit-venue-consent');
         Route::get('/{id}/show-venue-consent', [VenueConsentController::class, 'showVenueConsentForm'])->name('venues.show-venue-consent')
             ->middleware('role.permission:venues.show-venue-consent');
-
-
     });
 });
+
 //invigilators
 Route::prefix('invigilators')->group(function () {
     Route::middleware(['auth.multi', 'check.session', 'role.permission:invigilators.index'])->group(function () {

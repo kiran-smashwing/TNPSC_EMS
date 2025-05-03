@@ -180,6 +180,7 @@ class VenuesController extends Controller
             'alternative_phone' => 'nullable|string|max:20',
             'website' => 'nullable|url',
             'address' => 'required|string',
+            'address2' => 'required|string',
             'landmark' => 'required|string',
             'pin_code' => 'required|string',
             'password' => 'required|string|min:6',
@@ -235,6 +236,7 @@ class VenuesController extends Controller
                 'venue_alternative_phone' => $validated['alternative_phone'],
                 'venue_website' => $validated['website'],
                 'venue_address' => $validated['address'],
+                'venue_address_2' => $validated['address2'],
                 'venue_pincode' => $validated['pin_code'],
                 'venue_landmark' => $validated['landmark'],
                 'venue_longitude' => $validated['longitude'],
@@ -341,6 +343,7 @@ class VenuesController extends Controller
             'alternative_phone' => 'nullable|string|max:20',
             'website' => 'nullable|url',
             'address' => 'required|string',
+            'address2' => 'required|string',
             'landmark' => 'required|string',
             'pin_code' => 'required|string',
             'password' => 'nullable|string|min:6',
@@ -399,6 +402,7 @@ class VenuesController extends Controller
                 'venue_alternative_phone' => $validated['alternative_phone'],
                 'venue_website' => $validated['website'],
                 'venue_address' => $validated['address'],
+                'venue_address_2' => $validated['address2'],
                 'venue_pincode' => $validated['pin_code'],
                 'venue_landmark' => $validated['landmark'],
                 'venue_longitude' => $validated['longitude'],
@@ -413,12 +417,11 @@ class VenuesController extends Controller
             ];
             if ($role == 'district') {
                 // $updateData['ci_district_id'] = $validated['district'];
-                $updateData[ 'venue_center_id'] = $validated['center'];
+                $updateData['venue_center_id'] = $validated['center'];
                 // $updateData['invigilator_venue_id'] = $validated['venue'];
-            }
-            elseif ($user->role && $user->role->role_department == 'ID') {
+            } elseif ($user->role && $user->role->role_department == 'ID') {
                 $updateData['venue_district_id'] = $validated['district'];
-                $updateData[ 'venue_center_id'] = $validated['center'];
+                $updateData['venue_center_id'] = $validated['center'];
                 // $updateData['invigilator_venue_id'] = $validated['venue'];
             }
             // Add new image path to update data if present
@@ -518,5 +521,52 @@ class VenuesController extends Controller
 
         // Return the view with venue, district, and center data
         return view('masters.venues.venue.show', compact('venue', 'centerCount', 'venueCount', 'staffCount', 'ci_count', 'invigilator_count', 'cia_count'));
+    }
+    // Function to delete a venue
+    public function destroy($id)
+    {
+        try {
+            if (is_array($id)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid request format. Only single ID allowed.'
+                ], 422);
+            }
+            $id = Crypt::decrypt($id); // Decrypt the ID
+
+            $venue = Venues::where('venue_id', $id)->firstOrFail();
+            AuditLogger::log('Venue Deleted', Venues::class, $venue->venue_id, null, $venue->toArray());
+            // Delete the image from storage if it exists
+            if ($venue->venue_image && Storage::disk('public')->exists($venue->venue_image)) {
+                Storage::disk('public')->delete($venue->venue_image);
+            }
+            // Delete the venue
+            $venue->delete();
+            return response()->json([
+                'success' => true,
+                'message' => 'Venue deleted successfully'
+            ]);
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid ID format'
+            ], 400);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Venue not found'
+            ], 404);
+        } catch (\Exception $e) {
+            // Optional: log user + IP for suspicious behavior
+            \Log::error('Venue delete failed: ' . $e->getMessage(), [
+                'user_id' => auth()->id(),
+                'ip' => request()->ip()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting venue: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

@@ -32,7 +32,8 @@
                                         <span class="d-flex align-items-center">
                                             <span class="me-2">E-mail</span>
                                             <!-- Check the district_email_status -->
-                                            @if ($venue->district->district_email_status) <!-- Assuming $district contains the row data -->
+                                            @if ($venue->district->district_email_status)
+                                                <!-- Assuming $district contains the row data -->
                                                 <i class="ph-duotone ph-circle-wavy-check text-success"></i>
                                             @else
                                                 <i class="ti ti-alert-circle text-danger f-18"></i>
@@ -48,7 +49,8 @@
                                                     : asset('storage/assets/images/user/collectorate.png') }}"
                                                 alt="District image" />
                                         </div>
-                                        <h5 class="mb-0">{{ $venue->district->district_code }} - {{ $venue->district->district_name }}
+                                        <h5 class="mb-0">{{ $venue->district->district_code }} -
+                                            {{ $venue->district->district_name }}
                                         </h5>
                                         <p class="text-muted text-sm">District Collectorate</p>
                                         <hr class="my-3 border border-secondary-subtle" />
@@ -106,7 +108,8 @@
                                         <span class="d-flex align-items-center">
                                             <span class="me-2">E-mail</span>
                                             <!-- Check the district_email_status -->
-                                            @if ($venue->venue_email_status) <!-- Assuming $district contains the row data -->
+                                            @if ($venue->venue_email_status)
+                                                <!-- Assuming $district contains the row data -->
                                                 <i class="ph-duotone ph-circle-wavy-check text-success"></i>
                                             @else
                                                 <i class="ti ti-alert-circle text-danger f-18"></i>
@@ -127,15 +130,15 @@
                                         <hr class="my-3 border border-secondary-subtle" />
                                         <div class="row g-3">
                                             <div class="col-4">
-                                                <h5 class="mb-0">{{$ci_count}}</h5>
+                                                <h5 class="mb-0">{{ $ci_count }}</h5>
                                                 <small class="text-muted">Cheif Invigilators</small>
                                             </div>
                                             <div class="col-4 border border-top-0 border-bottom-0">
-                                                <h5 class="mb-0">{{$invigilator_count}}</h5>
+                                                <h5 class="mb-0">{{ $invigilator_count }}</h5>
                                                 <small class="text-muted">Invigilators</small>
                                             </div>
                                             <div class="col-4">
-                                                <h5 class="mb-0">{{$cia_count}}</h5>
+                                                <h5 class="mb-0">{{ $cia_count }}</h5>
                                                 <small class="text-muted">CI Assistants</small>
                                             </div>
                                         </div>
@@ -155,7 +158,7 @@
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>
-                                            <p class="mb-0">{{ $venue->venue_address }}</p>
+                                            <p class="mb-0">{{ $venue->venue_address }}, {{$venue->venue_address_2}}</p>
                                         </div>
                                         <div class="d-inline-flex align-items-center justify-content-start w-100">
                                             <i class="ti ti-link me-2"></i>
@@ -231,24 +234,24 @@
                                     </div>
                                     <div class="row align-items-center mb-3">
                                         <div class="col-sm-6 mb-2 mb-sm-0">
-                                            <p class="mb-0">Distance from Railway</p>
+                                            <p class="mb-0">Distance from Collectorate</p>
                                         </div>
                                         <div class="col-sm-6">
                                             <div class="d-flex align-items-center">
                                                 <div class="flex-grow-1 me-3">
-                                                    <p class="mb-0 text-muted">{{ $venue->venue_distance_railway }}</p>
+                                                    <p class="mb-0 text-muted">{{ $venue->venue_treasury_office }}</p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="row align-items-center mb-3">
                                         <div class="col-sm-6 mb-2 mb-sm-0">
-                                            <p class="mb-0">Distance from Treasury</p>
+                                            <p class="mb-0">Distance from Railway Station / Bus Stand</p>
                                         </div>
                                         <div class="col-sm-6">
                                             <div class="d-flex align-items-center">
                                                 <div class="flex-grow-1 me-3">
-                                                    <p class="mb-0 text-muted">{{ $venue->venue_treasury_office }}</p>
+                                                    <p class="mb-0 text-muted">{{ $venue->venue_distance_railway }}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -329,25 +332,25 @@
                             </div>
                         </div>
                         <!-- <div class="col-lg-8 col-xxl-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5>User Guide Video - Venue</h5>
-                                </div>
-                                <div class="card-body pc-component">
-                                    <div id="carouselExampleFade" class="carousel slide carousel-fade"
-                                        data-bs-ride="carousel">
-                                        <div class="carousel-inner">
-                                            <div class="carousel-item active">
-                                                <video class="img-fluid d-block w-100" controls>
-                                                    <source src="../assets/videos/video-1.mp4" type="video/mp4">
-                                                    Your browser does not support the video tag.
-                                                </video>
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>User Guide Video - Venue</h5>
+                                    </div>
+                                    <div class="card-body pc-component">
+                                        <div id="carouselExampleFade" class="carousel slide carousel-fade"
+                                            data-bs-ride="carousel">
+                                            <div class="carousel-inner">
+                                                <div class="carousel-item active">
+                                                    <video class="img-fluid d-block w-100" controls>
+                                                        <source src="../assets/videos/video-1.mp4" type="video/mp4">
+                                                        Your browser does not support the video tag.
+                                                    </video>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div> -->
+                            </div> -->
                     </div>
                 </div>
             </div>

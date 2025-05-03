@@ -317,6 +317,17 @@
                         </div>
                         <div class="col-sm-12">
                             <div class="mb-3">
+                                <label class="form-label" for="address2">Address 2<span
+                                        class="text-danger">*</span></label>
+                                <textarea class="form-control @error('address2') is-invalid @enderror" id="address2" name="address2" required
+                                    placeholder="Chennai TK & DT">{{ old('address2', $venue->venue_address_2) }}</textarea>
+                                @error('address2')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="mb-3">
                                 <label class="form-label">Landmark <span class="text-danger">*</span></label>
                                 <textarea class="form-control @error('landmark') is-invalid @enderror" id="landmark" name="landmark" required
                                     placeholder="NEAR TO NEW BUS STAND">{{ old('landmark', $venue->venue_landmark) }}</textarea>
@@ -327,23 +338,9 @@
                         </div>
                         <div class="col-sm-6">
                             <div class="mb-3">
-                                <label class="form-label" for="dt_railway">Distance from
-                                    Railway<span class="text-danger">*</span></label>
-                                <input type="text" step="any"
-                                    class="form-control @error('distance_from_railway') is-invalid @enderror"
-                                    id="distance_from_railway"
-                                    value="{{ old('distance_from_railway', $venue->venue_distance_railway) }}"
-                                    name="distance_from_railway" placeholder="8.2km">
-                                @error('distance_from_railway')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="mb-3">
                                 <label class="form-label" for="distance_from_treasury">Distance
                                     from
-                                    Treasury<span class="text-danger">*</span></label>
+                                    Collectorate<span class="text-danger">*</span></label>
                                 <input type="text" step="any"
                                     class="form-control @error('distance_from_treasury') is-invalid @enderror"
                                     value="{{ old('distance_from_treasury', $venue->venue_treasury_office) }}"
@@ -355,26 +352,40 @@
                         </div>
                         <div class="col-sm-6">
                             <div class="mb-3">
-                                <label class="form-label" for="longitude">longitude<span
-                                        class="text-danger">*</span></label>
-                                <input type="number" step="any"
-                                    class="form-control @error('longitude') is-invalid @enderror" id="longitude"
-                                    value="{{ old('longitude', $venue->venue_longitude) }}" name="longitude"
-                                    placeholder="11.2312312312312">
-                                @error('longitude')
+                                <label class="form-label" for="dt_railway">Distance from
+                                    Railway Station / Bus Stand<span class="text-danger">*</span></label>
+                                <input type="text" step="any"
+                                    class="form-control @error('distance_from_railway') is-invalid @enderror"
+                                    id="distance_from_railway"
+                                    value="{{ old('distance_from_railway', $venue->venue_distance_railway) }}"
+                                    name="distance_from_railway" placeholder="8.2km">
+                                @error('distance_from_railway')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
                         <div class="col-sm-6 ">
                             <div class="mb-3">
-                                <label class="form-label" for="latitude">latitude<span
+                                <label class="form-label" for="latitude">Latitude<span
                                         class="text-danger">*</span></label>
                                 <input type="number" step="any"
                                     class="form-control @error('latitude') is-invalid @enderror" id="latitude"
                                     name="latitude" value="{{ old('latitude', $venue->venue_latitude) }}"
                                     placeholder="11.2312312312312">
                                 @error('latitude')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="longitude">Longitude<span
+                                        class="text-danger">*</span></label>
+                                <input type="number" step="any"
+                                    class="form-control @error('longitude') is-invalid @enderror" id="longitude"
+                                    value="{{ old('longitude', $venue->venue_longitude) }}" name="longitude"
+                                    placeholder="11.2312312312312">
+                                @error('longitude')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>

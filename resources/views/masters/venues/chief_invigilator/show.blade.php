@@ -149,10 +149,10 @@
                                             <i class="ti ti-phone me-2"></i>
                                             <p class="mb-0">{{ $chiefInvigilator->venue->venue_phone }}</p>
                                         </div>
-                                        <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
+                                        {{-- <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                                             <i class="ti ti-phone-plus me-2"></i>
                                             <p class="mb-0">{{ $chiefInvigilator->venue->venue_alternative_phone }}</p>
-                                        </div>
+                                        </div> --}}
                                         <div
                                             class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                                             <i class="ti ti-map-pin me-2"></i>

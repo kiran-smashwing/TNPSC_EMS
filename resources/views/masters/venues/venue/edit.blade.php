@@ -30,9 +30,9 @@
             <div class="row">
                 <div class="col-sm-12">
                     <!-- <div class="card">
-                                          <div class="card-body py-0">
-                                             Your content here
-                                          </div> -->
+                                              <div class="card-body py-0">
+                                                 Your content here
+                                              </div> -->
                 </div>
                 <div class="tab-content">
                     <div>
@@ -92,26 +92,30 @@
                                                     <div class="mb-3">
                                                         <label class="form-label" for="district">District <span
                                                                 class="text-danger">*</span></label>
-                                                                @if(session('auth_role') === 'district')
-                                                                <!-- Readonly District Dropdown for District Users -->
-                                                                <select class="form-control" id="district" name="district" disabled>
-                                                                    <option value="{{ $user->district_code }}" selected>
-                                                                        {{ $districts->firstWhere('district_code',$user->district_code)->district_name ?? 'N/A' }}
+                                                        @if (session('auth_role') === 'district')
+                                                            <!-- Readonly District Dropdown for District Users -->
+                                                            <select class="form-control" id="district" name="district"
+                                                                disabled>
+                                                                <option value="{{ $user->district_code }}" selected>
+                                                                    {{ $districts->firstWhere('district_code', $user->district_code)->district_name ?? 'N/A' }}
+                                                                </option>
+                                                            </select>
+                                                            <input type="hidden" name="district"
+                                                                value="{{ $user->district_code }}">
+                                                        @else
+                                                            <!-- Editable District Dropdown for Other Users -->
+                                                            <select
+                                                                class="form-control @error('district') is-invalid @enderror"
+                                                                id="district" name="district" required>
+                                                                <option value="">Select District</option>
+                                                                @foreach ($districts as $district)
+                                                                    <option value="{{ $district->district_code }}"
+                                                                        {{ $district->district_code == old('district', $venue->venue_district_id ?? '') ? 'selected' : '' }}>
+                                                                        {{ $district->district_name }}
                                                                     </option>
-                                                                </select>
-                                                                <input type="hidden" name="district" value="{{ $user->district_code }}">
-                                                            @else
-                                                                <!-- Editable District Dropdown for Other Users -->
-                                                                <select class="form-control @error('district') is-invalid @enderror" id="district" name="district" required>
-                                                                    <option value="">Select District</option>
-                                                                    @foreach ($districts as $district)
-                                                                        <option value="{{ $district->district_code }}"
-                                                                            {{ $district->district_code == old('district', $venue->venue_district_id ?? '') ? 'selected' : '' }}>
-                                                                            {{ $district->district_name }}
-                                                                        </option>
-                                                                    @endforeach
-                                                                </select>
-                                                            @endif
+                                                                @endforeach
+                                                            </select>
+                                                        @endif
                                                         @error('district')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
@@ -350,6 +354,17 @@
                                                 </div>
                                                 <div class="col-sm-12">
                                                     <div class="mb-3">
+                                                        <label class="form-label" for="address2">Address 2<span
+                                                                class="text-danger">*</span></label>
+                                                        <textarea class="form-control @error('address2') is-invalid @enderror" id="address2" name="address2" required
+                                                            placeholder="Chennai TK & DT">{{ old('address2', $venue->venue_address_2) }}</textarea>
+                                                        @error('address2')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="mb-3">
                                                         <label class="form-label">Landmark <span
                                                                 class="text-danger">*</span></label>
                                                         <textarea class="form-control @error('landmark') is-invalid @enderror" id="landmark" name="landmark" required
@@ -361,23 +376,9 @@
                                                 </div>
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="dt_railway">Distance from
-                                                            Railway<span class="text-danger">*</span></label>
-                                                        <input type="text" step="any"
-                                                            class="form-control @error('distance_from_railway') is-invalid @enderror"
-                                                            id="distance_from_railway"
-                                                            value="{{ old('distance_from_railway', $venue->venue_distance_railway) }}"
-                                                            name="distance_from_railway" placeholder="8.2km">
-                                                        @error('distance_from_railway')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <div class="mb-3">
                                                         <label class="form-label" for="distance_from_treasury">Distance
                                                             from
-                                                            Treasury<span class="text-danger">*</span></label>
+                                                            Collectorate<span class="text-danger">*</span></label>
                                                         <input type="text" step="any"
                                                             class="form-control @error('distance_from_treasury') is-invalid @enderror"
                                                             value="{{ old('distance_from_treasury', $venue->venue_treasury_office) }}"
@@ -390,21 +391,22 @@
                                                 </div>
                                                 <div class="col-sm-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="longitude">longitude<span
+                                                        <label class="form-label" for="dt_railway">Distance from
+                                                            Railway Station / Bus Stand<span
                                                                 class="text-danger">*</span></label>
-                                                        <input type="number" step="any"
-                                                            class="form-control @error('longitude') is-invalid @enderror"
-                                                            id="longitude"
-                                                            value="{{ old('longitude', $venue->venue_longitude) }}"
-                                                            name="longitude" placeholder="11.2312312312312">
-                                                        @error('longitude')
+                                                        <input type="text" step="any"
+                                                            class="form-control @error('distance_from_railway') is-invalid @enderror"
+                                                            id="distance_from_railway"
+                                                            value="{{ old('distance_from_railway', $venue->venue_distance_railway) }}"
+                                                            name="distance_from_railway" placeholder="8.2km">
+                                                        @error('distance_from_railway')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-6 ">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="latitude">latitude<span
+                                                        <label class="form-label" for="latitude">Latitude<span
                                                                 class="text-danger">*</span></label>
                                                         <input type="number" step="any"
                                                             class="form-control @error('latitude') is-invalid @enderror"
@@ -412,6 +414,20 @@
                                                             value="{{ old('latitude', $venue->venue_latitude) }}"
                                                             placeholder="11.2312312312312">
                                                         @error('latitude')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="longitude">Longitude<span
+                                                                class="text-danger">*</span></label>
+                                                        <input type="number" step="any"
+                                                            class="form-control @error('longitude') is-invalid @enderror"
+                                                            id="longitude"
+                                                            value="{{ old('longitude', $venue->venue_longitude) }}"
+                                                            name="longitude" placeholder="11.2312312312312">
+                                                        @error('longitude')
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
                                                     </div>
@@ -557,64 +573,65 @@
         });
     </script>
 
-   <script>
-    // Check if jQuery is available
-    if (typeof jQuery === 'undefined') {
-        console.error('jQuery is not loaded. Please include it in your project.');
-    }
-
-    $(document).ready(function() {
-        // Full list of centers from the server
-        const allCenters = @json($centers);
-        const districtDropdown = $('#district');
-        const centerDropdown = $('#center');
-
-        // Get the authenticated user's details
-        const userRole = "{{ auth()->user()->role ?? '' }}";
-        const userDistrict = "{{ auth()->user()->venue_district_id ?? '' }}";
-        const userCenter = "{{ auth()->user()->venue_center_id ?? '' }}";
-
-        // Preselected values for editing
-        const oldDistrict = "{{ old('district', $venue->venue_district_id ?? '') }}";
-        const oldCenter = "{{ old('center', $venue->venue_center_id ?? '') }}";
-
-        function populateCenters(districtCode) {
-            // Clear previous options
-            centerDropdown.empty();
-            centerDropdown.append('<option value="">Select Center</option>');
-
-            if (districtCode) {
-                // Filter centers based on selected district
-                const filteredCenters = allCenters.filter(center => center.center_district_id == districtCode);
-
-                // Populate centers dropdown
-                filteredCenters.forEach(center => {
-                    const selected = (oldCenter == center.center_code || userCenter == center.center_code) ? 'selected' : '';
-                    centerDropdown.append(
-                        `<option value="${center.center_code}" ${selected}>${center.center_name}</option>`
-                    );
-                });
-            }
+    <script>
+        // Check if jQuery is available
+        if (typeof jQuery === 'undefined') {
+            console.error('jQuery is not loaded. Please include it in your project.');
         }
 
-        // Handle district change event
-        districtDropdown.on('change', function() {
-            populateCenters($(this).val());
+        $(document).ready(function() {
+            // Full list of centers from the server
+            const allCenters = @json($centers);
+            const districtDropdown = $('#district');
+            const centerDropdown = $('#center');
+
+            // Get the authenticated user's details
+            const userRole = "{{ auth()->user()->role ?? '' }}";
+            const userDistrict = "{{ auth()->user()->venue_district_id ?? '' }}";
+            const userCenter = "{{ auth()->user()->venue_center_id ?? '' }}";
+
+            // Preselected values for editing
+            const oldDistrict = "{{ old('district', $venue->venue_district_id ?? '') }}";
+            const oldCenter = "{{ old('center', $venue->venue_center_id ?? '') }}";
+
+            function populateCenters(districtCode) {
+                // Clear previous options
+                centerDropdown.empty();
+                centerDropdown.append('<option value="">Select Center</option>');
+
+                if (districtCode) {
+                    // Filter centers based on selected district
+                    const filteredCenters = allCenters.filter(center => center.center_district_id == districtCode);
+
+                    // Populate centers dropdown
+                    filteredCenters.forEach(center => {
+                        const selected = (oldCenter == center.center_code || userCenter == center
+                            .center_code) ? 'selected' : '';
+                        centerDropdown.append(
+                            `<option value="${center.center_code}" ${selected}>${center.center_name}</option>`
+                        );
+                    });
+                }
+            }
+
+            // Handle district change event
+            districtDropdown.on('change', function() {
+                populateCenters($(this).val());
+            });
+
+            // Apply logic based on user role
+            if (userRole === 'district' && userDistrict) {
+                // If user is a district admin, auto-select & disable district dropdown
+                districtDropdown.val(userDistrict).prop('disabled', true);
+                populateCenters(userDistrict);
+            } else {
+                // For other roles, allow district selection
+                if (oldDistrict) {
+                    districtDropdown.val(oldDistrict).trigger('change');
+                }
+            }
         });
-
-        // Apply logic based on user role
-        if (userRole === 'district' && userDistrict) {
-            // If user is a district admin, auto-select & disable district dropdown
-            districtDropdown.val(userDistrict).prop('disabled', true);
-            populateCenters(userDistrict);
-        } else {
-            // For other roles, allow district selection
-            if (oldDistrict) {
-                districtDropdown.val(oldDistrict).trigger('change');
-            }
-        }
-    });
-</script>
+    </script>
 
 
 

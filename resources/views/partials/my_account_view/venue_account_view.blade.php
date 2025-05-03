@@ -128,7 +128,7 @@
                     </div>
                     <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3 text-start">
                         <i class="ti ti-map-pin me-2"></i>
-                        <p class="mb-0">{{ $venue->venue_address }}</p>
+                        <p class="mb-0">{{ $venue->venue_address }}, {{ $venue->venue_address_2 }}</p>
                     </div>
                     <div class="d-inline-flex align-items-center justify-content-start w-100">
                         <i class="ti ti-link me-2"></i>
@@ -204,19 +204,7 @@
                 </div>
                 <div class="row align-items-center mb-3">
                     <div class="col-sm-6 mb-2 mb-sm-0">
-                        <p class="mb-0">Distance from Railway</p>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1 me-3">
-                                <p class="mb-0 text-muted">{{ $venue->venue_distance_railway }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row align-items-center mb-3">
-                    <div class="col-sm-6 mb-2 mb-sm-0">
-                        <p class="mb-0">Distance from Treasury</p>
+                        <p class="mb-0">Distance from Collectorate</p>
                     </div>
                     <div class="col-sm-6">
                         <div class="d-flex align-items-center">
@@ -226,6 +214,19 @@
                         </div>
                     </div>
                 </div>
+                <div class="row align-items-center mb-3">
+                    <div class="col-sm-6 mb-2 mb-sm-0">
+                        <p class="mb-0">Distance from Railway Station / Bus Stand</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1 me-3">
+                                <p class="mb-0 text-muted">{{ $venue->venue_distance_railway }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="row align-items-center mb-3">
                     <div class="col-sm-6 mb-2 mb-sm-0">
                         <p class="mb-0">Bank Name</p>

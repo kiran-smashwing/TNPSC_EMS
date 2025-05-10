@@ -94,10 +94,10 @@
                                                                 class="text-danger">*</span></label>
                                                         <select class="form-control @error('district') is-invalid @enderror"
                                                             id="district" name="district" required
-                                                            {{ session('auth_role') == 'venue' || session('auth_role') == 'ci' ? 'disabled' : '' }} >
+                                                            {{ session('auth_role') == 'venue' || session('auth_role') == 'ci' || session('auth_role') == 'district' ? 'disabled' : '' }} >
                                                             <option value="">Select District</option>
                                                             @foreach ($districts as $district)
-                                                                <option value="{{ $district->district_code }}"
+                                                                <option value="{{ $district->district_code }}" 
                                                                     {{ old('district', $chiefInvigilator->ci_district_id) == $district->district_code ? 'selected' : '' }}>
                                                                     {{ $district->district_name }}
                                                                 </option>

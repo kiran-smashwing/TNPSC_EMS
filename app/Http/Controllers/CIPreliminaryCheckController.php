@@ -72,6 +72,7 @@ class CIPreliminaryCheckController extends Controller
     }
     public function saveSessionChecklist(Request $request)
     {
+        
         // Validate the request data
         $validated = $request->validate([
             'exam_id' => 'required|numeric',
@@ -90,7 +91,8 @@ class CIPreliminaryCheckController extends Controller
             ->first();
 
         if (!$examDetails) {
-            return back()->withErrors(['exam_id' => 'Exam not found in confirmed halls.']);
+            return redirect()->back()->with('error', 'Exam not found in confirmed halls.');
+
         }
 
         // Retrieve the existing checklist record or create a new one

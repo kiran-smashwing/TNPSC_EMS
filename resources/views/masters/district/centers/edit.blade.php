@@ -84,7 +84,8 @@
                                                     <label class="form-label" for="district_id">District <span
                                                             class="text-danger">*</span></label>
                                                     <select class="form-control @error('district') is-invalid @enderror"
-                                                        id="district" name="district" required {{ session('auth_role') == 'district' ? 'disabled' : '' }}>
+                                                        id="district" name="district" required
+                                                        {{ session('auth_role') == 'district' ? 'disabled' : '' }}>
                                                         <option>Select District</option>
                                                         @foreach ($districts as $district)
                                                             <option value="{{ $district->district_code }}"
@@ -94,9 +95,9 @@
                                                         @endforeach
                                                     </select>
                                                     @if (session('auth_role') == 'district')
-                                                    <input type="hidden" name="district"
-                                                        value="{{ $center->center_district_id ?? '' }}">
-                                                @endif
+                                                        <input type="hidden" name="district"
+                                                            value="{{ $center->center_district_id ?? '' }}">
+                                                    @endif
                                                     @error('district')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -117,7 +118,9 @@
                                                     @enderror
                                                 </div>
                                             </div>
-
+                                            @php
+                                                $user = current_user();
+                                            @endphp
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Code <span
@@ -126,7 +129,9 @@
                                                         class="form-control no-arrows @error('center_code') is-invalid @enderror"
                                                         id="center_code" name="center_code"
                                                         value="{{ old('center_code', $center->center_code) }}"
-                                                        placeholder="0102" required>
+                                                        placeholder="0102" required
+                                                        @if ($user->role && $user->role->role_department == 'ID') @else 
+                                                        readonly @endif>
                                                     @error('center_code')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -202,11 +207,13 @@
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label">Longitude<span class="text-danger">*</span></label>
+                                                    <label class="form-label">Longitude<span
+                                                            class="text-danger">*</span></label>
                                                     <input type="number" step="any"
                                                         class="form-control @error('longitude') is-invalid @enderror"
                                                         id="longitude" name="longitude"
-                                                        value="{{ old('longitude', $center->center_longitude) }}" required>
+                                                        value="{{ old('longitude', $center->center_longitude) }}"
+                                                        required>
                                                     @error('longitude')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -214,7 +221,8 @@
                                             </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
-                                                    <label class="form-label">Latitude<span class="text-danger">*</span></label>
+                                                    <label class="form-label">Latitude<span
+                                                            class="text-danger">*</span></label>
                                                     <input type="number" step="any"
                                                         class="form-control @error('latitude') is-invalid @enderror"
                                                         id="latitude" name="latitude"
@@ -226,7 +234,8 @@
                                             </div>
                                             <!-- Location buttons remain same -->
                                             <div class="col-sm-6 d-inline-flex justify-content-center mb-3">
-                                                <a href="#" id="get-location-btn" class="btn btn-success d-inline-flex justify-content-center">
+                                                <a href="#" id="get-location-btn"
+                                                    class="btn btn-success d-inline-flex justify-content-center">
                                                     <i class="ti ti-current-location me-1"></i>Get Location Coordinates
                                                 </a>
                                             </div>
@@ -268,13 +277,13 @@
         <script>
             document.querySelector('#get-location-btn').addEventListener('click', function(e) {
                 e.preventDefault();
-                
+
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(function(position) {
                         // Get latitude and longitude from geolocation
                         const latitude = position.coords.latitude;
                         const longitude = position.coords.longitude;
-        
+
                         // Set the values in the respective input fields
                         document.getElementById('latitude').value = latitude;
                         document.getElementById('longitude').value = longitude;

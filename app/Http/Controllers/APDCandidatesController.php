@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\ProcessCandidatesCsv;
 use App\Jobs\ProcessFinalizeHallsCsv;
+use App\Jobs\ProcessUpdateAdditionalCandidatesCsv;
 use Illuminate\Http\Request;
 use App\Services\ExamAuditService;
 
@@ -237,6 +238,81 @@ class APDCandidatesController extends Controller
         }
         // Dispatch the job to process the CSV in the background
         ProcessFinalizeHallsCsv::dispatch($examId, $fullFilePath, $uploadedFileUrl, $currentUser);
+
+        return redirect()->back()->with('success', 'CSV file uploaded successfully. Processing will continue in the background, and you will receive an email upon completion.');
+    }
+    /**
+     * Update Additional Candidates Count of the halls confirmed by ID 
+     */
+    public function additionalCandidatesCount(Request $request)
+    {
+        // Validate request data
+        $request->validate([
+            'exam_id' => 'required|integer',
+            'csv_file' => 'required|file|mimes:csv,txt',
+        ]);
+
+        $examId = $request->input('exam_id');
+        $file = $request->file('csv_file');
+
+        // Save the uploaded file
+        $uploadedFilePath = 'uploads/csv_files/';
+        $uploadedFileName = 'APD_UPDATE_ADDITIONAL_CANDIDATES_COUNT_' . $examId . '_uploaded_' . time() . '.csv';
+        $fullFilePath = storage_path("app/public/{$uploadedFilePath}{$uploadedFileName}");
+        // Check for duplicate files and remove them
+        $existingFiles = glob(storage_path("app/public/{$uploadedFilePath}{$examId}_uploaded_*"));
+        foreach ($existingFiles as $existingFile) {
+            unlink($existingFile); // Delete old files
+        }
+
+        // Move the file to storage
+        $file->move(storage_path("app/public/{$uploadedFilePath}"), $uploadedFileName);
+        $uploadedFileUrl = asset('storage/' . $uploadedFilePath . $uploadedFileName);
+
+        // Add tab to the first column (optional pre-processing)
+        $rows = array_map('str_getcsv', file($fullFilePath));
+        $fp = fopen($fullFilePath, 'w');
+        foreach ($rows as $row) {
+            if (!empty($row)) {
+                $row[0] = "\t" . $row[0];
+            }
+            fputcsv($fp, $row);
+        }
+        fclose($fp);
+        // Create initial log entry with 'processing' status
+        $currentUser = current_user();
+        $userName = $currentUser ? $currentUser->display_name : 'Unknown';
+        $initialMetadata = [
+            'user_name' => $userName,
+            'status' => 'processing',
+            'uploaded_csv_link' => $uploadedFileUrl,
+        ];
+
+        // Check if a log already exists for this exam and task type
+        $existingLog = $this->auditService->findLog([
+            'exam_id' => $examId,
+            'task_type' => 'apd_addl_cand_count_upload',
+        ]);
+
+        if ($existingLog) {
+            // Update the existing log
+            $this->auditService->updateLog(
+                logId: $existingLog->id,
+                metadata: $initialMetadata,
+                description: 'Updated APD additional candidates CSV log'
+            );
+        } else {
+            // Create a new log entry
+            $this->auditService->log(
+                examId: $examId,
+                actionType: 'uploaded',
+                taskType: 'apd_addl_cand_count_upload',
+                description: 'Started processing APD additional candidates count CSV',
+                metadata: $initialMetadata
+            );
+        }
+        // Dispatch the job to process the CSV in the background
+        ProcessUpdateAdditionalCandidatesCsv::dispatch($examId, $fullFilePath, $uploadedFileUrl, $currentUser);
 
         return redirect()->back()->with('success', 'CSV file uploaded successfully. Processing will continue in the background, and you will receive an email upon completion.');
     }

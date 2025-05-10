@@ -30,6 +30,7 @@ class ExamConfirmedHalls extends Model
         'ci_id',
         'is_apd_uploaded',
         'alloted_count',
+        'addl_cand_count',
     ];
 
     // The attributes that should be hidden for arrays

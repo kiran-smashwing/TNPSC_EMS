@@ -8,12 +8,17 @@
                 <input type="hidden" name="exam_id" value="{{ $session->currentexam->exam_main_no }}">
                 <input type="hidden" name="exam_sess_date" value="{{ $session->exam_sess_date }}">
                 <input type="hidden" name="exam_sess_session" value="{{ $session->exam_sess_session }}">
-                <input type="hidden" name="alloted_count" value="{{ isset($session_confirmedhalls) ? $session_confirmedhalls->alloted_count : 0 }}">
+                <input type="hidden" name="alloted_count"
+                    value="{{ $session_confirmedhalls ? $session_confirmedhalls->alloted_count + ($session_confirmedhalls->addl_cand_count ?? 0) : 0 }};">
 
 
                 <div class="modal-header bg-primary">
                     <h5 class="modal-title text-primary" id="attendanceCandidateeditModalLabel">
-                        <i class="feather icon-user-plus me-2"></i>Edit Candidates Allotted -  {{$session_confirmedhalls ? $session_confirmedhalls->alloted_count : 0 }}
+                        <i class="feather icon-user-plus me-2"></i>Edit Candidates Allotted -
+                        {{ $session_confirmedhalls ? $session_confirmedhalls->alloted_count : 0 }}
+                        @if ($session_confirmedhalls && $session_confirmedhalls->addl_cand_count)
+                            + {{ $session_confirmedhalls->addl_cand_count }}
+                        @endif
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
@@ -24,8 +29,8 @@
                         <label for="presentEdit" class="form-label">Present:</label>
                         <input type="number" class="form-control" name="present[]" id="presentEdit"
                             placeholder="Enter Present" required min="0"
-                            max="{{ $session_confirmedhalls ? $session_confirmedhalls->alloted_count : 0 }}" oninput="validateEditPresent()"
-                            value="{{ $candidate_attendance_data['present'] ?? '' }}">
+                            max="{{ $session_confirmedhalls ? $session_confirmedhalls->alloted_count + ($session_confirmedhalls->addl_cand_count ?? 0) : 0 }};"
+                            oninput="validateEditPresent()" value="{{ $candidate_attendance_data['present'] ?? '' }}">
                     </div>
 
                     <div class="mb-3">
@@ -50,7 +55,8 @@
         $(document).ready(function() {
             // Edit Page Specific Logic
             function validateEditPresent() {
-                const allotedCount = {{ $session_confirmedhalls ? $session_confirmedhalls->alloted_count : 0}};
+                const allotedCount =
+                    {{ $session_confirmedhalls ? $session_confirmedhalls->alloted_count + ($session_confirmedhalls->addl_cand_count ?? 0) : 0 }};
                 const presentInput = $('#presentEdit');
                 const absentInput = $('#absentEdit');
                 let presentCount = parseInt(presentInput.val()) || 0;

@@ -9,13 +9,17 @@
                 <input type="hidden" name="exam_sess_date" value="{{ $session->exam_sess_date }}">
                 <input type="hidden" name="exam_sess_session" value="{{ $session->exam_sess_session }}">
                 <input type="hidden" name="alloted_count"
-                    value="{{ $session_confirmedhalls ? $session_confirmedhalls->alloted_count : 0 }}">
+                    value="{{ $session_confirmedhalls ? $session_confirmedhalls->alloted_count + ($session_confirmedhalls->addl_cand_count ?? 0) : 0 }}">
+
 
 
                 <div class="modal-header bg-primary">
                     <h5 class="modal-title text-primary" id="attendanceCandidateModal">
                         <i class="feather icon-user-plus me-2"></i>Candidates Allotted -
                         {{ $session_confirmedhalls ? $session_confirmedhalls->alloted_count : 0 }}
+                        @if ($session_confirmedhalls && $session_confirmedhalls->addl_cand_count)
+                            + {{ $session_confirmedhalls->addl_cand_count }}
+                        @endif
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
@@ -39,8 +43,8 @@
                     <div class="mb-3">
                         <label for="present" class="form-label">Present:</label>
                         <input type="number" class="form-control" name="present[]" id="present"
-                            placeholder="Enter Present" required min="0"   value="{{ $presentValue }}"
-                            max="{{ $session_confirmedhalls ? $session_confirmedhalls->alloted_count : 0 }}"
+                            placeholder="Enter Present" required min="0" value="{{ $presentValue }}"
+                            max="{{ $session_confirmedhalls ? $session_confirmedhalls->alloted_count + ($session_confirmedhalls->addl_cand_count ?? 0) : 0 }}"
                             oninput="validatePresent()">
                     </div>
 
@@ -48,10 +52,16 @@
                         <label for="absent" class="form-label">Absent:</label>
                         <input type="number" class="form-control" name="absent[]" id="absent"
                             placeholder="Calculated Absent" readonly>
+                            @if ($session_confirmedhalls && $session_confirmedhalls->addl_cand_count)
+                            <small>* includes {{ $session_confirmedhalls->addl_cand_count }} additional candidate{{ $session_confirmedhalls->addl_cand_count > 1 ? 's' : '' }}</small>
+
+                        @endif
                     </div>
+                  
                 </div>
 
                 <div class="modal-footer">
+
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="submit" id="submitBtn" class="btn btn-success" disabled>
                         <i class="feather icon-save me-2"></i>Submit
@@ -67,7 +77,8 @@
         $(document).ready(function() {
             // Define the validatePresent function for the Add page
             function validatePresent() {
-                const allotedCount = {{ $session_confirmedhalls ? $session_confirmedhalls->alloted_count : 0 }};
+                const allotedCount =
+                    {{ $session_confirmedhalls ? $session_confirmedhalls->alloted_count + ($session_confirmedhalls->addl_cand_count ?? 0) : 0 }};
                 const presentInput = document.getElementById('present');
                 const absentInput = document.getElementById('absent');
                 const submitButton = document.getElementById('submitBtn');

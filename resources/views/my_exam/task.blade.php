@@ -719,6 +719,15 @@
                                                                         </a>
                                                                     @endif
                                                                 @endhasPermission
+                                                                @hasPermission('finalize-csv')
+                                                                    <a href="#"
+                                                                    title="Upload Additional Candidates Count CSV"
+                                                                        class="me-2 btn btn-sm btn-light-primary m-2"
+                                                                        data-pc-animate="just-me" data-bs-toggle="modal"
+                                                                        data-bs-target="#apdAddlCandidateCountModal"><i
+                                                                            class="feather icon-upload mx-1"></i>Addl Candidate Upload
+                                                                    </a>
+                                                                @endhasPermission
                                                                 @hasPermission('download-finalized-halls-csv')
                                                                     @if ($is_finalize_halls_upload)
                                                                         <a href="{{ $metadata->uploaded_csv_link }}"
@@ -1703,6 +1712,7 @@
                 @include('modals.apd-upload-excel')
                 @include('modals.id-increase-candidate')
                 @include('modals.apd-finalize-candidate')
+                @include('modals.apd-addl-candidate-count')
                 {{-- @include('modals.preliminary-checklist') --}}
                 {{-- @include('modals.session-checklist') --}}
                 {{-- @include('modals.invigilator-select') --}}

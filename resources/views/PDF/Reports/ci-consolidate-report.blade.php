@@ -394,11 +394,11 @@
                 <tr>
                     <td>Additional<br>{{ $totalAdditionalCandidates ?? '0' }}</td>
                     <td>Distributed to candidates<br>
-                        {{ (isset($candidateAttendance['present']) ? $candidateAttendance['present'] : 0) + ($totalAdditionalCandidates ?? 0) }}
+                        {{ (isset($candidateAttendance['present']) ? $candidateAttendance['present'] : 0)  }}
                     </td>
 
                     <td>Distributed to candidates<br>
-                        {{ (isset($candidateAttendance['present']) ? $candidateAttendance['present'] : 0) + ($totalAdditionalCandidates ?? 0) }}
+                        {{ (isset($candidateAttendance['present']) ? $candidateAttendance['present'] : 0)  }}
                     </td>
 
                 </tr>
@@ -415,10 +415,10 @@
                 <tr>
                     <td>Absent<br>{{ $candidateAttendance['absent'] ?? 0 }}</td>
                     <td>Balance Unused<br>
-                        {{ ($totalQPsReceived ?? 0) - (isset($candidateAttendance['present']) ? $candidateAttendance['present'] : 0) - ($totalAdditionalCandidates ?? 0) }}
+                        {{ ($totalQPsReceived ?? 0) - (isset($candidateAttendance['present']) ? $candidateAttendance['present'] : 0) }}
                     </td>
                     <td>Balance Unused<br>
-                        {{ ($totalOMRsReceived ?? 0) - (isset($candidateAttendance['present']) ? $candidateAttendance['present'] : 0) - ($totalAdditionalCandidates ?? 0) }}
+                        {{ ($totalOMRsReceived ?? 0) - (isset($candidateAttendance['present']) ? $candidateAttendance['present'] : 0) }}
                     </td>
 
                 </tr>

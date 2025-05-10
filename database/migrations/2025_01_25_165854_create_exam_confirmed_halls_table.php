@@ -22,6 +22,7 @@ return new class extends Migration {
             $table->bigInteger('ci_id'); // Chief invigilator ID (big integer)
             $table->boolean('is_apd_uploaded')->default(false); // Whether APD is uploaded
             $table->text('alloted_count')->nullable(); // Alloted count (nullable)
+            $table->text('addl_cand_count')->nullable(); // Additional candidate count (nullable)
             $table->timestamps(); // Timestamps for created_at and updated_at with precision
 
             // Add indexes for performance optimization

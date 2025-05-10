@@ -79,7 +79,7 @@ Route::get('/center/verify/{token}', [CenterController::class, 'verifyEmail'])->
 Route::get('/department-official/verify/{token}', [DepartmentOfficialsController::class, 'verifyEmail'])->name('department-official.verifyEmail');
 Route::get('mobile-team/verify/{token}', [MobileTeamStaffsController::class, 'verifyEmail'])->name('mobile_team.verifyEmail');
 Route::get('chief-invigilator/verify/{token}', [ChiefInvigilatorsController::class, 'verifyEmail'])->name('chief-invigilator.verifyEmail');
-Route::get('/treasury-officers/verify-email/{token}', [TreasuryOfficerController::class, 'verifyEmail'])->name('treasury-officers.verifyEmail');
+Route::get('/treasury-officers/verify-email/{token}', [TreasuryOfficerController::class, 'verifyEmail'])->name('treasury-officer.verifyEmail');
 Route::get('venues/verify/{token}', [VenuesController::class, 'verifyEmail'])->name('venues.verifyEmail');
 // Authentication routes 
 Route::middleware(['guest'])->group(function () {
@@ -473,6 +473,8 @@ Route::prefix('apd-candidates')->group(function () {
             ->middleware('role.permission:apd-candidates.finalize-csv');
         Route::get('/download-finalize-halls-sample-csv', [APDCandidatesController::class, 'downloadFinalizeHallsSampleCsv'])->name('apd-candidates.download-finalize-halls-sample-csv')
             ->middleware('role.permission:apd-candidates.download-finalize-halls-sample-csv');
+        Route::post('/additional-candidates-count', [APDCandidatesController::class, 'additionalCandidatesCount'])->name('apd-candidates.addl-cand-count')
+            ->middleware('role.permission:apd-candidates.addl-cand-count');
     });
 });
 

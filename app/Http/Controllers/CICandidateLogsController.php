@@ -332,15 +332,15 @@ class CICandidateLogsController extends Controller
             'ci_id' => $ci_id,
         ])->first();
 
-        if ($existingAttendance) {
-            // Check if attendance for the specific session already exists
-            $existingData = $existingAttendance->candidate_attendance ?? [];
-            if (isset($existingData[$sessions])) {
-                return redirect()->back()->withErrors([
-                    'error' => "Attendance for the $sessions session has already been recorded. No duplicate entries allowed.",
-                ]);
-            }
-        }
+        // if ($existingAttendance) {
+        //     // Check if attendance for the specific session already exists
+        //     $existingData = $existingAttendance->candidate_attendance ?? [];
+        //     if (isset($existingData[$sessions])) {
+        //         return redirect()->back()->withErrors([
+        //             'error' => "Attendance for the $sessions session has already been recorded. No duplicate entries allowed.",
+        //         ]);
+        //     }
+        // }
 
         // Prepare attendance data
         $attendanceData = [

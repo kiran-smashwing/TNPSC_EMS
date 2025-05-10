@@ -50,7 +50,8 @@ class AuthorizationService
                     'apd-candidates.download-sample-csv',
                     'apd-candidates.upload-candidates-csv',
                     'apd-candidates.finalize-csv',
-                    'apd-candidates.download-finalize-halls-sample-csv'
+                    'apd-candidates.download-finalize-halls-sample-csv',
+                    'apd-candidates.addl-cand-count',
                 ],
             ],
             'ID' => [

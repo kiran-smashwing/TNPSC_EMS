@@ -116,7 +116,7 @@ class CIConsolidateController extends Controller
             ->selectRaw("scribes->'{$exam_session}' as selected_scribes")
             ->value('selected_scribes');
 
-        
+
         // Decode JSON data and extract assignments
         $scribeAssignments = collect(json_decode($selectedScribeData, true)['scribe_assignments'] ?? []);
         // Fetch scribe details in a single query
@@ -128,8 +128,8 @@ class CIConsolidateController extends Controller
         $formattedScribes = $scribeAssignments->map(
             fn($a) =>
             "{$a['reg_no']} (Scribe: " .
-                ($scribes[$a['scribe_id']]->scribe_name ?? 'N/A') . "/" .
-                ($scribes[$a['scribe_id']]->scribe_phone ?? 'N/A') . ")"
+            ($scribes[$a['scribe_id']]->scribe_name ?? 'N/A') . "/" .
+            ($scribes[$a['scribe_id']]->scribe_phone ?? 'N/A') . ")"
         )->all();
         $candidateRemarksData = CICandidateLogs::where('exam_id', $examId)
             ->where('ci_id', $user->ci_id)
@@ -206,19 +206,16 @@ class CIConsolidateController extends Controller
             ->pluck('alloted_count')
             ->first();
 
-        $additionalCandidatesData = CICandidateLogs::where('exam_id', $examId)
-            ->where('ci_id', $user->ci_id)
+        $totalAdditionalCandidates = ExamConfirmedHalls::where('exam_id', $examId)
+            ->where('exam_session', $exam_session)
             ->where('exam_date', $exam_date)
-            ->select(DB::raw("additional_details->'" . $exam_session . "' as additional_candidates"))
+            ->where('ci_id', $user->ci_id)
+            ->pluck('addl_cand_count')
             ->first();
-        $totalAdditionalCandidates = 0;
+        
+        // $totalAdditionalCandidates = 0;
 
-        if ($additionalCandidatesData && !empty($additionalCandidatesData->additional_candidates)) {
-            $additionalCandidatesArray = json_decode($additionalCandidatesData->additional_candidates, true);
-
-            // Count the total number of additional candidates
-            $totalAdditionalCandidates = count($additionalCandidatesArray);
-        }
+        
         $candidateAttendanceData = CICandidateLogs::where('exam_id', $examId)
             ->where('ci_id', $user->ci_id)
             ->where('exam_date', $exam_date)
@@ -310,7 +307,7 @@ class CIConsolidateController extends Controller
         Storage::disk('public')->makeDirectory($folderPath);
 
         // Define the filename with center code, hall code, and session type
-        $filename = 'consolidate-report-' . $user->center->center_code . '-' . $hall_code . '-'. $examDate . '-'. $exam_session_type . '.pdf';
+        $filename = 'consolidate-report-' . $user->center->center_code . '-' . $hall_code . '-' . $examDate . '-' . $exam_session_type . '.pdf';
         // Full file path inside the dynamically created folder
         $filePath = $folderPath . '/' . $filename;
         // Generate the PDF using Browsershot
@@ -336,7 +333,7 @@ class CIConsolidateController extends Controller
             ->scale(1)
             ->format('A4')
             ->pdf();
-            Storage::disk('public')->put($filePath, $pdf);
+        Storage::disk('public')->put($filePath, $pdf);
         return response($pdf)
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="' . $filename . '"');

@@ -47,7 +47,7 @@ class ChiefInvigilatorsController extends Controller
         $districts = District::select('district_code', 'district_name')
             ->orderBy('district_name')
             ->get();
-        $venues = Venues::select('venue_code', 'venue_name', 'venue_center_id')
+        $venues = Venues::select('venue_code','venue_id', 'venue_name', 'venue_center_id')
             ->orderBy('venue_name')
             ->get();
 
@@ -79,7 +79,7 @@ class ChiefInvigilatorsController extends Controller
 
         if ($role == 'venue') {
             $user = $request->get('auth_user');
-            $query->where('ci_venue_id', $user->venue_code);
+            $query->where('ci_venue_id', $user->venue_id);
         } else if ($role == 'district') {
             $user = $request->get('auth_user');
             $query->where('ci_district_id', $user->district_code);
@@ -163,8 +163,8 @@ class ChiefInvigilatorsController extends Controller
                 return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);
             }
             $districts = District::where('district_code', $user->district_code)->get();
-            $venues = Venues::all();
-            $centers = Center::all();
+            $venues = Venues::where('venue_district_id', $user->district_code)->get();
+            $centers = Center::where('center_district_id', $user->district_code)->get();
 
             return view('masters.venues.chief_invigilator.create', compact('venues', 'centers', 'districts', 'user'));
         }
@@ -332,7 +332,7 @@ class ChiefInvigilatorsController extends Controller
                 ->firstOrFail();
         } elseif ($role === 'venue') {
             //only venue
-            $chiefInvigilator = ChiefInvigilator::where('ci_venue_id', $user->venue_code)
+            $chiefInvigilator = ChiefInvigilator::where('ci_venue_id', $user->venue_id)
                 ->where('ci_id', $id)
                 ->firstOrFail();
         } elseif (!empty($user->role) && $user->role->role_department == 'ID') {

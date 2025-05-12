@@ -47,6 +47,6 @@ class ExamTrunkBoxOTLData extends Model
     }
     public function venue()
     {
-        return $this->belongsTo(Venues::class, 'venue_code', 'venue_code');
+        return $this->belongsTo(Venues::class, 'venue_code', 'venue_id');
     }
 }

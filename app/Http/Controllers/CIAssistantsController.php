@@ -27,7 +27,7 @@ class CIAssistantsController extends Controller
         // Retrieve user details
         $role = session('auth_role');
         $user_details = $request->get('auth_user');
-        $user_venue_code = $user_details->venue_code ?? null;
+        $user_venue_code = $user_details->venue_id ?? null;
         // Start query for CIAssistants with related District, Center, and Venue
         $query = CIAssistant::with(['district', 'center', 'venue']);
 
@@ -63,16 +63,13 @@ class CIAssistantsController extends Controller
             ->get();
 
         // Fetch all venues (for dropdown)
-        $venues = Venues::select('venue_code', 'venue_name', 'venue_center_id')
+        $venues = Venues::select('venue_code','venue_id', 'venue_name', 'venue_center_id')
             ->orderBy('venue_name')
             ->get();
 
         // Return the view with data
         return view('masters.venues.ci_assistants.index', compact('ciAssistants', 'districts', 'centers', 'venues'));
     }
-
-
-
 
 
     public function create(Request $request)
@@ -95,7 +92,7 @@ class CIAssistantsController extends Controller
             if (!$user) {
                 return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);
             }
-            $venues = Venues::where('venue_code', $user->ci_venue_id)->get();
+            $venues = Venues::where('venue_id', $user->ci_venue_id)->get();
             $centers = Center::where('center_code', $user->ci_center_id)->get();
             $districts = District::where('district_code', $user->ci_district_id)->get();
             return view('masters.venues.ci_assistants.create', data: compact('districts', 'centers', 'venues', 'user'));
@@ -202,7 +199,7 @@ class CIAssistantsController extends Controller
                 ->firstOrFail();
         } elseif ($role === 'ci' || $role === 'venue') {
             //only CI
-            $venue_code = $role == 'ci' ? $user->ci_venue_id : $user->venue_code;
+            $venue_code = $role == 'ci' ? $user->ci_venue_id : $user->venue_id;
             $ciAssistant = CIAssistant::where('cia_venue_id', $venue_code)
                 ->where('cia_id', $id)
                 ->firstOrFail();

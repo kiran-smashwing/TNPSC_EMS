@@ -110,15 +110,19 @@ class Venues extends Authenticatable
     }
     public function chiefinvigilator()
     {
-        return $this->belongsTo(ChiefInvigilator::class, 'venue_code', 'ci_venue_id');
+        return $this->belongsTo(ChiefInvigilator::class, 'venue_id', 'ci_venue_id');
     }
     public function invigilator()
     {
-        return $this->belongsTo(Invigilator::class, 'venue_code', 'invigilator_venue_id');
+        return $this->belongsTo(Invigilator::class, 'venue_id', 'invigilator_venue_id');
     }
     public function cia()
     {
-        return $this->belongsTo(CIAssistant::class, 'venue_code', 'cia_venue_id');
+        return $this->belongsTo(CIAssistant::class, 'venue_id', 'cia_venue_id');
+    }
+    public function scribe()
+    {
+        return $this->belongsTo(Scribe::class, 'venue_id', 'scribe_venue_id');
     }
 
 }

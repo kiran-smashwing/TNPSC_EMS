@@ -50,7 +50,7 @@ class ExamMaterialsData extends Model
     }
     public function venue()
     {
-        return $this->belongsTo(Venues::class, 'venue_code', 'venue_code');
+        return $this->belongsTo(Venues::class, 'venue_code', 'venue_id');
     }
     public function examMaterialsScan()
     {

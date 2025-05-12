@@ -144,7 +144,7 @@
                                                         </select>
                                                         @if (session('auth_role') == 'venue' || session('auth_role') == 'ci')
                                                             <input type="hidden" name="venue"
-                                                                value="{{ $user->venue_code }}">
+                                                                value="{{ $user->venue_id }}">
                                                         @endif
                                                         @error('venue')
                                                             <div class="invalid-feedback">{{ $message }}</div>
@@ -294,10 +294,10 @@
 
                 // Populate venues
                 filteredVenues.forEach(venue => {
-                    const selected = "{{ old('venue') }}" == venue.venue_code ? 'selected' : '';
-                    const selectedVenue = "{{ $user->venue_code }}" == venue.venue_code ? 'selected' : '';
+                    const selected = "{{ old('venue') }}" == venue.venue_id ? 'selected' : '';
+                    const selectedVenue = "{{ $user->venue_id }}" == venue.venue_id ? 'selected' : '';
                     venueDropdown.append(
-                        `<option value="${venue.venue_code}" ${selected} ${selectedVenue}>
+                        `<option value="${venue.venue_id}" ${selected} ${selectedVenue}>
                         ${venue.venue_name}
                     </option>`
                     );

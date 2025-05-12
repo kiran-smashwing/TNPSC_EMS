@@ -27,7 +27,7 @@ class ScribeController extends Controller
         // Get user details
         $role = session('auth_role');
         $user_details = $request->get('auth_user');
-        $user_venue_code = $user_details->venue_code ?? null;
+        $user_venue_code = $user_details->venue_id ?? null;
 
         // Start the query for Scribes with relationships
         $query = Scribe::with(['district', 'center', 'venue']);
@@ -66,7 +66,7 @@ class ScribeController extends Controller
             ->get();
 
         // Fetch all venues (for dropdown)
-        $venues = Venues::select('venue_code', 'venue_name', 'venue_center_id')
+        $venues = Venues::select('venue_code', 'venue_id', 'venue_name', 'venue_center_id')
             ->orderBy('venue_name')
             ->get();
 
@@ -95,7 +95,7 @@ class ScribeController extends Controller
             if (!$user) {
                 return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);
             }
-            $venues = Venues::where('venue_code', $user->ci_venue_id)->get();
+            $venues = Venues::where('venue_id', $user->ci_venue_id)->get();
             $centers = Center::where('center_code', $user->ci_center_id)->get();
             $districts = District::where('district_code', $user->ci_district_id)->get();
             return view('masters.venues.scribe.create', compact('districts', 'centers', 'venues', 'user'));
@@ -214,12 +214,12 @@ class ScribeController extends Controller
                 ->firstOrFail();
         } elseif ($role === 'ci' || $role === 'venue') {
             //only CI
-            $venue_code = $role == 'ci'? $user->ci_venue_id : $user->venue_code;
+            $venue_code = $role == 'ci'? $user->ci_venue_id : $user->venue_id;
             $scribe = Scribe::where('scribe_venue_id', $venue_code)
                 ->where('scribe_id', $id)
                 ->firstOrFail();
         } else {
-            //comman
+            //command
             $scribe = Scribe::findOrFail($id);
         }
         // Find the scribe record by ID
@@ -242,7 +242,6 @@ class ScribeController extends Controller
             'designation' => 'required|string|max:255',
             'cropped_image' => 'nullable|string' // Base64 image input
         ], $messages);
-
 
         try {
             $newImagePath = null;

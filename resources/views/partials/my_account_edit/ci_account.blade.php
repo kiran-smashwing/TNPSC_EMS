@@ -146,7 +146,7 @@
                                 <!-- Display selected venue name -->
                                 <input type="text" class="form-control @error('venue') is-invalid @enderror"
                                     id="venue_display" name="venue_display"
-                                    value="{{ $venues->firstWhere('venue_code', $chiefInvigilator->ci_venue_id)->venue_name ?? 'Select Venue' }}"
+                                    value="{{ $venues->firstWhere('venue_id', $chiefInvigilator->ci_venue_id)->venue_name ?? 'Select Venue' }}"
                                     readonly>
                                 <!-- Hidden input for venue code -->
                                 <input type="hidden" id="venue" name="venue"

@@ -446,9 +446,9 @@
 
                 // Populate venues
                 filteredVenues.forEach(venue => {
-                    const selected = "{{ request('venue') }}" == venue.venue_code ? 'selected' : '';
+                    const selected = "{{ request('venue') }}" == venue.venue_id ? 'selected' : '';
                     venueDropdown.append(
-                        `<option value="${venue.venue_code}" ${selected}>
+                        `<option value="${venue.venue_id}" ${selected}>
                            ${venue.venue_name}
                        </option>`
                     );

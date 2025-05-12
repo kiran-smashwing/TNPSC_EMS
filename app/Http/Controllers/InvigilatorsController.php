@@ -28,7 +28,7 @@ class InvigilatorsController extends Controller
         // Get user details
         $role = session('auth_role');
         $user_details = $request->get('auth_user');
-        $user_venue_code = $user_details->venue_code ?? null;
+        $user_venue_code = $user_details->venue_id ?? null;
         // dd($user_details);
         // Start the query for Invigilators
         $query = Invigilator::query();
@@ -68,7 +68,7 @@ class InvigilatorsController extends Controller
             ->get();
 
         // Fetch all venues (for dropdown)
-        $venues = Venues::select('venue_code', 'venue_name', 'venue_center_id')
+        $venues = Venues::select('venue_code', 'venue_id', 'venue_name', 'venue_center_id')
             ->orderBy('venue_name')
             ->get();
         // Return the view with the necessary data
@@ -96,7 +96,7 @@ class InvigilatorsController extends Controller
             if (!$user) {
                 return redirect()->back()->withErrors(['error' => 'Unauthorized access.']);
             }
-            $venues = Venues::where('venue_code', $user->ci_venue_id)->get();
+            $venues = Venues::where('venue_id', $user->ci_venue_id)->get();
             $centers = Center::where('center_code', $user->ci_center_id)->get();
             $districts = District::where('district_code', $user->ci_district_id)->get();
             return view('masters.venues.invigilator.create', compact('venues', 'centers', 'districts', 'user'));
@@ -217,7 +217,7 @@ class InvigilatorsController extends Controller
                 ->firstOrFail();
         } elseif ($role === 'ci' || $role === 'venue') {
             //only CI
-            $venue_code = $role == 'ci'? $user->ci_venue_id : $user->venue_code;
+            $venue_code = $role == 'ci'? $user->ci_venue_id : $user->venue_id;
             $invigilator = Invigilator::where('invigilator_venue_id', $venue_code)
                 ->where('invigilator_id', $id)
                 ->firstOrFail();

@@ -426,6 +426,7 @@ class IDCandidatesController extends Controller
             ->where('ecp.exam_id', $examId)
             ->select('ecp.district_code', 'd.district_name')
             ->distinct()
+            ->orderBy('ecp.district_code') 
             ->get();
 
         // Retrieve centers
@@ -434,6 +435,7 @@ class IDCandidatesController extends Controller
             ->where('ecp.exam_id', $examId)
             ->select('ecp.center_code', 'c.center_name', 'ecp.district_code')
             ->distinct()
+            ->orderBy('ecp.center_code') 
             ->get();
         //get all dates for the exam
         $examDates = $exam->examsession->groupBy(function ($item) {
@@ -519,7 +521,7 @@ class IDCandidatesController extends Controller
                         // If unchecked, remove the corresponding hall from ExamConfirmedHalls
                         if (!$isChecked) {
                             ExamConfirmedHalls::where('exam_id', $examId)
-                                ->where('venue_code', $confirmedVenue->venues->venue_code)
+                                ->where('venue_code', $confirmedVenue->venues->venue_id)
                                 ->where('ci_id', $ciId)
                                 ->where('exam_date', $currentExamDate)
                                 ->delete();
@@ -558,7 +560,7 @@ class IDCandidatesController extends Controller
                 if ($confirmedVenues) {
                     foreach ($confirmedVenues as $venueAssigned) {
                         // dd($venueAssigned->venueConsent->venues);
-                        $venuecode = $venueAssigned->venueConsent->venues->venue_code ?? null;
+                        $venuecode = $venueAssigned->venueConsent->venues->venue_id ?? null;
 
                         // Format hall code to be 3 digits (e.g., 001, 002, ...)
                         $hallCode = str_pad($hallCodeCounter, 3, '0', STR_PAD_LEFT);
@@ -840,8 +842,12 @@ class IDCandidatesController extends Controller
         $rowIndex = 4;
         $totalCapacity = 0;
         foreach ($confirmedHalls as $hall) {
-            $ci = ChiefInvigilator::where('ci_venue_id', $hall->venue_code)
-                ->where('ci_id', $hall->ci_id)
+            // Check if venue exists
+            if (!$hall->venue) {
+                \Log::warning("Skipping hall with ID {$hall->id} due to missing venue.");
+                continue; // Skip this row if venue is null
+            }
+            $ci = ChiefInvigilator::where('ci_id', $hall->ci_id)
                 ->first() ?? null;
 
             $capacity = intval($hall->alloted_count ?? '0');
@@ -929,11 +935,11 @@ class IDCandidatesController extends Controller
         $exam = Currentexam::where('exam_main_no', $examId)->with(relations: ['examsession', 'examservice'])->first();
         //exam consent details 
         $venueConsents = ExamVenueConsent::where('exam_id', $examId)
-        ->where('venue_id', $venueId)
-        ->with('assignedCIs')
-        ->first();
+            ->where('venue_id', $venueId)
+            ->with('assignedCIs')
+            ->first();
         //get ChiefInvigilator with venue id
-        $chiefInvigilators = ChiefInvigilator::where('ci_venue_id', $venue->venue_code)->get();
+        $chiefInvigilators = ChiefInvigilator::where('ci_venue_id', $venue->venue_id)->get();
         // Pass the exams to the index view
         return view('my_exam.IDCandidates.edit-venue-consent', compact('exam', 'user', 'districts', 'centers', 'venueConsents', 'chiefInvigilators', 'venue'));
     }
@@ -1013,7 +1019,7 @@ class IDCandidatesController extends Controller
                 ->first();
 
             if (!$examVenueConsent) {
-                return response()->json([ 
+                return response()->json([
                     'message' => 'Venue consent not found.'
                 ], 404);
             }
@@ -1024,13 +1030,16 @@ class IDCandidatesController extends Controller
             // Store venue capacity if consent is accepted
             if ($request->consent == 'accept') {
                 // Prevent update if capacity already exists
-                    $examVenueConsent->venue_max_capacity = $request->venueCapacity;
+                $examVenueConsent->venue_max_capacity = $request->venueCapacity;
             } else {
                 $examVenueConsent->venue_max_capacity = null;
             }
 
             $examVenueConsent->save();
-
+            // Clear all confirmed halls for the venue
+            ExamConfirmedHalls::where('exam_id', $examId)
+                ->where('venue_code', $request->venueId)
+                ->delete();
             // If consent is accepted, process and save ciExamData
             if ($request->consent == 'accept') {
 

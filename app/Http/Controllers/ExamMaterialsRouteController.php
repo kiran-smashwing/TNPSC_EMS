@@ -65,7 +65,7 @@ class ExamMaterialsRouteController extends Controller
             foreach ($centerCodes as $centerCode) {
                 $halls = isset($hallCodes[$centerCode]) ? $hallCodes[$centerCode] : [];
                 $venues = ExamMaterialsData::select('venue.venue_name')
-                    ->join('venue', 'exam_materials_data.venue_code', '=', 'venue.venue_code')
+                    ->join('venue', 'exam_materials_data.venue_code', '=', 'venue.venue_id')
                     ->where('exam_materials_data.exam_id', $examId)
                     ->where('exam_materials_data.district_code', $district_code)
                     ->where('exam_materials_data.center_code', $centerCode)
@@ -481,7 +481,7 @@ class ExamMaterialsRouteController extends Controller
 
             // Fetch venue data for all halls in this center
             $venueData = ExamMaterialsData::select('exam_materials_data.*', 'venue.venue_name as venue_name', 'venue.venue_address as venue_address')
-                ->join('venue', 'exam_materials_data.venue_code', '=', 'venue.venue_code')
+                ->join('venue', 'exam_materials_data.venue_code', '=', 'venue.venue_id')
                 ->where('exam_materials_data.exam_id', $route->exam_id)
                 ->where('exam_materials_data.district_code', $route->district_code)
                 ->where('exam_materials_data.center_code', $centerCode)

@@ -237,8 +237,8 @@
                                         <select class="form-select" id="venueFilter" name="venue">
                                             <option value="">Select Venue</option>
                                             {{-- @foreach ($venues as $venue)
-                                            <option value="{{ $venue->ci_venue_code }}"
-                                                {{ request('venue') == $venue->venue_code ? 'selected' : '' }}>
+                                            <option value="{{ $venue->ci_venue_id }}"
+                                                {{ request('venue') == $venue->venue_id ? 'selected' : '' }}>
                                                 {{ $venue->venue_name }}
                                             </option>
                                         @endforeach --}}
@@ -433,9 +433,9 @@
 
                 // Populate venues
                 filteredVenues.forEach(venue => {
-                    const selected = "{{ request('venue') }}" == venue.venue_code ? 'selected' : '';
+                    const selected = "{{ request('venue') }}" == venue.venue_id ? 'selected' : '';
                     venueDropdown.append(
-                        `<option value="${venue.venue_code}" ${selected}>
+                        `<option value="${venue.venue_id}" ${selected}>
                     ${venue.venue_name}
                 </option>`
                     );

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ExamConfirmedHalls;
 use App\Models\VenueAssignedCI;
 use Illuminate\Http\Request;
 use App\Models\Center;
@@ -40,7 +41,7 @@ class VenueConsentController extends Controller
             ->with('assignedCIs')
             ->first();
         //get ChiefInvigilator with venue id
-        $chiefInvigilators = ChiefInvigilator::where('ci_venue_id', $user->venue_code)->get();
+        $chiefInvigilators = ChiefInvigilator::where('ci_venue_id', $user->venue_id)->get();
         // Pass the exams to the index view
         return view('my_exam.venue.venue-consent', compact('exam', 'user', 'districts', 'centers', 'venueConsents', 'chiefInvigilators'));
     }
@@ -125,6 +126,20 @@ class VenueConsentController extends Controller
                 return response()->json([
                     'message' => 'Venue consent not found.'
                 ], 404);
+            }
+
+            // Check if the venue is already confirmed
+            if ($examVenueConsent->consent_status === 'accepted') {
+                // Check if the exam is already confirmed
+                $isConfirmed = ExamConfirmedHalls::where('exam_id', $examId)
+                    ->where('venue_code', $user->venue_id)
+                    ->exists();
+                if ($isConfirmed) {
+                    // Return a response indicating that the venue is already confirmed
+                    return response()->json([
+                        'message' => 'Your venue is currently in the process of being confirmed for this exam. No further updates are allowed at this stage.'
+                    ], 422);
+                }
             }
 
             // Update existing exam venue consent

@@ -1003,7 +1003,7 @@ class ChartedVehicleRoutesController extends Controller
         $unusedOtlString = implode(", ", array_unique($allUnusedOtlLocks));
 
         $examHalls = DB::table('exam_trunkbox_otl_data as e')
-            ->leftJoin('venue as v', 'v.venue_id', '=', 'e.venue_code')
+            ->leftJoin('venue as v', DB::raw('CAST(e.venue_code AS BIGINT)'), '=', 'v.venue_id')
             ->whereIn('e.exam_id', $examIds)
             ->whereIn('e.district_code', $route->escortstaffs->pluck('district_code'))
             ->select(

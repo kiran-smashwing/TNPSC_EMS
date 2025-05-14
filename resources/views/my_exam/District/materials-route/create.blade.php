@@ -2,7 +2,89 @@
 
 @section('title', 'ROUTE - Create')
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('storage/assets/css/plugins/croppr.min.css') }}" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        /* Style the Select2 container */
+        .select2-container .select2-selection--single {
+            height: 45px !important;
+            /* Adjust height */
+            border: 1px solid #bec8d0 !important;
+            /* Blue border */
+            border-radius: 8px !important;
+            padding: 10px !important;
+            font-size: 16px;
+            background-color: #fff !important;
+            display: flex !important;
+            align-items: center !important;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: var(--bs-body-color) !important;
+        }
+
+        [data-pc-theme=dark] .select2-dropdown {
+            background-color: #263240 !important;
+            border-color: #303f50 !important;
+        }
+
+        [data-pc-theme=dark].select2-container--default .select2-results__option[aria-selected=true] {
+            background-color: #263240 !important;
+            border-color: #303f50 !important;
+        }
+
+        [data-pc-theme=dark] .select2-container .select2-selection--single {
+            background-color: #263240 !important;
+            border-color: #303f50 !important;
+        }
+
+        /* Focus state */
+        .select2-container--default .select2-selection--single:focus,
+        .select2-container--default .select2-selection--single:hover {
+            border-color: #21b789 !important;
+            /* Green border on hover/focus */
+            box-shadow: 0 0 5px rgba(33, 183, 137, 0.5) !important;
+        }
+
+        /* Style the placeholder text */
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            /* Dark text */
+            font-size: 16px !important;
+            padding-left: 10px !important;
+        }
+
+        /* Dropdown arrow icon */
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            right: 10px !important;
+        }
+
+        /* Style the dropdown menu */
+        .select2-dropdown {
+            border: 1px solid #bec8d0 !important;
+            /* Border color */
+            border-radius: 8px !important;
+        }
+
+        /* Style the options inside dropdown */
+        .select2-container--default .select2-results__option {
+            padding: 10px !important;
+            font-size: 16px !important;
+            transition: background 0.3s;
+        }
+
+        /* Hover effect on dropdown options */
+        .select2-container--default .select2-results__option:hover {
+            background-color: #21b789 !important;
+            color: white !important;
+        }
+
+        /* Remove X (clear button) */
+        .select2-selection__clear {
+            display: none !important;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -73,8 +155,8 @@
                                                             class="text-danger">*</span></label>
                                                     <input type="text"
                                                         class="form-control  @error('route_no') is-invalid @enderror"
-                                                        id="route_no" value="{{ old('route_no', $newRouteNumber) }} " name="route_no"
-                                                        placeholder="001" required>
+                                                        id="route_no" value="{{ old('route_no', $newRouteNumber) }} "
+                                                        name="route_no" placeholder="001" required>
                                                     @error('route_no')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -148,8 +230,7 @@
                                                     <label class="form-label" for="exam_date">Exam Date<span
                                                             class="text-danger">*</span></label>
                                                     <select class="form-control @error('exam_date') is-invalid @enderror"
-                                                        name="exam_date" required data-trigger
-                                                        id="choices-single-default">
+                                                        name="exam_date" required data-trigger>
                                                         <option value="" selected disabled>Select Exam Date
                                                         </option>
                                                         @foreach ($examDates as $examDate)
@@ -167,29 +248,32 @@
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label"
-                                                        for="mobile_staff">{{ (session('auth_role') == 'district' && $user->district_code != '01') ? 'Mobile Team Staff' : 'Van Duty Staff' }}<span
+                                                        for="mobile_staff">{{ session('auth_role') == 'district' && $user->district_code != '01' ? 'Mobile Team Staff' : 'Van Duty Staff' }}<span
                                                             class="text-danger">*</span></label>
                                                     <select
                                                         class="form-control @error('mobile_staff') is-invalid @enderror"
-                                                        name="mobile_staff" required data-trigger
-                                                        id="choices-single-default">
-                                                        <option value="" selected disabled>Select
-                                                            {{ (session('auth_role') == 'district' && $user->district_code != '01') ? 'Mobile Team Staff' : 'Van Duty Staff' }}
+                                                        name="mobile_staff" id="select-mobile-staff" required>
+                                                        <option value="" selected disabled>
+                                                            Select
+                                                            {{ session('auth_role') == 'district' && $user->district_code != '01' ? 'Mobile Team Staff' : 'Van Duty Staff' }}
                                                         </option>
                                                         @foreach ($mobileTeam as $mobile_staff)
                                                             @if (session('auth_role') == 'district' && $user->district_code != '01')
                                                                 <option value="{{ $mobile_staff->mobile_id }}"
+                                                                    data-email="{{ $mobile_staff->mobile_email }}"
                                                                     @if (old('mobile_staff') == $mobile_staff->mobile_id) selected @endif>
                                                                     {{ $mobile_staff->mobile_name }}
                                                                 </option>
                                                             @else
                                                                 <option value="{{ $mobile_staff->dept_off_id }}"
+                                                                    data-email="{{ $mobile_staff->dept_off_email }}"
                                                                     @if (old('mobile_staff') == $mobile_staff->dept_off_id) selected @endif>
                                                                     {{ $mobile_staff->dept_off_name }}
                                                                 </option>
                                                             @endif
                                                         @endforeach
                                                     </select>
+
                                                     @error('mobile_staff')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -245,6 +329,7 @@
 
     @include('partials.footer')
 
+    @push('scripts')
     <script src="{{ asset('storage/assets/js/plugins/choices.min.js') }}"></script>
 
     <script>
@@ -304,6 +389,39 @@
             });
         });
     </script>
+           <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#select-mobile-staff').select2({
+                placeholder: "Select Staff",
+                templateResult: formatStaffOption,
+                templateSelection: formatStaffSelection,
+                width: '100%',
+            });
+
+            function formatStaffOption(state) {
+                if (!state.id) return state.text;
+
+                const email = $(state.element).data('email') || '';
+                const name = state.text;
+
+                return $(`
+                <div>
+                    <div style="font-weight: bold;">${name}</div>
+                    <small style="color: #6c757d;">${email}</small>
+                </div>
+            `);
+            }
+
+            function formatStaffSelection(state) {
+                return state.text;
+            }
+        });
+    </script>
+      
+@endpush
+
     @include('partials.theme')
 
 @endsection

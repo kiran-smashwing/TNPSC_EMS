@@ -8,6 +8,7 @@ use App\Models\ExamMaterialsData;
 use App\Models\ExamSession;
 use App\Models\MobileTeamStaffs;
 use App\Models\Role;
+use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Currentexam;
@@ -65,7 +66,7 @@ class ExamMaterialsRouteController extends Controller
             foreach ($centerCodes as $centerCode) {
                 $halls = isset($hallCodes[$centerCode]) ? $hallCodes[$centerCode] : [];
                 $venues = ExamMaterialsData::select('venue.venue_name')
-                    ->join('venue', 'exam_materials_data.venue_code', '=', 'venue.venue_id')
+                    ->join('venue', DB::raw('CAST(exam_materials_data.venue_code AS BIGINT)'), '=', 'venue.venue_id')
                     ->where('exam_materials_data.exam_id', $examId)
                     ->where('exam_materials_data.district_code', $district_code)
                     ->where('exam_materials_data.center_code', $centerCode)
@@ -338,7 +339,7 @@ class ExamMaterialsRouteController extends Controller
         $halls = ExamMaterialsData::where('exam_id', $routes->exam_id)
             ->where('district_code', $district_code)
             ->join('centers', 'exam_materials_data.center_code', '=', 'centers.center_code')
-            ->groupBy('exam_materials_data.center_code', 'centers.center_name', 'exam_materials_data.hall_code',)
+            ->groupBy('exam_materials_data.center_code', 'centers.center_name', 'exam_materials_data.hall_code', )
             ->select(
                 'centers.center_name',
                 'exam_materials_data.center_code',
@@ -481,7 +482,7 @@ class ExamMaterialsRouteController extends Controller
 
             // Fetch venue data for all halls in this center
             $venueData = ExamMaterialsData::select('exam_materials_data.*', 'venue.venue_name as venue_name', 'venue.venue_address as venue_address')
-                ->join('venue', 'exam_materials_data.venue_code', '=', 'venue.venue_id')
+                ->join('venue', DB::raw('CAST(exam_materials_data.venue_code AS BIGINT)'), '=', 'venue.venue_id')
                 ->where('exam_materials_data.exam_id', $route->exam_id)
                 ->where('exam_materials_data.district_code', $route->district_code)
                 ->where('exam_materials_data.center_code', $centerCode)

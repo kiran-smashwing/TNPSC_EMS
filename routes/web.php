@@ -92,7 +92,7 @@ Route::middleware(['guest'])->group(function () {
     Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('forgot-password');
     Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail'])->name('send-reset-link-email');
     Route::get('password/reset/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
-    Route::post('password/reset', [AuthController::class, 'resetPassword'])->name('password.update');
+     Route::post('password/reset', [AuthController::class, 'resetPassword'])->name('password.save-reset');
     Route::get('password/check-email', [AuthController::class, 'showCheckEmail'])->name('password.check-email');
 });
 
@@ -525,6 +525,8 @@ Route::prefix('district-candidates')->group(function () {
             ->middleware('role.permission:district-candidates.exportExcel');
         Route::post('/resend-venue-request', [DistrictCandidatesController::class, 'resendVenueRequest'])->name('district-candidates.resendVenueRequest')
             ->middleware('role.permission:district-candidates.resendVenueRequest');
+        Route::post('/updateVenueCenter', [DistrictCandidatesController::class, 'updateVenueCenter'])->name('district-candidates.updateVenueCenter')
+            ->middleware('role.permission:district-candidates.updateVenueCenter');
     });
 });
 //ci-meetings
@@ -838,3 +840,4 @@ Route::get('/user-guide/view/{encPath}/{filename}', function ($encPath, $filenam
         abort(403, 'Invalid file path.');
     }
 })->name('view.encrypted.userguide');
+   

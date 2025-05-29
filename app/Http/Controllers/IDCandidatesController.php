@@ -947,7 +947,7 @@ class IDCandidatesController extends Controller
             ->with('assignedCIs')
             ->first();
         //get ChiefInvigilator with venue id
-        $chiefInvigilators = ChiefInvigilator::where('ci_venue_id', $venue->venue_id)->get();
+        $chiefInvigilators = ChiefInvigilator::where('ci_venue_id', $venue->venue_id)->where('ci_status', true)->get();  
         // Pass the exams to the index view
         return view('my_exam.IDCandidates.edit-venue-consent', compact('exam', 'user', 'districts', 'centers', 'venueConsents', 'chiefInvigilators', 'venue'));
     }

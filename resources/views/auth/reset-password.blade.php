@@ -25,7 +25,7 @@
                             <h3 class="mb-2"><b>Reset Password</b></h3>
                             <p class="text-muted">Please choose your new password</p>
                         </div>
-                        <form method="POST" action="{{ route('password.update') }}">
+                        <form method="POST" action="{{ route('password.save-reset') }}">
                             @csrf
                             <input type="hidden" name="token" value="{{ $request->route('token') }}">
                             <input type="hidden" name="email" value="{{ $request->email }}">

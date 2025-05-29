@@ -43,11 +43,13 @@ class DistrictCandidatesController extends Controller
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
         $user = $guard ? $guard->user() : null;
-        //get the exam_main_candidates_for_hall data from current exam table with exam id
+
+        // Get the exam_main_candidates_for_hall data from current exam table with exam id
         $current_exam = Currentexam::where('exam_main_no', $examId)->first();
         $candidatesCountForEachHall = Currentexam::where('exam_main_no', $examId)
             ->value('exam_main_candidates_for_hall');
 
+        // Fetch exam centers for the district
         $examCenters = \DB::table('exam_candidates_projection')
             ->select(
                 'center_code',
@@ -60,31 +62,59 @@ class DistrictCandidatesController extends Controller
             ->groupBy('center_code')
             ->get();
 
+        // Add details for each center
         $examCenters->each(function ($center) {
             $center->details = \DB::table('centers')
                 ->where('center_code', $center->center_code)
                 ->first();
         });
-        $allvenues = [];
-        foreach ($examCenters as $center) {
-            $centerVenues = \DB::table('venue')
-                ->where('venue_center_id', $center->center_code)
-                ->get();
-            $allvenues[$center->center_code] = $centerVenues;
-        }
 
         $venueConsents = \DB::table('exam_venue_consent')
-            ->where('exam_id', $examId)
-            ->where('district_code', $user->district_code)
+            ->join('venue', 'exam_venue_consent.venue_id', '=', \DB::raw('CAST(venue.venue_id AS TEXT)'))
+            ->where('exam_venue_consent.exam_id', $examId)
+            ->where('exam_venue_consent.district_code', $user->district_code)
+            ->select(
+                'exam_venue_consent.venue_id',
+                'exam_venue_consent.expected_candidates_count',
+                'exam_venue_consent.consent_status',
+                'exam_venue_consent.center_code as consented_center_code', // Saved center code
+                'venue.*'
+            )
             ->get()
             ->keyBy('venue_id');
 
+        // Organize venues by center code
+        $allvenues = [];
+        foreach ($examCenters as $center) {
+            $centerCode = $center->center_code;
+
+            // Start with venues already in exam_venue_consent for this center
+            $consentedVenues = $venueConsents
+                ->filter(function ($venue) use ($centerCode) {
+                    return $venue->consented_center_code === $centerCode; // Match saved center code
+                })
+                ->values(); // Reset keys
+
+            // Fetch all other venues for the center (not in exam_venue_consent or with different center code)
+            $nonConsentedVenues = \DB::table('venue')
+                ->where('venue_center_id', $centerCode)
+                ->whereNotIn('venue_id', $venueConsents->keys()) // Exclude venues in exam_venue_consent
+                ->get();
+
+            // Combine consented and non-consented venues
+            $centerVenues = $consentedVenues->merge($nonConsentedVenues);
+            $allvenues[$centerCode] = $centerVenues;
+        }
+
+        // Update venue details with consent information
         foreach ($allvenues as $centerCode => $venues) {
             foreach ($venues as $venue) {
                 $venue->halls_count = $venueConsents->has($venue->venue_id) ? $venueConsents->get($venue->venue_id)->expected_candidates_count : 0;
                 $venue->consent_status = $venueConsents->has($venue->venue_id) ? $venueConsents->get($venue->venue_id)->consent_status : 'not_requested';
             }
         }
+
+        // Count total centers and centers from projection
         $totalCenters = \DB::table('centers')
             ->where('center_district_id', $user->district_code)
             ->count();
@@ -93,7 +123,18 @@ class DistrictCandidatesController extends Controller
             ->where('district_code', $user->district_code)
             ->distinct('center_code')
             ->count('center_code');
-        return view('my_exam.District.venue-intimation', compact('examId', 'current_exam', 'examCenters', 'user', 'totalCenters', 'totalCentersFromProjection', 'allvenues', 'candidatesCountForEachHall'));
+
+        // Return the view with all necessary data
+        return view('my_exam.District.venue-intimation', compact(
+            'examId',
+            'current_exam',
+            'examCenters',
+            'user',
+            'totalCenters',
+            'totalCentersFromProjection',
+            'allvenues',
+            'candidatesCountForEachHall'
+        ));
     }
     public function reviewVenueIntimationForm(Request $request, $examId)
     {
@@ -1009,5 +1050,46 @@ class DistrictCandidatesController extends Controller
             default:
                 return 'Saved';
         }
+    }
+    public function updateVenueCenter(Request $request)
+    {
+        // Validate the request
+        $validated = $request->validate([
+            'exam_id' => 'required|exists:exam_main,exam_main_no',
+            'venue_id' => 'required|exists:venue,venue_id',
+            'center_code' => 'required|exists:centers,center_code',
+        ]);
+
+        // Update the venue's center code
+        $venue = ExamVenueConsent::where('exam_id', $validated['exam_id'])
+            ->where('venue_id', $validated['venue_id'])
+            ->first();
+        if (!$venue) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Venue not found for the specified exam.',
+            ], 404);
+        }
+        // Check if the exam is already confirmed
+        $isConfirmed = ExamConfirmedHalls::where('exam_id', $validated)
+            ->where('venue_code', $validated['venue_id'])
+            ->exists();
+        if ($isConfirmed) {
+            // Return a response indicating that the venue is already confirmed
+            return response()->json([
+                'success' => false,
+                'message' => 'This venue is currently in the process of being confirmed for this exam. No further updates are allowed at this stage.'
+            ], 422);
+        }
+        // Update the center code
+        $venue->update([
+            'center_code' => $validated['center_code'],
+        ]);
+
+        // Return success response
+        return response()->json([
+            'success' => true,
+            'message' => 'Venue center updated successfully.',
+        ]);
     }
 }

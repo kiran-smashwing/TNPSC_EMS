@@ -222,6 +222,8 @@ class IDCandidatesController extends Controller
 
     public function sendAccommodationEmail(Request $request)
     {
+        set_time_limit(0);
+
         $request->validate([
             'exam_id' => 'required|string',
             'district_codes' => 'required|array|min:1',
@@ -276,6 +278,8 @@ class IDCandidatesController extends Controller
                     'total_candidates' => $totalCandidates,
                     'sent_at' => now()->toDateTimeString(),
                 ];
+                // ⏳ Delay for 8 seconds before the next email
+                sleep(8);
             } catch (\Exception $e) {
                 \Log::error("Failed to send accommodation email to district {$districtCode} ({$district->district_email}): " . $e->getMessage());
                 // Don't log unsuccessful sends
@@ -435,7 +439,7 @@ class IDCandidatesController extends Controller
             ->where('ecp.exam_id', $examId)
             ->select('ecp.center_code', 'c.center_name', 'ecp.district_code')
             ->distinct()
-            ->orderBy('ecp.center_code') 
+            ->orderBy('ecp.center_code')
             ->get();
         //get all dates for the exam
         $examDates = $exam->examsession->groupBy(function ($item) {
@@ -521,7 +525,7 @@ class IDCandidatesController extends Controller
                         // If unchecked, remove the corresponding hall from ExamConfirmedHalls
                         if (!$isChecked) {
                             ExamConfirmedHalls::where('exam_id', $examId)
-                                ->where('venue_code', $confirmedVenue->venues->venue_id)
+                                // ->where('venue_code', $confirmedVenue->venues->venue_id)
                                 ->where('ci_id', $ciId)
                                 ->where('exam_date', $currentExamDate)
                                 ->delete();
@@ -574,6 +578,10 @@ class IDCandidatesController extends Controller
                             ->where('ci_id', $venueAssigned->ci_id)
                             ->where('exam_date', $venueAssigned->exam_date)
                             ->first();
+                        // If venue code is null, return response indicating it can't be accepted
+                        if (!$venuecode) {
+                            return redirect()->back()->with('error', 'Venue code not found for the confirmed venue.');
+                        }
 
                         // Create or update the hall record
                         ExamConfirmedHalls::updateOrCreate(
@@ -939,7 +947,7 @@ class IDCandidatesController extends Controller
             ->with('assignedCIs')
             ->first();
         //get ChiefInvigilator with venue id
-        $chiefInvigilators = ChiefInvigilator::where('ci_venue_id', $venue->venue_id)->get();
+        $chiefInvigilators = ChiefInvigilator::where('ci_venue_id', $venue->venue_id)->where('ci_status', true)->get();  
         // Pass the exams to the index view
         return view('my_exam.IDCandidates.edit-venue-consent', compact('exam', 'user', 'districts', 'centers', 'venueConsents', 'chiefInvigilators', 'venue'));
     }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Mail\UserAccountCreationMail;
 use App\Mail\UserEmailVerificationMail;
+use App\Models\ExamConfirmedHalls;
+use App\Models\ExamVenueConsent;
 use App\Models\Venues;
 use App\Models\Center;
 use App\Models\District;
@@ -533,7 +535,17 @@ class VenuesController extends Controller
                 ], 422);
             }
             $id = Crypt::decrypt($id); // Decrypt the ID
+            // Check if venue is used in consent or confirmation tables
+            $isVenueInUse = ExamVenueConsent::where('venue_id', $id)->exists() ||
+                ExamConfirmedHalls::where('venue_code', $id)->exists();
 
+            if ($isVenueInUse) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Venue cannot be deleted as it is already in use for exams.'
+                ], 409); // 409 Conflict is semantically more appropriate
+            }
+            
             $venue = Venues::where('venue_id', $id)->firstOrFail();
             AuditLogger::log('Venue Deleted', Venues::class, $venue->venue_id, null, $venue->toArray());
             // Delete the image from storage if it exists

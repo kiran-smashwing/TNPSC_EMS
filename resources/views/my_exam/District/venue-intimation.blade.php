@@ -180,12 +180,21 @@
                                                                 <tr class="venue-row {{ $venue->consent_status == 'denied' ? 'table-danger' : '' }}"
                                                                     data-center-code="{{ $centerCode }}">
                                                                     <td>
-                                                                        <input
-                                                                            class="form-check-input input-success venue-checkbox"
-                                                                            data-venue-code="{{ $venue->venue_id }}"
-                                                                            type="checkbox"
-                                                                            @if ($venue->consent_status !== 'not_requested') checked @endif
-                                                                            @if ($venue->consent_status !== 'not_requested' && $venue->consent_status !== 'saved') disabled @endif>
+                                                                        <div class="d-flex flex-column align-items-center">
+                                                                            <input
+                                                                                class="form-check-input input-success venue-checkbox"
+                                                                                data-venue-code="{{ $venue->venue_id }}"
+                                                                                type="checkbox"
+                                                                                @if ($venue->consent_status !== 'not_requested') checked @endif
+                                                                                @if ($venue->consent_status !== 'not_requested' && $venue->consent_status !== 'saved') disabled @endif>
+                                                                            @if ($venue->consent_status !== 'not_requested')
+                                                                                <a href="#"
+                                                                                    class="mt-2 btn btn-sm btn-light-primary"
+                                                                                    onclick="">
+                                                                                    <i class="feather icon-edit mx-1"></i>
+                                                                                </a>
+                                                                            @endif
+                                                                        </div>
                                                                     </td>
                                                                     <td class="venue-column"
                                                                         data-venue-name="{{ $venue->venue_name }}">
@@ -227,6 +236,7 @@
                                                                             <span
                                                                                 class="badge bg-light-secondary">Saved</span>
                                                                         @endif
+
                                                                     </td>
                                                                 </tr>
                                                             @endforeach
@@ -799,6 +809,118 @@
                                 complete: function() {
                                     // Fallback to ensure loader is hidden even if success/error handlers fail
                                     hideLoader();
+                                }
+                            });
+                        }
+                    });
+                });
+            });
+        </script>
+        <script>
+            $(document).ready(function() {
+                // Handle Edit Icon Click
+                $(document).on('click', '.btn-light-primary', function(e) {
+                    e.preventDefault();
+
+                    // Get the current row and its data
+                    var $row = $(this).closest('tr');
+                    var venueId = $row.find('.venue-checkbox').data('venue-code'); // Venue ID
+                    var currentCenterCode = $row.data('center-code'); // Current Center Code
+
+                    // Fetch the list of centers dynamically (from PHP variable $examCenters)
+                    var centers = @json($examCenters); // Convert PHP array to JavaScript object
+
+                    // Generate the dropdown options for centers
+                    var dropdownOptions = centers.map(center => {
+                        return `<option value="${center.center_code}" ${center.center_code === currentCenterCode ? 'selected' : ''}>
+                                ${center.details.center_name}
+                            </option>`;
+                    }).join('');
+
+                    // Show SweetAlert with a dropdown
+                    Swal.fire({
+                        title: 'Select Center',
+                        html: `
+                        <p>Select the center you want to move this venue to.</p>
+                        <select id="centerDropdown" class="form-select">
+                            ${dropdownOptions}
+                        </select>
+                    `,
+                        showCancelButton: true,
+                        confirmButtonText: 'Submit',
+                        cancelButtonText: 'Cancel',
+                        preConfirm: () => {
+                            // Validate the selected center
+                            var selectedCenterCode = $('#centerDropdown').val();
+                            if (!selectedCenterCode) {
+                                Swal.showValidationMessage('Please select a valid center.');
+                            }
+                            return {
+                                selectedCenterCode
+                            };
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Get the selected center code
+                            var selectedCenterCode = result.value.selectedCenterCode;
+
+                            // Show loader if needed
+                            const loader = document.getElementById('loader');
+                            if (loader) {
+                                loader.style.removeProperty('display');
+                            }
+
+                            // Send AJAX request to update the venue's center code
+                            $.ajax({
+                                url: '{{ route('district-candidates.updateVenueCenter') }}', // Create this route in web.php
+                                method: 'POST',
+                                data: {
+                                    _token: '{{ csrf_token() }}',
+                                    exam_id: '{{ $examId }}',
+                                    venue_id: venueId,
+                                    center_code: selectedCenterCode
+                                },
+                                success: function(response) {
+                                    if (loader) {
+                                        loader.style.display = 'none';
+                                    }
+                                    if (response.success) {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Success',
+                                            text: response.message,
+                                        }).then(() => {
+                                            location
+                                                .reload(); // Reload the page to reflect changes
+                                        });
+                                    } else {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: response.message ||
+                                                'Failed to update center.',
+                                        });
+                                    }
+                                },
+                                error: function(xhr) {
+                                    if (loader) {
+                                        loader.style.display = 'none';
+                                    }
+                                    let errorMessage = 'An unexpected error occurred.';
+                                    try {
+                                        const response = JSON.parse(xhr.responseText);
+                                        if (response.message) {
+                                            errorMessage = response.message;
+                                        }
+                                    } catch (e) {
+                                        errorMessage = xhr.statusText ||
+                                            'Failed to process request.';
+                                    }
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: errorMessage,
+                                    });
                                 }
                             });
                         }

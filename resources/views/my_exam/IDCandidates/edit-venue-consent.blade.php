@@ -703,17 +703,18 @@
                                 });
                                 isValid = false;
                                 break; // Exit the loop early
-                            } else if (totalCandidates < venueCapacity) {
-                                // Alert if total candidates are less than the venue's maximum capacity
-                                Swal.fire({
-                                    icon: 'warning',
-                                    title: 'Underutilized Venue Capacity',
-                                    text: `Total candidates (${totalCandidates}) for date ${formattedDate} are less than the venue's maximum capacity (${venueCapacity}). Please allocate the remaining candidates to maximize utilization.`,
-                                    confirmButtonText: 'OK'
-                                });
-                                isValid = false;
-                                break; // Exit the loop early
-                            }
+                            } 
+                            // else if (totalCandidates < venueCapacity) {
+                            //     // Alert if total candidates are less than the venue's maximum capacity
+                            //     Swal.fire({
+                            //         icon: 'warning',
+                            //         title: 'Underutilized Venue Capacity',
+                            //         text: `Total candidates (${totalCandidates}) for date ${formattedDate} are less than the venue's maximum capacity (${venueCapacity}). Please allocate the remaining candidates to maximize utilization.`,
+                            //         confirmButtonText: 'OK'
+                            //     });
+                            //     isValid = false;
+                            //     break; // Exit the loop early
+                            // }
                         }
                     }
 

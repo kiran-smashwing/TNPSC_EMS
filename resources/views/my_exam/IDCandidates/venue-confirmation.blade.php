@@ -129,6 +129,8 @@
                                     <div>
                                         <h5 class="mb-3 mb-sm-0">Required : {{ $confirmedVenuesCapacity }} /
                                             {{ $accommodation_required ?? 0 }}</h5>
+                                            
+                                      <h5 class="mb-3 mb-sm-0" id="totalCandidatesCount">Selected Count: 0</h5>
                                     </div>
                                 </div>
                             </div>
@@ -470,6 +472,31 @@
                 // Redirect to the constructed URL
                 window.location.href = url;
             }
+        </script>
+        <script>
+            // Function to calculate the total candidates count for checked rows
+            function updateTotalCandidatesCount() {
+                let totalCandidates = 0;
+        
+                // Loop through all checked checkboxes
+                $('.venue-checkbox:checked').each(function () {
+                    const candidatesCount = parseInt($(this).closest('tr').find('.editable-candidates').text()) || 0;
+                    totalCandidates += candidatesCount;
+                });
+        
+                // Update the total candidates count in the UI
+                $('#totalCandidatesCount').text(`Selected Count : ${totalCandidates}`);
+            }
+        
+            // Attach an event listener to checkboxes to trigger the update
+            $(document).on('change', '.venue-checkbox', function () {
+                updateTotalCandidatesCount();
+            });
+        
+            // Initialize the total candidates count on page load
+            $(document).ready(function () {
+                updateTotalCandidatesCount();
+            });
         </script>
     @endpush
 

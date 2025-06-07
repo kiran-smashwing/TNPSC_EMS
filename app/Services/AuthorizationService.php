@@ -473,6 +473,7 @@ class AuthorizationService
             'district-candidates.review-venue-intimation-form',
             'district-candidates.process-venue-consent-email',
             'district-candidates.clear-saved-venues',
+            'district-candidates.updateVenueCenter',
             'generate.qrcode',
             'district-candidates.generatePdf',
             'bundle-packaging.mobileteam-to-district',

@@ -60,6 +60,10 @@ class ChiefInvigilator extends Authenticatable
     }
     public function getVenueCodeAttribute()
     {
+        return $this->ci_venue_code; // or whatever field you use for the name
+    }
+    public function getVenueIdAttribute()
+    {
         return $this->ci_venue_id; // or whatever field you use for the name
     }
     public function getVenueIdAttribute()

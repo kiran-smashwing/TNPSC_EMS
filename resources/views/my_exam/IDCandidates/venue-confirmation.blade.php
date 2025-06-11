@@ -129,8 +129,8 @@
                                     <div>
                                         <h5 class="mb-3 mb-sm-0">Required : {{ $confirmedVenuesCapacity }} /
                                             {{ $accommodation_required ?? 0 }}</h5>
-                                            
-                                      <h5 class="mb-3 mb-sm-0" id="totalCandidatesCount">Selected Count: 0</h5>
+
+                                        <h5 class="mb-3 mb-sm-0" id="totalCandidatesCount">Selected Count: 0</h5>
                                     </div>
                                 </div>
                             </div>
@@ -211,7 +211,8 @@
                                         <tbody>
                                             @foreach ($venuesWithCIs as $key => $item)
                                                 <tr>
-                                                    <td>{{ $key + 1 }}</td>
+                                                    <td contenteditable="true" class="editable-sno">{{ $key + 1 }}
+                                                    </td>
                                                     <td>
                                                         <input class="form-check-input input-success venue-checkbox"
                                                             type="checkbox" name="venue_checkbox[]"
@@ -221,10 +222,10 @@
                                                             value="{{ $item['venue']->venue_id }}">
                                                     </td>
                                                     <td><a href="{{ route('id-candidates.edit-venue-consent', ['examId' => $exam->exam_main_no, 'venueId' => $item['venue']->venue_id]) }}"
-                                                        target="_blank"  class="me-3 btn btn-sm btn-light-warning">
-                                                         <i class="feather icon-edit mx-1"></i>
-                                                      </a>                                                     
-                                                     </td>
+                                                            target="_blank" class="me-3 btn btn-sm btn-light-warning">
+                                                            <i class="feather icon-edit mx-1"></i>
+                                                        </a>
+                                                    </td>
                                                     <td>{{ $item['venue']->venues->venue_name ?? 'N/A' }}</td>
                                                     <td>{{ $item['venue']->venues->venue_code ?? 'N/A' }}</td>
                                                     <td>{{ $item['venue']->venues->venue_email ?? 'N/A' }}</td>
@@ -238,7 +239,7 @@
                                                     <td>{{ $item['ci']->chiefInvigilator->ci_phone ?? 'N/A' }}</td>
                                                     <td contenteditable="true" class="editable-candidates">
                                                         {{ $item['candidates_count'] ?? 0 }}</td>
-                                                   
+
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -354,7 +355,6 @@
 
                 $('#result').html('Event result:<br>' + result);
             });
-          
         </script>
         <script>
             // Full list of centers
@@ -477,27 +477,82 @@
             // Function to calculate the total candidates count for checked rows
             function updateTotalCandidatesCount() {
                 let totalCandidates = 0;
-        
+
                 // Loop through all checked checkboxes
-                $('.venue-checkbox:checked').each(function () {
+                $('.venue-checkbox:checked').each(function() {
                     const candidatesCount = parseInt($(this).closest('tr').find('.editable-candidates').text()) || 0;
                     totalCandidates += candidatesCount;
                 });
-        
+
                 // Update the total candidates count in the UI
                 $('#totalCandidatesCount').text(`Selected Count : ${totalCandidates}`);
             }
-        
+
             // Attach an event listener to checkboxes to trigger the update
-            $(document).on('change', '.venue-checkbox', function () {
+            $(document).on('change', '.venue-checkbox', function() {
                 updateTotalCandidatesCount();
             });
-        
+
             // Initialize the total candidates count on page load
-            $(document).ready(function () {
+            $(document).ready(function() {
                 updateTotalCandidatesCount();
             });
         </script>
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const table = document.querySelector('#reorder-events tbody');
+        
+            function handleRowReorder(targetRow, newSno) {
+                const rows = Array.from(table.querySelectorAll('tr'));
+                const totalRows = rows.length;
+        
+                if (isNaN(newSno) || newSno < 1 || newSno > totalRows) {
+                    alert(`Please enter a valid S.No between 1 and ${totalRows}`);
+                    return false;
+                }
+        
+                table.removeChild(targetRow);
+        
+                if (newSno === totalRows) {
+                    table.appendChild(targetRow);
+                } else {
+                    table.insertBefore(targetRow, rows[newSno - 1]);
+                }
+        
+                updateSerialNumbers();
+                return true;
+            }
+        
+            function updateSerialNumbers() {
+                const rows = Array.from(table.querySelectorAll('tr'));
+                rows.forEach((row, index) => {
+                    const snoCell = row.querySelector('.editable-sno');
+                    snoCell.textContent = index + 1;
+                });
+            }
+        
+            table.addEventListener('blur', function(event) {
+                if (event.target.classList.contains('editable-sno')) {
+                    const targetRow = event.target.closest('tr');
+                    const newSno = parseInt(event.target.textContent.trim());
+        
+                    if (!handleRowReorder(targetRow, newSno)) {
+                        // Reset to original S.No
+                        event.target.textContent = Array.from(table.querySelectorAll('tr')).indexOf(targetRow) + 1;
+                    }
+                }
+            }, true); // Use capture phase to catch blur on contentEditable
+        
+            // Optional: commit changes on Enter key
+            table.addEventListener('keydown', function(event) {
+                if (event.target.classList.contains('editable-sno') && event.key === 'Enter') {
+                    event.preventDefault(); // Prevent newline
+                    event.target.blur(); // Trigger blur to commit change
+                }
+            });
+        });
+        </script>
+        
     @endpush
 
     @include('partials.theme')

@@ -221,11 +221,11 @@
 </head>
 
 <body>
-    <img src="{{ asset('storage/assets/images/watermark.png') }}" alt="Watermark" class="watermark" />
+    <img src="{{ storage_path('app/public/assets/images/watermark.png') }}" alt="Watermark" class="watermark" />
     <div class="container">
         <div class="header-container">
             <div class="logo-container">
-                <img src="{{ asset('storage/assets/images/watermark.png') }}" alt="Logo" class="logo-image" />
+                <img src="{{ storage_path('app/public/assets/images/watermark.png') }}" alt="Logo" class="logo-image" />
             </div>
             <div class="header-content">
                 <h3>தமிழ்நாடு அரசுப்பணியாளர் தேர்வாணையம்</h3>

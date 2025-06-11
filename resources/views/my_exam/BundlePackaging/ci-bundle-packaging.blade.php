@@ -35,7 +35,7 @@
                 <div class="">
                     <a href="#" class="me-2 btn btn-light-primary" data-pc-animate="just-me" data-bs-toggle="modal"
                         data-bs-target="#qrCodeModal">
-                        <i class="feather icon-aperture mx-1"></i>Scan OR Code
+                        <i class="feather icon-aperture mx-1"></i>Scan QR Code
                     </a>
                 </div>
             </div>

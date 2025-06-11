@@ -352,7 +352,7 @@ class ChiefInvigilatorsController extends Controller
             'venue.integer' => 'Please select a valid venue',
         ];
         $validated = $request->validate([
-            'district' => 'required|string|max:50',
+            'district' => 'nullable|string|max:50',
             'center' => 'required|string|max:50',
             'venue' => 'required|string|max:50',
             'name' => 'required|string|max:255',

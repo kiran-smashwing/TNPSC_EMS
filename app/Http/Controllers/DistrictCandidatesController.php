@@ -741,7 +741,7 @@ class DistrictCandidatesController extends Controller
         //     'qrCodeData' => $qrCode,
         //     'exam' => $exam,
         //     'district' => $district,
-        //     'qrCodePath' => Storage::url($qrCode->qrcode)
+        //     'qrCodePath' =>storage_path(path: 'app/public/' . $qrCode->qrcode)
         // ]);
 
 
@@ -749,7 +749,7 @@ class DistrictCandidatesController extends Controller
             'qrCodeData' => $qrCode,
             'exam' => $exam,
             'district' => $district,
-            'qrCodePath' => Storage::url($qrCode->qrcode)
+            'qrCodePath' => $qrCode->qrcode
         ])->render();
 
         $pdf = Browsershot::html($html)

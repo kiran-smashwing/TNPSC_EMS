@@ -428,8 +428,7 @@
                                 </div>
                             </div>
                             <div class="col-12 text-end btn-page">
-                                <a href="{{ route('charted-vehicle-routes.index') }}"
-                                    class="btn btn-outline-secondary">Cancel</a>
+                                <a href={{ url()->previous() }} class="btn btn-outline-secondary">Cancel</a>
                                 <button type="submit" class="btn btn-primary">Update</button>
                             </div>
                         </div>

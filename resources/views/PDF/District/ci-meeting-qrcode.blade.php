@@ -175,11 +175,11 @@
 </head>
 
 <body>
-    <img src="{{ asset('storage/assets/images/watermark.png') }}" alt="Watermark" class="watermark">
+    <img src="{{ storage_path('app/public/assets/images/watermark.png') }}" alt="Watermark" class="watermark">
     <div class="container">
         <div class="header-container">
             <div class="logo-container">
-                <img src="{{ asset('storage/assets/images/watermark.png') }}" alt="Logo" class="logo-image">
+                <img src="{{ storage_path('app/public/assets/images/watermark.png') }}" alt="Logo" class="logo-image">
             </div>
             <div class="header-content">
                 <h3>தமிழ்நாடு அரசுப்பணியாளர் தேர்வாணையம்</h3>
@@ -206,7 +206,7 @@
             </p>
         </div>
         <div class="qr-code-container">
-            <img src="{{ asset($qrCodePath) }}" alt="QR Code" class="qr-code">
+            <img src="{{storage_path(path: 'app/public/' . $qrCodePath) }}" alt="QR Code" class="qr-code">
             <div class="qr-code-label">Scan for Attendance</div>
         </div>
         <div class="content-section">
@@ -220,7 +220,7 @@
         <div class="footer-instructions">
             <div class="footer-qr-codes">
                 <div class="footer-qr-item">
-                    <img src="{{ asset('storage/assets/images/website-qr.png') }}" alt="Website QR Code"
+                    <img src="{{ storage_path('app/public/assets/images/website-qr.png') }}" alt="Website QR Code"
                         class="footer-qr-image">
                     <span>Website</span>
                 </div>
@@ -233,7 +233,7 @@
             <div class="footer-qr-codes">
 
                 <div class="footer-qr-item">
-                    <img src="{{ asset('storage/assets/images/app-qr.png') }}" alt="App Download QR Code"
+                    <img src="{{ storage_path('app/public/assets/images/app-qr.png') }}" alt="App Download QR Code"
                         class="footer-qr-image">
                     <span>Android App</span>
                 </div>

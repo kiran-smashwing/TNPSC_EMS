@@ -135,8 +135,8 @@ class ProcessCandidatesCsv implements ShouldQueue
         ];
 
         try {
-            // Mail::to($this->currentUser->dept_off_email)->send(new CsvProcessingResult($data, $subject));
-            Mail::to('kiran@smashwing.com')->send(new CsvProcessingResult($data, $subject));
+            Mail::to($this->currentUser->dept_off_email)->send(new CsvProcessingResult($data, $subject));
+            // Mail::to('kiran@smashwing.com')->send(new CsvProcessingResult($data, $subject));
         } catch (\Exception $e) {
             \Log::error("Failed to send email: " . $e->getMessage());
         }

@@ -138,6 +138,8 @@
                                                         </option>
                                                         <option value="MCD">Monitoring Coordination Department - MCD
                                                         </option>
+                                                        <option value="PD">Personnel Department - PD</option>
+                                                     
                                                     </select>
                                                     @error('role_department')
                                                         <div class="invalid-feedback">{{ $message }}</div>

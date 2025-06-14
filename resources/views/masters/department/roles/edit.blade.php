@@ -184,6 +184,10 @@
                                                             {{ $role->role_department == 'MCD' ? 'selected' : '' }}>
                                                             Monitoring
                                                             Coordination Department - MCD</option>
+                                                        <option value="PD"
+                                                            {{ $role->role_department == 'PD' ? 'selected' : '' }}>
+                                                            Personnel
+                                                            Department - PD</option>
                                                     </select>
                                                     <input type="hidden" name="role_department"
                                                         value="{{ $role->role_department }}">

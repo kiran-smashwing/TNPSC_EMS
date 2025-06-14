@@ -651,7 +651,7 @@ class DistrictCandidatesController extends Controller
         $builder = new Builder(
             writer: new PngWriter(),
             writerOptions: [],
-            data: "{{url('/login')}}",
+            data: url('/login'),
             encoding: new Encoding('UTF-8'),
             errorCorrectionLevel: ErrorCorrectionLevel::High,
             size: 300,

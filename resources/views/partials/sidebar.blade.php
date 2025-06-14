@@ -125,13 +125,13 @@
                                 </li>
                             @endhasPermission
                             @hasPermission('view-all-other-list')
-                            <li class="pc-item"><a class="pc-link" href="{{ route('invigilators.index') }}">Invigilators
-                                </a>
-                            </li>
-                            <li class="pc-item"><a class="pc-link" href="{{ route('scribes.index') }}">Scribes </a>
-                            </li>
-                            <li class="pc-item"><a class="pc-link" href="{{ route('ci-assistant') }}">CI Assistants </a>
-                            </li>
+                                <li class="pc-item"><a class="pc-link" href="{{ route('invigilators.index') }}">Invigilators
+                                    </a>
+                                </li>
+                                <li class="pc-item"><a class="pc-link" href="{{ route('scribes.index') }}">Scribes </a>
+                                </li>
+                                <li class="pc-item"><a class="pc-link" href="{{ route('ci-assistant') }}">CI Assistants </a>
+                                </li>
                             @endhasPermission
                         </ul>
                     </li>
@@ -156,9 +156,12 @@
                             @hasPermission('view-all-department')
                                 <li class="pc-item"><a class="pc-link" href="{{ route('ci-checklist') }}">CI Checklist</a>
                                 </li>
-
-                                <li class="pc-item"><a class="pc-link" href="{{ route('role') }}">Roles</a>
-                                </li>
+                            @endhasPermission
+                            @hasPermission('role.index')
+                            <li class="pc-item"><a class="pc-link" href="{{ route('role') }}">Roles</a>
+                            </li>
+                            @endhasPermission
+                            @hasPermission('department-officials.index')
                                 <li class="pc-item"><a class="pc-link"
                                         href="{{ route('department-officials.index') }}">Department
                                         Officials</a>
@@ -292,7 +295,8 @@
                 @endhasPermission
                 @hasPermission('cv-routes-report')
                     <li class="pc-item"><a class="pc-link"
-                            href="{{route('charted-vehicle-routes.getCvRoutesReport')}}">Charted Vehicle Routes Report</a>
+                            href="{{ route('charted-vehicle-routes.getCvRoutesReport') }}">Charted Vehicle Routes
+                            Report</a>
                     </li>
                 @endhasPermission
                 @hasPermission('emergency-alrm')

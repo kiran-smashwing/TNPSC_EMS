@@ -296,6 +296,22 @@ class AuthorizationService
                     'exam-trunkbox-qr-otl-data.index',
                     'exam-trunkbox-qr-otl-data.upload',
                     'exam-trunkbox-qr-otl-data.download-sample-csv',
+                    'departments-masters',
+                    'department-officials.index',
+                    'department-officials.create',
+                    'department-officials.edit',
+                    'department-officials.show',
+                    'department-officials.toggle-status',
+                ],
+            ],
+            'PD' => [
+                'Section Officer' => [
+                    'departments-masters',
+                    'department-officials.index',
+                    'department-officials.create',
+                    'department-officials.edit',
+                    'department-officials.show',
+                    'department-officials.toggle-status',
                 ],
             ],
             'ADMIN' => [

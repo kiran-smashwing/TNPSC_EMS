@@ -124,8 +124,8 @@ class CiMeetingAttendanceController extends Controller
             })
             ->with([
                 'ci',
+                'ci.venue',
                 'center.district',
-                'center.venues'
             ])
             ->get();
 

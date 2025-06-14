@@ -364,6 +364,7 @@ class IDCandidatesController extends Controller
     }
     public function showVenueConfirmationForm(Request $request, $examId)
     {
+
         // Retrieve the exam
         $exam = Currentexam::where('exam_main_no', $examId)->first();
         if (!$exam) {
@@ -430,7 +431,7 @@ class IDCandidatesController extends Controller
             ->where('ecp.exam_id', $examId)
             ->select('ecp.district_code', 'd.district_name')
             ->distinct()
-            ->orderBy('ecp.district_code') 
+            ->orderBy('ecp.district_code')
             ->get();
 
         // Retrieve centers
@@ -477,6 +478,13 @@ class IDCandidatesController extends Controller
     }
     public function saveVenueConfirmation(Request $request, $examId)
     {
+        //if apd already confirmed the hall then redirect back to the hall confirmation page as cant edit here after confirmation
+        $apdConfirmedHalls = ExamConfirmedHalls::where('exam_id', $examId)
+            ->where('is_apd_uploaded', true)
+            ->exists();
+        if ($apdConfirmedHalls) {
+            return redirect()->back()->with('error', 'APD has already confirmed the halls for this exam. You cannot edit the halls after confirmed.');
+        }
         // Validate the request
         $validate = $request->validate([
             'selected_venues' => 'required|string',
@@ -947,12 +955,21 @@ class IDCandidatesController extends Controller
             ->with('assignedCIs')
             ->first();
         //get ChiefInvigilator with venue id
-        $chiefInvigilators = ChiefInvigilator::where('ci_venue_id', $venue->venue_id)->where('ci_status', true)->get();  
+        $chiefInvigilators = ChiefInvigilator::where('ci_venue_id', $venue->venue_id)->where('ci_status', true)->get();
         // Pass the exams to the index view
         return view('my_exam.IDCandidates.edit-venue-consent', compact('exam', 'user', 'districts', 'centers', 'venueConsents', 'chiefInvigilators', 'venue'));
     }
     public function updateVenueConsentForm(Request $request, $examId)
     {
+        //if apd already confirmed the hall then redirect back to the hall confirmation page as cant edit here after confirmation
+        $apdConfirmedHalls = ExamConfirmedHalls::where('exam_id', $examId)
+            ->where('is_apd_uploaded', true)
+            ->exists();
+        if ($apdConfirmedHalls) {
+            return response()->json([
+                'message' => 'APD has already confirmed the halls for this exam. You cannot edit the halls after confirmed.'
+            ], 422);
+        }
         $request->validate([
             'consent' => 'required|in:accept,decline',
             'ciExamData' => 'required_if:consent,accept|json',

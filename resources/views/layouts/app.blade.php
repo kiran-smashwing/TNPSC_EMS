@@ -153,37 +153,37 @@
         integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     {{-- <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script> --}}
-    <script type="module" src="{{ asset('storage/assets/js/plugins/fingerprintjs/v4.js') }}"></script>
+    {{-- <script type="module" src="{{ asset('storage/assets/js/plugins/fingerprintjs/v4.js') }}"></script> --}}
     <script type="module">
-        import FingerprintJS from '{{ asset('storage/assets/js/plugins/fingerprintjs/v4.js') }}';
+        // import FingerprintJS from '{{ asset('storage/assets/js/plugins/fingerprintjs/v4.js') }}';
 
-        const getCookie = (name) => {
-            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-            return match ? decodeURIComponent(match[2]) : null;
-        };
+        // const getCookie = (name) => {
+        //     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        //     return match ? decodeURIComponent(match[2]) : null;
+        // };
 
-        const setCookie = (name, value) => {
-            document.cookie = `${name}=${encodeURIComponent(value)}; path=/; SameSite=Lax; Secure`;
-        };
+        // const setCookie = (name, value) => {
+        //     document.cookie = `${name}=${encodeURIComponent(value)}; path=/; SameSite=Lax; Secure`;
+        // };
 
-        FingerprintJS.load().then(fp => fp.get()).then(result => {
-            const realFingerprint = result.visitorId;
-            const headers = new Headers();
-            headers.append("Device-Fingerprint", realFingerprint);
-            // Initial set (first load)
-            if (getCookie('device_fingerprint') !== realFingerprint) {
-                setCookie('device_fingerprint', realFingerprint);
-            }
+        // FingerprintJS.load().then(fp => fp.get()).then(result => {
+        //     const realFingerprint = result.visitorId;
+        //     const headers = new Headers();
+        //     headers.append("Device-Fingerprint", realFingerprint);
+        //     // Initial set (first load)
+        //     if (getCookie('device_fingerprint') !== realFingerprint) {
+        //         setCookie('device_fingerprint', realFingerprint);
+        //     }
 
-            // 🔁 Keep monitoring for tampering every 2 seconds
-            setInterval(() => {
-                const current = getCookie('device_fingerprint');
-                if (current !== realFingerprint) {
-                    console.warn('[Security] Fingerprint cookie tampered. Restoring.');
-                    setCookie('device_fingerprint', realFingerprint);
-                }
-            }, 2000); // Check every 2 seconds
-        });
+        //     // 🔁 Keep monitoring for tampering every 2 seconds
+        //     setInterval(() => {
+        //         const current = getCookie('device_fingerprint');
+        //         if (current !== realFingerprint) {
+        //             console.warn('[Security] Fingerprint cookie tampered. Restoring.');
+        //             setCookie('device_fingerprint', realFingerprint);
+        //         }
+        //     }, 2000); // Check every 2 seconds
+        // });
     </script>
     <script>
         var savedTheme = localStorage.getItem('theme') || 'light';

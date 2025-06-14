@@ -175,7 +175,7 @@
                             <td>{{ $record->center->center_name ?? 'N/A' }}</td>
                             <td>{{ $record->center->center_code ?? 'N/A' }}</td>
                             <td>{{ $record->hall_code ?? 'N/A' }}</td>
-                            <td>{{ optional($record->center->venues->first())->venue_name ?? 'N/A' }}</td>
+                            <td>{{ optional($record->ci->venue)->venue_name ?? 'N/A' }}</td>
                             <td>
                                 {{ $record->updated_at ?? 'N/A' }} <br>
                             </td>

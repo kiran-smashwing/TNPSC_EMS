@@ -83,14 +83,14 @@ class ExamStaffAllotmentController extends Controller
         $examsession = ExamSession::where('exam_session_id', $validated['exam_session_id'])->first();
         // Create exam datetime using 24-hour format
         $examDateTime = Carbon::createFromFormat('Y-m-d H:i A', "$examDateFormatted {$examsession->exam_sess_time}");
-        // If exam is today, check if within 30 minutes of start time
+        // If exam is today, check if within 60 minutes of start time
         if ($examDateTime->isToday()) {
             $minutesDiff = $currentDateTime->diffInMinutes($examDateTime, false);
 
-            if ($minutesDiff > 30) {
+            if ($minutesDiff > 60) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Hall allocation will be done 30 minutes <br>before the exam starts.',
+                    'message' => 'Hall allocation will be done 60 minutes <br>before the exam starts.',
                     'invigilators_allotment' => [],
                 ]);
             }
@@ -99,7 +99,7 @@ class ExamStaffAllotmentController extends Controller
         elseif ($examDateTime->isAfter($currentDateTime->endOfDay())) {
             return response()->json([
                 'success' => false,
-                'message' => 'Hall allocation will be done 30 minutes <br>before the exam starts.',
+                'message' => 'Hall allocation will be done 60 minutes <br>before the exam starts.',
                 'invigilators_allotment' => [],
             ]);
         }

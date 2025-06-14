@@ -41,16 +41,16 @@ class CheckSession
                 $request->session()->regenerateToken();
                 return redirect('/login')->with('status', 'Session expired due to security concerns.');
             }
-            $cookieFp = $_COOKIE['device_fingerprint'] ?? null;
-            $sessionFp = session('device_fingerprint');
-            if (!$cookieFp || !$sessionFp || $cookieFp !== $sessionFp) {
-                // Invalidate session and logout
-                Auth::guard($role)->logout();
-                session()->invalidate();
-                session()->regenerateToken();
+            // $cookieFp = $_COOKIE['device_fingerprint'] ?? null;
+            // $sessionFp = session('device_fingerprint');
+            // if (!$cookieFp || !$sessionFp || $cookieFp !== $sessionFp) {
+            //     // Invalidate session and logout
+            //     Auth::guard($role)->logout();
+            //     session()->invalidate();
+            //     session()->regenerateToken();
 
-                return redirect('/login')->with('status', 'Session verification failed. You have been logged out.');
-            }
+            //     return redirect('/login')->with('status', 'Session verification failed. You have been logged out.');
+            // }
         }
         return $next($request);
     }

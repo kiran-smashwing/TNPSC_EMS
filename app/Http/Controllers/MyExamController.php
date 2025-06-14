@@ -344,8 +344,8 @@ class MyExamController extends Controller
 
         $alloted_count = $session_confirmedhalls
             ? ($session_type == 'Objective'
-                ? $session_confirmedhalls->alloted_count / 20
-                : $session_confirmedhalls->alloted_count / 10)
+                ? ceil($session_confirmedhalls->alloted_count / 20)
+                : ceil($session_confirmedhalls->alloted_count / 10))
             : 0;
 
 

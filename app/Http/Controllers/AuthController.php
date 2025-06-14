@@ -225,19 +225,19 @@ class AuthController extends Controller
             $display_role = $this->getDisplayRole($role);
             // Store the device fingerprint in the session
             // Generate and store the initial device fingerprint
-            $deviceFingerprint = $_COOKIE['device_fingerprint'] ?? null;
-            if (!$deviceFingerprint) {
-                return redirect()->route('login')
-                    ->with('error', 'Security verification failed. Please try again.')
-                    ->withInput($request->except('password'));
-            }
+            // $deviceFingerprint = $_COOKIE['device_fingerprint'] ?? null;
+            // if (!$deviceFingerprint) {
+            //     return redirect()->route('login')
+            //         ->with('error', 'Security verification failed. Please try again.')
+            //         ->withInput($request->except('password'));
+            // }
             session([
                 'auth_role' => $role,
                 'athu_display_role' => $display_role,
                 'auth_id' => $userId,
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
-                'device_fingerprint' => $deviceFingerprint
+                // 'device_fingerprint' => $deviceFingerprint
             ]);
 
             if ($remember) {

@@ -34,7 +34,7 @@
             <div class="row text-center mb-4">
                 <div class="">
                     <a href="{{ route('qr-code-reader') }}" class="me-2 btn btn-light-primary"><i
-                            class="feather icon-aperture mx-1"></i>Scan OR Code</a>
+                            class="feather icon-aperture mx-1"></i>Scan QR Code</a>
                 </div>
             </div>
             <div class="row justify-content-center">

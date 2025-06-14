@@ -775,6 +775,7 @@ Route::prefix('report')->group(function () {
         Route::get('/ci-attendace', [CiMeetingAttendanceController::class, 'index'])->name('ci-attendace.report')->middleware('role.permission:ci-attendace.report');
         Route::get('/ci-attendace-report-overall', [CiMeetingAttendanceController::class, 'generateCIMeetingReport'])->name('ci-attendace.report.overall')->middleware('role.permission:ci-attendace.report.overall');
         Route::get('/consolidated-statement', [ConsolidatedStatementController::class, 'index'])->name('consolidated-statement.report')->middleware('role.permission:consolidated-statement.report');
+        Route::get('/consolidated-statement', [ConsolidatedStatementController::class, 'index'])->name('consolidated-statement.report')->middleware('role.permission:consolidated-statement.report');
         Route::get('/candidate-remarks', [CandidateRemarksController::class, 'index'])->name('candidate-remarks.report')->middleware('role.permission:candidate-remarks.report');
         Route::get('/candidate-remarks-report-overall', [CandidateRemarksController::class, 'generateCandidateRemarksReportOverall'])->name('candidate-remarks.report.overall')->middleware('role.permission:candidate-remarks.report.overall');
         Route::get('/exam-material-discrepancy', [ExamMaterialsDiscrepancyController::class, 'index'])->name('exam-material-discrepancy.report')->middleware('role.permission:exam-material-discrepancy.report');

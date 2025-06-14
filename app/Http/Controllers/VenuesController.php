@@ -474,6 +474,8 @@ class VenuesController extends Controller
     }
     public function toggleStatus($id)
     {
+        $id = Crypt::decrypt($id);
+
         try {
             // Find the venue by its ID
             $venue = Venues::findOrFail($id);

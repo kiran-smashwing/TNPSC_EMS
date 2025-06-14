@@ -73,7 +73,7 @@
                             <h5>Filter Exam Materials Discrepancy</h5>
                         </div>
                         <div class="card-body">
-                            <form action="{{ route('emergency-alarm-notification.report') }}" method="GET">
+                            <form action="{{ route('exam-material-discrepancy.report') }}" method="GET">
                                 <div class="row">
                                     <!-- Notification No -->
                                     <div class="col-md-4 mb-3">
@@ -168,7 +168,7 @@
                                 <div class="row">
                                     <div class="col-md-12 text-end">
                                         <button type="submit" class="btn btn-primary">Filter</button>
-                                        <a href="{{ route('emergency-alarm-notification.report') }}"
+                                        <a href="{{ route('exam-material-discrepancy.report') }}"
                                             class="btn btn-secondary">Reset</a>
                                     </div>
                                 </div>

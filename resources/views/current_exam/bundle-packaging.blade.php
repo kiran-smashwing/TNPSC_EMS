@@ -34,7 +34,7 @@
             <div class="row text-center mb-4">
                 <div class="">
                 <a target="_blank" href="http://localhost/ems/public/current-exam/ciReceiveMaterials"
-                    class="me-2 btn btn-light-primary"><i class="feather icon-aperture mx-1"></i>Scan OR Code</a></div>
+                    class="me-2 btn btn-light-primary"><i class="feather icon-aperture mx-1"></i>Scan QR Code</a></div>
             </div>
             <div class="row justify-content-center">
                 <!-- [ basic-table ] start -->

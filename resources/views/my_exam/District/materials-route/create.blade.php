@@ -165,11 +165,11 @@
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Driver Name<span
-                                                            class="text-danger">*</span></label>
+                                                            class="text-danger"></span></label>
                                                     <input type="text"
                                                         class="form-control @error('driver_name') is-invalid @enderror"
                                                         id="driver_name" name="driver_name" placeholder="vijay"
-                                                        value="{{ old('driver_name') }}" required>
+                                                        value="{{ old('driver_name') }}" >
                                                     @error('driver_name')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -179,12 +179,12 @@
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Driver Licenese No<span
-                                                            class="text-danger">*</span></label>
+                                                            class="text-danger"></span></label>
                                                     <input type="text"
                                                         class="form-control  @error('driver_licence_no') is-invalid @enderror"
                                                         id="driver_licence_no" name="driver_licence_no"
                                                         placeholder="DLR0101223" value="{{ old('driver_licence_no') }}"
-                                                        required>
+                                                        >
                                                     @error('driver_licence_no')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -194,11 +194,11 @@
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="phone">Driver Phone<span
-                                                            class="text-danger">*</span></label>
+                                                            class="text-danger"></span></label>
                                                     <input type="tel"
                                                         class="form-control @error('phone') is-invalid @enderror "
                                                         id="phone" name="phone" value="{{ old('phone') }}"
-                                                        placeholder="9434***1212" required>
+                                                        placeholder="9434***1212" >
                                                     @error('phone')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -207,11 +207,11 @@
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="vehicle_no">Vehicle No<span
-                                                            class="text-danger">*</span></label>
+                                                            class="text-danger"></span></label>
                                                     <input type="text"
                                                         class="form-control @error('vehicle_no') is-invalid @enderror"
                                                         id="vehicle_no" name="vehicle_no" placeholder="TN 01 2345"
-                                                        value="{{ old('vehicle_no') }}" required>
+                                                        value="{{ old('vehicle_no') }}" >
                                                     @error('vehicle_no')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror

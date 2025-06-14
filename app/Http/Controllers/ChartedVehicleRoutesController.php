@@ -58,7 +58,7 @@ class ChartedVehicleRoutesController extends Controller
             'route_no' => 'required|string|max:255',
             'exam_id' => 'required|array',
             'driver_name' => 'required|string|max:255',
-            'driver_licence_no' => 'required|string|max:255',
+            'driver_licence_no' => 'string|max:255',
             'phone' => 'required|string|max:255',
             'vehicle_no' => 'required|string|max:255',
             'otl_locks' => 'required|array',
@@ -67,7 +67,7 @@ class ChartedVehicleRoutesController extends Controller
             'police_constable_phone' => 'required|string|max:255',
             'escort_vehicle_no' => 'required|string|max:255',
             'escort_driver_name' => 'required|string|max:255',
-            'escort_driver_licence_no' => 'required|string|max:255',
+            'escort_driver_licence_no' => 'string|max:255',
             'escort_driver_phone' => 'required|string|max:255',
         ]);
         // Handle both string and array inputs for otl_locks and gps_lock

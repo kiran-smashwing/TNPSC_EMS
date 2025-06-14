@@ -122,7 +122,7 @@
                                                         class="form-control  @error('driver_licence_no') is-invalid @enderror"
                                                         id="driver_licence_no" name="driver_licence_no"
                                                         placeholder="DLR0101223" value="{{ old('driver_licence_no') }}"
-                                                        required>
+>
                                                     @error('driver_licence_no')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -262,7 +262,7 @@
                                                         class="form-control @error('escort_driver_licence_no') is-invalid @enderror"
                                                         id="escort_driver_licence_no" name="escort_driver_licence_no"
                                                         placeholder="DLR0101223"
-                                                        value="{{ old('escort_driver_licence_no') }}" required>
+                                                        value="{{ old('escort_driver_licence_no') }}" >
                                                     @error('escort_driver_licence_no')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror

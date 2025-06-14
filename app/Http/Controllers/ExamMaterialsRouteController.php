@@ -168,7 +168,7 @@ class ExamMaterialsRouteController extends Controller
         $lastRouteNumber = $lastRoute ? intval($lastRoute) : 0;
         $newRouteNumber = str_pad(($lastRouteNumber + 1), 3, '0', STR_PAD_LEFT);
 
-        return view('my_exam.District.materials-route.create', compact('examId', 'mobileTeam', 'centers', 'halls', 'examDates', 'user','newRouteNumber'));
+        return view('my_exam.District.materials-route.create', compact('examId', 'mobileTeam', 'centers', 'halls', 'examDates', 'user', 'newRouteNumber'));
     }
 
     public function storeRoute(Request $request)
@@ -196,10 +196,10 @@ class ExamMaterialsRouteController extends Controller
                     }
                 },
             ],
-            'driver_name' => 'required',
-            'driver_licence_no' => 'required',
-            'phone' => 'required',
-            'vehicle_no' => 'required',
+            'driver_name' => '',
+            'driver_licence_no' => '',
+            'phone' => '',
+            'vehicle_no' => '',
             'mobile_staff' => 'required',
             'centers' => 'required|array',
             'halls' => [
@@ -339,7 +339,7 @@ class ExamMaterialsRouteController extends Controller
         $halls = ExamMaterialsData::where('exam_id', $routes->exam_id)
             ->where('district_code', $district_code)
             ->join('centers', 'exam_materials_data.center_code', '=', 'centers.center_code')
-            ->groupBy('exam_materials_data.center_code', 'centers.center_name', 'exam_materials_data.hall_code', )
+            ->groupBy('exam_materials_data.center_code', 'centers.center_name', 'exam_materials_data.hall_code',)
             ->select(
                 'centers.center_name',
                 'exam_materials_data.center_code',
@@ -379,10 +379,10 @@ class ExamMaterialsRouteController extends Controller
                     }
                 },
             ],
-            'driver_name' => 'required',
-            'driver_licence_no' => 'required',
-            'driver_phone' => 'required',
-            'vehicle_no' => 'required',
+            'driver_name' => '',
+            'driver_licence_no' => '',
+            'driver_phone' => '',
+            'vehicle_no' => '',
             'mobile_staff' => 'required',
             'center_code' => 'required|array',
             'halls' => [

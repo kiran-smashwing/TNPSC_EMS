@@ -73,7 +73,7 @@
                             <h5>Filter Consolidated Statement</h5>
                         </div>
                         <div class="card-body">
-                            <form action="{{ route('consolidated-statement.report.overall') }}" method="GET"
+                            <form action="{{ route('consolidated-statement.report') }}" method="GET"
                                 id="filterForm">
                                 @csrf
                                 <div class="row">

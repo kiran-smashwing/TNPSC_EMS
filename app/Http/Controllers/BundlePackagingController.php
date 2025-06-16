@@ -829,6 +829,7 @@ class BundlePackagingController extends Controller
                                 'trunkbox_qr_code' => $trunkboxCode,
                                 'otl_codes' => json_decode($trunkbox->otl_code ?? '[]'),
                                 'materials_count' => $totalMaterials,
+                                'used_otl_code' => $trunkbox->used_otl_code ?? null,
                                 'scanned_count' => $totalScanned
                             ];
                         } else {
@@ -963,6 +964,55 @@ class BundlePackagingController extends Controller
                     'status' => 'error',
                     'message' => 'Invalid Trunk Box. It does not exist.'
                 ], 400);
+            }
+            // check if otl codes existing in otlData 
+            $otlCodes = json_decode($otlData->otl_code, true);
+            $usedOTLCodes = $request->otlCodes;
+            $newOTLCodes = array_diff($usedOTLCodes, $otlCodes);
+            if (count($newOTLCodes) > 0) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid OTL Codes. Some OTL codes are not found in the allocated codes.'
+                ], 400);
+            }
+            // Update used_otl_code in trunkbox_otldata
+            $otlData->used_otl_code = json_encode($request->otlCodes);
+            $otlData->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'OTL codes saved successfully.'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to save OTL code: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    public function saveCenterUsedOTLCodes(Request $request)
+    {
+        try {
+            $request->validate([
+                'otlCodes' => 'required',
+                'trunkboxQrCode' => 'required',
+                'examId' => 'required',
+            ]);
+
+            // Check if the provided OTL code exists in trunkbox_otldata
+            $otlData = ExamTrunkBoxOTLData::where('trunkbox_qr_code', $request->trunkboxQrCode)->first();
+            if (!$otlData) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid Trunk Box. It does not exist.'
+                ], 400);
+            }
+            //check if the center as assigned to the trunkbox
+            if ($otlData->center_code !== $request->get('auth_user')->center_code) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This trunk box is not assigned to your center.'
+                ], 403);
             }
             // check if otl codes existing in otlData 
             $otlCodes = json_decode($otlData->otl_code, true);

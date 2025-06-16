@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ExamConfirmedHalls;
 use Spatie\Browsershot\Browsershot;
 use App\Models\Currentexam;
 use Illuminate\Http\Request;
@@ -107,11 +108,36 @@ class CiMeetingAttendanceController extends Controller
 
         if (!$exam_data) {
             return back()->with('error', 'Exam data not found.');
-            // return response()->json(['error' => 'Exam data not found'], 404);
         }
 
-        // Retrieve CI Meeting Attendance data
-        $ci_meeting = CIMeetingAttendance::where('exam_id', $exam_data->exam_main_no)
+        $exam_id = $exam_data->exam_main_no;
+
+        // Fetch all confirmed halls (similar to attendance report pattern)
+        $examconfirmed_halls = ExamConfirmedHalls::with([
+            'district',
+            'center',
+            'venue',
+            'chiefInvigilator.venue',
+            'ciCandidateLogs'
+        ])
+            ->where('exam_id', $exam_id)
+            ->when($districtId, function ($query) use ($districtId) {
+                return $query->whereHas('center.district', function ($q) use ($districtId) {
+                    $q->where('id', $districtId);
+                });
+            })
+            ->when($centerId, function ($query) use ($centerId) {
+                return $query->whereHas('center', function ($q) use ($centerId) {
+                    $q->where('id', $centerId);
+                });
+            })
+            ->get()
+            ->unique('ci_id')
+            ->sortBy('center.center_code')
+            ->sortBy('hall_code');  // Keep only one entry per CI
+
+        // Retrieve CI Meeting Attendance data and key by ci_id for quick lookup
+        $ci_meeting_attendance = CIMeetingAttendance::where('exam_id', $exam_data->exam_main_no)
             ->when($districtId, function ($query) use ($districtId) {
                 return $query->whereHas('center.district', function ($q) use ($districtId) {
                     $q->where('id', $districtId);
@@ -127,24 +153,47 @@ class CiMeetingAttendanceController extends Controller
                 'ci.venue',
                 'center.district',
             ])
-            ->get();
+            ->get()
+            ->keyBy('ci_id'); // Key by ci_id for quick lookup
 
-        if ($ci_meeting->isEmpty()) {
-            return back()->with('error', 'No CI Meeting data found.');
-            // return response()->json(['error' => 'No CI Meeting data found'], 404);
-        }
-
-        // Extract district codes from CI Meeting Attendance records
-        $districtCodes = $ci_meeting->pluck('center.district.district_code')->unique()->filter();
+        // Extract district codes from confirmed halls  
+        $districtCodes = $examconfirmed_halls->pluck('center.district.district_code')->unique()->filter();
 
         // Retrieve CI Meeting times for each district
         $ci_meeting_times = CIMeetingQrcode::where('exam_id', $exam_data->exam_main_no)
             ->whereIn('district_code', $districtCodes)
             ->get()
-            ->keyBy('district_code'); // Group by district_code for easy access
+            ->keyBy('district_code');
 
-        // Group CI Meeting data by district and attach meeting time
-        $grouped_data = $ci_meeting->groupBy(function ($item) {
+        // Create merged records for all confirmed halls
+        $merged_records = collect();
+
+        foreach ($examconfirmed_halls as $hall) {
+            // Check if CI meeting attendance exists for this CI
+            if (isset($ci_meeting_attendance[$hall->ci_id])) {
+                // Use existing attendance record
+                $record = $ci_meeting_attendance[$hall->ci_id];
+            } else {
+                // Create a fake record with the same structure for CIs who didn't attend
+                $record = (object) [
+                    'ci_id' => $hall->ci_id,
+                    'hall_code' => $hall->hall_code,
+                    'center' => $hall->center,
+                    'ci' => $hall->chiefInvigilator,
+                    'created_at' => null, // No attendance
+                    'updated_at' => null, // No attendance
+                ];
+            }
+
+            $merged_records->push($record);
+        }
+
+        if ($merged_records->isEmpty()) {
+            return back()->with('error', 'No CI data found.');
+        }
+
+        // Group merged records by district (maintaining your existing structure)
+        $grouped_data = $merged_records->groupBy(function ($item) {
             return $item->center->district->district_name ?? 'Unknown District';
         })->map(function ($items) use ($ci_meeting_times) {
             $districtCode = $items->first()->center->district->district_code ?? null;
@@ -162,11 +211,12 @@ class CiMeetingAttendanceController extends Controller
                     : null,
             ];
         });
+
         $exam_name = $exam_data->exam_main_name ?? 'N/A';
         $exam_services = $exam_data->examservice->examservice_name ?? 'N/A';
-        //    dd($exam_services);
-        // Render the view
-        $html = view('view_report.ci_meeting_report.ci-meeting-report', compact('exam_services','exam_name','notification_no', 'grouped_data'))->render();
+
+        // Render the view (keeping your existing structure)
+        $html = view('view_report.ci_meeting_report.ci-meeting-report', compact('exam_services', 'exam_name', 'notification_no', 'grouped_data'))->render();
 
         // Generate PDF using Browsershot
         $pdf = Browsershot::html($html)

@@ -124,18 +124,18 @@ class AttendanceReportController extends Controller
         $category = $request->query('category');
         $districtId = $request->query('district');
         $centerId = $request->query('center');  // Center ID for filtering
-    
+
         // Fetch the exam details
         $exam_data = Currentexam::with('examservice')
             ->where('exam_main_notification', $notificationNo)
             ->first();
-    
+
         if (!$exam_data) {
             return back()->with('error', 'Exam data not found.');
         }
-    
+
         $exam_id = $exam_data->exam_main_no;
-    
+
         // Fetch all confirmed halls for the given exam date
         $examconfirmed_halls = ExamConfirmedHalls::with([
             'district',
@@ -153,7 +153,7 @@ class AttendanceReportController extends Controller
             ->where('exam_id', $exam_id)
             ->where('exam_date', $examDate)
             ->get();
-    
+
         // Fetch candidate attendance data
         $candidate_attendance_logs = CICandidateLogs::where('exam_id', $exam_id)
             ->where('exam_date', $examDate)
@@ -162,31 +162,31 @@ class AttendanceReportController extends Controller
             ->keyBy(function ($log) {
                 return $log->ci_id . '-' . $log->hall_code; // Key by CI ID and Hall Code for quick lookup
             });
-    
+
         $session_data = [];
         $district_name = null; // Initialize district_name
         $center_name = null;   // Initialize center_name
-    
+
         foreach ($examconfirmed_halls as $hall) {
             $district = $hall->district;
             $center = $hall->center;
             $venue = $hall->venue ?? $hall->chiefInvigilator->venue ?? null;
-    
+
             // Set district name only once
             if ($district_name === null && $district) {
                 $district_name = $district->district_name ?? 'N/A';
             }
-    
+
             // Set center name only once
             if ($center_name === null && $center) {
                 $center_name = $center->center_name ?? 'N/A';
             }
-    
+
             foreach (['FN', 'AN'] as $sessionKey) {
                 if ($session && $session !== $sessionKey) {
                     continue; // Skip if session doesn't match the requested session
                 }
-    
+
                 // Default attendance data
                 $attendance_data = [
                     'present' => 0,
@@ -194,17 +194,17 @@ class AttendanceReportController extends Controller
                     'alloted_count' => $hall->alloted_count ?? 0, // Use hall's allotted count if available
                     'timestamp' => 'N/A'
                 ];
-    
+
                 // Check if attendance log exists for this hall
                 $logKey = $hall->ci_id . '-' . $hall->hall_code;
                 if (isset($candidate_attendance_logs[$logKey]) && $candidate_attendance_logs[$logKey]->candidate_attendance) {
                     $decoded_attendance = is_string($candidate_attendance_logs[$logKey]->candidate_attendance)
                         ? json_decode($candidate_attendance_logs[$logKey]->candidate_attendance, true)
                         : $candidate_attendance_logs[$logKey]->candidate_attendance;
-    
+
                     $attendance_data = array_merge($attendance_data, $decoded_attendance[$sessionKey] ?? []);
                 }
-    
+
                 // Create a session entry
                 $sessionEntry = [
                     'session' => $sessionKey,
@@ -220,16 +220,16 @@ class AttendanceReportController extends Controller
                         : '0%',
                     'timestamp' => $attendance_data['timestamp'] ?? 'N/A',
                 ];
-    
+
                 $session_data[] = $sessionEntry;
             }
         }
-    
+
         // Sort session data by center_code and hall_code
         usort($session_data, function ($a, $b) {
             return [$a['center_code'], $a['hall_code']] <=> [$b['center_code'], $b['hall_code']];
         });
-    
+
         // Prepare final data for Blade
         $data = [
             'notification_no' => $notificationNo,
@@ -242,10 +242,10 @@ class AttendanceReportController extends Controller
             'district' => $district_name ?? 'N/A',
             'session_data' => $session_data
         ];
-    
+
         // Render the Blade template
         $html = view('view_report.attendance_report.attendance_report_pdf', $data)->render();
-    
+
         // Generate PDF using Browsershot
         $pdf = Browsershot::html($html)
             ->setOption('protarit', true)
@@ -269,10 +269,10 @@ class AttendanceReportController extends Controller
             ->scale(1)
             ->format('A4')
             ->pdf();
-    
+
         // Define a unique filename for the report
         $filename = 'attendance_report_center_' . ($center_name ?? 'all') . '_' . time() . '.pdf';
-    
+
         // Return the PDF as a response
         return response($pdf)
             ->header('Content-Type', 'application/pdf')
@@ -289,18 +289,18 @@ class AttendanceReportController extends Controller
         $category = $request->query('category');
         $districtId = $request->query('district');
         $centerId = $request->query('center');  // Center ID for filtering
-    
+
         // Fetch the exam details
         $exam_data = Currentexam::with('examservice')
             ->where('exam_main_notification', $notificationNo)
             ->first();
-    
+
         if (!$exam_data) {
             return back()->with('error', 'Exam data not found.');
         }
-    
+
         $exam_id = $exam_data->exam_main_no;
-    
+
         // Fetch all confirmed halls for the given exam date
         $examconfirmed_halls = ExamConfirmedHalls::with([
             'district',
@@ -318,7 +318,7 @@ class AttendanceReportController extends Controller
             ->where('exam_id', $exam_id)
             ->where('exam_date', $examDate)
             ->get();
-    
+
         // Fetch candidate attendance data
         $candidate_attendance_logs = CICandidateLogs::where('exam_id', $exam_id)
             ->where('exam_date', $examDate)
@@ -327,25 +327,25 @@ class AttendanceReportController extends Controller
             ->keyBy(function ($log) {
                 return $log->ci_id . '-' . $log->hall_code; // Key by CI ID and Hall Code for quick lookup
             });
-    
+
         $session_data = [];
         $district_name = null; // Initialize district_name
-    
+
         foreach ($examconfirmed_halls as $hall) {
             $district = $hall->district;
             $center = $hall->center;
             $venue = $hall->venue ?? $hall->chiefInvigilator->venue ?? null;
-    
+
             // Set district name only once
             if ($district_name === null && $district) {
                 $district_name = $district->district_name ?? 'N/A';
             }
-    
+
             foreach (['FN', 'AN'] as $sessionKey) {
                 if ($session && $session !== $sessionKey) {
                     continue; // Skip if session doesn't match the requested session
                 }
-    
+
                 // Default attendance data
                 $attendance_data = [
                     'present' => 0,
@@ -353,17 +353,17 @@ class AttendanceReportController extends Controller
                     'alloted_count' => $hall->alloted_count ?? 0, // Use hall's allotted count if available
                     'timestamp' => 'N/A'
                 ];
-    
+
                 // Check if attendance log exists for this hall
                 $logKey = $hall->ci_id . '-' . $hall->hall_code;
                 if (isset($candidate_attendance_logs[$logKey]) && $candidate_attendance_logs[$logKey]->candidate_attendance) {
                     $decoded_attendance = is_string($candidate_attendance_logs[$logKey]->candidate_attendance)
                         ? json_decode($candidate_attendance_logs[$logKey]->candidate_attendance, true)
                         : $candidate_attendance_logs[$logKey]->candidate_attendance;
-    
+
                     $attendance_data = array_merge($attendance_data, $decoded_attendance[$sessionKey] ?? []);
                 }
-    
+
                 // Create a session entry
                 $sessionEntry = [
                     'session' => $sessionKey,
@@ -379,16 +379,16 @@ class AttendanceReportController extends Controller
                         : '0%',
                     'timestamp' => $attendance_data['timestamp'] ?? 'N/A',
                 ];
-    
+
                 $session_data[] = $sessionEntry;
             }
         }
-    
+
         // Sort session data by center_code and hall_code
         usort($session_data, function ($a, $b) {
             return [$a['center_code'], $a['hall_code']] <=> [$b['center_code'], $b['hall_code']];
         });
-    
+
         // Prepare final data for Blade
         $data = [
             'notification_no' => $notificationNo,
@@ -399,10 +399,10 @@ class AttendanceReportController extends Controller
             'district' => $district_name ?? 'N/A',
             'session_data' => $session_data
         ];
-    
+
         // Render the Blade template
         $html = view('view_report.attendance_report.attendance_reprot_district', $data)->render();
-    
+
         // Generate PDF using Browsershot
         $pdf = Browsershot::html($html)
             ->setOption('landscape', true)
@@ -426,10 +426,10 @@ class AttendanceReportController extends Controller
             ->scale(1)
             ->format('A4')
             ->pdf();
-    
+
         // Define a unique filename for the report
         $filename = 'attendance_report_district_' . ($district_name ?? 'all') . '_' . time() . '.pdf';
-    
+
         // Return the PDF as a response
         return response($pdf)
             ->header('Content-Type', 'application/pdf')
@@ -445,18 +445,18 @@ class AttendanceReportController extends Controller
         $category = $request->query('category');
         $districtId = $request->query('district');
         $centerId = $request->query('center');
-    
+
         // Fetch the exam details
         $exam_data = Currentexam::with('examservice')
             ->where('exam_main_notification', $notificationNo)
             ->first();
-    
+
         if (!$exam_data) {
             return back()->with('error', 'Exam data not found.');
         }
-    
+
         $exam_id = $exam_data->exam_main_no;
-    
+
         // Fetch all confirmed halls for the given exam date
         $examconfirmed_halls = ExamConfirmedHalls::with([
             'district',
@@ -465,10 +465,22 @@ class AttendanceReportController extends Controller
             'chiefInvigilator.venue',
             'ciCandidateLogs' // Include candidate logs for attendance data
         ])
+            ->when($districtId, function ($query) use ($districtId) {
+                return $query->whereHas('district', function ($q) use ($districtId) {
+                    $q->where('id', $districtId);
+                });
+            })
+            ->when($centerId, function ($query) use ($centerId) {
+                return $query->whereHas('center', function ($q) use ($centerId) {
+                    $q->where('id', $centerId);
+                });
+            })
             ->where('exam_id', $exam_id)
             ->where('exam_date', $examDate)
-            ->get();
-    
+            ->get()
+            ->sortBy('center_code')
+            ->sortBy('hall_code');
+
         // Fetch candidate attendance data
         $candidate_attendance_logs = CICandidateLogs::where('exam_id', $exam_id)
             ->where('exam_date', $examDate)
@@ -477,19 +489,19 @@ class AttendanceReportController extends Controller
             ->keyBy(function ($log) {
                 return $log->ci_id . '-' . $log->hall_code; // Key by CI ID and Hall Code for quick lookup
             });
-    
+
         $session_data = [];
-    
+
         foreach ($examconfirmed_halls as $hall) {
             $district = $hall->district;
             $center = $hall->center;
             $venue = $hall->venue ?? $hall->chiefInvigilator->venue ?? null;
-    
+
             foreach (['FN', 'AN'] as $sessionKey) {
                 if ($session && $session !== $sessionKey) {
                     continue; // Skip if session doesn't match the requested session
                 }
-    
+
                 // Default attendance data
                 $attendance_data = [
                     'present' => 0,
@@ -497,17 +509,17 @@ class AttendanceReportController extends Controller
                     'alloted_count' => $hall->alloted_count ?? 0, // Use hall's allotted count if available
                     'timestamp' => 'N/A'
                 ];
-    
+
                 // Check if attendance log exists for this hall
                 $logKey = $hall->ci_id . '-' . $hall->hall_code;
                 if (isset($candidate_attendance_logs[$logKey]) && $candidate_attendance_logs[$logKey]->candidate_attendance) {
                     $decoded_attendance = is_string($candidate_attendance_logs[$logKey]->candidate_attendance)
                         ? json_decode($candidate_attendance_logs[$logKey]->candidate_attendance, true)
                         : $candidate_attendance_logs[$logKey]->candidate_attendance;
-    
+
                     $attendance_data = array_merge($attendance_data, $decoded_attendance[$sessionKey] ?? []);
                 }
-    
+
                 // Create a session entry
                 $sessionEntry = [
                     'session' => $sessionKey,
@@ -524,16 +536,82 @@ class AttendanceReportController extends Controller
                         : '0%',
                     'timestamp' => $attendance_data['timestamp'] ?? 'N/A',
                 ];
-    
+
                 $session_data[] = $sessionEntry;
             }
         }
-    
-        // Sort session data by center_code and hall_code
-        usort($session_data, function ($a, $b) {
-            return [$a['center_code'], $a['hall_code']] <=> [$b['center_code'], $b['hall_code']];
+
+        // Group session data by district
+        $grouped_data = collect($session_data)->groupBy('district_name')->map(function ($items) {
+            // Calculate totals for the district
+            $totalPresent = $items->sum('present');
+            $totalAbsent = $items->sum('absent');
+            $totalCandidates = $items->sum('total_candidates');
+            $attendancePercentage = $totalCandidates > 0
+                ? number_format(($totalPresent / $totalCandidates) * 100, 2) . '%'
+                : '0%';
+            // Calculate totals for the district
+            $totalCIs = $items->count();
+            $scannedCIs = $items->filter(function ($item) {
+                return $item['present'] > 0 || $item['absent'] > 0; // Attendance recorded
+            })->count();
+            $notScannedCIs = $totalCIs - $scannedCIs;
+            $percentageDone = $totalCIs > 0
+                ? number_format(($scannedCIs / $totalCIs) * 100, 2) . '%'
+                : '0%';
+
+
+            return [
+                'attendance_records' => $items,
+                'totals' => [
+                    'total_present' => $totalPresent,
+                    'total_absent' => $totalAbsent,
+                    'total_candidates' => $totalCandidates,
+                    'attendance_percentage' => $attendancePercentage,
+                ],
+                'ci_totals' => [
+                    'total_cis' => $totalCIs,
+                    'scanned_cis' => $scannedCIs,
+                    'not_scanned_cis' => $notScannedCIs,
+                    'percentage_done' => $percentageDone,
+                ],
+            ];
         });
-    
+        // Step 1: Calculate grand totals
+        $grandTotals = [
+            'total_present' => 0,
+            'total_absent' => 0,
+            'total_candidates' => 0,
+            'attendance_percentage' => '0%',
+        ];
+
+        $ciGrandTotals = [
+            'total_cis' => 0,
+            'scanned_cis' => 0,
+            'not_scanned_cis' => 0,
+            'percentage_done' => '0%',
+        ];
+
+        foreach ($grouped_data as $district) {
+            $grandTotals['total_present'] += $district['totals']['total_present'];
+            $grandTotals['total_absent'] += $district['totals']['total_absent'];
+            $grandTotals['total_candidates'] += $district['totals']['total_candidates'];
+
+            $ciGrandTotals['total_cis'] += $district['ci_totals']['total_cis'];
+            $ciGrandTotals['scanned_cis'] += $district['ci_totals']['scanned_cis'];
+            $ciGrandTotals['not_scanned_cis'] += $district['ci_totals']['not_scanned_cis'];
+        }
+
+        // Recalculate percentages
+        $grandTotals['attendance_percentage'] = $grandTotals['total_candidates'] > 0
+            ? number_format(($grandTotals['total_present'] / $grandTotals['total_candidates']) * 100, 2) . '%'
+            : '0%';
+
+        $ciGrandTotals['percentage_done'] = $ciGrandTotals['total_cis'] > 0
+            ? number_format(($ciGrandTotals['scanned_cis'] / $ciGrandTotals['total_cis']) * 100, 2) . '%'
+            : '0%';
+
+
         // Prepare final data for Blade
         $data = [
             'notification_no' => $notificationNo,
@@ -541,14 +619,14 @@ class AttendanceReportController extends Controller
             'exam_data' => $exam_data,
             'session' => $session,
             'category' => $category,
-            'districts' => array_unique(array_column($session_data, 'district_name')),
-            'centers' => array_unique(array_column($session_data, 'center_name')),
-            'session_data' => $session_data
+            'grouped_data' => $grouped_data,
+            'grand_totals' => $grandTotals,
+            'ci_grand_totals' => $ciGrandTotals,
         ];
-    
+
         // Render the Blade template
         $html = view('view_report.attendance_report.attendance_report_overall', $data)->render();
-    
+
         // Generate PDF using Browsershot
         $pdf = Browsershot::html($html)
             ->setOption('landscape', true)
@@ -565,17 +643,17 @@ class AttendanceReportController extends Controller
                 Page <span class="pageNumber"></span> of <span class="totalPages"></span>
             </div>
             <div style="position: absolute; bottom: 5mm; right: 10px; font-size: 10px;">
-                IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . '
+                 IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . '
             </div>')
             ->setOption('preferCSSPageSize', true)
             ->setOption('printBackground', true)
             ->scale(1)
             ->format('A4')
             ->pdf();
-    
+
         // Define a unique filename for the report
-        $filename = 'attendance_report_overall_' . time() . '.pdf';
-    
+        $filename = 'attendance_report_overall_grouped_' . time() . '.pdf';
+
         // Return the PDF as a response
         return response($pdf)
             ->header('Content-Type', 'application/pdf')

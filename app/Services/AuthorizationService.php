@@ -527,6 +527,7 @@ class AuthorizationService
             'receive-exam-materials.district-to-center',
             'receive-exam-materials.scan-center-exam-materials',
             'bundle-packaging.scan-center-exam-materials',
+            'bundle-packaging.save-center-used-otl-codes',
         ],
         'mobile_team_staffs' => [
             'completed-exam.index',

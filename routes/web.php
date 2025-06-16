@@ -635,6 +635,8 @@ Route::prefix('bundle-packaging')->group(function () {
             ->middleware('role.permission:bundle-packaging.scan-chennai-disitrct-exam-materials');
         Route::post('/save-used-otl-codes', [BundlePackagingController::class, 'saveUsedOTLCodes'])->name('bundle-packaging.save-used-otl-codes')
             ->middleware('role.permission:bundle-packaging.save-trunkbox-used-otl-codes');
+        Route::post('/save-center-used-otl-codes', [BundlePackagingController::class, 'saveCenterUsedOTLCodes'])->name('bundle-packaging.save-center-used-otl-codes')
+            ->middleware('role.permission:bundle-packaging.save-center-used-otl-codes');
         Route::get('/vds-to-headquarters/{examId}', [BundlePackagingController::class, 'vanDutyStafftoHeadquarters'])->name('bundle-packaging.vanduty-staff-to-headquarters')
             ->middleware('role.permission:bundle-packaging.vanduty-staff-to-headquarters');
         Route::post('/scan-hq-exam-materials', [BundlePackagingController::class, 'scanHQExamMaterials'])->name('bundle-packaging.scan-hq-exam-materials')

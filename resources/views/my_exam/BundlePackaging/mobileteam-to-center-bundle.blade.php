@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Mobile Team to District Treasury')
+@section('title', 'Mobile Team to Center Treasury')
 
 @section('content')
     @push('styles')
@@ -143,8 +143,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                                                                                  <h2 class="mb-0"></h2>
-                                                                                                </div> -->
+                                                                                                          <h2 class="mb-0"></h2>
+                                                                                                        </div> -->
                         </div>
                     </div>
                 </div>
@@ -158,7 +158,7 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="d-sm-flex align-items-center justify-content-between">
-                                <h5 class="mb-3 mb-sm-0">Mobile Team to District Treasury
+                                <h5 class="mb-3 mb-sm-0">Mobile Team to Center Treasury
                                 </h5>
                                 <ul class="list-inline ms-auto  mb-0">
                                     {{-- <li class="list-inline-item"><a href="#" class="badge bg-dark f-14">Received
@@ -171,8 +171,8 @@
                         <div class="card-body table-border-style">
                             <!-- Filter options -->
                             <form id="filterForm" class="mb-3" method="GET"
-                                action="{{ route('bundle-packaging.mobileteam-to-district', ['examId' => $examId]) }}">
-                              
+                                action="{{ route('bundle-packaging.mobileteam-to-center', ['examId' => $examId]) }}">
+
                                 <div class="filter-item">
                                     <select class="form-select" id="examDateFilter" name="examDate" class="form-control">
                                         <option value="">Select Exam Date</option>
@@ -190,7 +190,7 @@
                                 <div class="btn-container">
                                     <button type="button" id="resetButton"
                                         class="btn btn-secondary d-flex align-items-center"
-                                        onclick="window.location.href='{{ route('bundle-packaging.mobileteam-to-district', ['examId' => $examId]) }}'">
+                                        onclick="window.location.href='{{ route('bundle-packaging.mobileteam-to-center', ['examId' => $examId]) }}'">
                                         <i class="ti ti-refresh me-2"></i> Reset
                                     </button>
                                 </div>
@@ -224,13 +224,21 @@
                                             <td>{{ $data['trunkbox_qr_code'] }}</td>
                                             <td>{{ implode(', ', $data['otl_codes']) }}</td>
                                             <td>{{ $data['scanned_count'] }} / {{ $data['materials_count'] }}</td>
+                                            @php
+                                                $usedOtl = json_decode($data['used_otl_code'], true); // Decode to array
+                                                $hasUsedOtl = is_array($usedOtl) && count($usedOtl) > 0;
+                                            @endphp
+
                                             <td>
-                                                <a class="avtar avtar-xs btn-light-success bs-ajex-req"
+                                                <a class="avtar avtar-xs {{ $hasUsedOtl ? 'btn-light-danger' : 'btn-light-success' }} bs-ajex-req"
                                                     data-trunkbox="{{ $data['trunkbox_qr_code'] }}"
-                                                    data-otl="{{ json_encode($data['otl_codes']) }}">
-                                                    <i class="ti ti-checkbox f-20"></i>
+                                                    data-otl="{{ json_encode($data['otl_codes']) }}"
+                                                    title="{{ $hasUsedOtl ? 'OTL already used' : 'Assign OTL' }}">
+                                                    <i
+                                                        class="ti {{ $hasUsedOtl ? 'ti-alert-triangle' : 'ti-checkbox' }} f-20"></i>
                                                 </a>
                                             </td>
+
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -253,7 +261,7 @@
         @include('partials.datatable-export-js')
         <script src="{{ asset('storage/assets/js/plugins/choices.min.js') }}"></script>
 
-        <script src="{{ asset('storage//assets/js/plugins/sweetalert2.all.min.js') }}"></script>
+        <script src="{{ asset('storage/assets/js/plugins/sweetalert2.all.min.js') }}"></script>
         <script>
             // Submit all scanned QR codes
             document.getElementById("submitScannedCodesBtn").addEventListener("click", function() {
@@ -412,7 +420,7 @@
                         }
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            fetch('{{ route('bundle-packaging.save-used-otl-codes') }}', {
+                            fetch('{{ route('bundle-packaging.save-center-used-otl-codes') }}', {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
@@ -426,7 +434,12 @@
                                 .then(response => response.json())
                                 .then(data => {
                                     Swal.fire('Success!', 'OTL Codes updated successfully.',
-                                        'success');
+                                            'success')
+                                        .then(() => {
+                                            window.location
+                                                .reload(); // Reload after alert is closed
+                                        });
+
                                 })
                                 .catch(error => {
                                     Swal.fire('Error!', 'Something went wrong.', 'error');

@@ -42,6 +42,7 @@
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
+
         .content-section {
             margin-bottom: 20px;
             text-align: center;
@@ -102,6 +103,11 @@
 
 
 
+        /* Optional: Don't add page break before the first district */
+        .district-section:first-child {
+            page-break-before: avoid;
+        }
+
         @media print {
             .header-container {
                 position: static;
@@ -117,6 +123,7 @@
                 zoom: 0.8;
             }
 
+
         }
     </style>
 </head>
@@ -126,7 +133,8 @@
     <div class="container">
         <div class="header-container">
             <div class="logo-container">
-                <img src="{{ storage_path('app/public/assets/images/watermark.png') }}" alt="Logo" class="logo-image">
+                <img src="{{ storage_path('app/public/assets/images/watermark.png') }}" alt="Logo"
+                    class="logo-image">
             </div>
             <div class="header-content">
                 <h3>தமிழ்நாடு அரசுப்பணியாளர் தேர்வாணையம்</h3>
@@ -138,57 +146,91 @@
             <h5>CHIEF INVIGILATORS MEETING ATTENDANCE</h5>
         </div>
         <div class="content-section">
-            <p><strong> Notification No:</strong> {{$notification_no}} |
-                <strong>Exam Name:</strong> {{$exam_name}} <br> Exam Service: {{$exam_services}} <br>
+            <p><strong> Notification No:</strong> {{ $notification_no }} |
+                <strong>Exam Name:</strong> {{ $exam_name }} <br> Exam Service: {{ $exam_services }} <br>
             </p>
         </div>
         @foreach ($grouped_data as $district_name => $data)
-            <div class="meeting-title" style="margin: 40px 0 20px 0; padding: 10px 0;">
-                <h5 style="margin-bottom: 10px;">
-                    <strong>District:</strong> {{ $district_name }} |
-                    <strong>Meeting Date & Time:</strong>
-                    {{ $data['meeting_time']['meeting_date'] ?? 'N/A' }}
-                    {{ $data['meeting_time']['meeting_time'] ?? '' }}
-                </h5>
-            </div>
+            <div class="district-section" style="{{ !$loop->first ? 'page-break-before: always;' : '' }}">
+
+                <div class="meeting-title" style="margin: 40px 0 20px 0; padding: 10px 0;">
+                    <h5 style="margin-bottom: 10px;">
+                        <strong>District:</strong> {{ $district_name }} |
+                        <strong>Meeting Date & Time:</strong>
+                        {{ $data['meeting_time']['meeting_date'] ?? 'N/A' }}
+                        {{ $data['meeting_time']['meeting_time'] ?? '' }}
+                    </h5>
+                </div>
 
 
-            <table class="attendance-table">
-                <thead>
-                    <tr>
-                        <th>S.No</th>
-                        <th>Center Name</th>
-                        <th>Center Code</th>
-                        <th>Hall <br> No</th>
-                        <th>Venue Name</th>
-                        <th>Attendance <br> Date & Time</th>
-                        <th>Adequacy Check <br> Date & Time</th>
-                        <th>CI Name</th>
-                        <th>CI E-mail</th>
-                        <th>CI Phone</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($data['ci_meeting_records'] as $index => $record)
+                <table class="attendance-table">
+                    <thead>
                         <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $record->center->center_name ?? 'N/A' }}</td>
-                            <td>{{ $record->center->center_code ?? 'N/A' }}</td>
-                            <td>{{ $record->hall_code ?? 'N/A' }}</td>
-                            <td>{{ optional($record->ci->venue)->venue_name ?? 'N/A' }}</td>
-                            <td>
-                                {{ $record->updated_at ?? 'N/A' }} <br>
-                            </td>
-                            <td>
-                                {{ $record->created_at ?? 'N/A' }} <br>
-                            </td>
-                            <td>{{ $record->ci->ci_name ?? 'N/A' }}</td>
-                            <td>{{ $record->ci->ci_email ?? 'N/A' }}</td>
-                            <td>{{ $record->ci->ci_phone ?? 'N/A' }}</td>
+                            <th>S.No</th>
+                            <th>Center Name</th>
+                            <th>Center Code</th>
+                            <th>Hall <br> No</th>
+                            <th>Venue Name</th>
+                            <th>Attendance <br> Date & Time</th>
+                            <th>Adequacy Check <br> Date & Time</th>
+                            <th>CI Name</th>
+                            <th>CI E-mail</th>
+                            <th>CI Phone</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach ($data['ci_meeting_records'] as $index => $record)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $record->center->center_name ?? 'N/A' }}</td>
+                                <td>{{ $record->center->center_code ?? 'N/A' }}</td>
+                                <td>{{ $record->hall_code ?? 'N/A' }}</td>
+                                <td width="450px">{{ optional($record->ci->venue)->venue_name ?? 'N/A' }}</td>
+                                <td width="250px">
+                                    {{ $record->created_at ? $record->created_at->format('d-m-Y h:i:s A') : 'N/A' }} <br>
+                                </td>
+                                <td width="250px">
+                                    {{ $record->updated_at ? $record->updated_at->format('d-m-Y h:i:s A') : 'N/A' }} <br>
+                                </td>                                
+                                <td>{{ $record->ci->ci_name ?? 'N/A' }}</td>
+                                <td style="max-width:300px">{{ $record->ci->ci_email ?? 'N/A' }}</td>
+                                <td>{{ $record->ci->ci_phone ?? 'N/A' }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                @php
+                    $totalCIs = count($data['ci_meeting_records']);
+                    $scannedCIs = collect($data['ci_meeting_records'])
+                        ->filter(function ($record) {
+                            return $record->updated_at !== null; // or use attendance_time if that's the actual timestamp
+                        })
+                        ->count();
+
+                    $attendancePercentage = $totalCIs > 0 ? round(($scannedCIs / $totalCIs) * 100, 2) : 0;
+                    $absentCount = $totalCIs - $scannedCIs;
+                @endphp
+
+                <table class="attendance-table" style="margin-top: 20px;">
+                    <thead>
+                        <tr>
+                            <th>Total CIs</th>
+                            <th>CI Scanned</th>
+                            <th>Attendance %</th>
+                            <th>Absent Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ $totalCIs }}</td>
+                            <td>{{ $scannedCIs }}</td>
+                            <td>{{ $attendancePercentage }}%</td>
+                            <td>{{ $absentCount }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
         @endforeach
 
     </div>

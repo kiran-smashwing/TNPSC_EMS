@@ -217,119 +217,153 @@
 </head>
 
 <body>
-    <img src="{{ storage_path('app/public/assets/images/watermark.png') }}" alt="Watermark" class="watermark" />
+    <img src="{{ storage_path('app/public/assets/images/watermark.png') }}" alt="Watermark" class="watermark">
     <div class="container">
         <div class="header-container">
             <div class="logo-container">
-                <img src="{{ storage_path('app/public/assets/images/watermark.png') }}" alt="Logo" class="logo-image" />
+                <img src="{{ storage_path('app/public/assets/images/watermark.png') }}" alt="Logo"
+                    class="logo-image">
             </div>
             <div class="header-content">
                 <h3>தமிழ்நாடு அரசுப்பணியாளர் தேர்வாணையம்</h3>
                 <h5>TAMIL NADU PUBLIC SERVICE COMMISSION</h5>
             </div>
         </div>
-
         <div class="meeting-title">
-            <h5>Attendance Report</h5>
+            <h5>ATTENDANCE REPORT</h5>
         </div>
         <div class="content-section">
-            <p><strong> Notification No:</strong> {{ $notification_no }} | <strong> Exam Date:
-                </strong>{{ $exam_date }} | <strong>Exam
-                    Session:</strong> {{ $session }}<br>
+            <p><strong> Notification No:</strong> {{ $notification_no }} |
+                <strong>Exam Date:</strong> {{ $exam_date }} |
+                <strong>Session:</strong> {{ $session }}<br>
                 <strong>Exam Name:</strong> {{ $exam_data->exam_main_name }} <br>
                 <strong>Exam Service:</strong> {{ $exam_data->examservice->examservice_name }} <br>
             </p>
         </div>
-        <table class="report-table">
-            <thead class="table-header">
-                <tr>
-                    <th>S.No</th>
-                    <th>District</th>
-                    <th>Center Code</th>
-                    <th>Center Name</th>
-                    <th>Hall Code</th>
-                    <th style="text-align: left">Hall Name</th>
-                    <th>Present</th>
-                    <th>Absent</th>
-                    <th>Allotted</th>
-                    <th>Percentage</th>
-                </tr>
-            </thead>
-            <tbody class="table-body">
-                @forelse($session_data as $index => $attendance)
+
+        @foreach ($grouped_data as $district_name => $data)
+            <div class="district-section" style="{{ !$loop->first ? 'page-break-before: always;' : '' }}">
+                <div class="meeting-title" style="margin: 40px 0 20px 0; padding: 10px 0;">
+                    <h5 style="margin-bottom: 10px;">
+                        <strong>District:</strong> {{ $district_name }}
+                    </h5>
+                </div>
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>S.No</th>
+                            <th>Center Code</th>
+                            <th>Center Name</th>
+                            <th>Hall Code</th>
+                            <th>Hall Name</th>
+                            <th>Present</th>
+                            <th>Absent</th>
+                            <th>Total Candidates</th>
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($data['attendance_records'] as $index => $record)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $record['center_code'] }}</td>
+                                <td>{{ $record['center_name'] }}</td>
+                                <td>{{ $record['hall_code'] }}</td>
+                                <td>{{ $record['hall_name'] }}</td>
+                                <td>{{ $record['present'] }}</td>
+                                <td>{{ $record['absent'] }}</td>
+                                <td>{{ $record['total_candidates'] }}</td>
+                                <td>{{ $record['percentage'] }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                <table class="report-table" style="margin-top: 20px;">
+                    <thead>
+                        <tr>
+                            <th>Total Present</th>
+                            <th>Total Absent</th>
+                            <th>Total Candidates</th>
+                            <th>Attendance %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ $data['totals']['total_present'] }}</td>
+                            <td>{{ $data['totals']['total_absent'] }}</td>
+                            <td>{{ $data['totals']['total_candidates'] }}</td>
+                            <td>{{ $data['totals']['attendance_percentage'] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="report-table" style="margin-top: 20px;">
+                    <thead>
+                        <tr>
+                            <th>Total CIs</th>
+                            <th>Attendance Recorded</th>
+                            <th>Attendance Not Recorded</th>
+                            <th>Completion Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ $data['ci_totals']['total_cis'] }}</td>
+                            <td>{{ $data['ci_totals']['scanned_cis'] }}</td>
+                            <td>{{ $data['ci_totals']['not_scanned_cis'] }}</td>
+                            <td>{{ $data['ci_totals']['percentage_done'] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        @endforeach
+        {{-- Final Summary Table --}}
+        <div class="district-section" style="page-break-before: always;">
+            <div class="meeting-title" style="margin: 40px 0 20px 0; padding: 10px 0;">
+                <h5 style="margin-bottom: 10px;">
+                    <strong>Overall Summary for All Districts</strong>
+                </h5>
+            </div>
+
+            <table class="report-table" style="margin-top: 20px;">
+                <thead>
                     <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td>{{ $attendance['district_name'] }}</td>
-                        <td>{{ $attendance['center_code'] }}</td>
-                        <td>{{ $attendance['center_name'] }}</td>
-                        <td>{{ $attendance['hall_code'] }}</td>
-                        <td class="left-align">{{ $attendance['hall_name'] }}</td>
-                        <td>{{ $attendance['present'] }}</td>
-                        <td>{{ $attendance['absent'] }}</td>
-                        <td>{{ $attendance['total_candidates'] }}</td>
-                        <td>
-                            {{ $attendance['total_candidates'] > 0
-                                ? number_format(($attendance['present'] / $attendance['total_candidates']) * 100, 2) . '%'
-                                : '0%' }}
-                        </td>
+                        <th>Total Present</th>
+                        <th>Total Absent</th>
+                        <th>Total Candidates</th>
+                        <th>Attendance %</th>
                     </tr>
-                @empty
+                </thead>
+                <tbody>
                     <tr>
-                        <td colspan="10">No attendance data available</td>
+                        <td>{{ $grand_totals['total_present'] }}</td>
+                        <td>{{ $grand_totals['total_absent'] }}</td>
+                        <td>{{ $grand_totals['total_candidates'] }}</td>
+                        <td>{{ $grand_totals['attendance_percentage'] }}</td>
                     </tr>
-                @endforelse
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+
+            <table class="report-table" style="margin-top: 20px;">
+                <thead>
+                    <tr>
+                        <th>Total Chief Invigilators</th>
+                        <th>Attendance Recorded</th>
+                        <th>Attendance Not Recorded</th>
+                        <th>Completion Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ $ci_grand_totals['total_cis'] }}</td>
+                        <td>{{ $ci_grand_totals['scanned_cis'] }}</td>
+                        <td>{{ $ci_grand_totals['not_scanned_cis'] }}</td>
+                        <td>{{ $ci_grand_totals['percentage_done'] }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
     </div>
-    <table class="report-table">
-        <thead>
-            <tr>
-                <th>Overall</th>
-                <th>Present</th>
-                <th>Absent</th>
-                <th>Allotted</th>
-                <th>Percentage(%)</th>
-            </tr>
-        </thead>
-        <tbody class="table-body">
-            @php
-                $totalPresent = 0;
-                $totalAbsent = 0;
-                $totalCandidates = 0;
-            @endphp
-
-            <!-- Loop through the session data and display individual rows -->
-            @foreach ($session_data as $session)
-                @php
-                    $totalPresent += $session['present'];
-                    $totalAbsent += $session['absent'];
-                    $totalCandidates += $session['total_candidates'];
-                @endphp
-            @endforeach
-
-            <!-- Total Row -->
-            <tr>
-                <td>Total</td>
-                <td>{{ $totalPresent }}</td>
-                <td>{{ $totalAbsent }}</td>
-                <td>{{ $totalCandidates }}</td>
-                <td>
-                    @php
-                        $totalPercentage =
-                            $totalCandidates > 0
-                                ? number_format(($totalPresent / $totalCandidates) * 100, 2) . '%'
-                                : '0%';
-                    @endphp
-                    {{ $totalPercentage }}
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
-
-
-
 </body>
 
 </html>

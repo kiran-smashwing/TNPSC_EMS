@@ -2,28 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use Spatie\Browsershot\Browsershot;
-use App\Models\Currentexam;
+use App\Models\ExamConfirmedHalls;
+use App\Models\ExamMaterialsData;
 use Illuminate\Http\Request;
+use App\Models\Currentexam;
+use Spatie\Browsershot\Browsershot;
 use Illuminate\Support\Facades\DB;
 use App\Models\Center;
-use App\Models\CICandidateLogs;
 use Illuminate\Support\Facades\Auth;
 use App\Models\District;
 
-class CandidateRemarksController extends Controller
+class DeliveryReportController extends Controller
 {
     public function __construct()
     {
         //apply the auth middleware to the entire controller
         $this->middleware('auth.multi');
     }
+
     public function index()
     {
         $districts = District::all(); // Fetch all districts
         // Fetch unique center values from the same table
         $centers = center::all(); // Fetch all venues
-        return view('view_report.candidate_remarks_report.index', compact('districts', 'centers')); // Path matches the file created
+        return view('view_report.delivery_report.index', compact('districts', 'centers')); // Path matches the file created
     }
     public function getDropdownData(Request $request)
     {
@@ -92,106 +94,88 @@ class CandidateRemarksController extends Controller
             'centerCodeFromSession' => $centerCodeFromSession,
         ]);
     }
-    public function generateCandidateRemarksReportOverall(Request $request)
+    public function generateDeliveryReport(Request $request)
     {
         $notificationNo = $request->query('notification_no');
         $examDate = $request->query('exam_date');
-        $session = $request->query('session'); // FN or AN
-        $category = $request->query('category');
-        $districtId = $request->query('district');
-        $centerId = $request->query('center');
-    
+
+
         // Fetch the exam details
         $exam_data = Currentexam::with('examservice')
             ->where('exam_main_notification', $notificationNo)
             ->first();
-    
+
         if (!$exam_data) {
             return back()->with('error', 'Exam data not found.');
         }
-    
-        $exam_id = $exam_data->exam_main_no;
-    
-        // Fetch candidate attendance data with remarks
-        $candidate_attendance = CICandidateLogs::where('exam_id', $exam_id)
-            ->where('exam_date', $examDate)
-            ->where('candidate_remarks', '!=', '[]') // Skip empty array values
-            ->when($districtId, function ($query) use ($districtId) {
-                return $query->whereHas('center.district', function ($q) use ($districtId) {
-                    $q->where('id', $districtId);
-                });
-            })
-            ->when($centerId, function ($query) use ($centerId) {
-                return $query->whereHas('center', function ($q) use ($centerId) {
-                    $q->where('id', $centerId);
-                });
-            })
-            ->with('ci', 'center.district')
+
+        // Fetch the exam ID from the request (or hardcode it for testing)
+        $examId = $exam_data->exam_main_no;
+
+        // Fetch exam materials data with related scans
+        $examMaterials = ExamMaterialsData::where('exam_id', $examId)
+            ->with(['examMaterialsScan', 'center', 'district', 'ci', 'venue'])
             ->get();
-    
-        if ($candidate_attendance->isEmpty()) {
-            return back()->with('error', 'No candidate attendance found for this exam date.');
+
+        if ($examMaterials->isEmpty()) {
+            return back()->with('error', 'No exam materials data found for the given exam ID.');
         }
-    
-        // Extract candidate remarks and details
-        $candidate_details = [];
-    
-        foreach ($candidate_attendance as $attendance) {
-            // Decode JSON from candidate_remarks
-            $remarks_data = is_string($attendance->candidate_remarks)
-                ? json_decode($attendance->candidate_remarks, true)
-                : $attendance->candidate_remarks;
-    
-            // Ensure decoding is successful and the session exists
-            if (is_array($remarks_data) && isset($remarks_data[$session]['remarks'])) {
-                foreach ($remarks_data[$session]['remarks'] as $remark_entry) {
-                    $candidate_details[] = [
-                        'reg_no' => $remark_entry['registration_number'] ?? 'N/A',
-                        'remark' => $remark_entry['remark'] ?? 'N/A',
-                        'hall_code' => $attendance->hall_code ?? 'N/A',
-                        'district' => $attendance->center->district->district_name ?? 'N/A',
-                        'center' => $attendance->center->center_name ?? 'N/A',
-                        'center_code' => $attendance->center->center_code ?? 'N/A',
-                        'venue_name' => $attendance->ci->venue->venue_name ?? 'N/A',
-                    ];
-                }
-            }
+
+        // Prepare the session data for the report
+        $session_data = [];
+        foreach ($examMaterials as $material) {
+            $scan = $material->examMaterialsScan;
+
+
+            // Create a session entry
+            $sessionEntry = [
+                'district_code' => $material->district_code,
+                'district_name' => $material->district->district_name,
+                'center_name' => $material->center->center_name,
+                'center_code' => $material->center_code,
+                'hall_code' => $material->hall_code,
+                'venue_name' => $material->venue->venue_name,
+                'exam_date' => $material->exam_date,
+                'exam_session' => $material->exam_session,
+                'qr_code' => $material->qr_code,
+                'category' => $material->category,
+                'district_scanned_at' => $scan->district_scanned_at ?? false
+                    ? \Carbon\Carbon::parse($scan->district_scanned_at)->format('d-m-Y - h:i:s A')
+                    : 'N/A',
+
+                'center_scanned_at' => $scan->center_scanned_at ?? false
+                    ? \Carbon\Carbon::parse($scan->center_scanned_at)->format('d-m-Y - h:i:s A')
+                    : 'N/A',
+
+                'mobile_team_scanned_at' => $scan->mobile_team_scanned_at ?? false
+                    ? \Carbon\Carbon::parse($scan->mobile_team_scanned_at)->format('d-m-Y - h:i:s A')
+                    : 'N/A',
+
+                'ci_scanned_at' => $scan->ci_scanned_at ?? false
+                    ? \Carbon\Carbon::parse($scan->ci_scanned_at)->format('d-m-Y - h:i:s A')
+                    : 'N/A',
+
+            ];
+
+            $session_data[] = $sessionEntry;
         }
-    
-        if (empty($candidate_details)) {
-            return back()->with('error', 'No candidate remarks found for this session.');
-        }
-    
-        // Remove duplicates by using unique registration numbers
-        $unique_candidate_details = [];
-        $seen_reg_numbers = [];
-    
-        foreach ($candidate_details as $detail) {
-            $reg_no = $detail['reg_no'];
-    
-            // Add only if the registration number hasn't been seen before
-            if (!in_array($reg_no, $seen_reg_numbers)) {
-                $unique_candidate_details[] = $detail;
-                $seen_reg_numbers[] = $reg_no;
-            }
-        }
-    
+
+        // Sort session data by district_code, center_code, and hall_code
+        usort($session_data, function ($a, $b) {
+            return [$a['district_code'], $a['center_code'], $a['hall_code']] <=> [$b['district_code'], $b['center_code'], $b['hall_code']];
+        });
+
         // Prepare final data for Blade
         $data = [
             'notification_no' => $notificationNo,
             'exam_date' => $examDate,
             'exam_data' => $exam_data,
-            'session' => $session,
-            'category' => $category,
-            'candidate_details' => $unique_candidate_details,
+            'exam_id' => $examId,
+            'session_data' => $session_data,
         ];
-    
-
-        // Debugging output (You can remove this after testing)
-        // dd($data);
 
         // Render the Blade template
-        $html = view('view_report.candidate_remarks_report.candidate_remarks_report_overall', $data)->render();
+        $html = view('view_report.delivery_report.delivery_report_pdf', $data)->render();
 
         // Generate PDF using Browsershot
         $pdf = Browsershot::html($html)
@@ -205,12 +189,12 @@ class CandidateRemarksController extends Controller
             ->setOption('displayHeaderFooter', true)
             ->setOption('headerTemplate', '<div></div>')
             ->setOption('footerTemplate', '
-                <div style="font-size:10px;width:100%;text-align:center;">
-                    Page <span class="pageNumber"></span> of <span class="totalPages"></span>
-                </div>
-                <div style="position: absolute; bottom: 5mm; right: 10px; font-size: 10px;">
-                    IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . '
-                </div>')
+             <div style="font-size:10px;width:100%;text-align:center;">
+                 Page <span class="pageNumber"></span> of <span class="totalPages"></span>
+             </div>
+             <div style="position: absolute; bottom: 5mm; right: 10px; font-size: 10px;">
+                 IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . '
+             </div>')
             ->setOption('preferCSSPageSize', true)
             ->setOption('printBackground', true)
             ->scale(1)
@@ -218,11 +202,13 @@ class CandidateRemarksController extends Controller
             ->pdf();
 
         // Define a unique filename for the report
-        $filename = 'candidate_remarks_report_overall_' . time() . '.pdf';
+        $filename = 'delivery_report_' . $examId . '_' . time() . '.pdf';
 
         // Return the PDF as a response
         return response($pdf)
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
+
     }
+
 }

@@ -350,7 +350,7 @@
                             <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                         </a>
                         <ul class="pc-submenu">
-                            <li class="pc-item"><a class="pc-link" href="#"> Print to District Treasury</a></li>
+                            <li class="pc-item"><a class="pc-link" href="{{route('delivery-report.report')}}"> Print to District Treasury</a></li>
                             <li class="pc-item"><a class="pc-link" href="#"> District Treasury to Sub Treasury</a>
                             </li>
                             <li class="pc-item"><a class="pc-link" href="#">Sub Treasury to Mobile Team</a></li>

@@ -52,6 +52,7 @@ class AuthorizationService
                     'apd-candidates.finalize-csv',
                     'apd-candidates.download-finalize-halls-sample-csv',
                     'apd-candidates.addl-cand-count',
+                    'attendance.report.overall',
                 ],
             ],
             'ID' => [
@@ -90,7 +91,6 @@ class AuthorizationService
                     'candidate-attendance',
                     'attendance.report.overall',
                     'attendance.dropdown',
-                    'attendance.report.overall',
                     'attendance.report',
                     'cv-down-updates',
                     'bundle-collection',
@@ -206,7 +206,9 @@ class AuthorizationService
                     'charted-vehicle-routes.generateCvRoutesReport',
                     'id-candidates.edit-venue-consent',
                     'id-candidates.update-venue-consent',
-                ],
+                    'delivery-report.report',
+                    'delivery-report.report.generate',
+                    ],
             ],
             'ED' => [
                 'Section Officer' => [

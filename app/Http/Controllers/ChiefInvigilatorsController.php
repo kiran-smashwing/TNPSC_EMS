@@ -308,16 +308,20 @@ class ChiefInvigilatorsController extends Controller
 
     public function edit($id)
     {
-        $ids = Crypt::decrypt($id); // 🔐 Decrypt the ID first
-        // dd($ids);
+        $ids = Crypt::decrypt($id);
         $venues = Venues::all(); // Retrieve all venues
         $centers = Center::all(); // Retrieve all centers
         $districts = District::all(); // Retrieve all districts
-        $chiefInvigilator = ChiefInvigilator::findOrFail($ids); // Retrieve the specific Chief Invigilator
-
-        return view('masters.venues.chief_invigilator.edit', compact('chiefInvigilator', 'venues', 'centers', 'districts'));
+    
+        $chiefInvigilator = ChiefInvigilator::with([
+            'venue',        // assumes relation method name is 'venue'
+            'venue.center', // nested center relation via venue
+            'venue.district' // nested district relation via venue
+        ])->findOrFail($ids);
+        // dd($chiefInvigilator);
+    
+        return view('masters.venues.chief_invigilator.edit', compact('chiefInvigilator','venues', 'centers', 'districts'));
     }
-
 
 
     public function update(Request $request, $id)

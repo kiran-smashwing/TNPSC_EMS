@@ -156,16 +156,15 @@
                             @hasPermission('view-all-department')
                                 <li class="pc-item"><a class="pc-link" href="{{ route('ci-checklist') }}">CI Checklist</a>
                                 </li>
-                            @endhasPermission
-                            @hasPermission('role.index')
-                            <li class="pc-item"><a class="pc-link" href="{{ route('role') }}">Roles</a>
-                            </li>
+
+                                <li class="pc-item"><a class="pc-link" href="{{ route('role') }}">Roles</a>
+                                </li>
                             @endhasPermission
                             @hasPermission('department-officials.index')
-                                <li class="pc-item"><a class="pc-link"
-                                        href="{{ route('department-officials.index') }}">Department
-                                        Officials</a>
-                                </li>
+                            <li class="pc-item"><a class="pc-link"
+                                    href="{{ route('department-officials.index') }}">Department
+                                    Officials</a>
+                            </li>
                             @endhasPermission
                         </ul>
                     </li>
@@ -351,7 +350,7 @@
                             <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                         </a>
                         <ul class="pc-submenu">
-                            <li class="pc-item"><a class="pc-link" href="#"> Print to District Treasury</a></li>
+                            <li class="pc-item"><a class="pc-link" href="{{route('delivery-report.report')}}"> Print to District Treasury</a></li>
                             <li class="pc-item"><a class="pc-link" href="#"> District Treasury to Sub Treasury</a>
                             </li>
                             <li class="pc-item"><a class="pc-link" href="#">Sub Treasury to Mobile Team</a></li>

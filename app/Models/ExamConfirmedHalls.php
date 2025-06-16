@@ -64,5 +64,9 @@ class ExamConfirmedHalls extends Model
     {
         return $this->belongsTo(ChiefInvigilator::class, 'ci_id', 'ci_id');
     }
-
+    public function ciCandidateLogs()
+    {
+        return $this->hasMany(CiCandidateLogs::class, 'ci_id', 'ci_id');
+    }
+   
 }

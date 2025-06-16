@@ -248,10 +248,12 @@
                                                 <a href="{{ route('charted-vehicle-routes.view', $route['id']) }}"
                                                     class="avtar avtar-xs btn-light-success"><i
                                                         class="ti ti-eye  f-20"></i></a>
+                                                @hasPermission('charted-vehicle-route.generateTrunkboxOrder')
                                                 <a href="{{ route('generateTrunkboxOrder', $route['id']) }}"
                                                     class="avtar avtar-xs btn-light-success"
                                                     title="Generate Trunk Box Order"><i
                                                         class="ti ti-grip-vertical f-20"></i></a>
+                                                @endhasPermission
                                             </td>
                                         </tr>
                                     @endforeach

@@ -249,7 +249,7 @@ class Omr_AccountController extends Controller
             ->get();
 
         if ($candidate_attendance->isEmpty()) {
-            return back()->with('error', 'No candidate attendance found for this exam date and session.');
+            return back()->with('error', 'No Question paper Remark  found for this exam date and session.');
         }
 
         // Process and structure the data to pass to the view

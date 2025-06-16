@@ -529,6 +529,7 @@ class AuthorizationService
             'bundle-packaging.mobileteam-to-center',
             'receive-exam-materials.district-to-center',
             'receive-exam-materials.scan-center-exam-materials',
+            'bundle-packaging.scan-center-exam-materials',
         ],
         'mobile_team_staffs' => [
             'completed-exam.index',

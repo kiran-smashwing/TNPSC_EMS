@@ -443,6 +443,185 @@ class BundlePackagingController extends Controller
             'results' => $results
         ], 200);
     }
+    public function scanCenterExamMaterials($examId, Request $request)
+    {
+        // Validate request
+        $request->validate([
+            'qr_codes' => 'required|array',
+            'qr_codes.*' => 'required|string',
+        ]);
+
+        // Get authenticated user
+        $role = session('auth_role');
+        $guard = $role ? Auth::guard($role) : null;
+        $user = $guard ? $guard->user() : null;
+
+        // Check authorization
+        if ($role !== 'center' || !$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found or not authorized'
+            ], 403); // 403 is for authorization errors
+        }
+        $results = [];         // Holds the result for each QR code
+        $successfulScans = []; // Holds details for successful scans (for audit logging)
+        // Process each QR code from the request
+        foreach ($request->qr_codes as $qr_code) {
+            $qr_code = trim($qr_code);
+            if (empty($qr_code)) {
+                continue; // Skip empty or whitespace-only values
+            }
+            // Find exam materials
+            $examMaterials = ExamMaterialsData::where([
+                'exam_id' => $examId,
+                'center_code' => $user->center_code,
+                'qr_code' => $qr_code
+            ])->first();
+            // If not found in user's center, try to find more broadly with relations loaded
+
+            if (!$examMaterials) {
+                $examMaterials = ExamMaterialsData::where([
+                    'exam_id' => $examId,
+                    'qr_code' => $qr_code
+                ])
+                    ->with('center')
+                    ->with('district')
+                    ->first();
+                if ($examMaterials) {
+                    $msg = "This QR Code belongs to District: "
+                        . $examMaterials->district->district_name
+                        . ", Center: "
+                        . $examMaterials->center->center_name
+                        . ", Hall Code: "
+                        . $examMaterials->hall_code;
+                    $results[] = [
+                        'qr_code' => $qr_code,
+                        'status' => 'error',
+                        'message' => $msg
+                    ];
+                    continue;
+                } else {
+                    $results[] = [
+                        'qr_code' => $qr_code,
+                        'status' => 'error',
+                        'message' => "Exam material not found for QR code: $qr_code"
+                    ];
+                    continue;
+                }
+            }
+            // Find trunk box for this exam material (if applicable)
+            $trunkBox = ExamTrunkBoxOTLData::where([
+                'exam_id' => $examId,
+                'center_code' => $user->center_code,
+                'hall_code' => $examMaterials->hall_code,
+            ])->first();
+
+            // Check if already scanned (i.e. center_scanned_at is set)
+            if (
+                ExamMaterialsScan::where('exam_material_id', $examMaterials->id)
+                    ->whereNotNull('center_scanned_at')->exists()
+            ) {
+                $message = 'QR code has already been scanned';
+                if (!is_null($trunkBox)) {
+                    $message .= ', Place this bundle in this trunk box: ' . $trunkBox->trunkbox_qr_code;
+                }
+                $results[] = [
+                    'qr_code' => $qr_code,
+                    'status' => 'error',
+                    'message' => $message,
+                ];
+                continue;
+            }
+
+            // Check if there is an existing scan record
+            $existingScan = ExamMaterialsScan::where('exam_material_id', $examMaterials->id)->first();
+
+            if ($existingScan && !$existingScan->center_scanned_at) {
+                // Update the record if not yet scanned
+                $existingScan->update([
+                    'center_scanned_at' => now()
+                ]);
+            } else {
+                // Otherwise create a new scan record
+                ExamMaterialsScan::create([
+                    'exam_material_id' => $examMaterials->id,
+                    'center_scanned_at' => now()
+                ]);
+            }
+
+            // Build details for audit logging and for the success message
+            $examMaterialDetails = [
+                'qr_code' => $qr_code,
+                'center' => $examMaterials->center->center_name,
+                'hall_code' => $examMaterials->hall_code,
+                'scan_time' => now()->toDateTimeString()
+            ];
+
+            $msg = 'QR code scanned successfully';
+            if (!is_null($trunkBox)) {
+                $msg .= ', Place this bundle in this trunk box: ' . $trunkBox->trunkbox_qr_code;
+            }
+            $results[] = [
+                'qr_code' => $qr_code,
+                'status' => 'success',
+                'message' => $msg,
+            ];
+
+            // Save details for audit logging
+            $successfulScans[] = $examMaterialDetails;
+        }
+        // Audit Logging: Update or create a log entry if one or more scans succeeded
+        if (count($successfulScans) > 0) {
+            $currentUser = current_user();
+            $userName = $currentUser ? $currentUser->display_name : 'Unknown';
+            $metadata = [
+                'user_name' => $userName,
+                'center_code' => $currentUser->center_code,
+            ];
+
+            $existingLog = $this->auditService->findLog([
+                'exam_id' => $examId,
+                'task_type' => 'receive_bundle_to_center',
+                'action_type' => 'qr_scan',
+                'user_id' => $user->center_id,
+            ]);
+
+            if ($existingLog) {
+                $existingScans = $existingLog->after_state['scanned_codes'] ?? [];
+                // Merge existing scanned codes with the new successful scans
+                $updatedScans = array_merge($existingScans, $successfulScans);
+                $totalScans = ($existingLog->after_state['total_scanned'] ?? 0) + count($successfulScans);
+
+                $this->auditService->updateLog(
+                    logId: $existingLog->id,
+                    metadata: $metadata,
+                    afterState: [
+                        'scanned_codes' => $updatedScans,
+                        'total_scanned' => $totalScans
+                    ],
+                    description: "Bulk scanned QR codes (Total scanned: $totalScans)"
+                );
+            } else {
+                $this->auditService->log(
+                    examId: $examId,
+                    actionType: 'qr_scan',
+                    taskType: 'receive_bundle_to_center',
+                    beforeState: null,
+                    afterState: [
+                        'scanned_codes' => $successfulScans,
+                        'total_scanned' => count($successfulScans)
+                    ],
+                    description: "Initial bulk QR code scan",
+                    metadata: $metadata
+                );
+            }
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'results' => $results
+        ], 200);
+    }
     public function scanVandutyHQExamMaterials($examId, Request $request)
     {
         // Validate request
@@ -598,79 +777,82 @@ class BundlePackagingController extends Controller
         $role = session('auth_role');
         $guard = $role ? Auth::guard($role) : null;
         $user = $guard ? $guard->user() : null;
-        // $examDate = Carbon::parse($examDate)->format('Y-m-d');
-
-
         // Define the category mapping       
         $categoryArray = ['R1', 'R2', 'R3', 'R4', 'R5', 'R6'];
-        // Fetch exam materials based on examId and examDate
-        $query = ExamMaterialsData::where('exam_id', $examId)
-            ->whereIn('category', $categoryArray);
 
-        $role == 'center'
-            ? $query->where('center_code', $user->center_code)
-            : '';
+        // Fetch exam materials grouped by hall_code
+        $query = ExamMaterialsData::where('center_code', $user->center_code)
+            ->where('exam_id', $examId)
+            ->whereIn('category', $categoryArray)
+            ->with('examMaterialsScan'); // Load scan relationship
 
         // Apply filters 
         if ($request->has('examDate') && !empty($request->examDate)) {
             $query->whereDate('exam_date', $request->examDate);
         }
-        $examMaterials = $query
-            ->with([
-                'center',
-                'examMaterialsScan'
-            ])
-            ->get();
 
-        //total number of exam materials found for this user
-        $totalExamMaterials = $examMaterials->count();
-        //total number of exam materials scanned by the user
-        $totalScanned = $examMaterials->filter(function ($examMaterial) {
-            return $examMaterial->examMaterialsScan &&
-                $examMaterial->examMaterialsScan->center_scanned_at;
-        })->count();
+        $examMaterials = $query->get()->groupBy('hall_code');
+        // Fetch trunkbox data
+        $examMaterialsTrunkbox = ExamTrunkBoxOTLData::where('center_code', $user->center_code)
+            ->where('exam_id', $examId)
+            ->get();
+        // Fetch route data
+        $routes = ExamMaterialRoutes::where('exam_id', $examId)
+            ->whereJsonContains('center_code', $user->center_code)
+            ->get();
+        // Process data: match exam materials with routes and trunkboxes
+        $groupedExamMaterials = [];
+
+        foreach ($routes as $route) {
+            $hallMapping = $route->hall_code; // Decode hall mappings
+
+            foreach ($hallMapping as $centerCode => $hallCodes) {
+                foreach ($hallCodes as $hallCode) {
+                    if (isset($examMaterials[$hallCode])) {
+                        $trunkbox = $examMaterialsTrunkbox->firstWhere('hall_code', $hallCode);
+                        $trunkboxCode = $trunkbox->trunkbox_qr_code ?? 'Unknown';
+
+                        // Count total materials and scanned materials
+                        $totalMaterials = count($examMaterials[$hallCode]);
+                        $totalScanned = $examMaterials[$hallCode]->filter(function ($examMaterial) {
+                            return $examMaterial->examMaterialsScan &&
+                                $examMaterial->examMaterialsScan->center_scanned_at;
+                        })->count();
+
+                        // Group data by trunkbox QR code
+                        if (!isset($groupedExamMaterials[$trunkboxCode])) {
+                            $groupedExamMaterials[$trunkboxCode] = [
+                                'route_no' => $route->route_no,
+                                'route_id' => $route->id,
+                                'center_code' => [$centerCode],
+                                'hall_code' => [$hallCode],
+                                'trunkbox_qr_code' => $trunkboxCode,
+                                'otl_codes' => json_decode($trunkbox->otl_code ?? '[]'),
+                                'materials_count' => $totalMaterials,
+                                'scanned_count' => $totalScanned
+                            ];
+                        } else {
+                            $groupedExamMaterials[$trunkboxCode]['center_code'][] = $centerCode;
+                            $groupedExamMaterials[$trunkboxCode]['hall_code'][] = $hallCode;
+                            $groupedExamMaterials[$trunkboxCode]['materials_count'] += $totalMaterials;
+                            $groupedExamMaterials[$trunkboxCode]['scanned_count'] += $totalScanned;
+                        }
+                    }
+                }
+            }
+        }
 
         // Get current exam session details
         $session = Currentexam::with('examsession')->where('exam_main_no', $examId)->first();
         $examDates = $session->examsession->groupBy(function ($item) {
             return Carbon::parse($item->exam_sess_date)->format('d-m-Y');
         })->keys();
-        // Assign bundle labels to each exam material based on its exam session and date
-        $examMaterials->each(function ($material) {
-            $examSessionData = ExamSession::where('exam_sess_mainid', $material->exam_id)
-                ->whereRaw("TO_DATE(exam_sess_date, 'DD-MM-YYYY') = TO_DATE(?, 'YYYY-MM-DD')", [$material->exam_date])
-                ->where('exam_sess_session', $material->exam_session)
-                ->first();
-
-            // Check if session data exists for the material
-            if ($examSessionData) {
-                // Define the category labels based on the session type
-                if ($examSessionData->exam_sess_type == 'Descriptive') {
-                    $categoryLabels = [
-                        'R1' => 'Bundle IA',
-                        'R2' => 'Bundle IB',
-                        'R3' => 'Bundle II',
-                        'R4' => 'Bundle III',
-                        'R5' => 'Bundle IV',
-                        'R6' => 'Cover C',
-                    ];
-                } else {
-                    $categoryLabels = [
-                        'R3' => 'Bundle I',
-                        'R4' => 'Bundle II',
-                        'R5' => 'Bundle C',
-                    ];
-                }
-
-                // Apply the label from the category mapping for each material
-                $material->bundle_label = $categoryLabels[$material->category] ?? $material->category;  // If no match, use the material's category directly
-            } else {
-                // If no session data found, use the material's category directly
-                $material->bundle_label = $material->category;
-            }
-        });
-
-        return view('my_exam.BundlePackaging.mobileteam-to-center-bundle', compact('examMaterials', 'examId', 'totalExamMaterials', 'totalScanned', 'examDates'));
+        // Convert center_code and hall_code arrays to comma-separated strings
+        foreach ($groupedExamMaterials as &$data) {
+            $data['center_code'] = implode(',', array_unique($data['center_code']));
+            $data['hall_code'] = implode(',', array_unique($data['hall_code']));
+        }
+        return view('my_exam.BundlePackaging.mobileteam-to-center-bundle', compact('groupedExamMaterials', 'examId', 'examDates'));
     }
     public function chartedVehicletoHeadquarters(Request $request, $examId)
     {
@@ -679,7 +861,7 @@ class BundlePackagingController extends Controller
         $routes = ChartedVehicleRoute::whereJsonContains('exam_id', $examId)->get();
         // Fetching exam notifications 
         foreach ($routes as $route) {
-            $examIds = $route->exam_id; 
+            $examIds = $route->exam_id;
             $exams = Currentexam::whereIn('exam_main_no', $examIds)->get();
             $route->exam_notifications = $exams->pluck('exam_main_notification')->implode(', ');
         }

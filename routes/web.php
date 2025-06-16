@@ -628,6 +628,8 @@ Route::prefix('bundle-packaging')->group(function () {
             ->middleware('role.permission:bundle-packaging.mobileteam-to-center');
         Route::post('/scan-disitrct-exam-materials/{examId}', [BundlePackagingController::class, 'scanDistrictExamMaterials'])->name('bundle-packaging.scan-disitrct-exam-materials')
             ->middleware('role.permission:bundle-packaging.scan-disitrct-exam-materials');
+        Route::post('/scan-center-exam-materials/{examId}', [BundlePackagingController::class, 'scanCenterExamMaterials'])->name('bundle-packaging.scan-center-exam-materials')
+            ->middleware('role.permission:bundle-packaging.scan-center-exam-materials');
         Route::post('/scan-chennai-disitrct-exam-materials/{examId}', [BundlePackagingController::class, 'scanVandutyHQExamMaterials'])->name('bundle-packaging.scan-chennai-disitrct-exam-materials')
             ->middleware('role.permission:bundle-packaging.scan-chennai-disitrct-exam-materials');
         Route::post('/save-used-otl-codes', [BundlePackagingController::class, 'saveUsedOTLCodes'])->name('bundle-packaging.save-used-otl-codes')

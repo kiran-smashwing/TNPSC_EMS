@@ -156,16 +156,15 @@
                             @hasPermission('view-all-department')
                                 <li class="pc-item"><a class="pc-link" href="{{ route('ci-checklist') }}">CI Checklist</a>
                                 </li>
-                            @endhasPermission
-                            @hasPermission('role.index')
-                            <li class="pc-item"><a class="pc-link" href="{{ route('role') }}">Roles</a>
-                            </li>
+
+                                <li class="pc-item"><a class="pc-link" href="{{ route('role') }}">Roles</a>
+                                </li>
                             @endhasPermission
                             @hasPermission('department-officials.index')
-                                <li class="pc-item"><a class="pc-link"
-                                        href="{{ route('department-officials.index') }}">Department
-                                        Officials</a>
-                                </li>
+                            <li class="pc-item"><a class="pc-link"
+                                    href="{{ route('department-officials.index') }}">Department
+                                    Officials</a>
+                            </li>
                             @endhasPermission
                         </ul>
                     </li>

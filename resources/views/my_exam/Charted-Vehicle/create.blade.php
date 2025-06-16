@@ -104,11 +104,11 @@
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Charted Vehicle Driver Name<span
-                                                            class="text-danger">*</span></label>
+                                                            class="text-danger"></span></label>
                                                     <input type="text"
                                                         class="form-control @error('driver_name') is-invalid @enderror"
                                                         id="driver_name" name="driver_name" placeholder="vijay"
-                                                        value="{{ old('driver_name') }}" required>
+                                                        value="{{ old('driver_name') }}">
                                                     @error('driver_name')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -117,12 +117,11 @@
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Charted Vehicle Driver License No<span
-                                                            class="text-danger">*</span></label>
+                                                            class="text-danger"></span></label>
                                                     <input type="text"
                                                         class="form-control  @error('driver_licence_no') is-invalid @enderror"
                                                         id="driver_licence_no" name="driver_licence_no"
-                                                        placeholder="DLR0101223" value="{{ old('driver_licence_no') }}"
->
+                                                        placeholder="DLR0101223" value="{{ old('driver_licence_no') }}">
                                                     @error('driver_licence_no')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -131,36 +130,34 @@
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="phone">Charted Vehicle Driver
-                                                        Phone<span class="text-danger">*</span></label>
+                                                        Phone<span class="text-danger"></span></label>
                                                     <input type="tel"
                                                         class="form-control @error('phone') is-invalid @enderror "
                                                         id="phone" name="phone" value="{{ old('phone') }}"
-                                                        placeholder="9434***1212" required>
+                                                        placeholder="9434***1212">
                                                     @error('phone')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
-        <div class="mb-3">
-            <label class="form-label" for="vehicle_no">Charted Vehicle No <span class="text-danger">*</span></label>
-            <input type="text" 
-                class="form-control @error('vehicle_no') is-invalid @enderror"
-                id="vehicle_no" name="vehicle_no"
-                placeholder="TN20AA2024"
-                value="{{ old('vehicle_no') }}"
-                required
-                maxlength="10">
-            
-            @error('vehicle_no')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
-    </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label" for="vehicle_no">Charted Vehicle No <span
+                                                            class="text-danger"></span></label>
+                                                    <input type="text"
+                                                        class="form-control @error('vehicle_no') is-invalid @enderror"
+                                                        id="vehicle_no" name="vehicle_no" placeholder="TN20AA2024"
+                                                        value="{{ old('vehicle_no') }}" maxlength="10">
+
+                                                    @error('vehicle_no')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="otl_locks">OTL Locks <span
-                                                            class="text-danger">*</span></label>
+                                                            class="text-danger"></span></label>
                                                     <input type="text" class="form-control" id="otl_locks"
                                                         name="otl_locks[]" placeholder="OTL Locks">
                                                 </div>
@@ -168,7 +165,7 @@
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="gps_lock">GPS Lock <span
-                                                            class="text-danger">*</span></label>
+                                                            class="text-danger"></span></label>
                                                     <input type="text" class="form-control" id="gps_lock"
                                                         name="gps_lock[]" placeholder="GPS Lock">
                                                 </div>
@@ -176,11 +173,11 @@
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="police_constable">Police Constable
-                                                        Name<span class="text-danger">*</span></label>
+                                                        Name<span class="text-danger"></span></label>
                                                     <input type="text"
                                                         class="form-control @error('police_constable') is-invalid @enderror"
                                                         id="police_constable" name="police_constable" placeholder="vijay"
-                                                        value="{{ old('police_constable') }}" required>
+                                                        value="{{ old('police_constable') }}" >
                                                     @error('police_constable')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -189,12 +186,12 @@
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="police_constable_phone">Police
-                                                        Constable Phone<span class="text-danger">*</span></label>
+                                                        Constable Phone<span class="text-danger"></span></label>
                                                     <input type="tel"
                                                         class="form-control @error('police_constable_phone') is-invalid @enderror"
                                                         id="police_constable_phone" name="police_constable_phone"
                                                         value="{{ old('police_constable_phone') }}"
-                                                        placeholder="9434***1212" required>
+                                                        placeholder="9434***1212" >
                                                     @error('police_constable_phone')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -204,12 +201,12 @@
                                                 <div class="mb-3">
                                                     <label class="form-label" for="police_constable_ifhrms_no">Police
                                                         Constable
-                                                        IFHRMS No<span class="text-danger">*</span></label>
+                                                        IFHRMS No<span class="text-danger"></span></label>
                                                     <input type="text"
                                                         class="form-control @error('police_constable_ifhrms_no') is-invalid @enderror"
                                                         id="police_constable_ifhrms_no" name="police_constable_ifhrms_no"
                                                         placeholder="35123469851"
-                                                        value="{{ old('police_constable_ifhrms_no') }}" required>
+                                                        value="{{ old('police_constable_ifhrms_no') }}" >
                                                     @error('police_constable_ifhrms_no')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -229,12 +226,12 @@
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="escort_vehicle_no">Escort Vehicle
-                                                        No<span class="text-danger">*</span></label>
+                                                        No<span class="text-danger"></span></label>
                                                     <input type="text"
                                                         class="form-control @error('escort_vehicle_no') is-invalid @enderror"
                                                         id="escort_vehicle_no" name="escort_vehicle_no"
-                                                        placeholder="TN01AA2345" maxlength="10" value="{{ old('escort_vehicle_no') }}"
-                                                        required>
+                                                        placeholder="TN01AA2345" maxlength="10"
+                                                        value="{{ old('escort_vehicle_no') }}">
                                                     @error('escort_vehicle_no')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -243,12 +240,11 @@
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="escort_driver_name">Escort Driver
-                                                        Name<span class="text-danger">*</span></label>
+                                                        Name<span class="text-danger"></span></label>
                                                     <input type="text"
                                                         class="form-control @error('escort_driver_name') is-invalid @enderror"
                                                         id="escort_driver_name" name="escort_driver_name"
-                                                        placeholder="vijay" value="{{ old('escort_driver_name') }}"
-                                                        required>
+                                                        placeholder="vijay" value="{{ old('escort_driver_name') }}">
                                                     @error('escort_driver_name')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -257,7 +253,7 @@
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="escort_driver_licence_no">Escort Driver
-                                                    License No<span class="text-danger">*</span></label>
+                                                        License No<span class="text-danger"></span></label>
                                                     <input type="text"
                                                         class="form-control @error('escort_driver_licence_no') is-invalid @enderror"
                                                         id="escort_driver_licence_no" name="escort_driver_licence_no"
@@ -271,12 +267,12 @@
                                             <div class="col-sm-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="escort_driver_phone">Escort Driver
-                                                        Phone<span class="text-danger">*</span></label>
+                                                        Phone<span class="text-danger"></span></label>
                                                     <input type="tel"
                                                         class="form-control @error('escort_driver_phone') is-invalid @enderror"
                                                         id="escort_driver_phone" name="escort_driver_phone"
                                                         value="{{ old('escort_driver_phone') }}"
-                                                        placeholder="9434***1212" required>
+                                                        placeholder="9434***1212">
                                                     @error('escort_driver_phone')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -315,9 +311,9 @@
                                                         <div class="col-sm-6">
                                                             <div class="mb-3">
                                                                 <label class="form-label">TNPSC Staff <span
-                                                                        class="text-danger">*</span></label>
+                                                                        class="text-danger"></span></label>
                                                                 <select name="escortstaffs[0][tnpsc_staff]"
-                                                                    class="form-control" required>
+                                                                    class="form-control" >
                                                                     <option disabled selected>Select TNPSC Staff</option>
                                                                     @foreach ($tnpscStaffs as $tnpscStaff)
                                                                         <option value="{{ $tnpscStaff->dept_off_id }}">
@@ -332,57 +328,55 @@
                                                         <div class="col-sm-6">
                                                             <div class="mb-3">
                                                                 <label class="form-label">SI Name <span
-                                                                        class="text-danger">*</span></label>
+                                                                        class="text-danger"></span></label>
                                                                 <input type="text" name="escortstaffs[0][si_name]"
-                                                                    class="form-control" placeholder="SI Name" required />
+                                                                    class="form-control" placeholder="SI Name" />
                                                             </div>
                                                         </div>
                                                         <div class="col-sm-6">
                                                             <div class="mb-3">
                                                                 <label class="form-label">SI Phone <span
-                                                                        class="text-danger">*</span></label>
+                                                                        class="text-danger"></span></label>
                                                                 <input type="text" name="escortstaffs[0][si_phone]"
-                                                                    class="form-control" placeholder="SI Phone"
-                                                                    required />
+                                                                    class="form-control" placeholder="SI Phone" />
                                                             </div>
                                                         </div>
                                                         <div class="col-sm-6">
                                                             <div class="mb-3">
                                                                 <label class="form-label">SI IFHRMS No <span
-                                                                        class="text-danger">*</span></label>
+                                                                        class="text-danger"></span></label>
                                                                 <input type="text" name="escortstaffs[0][si_ifhrms_no]"
-                                                                    class="form-control" placeholder="SI IFHRMS No"
-                                                                    required />
+                                                                    class="form-control" placeholder="SI IFHRMS No" />
                                                             </div>
                                                         </div>
                                                         <div class="col-sm-6">
                                                             <div class="mb-3">
                                                                 <label class="form-label">Revenue Staff Name <span
-                                                                        class="text-danger">*</span></label>
+                                                                        class="text-danger"></span></label>
                                                                 <input type="text"
                                                                     name="escortstaffs[0][revenue_staff_name]"
                                                                     class="form-control" placeholder="Revenue Staff Name"
-                                                                    required />
+                                                                     />
                                                             </div>
                                                         </div>
                                                         <div class="col-sm-6">
                                                             <div class="mb-3">
                                                                 <label class="form-label">Revenue Staff Phone <span
-                                                                        class="text-danger">*</span></label>
+                                                                        class="text-danger"></span></label>
                                                                 <input type="text"
                                                                     name="escortstaffs[0][revenue_phone]"
                                                                     class="form-control" placeholder="Revenue Staff Phone"
-                                                                    required />
+                                                                     />
                                                             </div>
                                                         </div>
                                                         <div class="col-sm-6">
                                                             <div class="mb-3">
                                                                 <label class="form-label">Revenue Staff IFHRMS No <span
-                                                                        class="text-danger">*</span></label>
+                                                                        class="text-danger"></span></label>
                                                                 <input type="text"
                                                                     name="escortstaffs[0][revenue_ifhrms_no]"
                                                                     class="form-control"
-                                                                    placeholder="Revenue Staff IFHRMS No" required />
+                                                                    placeholder="Revenue Staff IFHRMS No"  />
                                                             </div>
                                                         </div>
                                                     </div>
@@ -509,7 +503,7 @@
                         <div class="col-sm-6">
                             <div class="mb-3">
                                 <label class="form-label">TNPSC Staff <span class="text-danger">*</span></label>
-                                <select name="escortstaffs[${cardIndex}][tnpsc_staff]" class="form-control" required>
+                                <select name="escortstaffs[${cardIndex}][tnpsc_staff]" class="form-control" >
                                     <option disabled selected>Select TNPSC Staff</option>
                                         ${tnpscOptions}  <!-- Insert TNPSC staff dynamically -->
                                 </select>
@@ -518,37 +512,37 @@
                         <div class="col-sm-6">
                             <div class="mb-3">
                                 <label class="form-label">SI Name <span class="text-danger">*</span></label>
-                                <input type="text" name="escortstaffs[${cardIndex}][si_name]" class="form-control" placeholder="SI Name" required />
+                                <input type="text" name="escortstaffs[${cardIndex}][si_name]" class="form-control" placeholder="SI Name"  />
                             </div>
                         </div>
                         <div class="col-sm-6">
                             <div class="mb-3">
                                 <label class="form-label">SI Phone <span class="text-danger">*</span></label>
-                                <input type="text" name="escortstaffs[${cardIndex}][si_phone]" class="form-control" placeholder="SI Phone" required />
+                                <input type="text" name="escortstaffs[${cardIndex}][si_phone]" class="form-control" placeholder="SI Phone"  />
                             </div>
                         </div>
                         <div class="col-sm-6">
                             <div class="mb-3">
                                 <label class="form-label">SI IFHRMS No <span class="text-danger">*</span></label>
-                                <input type="text" name="escortstaffs[${cardIndex}][si_ifhrms_no]" class="form-control" placeholder="SI IFHRMS No" required />
+                                <input type="text" name="escortstaffs[${cardIndex}][si_ifhrms_no]" class="form-control" placeholder="SI IFHRMS No"  />
                             </div>
                         </div>
                         <div class="col-sm-6">
                             <div class="mb-3">
                                 <label class="form-label">Revenue Staff Name <span class="text-danger">*</span></label>
-                                <input type="text" name="escortstaffs[${cardIndex}][revenue_staff_name]" class="form-control" placeholder="Revenue Staff Name" required />
+                                <input type="text" name="escortstaffs[${cardIndex}][revenue_staff_name]" class="form-control" placeholder="Revenue Staff Name"  />
                             </div>
                         </div>
                         <div class="col-sm-6">
                             <div class="mb-3">
                                 <label class="form-label">Revenue Staff Phone <span class="text-danger">*</span></label>
-                                <input type="text" name="escortstaffs[${cardIndex}][revenue_phone]" class="form-control" placeholder="Revenue Staff Phone" required />
+                                <input type="text" name="escortstaffs[${cardIndex}][revenue_phone]" class="form-control" placeholder="Revenue Staff Phone"  />
                             </div>
                         </div>
                         <div class="col-sm-6">
                             <div class="mb-3">
                                 <label class="form-label">Revenue Staff IFHRMS No <span class="text-danger">*</span></label>
-                                <input type="text" name="escortstaffs[${cardIndex}][revenue_ifhrms_no]" class="form-control" placeholder="Revenue Staff IFHRMS No" required />
+                                <input type="text" name="escortstaffs[${cardIndex}][revenue_ifhrms_no]" class="form-control" placeholder="Revenue Staff IFHRMS No"  />
                             </div>
                         </div>
                     </div>

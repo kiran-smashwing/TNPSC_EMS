@@ -57,18 +57,18 @@ class ChartedVehicleRoutesController extends Controller
         $request->validate([
             'route_no' => 'required|string|max:255',
             'exam_id' => 'required|array',
-            'driver_name' => 'required|string|max:255',
+            'driver_name' => 'string|max:255',
             'driver_licence_no' => 'string|max:255',
-            'phone' => 'required|string|max:255',
-            'vehicle_no' => 'required|string|max:255',
-            'otl_locks' => 'required|array',
-            'gps_lock' => 'required|array',
-            'police_constable' => 'required|string|max:255',
-            'police_constable_phone' => 'required|string|max:255',
-            'escort_vehicle_no' => 'required|string|max:255',
-            'escort_driver_name' => 'required|string|max:255',
+            'phone' => 'string|max:255',
+            'vehicle_no' => 'string|max:255',
+            'otl_locks' => 'array',
+            'gps_lock' => 'array',
+            'police_constable' => 'string|max:255',
+            'police_constable_phone' => 'string|max:255',
+            'escort_vehicle_no' => 'string|max:255',
+            'escort_driver_name' => 'string|max:255',
             'escort_driver_licence_no' => 'string|max:255',
-            'escort_driver_phone' => 'required|string|max:255',
+            'escort_driver_phone' => 'string|max:255',
         ]);
         // Handle both string and array inputs for otl_locks and gps_lock
         $otl_locks = $request->otl_locks;

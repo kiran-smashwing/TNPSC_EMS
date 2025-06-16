@@ -52,6 +52,10 @@ class ExamMaterialsData extends Model
     {
         return $this->belongsTo(Venues::class, 'venue_code', 'venue_id');
     }
+    public function ci()
+    {
+        return $this->belongsTo(ChiefInvigilator::class, 'ci_id', 'ci_id');
+    }
     public function examMaterialsScan()
     {
         return $this->belongsTo(ExamMaterialsScan::class, 'id', 'exam_material_id');

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AlertNotificationController;
+use App\Http\Controllers\DeliveryReportController;
 use App\Http\Controllers\DistrictCandidatesController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Crypt;
@@ -780,6 +781,8 @@ Route::prefix('report')->group(function () {
         Route::get('/candidate-remarks-report-overall', [CandidateRemarksController::class, 'generateCandidateRemarksReportOverall'])->name('candidate-remarks.report.overall')->middleware('role.permission:candidate-remarks.report.overall');
         Route::get('/exam-material-discrepancy', [ExamMaterialsDiscrepancyController::class, 'index'])->name('exam-material-discrepancy.report')->middleware('role.permission:exam-material-discrepancy.report');
         Route::get('/emergency-alarm-notification', [EmergencyAlarmNotificationsController::class, 'index'])->name('emergency-alarm-notification.report')->middleware('role.permission:emergency-alarm-notification.report');
+        Route::get('/delivery-report', [DeliveryReportController::class, 'index'])->name('delivery-report.report')->middleware('role.permission:delivery-report.report');
+        Route::get('/delivery-report-generate', [DeliveryReportController::class, 'generateDeliveryReport'])->name('delivery-report.report.generate')->middleware('role.permission:delivery-report.report.generate');
     });
 });
 

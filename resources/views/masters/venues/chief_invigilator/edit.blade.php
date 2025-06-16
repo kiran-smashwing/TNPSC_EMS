@@ -310,7 +310,7 @@
 
                 // Populate centers
                 filteredCenters.forEach(center => {
-                    const selected = "{{ old('center', $chiefInvigilator->ci_center_id) }}" == center
+                    const selected = "{{ old('center', $chiefInvigilator->venue->venue_center_id) }}" == center
                         .center_code ? 'selected' : '';
                     centerDropdown.append(
                         `<option value="${center.center_code}" ${selected}>
@@ -347,7 +347,7 @@
                 );
                 // Populate venues
                 filteredVenues.forEach(venue => {
-                    const selected = "{{ old('venue', $chiefInvigilator->ci_venue_id) }}" == venue.venue_id ?
+                    const selected = "{{ old('venue', $chiefInvigilator->venue->venue_id) }}" == venue.venue_id ?
                         'selected' : '';
                     venueDropdown.append(
                         `<option value="${venue.venue_id}" ${selected}>
@@ -359,7 +359,7 @@
 
             // Trigger change event on page load to handle old/existing selections
             $(document).ready(function() {
-                const oldCenter = "{{ old('center', $chiefInvigilator->ci_center_id ?? '') }}";
+                const oldCenter = "{{ old('center', $chiefInvigilator->venue->venue_center_id ?? '') }}";
                 if (oldCenter) {
                     $('#center').val(oldCenter).trigger('change');
                 }

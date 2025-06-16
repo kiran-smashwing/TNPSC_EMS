@@ -56,6 +56,7 @@ class ExpenditureStatmentController extends Controller
 
         // Fetch candidate attendance and related data
         $candidate_attendance = CIChecklistAnswer::where('exam_id', $exam_main_no)
+        ->where('utility_answer', '!=', '[]') // ✅ Skip empty array values
             ->with('ci.venue', 'center.district') // Include relationships
             ->get();
 

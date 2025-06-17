@@ -91,7 +91,7 @@
                                     </div>
 
                                     <!-- Session -->
-                                    <div class="col-md-4 mb-3">
+                                    {{-- <div class="col-md-4 mb-3">
                                         <label for="session" class="form-label">Session</label>
                                         <select name="session" id="session" class="form-control">
                                             <option value="" selected>Select Session</option>
@@ -121,7 +121,7 @@
                                         <select name="center" id="center" class="form-control">
                                             <option value="" selected>Select Center</option>
                                         </select>
-                                    </div>
+                                    </div> --}}
 
 
 
@@ -168,28 +168,28 @@
                             //console.log(data.centerCodeFromSession);
 
                             // Populate districts
-                            const districtSelect = document.getElementById('district');
-                            districtSelect.innerHTML = '<option value="" selected>Select District</option>';
-                            if (data.districts && data.districts.length > 0) {
-                                data.districts.forEach(district => {
-                                    const option = document.createElement('option');
-                                    option.value = district.id;
-                                    option.textContent = district.name;
-                                    districtSelect.appendChild(option);
-                                });
-                            }
+                            // const districtSelect = document.getElementById('district');
+                            // districtSelect.innerHTML = '<option value="" selected>Select District</option>';
+                            // if (data.districts && data.districts.length > 0) {
+                            //     data.districts.forEach(district => {
+                            //         const option = document.createElement('option');
+                            //         option.value = district.id;
+                            //         option.textContent = district.name;
+                            //         districtSelect.appendChild(option);
+                            //     });
+                            // }
 
-                            // Populate centers
-                            const centerSelect = document.getElementById('center');
-                            centerSelect.innerHTML = '<option value="" selected>Select Center</option>';
-                            if (data.centers && data.centers.length > 0) {
-                                data.centers.forEach(center => {
-                                    const option = document.createElement('option');
-                                    option.value = center.id;
-                                    option.textContent = center.name;
-                                    centerSelect.appendChild(option);
-                                });
-                            }
+                            // // Populate centers
+                            // const centerSelect = document.getElementById('center');
+                            // centerSelect.innerHTML = '<option value="" selected>Select Center</option>';
+                            // if (data.centers && data.centers.length > 0) {
+                            //     data.centers.forEach(center => {
+                            //         const option = document.createElement('option');
+                            //         option.value = center.id;
+                            //         option.textContent = center.name;
+                            //         centerSelect.appendChild(option);
+                            //     });
+                            // }
 
                             // Populate exam dates
                             const examDateSelect = document.getElementById('exam_date');
@@ -204,16 +204,16 @@
                             }
 
                             // Populate sessions
-                            const sessionSelect = document.getElementById('session');
-                            sessionSelect.innerHTML = '<option value="" selected>Select Session</option>';
-                            if (data.sessions && data.sessions.length > 0) {
-                                data.sessions.forEach(session => {
-                                    const option = document.createElement('option');
-                                    option.value = session;
-                                    option.textContent = session;
-                                    sessionSelect.appendChild(option);
-                                });
-                            }
+                            // const sessionSelect = document.getElementById('session');
+                            // sessionSelect.innerHTML = '<option value="" selected>Select Session</option>';
+                            // if (data.sessions && data.sessions.length > 0) {
+                            //     data.sessions.forEach(session => {
+                            //         const option = document.createElement('option');
+                            //         option.value = session;
+                            //         option.textContent = session;
+                            //         sessionSelect.appendChild(option);
+                            //     });
+                            // }
                         })
                         .catch(error => {
                             console.error('Error fetching dropdown data:', error);

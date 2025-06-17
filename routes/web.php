@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\AlertNotificationController;
-use App\Http\Controllers\DeliveryReportController;
+use App\Http\Controllers\ExamMaterialsReportController;
 use App\Http\Controllers\DistrictCandidatesController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Crypt;
@@ -775,6 +775,7 @@ Route::prefix('report')->group(function () {
         Route::get('/attendance-report-overall', [AttendanceReportController::class, 'generatecategorysender'])->name('attendance.report.overall')->middleware('role.permission:attendance.report.overall');
         Route::get('/expenditure-statment', [ExpenditureStatmentController::class, 'index'])->name('expenditure-statment.report')->middleware('role.permission:expenditure-statment.report');
         Route::get('/filter-expenditure', [ExpenditureStatmentController::class, 'filterExpenditure'])->name('filter.expenditure')->middleware('role.permission:filter.expenditure');
+        Route::get('/expenditure-report-overall', [ExpenditureStatmentController::class, 'generateExpenditureReportOverall'])->name('expenditure-report.overall')->middleware('role.permission:expenditure-report.overall');
         Route::get('/omr-account', [Omr_AccountController::class, 'index'])->name('omr-account.report')->middleware('role.permission:omr-account.report');
         Route::get('/omr-report-overall', [Omr_AccountController::class, 'generateReport'])->name('omr-report.report.overall')->middleware('role.permission:omr-report.report.overall');
         Route::get('/ci-attendace', [CiMeetingAttendanceController::class, 'index'])->name('ci-attendace.report')->middleware('role.permission:ci-attendace.report');
@@ -785,8 +786,10 @@ Route::prefix('report')->group(function () {
         Route::get('/candidate-remarks-report-overall', [CandidateRemarksController::class, 'generateCandidateRemarksReportOverall'])->name('candidate-remarks.report.overall')->middleware('role.permission:candidate-remarks.report.overall');
         Route::get('/exam-material-discrepancy', [ExamMaterialsDiscrepancyController::class, 'index'])->name('exam-material-discrepancy.report')->middleware('role.permission:exam-material-discrepancy.report');
         Route::get('/emergency-alarm-notification', [EmergencyAlarmNotificationsController::class, 'index'])->name('emergency-alarm-notification.report')->middleware('role.permission:emergency-alarm-notification.report');
-        Route::get('/delivery-report', [DeliveryReportController::class, 'index'])->name('delivery-report.report')->middleware('role.permission:delivery-report.report');
-        Route::get('/delivery-report-generate', [DeliveryReportController::class, 'generateDeliveryReport'])->name('delivery-report.report.generate')->middleware('role.permission:delivery-report.report.generate');
+        Route::get('/delivery-report', [ExamMaterialsReportController::class, 'index'])->name('delivery-report.report')->middleware('role.permission:delivery-report.report');
+        Route::get('/collection-report', [ExamMaterialsReportController::class, 'collectionReport'])->name('collection-report.report')->middleware('role.permission:collection-report.report');
+        Route::get('/delivery-report-generate', [ExamMaterialsReportController::class, 'generateDeliveryReport'])->name('delivery-report.report.generate')->middleware('role.permission:delivery-report.report.generate');
+        Route::get('/collection-report-generate', [ExamMaterialsReportController::class, 'generateCollectionReport'])->name('collection-report.report.generate')->middleware('role.permission:collection-report.report.generate');
     });
 });
 

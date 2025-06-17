@@ -350,12 +350,14 @@
                             <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                         </a>
                         <ul class="pc-submenu">
-                            <li class="pc-item"><a class="pc-link" href="{{route('delivery-report.report')}}"> Print to District Treasury</a></li>
+                            <li class="pc-item"><a class="pc-link" href="{{ route('delivery-report.report') }}"> Delivery Report</a>
+                            </li>
+                            {{-- <li class="pc-item"><a class="pc-link" href="{{route('delivery-report.report')}}"> Print to District Treasury</a></li>
                             <li class="pc-item"><a class="pc-link" href="#"> District Treasury to Sub Treasury</a>
                             </li>
                             <li class="pc-item"><a class="pc-link" href="#">Sub Treasury to Mobile Team</a></li>
                             <li class="pc-item"><a class="pc-link" href="#"> Mobile Team to Chief Invigilator</a>
-                            </li>
+                            </li> --}}
                         </ul>
                     </li>
                 @endhasPermission
@@ -371,11 +373,13 @@
                             <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                         </a>
                         <ul class="pc-submenu">
-                            <li class="pc-item"><a class="pc-link" href="#"> Chief Invigilator to Moible Team</a>
+                            <li class="pc-item"><a class="pc-link" href="{{ route('collection-report.report') }}">Collection Report</a>
+
+                            {{-- <li class="pc-item"><a class="pc-link" href="#"> Chief Invigilator to Moible Team</a>
                             </li>
                             <li class="pc-item"><a class="pc-link" href="#"> Mobile Team to Sub Treasury </a></li>
                             <li class="pc-item"><a class="pc-link" href="#">Sub Treasury to District Treasury</a>
-                            </li>
+                            </li> --}}
                         </ul>
                     </li>
                 @endhasPermission

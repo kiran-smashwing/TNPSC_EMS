@@ -103,7 +103,20 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-header">
-                            <h5>Expenditure Statement</h5>
+                            <div class="row">
+                                <div class="col-md-6 align-items-center d-flex justify-content-start">
+                                    <h5>Expenditure Statement</h5>
+                                </div>
+                                <div class="col-md-6 align-items-center d-flex justify-content-end">
+                                    <div id="download-button-container"
+                                        style="display: {{ request('notification_no') ? 'block' : 'none' }};">
+                                        <a href="{{route('expenditure-report.overall', ['notification_no' => request('notification_no')])}}" id="download-btn" class="btn btn-light-primary">
+                                            <i class="feather icon-download mx-1"></i> Download Expenditure Statement
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                         <div class="card-body">
                             <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
@@ -134,8 +147,8 @@
                                                 <td>{{ $data['totalAmountSpent'] ?? '0' }}</td>
                                                 <td>{{ $data['balanceAmount'] ?? '0' }}</td>
                                                 <td>
-                                                    <a href="{{ route('report.view', ['encryptedUrl' => $data['encryptedUrl']]) }}" 
-                                                       class="me-2 btn btn-sm btn-light-success" target="_blank">
+                                                    <a href="{{ route('report.view', ['encryptedUrl' => $data['encryptedUrl']]) }}"
+                                                        class="me-2 btn btn-sm btn-light-success" target="_blank">
                                                         <i class="feather icon-download mx-1"></i> View
                                                     </a>
                                                 </td>

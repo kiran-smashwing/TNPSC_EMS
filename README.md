@@ -371,6 +371,59 @@ sudo systemctl status laravel-reverb
 
 Following these steps ensures that Laravel queue workers and Reverb run efficiently under systemd, providing stability and automatic restarts.
 
+# Laravel Scheduled Commands Setup
+
+This Laravel project uses the built-in task scheduler to run Artisan commands on a regular schedule.
+
+## 📋 Scheduled Commands
+
+The following commands are scheduled:
+
+- `php artisan role:remove-vds` — runs **daily**
+- `php artisan role:remove-escort` — runs **daily**
+
+These are defined in the file:
+
+File: `routes/console.php`
+
+## ⚙️ Setup Instructions (Ubuntu 24.04+)
+
+
+### 1. Create a Cron Job
+
+Edit the crontab for the user running Laravel (e.g. `www-data`, `sdcusr`, etc.):
+
+```bash
+crontab -e
+```
+
+Add the following line at the bottom (replace the path with your actual Laravel project path):
+
+```cron
+* * * * * /usr/bin/php /var/www/html/tnpsc/artisan schedule:run >> /dev/null 2>&1
+```
+
+> This runs Laravel’s scheduler every minute. Laravel will internally decide which tasks are due.
+
+### 2. Enable and Start the Cron Service
+
+Make sure the cron daemon is enabled and running:
+
+```bash
+sudo systemctl enable cron
+sudo systemctl start cron
+```
+
+## ✅ Done!
+
+Now Laravel will automatically run your scheduled commands at the intervals defined in `console.php`.
+
+Check what’s scheduled with:
+
+```bash
+php artisan schedule:list
+```
+
 # Configuring Laravel on a VPS Without `/public` in URL
 
 If you're hosting your Laravel application on a **VPS** and need to serve it without the `/public` in the URL, follow these steps.
@@ -557,3 +610,5 @@ require_once __DIR__ . '/public/index.php';
 
 Now your Laravel application should work **without needing `/public` in the URL**! 🎉  
 If you still experience issues, check your hosting provider’s settings for **mod_rewrite** support.
+
+

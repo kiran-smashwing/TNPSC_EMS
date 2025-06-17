@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Currentexam;
+use App\Models\ExamConfirmedHalls;
 use Spatie\Browsershot\Browsershot;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Crypt;
@@ -28,8 +29,8 @@ class ExpenditureStatmentController extends Controller
         $centers = center::all(); // Fetch all venues
         return view('view_report.expenditure_report.index', compact('districts', 'centers')); // Path matches the file created
     }
-   
- public function filterExpenditure(Request $request)
+
+    public function filterExpenditure(Request $request)
     {
         $query = Currentexam::with('examservice');
 
@@ -56,7 +57,7 @@ class ExpenditureStatmentController extends Controller
 
         // Fetch candidate attendance and related data
         $candidate_attendance = CIChecklistAnswer::where('exam_id', $exam_main_no)
-        ->where('utility_answer', '!=', '[]') // ✅ Skip empty array values
+            ->where('utility_answer', '!=', '[]') // ✅ Skip empty array values
             ->with('ci.venue', 'center.district') // Include relationships
             ->get();
 
@@ -161,5 +162,140 @@ class ExpenditureStatmentController extends Controller
             'sessions' => $sessions,
             'centerCodeFromSession' => $centerCodeFromSession,
         ]);
+    }
+
+    public function generateExpenditureReportOverall(Request $request)
+    {
+        $notification_no = $request->input('notification_no');
+        $districtId = $request->input('district');
+        $centerId = $request->input('center');
+        // Retrieve exam data
+        $exam_data = Currentexam::with('examservice')
+            ->where('exam_main_notification', $notification_no)
+            ->first();
+
+        if (!$exam_data) {
+            return back()->with('error', 'Exam data not found.');
+        }
+
+        $exam_id = $exam_data->exam_main_no;
+
+        // Fetch all confirmed halls (similar to attendance report pattern)
+        $examconfirmed_halls = ExamConfirmedHalls::with([
+            'district',
+            'center',
+            'venue',
+            'chiefInvigilator.venue',
+            'ciCandidateLogs'
+        ])
+            ->where('exam_id', $exam_id)
+            ->when($districtId, function ($query) use ($districtId) {
+                return $query->whereHas('center.district', function ($q) use ($districtId) {
+                    $q->where('id', $districtId);
+                });
+            })
+            ->when($centerId, function ($query) use ($centerId) {
+                return $query->whereHas('center', function ($q) use ($centerId) {
+                    $q->where('id', $centerId);
+                });
+            })
+            ->get()
+            ->unique('ci_id')
+            ->sortBy('center.center_code')
+            ->sortBy('hall_code');  // Keep only one entry per CI
+        // Retrieve CI Utility data and key by ci_id for quick lookup
+        $CIChecklistAnswer = CIChecklistAnswer::where('exam_id', $exam_data->exam_main_no)
+            ->where('utility_answer', '!=', '[]') // Ensure utility_answer is not empty
+            ->when($districtId, function ($query) use ($districtId) {
+                return $query->whereHas('center.district', function ($q) use ($districtId) {
+                    $q->where('id', $districtId);
+                });
+            })
+            ->when($centerId, function ($query) use ($centerId) {
+                return $query->whereHas('center', function ($q) use ($centerId) {
+                    $q->where('id', $centerId);
+                });
+            })
+            ->with([
+                'ci',
+                'ci.venue',
+                'center.district',
+            ])
+            ->get()
+            ->keyBy('ci_id'); // Key by ci_id for quick lookup
+        // Extract district codes from confirmed halls  
+        $districtCodes = $examconfirmed_halls->pluck('center.district.district_code')->unique()->filter();
+
+
+        // Create merged records for all confirmed halls
+        $merged_records = collect();
+
+        foreach ($examconfirmed_halls as $hall) {
+            // Check if CI Utitlity exists for this CI
+            if (isset($CIChecklistAnswer[$hall->ci_id])) {
+                // Use existing attendance record
+                $record = $CIChecklistAnswer[$hall->ci_id];
+            } else {
+                // Create a fake record with the same structure for CIs who didn't attend
+                $record = (object) [
+                    'ci_id' => $hall->ci_id,
+                    'hall_code' => $hall->hall_code,
+                    'center' => $hall->center,
+                    'ci' => $hall->chiefInvigilator,
+                    'utility_answer' => null, // No utility data
+                ];
+            }
+
+            $merged_records->push($record);
+        }
+
+        if ($merged_records->isEmpty()) {
+            return back()->with('error', 'No CI data found.');
+        }
+
+        // Group merged records by district (maintaining your existing structure)
+        $grouped_data = $merged_records->groupBy(function ($item) {
+            return $item->center->district->district_name ?? 'Unknown District';
+        })->map(function ($items) {
+
+            return [
+                'ci_utility_records' => $items,
+
+            ];
+        });
+     
+
+        // Render the view (keeping your existing structure)
+        $html = view('view_report.expenditure_report.expenditure-report-overall', compact('exam_data', 'notification_no', 'grouped_data'))->render();
+
+        // Generate PDF using Browsershot
+        $pdf = Browsershot::html($html)
+            ->setOption('landscape', true)
+            ->setOption('margin', [
+                'top' => '4mm',
+                'right' => '4mm',
+                'bottom' => '8mm',
+                'left' => '4mm'
+            ])
+            ->setOption('displayHeaderFooter', true)
+            ->setOption('headerTemplate', '<div></div>')
+            ->setOption('footerTemplate', '
+        <div style="font-size:10px;width:100%;text-align:center;">
+            Page <span class="pageNumber"></span> of <span class="totalPages"></span>
+        </div>
+        <div style="position: absolute; bottom: 5mm; right: 10px; font-size: 10px;">
+             IP: ' . $_SERVER['REMOTE_ADDR'] . ' | Timestamp: ' . date('d-m-Y H:i:s') . '
+        </div>')
+            ->setOption('preferCSSPageSize', true)
+            ->setOption('printBackground', true)
+            ->scale(1)
+            ->format('A4')
+            ->pdf();
+
+        $filename = 'ci-expenditure-report-grouped-overall-' . time() . '.pdf';
+
+        return response($pdf)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
     }
 }

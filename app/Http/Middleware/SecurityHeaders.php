@@ -120,10 +120,13 @@ class SecurityHeaders
      */
     protected function validateHostHeader(Request $request): void
     {
-        // Define allowed hosts (e.g., from config or environment)
+        // Get the base host from app config
+        $baseHost = parse_url(config('app.url'), PHP_URL_HOST);
+
+        // Generate both base and www. variants
         $allowedHosts = [
-            parse_url(config('app.url'), PHP_URL_HOST), // our primary app URL 
-            'localhost',       // For local development
+            strtolower($baseHost),
+            'www.' . strtolower(preg_replace('/^www\./', '', $baseHost)), // ensure www. variant
         ];
 
         // Get the Host header from the request

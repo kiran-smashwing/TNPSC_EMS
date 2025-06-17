@@ -208,6 +208,9 @@ class AuthorizationService
                     'id-candidates.update-venue-consent',
                     'delivery-report.report',
                     'delivery-report.report.generate',
+                    'collection-report.report',
+                    'collection-report.report.generate',
+                    'expenditure-report.overall',
                     ],
             ],
             'ED' => [

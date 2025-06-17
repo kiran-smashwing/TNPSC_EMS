@@ -66,7 +66,7 @@ class ExamConfirmedHalls extends Model
     }
     public function ciCandidateLogs()
     {
-        return $this->hasMany(CiCandidateLogs::class, 'ci_id', 'ci_id');
+        return $this->hasMany(CICandidateLogs::class, 'ci_id', 'ci_id');
     }
    
 }

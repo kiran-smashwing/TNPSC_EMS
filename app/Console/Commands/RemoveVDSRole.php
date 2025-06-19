@@ -22,23 +22,42 @@ class RemoveVDSRole extends Command
      */
     public function handle()
     {
+        \Log::info('RemoveVDSRole command started at ' . now());
+
         $today = Carbon::today();
         $thresholdDate = $today->subDays(2);
         // Fetch department officials assigned to mobile team staff
         $officials = DepartmentOfficial::where('custom_role', 'VDS')->get();
+        \Log::info("Found {$officials->count()} officials with VDS role");
 
         foreach ($officials as $official) {
+            \Log::info("🔍 Checking Official ID: {$official->dept_off_id}, Name: {$official->dept_off_name}");
+
             $latestExamDate = ExamMaterialRoutes::where('mobile_team_staff', $official->dept_off_id)
                 ->latest('exam_date')
                 ->value('exam_date');
 
-            if ($latestExamDate && Carbon::parse($latestExamDate)->lt($thresholdDate)) {
-                $official->custom_role = null; // Remove VDS role
+            if ($latestExamDate) {
+                $parsedDate = Carbon::parse($latestExamDate);
+                \Log::info("  ➤ Latest Exam Date: {$parsedDate->toDateString()}, Threshold: {$thresholdDate->toDateString()}");
+
+                if ($parsedDate->lt($thresholdDate)) {
+                    $official->custom_role = null;
+                    $official->save();
+                    \Log::info("✅ Removed VDS role from ID: {$official->dept_off_id}, Last Exam Date: {$parsedDate->toDateString()}");
+                } else {
+                    \Log::info("❌ Not removed (exam date too recent): ID: {$official->dept_off_id}, Exam Date: {$parsedDate->toDateString()}");
+                }
+            } else {
+                // No exam date found – remove role
+                \Log::warning("⚠️ No exam date found for official ID: {$official->dept_off_id}, Name: {$official->dept_off_name} — Removing role.");
+                $official->custom_role = null;
                 $official->save();
-                $this->info("Removed VDS role from Department Official ID: {$official->dept_off_id} - Name: {$official->dept_off_name}");
+                \Log::info("✅ Removed VDS role from ID: {$official->dept_off_id}, Reason: No exam date found");
             }
         }
 
-        $this->info('VDS role removal process completed.');
+        \Log::info('RemoveVDSRole command completed at ' . now());
+
     }
 }

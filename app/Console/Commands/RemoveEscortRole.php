@@ -24,11 +24,17 @@ class RemoveEscortRole extends Command
      */
     public function handle()
     {
+        \Log::info('RemoveEscortRole command started at ' . now());
+
         $today = Carbon::today();
         $thresholdDate = $today->subDays(2);
         // Fetch department officials assigned to mobile team staff
         $officials = DepartmentOfficial::where('custom_role', 'ESCORT')->get();
+        \Log::info("Found {$officials->count()} officials with ESCORT role");
+
         foreach ($officials as $user) {
+            \Log::info("🔍 Checking Official ID: {$user->dept_off_id}, Name: {$user->dept_off_name}");
+
             // Collect all exam IDs from all routes assigned to this official
             $examIds = ChartedVehicleRoute::whereHas('escortstaffs', function ($query) use ($user) {
                 $query->where('tnpsc_staff_id', $user->dept_off_id);
@@ -37,6 +43,8 @@ class RemoveEscortRole extends Command
                 ->toArray();
             // Flatten the array in case exam_id is stored as JSON (string)
             $examIds = array_merge([], ...array_map(fn($id) => $id ?? [], $examIds));
+            \Log::info("  ➤ Found Exam IDs: " . json_encode($examIds));
+
             if (!empty($examIds)) {
                 // Fetch exams with their latest session dates
                 $exams = Currentexam::whereIn('exam_main_no', $examIds)
@@ -47,6 +55,7 @@ class RemoveEscortRole extends Command
                         }
                     ])
                     ->get();
+                \Log::info("  ➤ Found {$exams->count()} exams with sessions");
 
                 if ($exams->isNotEmpty()) {
                     // Determine the latest session date across all exams
@@ -61,21 +70,27 @@ class RemoveEscortRole extends Command
                             }
                         }
                     }
-
-                    // Only remove the role if the latest session date is older than the threshold
-                    if ($latestSessionDate && $latestSessionDate->lt($thresholdDate)) {
-                        $user->custom_role = null;
-                        $user->save();
-                        $this->info("Removed role from Official ID: {$user->dept_off_id} - Name: {$user->dept_off_name} - Last Session: {$latestSessionDate->toDateString()}");
+                    if ($latestSessionDate) {
+                        \Log::info("  ➤ Latest session date for official: {$latestSessionDate->toDateString()}");
+                        if ($latestSessionDate->lt($thresholdDate)) {
+                            $user->custom_role = null;
+                            $user->save();
+                            \Log::info("✅ Removed role: ID {$user->dept_off_id}, Last Session: {$latestSessionDate->toDateString()}");
+                        } else {
+                            \Log::info("❌ Not removed (session too recent): ID {$user->dept_off_id}, Session: {$latestSessionDate->toDateString()}, Threshold: {$thresholdDate->toDateString()}");
+                        }
+                    } else {
+                        \Log::warning("⚠️ No session dates found for exams of official ID: {$user->dept_off_id}");
                     }
                 } else {
                     // If no exams have sessions, optionally remove the role (adjust logic as needed)
                     $user->custom_role = null;
                     $user->save();
-                    $this->info("Removed role from Official ID: {$user->dept_off_id} - Name: {$user->dept_off_name} - No sessions found");
+                    \Log::info("Removed role from Official ID: {$user->dept_off_id} - Name: {$user->dept_off_name} - No sessions found");
                 }
             }
         }
-        $this->info('Role removal process completed.');
+        \Log::info('RemoveEscortRole command completed at ' . now());
+
     }
 }

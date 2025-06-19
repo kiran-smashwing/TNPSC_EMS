@@ -189,14 +189,19 @@ class AuthController extends Controller
                         $success = Auth::guard('headquarters')->loginUsingId($user->dept_off_id, $remember);
                         $userId = $user->dept_off_id;
                     } else {
-                        return redirect()->back()->withErrors([
-                            'password' => 'Incorrect password. Please try again or reset it using "Forgot Password".',
+                        Log::warning('Failed login attempt', [
+                            'email' => $email,
+                            'role' => $role,
+                            'ip' => $request->ip()
                         ]);
+                        return redirect()->back()->withErrors([
+                            'email' => 'Incorrect password. Please try again or reset it using "Forgot Password".',
+                        ])->withInput($request->only('email', 'role'));
                     }
                 } else {
                     return redirect()->back()->withErrors([
                         'email' => 'Multiple accounts found with valid roles. Please contact support.',
-                    ]);
+                    ])->withInput($request->only('email', 'role'));
                 }
                 if ($success) {
                     $user = Auth::guard('headquarters')->user();

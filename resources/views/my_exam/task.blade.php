@@ -532,11 +532,17 @@
                                                                         class="feather icon-check-circle mx-1"></i>Add
                                                                     Hall</a>
                                                             @endif
-                                                            @if (isset($venueConsents->consent_status) && $venueConsents->consent_status == 'accepted')
+                                                            {{-- <pre>
+Consent Status: {{ $venueConsents->consent_status ?? 'N/A' }}
+Hall Confirmation: {{ $hallConfirmed ? 'Exists' : 'Not Set' }}
+</pre> --}}
+                                                            @if (isset($venueConsents->consent_status) && $venueConsents->consent_status === 'accepted' && !$hallConfirmed)
                                                                 <a href="{{ route('venues.venue-consent', $session->exam_main_no) }}"
-                                                                    class="me-3 btn btn-sm btn-light-warning"><i
-                                                                        class="feather icon-edit mx-1"></i>Edit Hall</a>
+                                                                    class="me-3 btn btn-sm btn-light-warning">
+                                                                    <i class="feather icon-edit mx-1"></i>Edit Hall
+                                                                </a>
                                                             @endif
+
                                                         </div>
                                                     </div>
                                                 </div>
@@ -624,7 +630,7 @@
                                                                     <a href="{{ route('id-candidates.export-confirmed-halls', $session->exam_main_no) }}"
                                                                         class="me-2 btn btn-sm btn-light-info"><i
                                                                             class="feather icon-download mx-1"></i>Download
-                                                                            Excel</a>
+                                                                        Excel</a>
                                                                 @endif
                                                             @endhasPermission
                                                         </div>
@@ -721,11 +727,12 @@
                                                                 @endhasPermission
                                                                 @hasPermission('finalize-csv')
                                                                     <a href="#"
-                                                                    title="Upload Additional Candidates Count CSV"
+                                                                        title="Upload Additional Candidates Count CSV"
                                                                         class="me-2 btn btn-sm btn-light-primary m-2"
                                                                         data-pc-animate="just-me" data-bs-toggle="modal"
                                                                         data-bs-target="#apdAddlCandidateCountModal"><i
-                                                                            class="feather icon-upload mx-1"></i>Addl Candidate Upload
+                                                                            class="feather icon-upload mx-1"></i>Addl Candidate
+                                                                        Upload
                                                                     </a>
                                                                 @endhasPermission
                                                                 @hasPermission('download-finalized-halls-csv')

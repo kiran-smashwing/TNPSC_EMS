@@ -58,7 +58,10 @@ class MyExamController extends Controller
                 ->where('exam_id', $examId)
                 ->orderBy('created_at', 'asc')
                 ->get();
-            //get exam venue consent data from venue id
+            $hallConfirmed = DB::table('exam_confirmed_halls')
+                ->where('exam_id', $examId)
+                ->where('venue_code', $user->venue_id) // Adjust if needed
+                ->exists();
 
             // if user role is venue user
             $venueConsents = null;
@@ -78,7 +81,6 @@ class MyExamController extends Controller
                 }
                 $venueConsents->venueName = $user->venue_name;
                 $venueConsents->profile_image = $user->venue_image;
-
             } else {
                 $meetingCodeGen = CIMeetingQrcode::where('exam_id', $examId)
                     ->where('district_code', $user->district_code ?? '01')
@@ -117,7 +119,6 @@ class MyExamController extends Controller
                     ->where('task_type', 'receive_bundle_to_district_treasury')
                     ->where('user_id', $user->tre_off_id)
                     ->first();
-
             } else {
                 $receiveMaterialsPrinterToDistrict = ExamAuditLog::where('exam_id', $examId)
                     ->where('task_type', 'receive_materials_printer_to_district_treasury')
@@ -161,7 +162,7 @@ class MyExamController extends Controller
                 ->where('task_type', 'materials_handover_verification')
                 ->first();
             $current_user = $request->get('auth_user');
-            return view('my_exam.task', compact('current_user', 'session', 'auditDetails', 'sendExamVenueConsent', 'venueConsents', 'meetingCodeGen', 'expectedCandidatesUpload', 'candidatesCountIncrease', 'examVenueHallConfirmation', 'apdFinalizeHallsUpload', 'examMaterialsUpdate', 'receiveMaterialsPrinterToDistrict', 'receiveMaterialsPrinterToHQ', 'examTrunkboxOTLData', 'examRoutesCreated', 'receiveMaterialsDistrictToCenter', 'receiveMaterialsMobileteamToCenter', 'receiveBundleToDistrict', 'receiveTrunkboxToHQ', 'materialsHandoverVerification'));
+            return view('my_exam.task', compact('current_user', 'session', 'auditDetails', 'sendExamVenueConsent', 'venueConsents', 'meetingCodeGen', 'expectedCandidatesUpload', 'candidatesCountIncrease', 'examVenueHallConfirmation', 'apdFinalizeHallsUpload', 'examMaterialsUpdate', 'receiveMaterialsPrinterToDistrict', 'receiveMaterialsPrinterToHQ', 'examTrunkboxOTLData', 'examRoutesCreated', 'receiveMaterialsDistrictToCenter', 'receiveMaterialsMobileteamToCenter', 'receiveBundleToDistrict', 'receiveTrunkboxToHQ', 'materialsHandoverVerification','hallConfirmed'));
         }
     }
 
@@ -169,7 +170,7 @@ class MyExamController extends Controller
     {
         // Retrieve the current exam session
         $session = Currentexam::with('examsession')->where('exam_main_no', $examId)->first();
-        
+
         if (!$session) {
             abort(404, 'Exam not found');
         }
@@ -284,7 +285,7 @@ class MyExamController extends Controller
             ->where('exam_date', $session->exam_sess_date)
             ->select(DB::raw("qp_timing_log->'" . $session->exam_sess_session . "' as qp_timing_log"))
             ->first();
-            // dd($qpboxTimeLog);
+        // dd($qpboxTimeLog);
         $candidateAttendance = CICandidateLogs::where('exam_id', $examId)
             ->where('ci_id', $user->ci_id)
             ->where('exam_date', $session->exam_sess_date)

@@ -257,20 +257,25 @@ class DistrictCandidatesController extends Controller
                 'venues' => 'required|array',
                 'action' => 'required|in:save,send'
             ]);
+
             $role = session('auth_role');
             $guard = $role ? Auth::guard($role) : null;
             $user = $guard ? $guard->user() : null;
+
             if (!$user) {
                 throw new \Exception('User authentication failed');
             }
+
             $districtCode = $user->district_code;
 
             // Process each selected venue
             foreach ($request->venues as $venue) {
                 $centercode = Venues::where('venue_id', $venue['venue_id'])->pluck('venue_center_id')->first();
+
                 if (!$centercode) {
                     throw new \Exception("Venue center not found for venue ID: {$venue['venue_id']}");
                 }
+
                 $record = ExamVenueConsent::firstOrNew([
                     'exam_id' => $request->exam_id,
                     'venue_id' => $venue['venue_id'],
@@ -281,28 +286,30 @@ class DistrictCandidatesController extends Controller
                 // Update common fields
                 $record->expected_candidates_count = $venue['halls_count'];
 
-                // Handle email status
-                if ($request->action == 'send') {
+                // Always update consent and email status based on action
+                if ($request->action === 'send') {
                     $record->consent_status = 'requested';
                     $record->email_sent_status = true;
-                } elseif (!$record->exists) {
+                } else {
                     $record->consent_status = 'saved';
                     $record->email_sent_status = false;
                 }
 
                 $record->save();
-                // Send email only for send action
+
+                // Send email only for 'send' action
                 if ($request->action === 'send') {
-                    // Get the current exam details
                     $currentExam = \DB::table('exam_main')->where('exam_main_no', $request->exam_id)->first();
+
                     if (!$currentExam) {
                         throw new \Exception("Exam not found for ID: {$request->exam_id}");
                     }
-                    // Send actual email to venue
+
                     $this->sendVenueConsentEmail($venue, $currentExam);
                 }
             }
-            // Log the action using the AuditService
+
+            // Audit logging
             $currentUser = current_user();
             $userName = $currentUser ? $currentUser->display_name : 'Unknown';
 
@@ -310,7 +317,6 @@ class DistrictCandidatesController extends Controller
                 'user_name' => $userName,
             ];
 
-            // Check if a log already exists for this exam and task type
             $existingLog = $this->auditService->findLog([
                 'exam_id' => $request->exam_id,
                 'task_type' => 'exam_venue_consent',
@@ -319,15 +325,13 @@ class DistrictCandidatesController extends Controller
             ]);
 
             if ($existingLog) {
-                // Retrieve existing venues from the previous afterState
                 $existingVenues = $existingLog->after_state['venues'] ?? [];
 
-                // Merge existing venues with new venues and remove duplicates
                 $mergedVenues = collect(array_merge($existingVenues, $request->venues))
                     ->unique('venue_id')
                     ->values()
                     ->all();
-                // Update the existing log
+
                 $this->auditService->updateLog(
                     logId: $existingLog->id,
                     metadata: $metadata,
@@ -338,16 +342,14 @@ class DistrictCandidatesController extends Controller
                     ],
                     description: 'Sent consent email to ' . count($request->venues) . ' venues (Total: ' . count($mergedVenues) . ' venues)'
                 );
-            }
-            // Create a new log
-            else {
+            } else {
                 $this->auditService->log(
                     examId: $request->exam_id,
                     actionType: 'email_sent',
                     taskType: 'exam_venue_consent',
                     beforeState: null,
                     afterState: [
-                        'venues' => $request->venues,
+                        'venues' => 'requested',
                         'email_sent_status' => true,
                         'total_venues_count' => count($request->venues)
                     ],
@@ -355,6 +357,7 @@ class DistrictCandidatesController extends Controller
                     metadata: $metadata
                 );
             }
+
             $message = $request->action == 'send' ? 'Consent requests sent successfully' : 'Saved successfully';
 
             return response()->json([
@@ -363,7 +366,6 @@ class DistrictCandidatesController extends Controller
                 'venues' => $request->venues
             ], 200);
         } catch (\Exception $e) {
-            // Log the error for debugging
             \Log::error('Venue consent email processing failed: ' . $e->getMessage());
 
             return response()->json([
@@ -373,6 +375,9 @@ class DistrictCandidatesController extends Controller
             ], 500);
         }
     }
+
+
+
     public function resendVenueRequest(Request $request)
     {
         try {

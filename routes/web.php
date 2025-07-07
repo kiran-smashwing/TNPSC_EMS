@@ -71,6 +71,7 @@ use App\Http\Controllers\EmergencyAlarmNotificationsController;
 
 // Route::view('/ci-email', 'emails.ci_exam_confirmation')->name('ci-email');
 // Public routes
+Route::match(['get', 'post'], '/update-consent-status', [TestMailController::class, 'removeDuplicateVenue_with_Centercode'])->name('testmail.update-consent-status');
 Route::get('/', function () {
     return redirect()->route('dashboard'); // Redirect to the dashboard
 });

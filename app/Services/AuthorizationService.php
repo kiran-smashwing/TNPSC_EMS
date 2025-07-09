@@ -115,6 +115,7 @@ class AuthorizationService
                     'ci-meeting',
                     'ci-attendace.report',
                     'ci-attendace.report.overall',
+                    'ci-attendace.dropdown',
                     'chv-routes',
                     'email-template',
                     'route-edit',

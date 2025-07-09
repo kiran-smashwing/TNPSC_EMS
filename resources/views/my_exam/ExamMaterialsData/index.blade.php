@@ -139,8 +139,8 @@
 
                         <div class="col-md-12">
                             <!-- <div class="page-header-title">
-                                  <h2 class="mb-0"></h2>
-                                </div> -->
+                                          <h2 class="mb-0"></h2>
+                                        </div> -->
                         </div>
                     </div>
                 </div>
@@ -223,52 +223,20 @@
                         </form> --}}
 
 
-                        <table id="res-config" class="display table table-striped table-hover dt-responsive nowrap"
-                            width="100%">
+                        <table id="exam-materials-table" class="table table-striped table-hover" style="width:100%">
                             <thead>
                                 <tr>
                                     <th>#</th>
                                     <th>Hall no</th>
                                     <th>Center</th>
-                                    <th>District</th>
-                                    <th>Venue</th>
+                                    {{-- <th>District</th> --}}
+                                    {{-- <th>Venue</th> --}}
                                     <th>Exam Date</th>
                                     <th>Exam Session</th>
                                     <th>Category</th>
                                     <th>Qrcode</th>
-                                    <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach ($examMaterials as $key => $examMaterial)
-                                    <tr>
-                                        <td>{{ $key + 1 }}</td>
-                                        <td>{{ $examMaterial->hall_code }}</td>
-                                        <td>{{ $examMaterial->center->center_name }}</td>
-                                        <td>{{ $examMaterial->district->district_name }}</td>
-                                        <td>{{ $examMaterial->venue->venue_name }}</td>
-                                        <td>{{ date('d-m-Y', strtotime($examMaterial->exam_date)) }}</td>
-                                        <td>{{ $examMaterial->exam_session }}</td>
-                                        <td>{{ $examMaterial->category }}</td>
-                                        <td>{{ $examMaterial->qr_code }}</td>
-                                        <td>
-                                            <a href="#" class="avtar avtar-xs btn-light-success">
-                                                <i class="ti ti-eye f-20"></i>
-                                            </a>
-                                            <a href="#" class="avtar avtar-xs btn-light-success">
-                                                <i class="ti ti-edit f-20"></i>
-                                            </a>
-                                            <a href="#"
-                                                class="avtar avtar-xs status-toggle {{ $examMaterial->status ? 'btn-light-success' : 'btn-light-danger' }}"
-                                                data-exam-material-id="{{ $examMaterial->id }}"
-                                                title="Change Status (Active or Inactive)">
-                                                <i
-                                                    class="ti ti-toggle-{{ $examMaterial->status ? 'right' : 'left' }} f-20"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -286,6 +254,61 @@
 
     @push('scripts')
         @include('partials.datatable-export-js')
+        <script>
+            $(document).ready(function() {
+                $('#exam-materials-table').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: "{{ route('exam-materials.json', ['examId' => $examId]) }}",
+                        type: "GET"
+                    },
+                    columns: [{
+                            data: 'id',
+                            name: 'id'
+                        },
+                        {
+                            data: 'hall_code',
+                            name: 'hall_code'
+                        },
+                        {
+                            data: 'center',
+                            name: 'center'
+                        },
+                        // {
+                        //     data: 'district',
+                        //     name: 'district'
+                        // },
+                        // {
+                        //     data: 'venue',
+                        //     name: 'venue'
+                        // },
+                        {
+                            data: 'exam_date',
+                            name: 'exam_date'
+                        },
+                        {
+                            data: 'exam_session',
+                            name: 'exam_session'
+                        },
+                        {
+                            data: 'category',
+                            name: 'category'
+                        },
+                        {
+                            data: 'qr_code',
+                            name: 'qr_code'
+                        }
+                    ],
+                    responsive: true,
+                    pageLength: 10,
+                    lengthMenu: [10, 25, 50, 100],
+                    order: [
+                        [0, 'asc']
+                    ]
+                });
+            });
+        </script>
     @endpush
 
     @include('partials.theme')

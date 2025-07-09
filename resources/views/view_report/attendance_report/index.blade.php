@@ -161,14 +161,6 @@
                             return response.json();
                         })
                         .then(data => {
-                            // console.log(data.user); 
-                            //console.log(data.districts);
-                            // console.log(data.centers); 
-                            // console.log(data.examDates); 
-                            //console.log(data.sessions); 
-                            //console.log(data.centerCodeFromSession);
-
-                            // Populate districts
                             const districtSelect = document.getElementById('district');
                             districtSelect.innerHTML = '<option value="" selected>Select District</option>';
                             if (data.districts && data.districts.length > 0) {

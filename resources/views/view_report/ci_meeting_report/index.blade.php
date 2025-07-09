@@ -73,7 +73,8 @@
                             <h5>Filter CI Meeting Attendance</h5>
                         </div>
                         <div class="card-body">
-                            <form action="{{route('ci-attendace.report.overall')}}" target="_blank" method="GET" id="filterForm">
+                            <form action="{{ route('ci-attendace.report.overall') }}" target="_blank" method="GET"
+                                id="filterForm">
                                 @csrf
                                 <div class="row">
                                     <!-- Notification No -->
@@ -82,24 +83,6 @@
                                         <input type="text" name="notification_no" id="notification_no"
                                             class="form-control" placeholder="Enter Notification No" />
                                     </div>
-                                    <!-- Exam Date -->
-                                    {{-- <div class="col-md-4 mb-3">
-                                        <label for="exam_date" class="form-label">Exam Date</label>
-                                        <select name="exam_date" id="exam_date" class="form-control">
-                                            <option value="" selected>Select Exam Date</option>
-                                        </select>
-                                    </div>
-
-                                    <!-- Session -->
-                                    <div class="col-md-4 mb-3">
-                                        <label for="session" class="form-label">Session</label>
-                                        <select name="session" id="session" class="form-control">
-                                            <option value="" selected>Select Session</option>
-                                        </select>
-                                    </div> --}}
-
-                                    <!-- District -->
-                                    {{-- <!-- District Dropdown -->
                                     <div class="col-md-4 mb-3">
                                         <label for="category" class="form-label">Category</label>
                                         <select name="category" id="category" class="form-control">
@@ -109,7 +92,7 @@
                                             <option value="center">Center</option>
                                         </select>
                                     </div>
-                                    
+
                                     <!-- District Dropdown -->
                                     <div class="col-md-4 mb-3" id="district-container" style="display: none;">
                                         <label for="district" class="form-label">District</label>
@@ -117,14 +100,14 @@
                                             <option value="" selected>Select District</option>
                                         </select>
                                     </div>
-                                    
+
                                     <!-- Center Dropdown -->
                                     <div class="col-md-4 mb-3" id="center-container" style="display: none;">
                                         <label for="center" class="form-label">Center</label>
                                         <select name="center" id="center" class="form-control">
                                             <option value="" selected>Select Center</option>
                                         </select>
-                                    </div> --}}
+                                    </div>
                                 </div>
 
                                 <!-- Submit Button -->
@@ -152,7 +135,7 @@
                 const notificationNo = this.value.trim();
 
                 if (notificationNo) {
-                    fetch(`{{ route('attendance.dropdown') }}?notification_no=${notificationNo}`)
+                    fetch(`{{ route('ci-attendace.dropdown') }}?notification_no=${notificationNo}`)
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error('Invalid response from the server');
@@ -160,14 +143,6 @@
                             return response.json();
                         })
                         .then(data => {
-                            console.log(data.user); // Debugging: Log user info
-                            console.log(data.districts); // Debugging: Log user info
-                            console.log(data.centers); // Debugging: Log user info
-                            console.log(data.examDates); // Debugging: Log user info
-                            console.log(data.sessions); // Debugging: Log user info
-                            console.log(data.centerCodeFromSession); // Debugging: Log user info
-
-                            // Populate districts
                             const districtSelect = document.getElementById('district');
                             districtSelect.innerHTML = '<option value="" selected>Select District</option>';
                             if (data.districts && data.districts.length > 0) {
@@ -262,11 +237,11 @@
             });
         </script>
         <script>
-            document.getElementById('category').addEventListener('change', function () {
+            document.getElementById('category').addEventListener('change', function() {
                 let category = this.value;
                 let districtContainer = document.getElementById('district-container');
                 let centerContainer = document.getElementById('center-container');
-        
+
                 if (category === "all" || category === "") {
                     districtContainer.style.display = "none";
                     centerContainer.style.display = "none";

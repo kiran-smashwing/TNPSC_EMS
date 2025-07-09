@@ -59,7 +59,7 @@ class ReceiveExamMaterialsController extends Controller
             $examDates = $exam->examsession->groupBy(function ($item) {
                 return Carbon::parse($item->exam_sess_date)->format('d-m-Y');
             })->keys();
-            // dd($examDates);
+            // dd($examMaterials);
         //total number of exam materials found for this user
         $totalExamMaterials = $examMaterials->count();
         //total number of exam materials scanned by the user
@@ -275,12 +275,14 @@ class ReceiveExamMaterialsController extends Controller
                 'examMaterialsScan'
             ])
             ->get();
+            
         //total number of exam materials found for this user
         $totalExamMaterials = $examMaterials->count();
         //total number of exam materials scanned by the user
         $totalScanned = $examMaterials->filter(function ($examMaterial) {
             return $examMaterial->examMaterialsScan;
         })->count();
+        
         //get center code for the user 
         $centers = ExamMaterialsData::where('exam_id', $examId)
             ->where('district_code', '01')

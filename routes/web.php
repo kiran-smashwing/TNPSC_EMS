@@ -94,7 +94,7 @@ Route::middleware(['guest'])->group(function () {
     Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('forgot-password');
     Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail'])->name('send-reset-link-email');
     Route::get('password/reset/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
-     Route::post('password/reset', [AuthController::class, 'resetPassword'])->name('password.save-reset');
+    Route::post('password/reset', [AuthController::class, 'resetPassword'])->name('password.save-reset');
     Route::get('password/check-email', [AuthController::class, 'showCheckEmail'])->name('password.check-email');
 });
 
@@ -613,7 +613,11 @@ Route::prefix('exam-materials')->group(function () {
             ->middleware('role.permission:exam-materials.download-sample-csv');
         Route::post('/upload', [ExamMaterialsDataController::class, 'uploadCsv'])->name('exam-materials.upload')
             ->middleware('role.permission:exam-materials.upload');
-        Route::get('/{examId}', [ExamMaterialsDataController::class, 'index'])->name('exam-materials.index')
+        Route::get('/{examId}', [ExamMaterialsDataController::class, 'index'])
+            ->name('exam-materials.index')
+            ->middleware('role.permission:exam-materials.index');
+        Route::get('/{examId}/json', [ExamMaterialsDataController::class, 'getExamMaterialsJson'])
+            ->name('exam-materials.json')  // Changed to match your convention
             ->middleware('role.permission:exam-materials.index');
     });
 });
@@ -780,7 +784,8 @@ Route::prefix('report')->group(function () {
         Route::get('/omr-account', [Omr_AccountController::class, 'index'])->name('omr-account.report')->middleware('role.permission:omr-account.report');
         Route::get('/omr-report-overall', [Omr_AccountController::class, 'generateReport'])->name('omr-report.report.overall')->middleware('role.permission:omr-report.report.overall');
         Route::get('/ci-attendace', [CiMeetingAttendanceController::class, 'index'])->name('ci-attendace.report')->middleware('role.permission:ci-attendace.report');
-        Route::get('/ci-attendace-report-overall', [CiMeetingAttendanceController::class, 'generateCIMeetingReport'])->name('ci-attendace.report.overall')->middleware('role.permission:ci-attendace.report.overall');
+        Route::get('/ci-attendace-report-overall', [CiMeetingAttendanceController::class, 'generatecategorysender'])->name('ci-attendace.report.overall')->middleware('role.permission:ci-attendace.report.overall');
+        Route::get('/api/get-dropdown-data-ci', [CiMeetingAttendanceController::class, 'getDropdownData'])->name('ci-attendace.dropdown')->middleware('role.permission:ci-attendace.dropdown');
         Route::get('/consolidated-statement', [ConsolidatedStatementController::class, 'index'])->name('consolidated-statement.report')->middleware('role.permission:consolidated-statement.report');
         Route::get('/consolidated-statement', [ConsolidatedStatementController::class, 'index'])->name('consolidated-statement.report')->middleware('role.permission:consolidated-statement.report');
         Route::get('/candidate-remarks', [CandidateRemarksController::class, 'index'])->name('candidate-remarks.report')->middleware('role.permission:candidate-remarks.report');
@@ -852,4 +857,3 @@ Route::get('/user-guide/view/{encPath}/{filename}', function ($encPath, $filenam
         abort(403, 'Invalid file path.');
     }
 })->name('view.encrypted.userguide');
-   

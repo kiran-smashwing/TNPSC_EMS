@@ -624,7 +624,7 @@ class DistrictCandidatesController extends Controller
         }
         //TODO: check if qr code is already created for the url and skip if exisits are already created.
         //generate qr code for this link and send it to view page https://smashsoft.site/tnpsc-ems/public/login
-        $logoPath = asset('storage/assets/images/qr-logo.png'); // replace with your logo path
+        $logoPath = storage_path('app/public/assets/images/qr-logo.png'); // replace with your logo path
 
         $builder = new Builder(
             writer: new PngWriter(),
@@ -651,7 +651,7 @@ class DistrictCandidatesController extends Controller
         // Store the QR code image using Storage
         Storage::disk('public')->put($imagePath, $result->getString());
         //generate qr code for this link and send it to view page https://smashsoft.site/tnpsc-ems/public/login
-        $logoPath = asset('storage/assets/images/qr-logo.png'); // replace with your logo path
+        $logoPath = storage_path('app/public/assets/images/qr-logo.png'); // replace with your logo path
 
         $builder = new Builder(
             writer: new PngWriter(),
@@ -681,7 +681,7 @@ class DistrictCandidatesController extends Controller
 
         // Combine date and time
         $meetingDateTime = $meetingDate . ' ' . $meetingTime;
-        $logoPath = asset('storage/assets/images/qr-code-logo.png'); // replace with your logo path
+        $logoPath = storage_path('app/public/assets/images/qr-code-logo.png'); // replace with your logo path
         $district_code = $user->district_code ?? '01';
         // Create the QR code using Builder
         $builder = new Builder(

@@ -249,6 +249,9 @@
                                             <td>{{ $examMaterial['hall_code'] }}</td>
                                             <td>{{ date('d-m-Y', strtotime($examMaterial['exam_date'])) }}</td>
                                             <td>{{ $examMaterial['exam_session'] }}</td>
+                                            @php
+                                            //  dd($examMaterial->qr_code);
+                                            @endphp
                                             <td>{{ $examMaterial->qr_code }}</td>
                                             <td>
                                                 @if ($examMaterial->examMaterialsScan)

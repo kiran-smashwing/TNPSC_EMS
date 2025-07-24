@@ -259,6 +259,167 @@ class AuthController extends Controller
             ->withInput($request->only('email', 'role'));
     }
 
+    // public function login(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         '_token' => 'required|string',
+    //         'role' => 'required|string',
+    //         'email' => 'required|string|email|max:255',
+    //         'password' => 'required|string',
+    //         'remember' => 'sometimes|string',
+    //     ]);
+
+    //     $email = $validated['email'];
+    //     $password = $validated['password'];
+    //     $remember = isset($validated['remember']) && $validated['remember'] === 'on';
+    //     $role = $validated['role'];
+
+    //     $throttleKey = strtolower($email) . '|' . $request->ip();
+
+    //     if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+    //         $seconds = RateLimiter::availableIn($throttleKey);
+
+    //         Log::warning('Rate limit hit for login attempt', [
+    //             'email' => $email,
+    //             'role' => $role,
+    //             'ip' => $request->ip(),
+    //             'seconds_remaining' => $seconds
+    //         ]);
+
+    //         return back()->withErrors([
+    //             'email' => __('auth.throttle', [
+    //                 'seconds' => $seconds,
+    //                 'minutes' => ceil($seconds / 60),
+    //             ])
+    //         ])->withInput($request->only('email', 'role'));
+    //     }
+
+    //     RateLimiter::hit($throttleKey);
+
+    //     $request->session()->flush();
+    //     $request->session()->regenerate();
+
+    //     $success = false;
+    //     $user = null;
+    //     $userId = null;
+
+    //     usleep(rand(100000, 500000));
+
+    //     switch ($role) {
+    //         case 'district':
+    //             $success = Auth::guard('district')->attempt(['district_email' => $email, 'password' => $password], $remember);
+    //             if ($success) {
+    //                 $user = Auth::guard('district')->user();
+    //                 $userId = $user->district_id;
+    //             }
+    //             break;
+
+    //         case 'center':
+    //             $success = Auth::guard('center')->attempt(['center_email' => $email, 'password' => $password], $remember);
+    //             if ($success) {
+    //                 $user = Auth::guard('center')->user();
+    //                 $userId = $user->center_id;
+    //             }
+    //             break;
+
+    //         case 'treasury':
+    //             $success = Auth::guard('treasury')->attempt(['tre_off_email' => $email, 'password' => $password], $remember);
+    //             if ($success) {
+    //                 $user = Auth::guard('treasury')->user();
+    //                 $userId = $user->tre_off_id;
+    //             }
+    //             break;
+
+    //         case 'mobile_team_staffs':
+    //             $success = Auth::guard('mobile_team_staffs')->attempt(['mobile_email' => $email, 'password' => $password], $remember);
+    //             if ($success) {
+    //                 $user = Auth::guard('mobile_team_staffs')->user();
+    //                 $userId = $user->mobile_id;
+    //             }
+    //             break;
+
+    //         case 'venue':
+    //             $success = Auth::guard('venue')->attempt(['venue_email' => $email, 'password' => $password], $remember);
+    //             if ($success) {
+    //                 $user = Auth::guard('venue')->user();
+    //                 $userId = $user->venue_id;
+    //                 if (!$user->venue_email_status) {
+    //                     session(['show_verification_alert' => true]);
+    //                 }
+    //             }
+    //             break;
+
+    //         case 'headquarters':
+    //             $users = DepartmentOfficial::where('dept_off_email', $email)->get();
+    //             $filteredUsers = $users->filter(fn($u) => !empty($u->dept_off_role) || !empty($u->custom_role));
+
+    //             if ($filteredUsers->isEmpty()) {
+    //                 return back()->withErrors([
+    //                     'email' => 'You have not been assigned to any department or role. Please contact your administrator.',
+    //                 ])->withInput($request->except('password'));
+    //             }
+
+    //             if ($filteredUsers->count() === 1) {
+    //                 $user = $filteredUsers->first();
+
+    //                 if (!Hash::check($password, $user->dept_off_password)) {
+    //                     return back()->withErrors([
+    //                         'email' => 'Incorrect password. Please try again or reset it using "Forgot Password".',
+    //                     ])->withInput($request->only('email', 'role'));
+    //                 }
+
+    //                 Auth::guard('headquarters')->loginUsingId($user->dept_off_id, $remember);
+    //                 $success = true;
+    //                 $user = Auth::guard('headquarters')->user();
+    //                 $userId = $user->dept_off_id;
+    //             } else {
+    //                 return back()->withErrors([
+    //                     'email' => 'Multiple accounts found with valid roles. Please contact support.',
+    //                 ])->withInput($request->only('email', 'role'));
+    //             }
+    //             break;
+
+    //         case 'ci':
+    //             $success = Auth::guard('ci')->attempt(['ci_email' => $email, 'password' => $password], $remember);
+    //             if ($success) {
+    //                 $user = Auth::guard('ci')->user();
+    //                 $userId = $user->ci_id;
+    //             }
+    //             break;
+    //     }
+
+    //     if ($success && $user) {
+    //         RateLimiter::clear($throttleKey);
+
+    //         $display_role = $this->getDisplayRole($role);
+
+    //         session([
+    //             'auth_role' => $role,
+    //             'athu_display_role' => $display_role,
+    //             'auth_id' => $userId,
+    //             'ip_address' => $request->ip(),
+    //             'user_agent' => $request->userAgent(),
+    //         ]);
+
+    //         if ($remember) {
+    //             session()->put('auth.password_confirmed_at', time());
+    //         }
+
+    //         AuditLogger::log(
+    //             'User Login',
+    //             get_class($user),
+    //             $user->getKey(),
+    //             null,
+    //             ['email' => $email, 'role' => $role, 'ip' => request()->ip()]
+    //         );
+
+    //         return redirect()->intended('/myaccount');
+    //     }
+
+    //     return back()
+    //         ->withErrors(['email' => __('auth.failed')])
+    //         ->withInput($request->only('email', 'role'));
+    // }
 
     private function getDisplayRole(string $role): string
     {

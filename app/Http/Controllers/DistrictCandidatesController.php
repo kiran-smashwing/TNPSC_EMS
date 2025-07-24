@@ -82,7 +82,7 @@ class DistrictCandidatesController extends Controller
             )
             ->get()
             ->keyBy('venue_id');
-
+    //    dd($venueConsents);
         // Organize venues by center code
         $allvenues = [];
         foreach ($examCenters as $center) {
@@ -257,25 +257,20 @@ class DistrictCandidatesController extends Controller
                 'venues' => 'required|array',
                 'action' => 'required|in:save,send'
             ]);
-
             $role = session('auth_role');
             $guard = $role ? Auth::guard($role) : null;
             $user = $guard ? $guard->user() : null;
-
             if (!$user) {
                 throw new \Exception('User authentication failed');
             }
-
             $districtCode = $user->district_code;
 
             // Process each selected venue
             foreach ($request->venues as $venue) {
                 $centercode = Venues::where('venue_id', $venue['venue_id'])->pluck('venue_center_id')->first();
-
                 if (!$centercode) {
                     throw new \Exception("Venue center not found for venue ID: {$venue['venue_id']}");
                 }
-
                 $record = ExamVenueConsent::firstOrNew([
                     'exam_id' => $request->exam_id,
                     'venue_id' => $venue['venue_id'],
@@ -286,30 +281,28 @@ class DistrictCandidatesController extends Controller
                 // Update common fields
                 $record->expected_candidates_count = $venue['halls_count'];
 
-                // Always update consent and email status based on action
-                if ($request->action === 'send') {
+                // Handle email status
+                if ($request->action == 'send') {
                     $record->consent_status = 'requested';
                     $record->email_sent_status = true;
-                } else {
+                } elseif (!$record->exists) {
                     $record->consent_status = 'saved';
                     $record->email_sent_status = false;
                 }
 
                 $record->save();
-
-                // Send email only for 'send' action
+                // Send email only for send action
                 if ($request->action === 'send') {
+                    // Get the current exam details
                     $currentExam = \DB::table('exam_main')->where('exam_main_no', $request->exam_id)->first();
-
                     if (!$currentExam) {
                         throw new \Exception("Exam not found for ID: {$request->exam_id}");
                     }
-
+                    // Send actual email to venue
                     $this->sendVenueConsentEmail($venue, $currentExam);
                 }
             }
-
-            // Audit logging
+            // Log the action using the AuditService
             $currentUser = current_user();
             $userName = $currentUser ? $currentUser->display_name : 'Unknown';
 
@@ -317,6 +310,7 @@ class DistrictCandidatesController extends Controller
                 'user_name' => $userName,
             ];
 
+            // Check if a log already exists for this exam and task type
             $existingLog = $this->auditService->findLog([
                 'exam_id' => $request->exam_id,
                 'task_type' => 'exam_venue_consent',
@@ -325,13 +319,15 @@ class DistrictCandidatesController extends Controller
             ]);
 
             if ($existingLog) {
+                // Retrieve existing venues from the previous afterState
                 $existingVenues = $existingLog->after_state['venues'] ?? [];
 
+                // Merge existing venues with new venues and remove duplicates
                 $mergedVenues = collect(array_merge($existingVenues, $request->venues))
                     ->unique('venue_id')
                     ->values()
                     ->all();
-
+                // Update the existing log
                 $this->auditService->updateLog(
                     logId: $existingLog->id,
                     metadata: $metadata,
@@ -342,14 +338,16 @@ class DistrictCandidatesController extends Controller
                     ],
                     description: 'Sent consent email to ' . count($request->venues) . ' venues (Total: ' . count($mergedVenues) . ' venues)'
                 );
-            } else {
+            }
+            // Create a new log
+            else {
                 $this->auditService->log(
                     examId: $request->exam_id,
                     actionType: 'email_sent',
                     taskType: 'exam_venue_consent',
                     beforeState: null,
                     afterState: [
-                        'venues' => 'requested',
+                        'venues' => $request->venues,
                         'email_sent_status' => true,
                         'total_venues_count' => count($request->venues)
                     ],
@@ -357,7 +355,6 @@ class DistrictCandidatesController extends Controller
                     metadata: $metadata
                 );
             }
-
             $message = $request->action == 'send' ? 'Consent requests sent successfully' : 'Saved successfully';
 
             return response()->json([
@@ -366,6 +363,7 @@ class DistrictCandidatesController extends Controller
                 'venues' => $request->venues
             ], 200);
         } catch (\Exception $e) {
+            // Log the error for debugging
             \Log::error('Venue consent email processing failed: ' . $e->getMessage());
 
             return response()->json([
@@ -375,9 +373,6 @@ class DistrictCandidatesController extends Controller
             ], 500);
         }
     }
-
-
-
     public function resendVenueRequest(Request $request)
     {
         try {
@@ -609,7 +604,8 @@ class DistrictCandidatesController extends Controller
             ->where('district_code', $user->district_code ?? '01')
             ->first();
 
-        if ($qrCode) {
+
+        if ($qrCode && Storage::disk('public')->exists($qrCode->qrcode)) {
             // Update only the meeting date and time without modifying the QR code
             DB::table('ci_meeting_qrcode')
                 ->where('id', $qrCode->id)
@@ -712,6 +708,20 @@ class DistrictCandidatesController extends Controller
 
         // Check if the file was successfully stored
         if ($stored) {
+            $qrCodeId = '';
+             // Save the QR code details in the database
+             if ($qrCode) {
+                // Update existing record with new QR code path (image was missing)
+                DB::table('ci_meeting_qrcode')
+                    ->where('id', $qrCode->id)
+                    ->update([
+                        'qrcode' => $imagePath,
+                        'meeting_date_time' => $meetingDateTime,
+                        'updated_at' => now(),
+                    ]);
+                
+                $qrCodeId = $qrCode->id;
+            } else {
             // Save the QR code details in the database
             $qrCodeId = DB::table('ci_meeting_qrcode')->insertGetId([
                 'exam_id' => $examId,
@@ -721,7 +731,7 @@ class DistrictCandidatesController extends Controller
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-
+        }
             // Redirect to PDF generation with the QR code ID
             return redirect()->route('district-candidates.generatePdf', ['qrCodeId' => $qrCodeId]);
         } else {

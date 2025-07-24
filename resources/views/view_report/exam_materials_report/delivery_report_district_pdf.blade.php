@@ -253,7 +253,7 @@
                     <thead>
                         <tr>
                             <th>S.No</th>
-                            <th>District</th>
+                            {{-- <th>District</th> --}}
                             <th>Center</th>
                             <th>Hall</th>
                             <th>QR Code</th>
@@ -270,10 +270,10 @@
                         @foreach ($data['materials'] as $index => $entry)
                             <tr>
                                 <td>{{ $index + 1 }}</td>
-                                <td>{{ $entry['district_code'] }} <br> {{ $entry['district_name'] }}</td>
+                                {{-- <td>{{ $entry['district_code'] }} <br> {{ $entry['district_name'] }}</td> --}}
                                 <td>{{ $entry['center_code'] }} <br> {{ $entry['center_name'] }}</td>
-                                <td>{{ $entry['venue_name'] }}</td>
-                                {{-- {{ $entry['hall_code'] }} -  --}}
+                                <td> {{ $entry['venue_name'] }}</td>
+                                {{-- {{ $entry['hall_code'] }} - --}}
                                 <td>{{ $entry['qr_code'] }}</td>
                                 <td>{{ $entry['category'] }}</td>
                                 <td width="200px">{{ $entry['district_scanned_at'] }}</td>

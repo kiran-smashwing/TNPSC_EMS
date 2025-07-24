@@ -95,5 +95,4 @@ class ChiefInvigilator extends Authenticatable
         return $this->belongsTo(Venues::class, 'ci_venue_id', 'venue_id');
     }
 
-
 }

@@ -7,15 +7,19 @@ use App\Mail\UserEmailVerificationMail;
 use App\Models\ChiefInvigilator;
 use Illuminate\Support\Facades\Crypt;
 use App\Models\Center;
+use App\Models\Currentexam;
 use App\Models\District;
 use App\Models\Venues;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Log;
 use App\Services\AuditLogger;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Illuminate\Support\Facades\Storage;
+use App\Models\ExamConfirmedHalls;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Services\ImageCompressService;
 
 class ChiefInvigilatorsController extends Controller
@@ -47,7 +51,7 @@ class ChiefInvigilatorsController extends Controller
         $districts = District::select('district_code', 'district_name')
             ->orderBy('district_name')
             ->get();
-        $venues = Venues::select('venue_code','venue_id', 'venue_name', 'venue_center_id')
+        $venues = Venues::select('venue_code', 'venue_id', 'venue_name', 'venue_center_id')
             ->orderBy('venue_name')
             ->get();
 
@@ -55,6 +59,190 @@ class ChiefInvigilatorsController extends Controller
 
         return view('masters.venues.chief_invigilator.index', compact('districts', 'centers', 'venues', 'role', 'user'));
     }
+    public function ci_view_page()
+    {
+        $user = current_user();
+        $role = session('auth_role');
+
+        $centers = ($role == "district")
+            ? Center::where('center_district_id', $user->district_code)->orderBy('center_name')->get()
+            : Center::orderBy('center_name')->get();
+
+        $districts = District::select('district_code', 'district_name')->orderBy('district_name')->get();
+        $venues = Venues::select('venue_code', 'venue_id', 'venue_name', 'venue_center_id')->orderBy('venue_name')->get();
+
+        return view('masters.venues.chief_invigilator.ci_view_page', compact('districts', 'centers', 'venues', 'role', 'user'));
+    }
+
+    public function getChiefInvigilators(Request $request)
+    {
+        $notification_no = $request->input('exam_id');
+
+        if (!$notification_no) {
+            return response()->json([
+                'draw' => intval($request->input('draw')),
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+                'data' => []
+            ]);
+        }
+
+        $exam = Currentexam::where('exam_main_notification', $notification_no)->first();
+
+        if (!$exam) {
+            return response()->json([
+                'draw' => intval($request->input('draw')),
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+                'data' => []
+            ]);
+        }
+
+        $exam_id = $exam->exam_main_no;
+
+        $user = current_user(); // 👈 Get logged-in user
+        $role = session('auth_role');
+
+        // 👇 Check role and assign district code if user is a district user
+        $districtId = $request->input('district');
+        if ($role === 'district' && empty($districtId)) {
+            $districtId = $user->district_code ?? null;
+        }
+
+        $centerId = $request->input('center');
+        $venueId  = $request->input('venue');
+
+        $confirmedHalls = ExamConfirmedHalls::with([
+            'center',
+            'venue',
+            'district',
+            'chiefInvigilator'
+        ])
+            ->where('exam_id', $exam_id)
+            ->when($districtId, fn($q) => $q->where('district_code', $districtId))
+            ->when($centerId, fn($q) => $q->where('center_code', $centerId))
+            ->when($venueId, fn($q) => $q->where('venue_code', $venueId))
+            ->get()
+            ->unique('ci_id');
+
+        $ci_ids = $confirmedHalls->pluck('ci_id')->filter()->unique();
+
+        $cis = ChiefInvigilator::whereIn('ci_id', $ci_ids)
+            ->with(['venue', 'center'])
+            ->get()
+            ->keyBy('ci_id');
+
+        $data = [];
+
+        foreach ($confirmedHalls as $index => $hall) {
+            $ci = $cis[$hall->ci_id] ?? null;
+            if (!$ci) continue;
+
+            $data[] = [
+                'DT_RowIndex'    => $index + 1,
+                'ci_center_id'   => $ci->ci_center_id,
+                'hall_code'      => $hall->hall_code ?? 'N/A',
+                'venue_name'     => optional($ci->venue)->venue_name ?? 'N/A',
+                'ci_email'       => $ci->ci_email ?? 'N/A',
+                'ci_phone'       => $ci->ci_phone ?? 'N/A',
+            ];
+        }
+
+        // ✅ Manual pagination
+        $page     = intval($request->input('start', 0)) / intval($request->input('length', 10)) + 1;
+        $perPage  = intval($request->input('length', 10));
+        $offset   = ($page - 1) * $perPage;
+        $pagedData = array_slice($data, $offset, $perPage);
+
+        return response()->json([
+            'draw'            => intval($request->input('draw')),
+            'recordsTotal'    => count($data),
+            'recordsFiltered' => count($data),
+            'data'            => $pagedData,
+        ]);
+    }
+
+
+    public function exportWithPhpSpreadsheet(Request $request)
+    {
+
+        $notification_no = $request->input('exam_id');
+        $districtId = $request->input('district');
+        $centerId = $request->input('center');
+        $venueId = $request->input('venue');
+        $exam = Currentexam::where('exam_main_notification', $notification_no)->first();
+
+        // 🔍 Step 2: Check exam exists
+        // dd($exam);
+
+        if (!$exam) {
+            return redirect()->back()->with('error', 'Exam not found');
+        }
+
+        $exam_id = $exam->exam_main_no;
+
+        $confirmedHalls = ExamConfirmedHalls::with(['center', 'venue', 'district', 'chiefInvigilator'])
+            ->where('exam_id', $exam_id)
+            ->when($districtId, fn($q) => $q->where('district_code', $districtId))
+            ->when($centerId, fn($q) => $q->where('center_code', $centerId))
+            ->when($venueId, fn($q) => $q->where('venue_code', $venueId))
+            ->get()
+            ->unique('ci_id');
+
+        // 🔍 Step 3: Check confirmed halls
+        // dd(['confirmedHallsCount' => $confirmedHalls->count(), 'data' => $confirmedHalls]);
+
+        $ci_ids = $confirmedHalls->pluck('ci_id')->filter()->unique();
+
+        // 🔍 Step 4: Check CI IDs
+        // dd($ci_ids);
+
+        $cis = ChiefInvigilator::whereIn('ci_id', $ci_ids)
+            ->with(['venue', 'center'])
+            ->get()
+            ->keyBy('ci_id');
+
+        // 🔍 Step 5: Check CI data
+        // dd($cis);
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Header
+        $sheet->fromArray([
+            ['#', 'Center Code', 'Hall Code', 'Venue Name', 'Email', 'Phone']
+        ], NULL, 'A1');
+
+        // Body
+        $row = 2;
+        $index = 1;
+
+        foreach ($confirmedHalls as $hall) {
+            $ci = $cis[$hall->ci_id] ?? null;
+            if (!$ci) continue;
+
+            $sheet->setCellValue("A{$row}", $index++);
+            $sheet->setCellValue("B{$row}", $ci->ci_center_id);
+            $sheet->setCellValue("C{$row}", $hall->hall_code ?? 'N/A');
+            $sheet->setCellValue("D{$row}", optional($ci->venue)->venue_name ?? 'N/A');
+            $sheet->setCellValue("E{$row}", $ci->ci_email ?? 'N/A');
+            $sheet->setCellValue("F{$row}", $ci->ci_phone ?? 'N/A');
+            $row++;
+        }
+
+        // 🔍 Step 6: Check how many rows written to Excel
+        // dd(['rows_written' => $row - 2]);
+
+        $filename = 'chief_invigilators_export.xlsx';
+        $writer = new Xlsx($spreadsheet);
+
+        // Send as download
+        $temp_file = tempnam(sys_get_temp_dir(), $filename);
+        $writer->save($temp_file);
+
+        return response()->download($temp_file, $filename)->deleteFileAfterSend(true);
+    }
+
 
     // Add new method for JSON response
     public function getChiefInvigilatorsJson(Request $request)
@@ -312,15 +500,15 @@ class ChiefInvigilatorsController extends Controller
         $venues = Venues::all(); // Retrieve all venues
         $centers = Center::all(); // Retrieve all centers
         $districts = District::all(); // Retrieve all districts
-    
+
         $chiefInvigilator = ChiefInvigilator::with([
             'venue',        // assumes relation method name is 'venue'
             'venue.center', // nested center relation via venue
             'venue.district' // nested district relation via venue
         ])->findOrFail($ids);
         // dd($chiefInvigilator);
-    
-        return view('masters.venues.chief_invigilator.edit', compact('chiefInvigilator','venues', 'centers', 'districts'));
+
+        return view('masters.venues.chief_invigilator.edit', compact('chiefInvigilator', 'venues', 'centers', 'districts'));
     }
 
 

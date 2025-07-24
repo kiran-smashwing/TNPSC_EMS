@@ -57,14 +57,11 @@ class AuthController extends Controller
         $remember = isset($validated['remember']) && $validated['remember'] === 'on';
         $role = $validated['role'];
 
-        // Create a unique throttle key based on role, email, and IP
         $throttleKey = strtolower($email) . '|' . $request->ip();
 
-        // Check for rate limiting
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
 
-            // Log the rate limit hit
             Log::warning('Rate limit hit for login attempt', [
                 'email' => $email,
                 'role' => $role,
@@ -72,7 +69,6 @@ class AuthController extends Controller
                 'seconds_remaining' => $seconds
             ]);
 
-            // Determine if the request expects a JSON response (e.g., API call) or a web redirect
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => __('auth.throttle', [
@@ -80,10 +76,9 @@ class AuthController extends Controller
                         'minutes' => ceil($seconds / 60),
                     ]),
                     'throttle' => $seconds,
-                ], 429); // Too Many Requests
+                ], 429);
             }
 
-            // For web requests, return a redirect with errors as before
             return back()
                 ->withErrors([
                     'email' => __('auth.throttle', [
@@ -95,10 +90,8 @@ class AuthController extends Controller
                 ->withInput($request->only('email', 'role'));
         }
 
-        // Increment the rate limiter counter
         RateLimiter::hit($throttleKey);
 
-        // Clear all existing sessions
         $request->session()->flush();
         $request->session()->regenerate();
 
@@ -106,8 +99,7 @@ class AuthController extends Controller
         $user = null;
         $userId = null;
 
-        // Add a small delay to prevent brute force attacks
-        usleep(rand(100000, 500000)); // Random delay between 100ms and 500ms
+        usleep(rand(100000, 500000));
 
         switch ($role) {
             case 'district':
@@ -120,6 +112,7 @@ class AuthController extends Controller
                     $userId = $user->district_id;
                 }
                 break;
+
             case 'center':
                 $success = Auth::guard('center')->attempt([
                     'center_email' => $email,
@@ -127,7 +120,7 @@ class AuthController extends Controller
                 ], $remember);
                 if ($success) {
                     $user = Auth::guard('center')->user();
-                    $userId = $user->center_id; // Adjust this based on your center table's ID column
+                    $userId = $user->center_id;
                 }
                 break;
 
@@ -138,7 +131,7 @@ class AuthController extends Controller
                 ], $remember);
                 if ($success) {
                     $user = Auth::guard('treasury')->user();
-                    $userId = $user->tre_off_id; // Adjust this based on your treasury table's ID column
+                    $userId = $user->tre_off_id;
                 }
                 break;
 
@@ -149,9 +142,10 @@ class AuthController extends Controller
                 ], $remember);
                 if ($success) {
                     $user = Auth::guard('mobile_team_staffs')->user();
-                    $userId = $user->mobile_id; // Adjust this based on your mobile team table's ID column
+                    $userId = $user->mobile_id;
                 }
                 break;
+
             case 'venue':
                 $success = Auth::guard('venue')->attempt([
                     'venue_email' => $email,
@@ -159,17 +153,15 @@ class AuthController extends Controller
                 ], $remember);
                 if ($success) {
                     $user = Auth::guard('venue')->user();
-                    $userId = $user->venue_id; // Adjust this based on your treasury table's ID column
-                    // Check verification status
+                    $userId = $user->venue_id;
                     if (!$user->venue_email_status) {
                         session(['show_verification_alert' => true]);
                     }
                 }
                 break;
+
             case 'headquarters':
                 $users = DepartmentOfficial::where('dept_off_email', $email)->get();
-                // Filter users who have the role 'headquarters'
-                // Filter users who have at least one valid role
                 $filteredUsers = $users->filter(function ($user) {
                     return (!empty($user->dept_off_role) || !empty($user->custom_role));
                 });
@@ -183,8 +175,6 @@ class AuthController extends Controller
                 $success = '';
                 if ($filteredUsers->count() === 1) {
                     $user = $filteredUsers->first();
-                    // Securely verify the password
-
                     if (Hash::check($password, $user->dept_off_password)) {
                         $success = Auth::guard('headquarters')->loginUsingId($user->dept_off_id, $remember);
                         $userId = $user->dept_off_id;
@@ -205,10 +195,9 @@ class AuthController extends Controller
                 }
                 if ($success) {
                     $user = Auth::guard('headquarters')->user();
-                    $userId = $user->dept_off_id; // Adjust this based on your treasury table's ID column
+                    $userId = $user->dept_off_id;
                 }
                 break;
-
 
             case 'ci':
                 $success = Auth::guard('ci')->attempt([
@@ -217,39 +206,27 @@ class AuthController extends Controller
                 ], $remember);
                 if ($success) {
                     $user = Auth::guard('ci')->user();
-                    $userId = $user->ci_id; // Adjust this based on your treasury table's ID column
+                    $userId = $user->ci_id;
                 }
                 break;
         }
 
         if ($success && $user) {
-            // Clear rate limiter on successful login
             RateLimiter::clear($throttleKey);
 
-            // Store essential session data
             $display_role = $this->getDisplayRole($role);
-            // Store the device fingerprint in the session
-            // Generate and store the initial device fingerprint
-            // $deviceFingerprint = $_COOKIE['device_fingerprint'] ?? null;
-            // if (!$deviceFingerprint) {
-            //     return redirect()->route('login')
-            //         ->with('error', 'Security verification failed. Please try again.')
-            //         ->withInput($request->except('password'));
-            // }
             session([
                 'auth_role' => $role,
                 'athu_display_role' => $display_role,
                 'auth_id' => $userId,
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
-                // 'device_fingerprint' => $deviceFingerprint
             ]);
 
             if ($remember) {
                 session()->put('auth.password_confirmed_at', time());
             }
 
-            // Log successful login
             AuditLogger::log(
                 'User Login',
                 get_class($user),
@@ -262,10 +239,15 @@ class AuthController extends Controller
                 ]
             );
 
-            return redirect()->intended('/myaccount');
+            switch ($role) {
+                case 'venue':
+                case 'ci':
+                    return redirect()->route('current-exam.index');
+                default:
+                    return redirect()->intended('/myaccount');
+            }
         }
 
-        // Log failed login attempt
         Log::warning('Failed login attempt', [
             'email' => $email,
             'role' => $role,
@@ -276,6 +258,7 @@ class AuthController extends Controller
             ->withErrors(['email' => __('auth.failed')])
             ->withInput($request->only('email', 'role'));
     }
+
 
     private function getDisplayRole(string $role): string
     {
@@ -531,7 +514,6 @@ class AuthController extends Controller
 
             return redirect('/')
                 ->with('status', 'You have been successfully logged out');
-
         } catch (Exception $e) {
             Log::error('Logout error', [
                 'error' => $e->getMessage(),

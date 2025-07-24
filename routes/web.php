@@ -369,6 +369,11 @@ Route::prefix('chief-invigilators')->group(function () {
     Route::middleware(['auth.multi', 'check.session'])->group(function () {
         Route::get('/', [ChiefInvigilatorsController::class, 'index'])->name('chief-invigilators.index')
             ->middleware('role.permission:chief-invigilators.index');
+        Route::get('/ci-view-page', [ChiefInvigilatorsController::class, 'ci_view_page'])->name('chief-invigilators.Ci-view-page')
+            ->middleware('role.permission:chief-invigilators.ci-view-page');
+        Route::get('/chief-invigilators/json', [ChiefInvigilatorsController::class, 'getChiefInvigilators'])->name('chief-invigilators.ci-view-page-json')->middleware('role.permission:chief-invigilators.index');
+        Route::post('/chief-invigilators/export', [ChiefInvigilatorsController::class, 'exportWithPhpSpreadsheet'])->name('chief-invigilators.export')
+            ->middleware('role.permission:chief-invigilators.index');
         Route::get('/json', [ChiefInvigilatorsController::class, 'getChiefInvigilatorsJson'])->name('chief-invigilators.json')
             ->middleware('role.permission:chief-invigilators.index');
         Route::get('/create', [ChiefInvigilatorsController::class, 'create'])->name('chief-invigilators.create')
@@ -794,7 +799,7 @@ Route::prefix('report')->group(function () {
         Route::get('/emergency-alarm-notification', [EmergencyAlarmNotificationsController::class, 'index'])->name('emergency-alarm-notification.report')->middleware('role.permission:emergency-alarm-notification.report');
         Route::get('/delivery-report', [ExamMaterialsReportController::class, 'index'])->name('delivery-report.report')->middleware('role.permission:delivery-report.report');
         Route::get('/collection-report', [ExamMaterialsReportController::class, 'collectionReport'])->name('collection-report.report')->middleware('role.permission:collection-report.report');
-        Route::get('/delivery-report-generate', [ExamMaterialsReportController::class, 'generateDeliveryReport'])->name('delivery-report.report.generate')->middleware('role.permission:delivery-report.report.generate');
+        Route::get('/delivery-report-generate', [ExamMaterialsReportController::class, 'generatecategorysender'])->name('delivery-report.report.generate')->middleware('role.permission:delivery-report.report.generate');
         Route::get('/collection-report-generate', [ExamMaterialsReportController::class, 'generateCollectionReport'])->name('collection-report.report.generate')->middleware('role.permission:collection-report.report.generate');
     });
 });

@@ -7,6 +7,7 @@ use App\Models\ExamConfirmedHalls;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+
 class CIMeetingController extends Controller
 {
     public function __construct()
@@ -15,7 +16,7 @@ class CIMeetingController extends Controller
         $this->middleware('auth.multi');
     }
 
- 
+
     /**
      * Handle QR code scan and store attendance details
      *
@@ -85,7 +86,6 @@ class CIMeetingController extends Controller
                 'message' => 'Attendance recorded successfully',
                 'data' => $attendance
             ], 200);
-
         } catch (\Exception $e) {
             // Handle any unexpected errors
             return response()->json([
@@ -154,7 +154,7 @@ class CIMeetingController extends Controller
             'received_packet' => 'required',
             'received_amount' => 'required',
         ]);
-       
+
         try {
             // Get user info
             $role = session('auth_role');
@@ -168,25 +168,39 @@ class CIMeetingController extends Controller
                 return back()->with('error', 'You are not authorized to update adequacy check for this exam');
             }
 
-            // Update the adequacy check
-            $attendance = CIMeetingAttendance::where('exam_id', $validated['exam_id'])
-                ->where('ci_id', $user->ci_id)
-                ->first();
+            // // Update the adequacy check
+            // $attendance = CIMeetingAttendance::where('exam_id', $validated['exam_id'])
+            //     ->where('ci_id', $user->ci_id)
+            //     ->first();
+
+            // if (!$attendance) {
+            //     return back()->with('error', 'You have not recorded attendance for this exam');
+            // }
+            // //store validated as json array in db
+            // $attendance->adequacy_check = $validated;
+            // $attendance->save();
+            $attendance = CIMeetingAttendance::updateOrCreate(
+                [
+                    'exam_id' => $validated['exam_id'],
+                    'ci_id' => $user->ci_id,
+                    'district_code' => $examConfirmedHalls->district_code,
+                    'center_code' => $examConfirmedHalls->center_code,
+                    'hall_code' => $examConfirmedHalls->hall_code,
+
+                ],
+                [
+                    'adequacy_check' => $validated, // Store validated data as a JSON array in the database
+                ]
+            );
 
             if (!$attendance) {
-                return back()->with('error', 'You have not recorded attendance for this exam');
+                return back()->with('error', 'Failed to update or create attendance record for this exam');
             }
-            //store validated as json array in db
-            $attendance->adequacy_check = $validated;
-            $attendance->save();
             // Return success response
             return back()->with('success', 'Adequacy check updated successfully');
-
         } catch (\Exception $e) {
             // Handle any unexpected errors
             return back()->with('error', 'Failed to update adequacy check: ' . $e->getMessage());
-
         }
     }
-
 }

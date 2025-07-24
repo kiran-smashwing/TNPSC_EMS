@@ -245,7 +245,7 @@
             <div class="district-section" style="{{ !$loop->first ? 'page-break-before: always;' : '' }}">
                 <div class="meeting-title" style="margin: 40px 0 20px 0; padding: 10px 0;">
                     <h5 style="margin-bottom: 10px;">
-                        <strong>District:</strong> {{ $district_name }}
+                        <strong>District:</strong> {{ $district_name }}|<strong>Center:</strong> {{ $center_name }} - ({{ $center_code }})
                     </h5>
                 </div>
 
@@ -253,36 +253,39 @@
                     <thead>
                         <tr>
                             <th>S.No</th>
-                            <th>District</th>
-                            <th>Center</th>
+                            {{-- <th>District</th> --}}
+                            {{-- <th>Center</th> --}}
                             <th>Hall</th>
                             <th>QR Code</th>
                             <th>Category</th>
                             <th>District Scanned At</th>
-                            @if($exam_data->exam_main_model == 'Major')
-                            <th>Center Scanned At</th>
+                            @if ($exam_data->exam_main_model == 'Major')
+                                <th>Center Scanned At</th>
                             @endif
                             <th>Mobile Team Scanned At</th>
                             <th>CI Scanned At</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($data['materials'] as $index => $entry)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ $entry['district_code'] }} <br> {{ $entry['district_name'] }}</td>
-                                <td>{{ $entry['center_code'] }} <br> {{ $entry['center_name'] }}</td>
-                                <td>{{ $entry['venue_name'] }}</td>
-                                {{-- {{ $entry['hall_code'] }} -  --}}
-                                <td>{{ $entry['qr_code'] }}</td>
-                                <td>{{ $entry['category'] }}</td>
-                                <td width="200px">{{ $entry['district_scanned_at'] }}</td>
-                                @if($exam_data->exam_main_model == 'Major')
-                                <td width="200px">{{ $entry['center_scanned_at'] }}</td>
-                                @endif
-                                <td width="200px">{{ $entry['mobile_team_scanned_at'] }}</td>
-                                <td width="200px">{{ $entry['ci_scanned_at'] }}</td>
-                            </tr>
+                        @foreach ($grouped_data as $district)
+                            @foreach ($district['centers'] as $center)
+                                @foreach ($center['materials'] as $index => $entry)
+                                    <tr>
+                                        <td>{{ $index + 1 }}</td>
+                                        {{-- <td>{{ $entry['center_code'] }} <br> {{ $entry['center_name'] }}</td> --}}
+                                        <td>{{ $entry['venue_name'] }}</td>
+                                        {{-- {{ $entry['hall_code'] }} -  --}}
+                                        <td>{{ $entry['qr_code'] }}</td>
+                                        <td>{{ $entry['category'] }}</td>
+                                        <td width="200px">{{ $entry['district_scanned_at'] }}</td>
+                                        @if ($exam_data->exam_main_model == 'Major')
+                                            <td width="200px">{{ $entry['center_scanned_at'] }}</td>
+                                        @endif
+                                        <td width="200px">{{ $entry['mobile_team_scanned_at'] }}</td>
+                                        <td width="200px">{{ $entry['ci_scanned_at'] }}</td>
+                                    </tr>
+                                @endforeach
+                            @endforeach
                         @endforeach
                     </tbody>
                 </table>
@@ -294,9 +297,9 @@
                             <th>Total Materials</th>
                             <th>District Scanned</th>
                             <th>District %</th>
-                            @if($exam_data->exam_main_model == 'Major')
-                            <th>Center Scanned</th>
-                            <th>Center %</th>
+                            @if ($exam_data->exam_main_model == 'Major')
+                                <th>Center Scanned</th>
+                                <th>Center %</th>
                             @endif
                             <th>Mobile Team Scanned</th>
                             <th>Mobile Team %</th>
@@ -306,17 +309,17 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>{{ $data['totals']['total_materials'] }}</td>
-                            <td>{{ $data['totals']['district_scanned_count'] }}</td>
-                            <td>{{ $data['totals']['district_percentage'] }}</td>
-                            @if($exam_data->exam_main_model == 'Major')
-                            <td>{{ $data['totals']['center_scanned_count'] }}</td>
-                            <td>{{ $data['totals']['center_percentage'] }}</td>
+                            <td>{{ $grand_total['total_materials'] }}</td>
+                            <td>{{ $grand_total['district_scanned_count'] }}</td>
+                            <td>{{ $grand_total['district_percentage'] }}</td>
+                            @if ($exam_data->exam_main_model == 'Major')
+                                <td>{{ $grand_total['center_scanned_count'] }}</td>
+                                <td>{{ $grand_total['center_percentage'] }}</td>
                             @endif
-                            <td>{{ $data['totals']['mobile_team_scanned_count'] }}</td>
-                            <td>{{ $data['totals']['mobile_team_percentage'] }}</td>
-                            <td>{{ $data['totals']['ci_scanned_count'] }}</td>
-                            <td>{{ $data['totals']['ci_percentage'] }}</td>
+                            <td>{{ $grand_total['mobile_team_scanned_count'] }}</td>
+                            <td>{{ $grand_total['mobile_team_percentage'] }}</td>
+                            <td>{{ $grand_total['ci_scanned_count'] }}</td>
+                            <td>{{ $grand_total['ci_percentage'] }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -328,40 +331,40 @@
                     <strong>Overall Summary for All Districts</strong>
                 </h5>
             </div>
-        <table class="report-table" style="margin-top: 20px;">
-            <thead>
-                <tr>
-                    <th>Total Materials</th>
-                    <th>District Scanned</th>
-                    <th>District %</th>
-                    @if($exam_data->exam_main_model == 'Major')
-                    <th>Center Scanned</th>
-                    <th>Center %</th>
-                    @endif
-                    <th>Mobile Team Scanned</th>
-                    <th>Mobile Team %</th>
-                    <th>CI Scanned</th>
-                    <th>CI %</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>{{ $grand_total['total_materials'] }}</td>
-                    <td>{{ $grand_total['district_scanned_count'] }}</td>
-                    <td>{{ $grand_total['district_percentage'] }}</td>
-                    @if($exam_data->exam_main_model == 'Major')
-                    <td>{{ $grand_total['center_scanned_count'] }}</td>
-                    <td>{{ $grand_total['center_percentage'] }}</td>
-                    @endif
-                    <td>{{ $grand_total['mobile_team_scanned_count'] }}</td>
-                    <td>{{ $grand_total['mobile_team_percentage'] }}</td>
-                    <td>{{ $grand_total['ci_scanned_count'] }}</td>
-                    <td>{{ $grand_total['ci_percentage'] }}</td>
-                </tr>
-            </tbody>
-        </table>
+            <table class="report-table" style="margin-top: 20px;">
+                <thead>
+                    <tr>
+                        <th>Total Materials</th>
+                        <th>District Scanned</th>
+                        <th>District %</th>
+                        @if ($exam_data->exam_main_model == 'Major')
+                            <th>Center Scanned</th>
+                            <th>Center %</th>
+                        @endif
+                        <th>Mobile Team Scanned</th>
+                        <th>Mobile Team %</th>
+                        <th>CI Scanned</th>
+                        <th>CI %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ $grand_total['total_materials'] }}</td>
+                        <td>{{ $grand_total['district_scanned_count'] }}</td>
+                        <td>{{ $grand_total['district_percentage'] }}</td>
+                        @if ($exam_data->exam_main_model == 'Major')
+                            <td>{{ $grand_total['center_scanned_count'] }}</td>
+                            <td>{{ $grand_total['center_percentage'] }}</td>
+                        @endif
+                        <td>{{ $grand_total['mobile_team_scanned_count'] }}</td>
+                        <td>{{ $grand_total['mobile_team_percentage'] }}</td>
+                        <td>{{ $grand_total['ci_scanned_count'] }}</td>
+                        <td>{{ $grand_total['ci_percentage'] }}</td>
+                    </tr>
+                </tbody>
+            </table>
 
-    </div>
+        </div>
     </div>
 </body>
 
